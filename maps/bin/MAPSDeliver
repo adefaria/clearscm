@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         $RCSfile: MAPSDeliver,v $
+# Revision:	$Revision: 1.1 $
+# Description:  This script simply delivers the mail. It is separated out so
+#		it can be the only portion that is setgid to the group mail
+#		for the purposes of being able to deliver the mail to the users
+#		maildrop
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Nov 29 14:17:21  2002
+# Modified:     $Date: 2013/06/12 14:05:47 $
+# Language:     perl
+#
+# (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+
+use English;
+use FindBin;
+
+# Untaint $FindBin::Bin
+my $lib;
+
+BEGIN {
+  if ($FindBin::Bin =~ /^(.*)$/) {
+    $lib = $1;
+  } # if
+} # BEGIN
+
+use lib $lib;
+
+use MAPSFile;
+use MAPSDB;
+use MAPSLog;
+
+sub DeliverMail ($$) {
+  my ($userid, $msgfileName) = @_;
+
+  # Switch to group mail
+  $EGID = getgrnam "mail";
+
+  # Untaint $userid
+  if ($userid =~ /^([-\@\w.]+)$/) {
+    $userid = $1;
+  } # if
+
+  # Open maildrop file
+  open my $maildrop, '>>', "/var/mail/$userid"
+    or return "Unable to open maildrop file (/var/mail/$userid): $!";
+
+  # Open msgfile
+  open my $msgfile, '<', $msgfileName
+    or return "Unable to open msgfile ($msgfileName): $!";
+
+  # Lock file
+  Lock $maildrop;
+
+  # Write msgfile -> $maildrop
+  print $maildrop $_
+    while (<$msgfile>);
+
+  # Unlock the file
+  Unlock $maildrop;
+
+  # Close files
+  close $maildrop;
+  close $msgfile;
+
+  return;
+} # DeliverMail
+
+# Main
+die 'User id not specified' unless $ARGV [0];
+die 'Msgfile not specified' unless $ARGV [1];
+
+my $userid  = shift @ARGV;
+my $msgfile = shift @ARGV;
+
+my $err  = DeliverMail $userid, $msgfile;
+
+if ($err) {
+  OpenDB 'mapsadmin', 'mapsadmin';
+
+  MAPSDB::SetContext $userid;
+
+  Error $err;
+} # if
+
+exit 1 if $err;
+exit 0;

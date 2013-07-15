@@ -1,0 +1,168 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         log_activity,v
+# Revision:     1.1.1.1
+# Description:  Logs Clearcase activity
+# Author:       Andrew@DeFaria.com
+# Created:      Tue Dec 27 16:33:30 PST 2005
+# Modified:     2007/05/17 07:45:48
+# Language:     perl
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+use File::Spec;
+
+my $me;
+
+BEGIN {
+  # Set $lib_path
+  my $lib_path = $^O =~ /MSWin/ ? "\\\\brcm-irv\\dfs\\projects\\ccase\\SCM\\lib"
+				: "/projects/ccase/SCM/lib";
+
+  # Extract relative path and basename from script name.
+  $0 =~ /(.*)[\/\\](.*)/;
+
+  my $abs_path	= (!defined $1) ? "." : File::Spec->rel2abs ($1);
+  $me		= (!defined $2) ? $0  : $2;
+  $me		=~ s/\.pl$//;
+
+  # Add the appropriate path to our modules to @INC array.
+  unshift @INC, "$lib_path";
+  unshift @INC, $ENV {SITE_PERL_LIBPATH} if defined $ENV {SITE_PERL_LIBPATH};
+  unshift @INC, "$abs_path";
+} # BEGIN
+
+use OSDep;
+use Display;
+use DateUtils;
+use Logger;
+use Clearcase;
+use Clearcase::Vobs;
+use Clearcase::View;
+
+# The lshistory command needs a view context. We'll create this view
+# if necessary.
+my $tag = $ENV {DEFAULT_VIEW} ? $ENV {DEFAULT_VIEW} : "default";
+
+# Path to logs directory
+my $logdir = "$scm_base$/logs";
+
+error "Logdir $logdir does not exist - $!", 1 if !-d $logdir;
+
+sub Usage {
+  my $msg = shift;
+
+  display "ERROR: $msg\n" if defined $msg;
+
+  display "Usage: $me\t[-u] [-v] [-d] [-n <# of days>]
+
+Where:
+
+  -u:		Display usage
+  -v:		Turn on verbose mode
+  -d:		Turn on debug mode
+  -n:		Number of days to report (Default: 1)
+
+Note: Number of days is relative to midnight. Output is to a logfile named
+activity.<date>.log. Since we want <date> to be accurate this script attempts
+to have each log file have only that days activity. Therefore -n 1 will report
+everything in the last full 24 hour day, -n2 will be the last two full 24 hour
+days, etc.
+";
+  exit 1;
+} # Usage
+
+my $today = time;
+
+sub ReportActivity {
+  my $view	= shift;
+  my $since	= shift;
+
+  my $cc = Clearcase->new;
+  # This is Unix only!
+  my $cmd = "$Clearcase::cleartool setview -exec \"$Clearcase::cleartool lshistory -since $since -avobs -fmt '%Nd;%Fu;%u@%h;%e;%n\\n'\" $view";
+
+  open OUTPUT, "$cmd|"
+    or error "Unable to open pipe for $cmd", 1;
+
+  my $today_ymd	= YMD;
+  my $date	= YMD;
+  my $logfile;
+
+  while (<OUTPUT>) {
+    # Split the line into fields. The first field is date and time
+    my @fields	= split /;/;
+
+    # Now split the first field by "." which separates the date and time
+    @fields	= split /\./, $fields [0];
+
+    # Never report today's activity because today's never over!
+    # Reporting on today may give a partial result
+    next if $fields [0] eq $today_ymd;
+
+    # Ugh - might have stuff that's future dated!
+    next if $fields [0] gt $today_ymd;
+
+    # Skip noise. In this case noise is activity to the perftest
+    # vob. No normal activity happens to perftest - just performance
+    # testing.
+    next if /${Clearcase::vobtag_prefix}perftest/;
+
+    if ($fields [0] lt $date) {
+      $date = $fields [0];
+      my $log_filename = $cc->sitename . ".activity.$date";
+      verbose "Starting logfile $log_filename";
+      $logfile = undef;
+      $logfile = Logger->new (name => $log_filename, path => $logdir);
+    } # if
+
+    chomp;
+    $logfile->log ($_);
+  } # while
+
+  close OUTPUT;
+} # ReportActivity
+
+my $nbr_days = 1;
+
+while ($ARGV [0]) {
+  if ($ARGV [0] eq "-v") {
+    Display::set_verbose;
+  } elsif ($ARGV [0] eq "-d") {
+    set_debug;
+  } elsif ($ARGV [0] eq "-n") {
+    shift @ARGV;
+    if ($ARGV [0]) {
+      $nbr_days = $ARGV [0];
+    } else {
+      Usage "Need to specify nbr_days after -n";
+    } # if
+  } elsif ($ARGV [0] eq "-u") {
+    Usage;
+  } else {
+    Usage "Invalid argument: $ARGV [0]";
+  } # if
+
+  shift (@ARGV);
+} # while
+
+my $date = YMD;
+
+verbose "Creating view $tag";
+my $view = Clearcase::View->new (tag => $tag);
+$view->create;
+
+verbose "Mounting all vobs";
+my $vobs = Clearcase::Vobs->new;
+$vobs->mount;
+
+# Compute $since
+my $seconds_in_day = 60 * 60 * 24;
+my $since = YMD ($today - ($nbr_days * $seconds_in_day));
+
+verbose "Producing report";
+ReportActivity $tag, $since;

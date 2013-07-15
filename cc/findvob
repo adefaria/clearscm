@@ -1,0 +1,88 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         findvob,v
+# Revision:	1.1.1.1
+# Description:  This script will locate a vob by searching through the various
+#		regions.
+# Author:       Andrew@DeFaria.com
+# Created:      Mon May  3 09:06:55 PDT 2004
+# Modified:	2007/05/17 07:45:48
+# Language:     Perl
+#
+# (c) Copyright 2004, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Display;
+
+sub Usage {
+  display "Usage $FindBin::Script: [ <vob tag>... | -u ]";
+  display "\nWhere:";
+  display "\t<vob tag>\tName of the vob to find (can be partial name)";
+
+  exit 1;
+} # Usage
+
+sub SearchRegions {
+  my $vob = shift;
+
+  my $nbr_vobs = 0;
+
+  # Get a list of regions
+  my @regions	= `cleartool lsregion`;
+  my $region;
+
+  # Process each region
+  foreach $region (@regions) {
+    chomp $region;
+    chop  $region if $region =~ /\r/; # Remove carriage returns
+
+    # Get a list of vovs in the region
+    my @lines = `cleartool lsvob -region $region`;
+
+    # Parse the lines extracting vob tag and storage area
+    foreach (@lines) {
+      if (/[\* ]\s*(\S*)\s*\S*/) {
+	my $name = $1;
+
+        if ($name =~ /$vob/i) {
+	  display "\t$name ($region)";
+	  $nbr_vobs++;
+	  next;
+	} # if
+      } # if
+    } # foreach @lines
+  } # foreach @regions
+
+  return $nbr_vobs;
+} # SearchRegions
+
+# Get parms
+if (defined $ARGV [0] and $ARGV [0] =~ /^-u/) {
+  Usage;
+} # if
+
+foreach (@ARGV) {
+  verbose "Searching for vobs containing \"$_\"\n";
+  my $nbr_vobs = SearchRegions $_;
+
+  if ($nbr_vobs eq 0) {
+    display "No vobs found"
+  } elsif ($nbr_vobs eq 1) {
+    display "1 vob found";
+  } else {
+    display "$nbr_vobs vobs found";
+  } # if
+
+  verbose " matching \"$_\"\n";
+} # foreach
+
+# All done...
+exit 0;
+

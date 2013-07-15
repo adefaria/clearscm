@@ -1,0 +1,174 @@
+/*----------------------------------------------------------------------- 
+This css file is part of a layout package. Used on its own it won't
+have the desired effect. The corresponding HTML file should LINK to a
+filter.css file which will then IMPORT this style sheet (effecively
+hiding it from IE3, IE4 and NN4). Imported ahead of this file should
+be one named lpf.css (lpf = Level Playing Field) which attempts to get
+all the different browsers using the same measurements, including font
+sizes.
+
+Not related to the layout but also used in this example is 1 of Stu
+Nicholls' wonderful creations (somewhat customized). This styles the
+color boxes with rounded corners used in the content area. The style
+for this, also imported by filter.css, is cbrc.css and it contains its
+own documentation.
+
+======================================================================
+  Copyright and LICENSE -- do not remove --
+======================================================================
+This CSS file is copyrighted (c) 2005, Paul Pomeroy/AdaptiveView
+    
+see: http://design.adaptiveview.com 
+    
+but free to use under a Creative Commons Attribution 2.5 license.
+Full details about this license are online at:
+
+http://creativecommons.org/licenses/by/2.5/
+----------------------------------------------------------------------- */
+html, body, #page {
+  height:100%;
+  width:100%;
+}
+
+body {
+  background-color: #fff;
+  margin-left:auto;
+  margin-right:auto;
+  text-align:center;
+}
+
+html>body, html>body #page {
+  height:auto;
+}
+
+#head {
+  background: url(/Images/TopOfTheWorld.jpg);
+  color:white;
+  border-top:1px solid #306;
+  border-bottom:1px solid #306;
+  position:absolute;
+  height:165px;
+  left:0;
+  min-width:775px;
+  top:0px;
+  width:100%;
+  width:expression(document.body.clientWidth < 800? "775px": "100%" ); /* min-width IE style*/
+  z-index:10;
+}
+
+#head h1 {
+  color:	#fff;
+  font-size:	3em;
+  padding-top:	20px;
+  text-align:	center;
+}
+
+#page {
+  left:0;
+  background: white;
+  color: #2a4c96;
+  position:absolute;
+  text-align:center;
+  top:166px;
+  z-index:8;
+}
+
+#content {
+  margin-left:auto;
+  margin-right:auto;
+  max-width:955px;
+  min-width:775px;
+  padding-bottom:4.0em; /* you can get all of the padding set in one line, but Mac IE5.2 has issues with the shorthand method. */
+  padding-left:4px;
+  padding-right:4px;
+  padding-top:10px;
+  width:expression(document.body.clientWidth < 800? "775px" : document.body.clientWidth > 1024? "999px": "99%"); /* IE's version of min- and max-width */
+  z-index:1;
+}
+
+* html #page, * html #content  {
+  height:100%;
+}
+
+* html #page {
+  width:auto;
+}	
+
+#foot {
+  width:100%;
+  z-index:99;
+}
+
+#foot p {
+  color:		#aaa;
+  font-size:		80%;
+  text-align:		center;
+}
+
+html>body #foot { /* anyone but IE */ */
+  bottom:		0;
+  left:			0;
+  position:		absolute;
+}
+
+* html #foot { /* IE */
+  color:		#aaa;
+  margin-left:		auto;
+  margin-right:		auto;
+  width:		auto;
+}
+
+abbr {
+  cursor: help;
+}
+
+#head, #foot {
+  padding-bottom:0;
+  padding-top:0;
+}
+
+#content p, #content h2, #content h3, #content h4, #content h5 {
+  margin:11px 11px;
+}
+
+#main {
+  background:transparent;
+  min-height:100%;
+  z-index:15;
+}
+
+#main {
+  width:90%;
+}
+
+#main p.tagline {
+  color:#939;
+  font-size:1.4em;
+  font-style:italic;
+  text-align:center;
+}
+
+
+.hide, .filtered {display:none;}
+
+.clear {
+  clear:both;
+  margin-bottom: -1px; /* for Gecko-based browsers */
+  overflow:hidden;
+  padding-bottom: 1px; /* for Gecko-based browsers */
+}
+
+.clearfix:after {
+  clear: both; 
+  content: "."; 
+  display: block; 
+  height: 0; 
+  visibility: hidden;
+}
+
+.clearfix {display: inline-table;}
+
+/* Hides from IE-mac \*/
+* html .clearfix {height: 1%;}
+.clearfix {display: block;}
+/* End hide from IE-mac */

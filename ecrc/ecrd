@@ -1,0 +1,564 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:		ecrd: ECR Daemon
+# Description:  This script implements a daemon that handles requests for
+#		queries about information on ECRs contained in the Quintus
+#		database. In addition to lessoning the amount of time it takes
+#		for database opens, access to Quintus data is only available
+#		on certain machines. Additionally, for Perl to access this
+#		Informix database the Informix version of DBD would need to be
+#		locally installed. By calling this daemon instead clients need
+#		not have to install Informix and then code all the necessary
+#		code to access Quintus data as well as have to understand the
+#		structure of the database. Instead clients need only say "Give
+#		me what you got on ECR #<whatever>".
+# Author:       Andrew@DeFaria.com
+# Created:      Tue Feb 15 09:54:59 PST 2005
+# Modified:
+# Language:     Perl
+#
+# (c) Copyright 2005, LynuxWorks, all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+
+use IO::Socket;
+use Net::hostent;
+use POSIX qw(setsid);
+use DBI;
+
+my $ecrdb    = "lynxmigr1";
+my $port     = (!defined $ENV {ECRDPORT}) ? 1500 : $ENV {ECRDPORT};
+
+# Global variables
+my $DB;
+my $ecrserver;
+my $ecrclient;
+my $sth;
+my $statement;
+
+# Options
+my $verbose;
+my $debug;
+my $daemon_mode;
+my $quiet_mode;
+my $multithreaded;
+my $timeout	= 10;
+
+# ECR translations. Note the Quintus database stores certain choice lists as 
+# enumerations. They I guess they are configurable. The right thing to do 
+# would be to figure out how to look up the definition given the number. But
+# we are gonna cheat here and hard code a few important enumerations.
+my @defstatus = (
+  "Open",
+  "Closed",
+  "Fixed",
+  "Not a bug",
+  "Obsolete",
+  "Defered",
+  "Duplicate"
+);
+my @state = (
+  "Reported",
+  "Assigned",
+  "Selected",
+  "Resolved",
+  "Integrated",
+  "Retired",
+  "Reviewed",
+  "Pending Review"
+);
+my @priority = (
+  "Low",
+  "Medium",
+  "High",
+  "Critical"
+);
+my @severity = (
+  "Low",
+  "Medium",
+  "High",
+  "Critical"
+);
+
+# Pid
+my $pid = $$;
+
+my $me = `basename $0`;
+chomp $me;
+my $ecrdversion = "1.3";
+
+my @all_fields = (
+  "productdefect",	# integer
+  "componentdefect",	# integer
+  "defectdefectdup",	# integer
+  "workgroupdefect",	# integer
+  "reporterdefect",	# integer
+  "resolverdefect",	# integer
+  "confirmerdefect",	# integer
+  "buildversdefect",	# integer
+  "rpt_versdefect",	# integer
+  "res_versdefect",	# integer
+  "conf_versdefect",	# integer
+  "state",		# integer
+  "resolverstatus",	# integer
+  "confirmerstatus",	# integer
+  "escstatus",		# integer
+  "owner",		# integer
+  "severity",		# integer
+  "priority",		# integer
+  "summary",		# varchar(80,0)
+  "datereported",	# datetime year to second
+  "dateresolved",	# datetime year to second
+#  "description",	# text
+# Note: Some descriptions fields are huge containing things like
+# uuencoded tar files!  They are so huge that they cause this server
+# to fail (not sure why - it shouldn't but it does. So this hack
+# returns only the first 50K of description to avoid that problem.
+  "description [1,50000]",	# text
+  "cclist",		# varchar(80,0)
+  "dateconfirmed",	# datetime year to second
+  "datemodified",	# datetime year to second
+  "fix_by_date",	# date
+  "fix_by_version",	# integer
+  "history",		# text
+  "likelihood",		# integer
+  "estfixtime",		# datetime year to second
+  "actfixtime",		# datetime year to second
+  "resolution",		# text
+  "businessimpact",	# integer
+  "origin",		# integer
+  "docimpact",		# integer
+  "report_platform",	# integer
+  "resolve_platform",	# integer
+  "confirm_platform",	# integer
+  "test_file",		# varchar(64,0)
+  "visibility",		# integer
+  "misc",		# varchar(80,0)
+  "defecttype",		# integer
+  "defstatus",		# integer
+  "customertext",	# text
+  "modifiedby",		# varchar(20,0)
+  "classification",	# integer
+  "datefixed"		# datetime year to second
+);
+
+# Forwards
+sub CloseDB;
+sub GetRequest;
+
+sub timestamp {
+  my ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime(time);
+
+  $mday  = "0$mday" if $mday < 10;
+  $mon   = "0$mon"  if $mon  < 10;
+  $hour  = "0$hour" if $hour < 10;
+  $min   = "0$min"  if $min  < 10;
+  $year += 1900;
+
+  return "$mon/$mday/$year $hour:$min";
+} # timestamp
+
+sub log_message {
+  print "[$pid] " . timestamp . " @_\n" if defined $verbose;
+} # log_message
+
+sub log_error {
+  print STDERR "[$pid] " . timestamp . " ERROR: @_\n"
+} # log_error
+
+sub log_warning {
+  print STDERR "[$pid] " . timestamp . " WARNING: @_\n"
+} # log_error
+
+sub debug {
+  print "[$pid] " . timestamp . " @_\n" if defined $debug;
+} # debug
+
+sub verbose {
+  print "[$pid] " . timestamp . " @_\n" if !defined $quiet_mode;
+} # verbose
+
+sub DBError {
+  my $msg       = shift;
+  my $statement = shift;
+
+  if (!defined $DB) {
+    print "Catostrophic error: DB undefined!\n";
+    exit 1;
+  } # if
+
+  print $msg . "\nError #" . $DB->err . " " . $DB->errstr . "\n";
+  print "SQL Statement: $statement\n" if defined $statement;
+
+  exit $DB->err;
+} # DBError
+
+sub timeout {
+  debug "After $timeout seconds of inactivity client timed out";
+
+  my $hostinfo = gethostbyaddr ($ecrclient->peeraddr);
+  my $host = $hostinfo->name || $ecrclient->peerhost;
+  debug "Closing connection to $host";
+
+  # Close client's connection
+  close $ecrclient;
+
+  # Set up signal handlers again
+  $SIG{ALRM} = \&timeout;
+  $SIG{INT}  = $SIG{QUIT} = 23234
+\&interrupt;
+  GetRequest;
+} # timeout
+
+sub interrupt {
+  log_warning "Interrupted - closing down...";
+  close $ecrserver;
+  verbose "Connection closed";
+  CloseDB;
+
+  exit;
+} # interrupt
+
+sub GetClientAck {
+  my $client = shift;
+  my $clientresp;
+
+  debug "ENTER: GetClientAck";
+  alarm $timeout;
+  while (defined $client and defined ($clientresp = <$client>)) {
+    chomp $clientresp;
+    chop $clientresp if $clientresp =~ /\r/;
+    if ($clientresp eq "ACK") {
+      return
+    } # if
+    log_warning "Received $clientresp from client - expected ACK";
+  } # while
+  debug "EXIT: GetClientAck";
+} # GetClientAck
+
+sub GetClientCmd {
+  my $client = shift;
+  my $clientresp;
+
+  alarm $timeout;
+  while (defined $client and defined ($clientresp = <$client>)) {
+    chomp $clientresp;
+    return $clientresp;
+  } # while
+} # GetClientResponse
+
+sub SendClientAck {
+  my $client = shift;
+
+  debug "ENTER: SendClientAck";
+  print $client "ACK\n";
+  debug "EXIT: SendClientAck";
+} # SendClientAck
+
+sub SendClientResponse {
+  my $client   = shift;
+  my $response = shift;
+
+  print $client "$response\n";
+} # SendClientResponse
+
+sub EnterDaemonMode {
+  my $logfile  = shift;
+  my $errorlog = shift;
+
+  $logfile  = "/dev/null" if $logfile  eq "";
+  $errorlog = "/dev/null" if $errorlog eq "";
+
+  # Change the current directory to /
+  chdir '/' 
+    or die "$me: Error: Can't chdir to / ($!)";
+
+  # Turn off umask
+  umask 0;
+
+  # Redirect STDIN to /dev/null
+  open STDIN, '/dev/null'
+    or die "$me: Error: Can't redirect /dev/null ($!)";
+
+  # Redirect STDOUT to logfile
+  open STDOUT, ">>$logfile"
+    or die "$me: Error: Can't redirect stdout to $logfile ($!)";
+
+  # Redirect STDERR to errorlog
+  open STDERR, ">>$errorlog"
+    or die "$me: Error: Can't redirect stderr to $errorlog ($!)";
+
+  # Now fork the daemon
+  defined (my $pid = fork)
+    or die "$me: Error: Can't create daemon ($!)";
+
+  # Now the parent exits
+  exit if $pid;
+
+  # Set process to be session leader
+  setsid
+    or die "$me: Error: Can't start a new session ($!)";
+} # EnterDaemonMode
+
+sub OpenDB {
+  # Connect to database. Note this is using anonymous access (read only)
+  $DB = DBI->connect("DBI:Informix:$ecrdb")
+    or DBError "Unable to open database";
+  log_message "Opened $ecrdb database";
+
+  # Setup our select statement with placeholders
+  $statement = "select ";
+
+  # Build up the field list
+  my $first_time = 1;
+  foreach (@all_fields) {
+    if ($first_time) {
+      $first_time = 0;
+      $statement .= $_;
+    } else {
+      $statement .= ",$_";
+    } # if
+  } # foreach
+
+  # Now add the table and condition
+  $statement .= " from defect where pkey=?";
+
+  $sth = $DB->prepare ($statement)
+    or DBError "Unable to prepare statement", $statement;
+} # OpenDB
+
+sub CloseDB {
+  $DB->disconnect ()
+    or DBError "Unable to disconnect from database!";
+  verbose "Closed $ecrdb database";
+} # CloseDB
+
+sub Usage {
+  my $msg = shift;
+
+  print "$msg\n\n" if defined $msg;
+
+  print "Usage: $me [ -D ] [ -v ] [ -d ] [-p <port>] [ -m ] [ -q ]\n\n";
+  print "Where:\t-D\tEnter Daemon mode\n";
+  print "\t-v\tVerbose mode (Default off)\n";
+  print "\t-d\tDebug mode (Default off)\n";
+  print "\t-p\tPort number to use (Default 1500)\n";
+  print "\t-m\tMultithreaded (Default off)\n";
+  print "\t-q\tQuiet mode (Default on)\n";
+  exit 1;
+} # Usage
+
+sub GetECRRecord {
+  my $ecr = shift;
+
+  if ($ecr =~ /\D/) {
+    log_error "ECR $ecr is not numeric!";
+    return ();
+  } # if
+
+  my %fields;
+  my $record;
+  my $value;
+
+  $sth->execute ($ecr)
+    or DBError "Unable to execute statement", $statement;
+
+  my $row = $sth->fetchrow_arrayref;
+
+  if (!defined $row) {
+    # @row is empty if there was no ECR by that number
+    log_error "ECR $ecr not found!";
+    return ();
+  } # if
+
+  my @rows = @{$row};
+  foreach (@all_fields) {
+    my $value = shift @rows;
+
+    # Transform newlines to "\n" so the field is treated as one large field
+    $value =~ s/\n/\\n/g if defined $value;
+
+    # Perform some choice list field translations. Again this would be
+    # better done by doing database lookups to translate the enums...
+    $value = $defstatus [$value]	if /defstatus/ and defined $value;
+    $value = $state     [$value]	if /state/     and defined $value;
+    $value = $priority  [$value]	if /priority/  and defined $value;
+    $value = $severity  [$value]	if /severity/  and defined $value;
+    # Fix description field back
+    if (/^description/) {
+      $_ = "description";
+    } # if
+    $fields {$_} = $value
+  } # foreach
+
+  return %fields;
+} # GetECRRecord
+
+sub ServiceClient {
+  my $ecrclient = shift;
+
+  # Service this client
+  my $hostinfo = gethostbyaddr ($ecrclient->peeraddr);
+  my $host = $hostinfo->name || $ecrclient->peerhost;
+
+  verbose "Connect from $host";
+  log_message "Waiting for command from $host";
+  while () {
+    GetClientAck ($ecrclient);
+    $_ = GetClientCmd ($ecrclient);
+    next unless /\S/; # Skip blank requests
+    last if /quit|exit/i;
+
+    if (/\*/) {
+      log_message "$host requests a list of all ECR #'s";
+      SendClientAck ($ecrclient);
+      ReturnAllECRNbrs ($ecrclient);
+      SendClientAck ($ecrclient);
+      next;
+    } # if
+
+    log_message "$host requests information about ECR $_";
+    SendClientAck ($ecrclient);
+    my %fields = GetECRRecord $_;
+
+    if (%fields) {
+      SendClientResponse ($ecrclient, "ecr: $_");
+      while (my ($key, $value) = each (%fields)) {
+	$value = !defined $value ? "" : $value;
+	SendClientResponse ($ecrclient, "$key: $value");
+      } # while
+    } else {
+      SendClientResponse ($ecrclient, "ECR $_ was not found");
+    } # if
+    SendClientAck ($ecrclient);
+  } # while
+
+  verbose "Closing connection from $host at client's request";
+  close $ecrclient;
+} # ServiceClient
+
+sub Funeral {
+  my $childpid = wait;
+  $SIG{CHLD} = \&Funeral;
+  log_message "Child has died" . ($? ? " with status $?" : "");
+} # Funeral
+
+sub GetRequest {
+  # Now wait for an incoming request
+  while ($ecrclient = $ecrserver->accept ()) {
+    my $hostinfo = gethostbyaddr ($ecrclient->peeraddr);
+    my $host = $hostinfo->name || $ecrclient->peerhost;
+    log_message "$host is requesting service";
+    if (defined ($multithreaded)) {
+      my $childpid;
+
+      log_message "Spawning child to handle request";
+
+      die "$me: ERROR: Can't fork: %!" unless defined ($childpid = fork ());
+
+      if ($childpid) {
+	# In parent - set up for clean up of child process
+	log_message "Parent produced child ($childpid)";
+	$SIG{CHLD} = \&Funeral;
+	log_message "Parent looking for another request to service";
+      } else {
+	# In child process - ServiceClient
+	$pid = $$;
+	debug "Child [$pid] has been born";
+	ServiceClient ($ecrclient);
+	log_message "Child finished servicing requests";
+	kill ("TERM", $$);
+	exit;
+      } # if
+    } else {
+      ServiceClient ($ecrclient);
+    } # if
+  } # while
+
+  close ($ecrserver);
+} # GetRequest
+
+sub ProcessRequests {
+  # The subroutine handles processing of requests by using a socket to
+  # communicate with clients.
+  $ecrserver = IO::Socket::INET->new (
+    Proto     => 'tcp',
+    LocalPort => $port,
+    Listen    => SOMAXCONN,
+    Reuse     => 1
+  );
+
+  die "$me: Error: Could not create socket ($!)\n" unless $ecrserver;
+
+  verbose "ECR DB Server (ecrd V$ecrdversion) accepting clients on port $port";
+
+  GetRequest;
+} # ProcessRequests
+
+sub ReturnAllECRNbrs {
+  my $ecrclient = shift;
+
+  my $statement = "select pkey from defect";
+
+  my $sth = $DB->prepare ($statement)
+    or DBError "Unable to prepare statement", $statement;
+
+  $sth->execute ()
+    or DBError "Unable to execute statement", $statement;
+
+  log_message "Returning all ECR numbers...";
+  while (my @row = $sth->fetchrow_array) {
+    SendClientResponse ($ecrclient, $row [0]);
+  } # while
+
+  log_message "All ECR numbers returned";
+} # ReturnAllECRNbrs
+		
+# Start main code
+# Reopen STDOUT.
+open STDOUT, ">-" or die "Unable to reopen STDOUT\n";
+
+# Set unbuffered output
+$| = 1;
+
+while ($ARGV [0]) {
+  if ($ARGV [0] eq "-D") {
+    $daemon_mode = 1;
+  } elsif ($ARGV [0] eq "-v") {
+    $verbose = 1;
+    undef ($quiet_mode);
+  } elsif ($ARGV [0] eq "-d") {
+    $debug = 1;
+    undef ($quiet_mode);
+  } elsif ($ARGV [0] eq "-m") {
+    $multithreaded = 1;
+  } elsif ($ARGV [0] eq "-q") {
+    $quiet_mode = 1;
+    undef ($verbose);
+  } elsif ($ARGV [0] eq "-p") {
+    shift @ARGV;
+    Usage "Must specify a port # after -p" if (!defined $ARGV [0]);
+    $port = $ARGV[0];
+  } else {
+    Usage "Unknown parameter found: " . $ARGV[0];
+  } # if
+
+  shift @ARGV;
+} # while
+
+my $tmp = (!defined $ENV {TMP}) ? "/tmp" : $ENV {TMP};
+my $ecrd_logfile = "$tmp/$me.log";
+my $ecrd_errfile = "$tmp/$me.err";
+
+EnterDaemonMode ($ecrd_logfile, $ecrd_logfile) if defined ($daemon_mode);
+
+OpenDB;
+
+# Set up signal handlers
+$SIG{ALRM} = \&timeout;
+$SIG{INT}  = $SIG{QUIT} = \&interrupt;
+
+ProcessRequests;

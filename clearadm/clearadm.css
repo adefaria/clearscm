@@ -1,0 +1,303 @@
+/*******************************************************************************
+*
+* File:        $RCSfile: clearadm.css,v $        
+* Revision:    $Revision: 1.20 $            
+* Description: Cascading Style Sheet definitions for Clearadm
+* Author:      Andrew@ClearSCM.com
+* Created:     Sun Jan 16 11:13:19 EST 2011
+* Modified:    $Date: 2011/01/28 21:28:40 $
+* Language:    Cascading Style Sheet
+*
+* (c) Copyright 2010, Andrew@DeFaria.com, all rights reserved.
+*
+*******************************************************************************/
+body {
+  background-color:white;
+  font-family:veranda, times;
+  font-size:14px;
+  margin:0px;
+  background-image:url('/clearadm/banner.jpg');
+  background-repeat:repeat-x;
+  margin-bottom:100px;
+}	
+
+/* Element classes */
+h1.title {
+  color:white;
+  text-align:center;
+  height:70px;
+}
+
+font.unknown {
+  color:#ddd;
+}
+
+font.dim {
+  color:#999;
+}
+
+p, h2 {
+  margin:10px;
+}
+
+/* Stylings for page div */
+.page a:link {
+  color:blue;
+  text-decoration:none;
+}
+
+.page a:visited {
+  color:blue;
+}
+
+.page a:hover {
+  color:red;
+}
+
+.dataCenteredAlert a:link {
+  color:red;
+  font-size:18px;
+}
+.dataCenteredAlert a:visited {
+  color:red;
+  font-size:18px;
+}
+
+/* Classes for control boxes */
+.filesystemControls {
+  background-color:#fef5d8;
+  text-align:right;
+  padding:0px;
+  border-right:1px solid black;
+  border-left:1px solid black;
+  border-bottom:1px solid black;
+}
+
+.controls {
+  background-color:#fef5d8;
+  text-align:right;
+  padding:0px;
+  border:1px solid black;
+}
+
+.filter {
+  background-color:#fef5d8;
+}
+
+/* Set the border to have a 3D effect for the chart image */
+img.chart {
+  border-top:2px solid #eee;
+  border-left:2px solid #eee;
+  border-right:2px solid black;
+  border-bottom:2px solid black;
+}
+
+/* Stylings for table elements */
+table {
+  background-color:black;
+  padding:0px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+tr.oldview {
+  background-color:#eeeeee;
+}
+
+tr.view {
+  background-color:white;
+}
+
+td.center {
+  text-align:center;
+}
+
+td.right {
+  text-align:right;
+}
+
+th, td {
+  padding:4px;
+}
+
+th.label {
+  text-align:right;
+  background-color:#fef5d8;
+}
+
+th.labelCentered {
+  text-align:center;
+  background-color:#fef5d8;
+}
+
+td.data {
+  background-color:white;
+}
+
+td.dataTop {
+  background-color:white;
+  vertical-align:top;
+}
+	
+td.dataAlert {
+  background-color:white;
+  color:red;
+  font-weight:bold;
+}
+
+td.dataAlertTop {
+  background-color:white;
+  color:red;
+  font-weight:bold;
+  vertical-align:top;
+}
+
+td.dataRightAlert {
+  background-color:white;
+  color:red;
+  font-weight:bold;
+  text-align:right;
+}
+
+td.dataCenteredAlert {
+  background-color:white;
+  color:red;
+  font-weight:bold;
+  text-align:center;
+}
+
+td.dataRightAlertTop {
+  background-color:white;
+  color:red;
+  font-weight:bold;
+  text-align:right;
+  vertical-align:top;
+}
+        
+td.dataCentered {
+  text-align:center;
+  background-color:white;
+}
+
+td.dataCenteredTop {
+  text-align:center;
+  background-color:white;
+  vertical-align:top;
+}	
+
+td.dataAlertCentered {
+  text-align:center;
+  background-color:white;
+  color:red;
+  font-weight:bold;
+}
+
+td.dataAlertCenteredTop {
+  text-align:center;
+  background-color:white;
+  color:red;
+  font-weight:bold;
+  vertical-align:top;
+}
+
+td.dataRight {
+  text-align:right;
+  background-color:white;
+}
+
+td.dataRightTop {
+  text-align:right;
+  background-color:white;
+  vertical-align:top;
+}
+
+td.dataAlertRight {
+  text-align:right;
+  background-color:white;
+  color:red;
+  font-weight:bold;
+}
+
+td.dataAlertRightTop {
+  text-align:right;
+  background-color:white;
+  color:red;
+  font-weight:bold;
+  vertical-align:top;
+}
+
+/* Classes for viewager */
+.dynamic {
+  color:red;
+}
+
+.snapshot {
+  color:green;
+}
+
+.web {
+  color:orange;
+}
+
+.caption {
+  background-color:white;
+}
+
+/* General classes */
+.label {
+  font-weight:bold;
+}
+
+.heading {
+  background-color:#fef5d8;
+}
+
+.center {
+  text-align:center;
+}
+
+.error {
+  color:red;
+  font-weight:bold;
+}
+
+.inputfield {
+  background:#ece9d8;
+  font-family:arial, veranda, times;
+  font-size:14px;  
+}
+
+.inputfieldRight {
+  background:#ece9d8;
+  font-family:arial, veranda, times;
+  font-size:14px;
+  text-align:right;  
+}	
+
+.dropdown {
+  background-color:#ece9d8;
+  font-family:arial, veranda, times;
+  font-size:14px;  
+}
+
+/* Copyright block */
+.copyright {
+  border-bottom:1px dotted #ccc;
+  border-top:1px dotted #ccc;
+  color:#999;
+  font-family:verdana, arial, sans-serif;
+  font-size:10px;
+  margin-top:5px;
+  text-align:center;
+  width:auto;
+}
+
+.copyright a:link, a:visited {
+  color:#666;
+  font-weight:bold;
+  text-decoration:none;
+}
+
+.copyright a:hover {
+  color:#333;
+}

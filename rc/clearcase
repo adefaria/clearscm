@@ -1,0 +1,4129 @@
+#!/bin/bash
+################################################################################
+#
+# File:        $RCSfile: clearcase,v $
+# Revision:    $Revision: 1.33 $ 
+# Description: This script set up some useful environment variables and aliases
+#              for Clearcase execution. File should be sourced (e.g . 
+#              clearcase)
+# Author:      Andrew@DeFaria.com
+# Created:     Wed Jun  5 21:08:03 PDT 1996
+# Modified:    $Date: 2011/10/24 18:07:05 $
+# Language:    bash
+#
+# (c) Copyright 2000-2011, ClearSCM, Inc., all rights reserved.
+#
+################################################################################
+# Set ARCH, architecture of the machine
+KERNEL=$(uname -s)
+
+if [[ $KERNEL = CYGWIN* ]]; then
+  export ARCH=cygwin
+  vobtagPrefix='\\\\\\\'
+elif [ $KERNEL = "Linux" ]; then
+  export ARCH=linux
+elif [ $KERNEL = "SunOS" ]; then
+  export ARCH=sun
+elif [ $KERNEL = "FreeBSD" ]; then
+  export ARCH=$KERNEL
+else
+  export ARCH=''
+  echo "Warning: Unknown architecture ($KERNEL)"
+fi
+
+if [ $ARCH = 'cygwin' ]; then
+  export CCHOME=$(cygpath -u "$(regtool get '/machine/SOFTWARE/Rational Software/RSINSTALLDIR' 2>/dev/null)"/Clearcase 2>/dev/null);
+else 
+  export CCHOME="/opt/rational/clearcase"
+fi
+
+if [ ! -d "$CCHOME" ]; then
+  unset CCHOME
+#  exit
+fi
+
+# Source in clearcase.conf
+if [ -f ~/.rc/clearcase.conf ]; then
+  source ~/.rc/clearcase.conf
+else
+  echo "WARNING: Could not find ~/.rc/clearcase.conf - functionality will be limted"
+fi
+
+export CLEARTOOL="$CCHOME/bin/cleartool"
+export CLEARCASE_BLD_HOST_TYPE="unix"
+
+if [ -f "$CCHOME/etc/utils/creds" ]; then
+  if [ $ARCH = 'cygwin' ]; then
+    alias creds=$(cygpath "$CCHOME/etc/utils/creds")
+  else 
+    alias creds="$CCHOME/etc/utils/creds"
+  fi
+fi
+
+if [ -x "$CLEARTOOL" ]; then
+  export RGY="$CCHOME/var/atria/rgy"
+  export LOGS="$CCHOME/var/log"
+fi
+
+function scm {
+  scmstatus=0
+
+  if [ -x "$CLEARTOOL" ]; then
+    # Cleartool suddenly started appending ^M's (I think as of 7.1)
+    if [ $ARCH = 'cygwin' ]; then
+      # Need to set pipefail to pick up the exit code from cleartool
+      # otherwise we get the exit code from tr which is usually 0
+      set -o pipefail
+      "$CLEARTOOL" "$@" | tr -d "\015"
+      scmstatus=$?
+      set +o pipefail
+    else
+      "$CLEARTOOL" "$@"
+      scmstatus=$?
+    fi
+  else
+    scmstatus=1
+  fi
+
+  return $scmstatus
+} # scm
+
+function ct {
+  # Setview is special - there is no setview on Windows. But we approximate it
+  # with the function setview
+  if [ "$1" = "setview" ]; then
+  	shift
+  	setview "$@"
+  else
+    scm "$@"
+  fi
+  
+  return $scmstatus
+} # ct
+
+function scmsystem {
+  if [ "$(scm pwv)" != '' ]; then
+    return 1
+  elif [ -f CVS/Root ]; then
+    return 2
+  else
+    return 0
+  fi
+} # scmsystem
+
+function ci {
+  if [ $# = 0 ]; then
+    echo "ci: Error: No files specified"
+  else
+    scm ci "$@"
+  fi
+} # ci
+
+function co {
+  if [ $# = 0 ]; then
+    echo "co: Error: No files specified"
+  else
+    scm co "$@"
+  fi
+} # co
+
+function unco {
+  if [ $# = 0 ]; then
+    echo "unco: Error: No files specified"
+  else
+    scm unco "$@"
+  fi
+} # unco
+
+function lslock {
+  scm lslock "$@"
+} # lslock
+
+function lllock {
+  scm lslock -long "$@"
+} # lllock
+
+# View related functions
+function setview {
+  if [ $ARCH = 'cygwin' ]; then
+  	if [[ $1 = -* ]]; then
+  	  echo "The setview command with options is not supported on Windows"
+  	  return
+  	fi
+  	 
+    # Save off where we are
+    back=$PWD
+
+    # Start the view
+    scm startview "$@"
+
+    if [ $? != 0 ]; then
+      return $?
+    fi
+
+    # Setup $VOBTAG_PREFIX
+    mount -f -o binary M:/$1 $LINUX_VOBTAG_PREFIX
+
+    # Start a bash shell
+    bash
+
+    # Remove $LINUX_VOBTAG_PREFIX mount (Ignore errors)
+    umount $LINUX_VOBTAG_PREFIX 2> /dev/null
+
+    # Chdir back to were we started
+    cd $back
+  else
+    scm setview "$@"
+  fi
+
+  set_title
+  set_prompt
+} # setview
+
+function startview {
+  scm startview "$@"
+
+  mycd /view/$1
+} # startview
+
+function endview {
+  scm endview "$@"
+} # endview
+
+function killview {
+  scm endview -server "$@"
+} # killview
+
+function mkview {
+  scm mkview "$@"
+} # mkview
+
+function makeview {
+  if [ $# != 1 ]; then
+    echo "Usage: $FUNCNAME <stream>"
+    return 1
+  fi
+
+  stream=$1
+
+  # Check to see if the view already exists
+  scm lsview -short ${USER}_$stream > /dev/null 2>&1 
+
+  if [ $? = 0 ]; then
+    echo "${USER}_$stream already exists!"
+  else
+    mkview -tag ${USER}_$stream -stream $stream@$pvob -stgloc -auto
+
+    if [ $? != 0 ]; then
+      echo "Couldn't find that stream. Perhaps it's one of these?"
+      let i=${#stream}-4
+      searchFor=${stream:1:$i}
+      scm lsstream -short -invob $pvob | grep $searchFor | $PAGER
+      return 0
+    fi
+  fi
+
+  setview ${USER}_$stream
+} # makeview
+
+function rmview {
+  scm rmview "$@"
+} # rmview
+
+function lsview {
+  if [ $# = 0 ]; then
+    scm lsview -s | $PAGER
+  elif [ $# = 1 ]; then
+    scm lsview -s | grep "$1"
+  else
+    scm lsview "$@"
+  fi
+} # lsview
+
+function myviews {
+  # Well they asked for my "views"...
+  if [ $(whence fortune) ]; then
+    fortune
+    echo
+  fi    
+
+  # List my views and their associated activities
+  for view in $(scm lsview -s 2>&1 | grep $USER); do
+    headline=$(scm lsact -cact -fmt "%[headline]p" -view $view 2> /dev/null)
+   
+    if [ "$headline" = "" ]; then
+      headline="<no activity set>"
+    fi
+
+    echo -e "$view\t$headline"
+  done
+} # myviews
+
+function llview {
+  if [ $# = 0 ]; then
+    scm lsview -long | $PAGER
+  else 
+    scm lsview -long "$@"
+  fi
+} # llview
+
+function lsviews {
+  if [ $# = 0 ]; then
+    scm lsview -short
+  else 
+    scm lsview -short | grep $1
+  fi
+} # lsviews
+
+# Vob related functions
+function lsvob {
+  if [ $# = 0 ]; then
+    scm lsvob | $PAGER
+  elif [ $# = 1 ]; then
+    scm lsvob | grep "$1"
+  else
+    scm lsvob "$@"
+  fi
+} # lsvob
+
+function llvob {
+  if [ $# = 0 ]; then
+    scm lsvob -long | $PAGER
+  else 
+    scm lsvob -long "$@"
+  fi
+} # llvob
+
+function lsvobs {
+  if [ $# = 0 ]; then
+    scm lsvob -short
+  else 
+    scm lsvob -short | grep $1
+  fi
+} # lsvobs
+
+# Config spec functions
+function setcs {
+  scm setcs "$@"
+} # setcs
+
+function edcs {
+  scm edcs "$@"
+} # edcs
+
+function catcs {
+  scm catcs "$@"
+} # catcs
+
+function pwv {
+  scm pwv -s "$@"
+} # pwv
+
+function rmtag {
+  scm rmtag "$@"
+} # rmtag
+
+function mktag {
+  scm mktag "$@"
+} # mktag
+
+function describe {
+  scm describe "$@"
+} # describe
+
+function desc {
+  scm describe "$@"
+} # describe
+
+function oid2name {
+  if [ $# == 2 ]; then
+    oid=$1
+    projvob=$2
+  elif [ $# == 1 ]; then
+    oid=$1
+    projvob=$pvob
+  else
+    echo "Usage: oid2name: <oid> [<pvob>]"
+    
+    return
+  fi
+  
+  scm describe oid:$oid@$projvob 2> /dev/null | head -1
+} # oid2name
+
+function name2oid {
+  if [ $# == 3 ]; then
+    type=$1
+    name=$2
+    projvob=$3
+  elif [ $# == 2 ]; then
+    type=$1
+    name=$2
+    projvob=$pvob
+  else
+    echo "Usage: name2oid: <type> <name> [<pvob>]"
+    
+    return
+  fi
+
+  scm dump $type:$name@$projvob 2> /dev/null | grep oid=
+} # name2oid
+
+# Action functions
+function vtree {
+  if [ $# != 1 ]; then
+    echo "vtree: Error: Must specify an element to view its version tree"
+  else
+    if [ $ARCH = 'cygwin' ]; then
+      scm lsvtree -g "$@"
+    else
+      xlsvtree "$@"
+    fi
+  fi
+} # vtree
+
+function merge {
+  scm merge "$@"
+} # merge
+
+function findmerge {
+  scm findmerge "$@"
+} # findmerge
+
+function cdiff {
+  scmsystem; scmtype=$?
+
+  if [ $# = 1 ]; then
+    if [ $scmtype = 1 ]; then
+      scm diff -graphical -pred $1
+    elif [ $scmtype = 2 ]; then
+      cvs diff $1
+    fi
+  else
+    if [ $scmtype = 1 ]; then
+      scm diff -graphical "$@"
+    elif [ $scmtype = 2 ]; then
+      cvs diff "$@"
+    fi
+  fi
+} # cdiff
+
+function ctdiff {
+  if [ $# = 1 ]; then
+    scm xdiff -vstack -pred $1
+  else
+    scm xdiff -vstack $@
+  fi
+} # ctdiff
+
+# Administrative functions
+function space {
+  scm space "$@"
+} # space
+
+function register {
+  scm register "$@"
+} # register
+
+function unregister {
+  scm unregister "$@"
+} # unregister
+
+# Information functions
+function hostinfo {
+  scm hostinfo "$@"
+} # hostinfo
+
+function lstrig {
+  if [ $# = 2 ]; then
+    trig_name=$1
+    vob=$2
+    scm lstype trtype:$trig_name@$vob
+  else
+    scm lstype -kind trtype "$@" | $PAGER
+  fi
+} # lstrig
+
+function lltrig {
+  if [ $# = 1 ]; then
+    scm lstype -long trtype:$1
+  else
+    scm lstype -long -kind trtype "$@"| $PAGER
+  fi
+} # lltrig
+
+function lsbr {
+  scm lstype -brtype
+} # lsbr
+
+function lslab {
+  scm lstype -lbtype
+} # lslab
+
+# UCM oriented functions
+function lsstream {
+  if [ $# = 0 ]; then
+    # If we are in a view context then try to list the stream for our view
+    if [[ $(pwv) == "** NONE **" ]]; then
+      lsstreams | $PAGER
+    else
+      scm lsstream | $PAGER
+    fi
+  else
+    # Check to see if a pvob was specified
+    if [[ $@ == *@* ]]; then
+      scm lsstream "$@"
+    else
+      scm lsstream -invob $pvob | grep $1 | $PAGER
+    fi
+  fi
+} # lsstream
+
+function llstream {
+  if [ $# = 0 ]; then
+    scm lsstream -l | $PAGER
+  else
+    scm lsstream -l "$@"
+  fi
+} # llstream
+
+function lsstreams {
+  if [ $# = 0 ]; then
+    scm lsstream -short -invob $pvob
+  else 
+    scm lsstream -short "$@"
+  fi
+} # lstreams
+
+function lsregions () {
+  if [ $# -gt 0 ]; then
+  	scm lsregion -short | grep ^$1 
+  else
+    scm lsregion -short
+  fi
+} # lsregions
+
+function rebase {
+  scm rebase "$@"
+} # rebase
+
+function deliver {
+  scm deliver "$@"
+} # deliver
+
+function lsbl {
+  scm lsbl "$@"
+} # lsbl
+
+function lsll {
+  scm lsbl -lon "$@"
+} # llbl
+
+function lsproj {
+  if [ $# = 0 ]; then
+    scm lsproject | $PAGER
+  else
+    scm lsproject "$@"
+  fi
+} # lsproj
+
+function llproj {
+  if [ $# = 0 ]; then
+    scm lsproject -l | $PAGER
+  else
+    scm lsproject -l "$@"
+  fi
+} # llproj
+
+function lsfolder {
+  scm lsfolder "$@"
+} # lsfolder
+
+function llfolder {
+  scm lsfolder -long "$@"
+} # llfolder
+
+function lsstgloc {
+  if [ $# = 0 ]; then
+    scm lsstgloc | $PAGER
+  else
+    scm lsstgloc "$@"
+  fi
+} # lsstgloc
+
+function llstgloc {
+  if [ $# = 0 ]; then
+    scm lsstgloc -l | $PAGER
+  else
+    scm lsstgloc -l "$@"
+  fi
+} # llstgloc
+
+function lsact {
+  if [ $# = 0 ]; then
+    scm lsactivity | $PAGER
+  else
+    scm lsactivity "$@"
+  fi
+} # lsact
+
+function llact {
+  if [ $# = 0 ]; then
+    scm lsactivity -l | $PAGER
+  else
+    scm lsactivity -l "$@"
+  fi
+} # llact
+
+function setact {
+  if [ $# = 0 ]; then
+    echo "What? Am I suppose to guess?!?"
+    exit 1
+  else
+    scm setactivity "$@"
+  fi
+} # setact
+
+function clist {
+  scmsystem; scmtype=$?
+
+  if [ $scmtype = 1 ]; then
+    scm lsco -short -cview -all -me
+  elif [ $scmtype = 2 ]; then
+    cvs -Q status | grep ^File | grep -v Up-to-date
+  fi
+} # clist
+
+function ciwork {
+  scm ci -cq $(clist)
+} # ciwork
+
+# Bash completion for Clearcase commands. T
+
+# Add "," to COMP_BREAKWORDS
+COMP_WORDBREAKS=\ \"\'\>\<\=\;\|\&\(\:\,
+
+# All Clearcase commands
+_scm_cmds="\
+annotate \
+catcr \
+catcs \
+cd \
+chactivity \
+chbl \
+checkin \
+checkout \
+checkvob \
+chevent \
+chflevel \
+chfolder \
+chmaster \
+chpool \
+chproject \
+chstream \
+chtype \
+chview \
+ci \
+co \
+cptype \
+deliver \
+describe \
+diff \
+diffbl \
+diffcr \
+dospace \
+edcs \
+endview \
+file \
+find \
+findmerge \
+get \
+getcache \
+getlog \
+help \
+hostinfo \
+ln \
+lock \
+ls \
+lsactivity \
+lsbl \
+lscheckout \
+lscheckout \
+lsclients \
+lscomp \
+lsdo \
+lsfolder \
+lshistory \
+lslock \
+lsmaster \
+lspool \
+lsprivate \
+lsproject \
+lsregion \
+lsreplica \
+lssite \
+lsstgloc \
+lsstream \
+lstype \
+lstype \
+lsview \
+lsvob \
+lsvtree \
+man \
+merge \
+mkactivity \
+mkattr \
+mkattype \
+mkbl \
+mkbranch \
+mkbrtype \
+mkcomp \
+mkdir \
+mkelem \
+mkeltype \
+mkfolder \
+mkhlink \
+mkhltype \
+mklabel \
+mklbtype \
+mkpool \
+mkproject \
+mkregion \
+mkstgloc \
+mkstream \
+mktag \
+mktrigger \
+mktrtype \
+mkview \
+mkvob \
+mount \
+move \
+protect \
+protectvob \
+pwd \
+pwv \
+quit \
+rebase \
+recoverview \
+reformatview \
+reformatvob \
+register \
+relocate \
+rename \
+reqmaster \
+reserve \
+rmactivity \
+rmattr \
+rmbl \
+rmbranch \
+rmcomp \
+rmdo \
+rmelem \
+rmfolder \
+rmhlink \
+rmlabel \
+rmmerge \
+rmname \
+rmpool \
+rmproject \
+rmregion \
+rmstgloc \
+rmstream \
+rmtag \
+rmtrigger \
+rmtype \
+rmver \
+rmview \
+rmvob \
+schedule \
+setactivity \
+setcache \
+setcs \
+setplevel \
+setsite \
+setview \
+space \
+startview \
+umount \
+uncheckout \
+unlock \
+unregister \
+unreserve \
+update \
+winkin \
+"
+# Kinds
+_kinds="\
+attype \
+brtype \
+eltype \
+hltype \
+lbtype \
+trtype \
+"
+# Type selectors
+_type_selectors="\
+attype: \
+brtype: \
+eltype: \
+hltype: \
+lbtype: \
+trtype: \
+"
+# These options are common to all scm commands. So far -help is the only one
+_global_opts="\
+-help \
+"
+# Comment opts. These options are common for commands that request the user
+# specify a comment
+_comment_opts="\
+-c \
+-cfile \
+-cq \
+-cqe \
+-nc \
+"
+# Individual command options
+_annotate_opts="\
+$_global_opts \
+-all \
+-fmt \
+-force \
+-long \
+-nco \
+-ndata \
+-nheader \
+-out \
+-rm \
+-rmfmt \
+-short \
+"
+_catcr_opts="\
+$_global_opts \
+-check \
+-ci \
+-critical \
+-element \
+-flat \
+-follow \
+-long \
+-makefile \
+-name \
+-nxname \
+-recurse \
+-scripts \
+-select \
+-short \
+-type \
+-union \
+-view \
+-wd \
+-zero \
+"
+_chbl_opts="\
+$_global_opts \
+$_comment_opts \
+-full \
+-incremental \
+-level \
+-nrecurse \
+"
+_checkout_opts="\
+$_global_opts \
+$_comment_opts \
+-branch \
+-ndata \
+-nmaster \
+-nquery \
+-nwarn \
+-out \
+-ptime \
+-query \
+-reserved \
+-unreserved \
+-usehijack \
+-version \
+"
+_chflevel_opts="\
+$_global_opts \
+-auto \
+-family \
+-force \
+-master \
+-override \
+-replica \
+"
+_chpool_opts="\
+$_global_opts \
+$_comment_opts \
+-force \
+"
+_chtype_opts="\
+$_global_opts \
+$_comment_opts \
+-force \
+-pname \
+"
+_diff_opts="\
+$_global_opts \
+-graphical \
+-hstack \
+-options \
+-predecessor \
+-serial \
+-tiny \
+"
+_diffbl_opts="\
+$_global_opts \
+-activities \
+-baselines \
+-first \
+-graphical \
+-nmerge \
+-nrecurse \
+-predecessor \
+-versions \
+"
+_diffcr_opts="\
+$_global_opts \
+-ci \
+-critical \
+-element \
+-follow \
+-long \
+-name \
+-nxname \
+-recurse \
+-select \
+-short \
+-type \
+-view \
+-wd \
+"
+_edcs_opts="\
+$_global_opts \
+-ctime \
+-overwrite \
+-ptime \
+-rename \
+-tag \
+"
+_deliver_opts="\
+$_global_opts \
+-abort \
+-activities \
+-baseline \
+-cact \
+-cancel \
+-complete \
+-force \
+-gmerge \
+-graphical \
+-long \
+-ok \
+-preview \
+-qall \
+-qntrivial \
+-query \
+-reset \
+-resume \
+-serial \
+-short \
+-status \
+-stream \
+-target \
+-to \
+"
+_diff_opts="\
+$_global_opts \
+-columns \
+-diff \
+-graphical \
+-hstack \
+-options \
+-predecessor \
+-serial \
+-tiny \
+-vstack \
+"
+_diffbl_opts="\
+$_global_opts \
+-activities \
+-baselines \
+-elements \
+-first \
+-graphical \
+-nmerge \
+-nrecurse \
+-predecessor \
+-versions \
+"
+_diffcr="\
+$_global_opts \
+-ci \
+-critical \
+-element \
+-flat \
+-follow \
+-long \
+-name \
+-nxname \
+-recurse \
+-select \
+-short \
+-type \
+-view \
+-wd \
+"
+_dospace_opts="\
+$_global_opts \
+-all \
+-before \
+-dump \
+-generate \
+-pool \
+-references \
+-region \
+-scrub \
+-since \
+-size \
+-top \
+-update \
+"
+_find_opts="\
+$_global_opts \
+-all \
+-avobs \
+-branch \
+-cview \
+-depth \
+-directory \
+-element \
+-exec \
+-follow \
+-group \
+-kind \
+-name \
+-nrecurse \
+-nvisible \
+-nxname \
+-ok \
+-type \
+-user \
+-version \
+-visible \
+"
+_mkelem_opts="\
+$_global_opts \
+-c \
+-cfile \
+-ci \
+-cq \
+-cqe \
+-eltype \
+-master \
+-mkpath \
+-nc \
+-nco \
+-nwarn \
+"
+_findmerge_opts="\
+$_global_opts \
+$_comment_opts \
+-abort \
+-all \
+-avobs \
+-blank \
+-depth \
+-directory \
+-element \
+-exec \
+-fbtag \
+-fcsets \
+-flatest \
+-follow \
+-ftag \
+-graphical \
+-group \
+-log \
+-long \
+-name \
+-nback \
+-nrecurse \
+-nxname \
+-nzero \
+-ok \
+-okgmerge \
+-okmerge \
+-qall \
+-qntrivial \
+-query \
+-serial \
+-short \
+-type \
+-unreserved \
+-user \
+-visible \
+-whynot \
+"
+_get_opts="\
+$_global_opts \
+-to \
+"
+_getcache_opts="\
+$_global_opts \
+-all \
+-host \
+-mvfs \
+-persistent \
+-reset \
+-short \
+-site \
+-view \
+"
+_ln_opts="\
+$_global_opts \
+$_comment_opts \
+-force \
+-nco \
+-slink \
+"
+_ls_opts="\
+$_global_opts \
+-directory \
+-long \
+-nxname \
+-recurse \
+-short \
+-view_only \
+-visibile \
+-vob_only \
+"
+_lscheckout_opts="\
+$_global_opts \
+-all \
+-areplicas \
+-avobs \
+-brtype \
+-cview \
+-directory \
+-fmt \
+-graphical \
+-long \
+-me \
+-recurse \
+-short \
+-user \
+"
+_lsdo_opts="\
+$_global_opts \
+-fmt \
+-long \
+-me \
+-nshareable_dos \
+-recurse \
+-short \
+-sname \
+-stime \
+-zero \
+"
+_lshistory_opts="\
+$_global_opts \
+-all \
+-avobs \
+-branch \
+-directory \
+-eventid \
+-fmt \
+-graphical \
+-last \
+-local \
+-long \
+-me \
+-minor \
+-nco \
+-nopreferences \
+-pname \
+-recurse \
+-short \
+-since \
+-user \
+"
+_lslock_opts="\
+$_global_opts \
+-all \
+-fmt \
+-local \
+-long \
+-obsolete \
+-pname \
+-short \
+"
+_lsmaster_opts="\
+$_global_opts \
+-all \
+-fmt \
+-inreplicas \
+-kind \
+-view \
+"
+_lsreplica_opts="\
+$_global_opts \
+-all \
+-fmt \
+-inreplicas \
+-invob \
+-long \
+-short \
+-siblings \
+"
+_lssite_opts="\
+$_global_opts \
+-inquire \
+-setting-name \
+"
+_lsstream_opts="\
+$_global_opts \
+-ancestor \
+-cview \
+-depth \
+-fmt \
+-in \
+-invob \
+-long \
+-obsolete \
+-recurse \
+-short \
+-template \
+-tree \
+-view \
+"
+_lsvtree_opts="\
+$_global_opts \
+-all \
+-branch \
+-graphical \
+-merge \
+-nco \
+-nmerge \
+-nrecurse \
+-obsolete \
+-short \
+"
+_merge_opts="\
+$_global_opts \
+-abort \
+-base \
+-c \
+-cfile \
+-columns \
+-cq \
+-cqe \
+-delete \
+-diff \
+-graphical \
+-insert \
+-narrows \
+-nc \
+-ndata \
+-options \
+-out \
+-qall \
+-qntrivial \
+-query \
+-replace \
+-serial \
+-tiny \
+-to \
+-version \
+"
+_mkattr_opts="\
+$_global_opts \
+$_comment_opts \
+-ci \
+-config \
+-default \
+-name \
+-pname \
+-replace \
+-select \
+-type \
+-version \
+"
+_mkattype_opts="\
+$_global_opts \
+$_comment_opts \
+-acquire \
+-default
+-enum \
+-ge \
+-global \
+-gt \
+-le
+-lt
+-ordinary \
+-replace \
+-shared \
+-vpbranch \
+-vpelement \
+-vpversion \
+-vtype \
+"
+_mkbranch_opts="\
+$_global_opts \
+$_comment_opts \
+-nco \
+-nwarn \
+-ptime \
+-version \
+"
+_mkbrtype_opts="\
+$_global_opts \
+-acquire \
+-global \
+-ordinary \
+-pbranch \
+-replace \
+"
+_mkdir_opts="\
+$_global_opts \
+$_comment_opts \
+-master \
+-nco \
+"
+_mkelem_opts="\
+$_global_opts \
+$_comment_opts \
+-ci \
+-eltype \
+-master \
+-mkpath \
+-nco \
+-nwarn \
+-ptime \
+"
+_mkeltype_opts="\
+$_global_opts \
+$_comment_opts \
+-acquire \
+-global \
+-manager \
+-mergetype \
+-ordinary \
+-ptime \
+-replace \
+-supertype \
+"
+_mkhlink_opts="\
+$_global_opts \
+$_comment_opts \
+-acquire \
+-fpname \
+-ftext \
+-tpname \
+-ttext \
+-unidir \
+"
+_mkhltype_opts="\
+$_global_opts \
+$_comment_opts \
+-acquire \
+-global \
+-ordinary \
+-replace \
+-shared \
+"
+_mklabel_opts="\
+$_global_opts \
+$_comment_opts \
+-ci \
+-config \
+-follow \
+-name \
+-nc \
+-recurse \
+-replace \
+-select \
+-type \
+-version \
+"
+_mklbtype_opts="\
+$_global_opts \
+$_comment_opts \
+-acquire \
+-global \
+-ordinary \
+-pbranch \
+-replace \
+-shared \
+"
+_mkpool_opts="\
+$_global_opts \
+$_comment_opts \
+-age \
+-alert \
+-cleartext \
+-ln \
+-size \
+-source \
+-update \
+"
+_mktrigger_opts="\
+$_global_opts \
+$_comment_opts \
+-force \
+-nattach \
+-ninherit \
+-recurse \
+"
+_move_opts="\
+$_global_opts \
+$_comment_opts \
+"
+_protect_opts="\
+$_global_opts \
+$_comment_opts \
+-chgrp \
+-chmod \
+-chown \
+-directory \
+-file \
+-pname \
+-recurse \
+"
+_protectvob_opts="\
+$_global_opts \
+-add_group \
+-chgrp \
+-chown \
+-delete_group \
+-force \
+-nremote_admin \
+-remote_admin \
+"
+_pwv_opts="\
+-root \
+-setview \
+-short \
+-wdview \
+"
+_relocate_opts="\
+$_global_opts \
+-force \
+-log \
+-qall \
+-update \
+"
+_rename_opts="\
+$_global_opts \
+$_comment_opts \
+-acquire \
+"
+_reqmaster_opts="\
+$_global_opts \
+$_comment_opts \
+-acl \
+-allow \
+-deny \
+-disable \
+-edit \
+-enable \
+-get \
+-instances \
+-list \
+-set \
+"
+_reserve_opts="\
+$_global_opts \
+$_comment_opts \
+-cact \
+"
+_rmbranch_opts="\
+$_global_opts \
+$_comment_opts \
+-force \
+"
+_rmdo_opts="\
+$_global_opts \
+-all \
+-before \
+-since \
+-zero \
+"
+_rmelem_opts="\
+$_global_opts \
+$_comment_opts \
+-force \
+"
+_rmmerge_opts="\
+$_global_opts \
+$_comment_opts \
+"
+_rmname_opts="\
+$_global_opts \
+$_comment_opts \
+-force \
+"
+_rmpool_opts="\
+$_global_opts \
+$_comment_opts \
+"
+_rmstream_opts="\
+$_global_opts \
+$_comment_opts \
+"
+_rmver_opts="\
+$_global_opts \
+$_comment_opts \
+-data \
+-force \
+-version \
+-vrange \
+-xattr \
+-xbranch \
+-xhlink \
+-xlabel \
+"
+_schedule_opts="\
+$_global_opts \
+-acl \
+-delete \
+-edit \
+-force \
+-get \
+-host \
+-job \
+-run \
+-schedule \
+-set \
+-status \
+-tasks \
+-wait \
+"
+_setactivity_opts="\
+$_global_opts \
+$_comment_opts \
+-none \
+-view \
+"
+_setcache_opts="\
+$_global_opts \
+-acache \
+-cachesize \
+-cto \
+-cview \
+-cvpfreemax \
+-cvpfreemin \
+-default \
+-dirdnc \
+-dncache \
+-host \
+-mnmax \
+-mvfs \
+-nacache \
+-ncto \
+-ndncachez \
+-noentdnc \
+-nrlcache \
+-nrvcache \
+-password \
+-persistent \
+-persistent_only \
+-readdir_blocks \
+-regdnc \
+-rlcache \
+-rpchandles \
+-rvcache \
+-scalefactor \
+-site \
+-view \
+-vobfreemax \
+-vobfreemin \
+-zone \
+"
+_setsite_opts="\
+$_global_opts \
+-password \
+"
+_uncheckout_opts="\
+$_global_opts \
+-cact \
+-keep \
+-rm \
+-unco \
+"
+_unregister_opts="\
+$_global_opts \
+-uuid \
+-view \
+-vob \
+"
+_unreserve_opts="\
+$_global_opts \
+$_comment_opts \
+-cact \
+-view \
+"
+_update_opts="\
+$_global_opts \
+-add_loadrules \
+-ctime \
+-force \
+-graphical \
+-log \
+-noverwrite \
+-overwrite \
+-print \
+-ptime \
+-rename \
+"
+_winkin_opts="\
+$_global_opts \
+-adirs \
+-adirs \
+-ci \
+-noverwrite \
+-out \
+-print \
+-recurse \
+-select \
+-siblings \
+"
+
+_object_selectors="\
+activity: \
+attype: \
+baseline: \
+brtype: \
+component: \
+eltype: \
+folder: \
+hlink: \
+hltype: \
+lbtype: \
+oid: \
+pool: \
+project: \
+replica: \
+stream: \
+trtype: \
+vob: \
+"
+
+_operation_types="\
+chactivity \
+chbl \
+checkin \
+checkout \
+chevent \
+chfolder \
+chmaster \
+chproject \
+chstream \
+chtype \
+deliver_cancel \
+deliver_complete \
+deliver_start \
+lnname \
+lock \
+mkactivity \
+mkattr \
+mkbl \
+mkbl_complete \
+mkbranch \
+mkcomp \
+mkelem \
+mkfolder \
+mkhlink \
+mklabel \
+mkproject \
+mkslink \
+mkstream \
+mktrigger \
+protect \
+rebase_cancel \
+rebase_complete \
+rebase_start \
+reserve \
+rmactivity \
+rmattr \
+rmbranch \
+rmcl \
+rmcomp \
+rmelem \
+rmfolder \
+rmhlink \
+rmlabel \
+rmname \
+rmproject \
+rmstream \
+rmtrigger \
+rmver \
+setactivity \
+setactivity_none \
+setplevel \
+uncheckout \
+unlock \
+unreserve \
+"
+
+if [ $ARCH = 'cygwin' ]; then
+  _arch_policies="\
+POLICY_WIN_INT_SNAP \
+POLICY_WIN_DEV_SNAP \
+"
+else
+  _arch_policies="\
+POLICY_UNIX_INT_SNAP \
+POLICY_UNIX_DEV_SNAP \
+"
+fi
+
+_policies="\
+$arch_policies \
+POLICY_CHPROJECT_UNRESTRICED \
+POLICY_DELIVER_REQUIRE_REBASE \
+POLICY_DELIVER_NCO_DEVSTR \
+POLICY_DELIVER_NOCO_SELACTS \
+POLICY_REBASE_CO \
+POLICY_INTRAPROJECT_DELIVER_FOUNDATION_CHANGES \
+POLICY_INTRAPROJECT_DELIVER_ALLOW_MISSING_TGTCOMPS \
+POLICY_INTERPROJECT_DELIVER \
+POLICY_INTERPROJECT_DELIVER_FOUNDATION_CHANGES \
+POLICY_INTERPROJECT_DELIVER_REQUIRE_TGTCOMP_VISIBIITY \
+POLICY_INTERPROJECT_DELIVER_ALLOW_NONMOD_TGTCOMPS \
+"
+
+# Helper functions
+function set_pvob () {
+  if [ $# -eq 1 ]; then
+  	pvob=$1
+  fi
+} # set_pvob
+
+function set_dvob () {
+  if [ $# -eq 1 ]; then
+  	dvob=$1
+  fi
+} # set_dvob
+
+# Listing type functions. These functions produce a list of some object and are
+# used by the various completion functions.
+function _attypes () {
+  if [ $# -gt 0 ]; then
+  	scm lstype -kind attype -invob $pvob -fmt "%n " | grep ^$1
+  else
+    scm lstype -kind attype -invob $pvob -fmt "%n "
+  fi
+} # _attypes
+
+function _activities () {
+  if [ $# -gt 0 ]; then
+  	scm lsactivity -short -invob $pvob | grep ^$1 | sed "s:$:@$vobtagPrefix$pvob:"
+  else
+    scm lsactivity -short -invob $pvob | sed "s:$:@$vobtagPrefix$pvob:"
+  fi
+} # _activities
+
+function _baselines () {
+  stream=$(scm lsstream -short 2> /dev/null)
+  
+  if [ -z $stream ]; then
+  	return;
+  fi
+  
+  if [ $# -ge 0 ]; then
+  	scm lsbl -stream $stream@$pvob -short | grep ^$1 | sed "s:$:@$vobtagPrefix$pvob:"
+  else 
+  	scm lsbl -stream $stream@$pvob -short | sed "s:$:@$vobtagPrefix$pvob:"
+  fi
+} # _baselines
+
+function _brtypes () {
+  if [ $# -gt 0 ]; then
+  	scm lstype -kind brtype -invob $pvob -fmt "%n\n" | grep ^$1
+  else
+    scm lstype -kind brtype -invob $pvob -fmt "%n\n"
+  fi
+} # _brtypes
+
+function _cchosts () {
+  registryHost=$(scm hostinfo -long | grep "Registry host:" | awk '{print $NF}')
+
+  scm lsclients -short -host $registryHost | tr [:upper:] [:lower:]
+} # _cchosts
+
+function _components () {
+  if [ $# -gt 0 ]; then
+  	scm lscomp -short -invob $pvob | grep ^$1 | sed "s:$:@$vobtagPrefix$pvob:"
+  else
+	scm lscomp -short -invob $pvob | sed "s:$:@$vobtagPrefix$pvob:"
+  fi
+} # _components
+
+function _eltypes () {
+  if [ $# -gt 0 ]; then
+  	scm lstype -kind eltype -invob $pvob -fmt "%n " | grep ^$1
+  else
+    scm lstype -kind eltype -invob $pvob -fmt "%n "
+  fi
+} # _eltypes
+
+function _folders () {
+  if [ $# -gt 0 ]; then
+  	scm lsfolder -short -invob $pvob | grep ^$1 | sed "s:$:@$vobtagPrefix$pvob:"
+  else
+    scm lsfolder -short -invob $pvob | sed "s:$:@$vobtagPrefix$pvob:"
+  fi
+} # _folders
+
+function _hltypes () {
+  if [ $# -gt 0 ]; then
+  	scm lstype -kind hltype -invob $pvob -fmt "%n " | grep ^$1
+  else
+    scm lstype -kind hltype -invob $pvob -fmt "%n "
+  fi
+} # _hltypes
+
+function _lbtypes () {
+  if [ $# -gt 0 ]; then
+  	scm lstype -kind lbtype -invob $pvob -fmt "%n@$vobtagPrefix$pvob " | grep ^$1
+  else
+    scm lstype -kind lbtype -invob $pvob -fmt "%n@$vobtagPrefix$pvob "
+  fi
+} # _lbtypes
+
+function _projects () {
+  if [ $# -gt 0 ]; then
+  	scm lsproject -short -invob $pvob | grep ^$1 | sed "s:$:@$vobtagPrefix$pvob:"
+  else
+  	scm lsproject -short -invob $pvob | sed "s:$:@$vobtagPrefix$pvob:"
+  fi	
+} # _projects
+
+function _streams () {
+  if [ $# -gt 0 ]; then
+  	scm lsstream -short -invob $pvob | grep ^$1 | sed "s:$:@$vobtagPrefix$pvob:"
+  else
+  	scm lsstream -short -invob $pvob | sed "s:$:@$vobtagPrefix$pvob:"
+  fi
+} # _streams
+
+function _stglocs () {
+  if [ $# -gt 0 ]; then
+  	scm lsstgloc -short | grep ^$1
+  else
+	scm lsstgloc -short
+  fi
+} # _stglocs
+
+function _views () {
+  if [ $# -gt 0 ]; then
+    scm lsview -short | grep ^$1;
+  else
+    scm lsview -short;
+  fi
+} # _views
+
+function _vobs () {
+  # We simply must rid ourselves of these bloody backlashes!!! And yet Clearcase
+  # insists on retaining them. Let's strip them off, do our thing, then put them
+  # back to backslashes when we output stuff.
+  if [ $ARCH = 'cygwin' ]; then
+  	if [ $# -eq 0 ]; then
+  	  scm lsvob -short | sed 's:\\:\\\\\\\\:'
+  	else
+      # Convert to foward slashes
+      vob=$(echo $1 | sed 's:\\::g')
+      
+      scm lsvob -short | sed 's:\\::' | grep ^$vob | sed 's:^:\\\\\\\\:'
+  	fi
+  else
+    if [ $# -eq 0 ]; then
+      scm lsvob -short
+    else
+      scm lsvob -short | grep ^$1
+    fi
+  fi
+} # _vobs
+
+function _trtypes () {
+  if [ $# -gt 0 ]; then
+  	scm lstype -kind trtype -invob $pvob -fmt "%n " | grep ^$1
+  else
+    scm lstype -kind trtype -invob $pvob -fmt "%n "
+  fi
+} # _trtypes
+
+# Completion functions for individual commands where the completion may change
+# depending on the operation. For example, typing "scm catcs -tag " should
+# now complete based on view tags whereas "scm catcs -" should just complete
+# based on options (which are only -help and -tag at this point for this 
+# particular command). If a command does not have a "completer function" then
+# it will only provide for options completion and will be handled by the general
+# _scm completion function.
+function _catcs () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-tag \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -tag ]]; then
+  	COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  fi
+} # _catcs
+
+function _chactivity () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-headline \
+-fcset \
+-tcset \
+-view \
+-cqaction \
+-cact \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+  
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -fcset || $prev == -tcset ]]; then
+  	COMPREPLY=($(compgen -W "$(_activities $cur)"))
+  elif [[ $prev == -view ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  fi	
+} # _chactivity
+
+function _checkin () {
+  local cur prev prev2
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-cact \
+-cr \
+-from \
+-identical \
+-keep \
+-ptime \
+-rm \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+  prev2="${COMP_WORDS[COMP_CWORD-2]}"
+  
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev2 == activity && $prev == : ]]; then
+  	COMPREPLY=($(compgen -W "$(_activities $cur)"))
+  fi		
+} # _checkin
+
+function _checkvob () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-acquire \
+-activity \
+-cleartext \
+-component \
+-crm \
+-data \
+-debris \
+-derived \
+-fix \
+-force \
+-from \
+-global \
+-hlinks \
+-hltype \
+-ignore \
+-lock \
+-log \
+-pname \
+-pool \
+-protections \
+-setup \
+-source \
+-to \
+-trssize \
+-ucm \
+-unlock \
+-verbose \
+-view \
+-vob \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -view ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  fi			
+} # _checkvob
+
+function _chevent () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-append \
+-event \
+-insert \
+-invob \
+-pname \
+-replace \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -invob ]]; then
+    COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  elif [[ $cur == * ]]; then
+    COMPREPLY=($(compgen -W "$_object_selectors" -- $cur))
+  fi
+} # _chevent
+
+function _chfolder () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-to \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -to ]]; then
+    COMPREPLY=($(compgen -W "$(_folders $cur)"))
+  elif [[ $cur == * ]]; then
+    COMPREPLY=($(compgen -W "$(_folders $cur)"))
+  fi
+} # _chfolder
+
+function _chmaster () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-all \
+-default \
+-long \
+-obsolete_replica \
+-override \
+-pname \
+-stream \
+-view \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -stream ]]; then
+    COMPREPLY=($(compgen -W "$(_streams $cur)"))
+  elif [[ $cur == -view ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  fi
+} # _chmaster
+
+function _chproject () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-amodcomp \
+-blname \
+-connection \
+-crmenable \
+-custom \
+-dmodcomp \
+-ncrmenable \
+-npolicy \
+-policy \
+-rebase \
+-spolicy \
+-template \
+-to \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -amodcomp ||
+          $prev == -dmodcomp ]]; then
+    COMPREPLY=($(compgen -W "$(_components $cur)"))
+  elif [[ $prev == -to ]]; then
+    COMPREPLY=($(compgen -W "$(_folders $cur)"))
+  elif [[ $prev == -policy  ||
+          $prev == -npolicy ||
+          $prev == -spolicy ]]; then
+    COMPREPLY=($(compgen -W "$_policies" -- $cur))
+  elif [[ $cur == * ]]; then
+    COMPREPLY=($(compgen -W "$(_projects $cur)"))
+  fi
+} # _chproject
+
+function _chstream () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-amodcomp \
+-cview \
+-default \
+-dmodcomp \
+-generate \
+-npolicy \
+-nrecommended \
+-ntarget \
+-policy \
+-recommended \
+-target \
+-template \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -amodcomp ||
+          $prev == -dmodcomp ]]; then
+    COMPREPLY=($(compgen -W "$(_components $cur)"))
+  elif [[ $prev == -policy  ||
+          $prev == -npolicy ]]; then
+    COMPREPLY=($(compgen -W "$_policies" -- $cur))
+  elif [[ $prev == , || $prev == -recommended || $cur == , ]]; then
+    if [[ $cur == , ]]; then
+      cur=''
+    fi
+    COMPREPLY=($(compgen -W "$(_baselines $cur)"))
+  elif [[ $prev == -target || $cur == * ]]; then
+    COMPREPLY=($(compgen -W "$(_streams $cur)"))
+  fi
+} # _chstream
+
+function _chview () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-cachesize \
+-cview \
+-force \
+-nshareable \
+-readonly \
+-readwrite \
+-shareable \
+-stream \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -stream ]]; then
+    COMPREPLY=($(compgen -W "$(_streams $cur)"))
+  elif [[ $prev == * ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  fi
+} # _chview
+
+function _deliver () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-activities \
+-cact \
+-complete \
+-force \
+-gmerge \
+-graphical \
+-query \
+-reset \
+-serial \
+-stream \
+-target \
+-to \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -stream || $prev == -target ]]; then
+    COMPREPLY=($(compgen -W "$(_streams $cur)"))
+  elif [[ $prev == -to ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  elif [[ $prev == -activities ]]; then
+  	COMPREPLY=($(compgen -W "$(_activities $cur)"))
+  fi
+} # _deliver
+
+function _describe () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-aattr \
+-ahlink \
+-alabel \
+-aliases \
+-all \
+-cact \
+-cview \
+-graphical \
+-ihlink \
+-local \
+-long \
+-pname \
+-predecessor \
+-type \
+-version \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+    COMPREPLY=($(compgen -W "$_object_selectors" -- $cur))
+  fi
+} # _describe
+
+function _dospace () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-before \
+-pool \
+-references \
+-region \
+-scrub \
+-since \
+-size \
+-top \
+-update \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -region ]]; then
+    COMPREPLY=($(compgen -W "$(lsregions)" -- $cur))
+  fi
+} # _dospace
+
+function _edcs () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-ctime \
+-overwrite \
+-ptime \
+-rename \
+-tag \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -tag ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  fi
+} # _edcs
+
+function _endview () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-server \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == * ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  fi
+} # _endview
+
+function _file () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-all \
+-invob \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -invob ]]; then
+    COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  fi
+} # _file
+
+function _getlog () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-all \
+-around \
+-cview \
+-full \
+-graphical \
+-host \
+-inquire \
+-last \
+-since \
+-tag \
+-vob \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -tag || $prev == -target ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  elif [[ $prev == -vob ]]; then
+    COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  elif [[ $prev == -host ]]; then
+    COMPREPLY=($(compgen -W "$(_cchosts)" -- $cur))
+  fi
+} # _getlog
+
+function _hostinfo () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-full \
+-long \
+-properties \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_cchosts)" -- $cur))
+  fi
+} # _hostinfo
+
+function _lsactivity () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-ancestor \
+-cact \
+-contrib \
+-cview \
+-depth \
+-fmt \
+-fmt \
+-in \
+-invob \
+-long \
+-me \
+-obsolete \
+-recurse \
+-short \
+-user \
+-view \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -invob ]]; then
+    COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  elif [[ $prev == -in ]]; then
+    COMPREPLY=($(compgen -W "$(_streams $cur)"))  
+  elif [[ $prev == -view ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_activities $cur)"))
+  fi
+} # _lsactivity
+
+function _lsbl () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-component \
+-cview \
+-fmt \
+-gtlevel \
+-level \
+-long \
+-long \
+-ltlevel \
+-obsolete \
+-recurse \
+-short \
+-stream \
+-tree \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -component ]]; then
+    COMPREPLY=($(compgen -W "$(_components $cur)"))
+  elif [[ $prev == -stream ]]; then
+    COMPREPLY=($(compgen -W "$(_streams $cur)"))  
+  fi
+} # _lsbl
+
+function _lsclients () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-host \
+-type \
+-short \
+-long \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -host ]]; then
+  	COMPREPLY=($(compgen -W "$(_cchosts $cur)"))
+  fi
+} # _lsclients
+
+function _lscomp () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-fmt \
+-invob \
+-long \
+-obsolete \
+-short \
+-tree \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -invob ]]; then
+    COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  elif [[ $cur == * ]]; then
+    COMPREPLY=($(compgen -W "$(_components $cur)"))
+  fi
+} # _lscomp
+
+function _lsfolder () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-ancestor \
+-cview \
+-depth \
+-fmt \
+-in \
+-invob \
+-obsolete \
+-recurse \
+-short \
+-tree \
+-view \
+"
+  local lopts="$opts -long"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+  	if [[ $prev == -llfolder ]]; then
+      COMPREPLY=($(compgen -W "$opts" -- $cur))
+  	else
+      COMPREPLY=($(compgen -W "$lopts" -- $cur))
+  	fi
+  elif [[ $prev == -invob ]]; then
+    COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  elif [[ $prev == -view ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  elif [[ $prev == -in || $cur == * ]]; then
+    COMPREPLY=($(compgen -W "$(_folders $cur)"))
+  fi
+} # _lsfolder
+
+function _lspool () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-fmt \
+-invob \
+-long \
+-obsolete \
+-short \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -invob ]]; then
+    COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  fi
+} # _lspool
+
+function _lsprivate () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-age \
+-co \
+-do \
+-invob \
+-long \
+-other \
+-short \
+-size \
+-tag \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -tag ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  elif [[ $prev == -invob ]]; then
+    COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  fi
+} # _lsprivate
+
+function _lsproject () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-ancestor \
+-custom \
+-cview \
+-depth \
+-fmt \
+-in \
+-invob \
+-long \
+-obsolete \
+-recurse \
+-short \
+-template \
+-tree \
+-view \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -view ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  elif [[ $prev == -invob ]]; then
+    COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  elif [[ $prev == -in || $cur == * ]]; then
+    COMPREPLY=($(compgen -W "$(_folders $cur)"))  
+  fi
+} # _lsproject
+
+function _lsregion () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-long \
+-short \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == * ]]; then
+    regions=$(scm lsregion -short | grep ^$cur)
+    COMPREPLY=($(compgen -W "$regions" -- $cur))
+  fi
+} # _lsregion
+
+function _lsstgloc () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-host \
+-long \
+-region \
+-short \
+-storage \
+-view \
+-vob \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -region ]]; then
+    COMPREPLY=($(compgen -W "$(_regions $cur)" -- $cur))
+  elif [[ $prev == -storage ]]; then
+    COMPREPLY=($(compgen -W "$(_stglocs $cur)"))
+  elif [[ $prev == -host ]]; then
+    _cchosts
+  fi
+} # _lsstgloc
+
+function _lsstream () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-ancestor \
+-cview \
+-depth \
+-fmt \
+-in \
+-invob \
+-obsolete \
+-recurse \
+-short \
+-template \
+-tree \
+-view \
+"
+  local lopts="$opts -long"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+  	if [[ $prev == llstream ]]; then
+      COMPREPLY=($(compgen -W "$opts" -- $cur))
+  	else
+      COMPREPLY=($(compgen -W "$lopts" -- $cur))
+  	fi
+  elif [[ $prev == -in ]]; then
+  	COMPREPLY=($(compgen -W "$(_projects $cur)"))
+  elif [[ $prev == -invob ]]; then
+    COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  elif [[ $prev == -view ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)"))
+  elif [[ $cur == * ]]; then
+    COMPREPLY=($(compgen -W "$(_streams $cur)"))
+  fi
+} # _lsstream
+
+function _lstype () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-fmt \
+-graphical \
+-invob \
+-kind \
+-local \
+-long \
+-nostatus \
+-obsolete \
+-short \
+-unsorted \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -kind ]]; then
+  	COMPREPLY=($(compgen -W "$_kinds" -- $cur))
+  elif [[ $prev == -invob ]]; then
+    COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  elif [[ $cur == * ]]; then
+    _type_selector
+  fi
+} # _lstype
+
+function _lsview () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-age \
+-cview \
+-full \
+-host \
+-properties \
+-quick \
+-region \
+-short \
+-storage \
+-text \
+-uuid \
+"
+  local lopts="$opts -long"
+  
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+  	if [[ $prev == llview ]]; then
+      COMPREPLY=($(compgen -W "$opts" -- $cur))
+  	else
+      COMPREPLY=($(compgen -W "$lopts" -- $cur))
+  	fi
+  elif [[ $prev == -region ]]; then
+  	COMPREPLY=($(compgen -W "$(_regions $cur)" -- $cur))
+  elif [[ $prev == -host ]]; then
+    COMPREPLY=($(compgen -W "$(_cchosts $cur)"))
+  elif [[ $cur == * ]]; then
+    COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  fi
+} # _lsview
+
+function _lsvob () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-family \
+-graphical \
+-host \
+-quick \
+-region \
+-short \
+-storage \
+-uuid \
+"
+  lopts="$opts -long"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    if [[ $prev == llvob ]]; then
+      COMPREPLY=($(compgen -W "$opts" -- $cur))
+    else
+      COMPREPLY=($(compgen -W "$lopts" -- $cur))
+    fi      
+  elif [[ $prev == -region ]]; then
+  	COMPREPLY=($(compgen -W "$(_regions $cur)"))
+  elif [[ $prev == -host ]]; then
+    COMPREPLY=($(compgen -W "$(_cchosts $cur)"))
+  elif [[ $cur == * ]]; then
+    COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  fi
+} # _lsvob
+
+function _mkactivity () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-force \
+-headline \
+-in \
+-nset \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -in ]]; then
+  	COMPREPLY=($(compgen -W "$(_streams $cur)"))
+  fi
+} # _mkactivity
+
+function _mkbl () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-activities \
+-adepends \
+-all \
+-component \
+-ddepends \
+-full \
+-identical \
+-import \
+-incremental \
+-nact \
+-nlabel \
+-view \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -activities ]]; then
+  	COMPREPLY=($(compgen -W "$(_activities $cur)"))
+  elif [[ $prev == -component   ||
+          $prev == -adepends_on ||
+          $prev == -ddepends_on ]]; then
+  	COMPREPLY=($(compgen -W "$(_components $cur)"))
+  elif [[ $prev == -clone ]]; then
+  	COMPREPLY=($(compgen -W "$(_baselines $cur)"))
+  elif [[ $prev == -view ]]; then
+  	COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  fi
+} # _mkbl
+
+function _mkcomp () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-nroot \
+-root \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_components $cur)"))
+  fi
+} # _mkcomp
+
+function _mkfolder () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-in \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -in || 
+          $cur  == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_folders $cur)"))
+  fi
+} # _mkfolder
+
+function _mkproject () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-blname \
+-connection \
+-crmenable \
+-custom \
+-in \
+-modcomp \
+-model \
+-npolicy \
+-policy \
+-spolicy \
+-template \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -modcomp ]]; then
+  	COMPREPLY=($(compgen -W "$(_components $cur)"))
+  elif [[ $prev == -in ]]; then
+  	COMPREPLY=($(compgen -W "$(_folders $cur)"))
+  elif [[ $prev == -policy  ||
+          $prev == -npolicy ||
+          $prev == -spolicy ]]; then
+  	COMPREPLY=($(compgen -W "$_policies" -- $cur))
+  fi
+} # _mkproject
+
+function _mkregion () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-replace \
+-tag \
+-tcomment \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -tag ]]; then
+  	COMPREPLY=($(compgen -W "$(_regions $cur)" -- $cur))
+  fi
+} # _mkregion
+
+function _mkstgloc () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-comment \
+-force \
+-gpath \
+-host \
+-hpath \
+-ngpath \
+-region \
+-view \
+-vob \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -region ]]; then
+  	COMPREPLY=($(compgen -W "$(_regions $cur)" -- $cur))
+  elif [[ $prev == -host ]]; then
+  	COMPREPLY=($(compgen -W "$(_cchosts $cur)"))
+  fi
+} # _mkstgloc
+
+function _mkstream () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-amodcomp \
+-baseline \
+-in \
+-integration \
+-nc \
+-npolicy \
+-policy \
+-readonly \
+-target \
+-template \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -amodcomp ]]; then
+  	COMPREPLY=($(compgen -W "$(_components $cur)"))
+  elif [[ $prev == -baseline ]]; then
+  	COMPREPLY=($(compgen -W "$(_baselines $cur)"))
+  elif [[ $prev == -in ]]; then
+  	COMPREPLY=($(compgen -W "$(_projects $cur)"))
+  elif [[ $prev == -policy  ||
+          $prev == -npolicy ]]; then
+  	COMPREPLY=($(compgen -W "$(_policies $cur)" -- $cur))
+  fi
+} # _mkstream
+
+function _mktag () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-gpath \
+-host \
+-nstart \
+-options \
+-password \
+-public \
+-region \
+-replace \
+-tag \
+-tcomment \
+-view \
+-vob \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+  prev2="$(COMP_WORDS[COMP_CWORD-2])"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev2 == -view && $prev == "-tag" ]]; then
+  	COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  elif [[ $prev2 == -vob && $prev == "-tag" ]]; then
+  	COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  elif [[ $prev == -region ]]; then
+  	COMPREPLY=($(compgen -W "$(_regions $cur)" -- $cur))
+  elif [[ $prev == -host ]]; then
+  	COMPREPLY=($(compgen -W "$(_cchosts $cur)"))
+  fi
+} # _mktag
+
+function _mktrtype () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-activity \
+-all \
+-attype \
+-baseline \
+-brtype \
+-component \
+-eltype \
+-execunix \
+-execwin \
+-folder \
+-hltype \
+-lbtype \
+-mkattr \
+-mkhlink \
+-mklabel \
+-nc \
+-nusers \
+-postop \
+-print \
+-project \
+-replace \
+-stream \
+-trtype \
+-type \
+-ucmobject \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -preop ||
+          $prev == -postopt ]]; then
+  	COMPREPLY=($(compgen -W "$_operation_types" -- $cur))
+  elif [[ $prev == -project ]]; then
+  	COMPREPLY=($(compgen -W "$(_projects $cur)"))
+  elif [[ $prev == -stream ]]; then
+  	COMPREPLY=($(compgen -W "$(_streams $cur)"))
+  elif [[ $prev == -component ]]; then
+  	COMPREPLY=($(compgen -W "$(_components $cur)"))
+  elif [[ $prev == -folder ]]; then
+  	COMPREPLY=($(compgen -W "$(_folders $cur)"))
+  elif [[ $prev == -activity ]]; then
+  	COMPREPLY=($(compgen -W "$(_activites $cur)" -- $cur))
+  elif [[ $prev == -baseline ]]; then
+  	COMPREPLY=($(compgen -W "$(_baselines $cur)"))
+  elif [[ $prev == -attype ]]; then
+  	COMPREPLY=($(compgen -W "$(_attypes $cur)"))
+  elif [[ $prev == -brtype ]]; then
+  	COMPREPLY=($(compgen -W "$(_brtypes $cur)"))
+  elif [[ $prev == -eltype ]]; then
+  	COMPREPLY=($(compgen -W "$(_eltypes $cur)"))
+  elif [[ $prev == -hltype ]]; then
+  	COMPREPLY=($(compgen -W "$(_hltypes $cur)"))
+  elif [[ $prev == -lbtype ]]; then
+  	COMPREPLY=($(compgen -W "$(_lbtypes $cur)"))
+  elif [[ $prev == -trtypes ]]; then
+  	COMPREPLY=($(compgen -W "$(_trtypes $cur)"))
+  fi
+} # _mktrtype
+
+function _mkview () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-auto \
+-cachesize \
+-colocated \
+-gpath \
+-host \
+-hpath \
+-nshareable \
+-ptime \
+-region \
+-shareable \
+-snapshot \
+-stgloc \
+-stream \
+-tag \
+-tcomment \
+-tmode \
+-vws \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -tag ]]; then
+  	COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  elif [[ $prev == -region ]]; then
+  	COMPREPLY=($(compgen -W "$(_regions $cur)" -- $cur))
+  elif [[ $prev == -stgloc ]]; then
+  	COMPREPLY=($(compgen -W "$(_stglocs $cur)"))
+  elif [[ $prev == -host ]]; then
+  	COMPREPLY=($(compgen -W "$(_cchosts $cur)"))
+  fi
+} # _mkview
+
+function _mkvob () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-auto \
+-gpath \
+-host \
+-hpath \
+-nc \
+-nremote \
+-options \
+-password \
+-public \
+-region \
+-stgloc \
+-tag \
+-tcomment \
+-ucmproject \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -tag ]]; then
+  	COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  elif [[ $prev == -region ]]; then
+  	COMPREPLY=($(compgen -W "$(_regions $cur)" -- $cur))
+  elif [[ $prev == -stgloc ]]; then
+  	COMPREPLY=($(compgen -W "$(_stglocs $cur)"))
+  elif [[ $prev == -host ]]; then
+  	COMPREPLY=($(compgen -W "$(_cchosts $cur)"))
+  fi
+} # _mkvob
+
+function _mount () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-all \
+-options \
+-persistent \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  fi
+} # _mount
+
+function _rebase () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-abort \
+-baseline \
+-cancel \
+-complete \
+-dbaseline \
+-force \
+-gmerge \
+-graphical \
+-long \
+-ok \
+-preview \
+-qall \
+-qntrivial \
+-query \
+-recommended \
+-resume \
+-serial \
+-short \
+-status \
+-stream \
+-view \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -view ]]; then
+  	COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  elif [[ $prev == -stream ]]; then
+  	COMPREPLY=($(compgen -W "$(_streams $cur)"))
+  elif [[ $prev == -baseline  ||
+          $prev == -dbaseline ]]; then
+  	COMPREPLY=($(compgen -W "$(_baselines $cur)"))
+  fi
+} # _rebase
+
+function _recoverview () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-directory \
+-force \
+_synchronize \
+-tag \
+-vob \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -tag ]]; then
+  	COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  elif [[ $prev == -vob ]]; then
+  	COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  fi
+} # _recoverview
+
+function _reformatview () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-dump \
+-load \
+-tag \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -tag ]]; then
+  	COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  fi
+} # _reformatview
+
+function _reformatvob () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-dump \
+-force \
+-host \
+-hpath \
+-load \
+-rm \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -host ]]; then
+  	COMPREPLY=($(compgen -W "$(_cchosts $cur)"))
+  fi
+} # _reformatvob
+
+function _register () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-host \
+-hpath \
+-replace \
+-ucmproject \
+-view \
+-vob \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -host ]]; then
+  	COMPREPLY=($(compgen -W "$(_cchosts $cur)"))
+  fi
+} # _register
+
+function _rmactivity () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-force \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_activities $cur)"))
+  fi
+} # _rmactivity
+
+function _rmattr () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-recurse \
+-version \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_attypes $cur)"))
+  fi
+} # _rmattr
+
+function _rmbl () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-force\
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_baselines $cur)"))
+  fi
+} # _rmbl
+
+function _rmcomp () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-force\
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_components $cur)"))
+  fi
+} # _rmcomp
+
+function _rmfolder () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-force\
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_folders $cur)"))
+  fi
+} # _rmfolder
+
+function _rmhlink () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_hltypes $cur)"))
+  fi
+} # _rmhlink
+
+function _rmlabel () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-follow \
+-recurse \
+-version \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_lbtypes $cur)"))
+  fi
+} # _rmlabel
+
+function _rmproject () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-force \
+-template \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_projects $cur)"))
+  fi
+} # _rmproject
+
+function _rmregion () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-password \
+-rmall \
+-tag \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -tag ]]; then
+  	COMPREPLY=($(compgen -W "$(_regions $cur)" -- $cur))
+  fi
+} # _rmregion
+
+function _rmstgloc () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-all \
+-region \
+-storage \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -region ]]; then
+  	COMPREPLY=($(compgen -W "$(_regions $cur)" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_stglocs $cur)"))
+  fi
+} # _rmstgloc
+
+function _rmstream () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-force \
+-template \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_streams $cur)"))
+  fi
+} # _rmstream
+
+function _rmtag () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-all \
+-region \
+-view \
+-vob \
+-password \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -view ]]; then
+  	COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))
+  elif [[ $prev == -vob ]]; then
+  	COMPREPLY=($(compgen -W "$(_vobs $cur)"))
+  elif [[ $prev == -region ]]; then
+  	COMPREPLY=($(compgen -W "$(_regions $cur)" -- $cur))
+  fi
+} # _rmtag
+
+function _rmtrigger () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-nattach \
+-ninherit \
+-recurse \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_trtypes $cur)"))
+  fi
+} # _rmtrigger
+
+function _rmtype () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-force \
+-ignore \
+-rmall \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	_type_selectors
+  fi
+} # _rmtype
+
+function _rmview () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-all \
+-avobs \
+-force \
+-tag \
+-vob \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -tag ]]; then
+  	COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))  	
+  elif [[ $prev == -vob ]]; then
+  	COMPREPLY=($(compgen -W "$(_vobs $cur)"))  	
+  fi
+} # _rmview
+
+function _rmvob () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-force \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_vobs $cur)"))  	
+  fi
+} # _rmvob
+
+function _setcs () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-ctime \
+-current \
+-default \
+-force \
+-overwrite \
+-pname \
+-ptime \
+-rename \
+-stream \
+-tag \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == -tag ]]; then
+  	COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))  	
+  fi
+} # _setcs
+
+function _setplevel () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-default \
+-invob \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -invob ]]; then
+  	COMPREPLY=($(compgen -W "$(_vobs $cur)"))  	
+  fi
+} # _setplevel
+
+function _setview() {
+  local cur prev
+  local opts="\
+$_global_opts \
+-login \
+-exec \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* && $ARCH != cygwin ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_views $cur)"))  	
+  fi
+} # _setview
+
+function _space () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-all \
+-directory \
+-generate \
+-host \
+-region \
+-scrub \
+-update \
+-view \
+-vob \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $prev == -view ]]; then
+  	COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))  	
+  elif [[ $prev == -vob || $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_vobs $cur)"))  	
+  fi
+} # _space
+
+function _startview () {
+  local cur prev
+  local opts="\
+$_global_opts \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(lsviews)" -- $cur))  	
+  fi
+} # _startview
+
+function _umount () {
+  local cur prev
+  local opts="\
+$_global_opts \
+-all
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_vobs $cur)"))  	
+  fi
+} # _umount
+
+function _unlock () {
+  local cur prev
+  local opts="\
+$_global_opts \
+$_comment_opts \
+-pname \
+-version \
+"
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+  if [[ $cur == -* ]]; then
+    COMPREPLY=($(compgen -W "$opts" -- $cur))
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$(_object_selector $cur)" -- $cur))  	
+  fi
+} # _unlock
+
+function _scm () {
+  local cur prev
+
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  cmd="${COMP_WORDS[0]}"
+  subcmd="${COMP_WORDS[1]}"
+  
+  if [[ $cmd == scm || $cmd == ct ]]; then
+  	if [[ $COMP_CWORD == 1 ]]; then
+  	  COMPREPLY=($(compgen -W "$_scm_cmds" -- $cur))
+  	else
+      case "$subcmd" in
+        annotate)
+          COMPREPLY=($(compgen -W "$_annotate_opts" -- $cur));;
+        catcr)
+          COMPREPLY=($(compgen -W "$_catcr_opts" -- $cur));;
+        catcs)
+          _catcs;;
+        chactivity)
+          _chactivity;;
+        chbl)
+          COMPREPLY=($(compgen -W "$_chbl_opts" -- $cur));;
+        checkin|ci)
+          _checkin;;
+        checkout|co)
+          COMPREPLY=($(compgen -W "$_checkout_opts" -- $cur));;
+        checkvob)
+          _checkvob;;
+        chevent)
+          _chevent;;
+        chflevel)
+          COMPREPLY=($(compgen -W "$_chflevel_opts" -- $cur));;
+        chfolder)
+          _chfolder;;
+        chmaster)
+          _chmaster;;
+        chpool)
+          COMPREPLY=($(compgen -W "$_chpool_opts" -- $cur));;
+        chproject)
+          _chproject;;
+        chstream)
+          _chstream;;
+        chtype)
+          COMPREPLY=($(compgen -W "$_chtype_opts" -- $cur));;
+        chview)
+          _chview;;
+        deliver)
+          _deliver;;
+        describe|desc)
+          _describe;;
+        diff)
+          COMPREPLY=($(compgen -W "$_diff_opts" -- $cur));;
+        diffbl)
+          COMPREPLY=($(compgen -W "$_diffbl_opts" -- $cur));;
+        diffcr)
+          COMPREPLY=($(compgen -W "$_diffcr_opts" -- $cur));;
+        dospace)
+          _dospace;;
+        edcs)
+          _edcs;;
+        endview)
+          _endview;;
+        file)
+          _file;;
+        find)
+          COMPREPLY=($(compgen -W "$_find_opts" -- $cur));;
+        findmerge)
+          COMPREPLY=($(compgen -W "$_findmerge_opts" -- $cur));;
+        get)
+          COMPREPLY=($(compgen -W "$_get_opts" -- $cur));;
+        getcache)
+          COMPREPLY=($(compgen -W "$_getcache_opts" -- $cur));;
+        getlog)
+          _getlog;;
+        help)
+          COMPREPLY=($(compgen -W "$_scm_cmds" -- $cur));;
+        hostinfo)
+          _hostinfo;;
+        ln)
+          COMPREPLY=($(compgen -W "$_ln_opts" -- $cur));;
+        ls)
+          COMPREPLY=($(compgen -W "$_ls_opts" -- $cur));;
+        lsactivity)
+          _lsactivity;;
+        lsbl)
+          _lsbl;;
+        lscheckout|lsco)
+          COMPREPLY=($(compgen -W "$_lscheckout_opts" -- $cur));;
+        lsclients)
+          lsclients;;
+        lscomp)
+          _lscomp;;
+        lsdo)
+          COMPREPLY=($(compgen -W "$_lsdo_opts" -- $cur));;
+        lsfolder)
+          _lsfolder;;
+        lshistory)
+          COMPREPLY=($(compgen -W "$_lshistory_opts" -- $cur));;
+        lslock)
+          COMPREPLY=($(compgen -W "$_lslock_opts" -- $cur));;
+        lsmaster)
+          COMPREPLY=($(compgen -W "$_lsmaster_opts" -- $cur));;
+        lspool)
+          _lspool;;
+        lsprivate)
+          _lsprivate;;
+        lsproject)
+          _lsproject;;
+        lsregion)
+          _lsregion;;
+        lsreplica)
+          COMPREPLY=($(compgen -W "$_lsreplica_opts" -- $cur));;
+        lssite)
+          COMPREPLY=($(compgen -W "$_lssite_opts" -- $cur));;
+        lsstgloc)
+          _lsstgloc;;
+        lsstream)
+          _lsstream;;
+        lstype)
+          _lstype;;
+        lsview)
+          _lsview;;
+        lsvob)
+          _lsvob;;
+        lsvtree|vtree)
+          COMPREPLY=($(compgen -W "$_lsvtree_opts" -- $cur));;
+        man)
+          COMPREPLY=($(compgen -W "$_scm_cmds" -- $cur));;
+        merge)
+          COMPREPLY=($(compgen -W "$_merge_opts" -- $cur));;
+        mkactivity)
+          _mkactivity;;
+        mkattr)
+          COMPREPLY=($(compgen -W "$_mkattr_opts" -- $cur));;
+        mkattype)
+          COMPREPLY=($(compgen -W "$_mkattype_opts" -- $cur));;          
+        mkbl)
+          _mkbl;;
+        mkbranch)
+          COMPREPLY=($(compgen -W "$_mkbranch_opts" -- $cur));;
+        mkbrtype)
+          COMPREPLY=($(compgen -W "$_mkbrtype_opts" -- $cur));;
+        mkcomp)
+          _mkcomp;;
+        mkdir)
+          COMPREPLY=($(compgen -W "$_mkdir_opts" -- $cur));;
+        mkelem)
+          COMPREPLY=($(compgen -W "$_mkelem_opts" -- $cur));;
+        mkeltype)
+          COMPREPLY=($(compgen -W "$_mkeltype_opts" -- $cur));;
+        mkfolder)
+          _mkfolder;;
+        mkhlink)
+          COMPREPLY=($(compgen -W "$_mkhlink_opts" -- $cur));;
+        mkhltype)
+          COMPREPLY=($(compgen -W "$_mkhltype_opts" -- $cur));;
+        mklabel)
+          COMPREPLY=($(compgen -W "$_mklabel_opts" -- $cur));;
+        mklbtype)
+          COMPREPLY=($(compgen -W "$_mklbtype_opts" -- $cur));;
+        mkpool)
+          COMPREPLY=($(compgen -W "$_mkpool_opts" -- $cur));;
+        mkproject)
+          _mkproject;;
+        mkregion)
+          _mkregion;;
+        mkstgloc)
+          _mkstgloc;;
+        mkstream)
+          _mkstream;;
+        mktag)
+          _mktag;;
+        mktrigger)
+          COMPREPLY=($(compgen -W "$_mktrigger_opts" -- $cur));;
+        mktrtype)
+          _mktrtype;;
+        mkview)
+          _mkview;;
+        mkvob)
+          _mkvob;;
+        mount)
+          _mount;;
+        move)
+          COMPREPLY=($(compgen -W "$_move_opts" -- $cur));;
+        protect)
+          COMPREPLY=($(compgen -W "$_protect_opts" -- $cur));;
+        protectvob)
+          COMPREPLY=($(compgen -W "$_protectvob_opts" -- $cur));;
+        pwd)
+          COMPREPLY=($(compgen -W "$_pwd_opts" -- $cur));;
+        pwv)
+          COMPREPLY=($(compgen -W "$_pwv_opts" -- $cur));;
+        rebase)
+          _rebase;;
+        recoverview)
+          _recoverview;;
+        reformatview)
+          _reformatview;;
+        reformatvob)
+          _reformatvob;;
+        register)
+          _register;;
+        relocate)
+          COMPREPLY=($(compgen -W "$_relocate_opts" -- $cur));;
+        rename)
+          COMPREPLY=($(compgen -W "$_rename_opts" -- $cur));;
+        reqmaster)
+          COMPREPLY=($(compgen -W "$_reqmaster_opts" -- $cur));;
+        reserve)
+          COMPREPLY=($(compgen -W "$_reserve_opts" -- $cur));;
+        rmactivity)
+          _rmactivity;;
+        rmattr)
+          _rmattr;;
+        rmbl)
+          _rmbl;;
+        rmbranch)
+          COMPREPLY=($(compgen -W "$_rmbranch_opts" -- $cur));;
+        rmcomp)
+          _rmcomp;;
+        rmdo)
+          COMPREPLY=($(compgen -W "$_rmdo_opts" -- $cur));;
+        rmelem)
+          COMPREPLY=($(compgen -W "$_rmelem_opts" -- $cur));;
+        rmfolder)
+          _rmfolder;;
+        rmhlink)
+          _rmhlink;;
+        rmlabel)
+          _rmlabel;;
+        rmmerge)
+          COMPREPLY=($(compgen -W "$_rmmerge_opts" -- $cur));;
+        rmname)
+          COMPREPLY=($(compgen -W "$_rmname_opts" -- $cur));;
+        rmpool)
+          COMPREPLY=($(compgen -W "$_rmpool_opts" -- $cur));;
+        rmproject)
+          _rmproject;;
+        rmregion)
+          _rmregion;;
+        rmstgloc)
+          _rmstgloc;;
+        rmstream)
+          _rmstream;;
+        rmtag)
+          _rmtag;;
+        rmtrigger)
+          _rmtrigger;;
+        rmtype)
+          _rmtype;;
+        rmver)
+          COMPREPLY=($(compgen -W "$_rmver_opts" -- $cur));;
+        rmview)
+          _rmview;;
+        rmvob)
+          _rmvob;;
+        schedule)
+          COMPREPLY=($(compgen -W "$_schedule_opts" -- $cur));;
+        setcache)
+          COMPREPLY=($(compgen -W "$_setcache_opts" -- $cur));;
+        setcs)
+          _setcs;;
+        setview)
+          _setview;;
+        setplevel)
+          _setplevel;;
+        setsite)
+          COMPREPLY=($(compgen -W "$_setsite_opts" -- $cur));;
+        space)
+          _space;;
+        startview)
+          _startview;;
+        umount)
+          _umount;;
+        uncheckout|unco)
+          COMPREPLY=($(compgen -W "$_uncheckout_opts" -- $cur));;
+        unlock)
+          _unlock;;
+        unregister)
+          COMPREPLY=($(compgen -W "$_unregister_opts" -- $cur));;
+        unreserve)
+          COMPREPLY=($(compgen -W "$_unreserve_opts" -- $cur));;
+        update)
+          COMPREPLY=($(compgen -W "$_update_opts" -- $cur));;
+        winkin)
+          COMPREPLY=($(compgen -W "$_winkin_opts" -- $cur));;
+      esac
+  	fi
+  fi
+} # _scm
+
+# TODO: These functions aren't working very well yet.
+function _type_selector () {
+  local cur prev prev2
+
+  cur="${COMP_WORDS[COMP_CWORD]}"
+
+  if (($COMP_CWORD - 1 >= 0)); then
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+  fi
+  
+  if (($COMP_CWORD - 2 >= 0)); then
+    prev2="${COMP_WORDS[COMP_CWORD-2]}"
+  fi
+
+  if [[ $prev == : ]]; then
+  	COMPREPLY=($(compgen -W "$(ct lstype -kind $prev2 -short -invob $dvob | grep ^$cur)" -- $cur))  
+  elif [[ $cur == : ]]; then
+	COMPREPLY=($(compgen -W "$(ct lstype -kind $prev -short -invob $dvob)"))  
+  elif [[ $cur == * ]]; then
+  	COMPREPLY=($(compgen -W "$_type_selectors" -- $cur))
+  fi    
+} # _type_selector
+
+function _object_selector () {
+  local cur prev prev2
+
+  COMPREPLY=()
+
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  
+  if (($COMP_CWORD - 1 >= 0)); then
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+  fi
+  
+  if (($COMP_CWORD - 2 >= 0)); then
+    prev2="${COMP_WORDS[COMP_CWORD-2]}"
+  fi
+    
+  if [[ $prev == activity || ($prev == : && $prev2 == activity) ]]; then
+  	if [[ $cur == : ]]; then
+  	  COMPREPLY=($(compgen -W "$(_activities)" -- ""))
+  	else
+  	  echo "cur = $cur"
+  	  COMPREPLY=($(compgen -W "$(_activities $cur)"))
+  	  echo "COMPREPLY = ${COMPREPLY[*]}"
+  	fi
+  elif [[ $prev == lbtype || ($prev == : && $prev2 == lbtype) ]]; then
+  	if [[ $cur == : ]]; then
+  	  COMPREPLY=($(compgen -W "$(_lbtypes)" -- ""))
+  	  echo "COMPREPLY = ${COMPREPLY[*]}"
+  	else
+  	  echo "cur = $cur"
+  	  COMPREPLY=($(compgen -W "$(_lbtypes $cur)"))
+  	  echo "COMPREPLY = ${COMPREPLY[*]}"
+  	fi  	
+  elif [[ $cur == * ]] ; then
+    COMPREPLY=($(compgen -W "$_object_selectors" -- $cur))
+  fi
+} # _object_selector
+
+complete -o default -F _scm scm ct
+
+complete -F _catcs       catcs
+complete -F _checkin     ci
+complete -F _deliver     deliver
+complete -F _endview     endview
+complete -F _lsactivity  lsact
+complete -F _lsbl        lsbl
+complete -F _lsproject   lsproj
+complete -F _lsfolder    lsfolder llfolder
+complete -F _lsstgloc    lsstgloc
+complete -F _lsstream    lsstream llstream
+complete -F _lsview      lsview llview
+complete -F _lsvob       lsvob llvob
+complete -F _merge       merge
+complete -F _mktag       mktag
+complete -F _mkview      mkview
+complete -F _rebase      rebase
+complete -F _rmtag       rmtag
+complete -F _rmview      rmview
+complete -F _setactivity setact
+complete -F _setcs       setcs
+complete -F _setview     setview
+complete -F _startview   startview
+complete -F _space       space
+complete -F _register    register
+complete -F _uncheckout  unco
+complete -F _unregister  unregister
+
+complete -F _object_selector -o nospace lstype
+complete -F _object_selector -o nospace lltype
+complete -F _object_selector -o nospace lslock
+complete -F _object_selector -o nospace lllock

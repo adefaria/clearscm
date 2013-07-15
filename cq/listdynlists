@@ -1,0 +1,75 @@
+#!cqperl
+################################################################################
+#
+# File:         listdynlists
+# Description:  This script lists the dynamic lists in the database...
+#
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Sep 23 17:27:58 PDT 2005
+# Language:     Perl
+#
+# (c) Copyright 2005, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+use strict;
+use warnings;
+use CQPerlExt;
+use File::Spec;
+
+our ($me, $SEPARATOR);
+
+my ($abs_path, $lib_path);
+
+BEGIN {
+  # Extract relative path and basename from script name.
+  $0 =~ /(.*)[\/\\](.*)/;
+
+  $abs_path   = (!defined $1) ? "." : File::Spec->rel2abs ($1);
+  $me         = (!defined $2) ? $0  : $2;
+  $me         =~ s/\.pl$//;
+
+  # Remove .pl for Perl scripts that have that extension
+  $me         =~ s/\.pl$//;
+
+  # Define the path SEPARATOR
+  $SEPARATOR  = ($^O =~ /MSWin/) ? "\\" : "/";
+
+  # Setup paths
+  $lib_path   = "$abs_path" . $SEPARATOR . ".." . $SEPARATOR . "lib";
+
+  # Add the appropriate path to our modules to @INC array.
+  unshift (@INC, "$abs_path");
+  unshift (@INC, "$lib_path");
+} # BEGIN
+
+use PQA;
+use Display;
+
+my @dynamic_lists = (
+  "Advanced_Feature",
+  "Board_Revision",
+  "HUT",
+  "HUT_Revision",
+  "OS",
+  "OS_Service_Pack",
+  "Other_HUT",
+  "Project",
+  "Reported_By",
+  "Software",
+  "Visibility",
+);
+
+my $to_db_connection_name       = "2005.02.00";
+my $controller                  = StartSession "Cont", $to_db_connection_name;
+
+foreach (@dynamic_lists) {
+  display "\nDynamic List: $_";
+  my @values = @{$controller->GetListMembers ($_)};
+  my $i = 0;
+
+  foreach (@values) {
+    display "\t" . ++$i . ") $_";
+  } # foreach
+} # foreach
+
+EndSession $controller;

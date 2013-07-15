@@ -1,0 +1,214 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         $RCSfile: mkplaylist,v $
+# Revision:     $Revision: 1.5 $
+# Description:  Script to generate a random playlist of x nbr files
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Sep 13 09:56:55 CDT 2006
+# Modified:     $Date: 2011/01/09 00:54:42 $
+# Language:     Perl
+#
+# (c) Copyright 2006, ClearSCM, Inc., all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+
+use MP3::Info;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+use Display;
+use OSDep;
+use Utils;
+
+my $version		= "1.0";
+my $default_music_root	= "/web/Music";
+
+my %opts;
+my @mp3files;
+
+sub Usage {
+  my $msg = shift;
+
+  if (defined $msg) {
+    dipslay $msg;
+  } # if
+
+  display "Usage: $FindBin::Script: [ -verbose | -v ] [ -n <limit> ]";
+  display "\t\t   [ -f <filename> ] [ -m <music_root> ]";
+  display "\nWhere:\n";
+  display "  -n <limit>\t\tLimit playlist to <n> entries (Default: 100 entires)";
+  display "  -verbose\t\tTurn on verbose mode (Default: verbose off)";
+  display "  -f <filename>\t\tWrite playlist to <filename> (Default: playlist.wpl)";
+  display "  -m <music_root>\tStart searching at <music_root> (Default: $default_music_root)";
+  exit 1;
+} # usage
+
+sub GetMusic {
+  my $music_dir = shift;
+
+  opendir MUSIC, "$music_dir"
+    or error "Unable to open music directory $music_dir", 1;
+
+  my @entries = grep {!/^\./} readdir MUSIC;
+
+  my $mp3info;
+
+  closedir MUSIC;
+
+  foreach (@entries) {
+    my $entity = "$music_dir/$_";
+    if (-d "$entity") {
+      debug "Subdirectory found - recursing to $entity...";
+      GetMusic ($entity);
+    } else {
+      if (/\.mp3$/) {
+	debug "\t$_";
+	$mp3info = MP3::Info->new ($entity);
+	verbose_nolf ".";
+	# WPL files don't like &.
+	if (!defined $mp3info->{FILE}) {
+	  $mp3info->{FILE} = "Unknown";
+	} else {
+	  $mp3info->{FILE} =~ s/&/&amp;/g;
+	  # When we run on Linux is /web but from XP it's //Jupiter
+	  $mp3info->{FILE} =~ s/\/web/\/\/Jupiter/;
+	} # if
+
+	push @mp3files, $mp3info;
+      } else {
+	debug "-\t$_ skipped";
+      } # if
+    } # if
+  } # foreach
+} # GetMusic
+
+sub RandomizePlaylist {
+  my @mp3files = @_;
+
+  my @return_titles;
+
+  my @genres_to_skip = (
+    "Audio Book",
+    "Educational",
+    "Podcast",
+    "Talk Radio",
+  );
+
+  verbose_nolf "Randomizing playlist (${opts {n}})...";
+
+  # if we are asking for more than we have then just return everything
+  if ($opts {n} > $#mp3files) {
+    $opts {n} = $#mp3files;
+    return @mp3files;
+  } # if
+
+  # Fill @return_titles with randomly selected songs.
+  for (my $i = 0; $i < ${opts{n}};) {
+    my $random = int (rand ($#mp3files));
+
+    # These are random songs - not random speach. Certain genres are
+    # always skipped.
+    next unless defined $mp3files[$random]->{GENRE};
+    next if InArray ($mp3files [$random]->{GENRE}, @genres_to_skip);
+
+    # Crude beginnings to a more sophisticated selection mechanism. If
+    # the t option was given then only consider songs that are in the
+    # Genre specified by t. Note this currently loops forever if more
+    # songs are requested than we have.
+    if (defined $opts {t}) {
+      if ($opts {t} eq $mp3files [$random]->{GENRE}) {
+	# Eliminate dups. No sense in giving back the same song more
+	# than once.
+	if (!InArray $mp3files [$random], @return_titles) {
+	  push @return_titles, $mp3files [$random];
+	  $i++;
+	} else {
+	  debug "Eliminating dup";
+	} # if
+      } # if
+    } else {
+      # Eliminate dups. No sense in giving back the same song more
+      # than once.
+      if (!InArray $mp3files [$random], @return_titles) {
+	push @return_titles, $mp3files [$random];
+	$i++;
+      } else {
+	debug "Eliminating dup";
+      } # if
+    } # if
+  } # for
+
+  verbose " done";
+
+  return @return_titles;
+} # RandomizePlaylist
+
+sub WritePlaylistXML {
+  my @playlist = @_;
+
+  verbose "Writing playlist ${opts {f}}";
+  open PLAYLIST, ">${opts {f}}"
+    or error "Unable to open playlist file ${opts {f}}", 1;
+
+  # Write heading
+  print PLAYLIST <<END;
+<?wpl version="1.0"?>
+<smil>
+  <head>
+    <meta name="Generator" content="Microsoft Windows Media Player -- 10.0.0.3990"/>
+    <author>Andrew\@DeFaria.com Copyright (c) 2006 ($FindBin::Script V$version)</author>
+    <title>Random Playlist of ${opts {n}} songs</title>
+  </head>
+<body>
+<seq>
+END
+
+  my $total_size = 0;
+
+  # Write the songs...
+  foreach (@playlist) {
+    print PLAYLIST "  <media src=\"$_->{FILE}\"/>\n";
+    $total_size += $_->{SIZE}
+  } # foreach
+
+  # Write the footing
+  print PLAYLIST <<END;
+</seq>
+</body>
+</smil>
+END
+
+  close PLAYLIST;
+  verbose "${opts {n}} entries writen to ${opts {f}} totaling " .
+    int ($total_size / (1024 * 1024)) . " Meg";
+} # WritePlaylistXML
+
+# Turn off buffering
+$| = 1;
+
+# Set the defaults
+$opts {n}	= 100;
+$opts {f}	= "random_playlist.wpl";
+$opts {m}	= $default_music_root;
+
+my $result = GetOptions (
+  \%opts,
+  "usage"        => sub { Usage },
+  "verbose"      => sub { set_verbose },
+  "debug"        => sub { set_debug },
+  "n=i",
+  "f=s",
+  "t=s",
+  "m=s",
+) || Usage;
+
+verbose "Gathering information about music in ${opts {m}}...";
+GetMusic ($opts {m});
+verbose "\n" . $#mp3files . " files found";
+
+WritePlaylistXML (RandomizePlaylist (@mp3files));

@@ -1,0 +1,91 @@
+<style type="text/css">
+a:link { 
+  color:		white;
+}
+a:visited {
+  color:		white;
+}
+a:hover { 
+  color:		white;
+  background-color:	#004080;
+  text-decoration:	underline;
+}
+a:active { 
+  color: 		#333;
+}
+.name a:link {
+  color:		#fc0;
+}
+.name a:visited {
+  color:		#fc0;
+}
+.name a:hover {
+  color:		#fc0;
+  background-color:	#333;
+  text-decoration:	underline;
+}
+.name a:active {
+  color:		red;
+}
+td {
+  font:			Helvetica Arial Serif
+  font-size:		16px;
+}
+</style>
+<table bgcolor="#666666" border="0" cellpadding="0" cellspacing="0"
+ width="376">
+  <tbody>
+    <tr>
+      <td><a href="http://clearscm.com"><img alt=""
+ src="file:///D:/Profiles/p6258c/My%20Documents/Logo.jpg" border="0"
+ height="84" width="376"></a></td>
+    </tr>
+    <tr>
+      <td style="margin: 10px;">
+      <table border="0" cellpadding="5" cellspacing="0" width="100%">
+        <tbody>
+          <tr>
+            <td valign="top">
+            <div class="name"><a href="http://defaria.com"><b>Andrew
+DeFaria</b></a></div>
+            <table border="0" cellpadding="0" cellspacing="0"
+ width="100%">
+              <tbody>
+                <tr>
+                  <td valign="top"><font color="white"><b>President</b></font></td>
+                  <td align="right"><a href="http://clearscm.com"><b>ClearSCM,
+Inc.</b></a></td>
+                </tr>
+                <tr>
+                  <td> </td>
+                  <td align="right"><font color="white" size="-1">1250
+West Grove Parkway #1178</font></td>
+                </tr>
+                <tr>
+                  <td><font color="white" size="-1"><i>The power to see
+clearly...</i></font></td>
+                  <td align="right"><font color="white" size="-1">Tempe,
+Arizona 85283-4449</font></td>
+                </tr>
+                <tr>
+                  <td><font color="white" size="-1"><i>Professional SCM
+Consultants</i></font></td>
+                  <td align="right"><font color="white" size="-1">Phone:
+480-220-7526</font></td>
+                </tr>
+                <tr>
+                  <td><font color="white"><a href="http://ClearSCM.com">http://ClearSCM.com</a><br>
+                  </font></td>
+                  <td align="right"><font color="white"><a
+ href="mailto:Info@ClearSCM.com">Info@ClearSCM.com</a></font></td>
+                </tr>
+              </tbody>
+            </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      </td>
+    </tr>
+  </tbody>
+</table>

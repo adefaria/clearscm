@@ -1,0 +1,175 @@
+#!/bin/ksh
+################################################################################
+#
+# File:         date64
+# Description:  Routines to handle the odd date arithmetic for the passwd(4)
+#               file.
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Oct 14 14:40:31 PDT 1999
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-$HOME/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Globals
+# Set up a the character map/base64 arrays for conversion
+base=64
+let index=00; character[$index]="."; let base64[$index]=$base*$index
+let index=01; character[$index]="/"; let base64[$index]=$base*$index
+let index=02; character[$index]="0"; let base64[$index]=$base*$index
+let index=03; character[$index]="1"; let base64[$index]=$base*$index
+let index=04; character[$index]="2"; let base64[$index]=$base*$index
+let index=05; character[$index]="3"; let base64[$index]=$base*$index
+let index=06; character[$index]="4"; let base64[$index]=$base*$index
+let index=07; character[$index]="5"; let base64[$index]=$base*$index
+let index=08; character[$index]="6"; let base64[$index]=$base*$index
+let index=09; character[$index]="7"; let base64[$index]=$base*$index
+let index=10; character[$index]="8"; let base64[$index]=$base*$index
+let index=11; character[$index]="9"; let base64[$index]=$base*$index
+let index=12; character[$index]="A"; let base64[$index]=$base*$index
+let index=13; character[$index]="B"; let base64[$index]=$base*$index
+let index=14; character[$index]="C"; let base64[$index]=$base*$index
+let index=15; character[$index]="D"; let base64[$index]=$base*$index
+let index=16; character[$index]="E"; let base64[$index]=$base*$index
+let index=17; character[$index]="F"; let base64[$index]=$base*$index
+let index=18; character[$index]="G"; let base64[$index]=$base*$index
+let index=19; character[$index]="H"; let base64[$index]=$base*$index
+let index=20; character[$index]="I"; let base64[$index]=$base*$index
+let index=21; character[$index]="J"; let base64[$index]=$base*$index
+let index=22; character[$index]="K"; let base64[$index]=$base*$index
+let index=23; character[$index]="L"; let base64[$index]=$base*$index
+let index=24; character[$index]="M"; let base64[$index]=$base*$index
+let index=25; character[$index]="N"; let base64[$index]=$base*$index
+let index=26; character[$index]="O"; let base64[$index]=$base*$index
+let index=27; character[$index]="P"; let base64[$index]=$base*$index
+let index=28; character[$index]="Q"; let base64[$index]=$base*$index
+let index=29; character[$index]="R"; let base64[$index]=$base*$index
+let index=30; character[$index]="S"; let base64[$index]=$base*$index
+let index=31; character[$index]="T"; let base64[$index]=$base*$index
+let index=32; character[$index]="U"; let base64[$index]=$base*$index
+let index=33; character[$index]="V"; let base64[$index]=$base*$index
+let index=34; character[$index]="W"; let base64[$index]=$base*$index
+let index=35; character[$index]="X"; let base64[$index]=$base*$index
+let index=36; character[$index]="Y"; let base64[$index]=$base*$index
+let index=37; character[$index]="Z"; let base64[$index]=$base*$index
+let index=38; character[$index]="a"; let base64[$index]=$base*$index
+let index=39; character[$index]="b"; let base64[$index]=$base*$index
+let index=40; character[$index]="c"; let base64[$index]=$base*$index
+let index=41; character[$index]="d"; let base64[$index]=$base*$index
+let index=42; character[$index]="e"; let base64[$index]=$base*$index
+let index=43; character[$index]="f"; let base64[$index]=$base*$index
+let index=44; character[$index]="g"; let base64[$index]=$base*$index
+let index=45; character[$index]="h"; let base64[$index]=$base*$index
+let index=46; character[$index]="i"; let base64[$index]=$base*$index
+let index=47; character[$index]="j"; let base64[$index]=$base*$index
+let index=48; character[$index]="k"; let base64[$index]=$base*$index
+let index=49; character[$index]="l"; let base64[$index]=$base*$index
+let index=50; character[$index]="m"; let base64[$index]=$base*$index
+let index=51; character[$index]="n"; let base64[$index]=$base*$index
+let index=52; character[$index]="o"; let base64[$index]=$base*$index
+let index=53; character[$index]="p"; let base64[$index]=$base*$index
+let index=54; character[$index]="q"; let base64[$index]=$base*$index
+let index=55; character[$index]="r"; let base64[$index]=$base*$index
+let index=56; character[$index]="s"; let base64[$index]=$base*$index
+let index=57; character[$index]="t"; let base64[$index]=$base*$index
+let index=58; character[$index]="u"; let base64[$index]=$base*$index
+let index=59; character[$index]="v"; let base64[$index]=$base*$index
+let index=60; character[$index]="w"; let base64[$index]=$base*$index
+let index=61; character[$index]="x"; let base64[$index]=$base*$index
+let index=62; character[$index]="y"; let base64[$index]=$base*$index
+let index=63; character[$index]="z"; let base64[$index]=$base*$index
+
+integer decimal_date=-1
+base64_date=""
+
+function date64_char_to_decimal {
+  debug "ENTER date64_char_to_decimal"
+  char="$1"
+  integer i=0
+
+  while [ $i -lt 64 ]; do
+    if [ "${character[i]}" = "$char" ]; then
+      break
+    fi
+    let i=i+1
+  done
+
+  if [ $i -eq 64 ]; then
+    print -u2 "$char not found!"
+    debug "RETURN -1 from date64_char_to_decimal"
+    return -1
+  else
+    debug "RETURN $i from date64_char_to_decimal"
+    return $i
+  fi
+} # date64_char_to_decimal
+
+function date64_to_decimal {
+  # This function accepts a 2 character "number of weeks" string as defined
+in
+  # passwd(4) under password aging. Specifically this string represents the
+  # number of weeks since 1/1/1970 that the password was last changed. This
+  # function will convert this value to a decimal number stored in the
+global
+  # decimal_date.
+  debug "ENTER date64_to_decimal ($1)"
+
+  # Assume failure
+  decimal_date=-1
+
+  datecode="$1"
+
+  first_char=$(print $datecode | sed 's/.$//')
+  second_char=$(print $datecode | sed 's/^.//')
+
+  date64_char_to_decimal $first_char
+  integer units_digit=$?
+  if [ $units_digit -eq 255 ]; then
+    error "Unable to translate the first_char \"$first_char\"" 0
+    debug "RETURN -1 from date64_to_decimal - invalid units digit"
+    return
+  fi
+
+  date64_char_to_decimal $second_char
+  integer tens_digit=$?
+  if [ $tens_digit -eq 255 ]; then
+    error "Unable to translate the second_char \"$second_char\"" 0
+    debug "RETURN -1 from date64_to_decimal - invalid tens digit"
+    return
+  fi
+
+  let decimal_date=tens_digit*64+units_digit
+  debug "RETURN $decimal_date from date64_to_decimal"
+} # date64_to_decimal
+
+function decimal_to_date64 {
+  # This function will convert a decimal number representing the number of
+  # weeks past 1/1/1970 and convert it to the odd base64 format described in
+  # passwd(4).
+  integer nbr=$1
+  debug "ENTER decimal_to_date64 ($nbr)"
+  i=63
+
+  while [ $nbr -lt ${base64[i]} ]; do
+    let i=i-1
+  done
+
+  let nbr=nbr-base64[i]
+
+  tens_digit=${character[i]}
+  units_digit=${character[nbr]}
+  base64_date="$units_digit$tens_digit"
+  debug "RETURN $base64_date from decimal_to_date64 ($nbr)"
+} # decimal_to_date64

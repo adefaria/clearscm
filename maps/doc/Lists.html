@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Mail Authorization and Permission System</title>
+  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  <meta name="author" content="Andrew DeFaria">
+</head>
+  <body alink="#000099" vlink="#990099" link="#000099" bgcolor="#33ccff"
+ text="#000000">
+<script language="JavaScript1.2" src="JavaScript/Heading.js"></script>
+<h1><font color="#000099">Null List</font></h1>
+<p>First the null list. As you know sending a message back to a potential 
+spammer will often not work. Many times their return addresses are fake or 
+their mail boxes are full. The spammers ISP will often send a message back to 
+you to tell you that the email address is invalid or the user's mail box is 
+full. You don't care about these messages and they would only create more spam,
+though not commerical junk email - unwanted email nonetheless. So you add email
+addresses to your null list to tell MAPS to just discard these messages. 
+Entries in your null list can be generic in nature. For example, "mail-daemon"
+is a common string in a bounced email address from an ISP. Entering 
+"mail-daemon" will discard messages from mail-daemon@aol.com as well as
+mail-daemon@msn.com. Most users do not care to receive email messages from
+mailer daemons.</p>
+<h1><font color="#000099">Black List</font></h1>
+<p>The black list is for people who you are effectively ignoring. It works
+similarly to null lists except that a message telling the sender that you are
+ignoring them is returned to the sender. Use this when you want to make sure 
+the sender knows that you are ignoring them.</p>
+<h1><font color="#000099">White List</font></h1>
+<p>The white list is the list of people who are allowed to email you. 
+Management of the white list is up to the people who wish to email you, thus
+you are not bothered by the hassle of having to maintain a white list. You
+can manage your white list, pre-registering a user or say initializing your
+white list from your addressbook (called Seeding your White List). But by and
+large the white list will be managed by your legitimate email subscribers.
+<script language="JavaScript1.2" src="JavaScript/Footing.js"></script>
+</body>
+</html>

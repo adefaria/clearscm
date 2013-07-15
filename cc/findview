@@ -1,0 +1,90 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         findview,v
+# Revision:	1.1.1.1
+# Description:  This script will locate a view by searching through the various
+#		regions.
+# Author:       Andrew@DeFaria.com
+# Created:      Mon May  3 09:06:55 PDT 2004
+# Modified:	2007/05/17 07:45:48
+# Language:     Perl
+#
+# (c) Copyright 2004, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Display;
+
+sub Usage {
+  display "Usage $FindBin::Script: [ <view tag>... | -u ]";
+  display "\nWhere:";
+  display "\t<view tag>\tName of the view to find (can be partial name)";
+
+  exit 1;
+} # Usage
+
+sub SearchRegions {
+  my $view = shift;
+
+  my $nbr_views = 0;
+
+  # Get a list of regions
+  my @regions	= `cleartool lsregion`;
+  my $region;
+
+  # Process each region
+  foreach $region (@regions) {
+    chomp $region;
+    chop  $region if $region =~ /\r/; # Remove carriage returns
+
+    verbose "Searching $region region...\n";
+
+    # Get a list of views in the region
+    my @lines = `cleartool lsview -region $region`;
+
+    # Parse the lines extracting view tag and storage area
+    foreach (@lines) {
+      verbose "Searching view $_";
+      if (/[\* ]\s*(\S*)\s*\S*/) {
+	my $name = $1;
+
+        if ($name =~ /$view/i) {
+	  display "\t$name ($region)";
+	  $nbr_views++;
+	  next;
+	} # if
+      } # if
+    } # foreach @lines
+  } # foreach @regions
+
+  return $nbr_views;
+} # SearchRegions
+
+# Get parms
+if (defined $ARGV [0] and $ARGV [0] =~ /^-u/) {
+  Usage;
+} # if
+
+foreach (@ARGV) {
+  verbose "Searching for views containing \"$_\"";
+  my $nbr_views = SearchRegions $_;
+
+  if ($nbr_views eq 0) {
+    display "No views found"
+  } elsif ($nbr_views eq 1) {
+    display "1 view found";
+  } else {
+    display "$nbr_views views found";
+  } # if
+
+  verbose " matching \"$_\"";
+} # foreach
+
+# All done...
+exit 0;

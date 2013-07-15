@@ -1,0 +1,87 @@
+#!/bin/bash
+################################################################################
+#
+# File:		$RCSfile: multisite,v $
+# Revision:	$Revision: 1.6 $ 
+# Description:	This script set up some useful environment variables and aliases
+#		for MultiSite execution. File should be sourced (e.g . 
+#		multisite)
+# Author:	Andrew@DeFaria.com
+# Created:	Wed Jun  5 21:08:03 PDT 1996
+# Modified:     $Date: 2011/03/07 22:11:23 $
+# Language:     bash
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+if [ $ARCH = "cygwin" ]; then
+  export MSHOME=$(cygpath -u "$(regtool get '/machine/SOFTWARE/Rational Software/RSINSTALLDIR' 2>/dev/null)" 2>/dev/null)
+else 
+  export MSHOME=/opt/rational/clearcase/
+fi
+
+if [ ! -d "$MSHOME" ]; then
+  unset MSHOME
+  return
+fi
+
+export MULTITOOL="${MSHOME}bin/multitool"
+
+if [ -x "$MULTITOOL" ]; then
+  export CLEARCASE_BLD_HOST_TYPE=Windows
+  export SLOGS=$LOGS/sync_logs
+
+  if [ $ARCH = "cygwin" ]; then
+    export SB="${MSHOME}var/shipping/ms_ship"
+  else
+    export SB="/var/adm/rational/clearcase/shipping/ms_ship"
+  fi
+fi
+
+function mt {
+  if [ -x "$MULTITOOL" ]; then
+    "$MULTITOOL" "$@"
+  else
+    echo "MultiSite is not installed on this system!"
+  fi
+} # mt
+
+function lspacket {
+  "$MULTITOOL" lspacket "$@"
+} # lspacket
+
+function llpacket {
+  "$MULTITOOL" lspacket -long "$@"
+} # llpacket
+
+function lsreplica {
+  "$MULTITOOL" lsreplica -invob "$@"
+} # lsreplica
+
+function llreplica {
+  "$MULTITOOL" lsreplica -long -invob "$@"
+} # llreplica
+
+function lsepoch {
+  "$MULTITOOL" lsepoch -invob "$@"
+} # lsepoch
+
+function llepoch {
+  "$MULTITOOL" lsepoch -long -invob "$@"
+} # llepoch
+
+function chepoch {
+  "$MULTITOOL" chepoch -invob "$@"
+} # chepoch
+
+function shipping_server {
+  $MSHOME/etc/shipping_server "$@"
+} # shipping_server
+
+function mkorder {
+  $MSHOME/etc/mkorder "$@"
+} # mkorder
+
+function syncreplica {
+  "$MULTITOOL" syncreplica "$@"
+} # syncreplica

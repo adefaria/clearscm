@@ -1,0 +1,131 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         $RCSfile: httpdwho,v $
+# Revision:	$Revision: 1.2 $
+# Description:  Parse Apache access.log and produce a report on the locations
+#		of the visitors to the site
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Dec 21 21:49:54 CST 2006
+# Modified:	$Date: 2010/06/08 15:03:27 $
+# Dependencies:	GEOLite
+# Language:     Perl
+#
+# This product includes GeoLite data created by MaxMind, available from 
+# http://www.maxmind.com
+#
+# (C) Copyright 2006, ClearSCM, Inc., all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+
+use FindBin;
+use Getopt::Long;
+
+use lib "$FindBin::Bin/../lib";
+
+use Display;
+use Utils;
+
+use Geo::IP::PurePerl;
+
+sub Usage (;$) {
+  my $msg = shift;
+
+  dipslay $msg if $msg;
+  display "Usage: $FindBin::Script: [ -verbose | -v ] <filename>";
+  display "\nWhere:";
+  display "  -verbose | -v\tTurn on verbose mode (Default: verbose off)";
+  display "  <filename>\tIs the Apache formated access logfile";
+  exit 1;
+} # usage
+
+sub GetIPs ($) {
+  my $filename = shift;
+
+  my %ipaddrs;
+
+  verbose_nolf "Processing $filename";
+
+  foreach (ReadFile ($filename)) {
+    verbose_nolf ".";
+
+    my @fields	= split;
+    my @ipaddrs	= gethostbyname $fields [0];
+
+    next if !@ipaddrs; # Skip errors
+
+    my ($a, $b, $c, $d) = unpack "C4", $ipaddrs [4];
+    my $ipaddr = "$a.$b.$c.$d";
+
+    debug "Host: ${fields [0]} IP: $ipaddr";
+
+    if ($ipaddrs {$ipaddr}) {
+      $ipaddrs {$ipaddr}[1]++;
+    } else {
+      my @domain_info;
+      $domain_info [0] = $ipaddrs [0];
+      $domain_info [1] = 1;
+      $ipaddrs {$ipaddr} = \@domain_info;
+    } # if
+  } # foreach
+
+  verbose "\nFinished processing $filename";
+  return %ipaddrs;
+} # GetIPs
+
+my $logfile = "/var/log/httpd/access_log";
+
+my $result = GetOptions (
+  "file=s"	=> \$logfile,
+  "usage"	=> sub { Usage },
+  "verbose"	=> sub { set_verbose },
+  "debug"	=> sub { set_debug },
+) or Usage "Invalid option specified";
+
+# Instantiate a new Geo::IP object
+my $gi = Geo::IP::PurePerl->new (
+  "/usr/local/share/GeoIP/GeoIPCity.dat",
+  GEOIP_STANDARD
+);
+
+# Turn off buffering
+$| = 1;
+
+error "Unable to open $logfile", 1 if !-f $logfile;
+
+my %ip_records = GetIPs $logfile;
+
+foreach (sort keys %ip_records) {
+  my (
+    $country_code,
+    $country_code3,
+    $country_name,
+    $region,
+    $city,
+    $postal_code,
+    $latitude,
+    $longitude,
+    $dma_code,
+    $area_code)
+  = $gi->get_city_record ($_);
+
+  my @domain_info = @{$ip_records {$_}};
+
+  display_nolf "$_\t";
+  display_nolf $city		? "$city\t"		: "*Unknown*\t";
+  display_nolf $postal_code	? "$postal_code\t"	: "*Unknown*\t";
+  display_nolf $country_name	? "$country_name\t"	: "*Unknown*\t";
+  display $domain_info [0] . " (" . $domain_info [1] . ")";
+#   print $country_code . "\n";
+#   print $country_code3 . "\n";
+#   print $country_name . "\n";
+#   print $region . "\n";
+#   print $city . "\n";
+#   print $postal_code . "\n";
+#   print $latitude . "\n";
+#   print $longitude . "\n";
+#   print $dma_code . "\n";
+#   print $area_code . "\n";
+} # foreach

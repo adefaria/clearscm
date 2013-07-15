@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <title>MAPS: Administration</title>
+  <link rev="made" href="mailto:Andrew%40DeFaria.com">
+  <link rel="stylesheet" type="text/css" href="maps.css">
+  <script src="CheckAddress.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="heading">
+<h2 class="header" align="center"><font class="standout">MAPS</font>
+Administration</h2>
+</div>
+<div class="content">
+<div class="leftbar">
+<div class="username">Welcome Andrew</div>
+<div class="menu"><a href="/maps/">MAPS Home<br>
+</a> <a href="/maps/bin/stats.cgi">Statistics<br>
+</a> <a href="/maps/bin/editprofile.cgi">Edit Profile<br>
+</a> <a href="/maps/Reports.html">Reports<br>
+</a> <a href="/maps/ManageLists.html">Manage Lists<br>
+</a> <a href="/maps/doc/">Help<br>
+</a> <a href="/maps/adm/">MAPS Admin<br>
+</a> <a href="/maps/?logout=yes">Logout</a></div>
+<div class="search">
+<form method="post" action="javascript://"
+ enctype="application/x-www-form-urlencoded"
+ onsubmit="checkaddress(this);" name="address">Check Address<input
+ type="text" name="email" size="14" maxlength="255"
+ onclick="document.address.email.value = '';" class="inputfield">
+  <div></div>
+</form>
+</div>
+<div class="quickstats">
+<h4 class="header" align="center">Today's Activity</h4>
+<table border="0" align="center" cellpadding="2" cellspacing="0">
+  <tbody>
+    <tr align="right">
+      <td class="smalllabel" align="right">Processed</td>
+      <td class="smallnumber" align="right">3</td>
+      <td class="smallnumber" align="right">n/a</td>
+    </tr>
+    <tr align="right">
+      <td class="smalllabel">Returned</td>
+      <td class="smallnumber"><a
+ href="detail.cgi?type=returned;date=2003-11-04">3</a></td>
+      <td class="smallnumber">100.0%</td>
+    </tr>
+    <tr align="right">
+      <td class="smalllabel">Nulllist</td>
+      <td class="smallnumber">0</td>
+      <td class="smallnumber"> 0.0%</td>
+    </tr>
+    <tr align="right">
+      <td class="smalllabel">Whitelist</td>
+      <td class="smallnumber">0</td>
+      <td class="smallnumber"> 0.0%</td>
+    </tr>
+    <tr align="right">
+      <td class="smalllabel">Blacklist</td>
+      <td class="smallnumber">0</td>
+      <td class="smallnumber"> 0.0%</td>
+    </tr>
+    <tr align="right">
+      <td class="smalllabel">Error</td>
+      <td class="smallnumber">0</td>
+      <td class="smallnumber"> 0.0%</td>
+    </tr>
+    <tr align="right">
+      <td class="smalllabel">Mailloop</td>
+      <td class="smallnumber">0</td>
+      <td class="smallnumber">n/a</td>
+    </tr>
+    <tr align="right">
+      <td class="smalllabel">Registered</td>
+      <td class="smallnumber">0</td>
+      <td class="smallnumber">n/a</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+<ul>
+  <li>Show Users</li>
+  <li>Delete a User</li>
+  <li>Space</li>
+</ul>
+<div class="copyright">Copyright &copy; 2001-2003 - All rights reserved<br>
+<a href="http://defaria.com">Andrew DeFaria</a> <a
+ href="mailto:Andrew@DeFaria.com">&lt;Andrew@DeFaria.com&gt;</a></div>
+</div>
+</body>
+</html>

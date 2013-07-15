@@ -1,0 +1,413 @@
+/*----------------------------------------------------------------------- 
+This CSS file is for implementing a 3-column layout based on the
+"opposite floats" concept. I've seen this concept explained a few
+times but never as clearly as in the article "3 Column Layouts - A
+Different Approach" -- (C) 2005, Sebastian Schmieg. The article can be
+found at: http://www.kingcosmonaut.de/journal/3col-layout/ and is
+worth your time to go have a read first before diving into the
+followng css.
+
+This css file is part of a layout package. Used on its own it won't
+have the desired effect. The corresponding HTML file should LINK to a
+filter.css file which will then IMPORT this style sheet (effecively
+hiding it from IE3, IE4 and NN4). Imported ahead of this file should
+be one named lpf.css (lpf = Level Playing Field) which attempts to get
+all the different browsers using the same measurements, including font
+sizes.
+
+Not related to the layout but also used in this example is 1 of Stu
+Nicholls' wonderful creations (somewhat customized). This styles the
+color boxes with rounded corners used in the content area. The style
+for this, also imported by filter.css, is cbrc.css and it contains its
+own documentation.
+
+======================================================================
+  Copyright and LICENSE -- do not remove --
+======================================================================
+This CSS file is copyrighted (c) 2005, Paul Pomeroy/AdaptiveView
+    
+see: http://design.adaptiveview.com 
+    
+but free to use under a Creative Commons Attribution 2.5 license.
+Full details about this license are online at:
+
+http://creativecommons.org/licenses/by/2.5/
+----------------------------------------------------------------------- */
+html, body, #page {
+  height:		100%;
+  width:		100%;
+}
+
+body {
+  background-color:	#fff;
+  margin-left:		auto;
+  margin-right:		auto;
+  text-align:		center;
+}
+
+html>body, html>body #page {
+  height:		auto;
+}
+
+#head {
+  background:		url(/Images/TopOfTheWorld.jpg);
+  color:		white;
+  border-top:		1px solid #306;
+  border-bottom:	1px solid #306;
+  position:		absolute;
+  height:		165px;
+  left:			0;
+/*  max-width:		955px;*/
+  min-width:		775px;
+  top:			0px;
+  width:		100%;
+  width:		expression(document.body.clientWidth < 800? "775px": "100%" ); /* min-width IE style*/
+  z-index:		10;
+}
+
+#head h1 {
+  color:		#fff;
+  font-size:		3em;
+  padding-top:		20px;
+  text-align:		center;
+}
+
+#page {
+  left:			0;
+  background:		#2a4c96 url(/Images/Background.jpg); 
+  color:		#000;
+  position:		absolute;
+  text-align:		center;
+  top:			166px;
+  z-index:		8;
+  min-height:		858px;
+}
+
+#content {
+  margin-left:		auto;
+  margin-right:		auto;
+  max-width:		955px;
+  min-width:		775px;
+  padding-bottom:	4.0em; /* you can get all of the padding set in one line, but Mac IE5.2 has issues with the shorthand method. */
+  padding-left:		4px;
+  padding-right:	4px;
+  padding-top:		10px;
+  width:		expression(document.body.clientWidth < 800? "775px" : document.body.clientWidth > 1024? "999px": "99%"); /* IE's version of min- and max-width */
+  z-index:		1;
+}
+
+* html #page, * html #content  {
+  height:		100%;
+}
+
+* html #page {
+  width:		auto;
+}	
+
+#foot {
+  background:		transparent;
+  width:		100%;
+  z-index:		99;
+  text-align:		center;
+}
+
+#foot p {
+  color:		#aaa;
+  font-size:		80%;
+  text-align:		center;
+}
+
+html>body #foot { /* anyone but IE */
+  bottom:		0;
+  left:			0;
+  position:		absolute;
+}	
+
+* html #foot { /* IE */
+  color:		#eee;
+  margin-left:		auto;
+  margin-right:		auto;
+  width:		auto;
+}
+
+abbr {
+  cursor: 		help;
+}
+
+#head, #foot {
+  padding-bottom:	0;
+  padding-top:		0;
+}
+
+#content p,
+#content h2,
+#content h3,
+#content h4,
+#content h5 {
+  margin:		11px 11px;
+}
+
+#supporting, #related {
+  font-size:		90%;
+}
+
+* html #supporting, * html #related {
+  overflow:hidden; /* keeps columns from getting pushed down when large font sizes cause words to exceed column width in IE6 */
+}
+
+/*
+ The quick explanation for this layout scheme:
+ 
+ You have 3 columns for your content. I call them "main," "supporting" and
+ "related." There are two containers (divs) in which to put these 3 columns,
+ so one container will get 2 columns and the other will get 1. The containers
+ are named "contentWrapper1" and "contentWrapper2." Both of these containers
+ are in a container of their own, called "content." In XHTML, the heirarchy
+ looks like:
+ 
+   <div id="content">
+
+     <div id="contentWrapper1">
+       <div id="main"> ... your main content ... </div>
+     </div> <!-- end of contentWrapper1 -->
+
+     <div id="contentWrapper2">
+       <div id="supporting">
+          ... content supporting main ... 
+       </div>
+       <div id="related"> 
+         ... content related to main ... 
+       </div>
+     </div> <!-- end of contentWrapper2 -->
+
+   </div> <!-- end of content -->
+ 
+ NOTE: In the XHTML it doesn't matter which wrapper div is first. Within
+       the wrapper that's containing two content columns (contentWrapper2)
+       it doesn't matter which content comes first. It's fairly easy, 
+       therefore, to put your content in any order you want. 
+ 
+ The content div is alloted 100% width. The two content wrapper divs sit 
+ side by side, one floated left, the other floated right. Their combined 
+ width must be UNDER 100% (if they're >= 100% then the second wrapper is
+ going to slip down under the first).
+ 
+ Within one of the wrappers, it doesn't matter which, you'll have two 
+ content divs (again, it doesn't matter which) and one will be floated left
+ and the other right. Their combined widths must also be < 100%.
+ 
+ Without touching the XHTML, you can get FOUR arrangements of the three
+ columns by swapping the left and right floats (==> and <== indicate swaps):
+ 
+ 1.           Wrapper 1             Wrapper 2
+                Main            Supporting Related
+ 
+ 2.           Wrapper 1             Wrapper 2
+                Main     ==>  Related Supporting   <==
+ 
+ 3.  ==>      Wrapper 2             Wrapper 1      <==
+         Related Supporting           Main           
+ 
+ 4.           Wrapper 2             Wrapper 1
+     ==> Supporting Related  <==      Main
+     
+  by changing the XHTML so the main content is paired up with one of the 
+  others (doesn't matter which) you can get TWO additional layouts in 
+  which the main content is flanked by the other two columns:
+  
+ 5.           Wrapper 1             Wrapper 2
+           Supporting Main           Related
+  
+ 6.  ==>      Wrapper 2             Wrapper 1     <==
+               Related       ==> Main Supporting  <==
+ 
+ ******************************
+ *********  HOWEVER  **********
+ ******************************
+ I've set this css up to change column arrangements via the class assigned to
+ the body tag. See the HTML file for more information, and below for the css
+ styles used to accomplish this...
+ 
+ */
+
+#contentWrapper1,
+#contentWrapper2,
+#main, 
+#related,
+#supporting {
+  background:transparent;
+  min-height:100%;
+  z-index:15;
+}
+
+#contentWrapper1 {
+  width:25%;
+}
+
+#contentWrapper2 {
+  width:74.0%;
+}
+
+#main {
+  width:66.0%;
+}
+
+#main p.tagline {
+  color:#939;
+  font-size:1.4em;
+  font-style:italic;
+  text-align:center;
+}
+
+#supporting {
+  width:33%;
+}
+
+#related {
+  width:33%;
+}
+    
+body.m-sr #contentWrapper1,
+body.m-rs #contentWrapper1,
+body.sr-m #contentWrapper1,
+body.rs-m #contentWrapper1 {
+  width:49.5%;
+}
+    
+body.m-sr #contentWrapper2,
+body.m-rs #contentWrapper2,
+body.sr-m #contentWrapper2,
+body.rs-m #contentWrapper2 {
+  width:49.5%;
+}
+    
+body.m-sr #main,
+body.m-rs #main,
+body.sr-m #main,
+body.rs-m #main {
+  width:99.5%;
+}
+    
+body.m-sr #supporting, body.m-sr #related,
+body.m-rs #supporting, body.m-rs #related,
+body.sr-m #supporting, body.sr-m #related,
+body.rs-m #supporting, body.rs-m #related {
+  width:49.5%;
+}
+    
+body.r-sm #related,
+body.r-ms #related,
+body.sm-r #related,
+body.ms-r #related {
+  width:99.0%;
+}
+    
+body.s-rm #supporting,
+body.s-mr #supporting,
+body.rm-s #supporting,
+body.mr-s #supporting {
+  width:99.0%;
+}
+    
+body.m-sr #contentWrapper1,
+body.m-rs #contentWrapper1,
+body.s-mr #contentWrapper1,
+body.s-rm #contentWrapper1,
+body.r-ms #contentWrapper1,
+body.r-sm #contentWrapper1 {
+  float:left;
+}
+
+body.sr-m #contentWrapper1,
+body.rs-m #contentWrapper1,
+body.mr-s #contentWrapper1,
+body.rm-s #contentWrapper1,
+body.ms-r #contentWrapper1,
+body.sm-r #contentWrapper1 {
+  float:right;
+}
+
+body.m-sr #contentWrapper2,
+body.m-rs #contentWrapper2,
+body.s-mr #contentWrapper2,
+body.s-rm #contentWrapper2,
+body.r-ms #contentWrapper2,
+body.r-sm #contentWrapper2 {
+  float:right;
+}
+
+body.sr-m #contentWrapper2,
+body.rs-m #contentWrapper2,
+body.mr-s #contentWrapper2,
+body.rm-s #contentWrapper2,
+body.ms-r #contentWrapper2,
+body.sm-r #contentWrapper2 {
+  float:left;
+}
+
+body.s-mr #main,
+body.r-ms #main,
+body.mr-s #main,
+body.ms-r #main {
+  float:left;
+}
+
+body.s-rm #main,
+body.r-sm #main,
+body.rm-s #main,
+body.sm-r #main {
+  float:right;
+}
+
+body.m-sr #related,
+body.s-mr #related,
+body.sr-m #related,
+body.mr-s #related {
+  float:right;
+}
+
+body.m-rs #related,
+body.s-rm #related,
+body.rs-m #related,
+body.rm-s #related {
+  float:left;
+}
+
+body.m-sr #supporting,
+body.r-sm #supporting,
+body.sr-m #supporting,
+body.sm-r #supporting {
+  float:left;
+}
+
+body.m-rs #supporting,
+body.r-ms #supporting,
+body.rs-m #supporting,
+body.ms-r #supporting {
+ float:right;
+}
+
+.hide, .filtered {display:none;}
+
+.clear {
+  clear:both;
+  margin-bottom: -1px; /* for Gecko-based browsers */
+  overflow:hidden;
+  padding-bottom: 1px; /* for Gecko-based browsers */
+}
+
+.clearfix:after {
+  clear: both; 
+  content: "."; 
+  display: block; 
+  height: 0; 
+  visibility: hidden;
+}
+
+.clearfix {display: inline-table;}
+
+/* Hides from IE-mac \*/
+* html .clearfix {height: 1%;}
+.clearfix {display: block;}
+/* End hide from IE-mac */
+

@@ -1,0 +1,33 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: Broadcom,v $
+# Revision:	$Revision: 1.1 $
+# Description:	Client specific start up for Broadcom
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Jan 18 14:09:31 PST 2012
+# Modified:     $Date: 2013/03/26 20:52:09 $
+# Language:     bash
+#
+# (c) Copyright 2012, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+append_to_path /projects/mob_tools/scripts
+append_to_path /projects/mob_tools/bin
+append_to_path /tools/ecloud/commander/bin
+append_to_path /usr/brcm/ba/bin
+append_to_path /projects/mob_tools/scripts
+append_to_path /tools/bin
+append_to_path /opt/Perforce
+
+if [ -f "/cygdrive/c/Program Files/Perforce/p4.exe" ]; then
+  append_to_path "/cygdrive/c/Program Files/Perforce"
+elif [ -f "/cygdrive/c/Program Files (x86)/Perforce/p4.exe" ]; then
+  append_to_path "/cygdrive/c/Program Files (x86)/Perforce"
+fi
+
+alias baperl=/usr/brcm/ba/bin/perl
+
+export CDPATH=$CDPATH:/mcsi:/mob_tools
+
+alias repo=/projects/mob_tools/bin/repo

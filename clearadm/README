@@ -1,0 +1,108 @@
+CLEARADM:
+
+Clearadm is a set of scripts and a web app designed to discover and monitor 
+systems in your infrastructure with an eye towards servers as well as Clearcase.
+
+DEPENDENCIES:
+
+In order for graphics to work you need to install GD for Perl (libgd-graph-perl
+and I also installed libgd-graph3d-perl) as well as GD::Graph from cpan.
+
+While Clearadm is designed to monitor Unix, Linux and Windows machines, it 
+requires the installation of Cygwin and Cygwin's Perl package to run on Windows.
+Clearagent also requires Cygwin and Cygwin's Perl.
+
+INSTALLATION
+
+SERVER Selection
+
+Clearadm is a distributed system. Various components can be set up to run on
+different servers. For example, the database server machine need not be the same
+machine that the web component of Clearadm runs. Additionally all systems report
+status through clearagent.pl by running a small agent daemon. Finally 
+cleartasks.pl performs scheduled tasks and it can run on a separate server.
+Generally you only use one or two servers but you have the option to distribute
+the load.
+
+CLEARADM Database
+
+Clearadm uses a MySQL database to store information about your infrastructure.
+Unpack the clearadm.tar.gz file (normally rooted in /opt/clearscm) and set up
+the MySQL database by executing mysql then sourcing:
+
+  clearadm.sql  -- Creates the database
+  users.sql     -- Sets up the database users
+  load.sql      -- Loads up some predefined tasks and schedules
+
+CLEARAGENT Setup
+
+Clearagent: This is a little agent program that receives requests from other
+hosts and executes them on the host running clearagent. As such you want to have
+clearagent.pl running all the time. Normally it backgrounds itself and it is
+multithreaded so that it can handle multiple requests efficiently.
+
+Clearagent components have been separated into the clearagent.tar.gz file. This
+allows you to install only the clearagent portion on your servers.
+
+Under Unix/Linux hosts there is a Sys/V init.d script under etc/init.d. 
+Additionally for security concerns clearagent is run under a plain user named
+clearagent. In order to set this up on a Unix/Linux host do the following as
+root:
+
+  $ export CLEARADM=/opt/clearscm/clearadm
+  $ useradd -Mr clearagent
+  $ chmod 777 $CLEARADM/var $CLEARADM/var/run $CLEARADM/log
+  $ ln -s $CLEARADM/etc/init.d/clearagent /etc/init.d/clearagent
+  $ /etc/init.d/clearagent start
+
+You can test to see if clearagent is running properly by executing:
+ 
+  $ $CLEARADM/clearexec.pl -host localhost
+  clearexec:hostname
+  <localhost>
+  clearexec:exit
+  $
+
+  For Windows machines, assuming you have Cygwin installed, create a service for
+  clearagent:
+
+  $ cygrunsrv -I clearagent -p C:/Cygwin/bin/perl \
+  > -a '/opt/clearscm/clearadm/clearagent.pl -nodaemon'
+  $ net start clearagent
+
+  Note that -nodaemon is used but the Windows service will handle the 
+  backgrounding of clearagent. Testing clearagent is the same as for Unix/Linux.
+  
+CLEARADM Discovery
+
+You can use the discover.pl script to discover machines on the network and have
+them added to the clearadm database. However, until you set up clearagent on
+those machines, monitoring of these systems will be limited.
+  
+CLEARADM Web
+
+Clearadm Web component should be running on one server in your subnet. It is
+designed to work with Apache 2 Web servers. Symlink
+$CLEARADM/etc/conf.d/clearadm -> /etc/apache2/conf.d and restart Apache
+
+CLEARADM Tasks
+
+In additional to setting up the database, web server and installing agents on
+the various machines you wish to monitor, you should run cleartasks.pl to 
+perform the scheduled tasks on a periodic bases. Clearadm comes with some 
+predefined tasks. You can add/develop your own. Simply run cleartasks.pl and it
+will background itself, performing tasks when necessary (Should we make an 
+init.d script for this? My worry is that if that gets configured on more than
+one machine...)
+
+CLEARADM Clearcase Reporting (Need to fill this out better)
+
+Clearadm can show you where your views and vobs reside as well as provide useful
+functionality like a view aging report, etc. In order to collect such 
+information Clearadm needs to periodically collect information about those
+Clearcase objects. Predefined scheduled tasks and alerts are set up to do this
+but you must do some configuration yourself to tell Clearadm where your 
+Clearcase objects reside. For example, you need to tell it where your registry
+server(s) are, what regions you wish to report on as well as set other 
+configuration settings as to how long to age views and vobs, etc.
+

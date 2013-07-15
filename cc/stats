@@ -1,0 +1,142 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         $RCSfile: stats,v $
+# Revision:     $Revision: 1.2 $
+# Description:  Produce statistical reports about vobs and views at this site
+#		For each vob create a log file that contains the following data:
+#
+#		date_time;site;VOB_name;size of database;size of source pool;size of devired object;size of cleartext;size of admin data;#elements;#branches;#versions
+#
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Jan  2 17:23:08 PST 2006
+# Modified:     $Date: 2007/05/17 07:45:48 &
+# Language:     Perl
+#
+# (c) Copyright 2006-2010, Andrew@ClearSCM.com, all rights reserved.
+#
+#################################################################################
+use strict;
+use warnings;
+
+use File::Spec;
+use FindBin;
+use Getopt::Long;
+
+use lib "$FindBin::Bin/../lib";
+
+use OSDep;
+use Logger;
+use Display;
+use DateUtils;
+use Clearcase;
+use Clearcase::Vobs;
+use Clearcase::Vob;
+use Clearcase::Views;
+
+my $cc		= Clearcase->new;
+my $site	= $cc->sitename;
+my $logdir	= '.';
+my $sitelog	= "$site.site";
+my $voblog	= "$site.vob";
+
+sub Usage {
+  my $msg = shift;
+
+  display "ERROR: $msg\n" if defined $msg;
+
+  display "Usage: $FindBin::Script\t[-u] [-v] [-d] [-vobs] [-site]
+
+Where:
+
+  -u|sage:   Display usage
+  -ve|rbose: Turn on verbose mode
+  -d|ebug:   Turn on debug mode
+  -vo|bs:    Produce vob stats
+  -s|ite:    Produce site stats
+  -l|ogpath: Directory to put logs (Default '.')
+
+Default is to report both the vobs and site statistics.
+";
+  exit 1;
+} # Usage
+
+my $do_vobs = 0;
+my $do_site = 0;
+
+GetOptions (
+  'usage'	=> sub { Usage },
+  'verbose'	=> sub { set_verbose },
+  'debug'	=> sub { set_debug },
+  'vobs',	\$do_vobs,
+  'site',	\$do_site,
+  'logdir=s',	\$logdir,
+) or Usage 'Invalid parameter';
+
+unless ($do_vobs or $do_site) {
+  $do_vobs = $do_site = 1;
+} # if
+
+my $datetime	  = YMDHM;
+my $vobs	  = Clearcase::Vobs->new;
+my $total_vobsize = 0;
+
+if ($do_vobs) {
+  verbose 'Processing vobs...';
+
+  my $log  = Logger->new (
+    path   => $logdir,
+    name   => $voblog,
+    append => 1,
+  );
+
+  foreach ($vobs->vobs) {
+    verbose "Processing vob: $Clearcase::vobtag_prefix$_";
+    my $vob = Clearcase::Vob->new (tag => "$Clearcase::vobtag_prefix$_");
+
+    my $elements = $vob->elements;
+    my $branches = $vob->branches;
+    my $versions = $vob->versions;
+
+    $log->msg (
+      "$datetime;$site"	. ';' .
+      $_		. ';' .
+      $vob->dbsize	. ';' .
+      $vob->srcsize	. ';' .
+      $vob->dosize	. ';' .
+      $vob->ctsize	. ';' .
+      $vob->admsize	. ';' .
+      $vob->size	. ';' .
+      $vob->elements	. ';' .
+      $vob->branches	. ';' .
+      $vob->versions
+    );
+
+    $total_vobsize += $vob->size;
+  } # foreach
+} # if
+
+if ($do_site) {
+  verbose 'Processing site stats...';
+
+  my $log  = Logger->new (
+    path	=> $logdir,
+    name	=> $sitelog,
+    append	=> 1,
+  );
+
+  my $views	 = Clearcase::Views->new;
+  my $nbr_views	 = $views->views;
+
+  $datetime = YMDHM;
+
+  $log->msg (
+    "$datetime;$site"	. ';' .
+    $vobs->vobs		. ';' .
+    $total_vobsize	. ';' .
+    $views->dynamic	. ';' .
+    $views->snapshot	. ';' .
+    $views->ucm		. ';' .
+    $views->web
+  );
+} # if

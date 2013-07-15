@@ -1,0 +1,205 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         dominos,v
+# Revision:	1.1.1.1
+# Description:  Quick script to deliver a stream to an integration view
+#		(Hot and fresh in 30 minutes or less! :-)
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Feb 13 10:35:34 PST 2006
+# Modified:	2007/05/17 07:45:48
+# Language:     Perl
+#
+# (c) Copyright 2006, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Getopt::Long;
+
+use Clearcase;
+use Clearcase::View;
+use DateUtils;
+use Display;
+use OSDep;
+use Logger;
+
+my $me		= $FindBin::Script;
+my $pvob	= $Clearcase::vobtag_prefix . "ilm_pvob";
+my $logdir	= $ENV {TMP} ? $ENV {TMP} : ".";
+my $log		= Logger->new (
+  path		=> $logdir,			
+  name		=> $me,
+);
+
+my $from_address = "build\@persistcorp.com";
+my $to_addresses = "philippe.rollet\@hp.com,andrew.defaria\@hp.com";
+
+sub Usage {
+  my $msg = shift;
+
+  display "ERROR: $msg\n" if defined $msg;
+
+  display "Usage: $me\t[-u] [-v] [-d] [-stream <stream>] [-view_tag <view_tag>]
+
+Where:
+
+  -usage:    Display usage
+  -vebose:   Turn on verbose mode
+  -debug:    Turn on debug mode
+  -stream:   Name of stream to deliver from
+  -view_tag: View tag to deliver to
+";
+  exit 1;
+} # Usage
+
+sub CheckForFailures {
+  my $log = shift;
+
+  my @lines = $log->loglines;
+
+  my @failures;
+  my $element;
+  my $from;
+  my $branch;
+
+  foreach (@lines) {
+    if (/Needs Merge "(.*)".*from (.*) base/) {
+      $element = $1;
+      $from    = $2;
+
+      if ($arch eq "windows" or $arch eq "cygwin") {
+	if ($from =~ /.*\\(\w*)\\\d*/) {
+	  $branch = $1;
+	} # if
+      } else {
+	if ($from =~ /.*\/(\w*)\/\d*/) {
+	  $branch = $1;
+	} # if
+      } # if
+    } elsif (/merge: Error: \*\*\* Aborting\.\.\./ or
+	     /\*\*\* No Automatic Decision Possible/) {
+      # Argh! On Windows silly \'s are used and it always interferes
+      # with things. Even though $element has the requesite doubling
+      # of the \'s, one gets eaten up by calling system, the
+      # eventually cleartool call here. So we change them from \ -> /!
+      $element =~ tr /\\/\// if ($arch eq "windows" or $arch eq "cygwin");
+      my ($status, @output) = Clearcase::cleartool (
+        "lshistory -last -directory -branch $branch -fmt \"%Fu %u\" " . $element
+      );
+
+      # Argh, sometimes %Fu above gives only a one name fullname
+      # (e.g. Bounour). Not only do we need to account for this but we
+      # have to abandon the hope of composing an email address!
+      $_ = $output [0];
+      my @line = split;
+      my ($name, $email, $username);
+
+      if (scalar @line eq 3) {
+        $name		= $line [0] . " " . $line [1];
+	$email		= $line [0] . "." . $line [1] . "\@hp.com";
+	$username	= $line [2];
+	$element       .= " \"$name\" <$email> ($username)";
+      } elsif (scalar @line eq 2) {
+        $name		= $line [0];
+	$username	= $line [1];
+	$element       .= " \"$name\" ($username)";
+      } # if
+
+      push @failures, $element;
+    } # if
+  } # foreach
+
+  return @failures;
+} # CheckForFailures
+
+sub Deliver {
+  my $stream	= shift;
+  my $view_tag	= shift;
+  my $log	= shift;
+
+  $log->msg ("Delivering $stream -> $view_tag");
+
+  # Here we do the actual delivery. Note we use all of -force, -abort
+  # and -complete. The force option says "Don't prompt me - just do
+  # it!". The abort says abort this delivery if we cannot do it in an
+  # automated fashion. The complete options says "If you can
+  # successfully merge then complete the delivery".
+  my ($status, @output) = Clearcase::cleartool (
+    "deliver -force -abort -complete -stream $stream\@\\$pvob -to $view_tag 2>&1",
+    $true
+  );
+
+  foreach (@output) {
+    $log->msg ($_);
+  } # foreach
+
+  if ($status ne 0) {
+    $log->msg ("Unable to deliver from $stream -> $view_tag");
+    return $false;
+  } else {
+    $log->msg ("Delivery from $stream stream to $view_tag view successful");
+    return $true;
+  } # if
+} # Delivery
+
+# Get options
+my $stream;
+my $view_tag;
+my $result = GetOptions ("debug"		=> sub { set_debug },
+			 "usage"		=> sub { Usage },
+			 "verbose"		=> sub { set_verbose },
+			 "stream=s"		=> \$stream,
+			 "view_tag=s"		=> \$view_tag,
+			);
+
+Usage "Stream must be specified"	if !defined $stream;
+Usage "View tag must be specified"	if !defined $view_tag;
+
+my $view = new Clearcase::View (tag => $view_tag);
+
+Usage "View tag $view_tag is not a valid view" if !defined $view;
+
+# Should put in code to validate that the stream is a valid Clearcase object.
+
+my $status	= Deliver $stream, $view_tag, $log;
+my $subject	= "Delivery from $stream -> $view_tag ";
+$subject       .= $status eq $true ? "succeeded"
+                                   : "failed";
+my $heading	= "<h3>Delivery from $stream -> $view_tag ";
+$heading       .= $status eq $true ? "<font color=green>succeeded</font>"
+                                   : "<font color=red>failed</font>";
+$heading .= "</h3>";
+
+my %additional_emails;
+
+if ($status ne $true) {
+  my @failures = CheckForFailures ($log);
+
+  if (scalar @failures gt 0) {
+    $heading .= "\n<p>The following elements could not be automatically merged:</p>";
+    $heading .= "\n<ol>\n";
+
+    foreach (@failures) { 
+      if (/<(.*)>.*\((\w*)\)/) {
+	$additional_emails {$2} = $1;
+      } # if
+      $heading .= "<li>$_</li>\n";
+    } # foreach
+    $heading .= "</ol>\n";
+  } # if
+} # if
+
+$log->maillog (
+  from		=> $from_address,
+  to		=> $to_addresses,
+  cc		=> (join ",", values (%additional_emails)),
+  mode		=> "html",
+  subject	=> YMD . ": " . $subject,
+  heading	=> $heading,
+  footing	=> "-- \n<br>Regards,<br>\n<i>Release Engineering</i>",
+);

@@ -1,0 +1,64 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: setup_rc,v $
+# Revision:	$Revision: 1.6 $
+# Description:  This script sets up my rc scripts
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Feb 16 07:34:32 PST 2006
+# Modified:	$Date: 2011/12/14 22:28:59 $
+# Language:     bash
+#
+# (c) Copyright 2006, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+function ReplaceFile {
+  dest=$1
+  source=$2
+
+  if [ -f "$dest" ]; then
+    if [ -h "$dest" ]; then
+      return
+    else
+      echo "Saving your old $dest as $dest.save..."
+      mv "$dest" "$dest.save"
+    fi
+  fi
+
+  if [ ! -h "$dest" ]; then
+    ln -s "$source" "$dest"
+  fi
+} # ReplaceFile
+
+function ReplaceDir {
+  dest=$1
+  source=$2
+
+  if [ -d "$dest" ]; then
+    if [ -h "$dest" ]; then
+      return
+    else
+      echo "Saving your old $dest as $dest.save..."
+      mv "$dest" "$dest.save"
+    fi
+  fi
+
+  if [ ! -h "$dest" ]; then
+    ln -s "$source" "$dest"
+  fi
+} # ReplaceDir
+
+if [ ! -d $HOME/.rc ]; then
+  echo "No $HOME/.rc directory found"
+  exit 1
+fi
+
+ReplaceFile "$HOME/.Xdefaults"	  "$HOME/.rc/Xdefaults"
+ReplaceFile "$HOME/.bash_login"	  "$HOME/.rc/bash_login"
+ReplaceFile "$HOME/.bashrc"	  "$HOME/.rc/bash_login"
+ReplaceFile "$HOME/.inputrc"	  "$HOME/.rc/inputrc"
+ReplaceFile "$HOME/.vimrc"	  "$HOME/.rc/vimrc"
+ReplaceDir  "$HOME/.xemacs"	  "$HOME/.rc/xemacs"
+ReplaceFile "$HOME/.ssh/config"	  "$HOME/.rc/sshconfig"
+ReplaceFile "$HOME/.perlcriticrc" "$HOME/.rc/perlcriticrc"
+ReplaceFile "$HOME/.perltidyrc"   "$HOME/.rc/perltidyrc"

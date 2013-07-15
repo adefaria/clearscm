@@ -1,0 +1,205 @@
+#!/usr/bin/perl
+
+=pod
+
+=head1 NAME $RCSfile: checkdns,v $
+
+Check DNS by attempting to call gethostbyname of a well known host.
+
+=head1 VERSION
+
+=over
+
+=item Author
+
+Andrew DeFaria <Andrew@ClearSCM.com>
+
+=item Revision
+
+$Revision: 1.6 $
+
+=item Created:
+
+Wed Aug 30 21:03:14 CDT 2006
+
+=item Modified:
+
+$Date: 2011/04/15 15:05:16 $
+
+=back
+
+=head1 SYNOPSIS
+
+ Usage: checkdns [-u|sage] [-v|erbose] [-d|ebug]
+                 [-s|leep <n>] [-l|ogpath <path>] 
+ 
+ Where:
+   -u|sage     Print this usage
+   -v|erbose:  Verbose mode 
+   -d|ebug:    Emit debug information
+   
+   -s|leep <n>:      Set sleep period to <n> minutes (Default: 15 minutes)
+   -l|ogpath <path>: Put the log file in <path> (Default: /var/log)
+
+=head1 DESCRIPTION
+
+This script will look at the security logfile for attempted breakins and then 
+use whois to report them to the upstream provider.
+
+=cut
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+
+use FindBin;
+
+use lib "$FindBin::Bin/../lib";
+
+use Logger;
+use Utils;
+use Display;
+
+my $VERSION  = '$Revision: 1.6 $';
+  ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
+
+$0 = $FindBin::Script;
+
+my $host          = 'google.com';
+my $sleep         = 15;
+my $initial_sleep = $sleep;
+my $logpath       = '/var/log';
+my $log;
+
+sub CheckDNS {
+  my ($host) = @_;
+
+  $? = 0;
+
+  my @ipaddrs = gethostbyname $host;
+
+  if (!@ipaddrs) {
+    debug "Host: $host (ipaddrs empty)";
+
+    # Cut down sleep time to monitor this outage more closely but do not go 
+    # below once a minute.
+    if ($sleep > 1) {
+      $sleep -= $sleep / 2;
+    } else {
+      $sleep = 1;
+    } # if
+
+    return 1;
+  } # if
+
+  # Successful lookup - set $sleep to $initial_sleep
+  $sleep = $initial_sleep;
+
+  return;
+} # CheckDNS
+
+sub Shutdown {
+  my $msg;
+
+  my $errors = $log->errors;
+  
+  $log->msg ("$errors errors encountered since starting")
+    if $errors;
+
+  $log->msg ('Caught interrupt - shutting down');
+
+  exit $errors;
+} # Interrupt
+
+# Main
+GetOptions (
+  usage       => sub { Usage },
+  verbose     => sub { set_verbose },
+  debug       => sub { set_debug },
+  'sleep=i'   => \$sleep,
+  'logpath=s' => \$logpath,
+) or Usage 'Invalid parameter';
+
+$SIG {INT}  =
+$SIG {TERM} = \&Shutdown;
+
+# Call sethostent so that gethostbyname is fresh everytime
+sethostent (0);
+
+$log = Logger->new (
+  path		=> $logpath,
+  timestamped	=> 'yes',
+  append	=> 'yes',
+);
+
+$log->msg (
+  "Started $FindBin::Script $VERSION logging to $logpath/$FindBin::Script.log"
+);
+
+$log->msg ("Polling DNS on host $host every $sleep minutes");  
+
+EnterDaemonMode 
+  unless get_debug;
+
+while () {
+  my $status = CheckDNS $host;
+
+  if ($status) {
+    $log->err ("Unable to resolve IP address for $host");
+  } else {
+    $log->msg ("Successfully resolved $host");
+  } # if
+
+  sleep ($sleep * 60);
+} # while
+
+=pod
+
+=head1 CONFIGURATION AND ENVIRONMENT
+
+DEBUG: If set then $debug is set to this level.
+
+VERBOSE: If set then $verbose is set to this level.
+
+TRACE: If set then $trace is set to this level.
+
+=head1 DEPENDENCIES
+
+=head2 Perl Modules
+
+L<FindBin>
+
+L<Getopt::Long|Getopt::Long>
+
+=head2 ClearSCM Perl Modules
+
+=begin man 
+
+ Display
+ Logger
+ Utils
+
+=end man
+
+=begin html
+
+<blockquote>
+<a href="http://clearscm.com/php/cvs_man.php?file=lib/Display.pm">Display</a><br>
+<a href="http://clearscm.com/php/cvs_man.php?file=lib/Logger.pm">Logger</a><br>
+<a href="http://clearscm.com/php/cvs_man.php?file=lib/Utils.pm">Utils</a><br>
+</blockquote>
+
+=end html
+
+=head1 BUGS AND LIMITATIONS
+
+There are no known bugs in this script
+
+Please report problems to Andrew DeFaria <Andrew@ClearSCM.com>.
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (c) 2004, ClearSCM, Inc. All rights reserved.
+
+=cut

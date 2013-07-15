@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR" content="Mozilla/4.61 [en] (Win98; U) [Netscape]">
+  <title>ECR 23184: Native PPC Toolchain build failing (atoi missing)</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="DefaultPlain.css">
+  <link rel="stylesheet" type="text/css" href="/css/TableBorders.css">
+  <link rel="icon" href="http://www.lynuxworks.com/favicon.ico">
+</head>
+
+<div class="heading">
+  <h1 class="centered">ECR 23184: Native PPC Toolchain build failing (atoi missing)</h1>
+</div>
+
+<div id="content">
+<center><font class=label>State:</font> <font class=data>Pending Review</font> <font class=label>Status:</font> <font class=data>Duplicate</font> <font class=label>Severity:</font> <font class=data>Medium</font> <font class=label>Fixed:</font> <font class=data></font> </center><hr><pre>
+
+###### adefaria: 24 Jan 2005 10:50:45 (-00:05)
+
+I am unable to build the toolchain natively on t-mcpn765-1 (PPC). Note 
+I am trying to use XFree86 however the problem seems to be with atoi:
+
+gcc  tkAppInit.o -L/mnt/toolchain/3.2.2/010405/build-powerpc/tk/unix 
+-ltk8.0 -L/mnt/toolchain/3.2.2/010405/build-powerpc/tcl/unix -ltcl8
+.0  -L/usr/X11R6/lib -lX11   -lc \
+       -o wish
+/usr/X11R6/lib/libX11.a(ConnDis.o): In function 
+`_X11TransConnectDisplay':
+ConnDis.o(.text+0x2ac): undefined reference to `atoi'
+ConnDis.o(.text+0x344): undefined reference to `atoi'
+/usr/X11R6/lib/libX11.a(lcGeneric.o): In function 
+`read_charset_define':
+lcGeneric.o(.text+0x8cc): undefined reference to `atoi'
+lcGeneric.o(.text+0x928): undefined reference to `atoi'
+/usr/X11R6/lib/libX11.a(lcGeneric.o): In function 
+`read_segmentconversion':
+lcGeneric.o(.text+0xd7c): undefined reference to `atoi'
+/usr/X11R6/lib/libX11.a(lcGeneric.o)(.text+0x1324): more undefined 
+references to `atoi' follow
+collect2: ld returned 1 exit status
+make[3]: *** [wish] Error 1
+make[2]: *** [all] Error 2
+make[1]: *** [all-tk] Error 2
+make: *** [stamp-all-powerpc] Error 2
+
+I spoke with Adam about this and he said the problem is in libc.a, 
+which lacks an atoi:
+
+# nm /lib/libc.a | grep atoi
+catoi.as.o:
+00000038 T catoi
+00000124 t regatoi
+
+Adam also said that Steve might know if there was a recent change.
+-- 
+Andrew DeFaria &lt;adefaria@lnxw.com&gt;
+Build & Release
+QA
+LynuxWorks
+
+
+
+###### oleg (quintus): 14 Feb 2005 05:45:20
+
+This ECR <a href="/ecr/ecr.php?ecr="></a>is a duplicate of ECR <a href="/ecr/ecr.php?ecr=22979">22979</a>.
+</hr></pre></div>
+</html>

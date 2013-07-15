@@ -1,0 +1,656 @@
+#!cqperl
+################################################################################
+#
+# File:         pqamerge
+# Description:  Merge the old TO (Teton) and Prod databases to the new Cont
+#               (Controller) database. This process assumes the new database
+#               is empty and that there are two "masterdb"'s named From and To.
+#               These are Clearquest connection profiles and From and To refer
+#               to the names given in the Clearquest Maintainance Tool for the
+#               connections. From contains both the TO and Prod databases and
+#               the To connection contains the Cont database.
+#
+#               Note that it is also assumed that the Cont database has had it's
+#               code page set to US ASCII. This script will translate non US
+#               ASCII characters in the from databases to HTML equivalents.
+#
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Sep 23 17:27:58 PDT 2005
+# Language:     Perl
+#
+# (c) Copyright 2005, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+use strict;
+use warnings;
+use CQPerlExt;
+use File::Spec;
+
+our ($me, $SEPARATOR);
+
+my ($abs_path, $lib_path);
+
+BEGIN {
+  # Extract relative path and basename from script name.
+  $0 =~ /(.*)[\/\\](.*)/;
+
+  $abs_path   = (!defined $1) ? "." : File::Spec->rel2abs ($1);
+  $me         = (!defined $2) ? $0  : $2;
+  $me         =~ s/\.pl$//;
+
+  # Remove .pl for Perl scripts that have that extension
+  $me         =~ s/\.pl$//;
+
+  # Define the path SEPARATOR
+  $SEPARATOR  = ($^O =~ /MSWin/) ? "\\" : "/";
+
+  # Setup paths
+  $lib_path   = "$abs_path" . $SEPARATOR . ".." . $SEPARATOR . "lib";
+
+  # Add the appropriate path to our modules to @INC array.
+  unshift (@INC, "$abs_path");
+  unshift (@INC, "$lib_path");
+} # BEGIN
+
+use PQA;
+use Display;
+use Logger;
+use TimeUtils;
+
+my $from_db_connection_name     = "2003.06.00";
+my $to_db_connection_name       = "2005.02.00";
+my $id;
+
+sub Usage {
+  my $msg = shift;
+
+  display "ERROR: $msg\n" if defined $msg;
+
+  display "Usage: $me\t[-u] [-v] [-d] [-id <id>]
+                [-from <connection name>]
+                [-to <connection name>]
+
+Where:
+
+  -u:                       Display usage
+  -v:                       Turn on verbose mode
+  -d:                       Turn on debug mode
+  -id <id>:                 Process only the specified defect <id>
+                            (Default: Process all defects)
+  -from  <connection name>: Specify the from connection name
+                            (Default: $from_db_connection_name)
+  -to <connection name>:    Specify the to connection name
+                            (Default: $to_db_connection_name)";
+  exit 1;
+} # Usage
+
+sub BurnIDsTil {
+  my $log               = shift;
+  my $to                = shift;
+  my $record_name       = shift;
+  my $current_id        = shift;
+  my $dest_id           = shift;
+
+  my $entity;
+
+  while ($current_id < $dest_id) {
+    # Create a new entity and get it's ID until we reach $dest_id
+    $entity = $to->BuildEntity ($record_name);
+    $current_id = $entity->GetFieldValue ("id")->GetValue;
+
+    # Change $current_id to just the number portion
+    $current_id = substr $current_id, 4, 8;
+
+    # Burn the id if it is not equal to the $dest_id
+    $entity->Revert if $current_id < $dest_id;
+  } # while
+
+  return $entity;
+} # BurnIDsTil
+
+sub TransferState {
+  my $log               = shift;
+  my $record_name       = shift;
+  my $db                = shift;
+  my $id                = shift;
+  my $state             = shift;
+
+  # There is no corresponding Submit state in Cont so we cannot
+  # transition it's state. For now we will leave it Assigned.
+  return if $state eq "Submit";
+
+  # State transition matrix: This hash defines a state to get to and
+  # an array of how to get there.
+  my %state_transition_matrix = (
+    "Assigned"                  => [
+                                   ],
+    "Resolved"                  => [
+                                    "Resolve"
+                                   ],
+    "Unassigned"                => [
+                                    "Unassign"
+                                   ],
+    "Data_Pending"              => [
+                                    "Data_Pending"
+                                   ],
+    "Verified"                  => [
+                                    "Resolve",
+                                    "Verify"
+                                   ],
+    "Awaiting_Cust_Verify"      => [
+                                    "Resolve",
+                                    "Verify",
+                                    "VerifiedPendingCustVerify"
+                                   ],
+    "Closed"                    => [
+                                    "Resolve",
+                                    "Verify",
+                                    "Close"
+                                   ],
+    "Verified_Cust_Accepted"    => [
+                                    "Resolve",
+                                    "Verify",
+                                    "VerifiedPendingCustVerify",
+                                    "CustomerVerified"
+                                    ],
+  );
+
+  # Not transition through the necessary states
+  my $current_state     = $state;
+  my @actions           = @{$state_transition_matrix {$current_state}};
+
+  debug "Transitioning $id to $current_state State";
+
+  foreach (@actions) {
+    debug "Applying action $_";
+
+    my $new_entity = $db->GetEntity ($record_name, $id);
+
+    $db->EditEntity ($new_entity, $_);
+
+    my $errmsg = $new_entity->Validate;
+
+    if ($errmsg ne "") {
+      verbose "";
+      $log->err ("\n$id\n$errmsg");
+      return;
+    } else {
+      # Post record to database
+      $new_entity->Commit;
+    } # if
+  } # foreach
+} # TransferState
+
+sub TransferDefects {
+  my $log               = shift;
+  my $from              = shift;
+  my $to                = shift;
+  my $dbname            = shift;
+  my $record_name       = shift;
+  my $search_id         = shift;
+  my @field_list        = @_;
+
+  my $result;
+  my $new_id;
+
+  if (defined $search_id) {
+    $result = GetDefectRecord $log, $from, $record_name, $search_id;
+  } else {
+    $result = GetAllDefectRecords $log, $from, $record_name;
+  } # if
+
+  return if !$result;
+
+  my $old_bufffer_status = $|;
+  $| = 1; # Turn off buffering
+
+  my $nbr = 0;
+
+  # Seed $current_id - IOW what is the current ID in the destination
+  # database?
+  my $current_id;
+  if (!defined $search_id) {
+    my $entity  = $to->BuildEntity ($record_name);
+    $current_id = $entity->GetFieldValue ("id")->GetValue;
+  } # if
+
+  # Now for each record returned by the query...
+  while ($result->MoveNext == $CQPerlExt::CQ_SUCCESS) {
+    # GetEntity by using $id
+    my $id          = $result->GetColumnValue (1);
+    my $from_entity = $from->GetEntity ($record_name, $id);
+    my $title;
+    my @files_created;
+    my $history_filename = "history.txt";
+    my $to_entity;
+
+    if (!defined $search_id) {
+      # Check to see if $id > $current_id. If so then we can't
+      # proceed. If not then we need to burn up some IDs.
+      my $current_id_nbr  = substr $current_id, 4, 8;
+      my $dest_id_nbr;
+
+      if ($id =~ /^Prod/) {
+        $dest_id_nbr = substr $id, 4, 8;
+      } else {
+        $dest_id_nbr = 20000 + (substr $id, 2, 8);
+      } # if
+
+      if ($current_id_nbr > $dest_id_nbr) {
+        error "Unable to sequence merge", 1;
+      } elsif ($current_id_nbr < $dest_id_nbr) {
+        $to_entity = BurnIDsTil $log, $to, $record_name, $current_id_nbr, $dest_id_nbr;
+      } # if
+    } else {
+      # Since $search_id is defined we're doing a single ID, in test
+      # mode, so generate a new $to_entity. IOW there is no sequencing
+      # going on...
+      $to_entity = $to->BuildEntity ($record_name);
+    } # if
+
+    $log->msg (++$nbr . ": Merging ID $id ", "nolf");
+
+    # Get the fields...
+    foreach (@field_list) {
+      my $name  = $_;
+      my $value = $from_entity->GetFieldValue ($name)->GetValue;
+
+      # Here we handle the differences between records..
+      if ($dbname eq "TO") {
+        ## Field Translations
+
+        # TO: defect: AdvancedFeature -> Cont: defect: Advanced_Feature
+        if ($name eq "AdvancedFeature") {
+          $name = "Advanced_Feature";
+          AddToFieldChoiceList $to, $to_entity, $name, $name, $value;
+        } # if
+
+        # TO: defect: Fixed_In_Project -> Cont: defect: Fixed_In_Project
+        # but as a reference to Cont: Project
+        AddToFieldChoiceList $to, $to_entity, "Project", $name, $value if $name eq "Fixed_In_Project";
+
+        # TO: defect: Found_In_Project -> Cont: defect: Found_In_Project
+        # but as a reference to Cont: Project
+        AddToProject $log, $to, $value if $name eq "Found_In_Project";
+
+        # TO: defect: Fixed_In_SW_Version -> Cont: defect: Fixed_In_SW_Version
+        if ($name eq "Fixed_In_SW_Version") {
+          $value = "N/A" if $value eq "";
+        } # if
+
+        # TO: defect: History -> Cont: defect: <AttachmentBRCM>
+        # Transfer history item to an attachment
+        if ($name eq "History") {
+          TransferHistory ($from_entity, $to_entity, $history_filename);
+        } # if
+
+        ## Field renames
+
+        # TO: defect: GatingItem -> Cont: defect: Gating_Item_HW
+        $name = "Gating_Item_SW" if $name eq "GatingItem";
+
+        # TO: defect: HUT_Version -> Cont: defect: Board_Revision
+        if ($name eq "HUT_Version") {
+          $name = "Board_Revision";
+          $value = "Not Applicable" if $value eq "N/A";
+          AddToFieldChoiceList $to, $to_entity, $name, $name, $value;
+        } # if
+
+        # TO: defect: ReportedBy -> Cont: defect: Reported_By
+        if ($name eq "ReportedBy") {
+          $name = "Reported_By";
+          AddToFieldChoiceList $to, $to_entity, $name, $name, $value
+        } # if
+
+        # TO: defect: NoteBugReview -> Cont: defect: Bug_Review_Note
+        $name = "Bug_Review_Note" if $name eq "NoteBugReview";
+
+        # TO: defect: NoteBRCMOnly -> Cont: defect: Broadcom_Only_Note
+        $name = "Broadcom_Only_Note" if $name eq "NoteBRCMOnly";
+
+        # TO: defect: Open_Close_Status -> Cont: defect: Active_Deferred_Status
+        $name = "Active_Deferred_Status" if $name eq "Open_Close_Status";
+
+        # TO: defect: SQATestCase -> Cont: defect: PQATestCase
+        if ($name eq "SQATestCase") {
+          $name = "PQATestCase";
+          $value = "N/A" if $value eq "";
+        } # if
+
+        # TO: defect: Title_2 -> Cont: defect: Title
+        if ($name eq "Title_2") {
+          # There are some blank titles!
+          $value = "N/A" if $value eq "";
+          $title = $value;
+          $name = "Title";
+        } # if
+
+        ## Field deletes
+        next if $name eq "AttachmentsBRCM"      or
+                $name eq "Project"              or
+                $name eq "PendingHWSWReleases"  or
+                $name eq "TestBlocking";
+      } elsif ($dbname eq "Prod") {
+        ## Field Translations
+
+        # Prod: defect: AdvancedFeature -> Cont: defect: Advanced_Feature
+        if ($name eq "AdvancedFeature") {
+          $name = "Advanced_Feature";
+          AddToFieldChoiceList $to, $to_entity, $name, $name, $value;
+        } # if
+
+        # Prod: defect: Fixed_In_Project -> Cont: defect: Project
+        # but as a reference to Cont: Project
+        AddToFieldChoiceList $to, $to_entity, "Project", $name, $value if $name eq "Fixed_In_Project";
+
+        # Prod: defect: Fixed_In_SW_Version -> Cont: defect: Fixed_In_SW_Version
+        if ($name eq "Fixed_In_SW_Version") {
+          $value = "N/A" if $value eq "";
+        } # if
+
+        # Prod: defect: History -> Cont: defect: <AttachmentBRCM>
+        # Transfer history item to an attachment
+        if ($name eq "History") {
+          TransferHistory ($from_entity, $to_entity, $history_filename);
+        } # if
+
+        # Prod: defect: Category -> Cont: defect: Category
+        if ($name eq "Category") {
+          # There is no "Hardware" anymore so translating them to "Hardware - Board"
+          if ($value eq "Hardware") {
+            $value = "Hardware - Board";
+          } # if
+        } # if
+
+        # Prod: defect: GatingItem -> Cont: defect: Gating_Item_HW
+        $name = "Gating_Item_SW" if $name eq "GatingItem";
+
+        # Prod: defect: HUT_Version -> Cont: defect: Board_Revision
+        if ($name eq "HUT_Version") {
+          $name = "Board_Revision";
+          $value = $value ne "" ? $value : "Not Applicable";
+          $value = "Not Applicable" if $value eq "N/A";
+          if ($value eq "BCM95704CA40 v1.0 revA0 ") {
+            # Trailing blank is wrong! - Removing it
+            $value = "BCM95704CA40 v1.0 revA0";
+          } # if
+          AddToFieldChoiceList $to, $to_entity, $name, $name, $value;
+        } # if
+
+        # Prod: defect: Issue_Classification -> Cont: defect: Issue_Classification
+        # There are no: Hardware in the new Cont database so we'll map it to
+        # "Requirement"
+        if ($name eq "Issue_Classification") {
+          $value = "Requirement" if $value eq "Hardware";
+        } # if
+
+        # Prod: defect: NoteBugReview -> Cont: defect: Bug_Review_Note
+        $name = "Bug_Review_Note" if $name eq "NoteBugReview";
+
+        # Prod: defect: NoteBRCMOnly -> Cont: defect: Broadcom_Only_Note
+        $name = "Broadcom_Only_Note" if $name eq "NoteBRCMOnly";
+
+        # Prod: defect: Open_Close_Status -> Cont: defect: Active_Deferred_Status
+        $name = "Active_Deferred_Status" if $name eq "Open_Close_Status";
+
+        # Prod: defect: Project -> Cont: defect: Found_In_Project
+        if ($name eq "Project") {
+          AddToProject $log, $to, $value;
+          $name = "Found_In_Project";
+        } # if
+
+        # Prod: defect: ReportedBy -> Cont: defect: Reported_By
+        if ($name eq "ReportedBy") {
+          $name = "Reported_By";
+          AddToFieldChoiceList $to, $to_entity, $name, $name, $value
+        } # if
+
+        # Prod: defect: Resolution -> Cont: defect: Resolution
+        if ($name eq "Resolution") {
+          # There is no "HW Fix" anymore so translating them to "Hw Fix - Board"
+          if ($value eq "HW Fix") {
+            $value = "HW Fix - Board";
+          } elsif ($value eq "MAC Core") {
+            $value = "HW Fix - MAC Core";
+          }# if
+        } # if
+
+        # Prod: defect: Software_Version -> Cont: defect: Software_Version
+        if ($name eq "Software_Version") {
+          $value = "N/A" if $value eq "" or $value eq " ";
+        } # if
+
+        # Prod: defect: Title -> Cont: defect: Title
+        if ($name eq "Title") {
+          $value = $value ne "" ? $value : "<N/A>";
+          $title = $value;
+        } # if
+
+        # Prod: defect: SQATestcase -> Cont: defect: PQATestCase
+        if ($name eq "SQATestCase") {
+          $name = "PQATestCase";
+          $value = "N/A" if $value eq "";
+        } # if
+
+        # Prod: defect: Title_2 -> Cont: defect: Title
+        $name = "Title" if $name eq "Title_2";
+
+        ## Field deletes
+        next if $name eq "AttachmentBRCM"       or
+                $name eq "Project_Name"         or
+                $name eq "PendingHWSWReleases"  or
+                $name eq "TestBlocking";
+      } # if
+
+      # Check field for non US ASCII characters and fix them
+      $value = CheckField $dbname, $record_name, $id, $name, $value;
+
+      ## Handle dynamic choice lists
+
+      # While the field name is DeferredToProject, it's corresponding
+      # Dynamic list name is actually Project
+      AddToFieldChoiceList $to, $to_entity, "Project", $name, $value if $name eq "DeferredToProject";
+
+      # While the field name is CommittedToProject, it's corresponding
+      # Dynamic list name is actually Project
+      AddToFieldChoiceList $to, $to_entity, "Project", $name, $value if $name eq "CommittedToProject";
+
+      if ($name eq "HUT") {
+        $value = "BRCM Copper (do not use)" if $value eq "Broadcom Copper";
+        $value = "BRCM Fiber (do not use)"  if $value eq "Broadcom Fiber Optic";
+      } # if
+
+      AddToFieldChoiceList $to, $to_entity, $name, $name, $value if $name eq "HUT";
+
+      if ($name eq "HUT_Revision") {
+        $value = "N/A"
+          if $value eq ""               or
+             $value eq "\?"             or
+             $value eq "\?\?\?"         or
+             $value eq "A0-A4,B0-B1"    or
+             $value eq "All"            or
+             $value eq "all revisions"  or
+             $value eq "n"              or
+             $value eq "n/"             or
+             $value eq "n\a"            or
+             $value eq "na"             or
+             $value eq "n/a ";
+        $value = "A0" if $value eq "BCM5752 A0";
+        $value = "A1" if $value eq "BCM5752 A1 10x10 package";
+        $value = "A2" if $value eq "A2 (A3 Silent)";
+        $value = "A3" if $value eq "A3 silent (A2)";
+        $value = "B1" if $value eq "B1/A1";
+        AddToFieldChoiceList $to, $to_entity, $name, $name, $value;
+      } # if
+
+      if ($name eq "Service_Pack") {
+        $value = "Not Applicable"
+          if $value eq ""       or
+             $value eq "\?"     or
+             $value eq "na"     or
+             $value eq "N/A"    or
+             $value eq "none"   or
+             $value eq "Notice that QA applies to bootcode + Win + Linux d";
+        $value = "SP3"                  if $value eq "SP3 ";
+        $value = "SP4"                  if $value eq "SP4 ";
+        $value = "Suse 9"               if $value eq "Suse 9 ";
+      } # if
+
+      # While the field name is Service_Pack, it's corresponding
+      # Dynamic list name is actually OS_Service_Pack!
+      AddToFieldChoiceList $to, $to_entity, "OS_Service_Pack", $name, $value if $name eq "Service_Pack";
+
+      AddToFieldChoiceList $to, $to_entity, $name, $name, $value if $name eq "Software";
+      AddToFieldChoiceList $to, $to_entity, $name, $name, $value if $name eq "Visibility";
+      if ($name eq "OS") {
+        $value = "Novell 6 Pack Beta 3" if $value eq "Novell 6 Pack Beta 3 ";
+        AddToFieldChoiceList $to, $to_entity, $name, $name, $value if $name eq "OS";
+      } # if
+
+      # Set the field's value
+      $to_entity->SetFieldValue ($name, $value);
+    } # for
+
+    ## New fields
+
+    # Found_On_Gold: Default to "No"
+    $to_entity->SetFieldValue ("Found_On_Gold", "No");
+
+    # Gating_Item_HW: Default to "No"
+    $to_entity->SetFieldValue ("Gating_Item_HW", "No");
+
+    # Newly_Introduce: Default to "No"
+    $to_entity->SetFieldValue ("Newly_Introduce", "No");
+
+    # Root_Caused: Default to "No"
+    $to_entity->SetFieldValue ("Root_Caused", "No");
+
+    # Throw old ID from Prod or TO into old_id. This can then serve
+    # As a cross reference
+    $to_entity->SetFieldValue ("old_id", $id);
+
+    # Need to handle attachments differently...
+    @files_created = TransferAttachments $log, $from_entity, $to_entity;
+
+    # Call the Validate method
+    my $errmsg = $to_entity->Validate;
+
+    if ($errmsg ne "") {
+      verbose "";
+      $log->err ("\n$id\n$errmsg");
+    } else {
+      # Post record to database
+      $to_entity->Commit;
+      $new_id = $to_entity->GetFieldValue ("id")->GetValue;
+      $log->msg ("-> $new_id");
+    } # if
+
+    # Clean up files created by TransferAttachments - if any
+    foreach (@files_created) {
+      unlink $_;
+    } # foreach
+
+    # Clean up files created by TransferHistory
+    unlink $history_filename;
+
+    # Transfer State: The entity we just created is now in the
+    # Assigned state. But that's not the same as the state of the
+    # original entity. The following code attempts to fix this.
+    my $old_state = $from_entity->GetFieldValue ("State")->GetValue;
+
+    TransferState $log, $record_name, $to, $new_id, $old_state;
+  } # while
+
+  $| = $old_bufffer_status; # Restore buffering
+
+  return $new_id;
+} # TransferDefects
+
+while ($ARGV [0]) {
+  if ($ARGV [0] eq "-v") {
+    Display::set_verbose;
+    Logger::set_verbose;
+  } elsif ($ARGV [0] eq "-d") {
+    set_debug;
+  } elsif ($ARGV [0] eq "-id") {
+    shift;
+    if (!$ARGV [0]) {
+      Usage "Must specify ID after -id";
+    } else {
+      $id = $ARGV [0];
+    } # if
+  } elsif ($ARGV [0] eq "-from") {
+    shift;
+    if (!$ARGV [0]) {
+      Usage "Must specify <connection name> after -from";
+    } else {
+      $from_db_connection_name = $ARGV [0];
+    } # if
+  } elsif ($ARGV [0] eq "-to") {
+    shift;
+    if (!$ARGV [0]) {
+      Usage "Must specify <connection name> after -to";
+    } else {
+      $to_db_connection_name = $ARGV [0];
+    } # if
+  } elsif ($ARGV [0] eq "-u") {
+    Usage;
+  } else {
+    Usage "Unknown argument found: " . $ARGV [0];
+  } # if
+
+  shift (@ARGV);
+} # while
+
+my $log = Logger->new (path => ".");
+
+my $process_start_time  = time;
+my $start_time;
+
+$log->msg ("Starting Cont session");
+my $controller = StartSession "Cont", $to_db_connection_name;
+
+my $do_prod  = 1;
+my $do_teton = 1;
+my $current_id;
+my $record_name = "defect";
+
+if ($do_prod) {
+  $log->msg ("Starting Prod session");
+  my $prod = StartSession ("Prod", $from_db_connection_name);
+
+  $log->msg ("Transferring Prod:defect -> Cont:defect");
+  $start_time = time;
+  $current_id = TransferDefects $log, $prod,  $controller, "Prod", $record_name, $id,  @old_Prod_defect_fields;
+  $log->msg ("Completed transfer of Prod:defect records");
+  display_duration $start_time, $log;
+
+  $log->msg ("Ending Prod session");
+  EndSession $prod;
+} # if
+
+if ($do_teton) {
+  $log->msg ("Starting TO session");
+  my $teton = StartSession "TO", $from_db_connection_name;
+
+  $log->msg ("Transferring TO:defect -> Cont:defect");
+  $start_time = time;
+
+  if (!defined $id) {
+    my $current_id_nbr = substr $current_id, 4, 8;
+    # Start numbering TO at 20000
+    BurnIDsTil $log, $controller, $record_name, $current_id_nbr, "20000";
+  } # if
+  TransferDefects $log, $teton, $controller, "TO", $record_name, $id, @old_TO_defect_fields;
+  $log->msg ("Completed transfer of TO:defect records");
+  display_duration $start_time, $log;
+
+  $log->msg ("Ending TO session");
+  EndSession $teton;
+} # if
+
+$log->msg ("Ending Cont session");
+EndSession $controller;
+
+verbose "Total processing time:";
+display_duration $process_start_time, $log;

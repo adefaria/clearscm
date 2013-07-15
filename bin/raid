@@ -1,0 +1,1361 @@
+#!/usr/local/bin/perl
+use strict;
+use warnings;
+
+=pod
+
+=head1 NAME $RCSfile: raid,v $
+
+RAiD: Real Aid in Debugging
+
+This script will dynamically load C functions described in a .h file
+and provide a command line interface to calling those functions.
+
+=head1 VERSION
+
+=over
+
+=item Author
+
+Andrew DeFaria <Andrew@ClearSCM.com>
+
+=item Revision
+
+$Revision: 1.1 $
+
+=item Created:
+
+Fri Apr 29 11:58:36 PDT 2011
+
+=item Modified:
+
+$Date: 2012/04/13 18:14:02 $
+
+=back
+
+=head1 SYNOPSIS
+
+ Usage raid: [-u|sage] [-verb|ose] [-deb|ug] [-vers|ion] [-rc <dir>]
+             [-lo|ad <.h file>] [-li|b <.a file>] [-h|istfile <file>]
+             [-t|imeout <n>]
+
+ Where:
+   -u|sage:       Displays usage
+
+   -verb|ose:     Be verbose
+   -deb|ug:       Output debug messages
+   -vers|ion:     Display raid's version and exit
+
+   -rc <file>:        Directory to find "run commands"
+   -lo|ad <module>:   A module to load
+   -li|b  <library>:  A library to load
+   -h|istfile <file>: Use <file> as history file.
+   -t|imeout <n>:     Set the timeout to n seconds (Default: 5 seconds)
+
+=head1 DESCRIPTION
+
+This script loads functions defined in a C module so that Perl can
+call them dirctly. A C module is defined to be a set of files, a .h
+file and a .a (or .so) file. The .h file must have specific comments
+in it to identify things properly for raid. These are:
+
+=over
+
+=item prototype
+
+A prototype line that describes the C function to call
+
+=item user input
+
+A user input string which, when matched, tells raid to call the
+corresponding C function.
+
+=item help (optional)
+
+A short help string that describes the function.
+
+=item description (optional)
+
+A longer description string that can span multiple lines.
+
+=item category:
+
+A category - either 0 or 1 - defining the category of call. Normally
+this is 1 for type 1 calls. Type 1 calls communicate with the backend
+through debugsh using TIPC and have their output paged. Type 0 calls
+do not use debugsh and are pure C functions. Any output from type 0
+calls are written directly to STDOUT and are not paged.
+
+=back
+
+Other comments can appear that we will just skip.
+
+The format of comments must be close to:
+
+ int add (int a, int b);
+ /**********************************************************
+ prototype:   int add (int a, int b)
+ user input:  myadd
+ category:    0
+ help:        Add two numbers together
+ description: Because Perl's add is not good enough
+ **********************************************************/
+ ...
+ int subtract (int a, int b)
+ /**********************************************************
+ prototype:   int subtract (int a, int b)
+ user input:  mysub
+ category:    0
+ help:        Subtract b from a
+ description: Because Perl's subtract is not good enough
+ **********************************************************/
+ ...
+ void printit (char *s, int i, double f)
+ /**********************************************************
+ prototype:   void printit (char *s, int i, double f)
+ user input:  printer
+ category:    0
+ help:        Print some different datatypes
+ description: A simple routine to print out some different
+              datatypes. Note the void return.
+
+ Turns out void returns are OK but void parms...  not so good
+ **********************************************************/
+ ...
+ void backendCall (char *s, int i, double f)
+ /**********************************************************
+ prototype:   void backendCall (int i)
+ user input:  call back end
+ category:    1
+ help:        This calls the back end passing it an int
+ **********************************************************/
+
+=head1 Autoloading
+
+Raid preloads cmds by parsing all .h files in the rc directory. From
+there it learns of all potential commands that can be loaded. A .h
+filename is called the "module name". If a call is made to a function
+raid checks to see if the module has been loaded. If not it loads the
+module using rc/<module>.h and lib/lib<module>.[a|so]. A module is only
+loaded once. See modules command to see what modules have been loaded.
+
+=head1 TYPEMAPS
+
+Inline uses the default Perl typemap file for its default types. This
+file is called /usr/local/lib/perl5/5.6.1/ExtUtils/typemap, or
+something similar, depending on your Perl installation. It has
+definitions for over 40 types, which are automatically used by
+Inline. (You should probably browse this file at least once, just to
+get an idea of the possibilities.)
+
+Inline parses your code for these types and generates the XS code to
+map them. The most commonly used types are:
+
+=over
+
+=item int
+
+=item long
+
+=item double
+
+=item char*
+
+=item void
+
+=item SV*
+
+=back
+
+If you need to deal with a type that is not in the defaults, just use
+the generic SV* type in the function definition. Then inside your
+code, do the mapping yourself. Alternatively, you can create your own
+typemap files and specify them using the TYPEMAPS configuration
+option.
+
+Note that the presence of a file named typemap along side your .h and
+.a file should work.
+
+TYPEMAPS specifies a typemap file that defines non-standard C types
+and how they relate to Perl types.
+
+=head1 COMMAND LINE
+
+Raid implements a command line with full ReadLine support. It
+maintains a history stack of your commands for convenient recall as
+well as audit purposes. Try using the arrow keys or C-p, C-n, C-r
+Emacs bindings. History is saved between sessions in ~/.raid_hist.
+
+There is a small help facility. Type help to get a listing of raid
+commands as well as the currently loaded C functions. Also, "help <C
+function name>" will display the detailed help provided in the .h file
+(if any).
+
+=head1 One liners
+
+You can also call raid and give is a parameter on the command line
+which would be a command to execute. This command may need to be
+quoted if any spaces or other special characters occur in the command.
+
+=head1 Exit status
+
+Raid sets $? equal to the return of the last function called. If the
+last function called returns a string then raid will set $? equal to 1
+if the string has anything in it or 0 if it is empty or undefined.
+
+=head1 Colors
+
+For those of your who are color averse, simply export
+ANSI_COLORS_DISABLED to some value and all coloring will be turned
+off. Or use the color off|on command.
+
+=head1 More information
+
+For more information see the internal wiki page:
+
+=over
+
+=item .
+
+L<http://adp.ca.tellabs.com/twiki/bin/view/9200/RaidDebugShell>
+
+=item .
+
+L<http://adp.ca.tellabs.com/twiki/bin/view/9200/VersionHistory>
+
+=back
+
+=cut
+
+use Config;
+use Getopt::Long;
+use FindBin;
+use File::Spec;
+use File::Basename;
+use IO::Handle;
+
+use Term::ANSIColor qw (color);
+
+# Add our lib directory as well as the appropraite lib areas below "lib" that
+# contain things like our local copy of Term::ReadLine::Gnu and Inline::C.
+use lib "$FindBin::Bin/lib",
+        "$FindBin::Bin/lib/perl5/site_perl",
+        "$FindBin::Bin/lib/lib64/",
+        "$FindBin::Bin/lib/lib64/perl5/site_perl";
+
+use CmdLine;
+use GetConfig;
+use Display;
+use Utils;
+
+use constant DBGSH_APPID => 300;
+
+my $VERSION  = '$Revision: 1.1 $';
+  ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
+
+my (%opts, %funcs, %allcmds, %modules, $debugshVer);
+
+%opts = GetConfig "$FindBin::Bin/etc/$FindBin::Script.conf";
+
+my $debugshPid;
+my $name = 'RAiD';
+
+error "$name is not supported on 64 bit versions of Perl", 1
+  if $Config{archname} =~ /64/;
+
+my %raidCmds = (
+  appiddisplay  => {
+    help        => 'appiddisplay',
+    description => 'Displays App ID information',
+  },
+
+  appidclear    => {
+    help        => 'appidclear <index>',
+    description => 'Clears the specified App ID index',
+  },
+
+  cmds          => {
+    help        => 'cmds [<str>]',
+    description => 'Lists currently loaded commands (matching <str>).',
+  },
+
+  debug         => {
+    help        => 'debug [<on|off>]',
+    description => 'Turn on|off debuging of raid and debugsh. With no options displays
+status of debug.',
+  },
+
+  exit          => {
+    help        => 'exit',
+    description => "Exits $name.",
+  },
+
+  modules       => {
+    help        => 'modules',
+    description => 'Displays all available modules',
+  },
+
+  perl          => {
+    help        => 'perl <expression>',
+    description => 'Evaluate a Perl expression. Must be on one line.',
+  },
+
+  quit          => {
+    help        => 'quit',
+    description => "Quits $name.",
+  },
+
+  restart       => {
+    help        => 'restart',
+    description => "Reinitializes $name",
+  },
+
+  timeout       => {
+    help        => 'timeout [<n>]',
+    description => 'Set timeout to <n> seconds. If n = 0 then timeout is disabled. Without <n> just show current timeout value.',
+  },
+
+  version       => {
+    help  => 'version',
+    description => 'Displays version information.',
+  },
+);
+
+use Inline;
+
+my $PROMPT;
+
+# Seed PATH and LD_LIBRARY_PATH (Hack)
+$ENV{PATH} = "/usr/wichorus/sysroot/usr/bin:/usr/wichorus/sysroot/usr/libexec/gcc/i386-redhat-linux/4.1.2:$ENV{PATH}";
+$ENV{LD_LIBRARY_PATH} = "/usr/wichorus/sysroot/usr/lib";
+
+my ($cmdline, $attribs, $line, $result, $dsh);
+
+sub terminateDebugSh () {
+  if ($debugshPid) {
+    kill HUP => $debugshPid;
+
+    waitpid $debugshPid, 0;
+
+    my $result = DbgShRaidUnRegister ();
+
+    warning "DbgShRaidRegister returned $result"
+      if $result;
+
+    # Close old debugsh if we are reinitializing
+    close $dsh if $dsh;
+
+    undef $dsh;
+  } # if
+
+  return;
+} # terminateDebugSh
+
+sub set_prompt (;$$) {
+  my ($cmd, $nbr) = @_;
+
+  my $ignstart = $CmdLine::cmdline->{ignstart};
+  my $ignstop  = $CmdLine::cmdline->{ignstop};
+
+  my $prompt;
+
+  if ($opts{color}) {
+    return $ignstart . color ('cyan')   . $ignstop . $name
+         . $ignstart . color ('reset')  . $ignstop . ' <'
+         . $ignstart . color ('yellow') . $ignstop . '\#'
+         . $ignstart . color ('reset')  . $ignstop . '> ';
+  } else {
+    return "$name <#>";
+  } # if
+} # set_prompt
+
+sub moduleName ($) {
+  my ($file) = @_;
+
+  my ($module, $path, $suffix) = fileparse ($file, ('\.a$', '\.so$', '\.h$'));
+
+  $module =~ s/lib//;
+
+  return $module;
+} # moduleName
+
+sub parseh ($) {
+  my ($h) = @_;
+
+  my %funcs;
+
+  unless (-f $h) {
+    error "Unable to open file $h - $!";
+    return;
+  } # unless
+
+  open my $file, '<', $h
+    or error "Unable to open $h", 1;
+
+  my (
+    $indefinition,
+    $userinput,
+    $funcname,
+    $help,
+    $description,
+    $module,
+    $prototype,
+    $parms,
+    $returntype,
+    $type
+  );
+
+  while (<$file>) {
+    chomp; chop if /\r$/;
+
+    if (/^\/\*{5,}/) {
+      $indefinition = 1;
+      $type         = 0;
+    } elsif (/^\*{5,}/) {
+      error 'Missing user input keyword', 1
+        unless $userinput;
+
+      # We need to loop through and make sure that this new user input string
+      # does not previously appear, even if abbreviated. So we can't have say
+      # a new command - "my command" - when we already had a command such as
+      # "my command is nice".
+      foreach (keys %funcs) {
+        error "Ambiguous command \"$userinput\" & \"$_\" found in $h", 1
+          if /^$userinput /;
+      } # foreach
+
+      # Now test for the other way where we already have "my command" in %funcs
+      # and we are trying to add "my command is nice".
+      my $str;
+
+      foreach my $word (split /\s+/, $userinput) {
+        if ($str) {
+          $str .= " $word";
+        } else {
+          $str .= $word;
+        } # if
+
+        # See if this exactly matches any existing key
+        error "Ambiguous command \"$userinput\" & \"$_\" found in $h", 1
+          if $funcs{$str};
+      } # foreach
+
+      $funcs{$userinput}{funcname}    = $funcname;    undef $funcname;
+      $funcs{$userinput}{help}        = $help;        undef $help;
+      $funcs{$userinput}{description} = $description; undef $description;
+      $funcs{$userinput}{module}      = $module;      undef $module;
+      $funcs{$userinput}{prototype}   = $prototype;   undef $prototype;
+      $funcs{$userinput}{parms}       = $parms;       undef $parms;
+      $funcs{$userinput}{returntype}  = $returntype;  undef $returntype;
+      $funcs{$userinput}{type}        = $type;        undef $type;
+
+      undef $userinput;
+    } elsif ($indefinition and $_ =~ /^\s*user input:\s*(.+)/i) {
+      $userinput = $1; $userinput =~ s/\s*$//;
+    } elsif ($indefinition and $_ =~ /^\s*prototype:\s*(.+);*/i) {
+      $prototype = $1; $prototype =~ s/\s*$//;
+
+      while ($prototype !~ /\);*\s*$/) {
+        my $line = <$file>;
+
+        if ($line) {
+          chomp; chop if /\r$/;
+
+          # Trim
+          $line =~ s/^\s+//;
+          $line =~ s/\s+$//;
+
+          $prototype .= $line;
+        } else {
+          error "Unterminated function prototype found in $h", 1;
+        } # if
+      } # while
+
+      my $str = $prototype;
+
+      # Remove annoying spaces around delimiters only
+      $str =~ s/\s*(\*|\(|\)|\,)\s*/$1/g;
+
+      my @parts = split /(\s+|\(|\)|\*)/, $str;
+
+      # Handle the case where prototype lacks a return type (technically
+      # invalid but we're such nice guys...). Note we simply assume they meant
+      # "void" for a return type.
+      if ($parts[1] eq '(') {
+        $funcname   = $parts[0];
+        $returntype = 'void';
+        $parms      = join '', @parts[1..$#parts];
+      } elsif ($parts[1] eq '*') {
+        $funcname   = $parts[2];
+        $returntype = "$parts[0]*";
+        $parms      = join '', @parts[3..$#parts];
+      } else {
+        $funcname   = $parts[2];
+        $returntype = $parts[0];
+        $parms      = join '', @parts[3..$#parts];
+      } # if
+
+      $module = moduleName $h;
+    } elsif ($indefinition and $_ =~ /^\s*help:\s*(.*)/i) {
+      $help = $1; $help =~ s/\s*$//;
+    } elsif ($indefinition and $_ =~ /^\s*description:\s*(.*)/i) {
+      my $desc = $1; $desc =~ s/\s*$//;
+
+      $desc =~ s/^\s+//;
+
+      $description = $desc unless $desc eq '';
+      $indefinition = 2;
+    } elsif ($indefinition and $_ =~ /^\s*category:\s*(\d+)/i) {
+      $type = $1;
+    } elsif ($indefinition and $indefinition == 2) {
+      if (/\*{5,}/) {
+        $indefinition = 0;
+        next;
+      } else {
+        s/^\s+//;
+
+        if ($description) {
+          $description .= "\n$_";
+        } else {
+          $description = $_;
+        } # if
+      } # if
+    } # if
+  } # while
+
+  close $file;
+
+  return %funcs;
+} # parseh
+
+sub loadModules ($) {
+  my ($rcdir) = @_;
+
+  # Load all known commands by combing through $FindBin::Bin/rc/*.h
+  opendir my $rc, $rcdir
+    or error "Unable to opendir $rcdir", 1;
+
+  my %moduleFuncs;
+  my @modules = grep { !/^\./ } readdir $rc;
+     @modules = grep { /.+\.h$/ } @modules;
+
+  closedir $rc;
+
+  foreach (@modules) {
+    my $moduleFile = "$rcdir/$_";
+    my $module     = moduleName $moduleFile;
+    my %funcs      = parseh $moduleFile; 
+
+    foreach (keys %funcs) {
+      error "Duplicate definition $_ found in $moduleFile", 1
+        if defined $moduleFuncs{$_};
+
+      $moduleFuncs{$_} = $funcs{$_};
+    } # foreach
+
+    $modules{$module} = {
+      moduleFile => $moduleFile,
+      loaded     => 0,
+    };
+  } # foreach
+
+  return %moduleFuncs;
+} # loadModules
+
+sub modules () {
+  my ($moduleName, $moduleStatus, $moduleFile);
+
+  format STDOUT =
+@<<<<<<<<<<<<<<<<<<<<<<<<<<<< @<<<<<<<<<
+$moduleName,$moduleStatus
+.
+  foreach $moduleName (sort keys %modules) {
+    next if $moduleName eq 'DbgSh';
+
+    $moduleStatus = ($modules{$moduleName}{loaded}) ? 'loaded' : 'not loaded';
+
+    write;
+  } # foreach
+
+  return;
+} # modules
+
+sub load ($;$) {
+  my ($file, $lib) = @_;
+
+  my ($module, $path, $suffix) = fileparse ($file, ('\.a$', '\.so$', '\.h$'));
+
+  $module =~ s/lib//;
+  $path   =~ s/^inc\///;
+
+  display_nolf color ('dark') . "Loading $module..." . color ('reset');
+
+  my $hfile;
+
+  if (-f "$path$module.h") {
+    $hfile = "$path$module.h";
+  } elsif (-f "${path}inc/$module.h") {
+    $hfile = "${path}inc/$module.h";
+  } # if
+
+  unless ($hfile) {
+    display '';
+    error "Unable to load $module - .h file missing";
+    return;
+  } # unless
+
+  my $libfile;
+
+  if ($lib and -f $lib) {
+    $libfile = $lib;
+  } elsif (-f "${path}lib$module.a") {
+    $libfile = "${path}lib$module.a";
+  } elsif (-f "${path}lib$module.so") {
+    $libfile = "${path}lib$module.so";
+  } elsif (-f "${path}lib/lib$module.a") {
+    $libfile = "${path}lib/lib$module.a";
+  } elsif (-f "${path}lib/lib$module.so") {
+    $libfile = "${path}lib/lib$module.so";
+  } elsif (-f "${path}../lib/lib$module.a") {
+    $libfile = "${path}../lib/lib$module.a";
+  } elsif (-f "${path}../lib/lib$module.so") {
+    $libfile = "${path}../lib/lib$module.so";
+  } # if
+
+  unless ($libfile) {
+    display '';
+    error "Unable to load $module - .a or .so file missing";
+    return;
+  } # unable
+
+  # Need absolute pathname for -L
+  my $libpath;
+
+  (undef, $libpath, $libfile) = 
+    File::Spec->splitpath (File::Spec->rel2abs ($libfile));
+
+  # Strip trailing "/", if any
+  $libpath =~ s/\/$//;
+
+  # Compose $libs
+  my $devWinfraLibPath  = "$FindBin::Bin/../../../../9200_packetcore/"
+                        . "packetcore/infra/lib/src";
+  my $prodWinfraLibPath = '/usr/wichorus/lib';
+  my $devDbgShLibPath   = "$FindBin::Bin/lib";
+  my $libs = "-L$libpath -L$libpath/lib -L$devWinfraLibPath -L$devDbgShLibPath "
+           . "-L$prodWinfraLibPath -l$module -lDbgSh -lwinfra -lrt";
+     $libs .= " $opts{additionallibs}" if $opts{additionallibs}; 
+
+  verbose "Binding C functions defined in $hfile";
+  debug "Loading module $module";
+  debug "libs = $libs";
+
+  my ($status, @output) = Execute 'uname -r';
+
+  if ($output[0] =~ /WR3.0.2ax_cgl/) {
+    my $sysroot   = '/usr/wichorus/sysroot';    
+
+    Inline->bind (
+      C                 => $hfile,
+      CC                => "$sysroot/usr/bin/gcc",
+      LD                => "$sysroot/usr/bin/ld",
+      CCFLAGS           => "-I$sysroot/usr/include -I$sysroot/usr/lib/gcc/i386-redhat-linux/4.1.2/include",
+      LDDLFLAGS         => "-fPIC -shared -O2 -L$sysroot/usr/lib -L/usr/local/lib",
+      LIBS              => $libs,
+      ENABLE            => 'AUTOWRAP',
+      FORCE_BUILD       => $opts{build},
+      BUILD_NOISY       => $opts{noisy},
+      CLEAN_AFTER_BUILD => $opts{clean},
+      PRINT_INFO        => $opts{info},
+    );
+  } else {
+    Inline->bind (
+      C                 => $hfile,
+      LIBS              => $libs,
+      ENABLE            => 'AUTOWRAP',
+      FORCE_BUILD       => $opts{build},
+      BUILD_NOISY       => $opts{noisy},
+      CLEAN_AFTER_BUILD => $opts{clean},
+      PRINT_INFO        => $opts{info},
+    );
+  } # if
+
+  # Now the module's loaded
+  $modules{$module}{loaded}     = 1;
+  $modules{$module}{moduleFile} = $hfile;
+
+  $CmdLine::cmdline->set_prompt (set_prompt);
+
+  # Rebuild %allcmds
+  %allcmds = %raidCmds;
+
+  $allcmds{$_} = $funcs{$_} foreach (keys %funcs);
+
+  # Set cmds
+  $CmdLine::cmdline->set_cmds (%allcmds);
+
+  display color ('dark') . 'done' . color ('reset');
+
+  return 1;
+} # load
+
+sub getOutput () {
+  my ($status, @output) = (0, ());
+
+  debug "ENTER: getOutput";
+  
+  eval {
+    while (<$dsh>) {
+      debug "read: $_";
+      if (/\s*DBGSH\s*\[$debugshPid\]:\s*(\d+)$/) {
+        debug "Found DBGSH line - status = $1";
+        $status = $1;
+        last;
+      } # if
+
+      # Trim output of both \n and \r;
+      chomp; chop if /\r$/;
+      
+      debug "Pushing '$_' on output";
+      push @output, $_
+    } # while
+  };
+
+  if ($@ =~ /Operation aborted/) {
+    debug "Operation aborted - cleaning pipe";
+    
+    # Need to remove debris from the pipe
+    while (<$dsh>) {
+      debug "Found debris: $_";
+      
+      if (/\s*DBGSH\s*\[$debugshPid\]:\s*(\d+)$/) {
+        debug "Found DBSH line - status = $1";
+        $status = $1;
+        last;
+      } # if
+    } # while
+
+    debug "Returning error $@";
+    return (undef, ($@));
+  } else {
+    debug "Returning output (Status: $status)";
+    return ($status, @output);
+  } # if
+} # getOutput
+
+sub debugshInit () {
+  my @debugsh = ($opts{debugsh});
+
+  push @debugsh, '2>&1';
+
+  local $SIG{INT} = 'IGNORE';
+
+  $debugshPid = open $dsh, '-|', @debugsh
+    or error "Unable to start pipe for $opts{debugsh}", 1;
+    
+  # Turn off buffering on $dsg
+  $dsh->autoflush (1);
+
+  # Temporarily turn off eval
+  my $oldEval = $CmdLine::cmdline->set_eval;
+
+  # Set DEBUGSHPID
+  $CmdLine::cmdline->_set ('DEBUGSHPID', $debugshPid);
+
+  # Turn eval back on
+  $CmdLine::cmdline->set_eval ($oldEval);
+
+  # Load our interface to DbgSh lib
+  load "$FindBin::Bin/DbgShRaidAPI", "$FindBin::Bin/lib/libDbgSh.a";
+
+  $debugshVer = GetDbgShVer ();
+
+  # Check verion of debugsh
+  my $minimumVer = '0.3.0';
+
+  error "Debugsh Version $debugshVer must be >= $minimumVer", 1
+    if compareVersions ($debugshVer, $minimumVer) == -1;
+
+  DbgShRaidRegister ($debugshPid);
+
+  if (get_debug) {
+    DbgShProcessUserInput (DBGSH_APPID, $debugshPid, 'SetDebug');
+
+    my ($result, @output) = getOutput;
+
+    $CmdLine::cmdline->_set ('result', $result);
+
+    $CmdLine::cmdline->handleOutput ('', @output);
+
+    error "$line was not successful (Result: $result)"
+      if $result;
+  } # if
+
+  return;
+} # debugshInit
+
+END {
+  terminateDebugSh;
+} # END
+
+sub interrupt () {
+  display_nolf
+    color ('yellow')
+  . '<Control-C>'
+  . color ('reset')
+  . '... '
+  . color ('red')
+  . "Abort current operation (y/N)?"
+  . color ('reset');
+
+  my $response = <STDIN>;
+  chomp;
+
+  if ($response =~ /(^y$|^yes$)/i) {
+    DbgShProcessUserInput (DBGSH_APPID, $debugshPid, 'Interrupted');
+    die "Operation aborted\n";
+  } # if
+
+  display color ('cyan') . 'Continuing...' . color ('reset');
+} # interrupt
+
+sub init () {
+  # Stop debugsh if it was running
+  terminateDebugSh;
+
+  # Intialize functions (Type 1 commands)
+  if (-d $opts{rc}) {
+    # Load %funcs with all type 1 commands. Nothing is loaded by this. Loading
+    # (actually binding) of C libraries is done automatically when the command
+    # is called.
+    %funcs = loadModules $opts{rc};
+  } else {
+    %funcs = ();
+
+    warning "Unable to find RC commands in $opts{rc}";
+  } # if 
+
+  # Load commands from config file (Type 2 commands)
+  foreach (keys %opts) {
+    my $cmd;
+
+    if (/^type2_(\S+)/) {
+      $cmd = $1;
+      #$cmd =~ s/_/ /g;
+    } else {
+      next;
+    } # if
+
+    $funcs{$cmd} = {
+      appID     => $opts{$_},
+      type      => 2,
+      prototype => "$cmd <cmd>",
+      help      => "Send <cmd> (AppID $opts{$_}) to debugsh",
+    };
+  } # foreach
+
+  # Now combine %funcs, which contain all type 1 and type 2 commands, and
+  # %raidCmds, which contain raid commands like load, unload, perl, restart,
+  # etc.
+  %allcmds = %raidCmds;
+
+  foreach (keys %funcs) {
+    $allcmds{$_} = $funcs{$_};
+  } # foreach
+
+  # Initialize debugsh
+  my $result = debugshInit;
+
+  error "Unable to initialize debugsh", $result
+    if $result;
+} # init
+
+sub compareVersions ($$) {
+  my ($version1, $version2) = @_;
+
+  $version1 =~ s/\.//g;
+  $version2 =~ s/\.//g;
+
+  return $version1 <=> $version2;
+} # compareVersions
+
+sub setVersionStr () {
+  my $raidVersionStr = color ('cyan')
+                     . $name
+                     . color ('reset')
+                     . color ('dark')
+                     . ' (Real Aid in Debugging) '
+                     . color ('reset')
+                     . color ('green')
+                     . 'Version '
+                     . color ('reset')
+                     . color ('yellow')
+                     . $VERSION
+                     . color ('reset');
+
+  my $debugshVerStr = color ('cyan')
+                    . 'Debug Shell Core '
+                    . color ('green')
+                    . 'Version '
+                    . color ('yellow')
+                    . $debugshVer
+                    . color ('reset');
+
+  return $raidVersionStr . "\n" . $debugshVerStr;
+} # setVersionStr
+
+sub cmds ($%) {
+  my ($cmd, %funcs) = @_;
+
+  if (keys %funcs == 0) {
+    warning "Nothing loaded";
+    return;
+  } else {
+    my @output;
+    my @colors = (color ('dark'), color ('magenta'), color ('green'));
+
+    my $searchStr;
+
+    if ($cmd and $cmd =~ /^\s*(\w+)/) {
+      $searchStr = $1;
+    } # if
+
+    foreach (sort {
+      $funcs{$a}{type} <=> $funcs{$b}{type} ||
+             $a        cmp        $b
+    } keys %funcs) {
+      if ($searchStr) {
+        next
+          unless /$searchStr/i;
+      } # if
+
+      my $color = '';
+
+      $color = $colors[$funcs{$_}{type}]
+        if $colors[$funcs{$_}{type}];
+
+      my $cmdName = $_;
+
+      my $boldOn  = '';
+      my $boldOff = '';
+
+      if ($funcs{$_}{type} == 1) {
+        $boldOn  = color ('white on_magenta');
+        $boldOff = color ('reset') . $color;
+      } elsif ($funcs{$_}{type} == 2) {
+        $boldOn  = color ('white on_green');
+        $boldOff = color ('reset') . $color;
+      } # if
+
+      if ($searchStr) {
+        $cmdName =~ s/($searchStr)/$boldOn$1$boldOff/;
+      } # if
+
+      my $line  = $color . $cmdName;
+         $line .= " $funcs{$_}{parms}"     if $funcs{$_}{parms};
+         $line .= color ('reset');
+         $line .= " - $funcs{$_}{help}" if $funcs{$_}{help};
+
+      push @output, $line;
+    } # foreach
+
+    $CmdLine::cmdline->handleOutput ('', @output);
+  } # if
+
+  return;
+} # cmds
+
+sub timeout (;$) {
+  my ($timeout) = @_;
+
+  my ($result, @output);
+
+  if ($timeout) {
+    if ($timeout < 0 or $timeout > 100) {
+      error "Timeout must be between 0 and 100";
+
+      $CmdLine::cmdline->_set ('result', 1);
+
+      return;
+    } # if
+
+    DbgShProcessUserInput (DBGSH_APPID, $debugshPid, "SetTimeout $timeout");
+
+    ($result, @output) = getOutput;
+
+    $CmdLine::cmdline->_set ('result', $result);
+
+    $CmdLine::cmdline->handleOutput ('', @output);
+
+    error "Unable to set timeout (Result: $result)"
+      if $result;
+  } else {
+    DbgShProcessUserInput (DBGSH_APPID, $debugshPid, 'GetTimeout');
+
+    ($result, @output) = getOutput;
+
+    $CmdLine::cmdline->_set ('result', $result);
+
+    $CmdLine::cmdline->handleOutput ('', @output);
+
+    error "Unable to get timeout (Result: $result)"
+      if $result;
+  } # if
+} # timeout
+
+sub callc ($@) {
+  my ($cmd, @parms) = @_;
+
+  # Check to see if we know about this $cmd
+  my $found;
+
+  foreach (keys %funcs) {
+    next unless /^$cmd$/i;
+
+    if ($cmd eq $_) {
+      $found = 1;
+      last;
+    } # if
+  } # foreach
+
+  unless ($found) {
+    error "Unknown command: $cmd";
+
+    return;
+  } # unless
+
+  # Check to see if the module's been loaded
+  unless ($modules{$funcs{$cmd}{module}}{loaded}) {
+    if ($funcs{$cmd}{module}) {
+      unless (load $modules{$funcs{$cmd}{module}}{moduleFile}) {
+        error "Unable to load module for $cmd";
+        return;
+      } # unless
+    } else {
+      error "Undefined module for $cmd";
+      return;
+    } # if
+  } # unless
+
+  my ($result, @output);
+
+  no strict;
+
+  eval {
+    $result = &{$funcs{$cmd}{funcname}} (@parms);
+  };
+
+  use strict;
+
+  if ($@) {
+    display_nolf $@;
+
+    return -1;
+  } else {
+    return $result
+      unless $funcs{$cmd}{type} == 1;
+
+    ($result, @output) = getOutput;
+
+    $CmdLine::cmdline->handleOutput ($cmd, @output);
+
+    return $result;
+  } # if
+} # callc
+
+sub evaluate ($) {
+  my ($line) = @_;
+
+  my $result = $CmdLine::cmdline->_get('result');
+  my @parms;
+
+  if ($line =~ /^\s*(exit|quit)\s*$/i) {
+    unless ($result) {
+      exit 0;
+    } elsif ($result =~ /^\s*(\d+)\s*$/) {
+      exit $1;
+    } else {
+      exit 1;
+    } # if
+  } elsif ($line =~ /^\s*version/i) {
+    display setVersionStr;
+    return;
+  } elsif ($line =~ /^\s*cmds\s+(.*)/i) {
+    cmds $1, %funcs;
+    return;
+  } elsif ($line =~ /^\s*cmds\s*$/i) {
+    cmds undef, %funcs;
+    return;
+  } elsif ($line =~ /^\s*restart\s*$/i) {
+    init;
+    return;
+  } elsif ($line =~ /^\s*debug\s+(\S+)/i) {
+    my @output;
+
+    if ($1 =~ /(1|on)/i) {
+      set_debug 1;
+
+      DbgShProcessUserInput (DBGSH_APPID, $debugshPid, 'SetDebug');
+
+      ($result, @output) = getOutput;
+
+      $CmdLine::cmdline->_set ('result', $result);
+
+      $CmdLine::cmdline->handleOutput ($line, @output);
+
+      error "$line was not successful (Result: $result)"
+        if $result;
+
+      return;
+    } elsif ($1 =~ /(0|off)/i) {
+      set_debug 0;
+
+      DbgShProcessUserInput (DBGSH_APPID, $debugshPid, 'ClearDebug');
+
+      ($result, @output) = getOutput;
+
+      $CmdLine::cmdline->_set ('result', $result);
+
+      $CmdLine::cmdline->handleOutput ($line, @output);
+
+      error "$line was not successful (Result: $result)"
+        if $result;
+
+      return;
+    } else {
+      error "Unknown command: $line";
+      return;
+    } # if
+  } elsif ($line =~ /^\s*timeout\s+([-+]*\d+)/i) {
+    timeout $1;
+
+    return;
+  } elsif ($line =~ /^\s*timeout\s*$/i) {
+    timeout;
+
+    return;
+  } elsif ($line =~ /^\s*debug\s*$/) {
+    if (get_debug) {
+      display 'Debug is currently on';
+    } else {
+      display 'Debug is currently off';
+    } # if
+
+    return;
+  } elsif ($line =~ /^\s*appiddisplay\s*$/i) {
+    DbgShAppIdInfo ();
+    return;
+  } elsif ($line =~ /^\s*appidclear\s+(\d+)\s*$/i) {
+    DbgShAppIdClearIdx ($1);
+    return;
+  } elsif ($line =~ /^\s*perl\s*(.*)/) {
+    # Need to turn off scrict for eval
+    eval "no strict; $1; use strict";
+
+    $result = $@ ne '';
+  } elsif ($line =~ /^\s*modules\s*$/i) {
+    modules;
+    return;
+  } elsif ($line =~ /^\s*(.+)\s*$/) {
+    my @userinput = split /[,\s\t]+/, $1;
+    my $userinput = join ' ', @userinput;
+    my $funcname  = $userinput[0];
+
+    # We have a slight problem here. It is possible for a type 1 command and a
+    # type 2 command to clash. For example, if a type 1 command is defined as
+    # "ckt show id" then that will conflict with the type 2 command "ckt". In
+    # such cases which do we call?
+    #
+    # Here's what we do. We favor type 1 calls (as they are the future). If we
+    # do not find a type 1 call we'll check for a type 2. If we find neither
+    # then we have an unknown command situation.
+    #
+    # If we find a type 1 command but no type 2 then we simply execute the type
+    # 1 command.
+    # 
+    # If we do not find a type 1 command but find a type 2 command then we
+    # simply execute the type 2 command.
+    #
+    # However if we find a type 1 command *and* we find a type 2 command we have
+    # and error situation so we give an error.
+
+    # Search for type 1 command
+    while ($userinput ne '') {
+      last if $funcs{$userinput} and $funcs{$userinput}{type} != 2;
+
+      unshift @parms, pop @userinput;
+
+      $userinput = join ' ', @userinput;
+    } # while
+
+    if ($userinput eq '') {
+      # No type 1 command - check type 2
+      if ($funcs{$funcname} and $funcs{$funcname}{type} == 2) {
+        my @output;
+
+        # Strip off any thing that begins with "\S+_"
+        $line =~ s/^\s*\S+_(.+)/$1/;
+
+        DbgShProcessUserInput ($funcs{$funcname}{appID}, $debugshPid, $line);
+
+        ($result, @output) = getOutput;
+
+        $CmdLine::cmdline->_set ('result', $result);
+
+        $CmdLine::cmdline->handleOutput ($line, @output);
+
+        error "$line was not successful (Result: $result)"
+          if $result;
+
+        return;
+      } else {
+        error "Unknown command: $line";
+
+        return;
+      } # if
+    } else {
+      # We've found a type 1 command but is there a clashing type 2 command?
+      if ($funcs{$funcname} and $funcs{funcname}{type} == 2) {
+        error "Clash between type 1 and type 2 commands for $funcname";
+
+        return;
+      } # if
+    } # if
+
+    # Process parms
+    foreach my $parm (@parms) {
+      # Strip () if they are there
+      $parm =~ s/^\s*\(//;
+      $parm =~ s/\)\s*$//;
+
+      # Trim
+      $parm =~ s/^\s+//;
+      $parm =~ s/\s+$//;
+
+      $parm = oct ($parm) if $parm =~ /^0/;
+    } # foreach
+
+    $result = callc $userinput, @parms;
+  } else {
+    error "Unknown command: $line";
+
+    return;
+  } # if
+
+  $CmdLine::cmdline->_set ('result', $result)
+    if $result;
+
+  return $result
+} # evalulate
+
+# Main
+$| = 1;
+
+$CmdLine::cmdline->_set ('result', 1);
+
+set_me $name;
+
+$opts{histfile} = $ENV{RAID_HISTFILE}
+  ? $ENV{RAID_HISTFILE}
+  : '.raid_hist';
+$opts{debugsh} = $ENV{RAID_DEBUGSH}
+  ? $ENV{RAID_DEBUGSH}
+  : "$FindBin::Bin/debugsh";
+$opts{load} = $ENV{RAID_LOAD}
+  ? $ENV{RAID_LOAD}
+  : undef;
+$opts{lib} = $ENV{RAID_LIB}
+  ? $ENV{RAID_LIB}
+  : undef;
+$opts{additionalLibs} = $ENV{RAID_ADDITIONALLIBS} 
+  ? $ENV{RAID_ADDITIONALLIBS}
+  : ''; 
+$opts{rc} = $ENV{RAID_RC}
+  ? $ENV{RAID_RC}
+  : "$FindBin::Bin/rc";
+$opts{build} = 1;
+$opts{clean} = 1;
+$opts{color} = 1;
+
+GetOptions (
+  \%opts,
+  'verbose' => sub { set_verbose },
+  'debug'   => sub { set_debug },
+  'usage'   => sub { Usage },
+  'rc=s',
+  'load=s',
+  'lib=s',
+  'histfile=s',
+  'debugsh=s',
+  'timeout=i',
+  'additionallibs=s',
+  'noisy!',
+  'build!',
+  'clean!',
+  'info!',
+  'version',
+) || Usage;
+
+if ($opts{version}) {
+  display "$name Version $VERSION";
+  exit;
+} # if
+
+$SIG{INT} = \&interrupt;
+
+init;
+
+timeout $opts{timeout} if $opts{timeout};
+
+load $opts{load}, $opts{lib}
+  if $opts{load};
+
+# Single execution from command line
+if ($ARGV[0]) {
+  my $result = evaluate join ' ', @ARGV;
+
+  $result ||= 1;
+
+  exit $result;
+} # if
+
+my ($cmd, @parms);
+
+$CmdLine::cmdline->set_histfile ($opts{histfile})
+  if $opts{histfile};
+
+$CmdLine::cmdline->set_prompt (set_prompt);
+$CmdLine::cmdline->set_cmds (%allcmds);
+$CmdLine::cmdline->set_eval (\&evaluate);
+
+while ((($line, $result) = $CmdLine::cmdline->get)) {
+  last unless defined $line;
+  next if $line =~ /^\s*($|\#)/;
+  
+  $result = evaluate $line;
+
+  if (defined $result) {
+    if (ref \$result eq 'SCALAR') {
+      if ($line =~ /^\s*(\S+)/) {
+  $cmd = $1;
+      } # if
+
+      # We used to output only for raidcmds...
+      $CmdLine::cmdline->handleOutput ($line, split /\n/, $result);
+    } else {
+      display "Sorry but I cannot display structured results";
+    } # if
+  } # if
+
+  $CmdLine::cmdline->set_prompt (set_prompt $cmd);
+} # while
+
+$result = $CmdLine::cmdline->_get ('result');
+
+unless ($result) {
+  exit 0;
+} elsif ($result =~ /^\s*(\d+)\s*$/) {
+  exit $1;
+} else {
+  exit 1;
+} # if

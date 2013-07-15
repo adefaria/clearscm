@@ -1,0 +1,8 @@
+set background=light
+set autoindent
+set autowrite
+syntax enable
+set nocompatible
+set backspace=indent,eol,start
+colorscheme evening
+map!  

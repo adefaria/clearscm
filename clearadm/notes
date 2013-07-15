@@ -1,0 +1,27 @@
+I've created packages.vbs to get the packages from a Windows system. Output
+basically looks like this:
+
+Name: Acrobat.com
+Version: 1.6.65
+Vendor: Adobe Systems Incorporated
+Description: Acrobat.com
+
+To do roughly the same for Linux (Well debain based Linux):
+
+$ dpkg-query -W -f='Name: ${Package}\nVersion: ${Version}\nVendor: ${Vendor}\nDescription: ${Description}\n'
+
+Which produces output like:
+
+Name: alien
+Version: 8.79ubuntu0.1
+Vendor: 
+Description: convert and install rpm and other packages
+ Alien allows you to convert LSB, Red Hat, Stampede and Slackware Packages
+ into Debian packages, which can be installed with dpkg.
+ .
+ It can also generate packages of any of the other formats.
+ .
+ This is a tool only suitable for binary packages.
+ 
+I don't have a Redhat system to see how to get similar output from there. Then 
+there's Sun, HP-UX, etc... 

@@ -1,0 +1,265 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         pulse,v
+# Revision:	1.1.1.1
+# Description:  Checks Clearcase's "pulse" by attempting to some rudimentary
+#		Clearcase operations and timing them. Timing data is logged
+#		for historical purposes.
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Dec 29 12:07:59 PST 2005
+# Modified:	2007/05/17 07:45:48
+# Language:     perl
+#
+# (c) Copyright 2005, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+use strict;
+use warnings;
+use File::Spec;
+
+my $me;
+
+BEGIN {
+  # Set $lib_path
+  my $lib_path = $^O =~ /MSWin/ ? "\\\\brcm-irv\\dfs\\projects\\ccase\\SCM\\lib"
+				: "/projects/ccase/SCM/lib";
+
+  # Extract relative path and basename from script name.
+  $0 =~ /(.*)[\/\\](.*)/;
+
+  my $abs_path	= (!defined $1) ? "." : File::Spec->rel2abs ($1);
+  $me		= (!defined $2) ? $0  : $2;
+  $me		=~ s/\.pl$//;
+
+  # Add the appropriate path to our modules to @INC array.
+  unshift @INC, "$lib_path";
+  unshift @INC, $ENV {SITE_PERL_LIBPATH} if defined $ENV {SITE_PERL_LIBPATH};
+  unshift @INC, "$abs_path";
+} # BEGIN
+
+use OSDep;
+use Display;
+use Logger;
+use Clearcase;
+use Clearcase::Vob;
+use Clearcase::View;
+use Clearcase::Element;
+use TimeUtils;
+
+my $version = "1.0";
+
+# We need a view context. We'll create this view if necessary.
+my $tag = "default";
+
+# Which vob are we going to use
+my $vobtag = "perftest";
+
+# We need an element to check out and in
+my $element_name = "testelement";
+
+# How long is too long?
+my $too_long = 60; # seconds;
+
+# How many times will we perform the checkout/in?
+my $iterations = 10;
+
+# Some options that we use
+my %identical = (
+  "-identical",	"",
+  "-nc",	"",
+);
+my %nc = (
+  "-nc",	"",
+);
+my %rm = (
+  "-rm",	"",
+);
+my %force = (
+  "-force",	"",
+);
+
+my $log;
+my $view;
+my $step_start_time;
+
+# Path to logs directory
+my $logdir = "$scm_base$/logs";
+
+error "Logdir $logdir does not exist - $!", 1 if !-d $logdir;
+
+my $cc = Clearcase->new;
+
+sub Usage {
+  my $msg = shift;
+
+  display "ERROR: $msg\n" if defined $msg;
+
+  display "Usage:\t$me (v$version) [-u] [-v] [-d] [-view <viewtag>] [-vob <vobtag>]
+\t[-element <element>] [-t <n>] [-i <n>]
+
+Where:
+
+  -u:	    Display usage
+  -v:	    Turn on verbose mode
+  -d:	    Turn on debug mode
+  -view:    View tag to create/use (Default: $tag)
+  -vob:	    Vob tag to use (Default $vobtag)
+  -element: Vob relative path to element to checkout/in (Default: $element_name)
+  -t <n>:   Threshold of what is \"too long\" (Default $too_long seconds)
+  -i <n>:   Number of iterations (default $iterations)
+";
+  exit 1;
+} # Usage
+
+sub Setup {
+  $log = Logger->new (
+    name	=> $cc->sitename . "." . $me,
+    path	=> $logdir,
+    timestamped	=> "true",
+    append	=> "true"
+  );
+
+  verbose "Startup";
+
+  # Set up view
+  verbose "Setting u p view $tag";
+  $view = Clearcase::View->new (tag => $tag);
+  $view->create;
+
+  $view->set;
+
+  # Set up vob
+  verbose "Setting up vob $vobtag";
+  my $vob = Clearcase::Vob->new (tag => $vobtag);
+
+  $log->err ("Vob $Clearcase::VOBTAG_PREFIX$vobtag doesn't exist", 1) if !$vob;
+
+  $vob->mount;
+
+  chdir "$Clearcase::VIEWTAG_PREFIX/$tag$Clearcase::VOBTAG_PREFIX$vobtag"
+    or $log->err ("Unable to chdir to vob root", 1);
+
+  # Create an element
+  verbose "Creating element $element_name";
+  my $size		= 5;
+  my $meg		= 1024 * 1024;
+  my $buf		= 1024;
+  my $bytes_to_write	= $size * $meg;
+  my $bytes_written	= 0;
+
+  # Can we make a file in tmp?
+  open ELEMENT, ">$element_name"
+    or error "Unable to create element $element_name - $!", 1;
+
+  while ($bytes_written < $bytes_to_write) {
+    my $data = "." x $buf;
+
+    print ELEMENT $data;
+    $bytes_written += $buf;
+  } # while
+
+  close ELEMENT;
+
+  verbose "Setup complete";
+
+  return Clearcase::Element->create ($element_name);
+} # Setup
+
+sub Shutdown {
+  my $element = shift;
+
+  verbose "Shutdown";
+  verbose "Unchecking out $element->{name}";
+  $element->uncheckout (%rm);
+  verbose "Removing $element->{name}";
+  $element->remove     (%force);
+
+  my $parent = Clearcase::Element->new (name => ".");
+
+  verbose "Canceling checkout of parent directory";
+  $parent->uncheckout;
+} # Shutdown
+
+sub Checkout_in {
+  my $element = shift;
+
+  verbose "Checking in $element->{name}";
+  $element->checkin (%identical);
+
+  verbose "Checking out $element->{name}";
+  $element->checkout (%nc);
+} # Checkout_in
+
+while ($ARGV [0]) {
+  if ($ARGV [0] eq "-v") {
+    Display::set_verbose;
+  } elsif ($ARGV [0] eq "-d") {
+    set_debug;
+  } elsif ($ARGV [0] eq "-u") {
+    Usage;
+  } elsif ($ARGV [0] eq "-view") {
+    shift @ARGV;
+    if ($ARGV [0]) {
+      $view = $ARGV [0];
+    } else {
+      Usage "Need to specify view after -view";
+    } # if
+  } elsif ($ARGV [0] eq "-vob") {
+    shift @ARGV;
+    if ($ARGV [0]) {
+      $too_long = $ARGV [0];
+    } else {
+      Usage "Need to specify vob after -vob";
+    } # if
+  } elsif ($ARGV [0] eq "-element") {
+    shift @ARGV;
+    if ($ARGV [0]) {
+      $too_long = $ARGV [0];
+    } else {
+      Usage "Need to specify vob relative path to element after -element";
+    } # if
+  } elsif ($ARGV [0] eq "-t") {
+    shift @ARGV;
+    if ($ARGV [0]) {
+      $too_long = $ARGV [0];
+    } else {
+      Usage "Need to specify number of seconds after -t";
+    } # if
+  } elsif ($ARGV [0] eq "-i") {
+    shift @ARGV;
+    if ($ARGV [0]) {
+      $too_long = $ARGV [0];
+    } else {
+      Usage "Need to specify number of iterations after -i";
+    } # if
+  } else {
+    Usage "Invalid argument: $ARGV [0]";
+  } # if
+
+  shift (@ARGV);
+} # while
+
+my $element = Setup;
+
+$log->err ("Unable to setup environment", 1) if !$element;
+
+$step_start_time = time;
+
+$log->msg ("Performing $iterations checkout/ins in view $tag vob $vobtag of element " . $element->name);
+for (my $i = 0; $i < $iterations; $i++) {
+  verbose "Iteration #" . ($i + 1);
+  Checkout_in $element;
+} # for
+
+my $end_time = time;
+
+display_duration $step_start_time, $log;
+
+if (($end_time - $step_start_time) > $too_long) {
+  my $msg = "Taking too long to perform $iterations checkout/ins\nShould take less than $too_long seconds";
+  $log->err ($msg);
+  error $msg;
+} # if
+
+Shutdown $element;

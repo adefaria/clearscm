@@ -1,0 +1,15 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: GE,v $
+# Revision:	$Revision: 1.1 $
+# Description:	Client specific start up for General Electric
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Aug 20 17:35:01  2001
+# Modified:     $Date: 2010/05/31 21:20:53 $
+# Language:     bash
+#
+# (c) Copyright 2010, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+export CDPATH="$CDPATH:/vobs/ce_gdn_src:/vobs/scm_tools_src"

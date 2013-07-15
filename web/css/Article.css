@@ -1,0 +1,38 @@
+/**************************************************************************** 
+Sets minimal style for unsupported browsers and then imports the css
+files (used by compliant browsers). The following browsers will only
+get the minimal css styling listed below this comment:
+
+        NN 4.x, IE 3, IE 4.
+
+NOTE: imports must use the quoted file name syntax for the import,
+'@import "x.css",' not the '@import url(x.css)' form which IE 4
+recognizes.
+*****************************************************************************/
+@import url(LevelThePlayingField.css);
+@import url(ColoredBoxesRoundedCorners.css);
+@import url(ArticleLayout.css);
+
+h2 {
+  text-align:		center;
+}
+
+div.filtered {
+  color:		red;
+  border:		2px solid #6600FF; 
+  background-color:	#E8E8E8;
+  padding:		5px;
+}
+
+.filtered, .filtered a {
+  color:		#333399; 
+  font-style:		italic;
+}
+
+.fontsize-set a#medium {
+  font-size:		120%;
+}
+
+.fontsize-set a#large {
+  font-size:		140%;
+}

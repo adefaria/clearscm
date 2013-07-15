@@ -1,0 +1,67 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         $RCSfile: checkaddress,v $
+# Revision:	$Revision: 1.1 $
+# Description:	Check an email address
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Jan 16 20:25:32 PST 2006
+# Modified:     $Date: 2013/06/12 14:05:47 $
+# Language:     perl
+#
+# (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+
+use FindBin;
+
+use lib $FindBin::Bin, '/opt/clearscm/lib';
+
+use MAPS;
+use Display;
+
+error ("Must specify an email address to check", 1) 
+  if !$ARGV[0] or $ARGV[0] eq "";
+
+foreach (@ARGV) {
+  my $sender = lc $_;
+
+  my ($status, $rule);
+
+  my $username = lc $ENV{USER};
+
+  my ($user, $domain) = $sender =~ /(.+)\@(.+)/;
+
+  unless ($user and $domain) {
+    error "Illegal email address $sender";
+
+    next;
+  } # unless
+
+  if ($domain eq "defaria.com" and $user ne $username) {
+    display "Nulllist - $sender is from this domain but is not from $username";
+    next;
+  } # if
+
+  ($status, $rule) = OnNulllist $sender;
+
+  if ($status) {
+    display "Sender $sender would be nulllist'ed\n$rule";
+  } else {
+    ($status, $rule) = OnBlacklist $sender;
+
+    if ($status) {
+      display "Sender $sender would be blacklist'ed\n$rule";
+    } else {
+      ($status, $rule) = OnWhitelist $sender;
+
+      if ($status) {
+	display "Sender $sender would be whitelist'ed\n$rule";
+      } else {
+	display "Sender $sender would be returned";
+      } # if
+    } # if
+  } # if
+} # foreach

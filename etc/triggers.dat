@@ -1,0 +1,80 @@
+# Triggers
+################################################################################
+#
+# File:         triggers.dat
+# Description:  Describes the triggers to be implemented.
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Mar 15 08:48:24 PST 2004
+# Language:     None
+#
+# (c) Copyright 2004, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+#
+# Only the following keywords are currently recognized:
+#
+#	Trigger:	Introduces the trigger and gives it its name
+#	Description:	Used for the trigger type's comment
+#	Type:		Type of trigger (so far they're all -element -all)
+#	Opkinds:	Operation kinds that will cause the trigger to fire
+#	ScriptEngine:	Currently only supporting ccperl (C:\Program 
+#			Files\Rational\ClearCase\bin\ccperl)
+#	Script:		Script to run (triggers)
+#	Vobs:		Can be either base, ucm, all or a list of vob tags. 
+#			If base is specified then the trigger is applied to all
+#			base Clearcase vobs. If ucm is specified then the trigger
+#			is applied to all ucm vobs. If all is specified (or if
+#			Vobs is not present) then the trigger is applied to all
+#			vobs (base and ucm). Otherwise the value is considered
+#			a space separated list of vob tags (without the leading
+#			"\") and the trigger is applied only to those vobs.
+#	EndTrigger	Ends this trigger definition.
+#
+################################################################################
+WinTriggerPath:         \\vob8800sc\view\adefaria_tools\vob\adpscmtools\CCDB\triggers
+LinuxTriggerPath:       /view/tools_view/vob/adpscmtools/CCDB/triggers
+
+Trigger:        CCDB_STREAM
+  Description:  Updates CCDB when a stream is made, removed, delivered to or rebased
+  Type:         -ucm -all
+  Opkinds:      -postop mkstream,rmstream,deliver_complete,rebase_complete
+  ScriptEngine: Perl
+  Script:       Stream.pl
+  Vobs:         ucm
+EndTrigger
+
+Trigger:	CCDB_BASELINE
+  Description:	Updates CCDB when baselines are made, completed or removed
+  Type:		-ucm -all
+  Opkinds:	-postop mkbl,mkbl_complete,rmbl
+  ScriptEngine:	Perl
+  Script:	Baseline.pl
+  Vobs:		ucm
+EndTrigger
+
+Trigger:        CCDB_ACTIVITY
+  Description:  Updates CCDB when activities are made or removed
+  Type:         -ucm -all
+  Opkinds:      -postop mkactivity,rmactivity,chactivity
+  ScriptEngine: Perl
+  Script:       Activity.pl
+  Vobs:         ucm
+EndTrigger
+
+Trigger:        CCDB_ELEMENT_PRE
+  Description:  Updates CCDB when an element's version is changed
+  Type:         -element -all
+  Opkinds:      -preop checkin,uncheckout,rmver
+  ScriptEngine: Perl
+  Script:       Element.pl
+  Vobs:         base
+EndTrigger
+
+Trigger:        CCDB_ELEMENT_POST
+  Description:  Updates CCDB when an element's version is changed
+  Type:         -element -all
+  Opkinds:      -postop checkin,checkout,lnname,rmelem
+  ScriptEngine: Perl
+  Script:       Element.pl
+  Vobs:         base
+EndTrigger

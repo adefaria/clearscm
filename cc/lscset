@@ -1,0 +1,118 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         lscset,v
+# Revision:	1.1.1.1
+# Description:  This script will list change sets for activities
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Apr 27 18:10:37 PDT 2006
+# Modified:	2007/05/17 07:45:48
+# Language:     Perl
+#
+# (c) Copyright 2006, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use OSDep;
+use Display;
+use Clearcase;
+use Utils;
+
+my $me = $FindBin::Script;
+
+# This is site specific - and problematic!
+my $pvob_name = "ilm_pvob";
+my $pvob = ($arch eq "windows" or $arch eq "cygwin")	?
+  "\\" . "$Clearcase::vobtag_prefix$pvob_name"		:
+  "$Clearcase::vobtag_prefix$pvob_name";
+
+sub Usage {
+  my $msg = shift;
+
+  display "Usage: $me: <activity> [ <activity> ]";
+
+  if (defined $msg) {
+    error "$msg", 1;
+  } # if
+
+  exit 0;
+} # Usage
+
+sub GetChangeSet {
+  my $activity		= shift;
+  my $current_view	= shift;
+
+  my @changes;
+  my $cmd	= "cleartool lsactivity -l $activity\@$pvob 2>&1";
+  my @output	= `$cmd`;
+  my $status	= $?;
+
+  if ($status ne 0) {
+    warning "$activity Activity does not exist";
+    return;
+  } else {
+    my $found_changeset = $false;
+
+    foreach (@output) {
+      if (!$found_changeset) {
+	if (/  change set versions/) {
+	  $found_changeset = $true;
+	  next;
+	} else {
+	  next;
+	} # if
+      } else {
+	if (/\s*(.*)/) {
+	  my $element = $1;
+	  # Trim off view stuff
+	  if ($element =~ /$current_view(.*)/) {
+	    $element = $1;
+	  } # if
+	  push @changes, $element;
+	} # if
+      } # if
+    } # foreach
+
+    return @changes;
+  } # if
+} # GetChangeSet
+
+sub GetPWV {
+  my $cmd	= "cleartool pwv -s";
+  my @output	= `$cmd`;
+  chomp @output;
+  my $status	= $?;
+
+  my $view = $output [0];
+  chop $view if $view =~ /\r/;
+
+  if ($status ne 0 or $view =~ /\*\* NONE \*\*/) {
+    return undef;
+  } else {
+    return $view;
+  } # if
+} # GetPWV
+
+sub DisplayChangeSet {
+  my $activity	= shift;
+  my @changes	= @_;
+
+  display "$_" foreach (@changes);
+} # DisplayChangeSet
+
+Usage "Must specify an activity" if !defined $ARGV [0];
+
+# Should probably make a constructor for Clearcase::View to return the
+# current view, if any.
+my $current_view = GetPWV;
+
+Usage "Must be in a view" if !$current_view;
+
+my @activity = @ARGV;
+
+DisplayChangeSet $_, GetChangeSet $_, $current_view foreach (@activity);

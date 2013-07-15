@@ -1,0 +1,224 @@
+#!/usr/bin/perl
+
+=pod
+
+=head1 NAME $RCSfile: maps,v $
+
+This script filters mail based on the files nulllist, blacklist and whitelist. 
+Input is an email message. This script extracts the From line and then parses 
+the email address. If the email is from a sender who should be /dev/null'ed 
+(e.g. bounce messages from mail daemons) the message will be discarded. If the
+sender is on the blacklist then a message is sent back informing the sender that
+he's been blacklisted. If the sender is on the white list then the email is 
+appended to the mail drop file. Otherwise a message is sent back informing the
+sender that in order to successfully send email the sender must register for the
+permission to do so, along with a URL that allows the sender to sign up.
+
+=head1 VERSION
+
+=over
+
+=item Author
+
+Andrew DeFaria <Andrew@DeFaria.com>
+
+=item Revision
+
+$Revision: 1.1 $
+
+=item Created:
+
+Fri Nov 29 14:17:21  2002
+
+=item Modified:
+
+$Date: 2013/06/12 14:05:47 $
+
+=back
+
+=head1 SYNOPSIS
+
+ 
+ Usage maps: [-u|ser <username>] [-ve|rbose] [-deb|ug] [-e|xecute]
+
+ Where:
+   -u|ser <username>: Set context to this username
+ 
+   -v|erbose:         Be verbose
+   -de|bug:           Output debug messages
+   
+   -[no]e|xecute:     Set execute mode.         
+
+# (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
+
+=cut 
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+use FindBin;
+use File::Temp qw (tempfile);
+use Net::Domain qw (hostdomain);
+
+use lib $FindBin::Bin, '/opt/clearscm/lib';
+
+use MAPS;
+use MAPSLog;
+
+use Display;
+use Utils;
+
+my $verbose	= 0;
+my $execute	= 1;
+my $userid 	 = $ENV{USER};
+
+my $logpath	= "$FindBin::Bin/../log";
+my $logfile	= "$logpath/debug.log";
+
+# For some reason I'm not parsing messages correctly but it only seems to
+# happen when the message is piped in from the MTA. This routine will
+# temporarily save the messages in a file.
+sub SaveStdin () {
+  # Generate tempfile
+  my $msgfile = tempfile ();
+
+  # Read STDIN and write it out to the tempfile
+  while (<STDIN>) {
+    print $msgfile $_;
+  } # while
+
+  # Seek to the start of the file (Note if we closed it, it would be deleted)
+  seek $msgfile, 0, 0;
+
+  # Return the filehandle
+  return $msgfile;
+} # SaveStdin
+
+sub save_msg {
+  my ($sender, $sender_long, $reply_to, $subject, $data) = @_;
+
+  open SAVED_MSG, ">>$logpath/$sender"
+    or die "Unable to open $logpath/$sender - $!\n";
+
+  print SAVED_MSG "Sender	= $sender\n";
+  print SAVED_MSG "Sender long	= $sender\n";
+  print SAVED_MSG "reply_to	= $reply_to\n";
+  print SAVED_MSG "subject	= $subject\n";
+  print SAVED_MSG "data:\n\n";
+  print SAVED_MSG $data;
+  print SAVED_MSG "*** END OF DATA***\n";
+} # save_msg
+
+sub ValidDomainUser ($) {
+  my ($sender) = @_;
+
+  my ($username, $domainname);
+
+  if ($sender =~ /(.*)\@(.*)/) {
+    $username	= $1;
+    $domainname = $2;
+  } else {
+    return 1;
+  } # if
+
+  return 1 if $domainname ne hostdomain;
+
+  # Let BICE email come through
+  return 1 if $username eq "bice";
+
+  my $uid = getpwnam $username;
+
+  return defined $uid ? 1 : 0;
+} # ValidDomainUser
+
+sub ProcessMsgs ($$$) {
+  my ($msgfile, $username, $user_email) = @_;
+
+  return
+    unless $execute;
+
+  while (!eof *$msgfile) {
+    my ($sender, $sender_long, $reply_to, $subject, $data) = ReadMsg (*$msgfile);
+
+    my ($onlist, $rule, $sequence, $hit_count);
+
+    if ($sender eq "" or $sender eq "@" or $sender =~ /.*\@$/) {
+      verbose "Sender not found in message";
+      next;
+    } elsif ($sender eq $user_email and
+            (lc ($sender_long) !~ lc ("\"$username\" <$user_email>") and
+             lc ($sender_long) !~ lc ("$username <$user_email>"))) {
+      verbose "Nulllisting message from sender ($sender_long) pretending to be $user_email";
+      Nulllist $sender;
+      next;
+    } # if
+
+    ($onlist, $rule, $sequence, $hit_count) = OnNulllist $sender;
+
+    if ($onlist) {
+      verbose "Nulllisting $sender";
+      Nulllist $sender, $sequence, $hit_count;
+      next;
+    } # if
+
+    ($onlist, $rule, $sequence, $hit_count) = OnBlacklist $sender;
+
+    if ($onlist) {
+      verbose "Blacklisting $sender";
+      my @msg = split /\n/, $data;
+
+      Blacklist $sender, $sequence, $hit_count, @msg;
+      next;
+    } # if 
+
+    ($onlist, $rule, $sequence, $hit_count) = OnWhitelist $sender;
+
+    if ($onlist) {
+      if (ValidDomainUser $sender) {
+	verbose "Whitelisting $sender";
+	Whitelist $sender, $data, $sequence, $hit_count;
+      } else {
+	verbose "Sender from this domain but user not found";
+	Nulllist $sender;
+      } # if
+    } else {
+      if ($sender !~ /\@/) {
+	verbose "Sender ($sender) does not appear to be a valid email address";
+      } else {
+        verbose "Returning message from $sender";
+        ReturnMsg $sender, $reply_to, $subject, $data;
+      } # if
+    } # if
+  } # while
+} # ProcessMsgs
+
+# Main
+GetOptions (
+  'user=s'	 => \$userid,
+  'verbose'	 => sub { set_verbose },
+  'debug'	   => sub { set_debug },
+  'execute!' => \$execute,
+) || Usage;
+
+my $msgfile;
+
+if ($ARGV[0] and $ARGV[0] ne "") {
+  open $msgfile, $ARGV[0];
+
+  if (!$msgfile) {
+    Error "Unable to open file ($ARGV[0]): $!\n";
+    exit 1;
+  } # if
+} else {
+  $msgfile = SaveStdin;
+} # if 
+
+verbose "Starting MAPS....";
+
+my ($username, $user_email) = SetContext $userid
+  or die "$userid is not a registered MAPS user\n";
+
+ProcessMsgs $msgfile, $username, $user_email;
+
+exit 0;

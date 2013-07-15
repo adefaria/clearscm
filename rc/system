@@ -1,0 +1,22 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: system,v $
+# Revision:	$Revision: 1.6 $
+# Description:  System specific settings
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Aug 20 17:35:01  2001
+# Modified:     $Date: 2010/06/11 20:42:23 $
+# Language:     bash
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# This system's name
+export SYSNAME=$(uname -n)
+
+# Strip domains
+SYSNAME=${SYSNAME%%\.*}
+
+# Set to initial cap
+SYSNAME=$(echo ${SYSNAME:0:1} | tr [:lower:] [:upper:])$(echo ${SYSNAME:1}   | tr [:upper:] [:lower:])

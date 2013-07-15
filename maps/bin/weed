@@ -1,0 +1,169 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         $RCSfile: weed,v $
+# Revision:	$Revision: 1.1 $
+# Description:  Weed out obvious spams from the mail store
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Feb 19 22:37:30 CST 2007
+# Modified:     $Date: 2013/06/12 14:05:47 $
+# Language:     perl
+#
+# (c) Copyright 2007, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+
+use lib $FindBin::Bin, '/opt/clearscm/lib';
+
+use Getopt::Long;
+
+use MAPS;
+
+use Display;
+use Utils;
+
+my $mailstore = "/var/spool/exim/input";
+
+sub Usage {
+  display "Usage: weed: [ -v|erbose ] [ -d|ebug ]\n";
+  display "Where:";
+  display "  -v|erbose\tTurn on verbose mode (default off)";
+  display "  -d|ebug\tTurn on debug mode (default off)";
+  display "  -u|sage\tDisplay this usage message";
+  exit 1;
+} # usage
+
+# Just me
+my $userid = "andrew";
+
+my ($username, $user_email) = SetContext $userid;
+
+sub GetEmailsInSpool () {
+  my %emails;
+
+  # Open mailstore directory. Note must have read access to this
+  # directory and the files in this directory. IOW we probably need to
+  # be running as root. Also, the MTA should not be running because we
+  # may be removing files...
+  opendir MAILSTORE, $mailstore
+    or error "Unable to open mailstore $mailstore - $!", 1;
+
+  # Weed out . and ..
+  my @msgs = grep {!/^\./} readdir MAILSTORE;
+
+  # Don't need the directory opened anymore...
+  closedir MAILSTORE;
+
+  # Select only the "-H" header files...
+  @msgs = grep {/-H$/} @msgs;
+
+  # Now search for "From:" in the header files, extract email address
+  # and put into return hash.
+  my $msg_nbr;
+
+  foreach (@msgs) {
+    $msg_nbr = $_;
+
+    my @lines = ReadFile "$mailstore/$msg_nbr";
+
+    foreach (@lines) {
+      if (/From:\s*(.*)/) {
+	my $sender = $1;
+
+	if ($sender =~ /<(\S*)@(\S*)>/) {
+	  $sender = lc ("$1\@$2");
+	} elsif ($sender =~ /(\S*)@(\S*)\ /) {
+	  $sender = lc ("$1\@$2");
+        } elsif ($sender =~ /(\S*)@(\S*)/) {
+	  $sender = lc ("$1\@$2");
+	} # if
+
+	$emails {$msg_nbr} = $sender;
+      } # if
+    } # foreach
+  } # foreach
+
+  verbose scalar (keys (%emails)) . " emails to process";
+
+  return %emails;
+} # GetEmailsInSpool
+
+sub RemoveEmailInSpool ($) {
+  my ($msg_nbr) = @_;
+
+  my $datafile		= "$mailstore/${msg_nbr}-D";
+  my $header_file	= "$mailstore/${msg_nbr}-H";
+  my $j_file		= "$mailstore/${msg_nbr}-J";
+
+  if (-f $datafile) {
+    unlink $datafile
+      or error "Unable to unlink $datafile - $!";
+  } # if
+
+  if (-f $header_file) {
+    unlink $header_file
+      or error "Unable to unlink $header_file - $!";
+  } # if
+
+  if (-f $j_file) {
+    unlink $j_file
+      or error "Unable to unlink $j_file - $!";
+  } # if
+} # RemoveEmailInSpool
+
+sub FilterEmails (%) {
+  my %emails= @_;
+
+  my $removed = 0;
+
+  foreach (sort (keys (%emails))) {
+    my $msg_nbr;
+
+    if (/(\S+)-H$/) {
+      $msg_nbr = $1;
+    } # if
+
+    my $sender = $emails {"${msg_nbr}-H"};
+
+    if ($sender eq "maps\@defaria.com" ||
+	$sender eq "mailer-daemon\@defaria.com" ||
+        $sender =~ /^defaria.*\@defaria.com$/) {
+      verbose "Removing email $msg_nbr with sender of $sender";
+      RemoveEmailInSpool $msg_nbr;
+      $removed++;
+
+#     Need to get $sender_long. Should call ReadMsg from maps. Have to
+#     reorganize how this program flows...
+#
+#     } elsif ($sender eq $user_email and
+# 	     (lc ($sender_long) !~ lc ("\"$username\" <$user_email>") and
+# 	      lc ($sender_long) !~ lc ("$username <$user_email>"))) {
+#       RemoveEmailInSpool $msg_nbr;
+#       $removed++;
+    } elsif (OnNulllist $sender) {
+      verbose "Nulllist $msg_nbr ($sender)";
+
+      Nulllist $sender;
+      RemoveEmailInSpool $msg_nbr;
+      $removed++;
+    } # if
+  } # foreach
+
+  return $removed;
+} # FilterEmails
+# Main
+
+my %opts;
+my $result = GetOptions (\%opts,
+                         "usage"	=> sub { Usage },
+                         "verbose"	=> sub { set_verbose },
+			 "debug"	=> sub { set_debug },
+                        );
+
+my $removed = FilterEmails (GetEmailsInSpool ());
+
+verbose "$removed emails removed from the mail store";
+
+exit;

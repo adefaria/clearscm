@@ -1,0 +1,68 @@
+! Rxvt defaults
+
+! Global
+Rxvt*font:			"Lucida Console-*-16"
+Rxvt*font1:			"Lucida Console-*-18"
+Rxvt*font2:			"Lucida Console-*-20"
+Rxvt*font3:
+Rxvt*font4:
+Rxvt*saveLines:			5000
+Rxvt*termName:			cygwin
+Rxvt*scrollBar_right:		True
+Rxvt*geometry:			80x24
+Rxvt*loginShell:		True
+
+! Default
+Rxvt.background:		Black
+Rxvt.foreground:		White
+Rxvt.colorBD:			Blue
+Rxvt.colorUL:			Red
+Rxvt.cursorColor:		Yellow
+XTerm.background:		SteelBlue
+XTerm.foreground:		White
+XTerm.colorBD:			Blue
+XTerm.colorUL:			Red
+XTerm.cursorColor:		Yellow
+
+! New server
+Jupiter.background:		MidNightBlue
+Jupiter.foreground:		White
+Jupiter.colorBD:		Yellow
+Jupiter.colorUL:		Green
+Jupiter.cursorColor:		Yellow
+
+! Hewlett Packard
+Tiburon.background:		Black
+Tiburon.foreground:		Magenta
+Tiburon.colorBD:		Yellow
+Tiburon.colorUL:		Red
+Tiburon.cursorColor:		Yellow
+
+Pacifica.background:		ForestGreen
+Pacifica.foreground:		White
+Pacifica.colorBD:		Yellow
+Pacifica.colorUL:		Red
+Pacifica.cursorColor:		Yellow
+
+plebld01.background:		Black
+plebld01.foreground:		Yellow
+plebld01.colorBD:		Yellow
+plebld01.colorUL:		Red
+plebld01.cursorColor:		Yellow
+
+ccase-sj1-4.background:		Black
+ccase-sj1-4.foreground:		Green
+ccase-sj1-4.colorBD:		Green
+ccase-sj1-4.colorUL:		Red
+ccase-sj1-4.cursorColor:	Yellow
+
+XServer.background:		Black
+XServer.foreground:		Green
+XServer.colorBD:		Yellow
+XServer.colorUL:		Red
+XServer.cursorColor:		Yellow
+
+XLoad*background:		Black
+XLoad*foreground:		Yellow
+XLoad*highlight:		Red
+XLoad*Label*Justify:		center

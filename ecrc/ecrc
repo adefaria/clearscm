@@ -1,0 +1,177 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         ecrc: ECR client
+# Description:  This script is a test client for ecrd.
+# Author:       Andrew@DeFaria.com
+# Created:      Tue Feb 15 11:01:24 PST 2005
+# Modified:
+# Language:     Perl
+#
+# (c) Copyright 2005, LynuxWorks, all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+use File::Spec;
+
+my ($me, $abs_path, $lib_path, $bin_path, $log_path);
+
+BEGIN {
+  # Extract relative path and basename from script name.
+  $0 =~ /(.*)[\/\\](.*)/;
+
+  $abs_path     = (!defined $1) ? "." : File::Spec->rel2abs ($1);
+  $me           = (!defined $2) ? $0  : $2;
+  $me           =~ s/\.pl$//;
+
+  # Setup paths
+  $bin_path             = "$abs_path";
+  $lib_path             = "$abs_path/../lib";
+  $log_path             = "$abs_path/../log";
+
+  # Add the appropriate path to our modules to @INC array.
+  unshift (@INC, "$lib_path");
+} # BEGIN
+
+use ecrc;
+
+# Global variables
+my $servername          = (!defined $ENV {ECRDSERVER}) ? "lynx12" : $ENV {ECRDSERVER};
+my $port                = (!defined $ENV {ECRDPORT})   ? 1500     : $ENV {ECRDPORT};
+my $ecr                 = "";
+my @query_fields        = ();
+my $verbose;
+my $debug;
+my $key;
+my $value;
+my %fields;
+my @ecrs;
+
+sub Usage {
+  my $msg = shift;
+
+  print "ERROR: $msg\n\n" if defined $msg;
+
+  print "Usage: ecrc [-u] [-v] [-d] [ -s &lt;server&gt; ] [ -p &lt;port&gt; ] ";
+  print "ECR [ fieldname... ]\n";
+  print "\nWhere:\n\n";
+  print "\t-u:\t\tDisplay usage\n";
+  print "\t-v:\t\tTurn on verbose mode (Default off)\n";
+  print "\t-d:\t\tTurn on debug mode (Default off)\n";
+  print "\t-s:\t\tUse server named servername (Default lynx12)\n";
+  print "\t-s:\t\tUse port (Default 1500)\n";
+  print "\tECR:\t\tECR number to obtain info about\n";
+  print "\tfieldname:\tECR field names to retrieve info about (Default all)\n";
+
+  exit 1;
+} # Usage
+
+sub GetParms {
+  while ($ARGV [0]) {
+    if ($ARGV [0] eq "-v") {
+      $verbose          = 1;
+      ecrc::set_verbose;
+    } elsif ($ARGV [0] eq "-d") {
+      $debug            = 1;
+      ecrc::set_debug;
+    } elsif ($ARGV [0] eq "-u") {
+      Usage;
+    } elsif ($ARGV [0] eq "-p") {
+      shift @ARGV;
+      Usage "Port not specified" if !$ARGV [0];
+      $port = shift @ARGV;
+    } elsif ($ARGV [0] eq "-s") {
+      shift @ARGV;
+      Usage "Server name not specified" if !$ARGV [0];
+      $servername = shift @ARGV;
+    } else {
+      $ecr = shift (@ARGV);
+      last;
+    } # if
+    shift @ARGV;
+  } # while
+
+  @query_fields = @ARGV;
+
+  # Downshift any query_fields
+  my $i = 0;
+
+  foreach (@query_fields) {
+    $query_fields [$i++] = lc $_;
+  } # foreach
+} # GetParms
+
+# Main code
+GetParms;
+
+die "Unable to connect to $servername:$port\n" if !ecrc::Connect ($servername, $port);
+
+if ($ecr) {
+  if ($ecr eq "\*") {
+    @ecrs = ecrc::GetECRRecord $ecr;
+
+    foreach (@ecrs) {
+      print "$_\n";
+    } # foreach
+
+    exit;
+  } # if
+
+  %fields = ecrc::GetECRRecord ($ecr);
+
+  if (!%fields) {
+    print "ECR $ecr was not found\n";
+  } else {
+    if (@query_fields) {
+      foreach (@query_fields) {
+        if (@query_fields > 1) {
+          if (defined $fields{$_}) {
+            print "$_: $fields{$_}\n";
+          } else {
+            print "$_: <FIELD NOT FOUND>\n";
+          } # if
+        } else {
+          if (defined $fields{$_}) {
+            print "$fields{$_}\n";
+          } else {
+            print "$_: <FIELD NOT FOUND>\n";
+          } # if
+        } # if
+      } # foreach
+    } else {
+      while (($key, $value) = each (%fields)) {
+        print "$key: $value\n";
+      } # while
+    } # if
+  } # if
+} else {
+  print "Enter ECR:";
+
+  while (my $command = <STDIN>) {
+    chomp $command;
+    last if $command =~ m/exit|quit/i;
+
+    $ecr = $command;
+
+    if ($ecr eq "\*") {
+      my @ecrs = ecrc::GetECRRecord $ecr;
+
+      foreach (@ecrs) {
+        print "$_\n";
+      } # foreach
+    } else {
+      %fields   = ecrc::GetECRRecord $ecr;
+
+      if (!%fields) {
+        print "ECR $ecr was not found\n";
+      } else {
+        while (($key, $value) = each (%fields)) {
+          print "$key: $value\n";
+        } # while
+      } # if
+    } # if
+
+      print "Enter ECR:";
+  } # while
+} # if

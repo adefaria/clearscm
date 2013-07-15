@@ -1,0 +1,283 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         lockvobs,v
+# Revision:	1.1.1.1
+# Description:  [Un]locks all vobs in the current region, reports results
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Mar 15 08:48:24 PST 2004
+# Modified:	2007/05/17 07:45:48
+# Language:     Perl
+#
+# (c) Copyright 2004, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+
+use Net::SMTP;
+use File::Spec;
+
+# This will be set in the BEGIN block but by putting them here the become
+# available for the whole script.
+my (
+  $abs_path,
+  $me,
+  $bin_path,
+  $triggers_path,
+  $lib_path,
+  $log_path,
+  $etc_path,
+  $windows
+);
+
+BEGIN {
+  # Extract relative path and basename from script name.
+  $0 =~ /(.*)[\/\\](.*)/;
+
+  $abs_path	= (!defined $1) ? "." : File::Spec->rel2abs ($1);
+  $me		= (!defined $2) ? $0  : $2;
+
+  # Check to see if we are running on Windows
+  $windows	= ($^O =~ /MSWin/) ? "yes" : "no";
+
+  # Setup paths
+  $bin_path		= "$abs_path";
+  $triggers_path	= "$abs_path/../triggers";
+  $lib_path		= "$abs_path/../lib";
+  $log_path		= "$abs_path/../log";
+  $etc_path		= "$abs_path/../etc";
+
+  # Add the appropriate path to our modules to @INC array.
+  unshift (@INC, "$lib_path");
+} # BEGIN
+
+use Display;
+
+# Store logfile in CM_TOOLS/logs
+my $logfile = "$log_path/lockvobs.log";
+
+# Production vob server
+my $vob_server = defined $ENV {VOBSERVER} ? $ENV {VOBSERVER} : undef;
+
+# Gotta be from somebody!
+my $from = defined $ENV {FROM} ? $ENV {FROM} : undef;
+
+# This should be changed to an email alias
+my @to		= ();
+
+# Who gets notified when there are errors
+my @errors_to	= ();
+
+my $unlock	= "no";
+my $execute	= "yes";
+my $smtphost	= "appsmtp";
+
+# Exceptions file
+my $exceptions_file = "$etc_path/vob_exceptions";
+
+# Any errors?
+my $errors = 0;
+
+sub Usage {
+  my $me = $0;
+
+  $me =~ s/\.\///;
+
+  print "Usage $me:\t[-u] [-n] [-smtphost <smtphost>] [-to <email addresses]\n";
+  print "\t\t[-errors-to <email addresses>]\n";
+  print "\nWhere:\n";
+  print "\t-u\t\tUnlock vobs (default lock vobs)\n";
+  print "\t-smtphost\tSpecifies what SMTP host to use for mail (default\n";
+  print "\t\t\tnotesmail01)\n";
+  print "\t-to\t\tComma separated list (no spaces) of email addresses to\n";
+  print "\t\t\tsend output to (default: bsomisetty\@ameriquest.net,\n";
+  print "\t\t\tsgopavarapu\@ameriquest.net)\n";
+  print "\t-errors-to\tComma separated list (no spaces) of email addresses\n";
+  print "\t\t\tto send (only errors) to (default:\n";
+  print "\t\t\tadefaria\@ameriquest.net)\n";
+  exit 1;
+} # Usage
+
+sub logmsg {
+  my $msg = shift;
+
+  open LOGFILE, ">>$logfile"
+    or die "Unable to open logfile: $logfile - $!";
+
+  print LOGFILE $msg . "\n";
+
+  close LOGFILE;
+} # logmsg
+
+sub notify {
+  my $smtphost	= shift;
+  my $from	= shift;
+  my $errors	= shift;
+  my $unlock	= shift;
+
+  my $subject = $unlock eq "yes" ? "Unlock VOBs" : "Lock VOBs";
+
+  # Connect to mail server
+  my $smtp = Net::SMTP->new ($smtphost);
+
+  die "Unable to open connection to mail host: $smtphost\n" if !defined $smtp;
+
+  # Compose message
+  $smtp->mail ($from);
+
+  if ($errors ne 0) {
+    # Add @errors_to
+    foreach (@errors_to) {
+      push @to, $_;
+    } # foreach
+  } # if
+
+  # Add @to
+  foreach (@to) {
+    $smtp->to ($_);
+  } # foreach
+
+  # Start email data
+  $smtp->data ();
+
+  # Add From line
+  $smtp->datasend ("From: $from\n");
+
+  # Add @to and @errors_to
+  $smtp->datasend ("To: " . join (",", @to) . "\n");
+
+  # Add subject
+  $smtp->datasend ("Subject: $subject\n\n");
+
+  # Open logfile
+  open LOGFILE, $logfile
+    or die "Unable to open logfile $logfile - $!\n";
+
+  while (<LOGFILE>) {
+    $smtp->datasend ($_);
+  } # while
+
+  $smtp->dataend ();
+  $smtp->quit;
+
+  return 0;
+} # notify
+
+sub Error {
+  my $msg = shift;
+
+  logmsg $msg;
+
+  $errors++;
+
+  notify $smtphost, $from, $errors, $unlock;
+
+  exit $errors;
+} # Error
+
+sub IsAMember {
+  my $item	= shift;
+  my @list	= @_;
+
+  $item =~ s/\\//g;
+
+  foreach (@list) {
+    chomp;
+    s/\\//g;
+    return 1 if $item eq $_;
+  } # foreach
+
+  return 0;
+} # IsAMember
+
+# Get parms
+while ($#ARGV >= 0) {
+  if ($ARGV [0] eq "-u") {
+    $unlock = "yes";
+    shift;
+    next;
+  } # if
+
+  if ($ARGV [0] eq "-n") {
+    $execute = "no";
+    shift;
+    next;
+  } # if
+
+  if ($ARGV [0] eq "-smtphost") {
+    shift;
+    $smtphost = $ARGV [0];
+    shift;
+    next;
+  } # if
+
+  if ($ARGV [0] eq "-to") {
+    shift;
+    @to = split /,/,$ARGV [0];
+    shift;
+    next;
+  } # if
+
+  if ($ARGV [0] eq "-errors-to") {
+    shift;
+    @errors_to = split /,/,$ARGV [0];
+    shift;
+    next;
+  } # if
+
+  Usage;
+} # while
+
+Usage "Vob server hasn't been defined"		if !defined $vob_server;
+Usage "From has not been specified"		if !defined $from;
+Usage "To has not been specified"		if @to;
+Usage "Errors to has not been specififed"	if @errors_to;
+
+open EXCEPTIONS, $exceptions_file
+  or error "Unable to open exceptions file ($exceptions_file)", 1;
+
+my @exceptions = <EXCEPTIONS>;
+
+# Remove logfile if present
+unlink ($logfile) if (-e $logfile);
+
+# Get list of vobs
+open (VOBS, "cleartool lsvob -short -host $vob_server|")
+  or Error "Can't list vobs: $!";
+
+# Process them
+while (<VOBS>) {
+  chomp;
+  chop if /\r/; # any carriage return
+
+  next if $#exceptions ne 0 and IsAMember ($_, @exceptions);
+
+  $_ = "\\" . $_ if $windows ne "yes";
+
+  # [Un]lock the vob
+  if ($unlock eq "yes") {
+    if ($execute eq "no") {
+      print "[noexecute] cleartool unlock vob:$_\n";
+    } else {
+      system ("cleartool unlock vob:$_ >> $logfile 2>&1");
+    } # if
+  } else {
+    if ($execute eq "no") {
+      print "[noexecute] cleartool lock vob:$_\n";
+    } else {
+      system ("cleartool lock vob:$_ >> $logfile 2>&1");
+    } # if
+  } # if
+
+  # Convert the status
+  my $status = $? >> 8;
+
+  if ($status ne 0) {
+    $errors++;
+  } # if
+} # while
+
+my $status = $execute eq "yes" ? notify $smtphost, $from, $errors, $unlock : 0;
+
+exit $status;

@@ -1,0 +1,118 @@
+#!cqperl
+################################################################################
+#
+# File:         pqaclean
+# Description:  Cleans destination PQA Cont database by removing all defects
+#               then Customer and Project stateless records. Useful when
+#               debugging and performing multiple runs of pqamerge.
+#
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Sep 23 17:27:58 PDT 2005
+# Language:     Perl
+#
+# (c) Copyright 2005, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+use strict;
+use warnings;
+use CQPerlExt;
+use File::Spec;
+
+our ($me, $SEPARATOR);
+
+my ($abs_path, $lib_path);
+
+BEGIN {
+  # Extract relative path and basename from script name.
+  $0 =~ /(.*)[\/\\](.*)/;
+
+  $abs_path   = (!defined $1) ? "." : File::Spec->rel2abs ($1);
+  $me         = (!defined $2) ? $0  : $2;
+  $me         =~ s/\.pl$//;
+
+  # Remove .pl for Perl scripts that have that extension
+  $me         =~ s/\.pl$//;
+
+  # Define the path SEPARATOR
+  $SEPARATOR  = ($^O =~ /MSWin/) ? "\\" : "/";
+
+  # Setup paths
+  $lib_path   = "$abs_path" . $SEPARATOR . ".." . $SEPARATOR . "lib";
+
+  # Add the appropriate path to our modules to @INC array.
+  unshift (@INC, "$abs_path");
+  unshift (@INC, "$lib_path");
+} # BEGIN
+
+use PQA;
+use Display;
+use Logger;
+use TimeUtils;
+
+my $from_db_connection_name = "2005.02.00";
+
+sub Usage {
+  my $msg = shift;
+
+  display "ERROR: $msg\n" if defined $msg;
+
+  display "Usage: $me\t[-u] [-v] [-d] [-from <connection name>]
+
+Where:
+  -u:           Display usage
+  -v:           Turn on verbose mod
+  -d:           Turn on debug mode
+  -from <connection_name>: Specify the from connaction name
+                           (Default $from_db_connection_name)";
+  exit 1;
+} # Usage
+
+
+my $log = Logger->new (path => ".");
+
+while ($ARGV [0]) {
+  if ($ARGV [0] eq "-v") {
+    Display::set_verbose;
+    Logger::set_verbose;
+  } elsif ($ARGV [0] eq "-d") {
+    set_debug;
+  } elsif ($ARGV [0] eq "-from") {
+    shift;
+    if (!$ARGV [0]) {
+      Usage "Must specify <connection name> after -from";
+    } else {
+      $from_db_connection_name = $ARGV [0];
+    } # if
+  } elsif ($ARGV [0] eq "-u") {
+    Usage;
+  } else {
+    Usage "Unknown argument found: " . $ARGV [0];
+  } # if
+
+  shift (@ARGV);
+} # while
+
+my $process_start_time = time;
+my $controller  = StartSession "Cont", $from_db_connection_name;
+$log->msg ("Opened Controller (Cont) database from \"$from_db_connection_name\" connection");
+
+my $start_time;
+
+$start_time = time;
+DeleteRecords $log, $controller, "defect";
+display_duration $start_time, $log;
+
+$start_time = time;
+DeleteRecords $log, $controller, "Customer";
+display_duration $start_time, $log;
+
+$start_time = time;
+DeleteRecords $log, $controller, "Project";
+display_duration $start_time, $log;
+
+$start_time  = time;
+DeleteDynamicLists $log, $controller;
+display_duration $start_time, $log;
+
+EndSession $controller;
+display_duration $process_start_time, $log;

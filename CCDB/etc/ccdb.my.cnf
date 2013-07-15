@@ -1,0 +1,6 @@
+[mysql]
+no-auto-rehash
+
+[client]
+socket=/data/tools/ccdb/mysqltemp/mysql.sock
+port=3305

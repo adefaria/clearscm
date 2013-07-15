@@ -1,0 +1,58 @@
+#!/bin/bash
+################################################################################
+#
+# File:         display,v
+# Revision:     1.1.1.1
+# Description:  Display functions for bash scripts
+# Author:       Andrew@DeFaria.com
+# Created:      Tue Apr 15 14:20:02 PDT 1997
+# Modified:     2007/05/17 07:45:48
+# Language:     bash
+#
+# (c) Copyright 1997-2006, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+function display {
+  echo -e "$@"
+} # display
+
+function display_stderr {
+  echo -e "$@" 2> /dev/stderr
+} # display_stderr
+
+function error {
+  declare -i errornbr=$2
+
+  if [ $errornbr -ne 0 ]; then
+    display_stderr "$me: Error: $1 (Error: $2)"
+    exit $errornbr
+  else
+    display_stderr "$me: Error: $1"
+  fi
+} # error
+
+function warning {
+  declare -i warningnbr=$2
+
+  if [ $warningnbr -eq 0 ]; then
+    display_stderr "$me: Warning: $1"
+  else
+    display_stderr "$me: Warning: $1 (Warning: $2)"
+  fi
+} # warning
+
+function info {
+  display "$me: Info: $@"
+} # info
+
+function verbose {
+  if [ ! -z "$verbose" ]; then
+    display "$@"
+  fi
+} # verbose
+
+function debug {
+  if [ ! -z "$debug" ]; then
+    display_stderr "$@"
+  fi
+} # debug

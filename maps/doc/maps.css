@@ -1,0 +1,290 @@
+/************************************************************************/
+/* File:	MAPSStyle.css						*/
+/* Description: Cascading Style Sheet definitions for MAPS		*/
+/* Author:	Andrew@DeFaria.com					*/
+/* Created:     Mon Nov  3 21:55:05 PST 2003				*/
+/* Language:	Cascading Style Sheet					*/
+/*									*/
+/* (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved.		*/
+/************************************************************************/
+body {
+  background-color:	#fff;
+  background-image:	url(/maps/images/Pattern1.gif);
+  background-repeat:	repeat-y; 
+  color:		#666;
+  font-family:		trebuchet MS, trebuchet, verdana, arial, sans-serif;
+  font-size:		12px;
+  margin:		0px;
+}
+
+.heading {
+  margin-left:		140px;
+  margin-top:		5px;
+  padding:		5px;
+}
+
+.leftbar {
+  height:		auto;
+  left:			2px;
+  position:		absolute;
+  top:			5px;
+  width:		135px;
+}
+
+.username {
+  color:		white;
+  font-family:		veranda, arial;
+  font-style:		bold;
+  font-size:		14px;
+  margin-left:		2px;
+  margin-bottom:	5px;
+  text-align:		center;
+  width:		125px;
+}
+
+.menu {
+  background-color:	#579;
+  background-image:	url(/maps/images/worldnew.gif);
+  border:		2px groove black;
+  font-family:		verdana, geneva, arial, helvetica, sans-serif;
+  font-size:		14px;
+  font-weight:		bold;
+  line-height:		150%;
+  margin:		2px;
+  padding:		2px;
+  width:		122px;
+}
+
+.intromenu {
+  background-color:	#579;
+  border:		2px groove black;
+  font-family:		verdana, geneva, arial, helvetica, sans-serif;
+  font-size:		14px;
+  font-weight:		bold;
+  line-height:		150%;
+  margin:		2px;
+  padding:		2px;
+  width:		125px;
+}
+
+.search {
+  background:		#4682b4;
+  border:		2px groove black;
+  color:		white;
+  font-family:		veranda, arial;
+  font-style:		bold;
+  margin-left:		2px;
+  margin-right:		5px;
+  text-align:		center;
+  width:		125px;
+}
+
+.quickstats {
+  background-color:	#ffffcc;
+  border:		2px groove #336699;
+  color:		black;
+  font-size:		10px;
+  line-height:		10px;
+  margin:		2px;
+  padding:		2;
+  width:		125px;
+}
+
+.content {
+  background:		#fff;
+  border:		0.1px solid #fff;
+  color:		#666;
+  font-family:		trebuchet MS, trebuchet, verdana, arial, sans-serif;
+  margin-left:		140px;
+  padding:		5px;
+  width:		auto;
+}
+
+.copyright {
+  border-bottom:	1px dotted #ccc;
+  border-top:		1px dotted #ccc;
+  color:		#666;
+  font-family:		verdana, arial, sans-serif;
+  font-size:		10px;
+  margin-top:		5px;
+  text-align:		center;
+  width:		auto;
+}
+
+.label { 
+  color:		#993333;
+  font-weight:		bold;
+  font-size:		14px;
+}
+
+.smalllabel { 
+  color:		#993333;
+  font-weight:		bold;
+  font-size:		12px;
+}
+
+.smallnumber { 
+  color:		black;
+  font-size:		12px;
+}
+
+.header { 
+  color:		#000099;
+  font-weight:		bold;
+}
+
+.standout { 
+  color:		red
+}
+
+.error { 
+  color:		red;
+  font-style:		bold;
+}
+
+.dim { 
+  color:		#999999;
+}
+
+.dimsmall { 
+  color:		#999999;
+  font-size:		0.9em;
+  font-family:		Times;
+}
+
+.highlite { 
+  color:		#000099;
+  font-weight:		bold;
+}
+
+.inputfield { 
+  background:		#ece9d8;
+  color:		Black;
+  font-family:		Veranda,
+  			Times;
+  font-size:		12px;
+  padding-top:		0px;
+  padding-bottom:	0px;
+}
+
+.note { 
+  background:		#339999;
+  color:		White;
+  font-weight:		bold;
+}
+
+.notetext { 
+  color:		#333;
+  font-size:		10px;
+  font-weight:		italic;
+}
+
+# Headers
+h1, h2, h3, h4, h5 { 
+  color:		#000099;
+}
+
+h1 { 
+  font-size:		18pt;
+}
+
+h2 { 
+  font-size:		14pt;
+}
+
+h3 { 
+  font-size:		10pt;
+}
+
+h4 { 
+  font-size:		8pt;
+}
+
+# Global anchor effects
+a {
+  background:           transparent;
+  text-decoration:      none;
+}
+
+a:link {
+  color:                #0000ee;
+}
+
+a:visited {
+  color:                #cc33cc;
+}
+
+a:hover {
+  color:                White;
+  background:		#0054e3;
+}
+
+a:active {
+  color:                #ff0000;
+}
+
+# Special anchor effects
+.sender {
+  font-weight:		bold
+}
+
+.sender a:link {
+  color:		Red;
+}
+
+.sender a:visited {
+  color:		#0054e3;
+}
+
+.sender a:hover {
+  color:		White;
+  background:		Red;
+}
+
+.sender a:active {
+  color:		Yellow;
+}
+
+# Menu anchors
+.menu {
+  font-weight:		bold;
+}
+
+.menu a:link {
+  color:		Red;
+}
+
+.menu a:visited {
+  color:		white;
+}
+
+.menu a:hover {
+  color:		White;
+  background:		Red;
+}
+
+.menu a:active {
+  color:		Yellow;
+}
+
+# Intromenu anchors
+.intromenu {
+  font-weight:		bold;
+}
+
+.intromenu a:link {
+  color:		Red;
+}
+
+.intromenu a:visited {
+  color:		white;
+}
+
+.intromenu a:hover {
+  color:		White;
+  background:		Red;
+}
+
+.intromenu a:active {
+  color:		Yellow;
+}

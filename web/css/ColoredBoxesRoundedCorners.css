@@ -1,0 +1,86 @@
+/*******************************************************************************
+Color Boxes with Round Corners. This is pretty much straight from Stu
+Nicholls' Snazzy Borders (see
+http://www.stunicholls.myby.co.uk/boxes/snazzy.html). Things look a
+little different only because the code's been reformatted and some
+color schemes have been predefined.
+
+- Paul Pomeroy (July, 2005)
+*******************************************************************************/
+.rcbox h1, .rcbox h2, .rcbox p {margin:-10px; letter-spacing:0.5px; border:0;}
+.rcbox {background: transparent; padding:3px 6px;}
+.rcbox div {padding:4px 4px;}
+
+
+.xboxcontent {display:block;  background:#eee; border:0 solid #fff; border-width:0 1px;}
+.xb2, .xb3, .xb4 {border-left:1px solid #fff; border-right:1px solid #fff;}
+.xb1 {margin:0 5px; background:#fff;}
+.xb2 {margin:0 3px; border-width:0 2px;}
+.xb3 {margin:0 2px;}
+.xb4 {height:2px; margin:0 1px;}
+.xb1, .xb2, .xb3, .xb4 {display:block; overflow:hidden;}
+.xb1, .xb2, .xb3 {height:1px;}
+.xtop, .xbottom {display:block; background:transparent; font-size:1px;}
+
+/* ================Default Color Scheme================= */
+.xb2, .xb3, .xb4 {
+  background:#eac; border-left-color:#fff; border-right-color:#fff;} .xb1 {background:#fff;}
+  /*           :                       :                        :                       : */
+  /*           :..background.          :............border......:......border...........: */
+  /*                        :                  :                                          */
+.xboxcontent { background:#eac; border-color:#fff;}
+.xboxcontent h2, .xboxcontent h3, .xboxcontent h4, .xboxcontent p {color:#111;}
+
+/* =================Color Scheme 1===================== */
+.cs1 .xb2, .cs1 .xb3, .cs1 .xb4 {
+  background:#906; border-left-color:#fff; border-right-color:#fff;} .cs1 .xb1 {background:#fff;}
+  /*           :                       :                        :                            : */
+  /*           :..background......     :........border..........:......border................: */
+  /*                             :                  :                                          */
+.cs1 .xboxcontent { background:#906; border-color:#fff;}
+.cs1 .xboxcontent h2, .cs1 .xboxcontent h3, .cs1 .xboxcontent h4, .cs1 .xboxcontent p {color:#000;}
+
+/* =================Color Scheme 2===================== */
+.cs2 .xb2, .cs2 .xb3, .cs2 .xb4 {
+  background:#eef; border-left-color:#ddd; border-right-color:#ddd;} .cs2 .xb1 {background:#ddd;}
+  /*           :                       :                        :                            : */
+  /*           :..background......     :........border..........:......border................: */
+  /*                             :                  :                                          */
+.cs2 .xboxcontent { background:#eef; border-color:#ddd;}
+.cs2 .xboxcontent h2, .cs2 .xboxcontent h3, .cs2 .xboxcontent h4, .cs2 .xboxcontent p {color:#222;}
+
+/* ==IMG============Color Scheme 3================IMG== */
+.cs3 .xb2, .cs3 .xb3, .cs3 .xb4 {
+  background:#fff url(/Images/Clouds.jpg); border-left-color:#eef; border-right-color:#eef;} .cs3 .xb1 {background:#eef;}
+  /*           :                                                 :                        :                            : */
+  /*           :..background......                               :........border..........:......border................: */
+  /*                             :                                            :                                          */
+.cs3 .xboxcontent { background:#fff url(/Images/Clouds.jpg); border-color:#eef;}
+.cs3 .xboxcontent h2, .cs3 .xboxcontent h3, .cs3 .xboxcontent h4, .cs3 .xboxcontent p {color:#113;}
+
+/* ==IMG============Color Scheme 4================IMG== */
+.cs4 .xb2, .cs4 .xb3, .cs4 .xb4 {
+  background:#fff url(/Images/tbg-bl-mg.jpg); border-left-color:#eef; border-right-color:#eef;} .cs4 .xb1 {background:#eef;}
+  /*           :                                                  :                        :                            : */
+  /*           :..background......                                :........border..........:......border................: */
+  /*                             :                                             :                                          */
+.cs4 .xboxcontent { background:#fff url(/Images/tbg-bl-mg.jpg); border-color:#eef;}
+.cs4 .xboxcontent h2, .cs4 .xboxcontent h3, .cs4 .xboxcontent h4, .cs4 .xboxcontent p {color:#113;}
+
+/* ==IMG============Color Scheme 5================IMG== */
+.cs5 .xb2, .cs5 .xb3, .cs5 .xb4 {
+  background:#fff url(/Images/tbg-mg-bl.jpg); border-left-color:#b9f; border-right-color:#b9f;} .cs5 .xb1 {background:#b9f;}
+  /*           :                                                 :                        :                            : */
+  /*           :..background......                               :........border..........:......border................: */
+  /*                             :                                            :                                          */
+.cs5 .xboxcontent { background:#fff url(/Images/tbg-mg-bl.jpg); border-color:#b9f;}
+.cs5 .xboxcontent h2, .cs5 .xboxcontent h3, .cs5 .xboxcontent h4, .cs5 .xboxcontent p {color:#111;}
+
+/* =================Color Scheme 6===================== */
+.cs6 .xb2, .cs6 .xb3, .cs6 .xb4 {
+  background:#fff; border-left-color:#aac; border-right-color:#aac;} .cs6 .xb1 {background:#aac;}
+  /*           :                       :                        :                            : */
+  /*           :..background......     :........border..........:......border................: */
+  /*                             :                  :                                          */
+.cs6 .xboxcontent { background:#fff; border-color:#aac;}
+.cs6 .xboxcontent h2, .cs6 .xboxcontent h3, .cs6 .xboxcontent h4, .cs6 .xboxcontent p {color:#222;}

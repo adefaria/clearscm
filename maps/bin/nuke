@@ -1,0 +1,115 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         $RCSfile: nuke,v $
+# Revision:	$Revision: 1.1 $
+# Description:  Displays list of email addresses based on report type.
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Nov 29 14:17:21  2002
+# Modified:     $Date: 2013/06/12 14:05:47 $
+# Language:     perl
+#
+# (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+use strict;
+use warnings;
+
+use FindBin;
+
+use lib $FinBin::Bin, '/opt/clearscm/lib';
+
+use MAPS;
+
+use Display;
+
+# Just me
+my $userid = "andrew";
+
+sub GetMailLoops {
+  my $type = "mailloop";
+
+  my @emails;
+
+  # Hack: ReturnEmails normally wants a start and end range of what
+  # emails to get. We really want all of them so let's just use 10000.
+  @emails = ReturnEmails $userid, $type, 0, 10000;
+
+  my %senders;
+
+  foreach (@emails) {
+    my $sender = shift @{$_};
+    my @msgs = @{$_};
+    my ($pattern, $domain) = split (/@/, $sender);
+
+    if (scalar @msgs > 0) {
+      $senders{$domain} = scalar @msgs;
+    } # if
+  } # foreach
+
+  return %senders;
+} # GetMailLoops
+
+sub Add2List {
+  my $type	= shift;
+  my @items	= @_;
+
+  my $sender	= "";
+  my $nextseq	= MAPSDB::GetNextSequenceNo $userid, $type;
+
+  foreach (@items) {
+    my $domain = "\@$_";
+
+    display_nolf "Adding $domain to null list ($nextseq)...";
+
+    if (OnNulllist $domain) {
+      display_nolf " Already on list";
+      DeleteLog $domain;
+      display " - cleaned";
+    } else {
+      Add2Nulllist $domain, $userid, "";
+      display " done";
+	
+      # Now remove this entry from the other lists (if present)
+      foreach my $otherlist ("white", "black") {
+	my $sth = FindList $otherlist, $domain;
+	my ($sequence, $count);
+	($_, $_, $_, $_, $_, $sequence) = GetList $sth;
+	if (defined $sequence) {
+	  $count = DeleteList $otherlist, $sequence;
+	} # if
+      } # foreach
+    } # if
+    $nextseq++;
+  } # while
+} # Add2List
+
+# Main
+
+# Set no output buffering
+$| = 1;
+
+# Let's be nice
+setpriority 0, 0, 10;
+
+SetContext $userid;
+
+my %senders = GetMailLoops;
+
+foreach (sort (keys (%senders))) {
+  print "\@$_\n";
+} # foreach
+
+if (scalar keys (%senders) eq 0) {
+  display "No mailloops detected";
+  exit 0;
+} # if
+
+print "Nuke these domains? ";
+$_ = <STDIN>;
+
+if (/y/i) {
+  Add2List "null", (sort (keys (%senders)));
+} # if
+
+exit;

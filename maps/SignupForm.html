@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-US" xml:lang="en-US">
+<head>
+  <title>MAPS: Signup</title>
+  <link rev="made" href="mailto:Andrew%40DeFaria.com">
+  <link rel="stylesheet" type="text/css" href="/maps/css/MAPSStyle.css">
+  <script src="/maps/JavaScript/MAPSUtils.js" type="text/javascript"></script>
+  <script src="/maps/JavaScript/CheckSignup.js" type="text/javascript"></script>
+</head>
+<body onResize="AdjustTableWidth (&quot;signup&quot;);">
+
+<div class="heading">
+<h2 class="header" align="center"><font class="standout">MAPS</font>
+Spam Elimination System</h2>
+<h3 class="header" align="center">Sign up for MAPS</h3>
+</div>
+
+<div class="content">
+<div id="leftbar">
+<div class="username">&nbsp;</div>
+<div class="menu">
+<a href="/maps/">MAPS Home</a><br>
+<a href="/maps/doc/">What is MAPS?</a><br>
+<a href="/maps/doc/SPAM.html">What is SPAM?</a><br>
+<a href="/maps/doc/Requirements.html">Requirements</a><br>
+<a href="/maps/SignupForm.html">Signup</a><br>
+<a href="/maps/doc/Using.php">Using MAPS</a><br>
+<a href="/maps/doc/">Help</a>
+</div>
+</div>
+
+<form method="post" action="/maps/bin/signup.cgi" enctype="application/x-www-form-urlencoded" onsubmit="return validate (this);">
+<table id="signup" cellpadding="2" cellspacing="0" border="1" width="100%"
+ align="center">
+  <tbody>
+    <tr>
+      <td class="label" width="135">Username:</td>
+      <td width="290"><input class="inputfield" type="text" size="25"
+      name="userid"></td>
+      <td class="notetext">Specify a username to log into MAPS<br>
+      </td>
+    </tr>
+    <tr>
+      <td class="label">Full name:</td>
+      <td><input class="inputfield" type="text" size="50"
+      name="fullname"></td>
+      <td class="notetext">Specify your full name<br>
+      </td>
+    </tr>
+    <tr>
+      <td class="label">Email Address:</td>
+      <td><input class="inputfield" type="text" size="50" name="email"></td>
+      <td class="notetext">Your email address is used if you are a <i>Tag
+      &amp; Forward</i> user. This is the email address that MAPS&nbsp;
+      will forward your email to after it tags it. This email address is
+      also used in case you forget your password so that we can email you
+      your password. </td>
+    </tr>
+    <tr>
+      <td class="label">Password:</td>
+      <td><input class="inputfield" type="password" size="20"
+       name="password"></td>
+      <td class="notetext">Choose a password greater than 6 characters<br>
+      </td>
+    </tr>
+    <tr>
+      <td class="label">Repeat Password:</td>
+      <td><input class="inputfield" type="password" size="20"
+       name="repeated_password"></td>
+      <td class="notetext">Re-enter your password so we can be sure
+      you typed it correctly<br>
+      </td>
+    </tr>
+    <tr>
+      <td class="label">MAPSPOP User: </td>
+      <td class="label"><input type="radio" name="MAPSPOP" value="yes"
+      onclick="alert('Sorry but MAPSPOP has not yet been implemented'); return false;">Yes
+      <input type="radio" checked="checked" name="MAPSPOP" value="no">No</td>
+      <td class="notetext">MAPSPOP users need to download <a
+      href="/maps/bin/MAPSPOP.exe">MAPSPOP</a>.
+      See <a href="/maps/doc/UsingMAPSPOP.html"><i>Using MAPSPOP</i></a> 
+      for more information.<br>
+      </td>
+    </tr>
+    <tr>
+      <td class="label">Keep history for:<br>
+      </td>
+      <td class="label">
+      <select name="history" class="inputfield">
+      <option>7</option>
+      <option>14</option>
+      <option selected="selected">30</option>
+      <option>60</option>
+      <option>90</option>
+      </select>
+      &nbsp;days </td>
+      <td class="notetext">This specifies how many days of history
+      that MAPS will keep before discarding returned messages.<br>
+      </td>
+    </tr>
+    <tr>
+      <td class="label">Dates in Stats Page<br>
+      </td>
+      <td class="label">
+      <select name="dates" class="inputfield">
+      <option selected="selected">7</option>
+      <option>14</option>
+      <option>21</option>
+      <option>30</option>
+      </select>
+      </td>
+      <td class="notetext">This specifies how many days are displayed
+      in the MAPS Stats Page.<br>
+      </td>
+    </tr>
+    <tr>
+      <td class="label">Entries per page:<br>
+      </td>
+      <td class="label">
+      <select name="days" class="inputfield">
+      <option selected="selected">10</option>
+      <option>20</option>
+      <option>30</option>
+      <option>40</option>
+      <option>50</option>
+      </select>
+      </td>
+      <td class="notetext">This specifies how many entries are
+      displayed per page in the online MAPS Reports.<br>
+      </td>
+    </tr>
+    <tr>
+      <td class="label"><i>Tag &amp; Forward</i>:</td>
+      <td class="label"><input type="radio" name="tag_and_forward"
+       value="yes"
+       onclick="alert('Sorry but Tag & Forward has not yet been implemented'); return false;">Yes
+      <input type="radio" name="tag_and_forward" checked="checked"
+       value="no">No</td>
+      <td class="notetext"><i>Tag and Forward</i> means that MAPS
+      will not filter or save any email for you. Instead it will simply 
+      add an X-MAPS header to your email indicating what MAPS would have
+      done with the email. This allows you to filter your email in your
+      local email client.<br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div style="text-align: center;"><br>
+<input type="submit" value="Sign Up!"></div>
+<div class="copyright">Copyright &copy; 2001-2004 - All rights reserved<br>
+<a href="http://defaria.com">Andrew DeFaria</a> <a
+ href="mailto:Andrew@DeFaria.com">&lt;Andrew@DeFaria.com&gt;</a></div>
+</div>
+<script language='JavaScript1.2'>AdjustTableWidth ("signup");</script>
+</body>
+</html>
+

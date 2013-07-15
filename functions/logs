@@ -1,0 +1,31 @@
+#!/bin/ksh
+################################################################################
+#
+# File:         logs
+# Description:  Functions for handling log files
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Dec  9 10:05:09 PST 1999
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+function roll_log {
+  # roll_log: This function will roll a logfile
+  #
+  # Arguments:
+  #       $1      Directory for log file
+  #       $2      Name of log file
+  #       $3      Name of backup log file
+  #       $4      What activity is being logged
+  logdir=$1
+  logfile=$dir/$2
+  backup_logfile=$dir/$3
+  what=$4
+
+  if [ -f "$logfile" ]; then
+    cat $logfile >> $backup_logfile
+    print "$what log ($(hostname)) started on $(date)" > $logfile
+  fi
+} # roll_log

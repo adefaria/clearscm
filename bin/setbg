@@ -1,0 +1,130 @@
+#!/usr/bin/perl
+
+=pod
+
+=head1 NAME $RCSfile: setbg,v $
+
+Set background
+
+=head1 VERSION
+
+=over
+
+=item Author
+
+Andrew DeFaria <Andrew@ClearSCM.com>
+
+=item Revision:
+
+$Revision: 1.10 $
+
+=item Created:
+
+Fri Mar 18 01:14:38 PST 2005
+
+=item Modified:
+
+$Date: 2012/11/09 15:31:30 $
+
+=back
+
+=head1 SYNOPSIS
+
+ Usage: setbg [-u|sage] [-ve|rbose] [-d|ebug] [-s|leep <n>] [-bgdir <bgdir>]
+ 
+ Where:
+
+ -u|sage:     Displays this usage
+ -ve|rbose:   Be verbose
+ -d|ebug:     Output debug messages
+
+ -s|leep:     Number of minutes to sleep between setting the background
+             (Default: 1 hour)
+ -b|gdir:     Directory to scan for images (Default: /web/Pictures)
+
+=head1 DESCRIPTION
+
+This script sets the background image randomly based on images $imgDir. Note
+if this script is run again it senses that it was previously run and sends the
+previous script a SIGUSR2 which the script intrprets as "Change the background
+now", then exits.
+
+=cut
+
+use strict;
+use warnings;
+
+use FindBin;
+use Getopt::Long;
+use Proc::ProcessTable;
+
+use lib "$FindBin::Bin/../lib";
+
+use Display;
+use Utils;
+
+my $VERSION  = '$Revision: 1.10 $';
+  ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
+
+my $processes = new Proc::ProcessTable;
+
+foreach my $process (@{$processes->table}) {
+  if ($process->cmndline =~ /setbg/ and
+      $process->pid != $$) { 
+    kill 12, $process->pid;
+
+    exit 0;
+  } # if
+} # foreach
+
+$0 = "$FindBin::Script " . join ' ', @ARGV;
+
+verbose "$FindBin::Script v$VERSION";
+
+my $sleep  = 60 * 60;
+my $imgDir = $ENV{SETBG_DIR} ? $ENV{SETBG_DIR} : '/web/Pictures';
+
+GetOptions (
+  'usage'		=> sub { Usage },
+  'verbose'		=> sub { set_verbose },
+  'debug'		=> sub { set_debug },
+  'sleep=i'		=> \$sleep,
+  'bgdir=s'		=> \$imgDir,
+) || Usage;
+
+error "$imgDir is not a directory", 1 unless -d $imgDir;
+
+# Using gsettings
+my $setbg	= "gsettings";
+my $setbgOpts	= "set org.gnome.desktop.background picture-uri \"file://";
+
+chomp (my @images = `find $imgDir -type f -name "*.jpg"`);
+
+sub SwitchWallPaper {
+  # We don't need to do anything here, just handle the interrupt and
+  # let the while loop continue.
+  debug 'SwitchWallPaper: Interrupt received';
+} # SwitchWallPaper
+
+$SIG{USR2} = \&SwitchWallPaper;
+
+my $debugger = $DB::OUT;
+
+EnterDaemonMode unless defined $DB::OUT;
+
+while () {
+  my $image = $images[int (rand $#images)];
+
+  open my $log, '>', "$ENV{HOME}/.$FindBin::Script"
+    or error "Unable to open $ENV{HOME}/.setbg for writing - $!", 1;
+
+  display "Current background: $image", $log;
+
+  my $cmd = "$setbg $setbgOpts$image\" 2> /dev/null";
+
+  `$cmd`;
+
+  close $log;
+  
+  sleep $sleep;
+} # while

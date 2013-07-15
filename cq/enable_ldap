@@ -1,0 +1,610 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         enable_ldap
+# Description:  This script enables LDAP Authentication on a DB set. LDAP 
+#               Authentication is supported in Clearquest 2003.06.15 and higher.
+#
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Sep 23 17:27:58 PDT 2005
+# Language:     Perl
+# Modules:      Term::ReadLine, Term::ReadKey
+#
+# (c) Copyright 2005, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+use strict;
+use warnings;
+use Term::ReadLine;
+use Term::ReadKey;
+
+$0      =~ /(.*)[\/\\](.*)/;
+my $me  = (!defined $2) ? $0 : $2;
+
+my $execute = 1;
+my $verbose = 0;
+
+sub Usage {
+  my $msg = shift;
+
+  print "ERROR: $msg\n" if defined $msg;
+
+  print "Usage: $me [-n] [-v] [-u]
+
+Where:
+
+  -n:   No execute mode (Default Execute)
+  -v:   Turn on verbose mode (Default off)
+  -f:   Configuration file (Default ldap_settings.cfg)
+  -u:   Display this usage
+";
+
+  exit 1;
+} # Usage
+
+sub verbose {
+  my $msg       = shift;
+
+  print "$msg" if $verbose;
+} # verbose
+
+sub error {
+  my $msg       = shift;
+  my $errno     = shift;
+
+  if (!defined $errno) {
+    $msg = "$me: ERROR: $msg";
+  } else {
+    $msg = "$me: ERROR: #$errno: $msg"
+  } # if
+
+  print $msg;
+
+  exit $errno if defined $errno;
+} # error
+
+sub DisplayLDAPParms {
+  my %ldap_parms = @_;
+
+  print "\nLDAP Parms:\n";
+
+  foreach (sort (keys (%ldap_parms))) {
+    if (/password/) {
+      print "$_: <password>\n";
+    } else {
+      print "$_: ${ldap_parms {$_}}\n";
+    } # if
+  } # foreach
+} # DisplayLDAPParms
+
+sub ParseSettings {
+  my $config_file = shift;
+
+  my %ldap_parms;
+
+  open SETTINGS, $config_file
+    or error "Unable to open $config_file ($!)", 1;
+
+  while (<SETTINGS>) {
+    chomp; chop if /\r/;
+
+    next if /^$/;       # Skip blank lines
+    next if /^\#/;      # and comments
+
+    if (/^dbset:\s*(.*)/i) {
+      $ldap_parms{dbset} = $1;
+    } elsif (/^admin_username:\s*(.*)/i) {
+      $ldap_parms{admin_username} = $1;
+    } elsif (/^admin_password:\s*(.*)/i) {
+      $ldap_parms{admin_password} = $1;
+    } elsif (/^servers:\s*(.*)/i) {
+      $ldap_parms{servers} = $1;
+    } elsif (/^port:\s*(.*)/i) {
+      $ldap_parms{port} = $1;
+    } elsif (/^port:\s*(.*)/i) {
+      $ldap_parms{port} = $1;
+    } elsif (/^search_distinguished_name:\s*(.*)/i) {
+      $ldap_parms{search_distinguished_name} = $1;
+    } elsif (/^search_password:\s*(.*)/i) {
+      $ldap_parms{search_password} = $1;
+    } elsif (/^basedn:\s*(.*)/i) {
+      $ldap_parms{basedn} = $1;
+    } elsif (/^scope:\s*(.*)/i) {
+      $ldap_parms{scope} = $1;
+    } elsif (/^account_attribute:\s*(.*)/i) {
+      $ldap_parms{account_attribute} = $1;
+    } elsif (/^search_filter:\s*(.*)/i) {
+      $ldap_parms{search_filter} = $1;
+    } elsif (/^cq_field:\s*(.*)/i) {
+      $ldap_parms{cq_field} = $1;
+    } elsif (/^attribute_search_entry:\s*(.*)/i) {
+      $ldap_parms{attribute_search_entry} = $1;
+    } elsif (/^test_username:\s*(.*)/i) {
+      $ldap_parms{test_username} = $1;
+    } # if
+  } # while
+
+  close SETTINGS;
+
+  return %ldap_parms;
+} # ParseSettings
+
+sub Prompt {
+  my $prefix    = shift; # Prefix or question being asked
+  my $default   = shift; # default value - if any
+  my $suffix    = shift; # Suffix (default ":")
+  my $password  = shift; # Whether or not to turn off echo (default "no");
+
+  $default  = ""        if !defined $default;
+  $suffix   = ":"       if !defined $suffix;
+  $password = "no"      if !defined $password;
+
+  my $value;
+
+  do {
+    print "\n$prefix";
+    print " [$default]" if $default ne "" and $password ne "yes";
+    print "$suffix ";
+
+    if ($password eq "yes") {
+      ReadMode "noecho";
+      $value = ReadLine (0);
+      ReadMode "normal";
+    } else {
+      $value = <STDIN>;
+    } # if
+
+    chomp $value;
+    $value = $default if $value eq "";
+  } until $value ne "";
+
+  return $value
+} # Prompt
+
+sub SaveSettings {
+  my $config_file       = shift;
+  my %ldap_parms         = @_;
+
+  open SETTINGS, ">$config_file"
+    or error "Unable to open $config_file ($!)", 2;
+
+  foreach (sort (keys (%ldap_parms))) {
+    if ($_ eq "cq_field") {
+      my $value = "";
+      $value = "CQ_EMAIL"       if $ldap_parms {$_} eq "1";
+      $value = "CQ_FULLNAME"    if $ldap_parms {$_} eq "2";
+      $value = "CQ_LOGIN_NAME"  if $ldap_parms {$_} eq "3";
+      $value = "CQ_MISC_INFO"   if $ldap_parms {$_} eq "4";
+      $value = "CQ_PHONE"       if $ldap_parms {$_} eq "5";
+      print SETTINGS "$_:\t$value\n" if $value ne "";
+    } else {
+      print SETTINGS "$_:\t${ldap_parms {$_}}\n";
+    } # if
+  } # foreach
+
+  close SETTINGS;
+} # SaveSettings
+
+sub GetLDAPParms {
+  my %ldap_parms = @_;
+
+  print "DBSET name: This is the name of the Clearquest database set - also
+known as database connection name. This can be found in the Clearquest
+Maintainance Tool. Often this is something like \"2003.06.15\".
+";
+
+  $ldap_parms {dbset} = Prompt "What is the DBSET name that you wish to enable LDAP on", $ldap_parms {dbset};
+
+  print "
+Now we need to know the username and password of the administrative
+user for the $ldap_parms{dbset} DBSET:
+";
+
+  $ldap_parms {admin_username} = Prompt "Admin username", $ldap_parms {admin_username};
+  $ldap_parms {admin_password} = Prompt "${ldap_parms {admin_username}}'s password", $ldap_parms {admin_password}, undef, "yes";
+
+  # A: LDAP Server
+  print "\nA: LDAP Server\n";
+  print "
+Now we need to know the name of the LDAP server to authenticate to.
+
+What is the host name of the LDAP server? You can specify multiple
+hosts so that ClearQuest can attempt to connect to an alternate host
+if it cannot connect to the first one.
+
+You can specify multiple servers separated by commas.
+";
+
+  $ldap_parms {servers} = Prompt "LDAP Server(s)", $ldap_parms {servers};
+
+  # B: LDAP Port
+  print "\nB: LDAP Port\n";
+  print "
+What is the TCP port number (non-SSL) where the LDAP server listens
+for communications?
+";
+
+  $ldap_parms {port} = Prompt "LDAP port", $ldap_parms {port};
+
+  # C: LDAP Search Username/Password
+  print "\nC: LDAP Distinguished Name for Search Account/Password\n";
+  print "\nDoes the LDAP server allow anonymous searches (Y/n)? ";
+  $_ = <STDIN>; chomp;
+
+  if ($_ !~ /^y|^yes|^$/i) {
+    # C1: LDAP Search username
+    print "
+What is the distinguished name (DN) of the search account?
+
+For example: cn=search_user,cn=Users, dc=cqldapmsft,dc=com
+";
+
+    $ldap_parms {search_distinguished_name} = Prompt "ClearQuest users. LDAP Search user name", $ldap_parms {search_distinguished_name};
+
+    # C2: LDAP Search passwrod
+    $ldap_parms {search_password} = Prompt "Password", $ldap_parms {search_password}, undef, "yes";
+  } # if
+
+  # D: LDAP BaseDN
+  print "\nD: LDAP BaseDN\n";
+  print "
+Now here's where things get tricky. LDAP uses a BaseDN or Base
+Distinguished Name as a sort of path into the LDAP directory. Your
+LDAP Administrator should be able to provide you with this
+information.
+
+What is the base DN from which to start searching for LDAP user
+directory entries that correspond to ClearQuest users? The base DN
+must be high enough in the directory hierarchy to include all users
+that might need to be authenticated; however, a base DN that is too
+high in the hierarchy might slow login performance.
+";
+
+  $ldap_parms {basedn} = Prompt "LDAP BaseDN", $ldap_parms {basedn};
+
+  # E: LDAP Scope
+  while (!defined $ldap_parms {scope} or 
+         ($ldap_parms {scope} ne "sub" and
+          $ldap_parms {scope} ne "one" and
+          $ldap_parms {scope} ne "base")) {
+    print "\nE: LDAP Scope\n";
+    print "
+What is the scope of the search from the base DN?: sub (subtree); one
+(one level below); or base (base DN only).
+";
+
+    $ldap_parms {scope} = Prompt "LDAP Scope [sub|one|base]", $ldap_parms {scope};
+  } # while
+
+  # F: LDAP Account Attribute
+  print "\nF: LDAP Account Attribute\n";
+  print "
+What is the LDAP attribute that is used to store the user entry login
+name values? ClearQuest uses the text string entered in the ClearQuest
+Login window to search the LDAP directory for a user entry whose LDAP
+attribute value matches the login name. This LDAP attribute must store
+unique values for all user entries that ClearQuest searches. You also
+use this attribute in the answer to the next question.
+
+For example: samAccountName
+";
+
+  $ldap_parms {account_attribute} = Prompt "LDAP Account Attribute", $ldap_parms {account_attribute};
+
+  # G: LDAP Search Filter
+  print "\nG: LDAP Search Filter\n";
+  print "
+What is the LDAP search filter that ClearQuest must use to select the
+LDAP user entry based on the attribute specified in the previous
+question? Use \%login\% as the user's login name; ClearQuest substitutes
+the text string the user enters in the ClearQuest login window.
+
+For example: ${ldap_parms {account_attribute}}=\%login\%
+";
+
+  $ldap_parms {search_filter} = Prompt "LDAP Search Filter", $ldap_parms {search_filter};
+
+  # H: LDAP Attribute Search Entry
+  print "\nH: LDAP Attribute Search Entry\n";
+  print "
+What is the LDAP attribute of the user entry to be used to map the
+user to a corresponding ClearQuest user profile record? You can map an
+attribute to one of the following ClearQuest user profile record
+fields: CQ_EMAIL, CQ_FULLNAME, CQ_LOGIN_NAME, CQ_MISC_INFO, or
+CQ_PHONE. The ClearQuest administrator and LDAP administrator need to
+work together to determine this mapping.
+
+First specify the Clearquest field you wish to map to:
+
+1) CQ_EMAIL
+2) CQ_FULLNAME
+3) CQ_LOGIN_NAME
+4) CQ_MISC_INFO
+5) CQ_PHONE
+";
+
+  my $default_cq_field;
+
+  if ($ldap_parms {cq_field} eq "CQ_EMAIL") {
+    $default_cq_field = 1;
+  } elsif ($ldap_parms {cq_field} eq "CQ_FULLNAME") {
+    $default_cq_field = 2;
+  } elsif ($ldap_parms {cq_field} eq "CQ_LOGIN_NAME") {
+    $default_cq_field = 3;
+  } elsif ($ldap_parms {cq_field} eq "CQ_MISC_INFO") {
+    $default_cq_field = 4;
+  } elsif ($ldap_parms {cq_field} eq "CQ_PHONE") {
+    $default_cq_field = 5;
+  } else {
+    $default_cq_field = 0;
+  } # if
+
+  do {
+    $ldap_parms {cq_field} = Prompt "Enter choice (1-5)", $default_cq_field;
+  } until ($ldap_parms {cq_field} > 0 and $ldap_parms {cq_field} < 6);
+
+  print "\nH: LDAP Attribute Search Entry\n";
+  print "
+Now enter the corresponding LDAP field that this maps to.
+";
+
+  $ldap_parms {attribute_search_entry} = Prompt "LDAP Attribute Search Entry", $ldap_parms {attribute_search_entry};
+
+  # I: LDAP Test Username
+  print "\nI: LDAP Test Username\n";
+  print "
+What is the login name of a user entry that can be used to validate
+that ClearQuest can correctly authenticate a user against the LDAP
+directory? This can be a test account or an actual user account.
+";
+
+  $ldap_parms {test_username} = Prompt "LDAP Test Username", $ldap_parms {test_username};
+
+  # J: LDAP Test Password
+  print "\nJ: LDAP Test Password\n";
+  print"
+What is the password for the user entry specified in the previous
+question?
+";
+
+  $ldap_parms {test_password} = Prompt "LDAP Test Password", $ldap_parms {test_password}, undef, "yes";
+
+  return %ldap_parms;
+} # GetLDAPParms
+
+sub SetAuthentication2CQOnly {
+  my %ldap_parms = @_;
+
+  my $cmd = "installutil setauthenticationalgorithm "   .
+            $ldap_parms {dbset}                         . " " .
+            $ldap_parms {admin_username}                        . " " .
+            $ldap_parms {admin_password}                        . " " .
+            "CQ_ONLY";
+
+  verbose "$cmd\n";
+
+  return if !$execute;
+
+  my @output = `$cmd`;
+
+  if ($? ne 0) {
+    print "Error executing $cmd\n";
+
+    foreach (@output) {
+      print $_;
+    } # foreach
+
+    exit 1;
+  } # if
+} # SetAuthentication2CQOnly
+
+sub SetLDAPInit {
+  my %ldap_parms = @_;
+
+  my $cmd = "installutil setldapinit "          .
+            $ldap_parms {dbset}                 . " " .
+            $ldap_parms {admin_username}                . " " .
+            $ldap_parms {admin_password}                . " \"" .
+            "-h " . $ldap_parms {servers}               . " " .
+            "-p " . $ldap_parms {port};
+
+  if (defined $ldap_parms {search_distinguished_name}) {
+    $cmd .= " -D " . $ldap_parms {search_distinguished_name} .
+            " -w " . $ldap_parms {search_password};
+  } # if
+
+  $cmd .= "\"";
+
+  verbose "$cmd\n";
+
+  return if !$execute;
+
+  my @output = `$cmd`;
+
+  if ($? ne 0) {
+    print "Error executing $cmd\n";
+
+    foreach (@output) {
+      print $_;
+    } # foreach
+
+    exit 1;
+  } # if
+} # SetLDAPInit
+
+sub SetLDAPSearch {
+  my %ldap_parms = @_;
+
+  my $cmd = "installutil setldapsearch "        .
+            $ldap_parms {dbset}                 . " " .
+            $ldap_parms {admin_username}                . " " .
+            $ldap_parms {admin_password}                . " \"" .
+            "-s " . $ldap_parms {scope}         . " " .
+            "-b " . $ldap_parms {basedn}                . " " .
+            $ldap_parms {search_filter}         . "\"";
+
+  print "$cmd\n";
+  return;
+
+  my @output = `$cmd`;
+
+  if ($? ne 0) {
+    print "Error executing $cmd\n";
+
+    foreach (@output) {
+      print $_;
+    } # foreach
+
+    exit 1;
+  } # if
+} # SetLDAPSearch
+
+sub MapLDAPFields {
+  my %ldap_parms = @_;
+
+  my @cq_fields = (
+    "CQ_EMAIL",
+    "CQ_FULLNAME",
+    "CQ_LOGIN_NAME",
+    "CQ_MISC_INFO",
+    "CQ_PHONE",
+  );
+
+  my $cq_field = $cq_fields [($ldap_parms {cq_field} - 1)];
+
+  my $cmd = "installutil setcqldapmap "         .
+            $ldap_parms {dbset}                 . " " .
+            $ldap_parms {admin_username}                . " " .
+            $ldap_parms {admin_password}                . " " .
+            $cq_field                           . " " .
+            $ldap_parms {attribute_search_entry};
+
+  verbose "$cmd\n";
+
+  return if !$execute;
+
+  my @output = `$cmd`;
+
+  if ($? ne 0) {
+    print "Error executing $cmd\n";
+
+    foreach (@output) {
+      print $_;
+    } # foreach
+
+    exit 1;
+  } # if
+} # MapLDAPFields
+
+sub ValidateLDAPConfig {
+  my %ldap_parms = @_;
+
+  my $cmd = "installutil validateldap "         .
+            $ldap_parms {dbset}                 . " " .
+            $ldap_parms {admin_username}        . " " .
+            $ldap_parms {admin_password}        . " " .
+            $ldap_parms {test_username}         . " " .
+            $ldap_parms {test_password};
+
+  verbose "$cmd\n";
+
+  return if !$execute;
+
+  my @output = `$cmd`;
+
+  if ($? ne 0) {
+    print "Error executing $cmd\n";
+
+    foreach (@output) {
+      print $_;
+    } # foreach
+
+    exit 1;
+  } # if
+
+} # ValidateLDAPConfig
+
+sub SetAuthentication2CQFirst {
+  my %ldap_parms = @_;
+  my $cmd = "installutil setauthenticationalgorithm "   .
+            $ldap_parms {dbset}                         . " " .
+            $ldap_parms {admin_username}                . " " .
+            $ldap_parms {admin_password}                . " " .
+            "CQ_FIRST";
+
+  verbose "$cmd\n";
+
+  return if !$execute;
+
+  my @output = `$cmd`;
+
+  if ($? ne 0) {
+    print "Error executing $cmd\n";
+
+    foreach (@output) {
+      print $_;
+    } # foreach
+
+    exit 1;
+  } # if
+} # SetAuthentication2CQFirst
+
+my $config_file = "ldap_settings.cfg";
+
+while ($ARGV [0]) {
+  if ($ARGV [0] eq "-v") {
+    $verbose = 1;
+  } elsif ($ARGV [0] eq "-n") {
+    $execute = 0;
+  } elsif ($ARGV [0] eq "-u") {
+    Usage;
+  } elsif ($ARGV [0] eq "-f") {
+    shift;
+    if ($ARGV [0] eq "") {
+      Usage "Must specify config file after -f";
+    } # if
+    $config_file = $ARGV [0];
+  } else {
+    Usage "Unknown argument found: " . $ARGV [0];
+  } # if
+
+  shift (@ARGV);
+} # while
+
+my %ldap_parms = ParseSettings $config_file;
+
+print "$me: Enable Clearquest LDAP Authentication on a dbset
+
+First we need to ask some questions...
+
+";
+
+%ldap_parms = GetLDAPParms %ldap_parms;
+
+DisplayLDAPParms %ldap_parms;
+
+print "Proceed (Y/n)? ";
+$_ = <STDIN>; chomp;
+
+if ($_ =~ /^y|^yes/i) {
+  print "OK, quitting...\n";
+  exit 1;
+} # if
+
+if (-f $config_file) {
+  print "Save settings overwriting $config_file (y/N)? ";
+  $_ = <STDIN>; chomp;
+
+  if ($_ =~ /^y|^yes/i) {
+    SaveSettings $config_file, %ldap_parms;
+  } # if
+} else {
+  SaveSettings $config_file, %ldap_parms;
+} # if
+
+SetAuthentication2CQOnly %ldap_parms;
+SetLDAPInit %ldap_parms;
+SetLDAPSearch %ldap_parms;
+MapLDAPFields %ldap_parms;
+ValidateLDAPConfig %ldap_parms;
+SetAuthentication2CQFirst %ldap_parms;

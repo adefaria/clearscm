@@ -1,0 +1,122 @@
+#!cqperl
+use strict;
+use warnings;
+use CQPerlExt;
+use File::Spec;
+
+our ($me, $SEPARATOR);
+
+my ($abs_path, $lib_path);
+
+BEGIN {
+  # Extract relative path and basename from script name.
+  $0 =~ /(.*)[\/\\](.*)/;
+
+  $abs_path   = (!defined $1) ? "." : File::Spec->rel2abs ($1);
+  $me         = (!defined $2) ? $0  : $2;
+  $me         =~ s/\.pl$//;
+
+  # Define the path SEPARATOR
+  $SEPARATOR  = ($^O =~ /MSWin/) ? "\\" : "/";
+
+  # Setup paths
+  $lib_path   = "$abs_path" . $SEPARATOR . ".." . $SEPARATOR . "lib";
+
+  # Add the appropriate path to our modules to @INC array.
+  unshift (@INC, "$abs_path");
+  unshift (@INC, "$lib_path");
+} # BEGIN
+
+use PQA;
+use Display;
+
+sub TotalAttachment {
+  my $log       = shift;
+  my $id        = shift;
+  my $from      = shift;
+
+  my $attachments_size = 0;
+
+  my $from_attachment_fields    = $from->GetAttachmentFields;
+
+  for (my $i = 0; $i < $from_attachment_fields->Count; $i++) {
+    my $from_attachment_field   = $from_attachment_fields->Item ($i);
+    my $field_name              = $from_attachment_field->GetFieldName;
+
+    # Process attachments in this attachment field
+    my $from_attachments        = $from_attachment_field->GetAttachments;
+
+    for (my $j = 0; $j < $from_attachments->Count; $j++) {
+      my $from_attachment       = $from_attachments->Item ($j);
+      my $description           = $from_attachment->GetDescription;
+      my $filename              = $from_attachment->GetFileName;
+      my $size                  = $from_attachment->GetFileSize;
+
+      next if $filename eq "history.txt";
+      $log->msg ("$id,$filename,$size");
+      $attachments_size += $size;
+    } # for
+  } # for
+
+  $log->msg ("$id,Total attachment size,$attachments_size") if $attachments_size ne 0;
+
+  return $attachments_size;
+} # TotalAttachment
+
+my $log         = Logger->new (path => ".");
+
+# Open databases
+my $record_name = "defect";
+
+my $connection  = "2005.02.00";
+my $cont        = StartSession "Cont", $connection;
+
+$connection     = "2003.06.00";
+my $teton       = StartSession "TO", $connection;
+my $prod        = StartSession "Prod", $connection;
+
+my $result = GetAllDefectRecords $log, $cont, $record_name;
+
+my $grand_total_old = 0;
+my $grand_total_new = 0;
+
+while ($result->MoveNext == $CQPerlExt::CQ_SUCCESS) {
+  # GetEntity by using $id
+  my $id        = $result->GetColumnValue (1);
+  my $from      = $cont->GetEntity ($record_name, $id);
+
+  my $new_size  = TotalAttachment $log, $id, $from;
+
+  my $old_id    = $from->GetFieldValue ("old_id")->GetValue;
+
+  my $to;
+
+  if ($old_id =~ /^TO/) {
+    $to = $teton->GetEntity ($record_name, $old_id);
+  } elsif ($old_id =~ /^Prod/) {
+    $to = $prod->GetEntity ($record_name, $old_id);
+  } else {
+    error "Old_id is not set! $old_id";
+  } # if
+
+  my $old_size  = TotalAttachment $log, $id, $to;
+
+  $grand_total_old += $old_size;
+  $grand_total_new += $new_size;
+
+  if ($new_size gt $old_size) {
+    display "$id:$new_size > $old_id:$old_size";
+  } elsif ($new_size lt $old_size) {
+    display "$id:$new_size < $old_id:$old_size";
+#  } else {
+#    display "$id:$new_size = $old_id:$old_size";
+  } # if
+
+} # while
+
+display "Grand total (old): $grand_total_old";
+display "Grand total (new): $grand_total_new";
+
+EndSession $cont;
+EndSession $teton;
+EndSession $prod;

@@ -1,0 +1,245 @@
+################################################################################
+#
+# File:         $RCSfile: bash_login,v $
+# Revision:	$Revision: 1.29 $
+# Description:  bash startup file
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Aug 20 17:35:01  2001
+# Modified:     $Date: 2013/06/13 14:04:55 $
+# Language:     bash
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# Set ARCH, architecture of the machine
+KERNEL=$(uname -s)
+if [[ $KERNEL = CYGWIN* ]]; then
+  export ARCH=cygwin
+elif [ $KERNEL = "Linux" ]; then
+  export ARCH=linux
+elif [ $KERNEL = "SunOS" ]; then
+  export ARCH=sun
+elif [ $KERNEL = "FreeBSD" ]; then
+  export ARCH=$KERNEL
+else
+  export ARCH=''
+  echo "Warning: Unknown architecture ($KERNEL)"
+fi
+
+# Architectual differences (AKA Silly Sun)
+if [ $ARCH = "sun" ]; then
+  alias id=/usr/xpg4/bin/id
+  alias tr=/usr/xpg4/bin/tr
+  
+  export id=/usr/xpg4/bin/id
+fi
+
+# Set colors
+if [ -f "$HOME/.rc/set_colors" ]; then
+   source "$HOME/.rc/set_colors"
+else
+  echo "Warning: ~/.rc/set_colors does not exist!"
+fi
+
+# Check to see if we're interactive
+if [[ $- = *i* ]]; then
+  export interactive=true
+else
+  export interactive=false
+fi
+
+export VISUAL=vi
+
+# Terminal settings:
+if [ "$TERM" = ""        -o \
+     "$TERM" = "unknown" -o \
+     "$TERM" = "dialup"  -o \
+     "$TERM" = "network" ]; then
+  if [ "$interactive" = "true" ]; then
+    eval $(ttytype -s -a -t ansi -t hp)
+  fi
+fi
+
+# System dependent variables.
+if [ -f "$HOME/.rc/system" ]; then
+   source "$HOME/.rc/system"
+else
+   echo "Warning ~/.rc/system does not exist!"
+   export SYSNAME="*Unknown Systemname*:"
+fi
+
+# System dependencies
+# Note: I don't like doing this but an alias doesn't work...
+if [ $ARCH = "sun" ]; then
+  id=/usr/xpg4/bin/id
+else
+  id=id
+fi
+
+umask 002
+
+if [ "$interactive" = "true" ]; then
+  stty tostop intr ^C kill ^X susp ^Z erase ^H -inpck -istrip -ixany -echok -echonl
+fi
+
+# Set adm_base
+adm_base=${adm_base:-/opt/clearscm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+if [ -f "$adm_fpath/common" ]; then
+  source "$adm_fpath/common"
+else
+  : echo "Warning: Cannot find $adm_fpath/common!"
+fi
+
+# Source bash_completion (if present) (too slow for Windows)
+if [ -r /etc/bash_completion -a $ARCH != "cygwin" ]; then
+  source /etc/bash_completion
+fi
+
+export CVSROOT=:ext:andrew@clearscm.com:/var/cvs/cvsroot
+
+if [ -x ~/.rc/logout ]; then
+  trap "~/.rc/logout" 0
+fi
+
+# ClearCase Stuff
+if [ -f ~/.rc/clearcase ]; then
+  source ~/.rc/clearcase
+fi
+
+# MultiSite Stuff
+if [ -f ~/.rc/multisite ]; then
+  source ~/.rc/multisite
+fi
+
+# Import shell functions:
+if [ -f ~/.rc/functions ]; then
+  source ~/.rc/functions
+fi
+
+# Other settings:
+set -o emacs
+set -o monitor
+set +u
+
+shopt -s lithist
+
+# Aliases:
+if [ $ARCH = "FreeBSD" ]; then
+  alias ls="ls -FG"
+else
+  if [ -f ~/.rc/dircolors ]; then
+    if type -p dircolors > /dev/null; then
+      eval $(dircolors -b ~/.rc/dircolors)
+    fi
+  fi
+
+  if [ $ARCH = "sun" ]; then
+    # Ugh! --color doesn't work on braindead SUN
+    alias ls="ls -F"
+  else
+    alias ls="ls -F --color=auto"
+  fi
+fi
+
+alias ll="ls -la"
+alias whence="type -p"
+alias mroe=more
+
+if [ $ARCH = "cygwin" ]; then
+  alias host=nslookup
+fi
+
+export LANG=C
+
+if [ $(type -p vim) ]; then
+  alias vi=vim
+fi
+
+if [ $(type -p ncftp) ]; then
+  alias ftp=ncftp
+  alias ftpput=ncftpput
+  alias ftpget=ncftpget
+fi
+
+#alias grep="grep -d skip"
+
+if [ "$TERM" = "hpterm"    -o \
+     "$TERM" = "hp"        -o \
+     "$TERM" = "dtterm"    -o \
+     "$TERM" = "sun-color" -o \
+     "$TERM" = "vt100"     -o \
+     "$TERM" = "vt220"     -o \
+     "$TERM" = "xterm"     -o \
+     "$TERM" = "cygwin" ]; then
+  alias cd=mycd
+  alias pushd=mypushd
+  alias popd=mypopd
+fi
+
+# Miscellaneous:
+if [ -x $(type -p less) ]; then
+   export LESS=eiXP"?f%f :[stdin] .?pt(%pt\%):?bt(%bt bytes):-.."
+   alias more="less -sr"
+   export PAGER="less -sr"
+else 
+   export MORE=-s
+   export PAGER=more
+fi
+
+export PS4='${0##*/} line $LINENO:'
+
+set_title
+set_prompt
+
+if [ "$TERM" = "dtterm" ]; then
+  export TERM=vt100
+  export DTTERM=True
+fi
+
+# Set mail
+export MAIL=/var/mail/$USER
+
+# Perl Environment                                                              
+export PERLCRITIC=~/.rc/perlcriticrc                                            
+export PERLTIDY=~/.rc/perltidyrc                                                
+
+# CDPATH
+export CDPATH="."
+
+alias vbs="cscript //nologo"
+
+# Set PATH
+if [ -f ~/.rc/set_path ]; then
+  source ~/.rc/set_path
+else
+  echo "Warning: ~/.rc/set_path does not exist!"
+fi
+
+# Color man pages with yellow keywords
+export LESS_TERMCAP_md=$'\e[1;33m'
+
+# Client specific customizations
+for script in $(\ls ~/.rc/client_scripts); do
+  # This is not working as long as ACLs are not supported from the remote
+  # NetApp. This happens at some clients where the home directory is on a
+  # Netapp and they do not support NTFS ACLs properly. We cannot determine
+  # if the script is executable.
+  #if [ ! -d ~/.rc/client_scripts/$script ]; then
+  if [ -x ~/.rc/client_scripts/$script -a \
+     ! -d ~/.rc/client_scripts/$script ]; then
+    source ~/.rc/client_scripts/$script
+  fi
+done
+
+# Set display to local
+export DISPLAY=${DISPLAY:-:0}
+
+# Now go home (in case we were not autmatically cd'ed there)
+if [ $(id -u) -ne 0 ]; then
+  cd
+fi

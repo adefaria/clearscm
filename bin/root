@@ -1,0 +1,42 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: root,v $
+# Revision:	$Revision: 1.4 $
+# Description:  Run a command/shell as root
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Nov 13 16:14:30 1995
+# Modified:     $Date: 2010/06/08 15:03:27 $
+# Language:     Bash
+#
+# (c) Copyright 2000-2005, ClearSCM, Inc., all rights reserved.
+#
+################################################################################
+if [ $# -gt 0 ]; then
+  # Execute the commands
+  sudo "$@"
+else
+  # Become a "wizard"!
+  # Source in profile
+  if [ -f ~/.rc/profile ]; then
+    . ~/.rc/profile
+  fi
+
+  # Source in functions (needed for set_title and set_prompt)
+  if [ -f ~/.rc/functions ]; then
+    . ~/.rc/functions
+  fi
+
+  sudo -s
+
+  # Reset title and prompt
+  # Note: I don't like doing this but an alias doesn't work...
+  if [ $ARCH = "sun" ]; then
+    id=/usr/xpg4/bin/id
+  else
+    id=id
+  fi
+
+  set_title
+  set_prompt
+fi
