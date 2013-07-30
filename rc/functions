@@ -38,6 +38,11 @@ function title_bar {
     current_dir="$current_dir ($(cat CVS/Root | tr -d $CR))"
   fi
 
+  # Add GIT info if available
+  if [ -d .git ]; then
+    current_dir="git: $(git branch | sed -n -e 's/^\* \(.*\)/\1/p') $current_dir"
+  fi
+
   if [ "$TERM" = "hpterm" -o \
        "$TERM" = "hp"     -o \
        "$TERM" = "2392A" ]; then
