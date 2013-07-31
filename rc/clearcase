@@ -14,24 +14,24 @@
 # (c) Copyright 2000-2011, ClearSCM, Inc., all rights reserved.
 #
 ################################################################################
-# Set ARCH, architecture of the machine
+# Set ARCHITECTURE of the machine
 KERNEL=$(uname -s)
 
 if [[ $KERNEL = CYGWIN* ]]; then
-  export ARCH=cygwin
+  export ARCHITECTURE=cygwin
   vobtagPrefix='\\\\\\\'
 elif [ $KERNEL = "Linux" ]; then
-  export ARCH=linux
+  export ARCHITECTURE=linux
 elif [ $KERNEL = "SunOS" ]; then
-  export ARCH=sun
+  export ARCHITECTURE=sun
 elif [ $KERNEL = "FreeBSD" ]; then
-  export ARCH=$KERNEL
+  export ARCHITECTURE=$KERNEL
 else
-  export ARCH=''
+  export ARCHITECTURE=''
   echo "Warning: Unknown architecture ($KERNEL)"
 fi
 
-if [ $ARCH = 'cygwin' ]; then
+if [ $ARCHITECTURE = 'cygwin' ]; then
   export CCHOME=$(cygpath -u "$(regtool get '/machine/SOFTWARE/Rational Software/RSINSTALLDIR' 2>/dev/null)"/Clearcase 2>/dev/null);
 else 
   export CCHOME="/opt/rational/clearcase"
@@ -53,7 +53,7 @@ export CLEARTOOL="$CCHOME/bin/cleartool"
 export CLEARCASE_BLD_HOST_TYPE="unix"
 
 if [ -f "$CCHOME/etc/utils/creds" ]; then
-  if [ $ARCH = 'cygwin' ]; then
+  if [ $ARCHITECTURE = 'cygwin' ]; then
     alias creds=$(cygpath "$CCHOME/etc/utils/creds")
   else 
     alias creds="$CCHOME/etc/utils/creds"
@@ -70,7 +70,7 @@ function scm {
 
   if [ -x "$CLEARTOOL" ]; then
     # Cleartool suddenly started appending ^M's (I think as of 7.1)
-    if [ $ARCH = 'cygwin' ]; then
+    if [ $ARCHITECTURE = 'cygwin' ]; then
       # Need to set pipefail to pick up the exit code from cleartool
       # otherwise we get the exit code from tr which is usually 0
       set -o pipefail
@@ -145,7 +145,7 @@ function lllock {
 
 # View related functions
 function setview {
-  if [ $ARCH = 'cygwin' ]; then
+  if [ $ARCHITECTURE = 'cygwin' ]; then
   	if [[ $1 = -* ]]; then
   	  echo "The setview command with options is not supported on Windows"
   	  return
@@ -374,7 +374,7 @@ function vtree {
   if [ $# != 1 ]; then
     echo "vtree: Error: Must specify an element to view its version tree"
   else
-    if [ $ARCH = 'cygwin' ]; then
+    if [ $ARCHITECTURE = 'cygwin' ]; then
       scm lsvtree -g "$@"
     else
       xlsvtree "$@"
@@ -1667,7 +1667,7 @@ unlock \
 unreserve \
 "
 
-if [ $ARCH = 'cygwin' ]; then
+if [ $ARCHITECTURE = 'cygwin' ]; then
   _arch_policies="\
 POLICY_WIN_INT_SNAP \
 POLICY_WIN_DEV_SNAP \
@@ -1829,7 +1829,7 @@ function _vobs () {
   # We simply must rid ourselves of these bloody backlashes!!! And yet Clearcase
   # insists on retaining them. Let's strip them off, do our thing, then put them
   # back to backslashes when we output stuff.
-  if [ $ARCH = 'cygwin' ]; then
+  if [ $ARCHITECTURE = 'cygwin' ]; then
   	if [ $# -eq 0 ]; then
   	  scm lsvob -short | sed 's:\\:\\\\\\\\:'
   	else
@@ -3656,7 +3656,7 @@ $_global_opts \
   cur="${COMP_WORDS[COMP_CWORD]}"
   prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-  if [[ $cur == -* && $ARCH != cygwin ]]; then
+  if [[ $cur == -* && $ARCHITECTURE != cygwin ]]; then
     COMPREPLY=($(compgen -W "$opts" -- $cur))
   elif [[ $cur == * ]]; then
   	COMPREPLY=($(compgen -W "$(_views $cur)"))  	
