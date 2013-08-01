@@ -31,7 +31,7 @@ else
 
   # Reset title and prompt
   # Note: I don't like doing this but an alias doesn't work...
-  if [ $ARCH = "sun" ]; then
+  if [ $ARCHITECTURE = "sun" ]; then
     id=/usr/xpg4/bin/id
   else
     id=id
