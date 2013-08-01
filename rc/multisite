@@ -14,7 +14,7 @@
 # (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
 #
 ################################################################################
-if [ $ARCH = "cygwin" ]; then
+if [ $ARCHITECTURE = "cygwin" ]; then
   export MSHOME=$(cygpath -u "$(regtool get '/machine/SOFTWARE/Rational Software/RSINSTALLDIR' 2>/dev/null)" 2>/dev/null)
 else 
   export MSHOME=/opt/rational/clearcase/
@@ -31,7 +31,7 @@ if [ -x "$MULTITOOL" ]; then
   export CLEARCASE_BLD_HOST_TYPE=Windows
   export SLOGS=$LOGS/sync_logs
 
-  if [ $ARCH = "cygwin" ]; then
+  if [ $ARCHITECTURE = "cygwin" ]; then
     export SB="${MSHOME}var/shipping/ms_ship"
   else
     export SB="/var/adm/rational/clearcase/shipping/ms_ship"

@@ -11,23 +11,23 @@
 # (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
 #
 ################################################################################
-# Set ARCH, architecture of the machine
+# Set ARCHITECTURE of the machine
 KERNEL=$(uname -s)
 if [[ $KERNEL = CYGWIN* ]]; then
-  export ARCH=cygwin
+  export ARCHITECTURE=cygwin
 elif [ $KERNEL = "Linux" ]; then
-  export ARCH=linux
+  export ARCHITECTURE=linux
 elif [ $KERNEL = "SunOS" ]; then
-  export ARCH=sun
+  export ARCHITECTURE=sun
 elif [ $KERNEL = "FreeBSD" ]; then
-  export ARCH=$KERNEL
+  export ARCHITECTURE=$KERNEL
 else
-  export ARCH=''
+  export ARCHITECTURE=''
   echo "Warning: Unknown architecture ($KERNEL)"
 fi
 
 # Architectual differences (AKA Silly Sun)
-if [ $ARCH = "sun" ]; then
+if [ $ARCHITECTURE = "sun" ]; then
   alias id=/usr/xpg4/bin/id
   alias tr=/usr/xpg4/bin/tr
   
@@ -70,7 +70,7 @@ fi
 
 # System dependencies
 # Note: I don't like doing this but an alias doesn't work...
-if [ $ARCH = "sun" ]; then
+if [ $ARCHITECTURE = "sun" ]; then
   id=/usr/xpg4/bin/id
 else
   id=id
@@ -96,7 +96,7 @@ else
 fi
 
 # Source bash_completion (if present) (too slow for Windows)
-if [ -r /etc/bash_completion -a $ARCH != "cygwin" ]; then
+if [ -r /etc/bash_completion -a $ARCHITECTURE != "cygwin" ]; then
   source /etc/bash_completion
 fi
 
@@ -129,7 +129,7 @@ set +u
 shopt -s lithist
 
 # Aliases:
-if [ $ARCH = "FreeBSD" ]; then
+if [ $ARCHITECTURE = "FreeBSD" ]; then
   alias ls="ls -FG"
 else
   if [ -f ~/.rc/dircolors ]; then
@@ -138,7 +138,7 @@ else
     fi
   fi
 
-  if [ $ARCH = "sun" ]; then
+  if [ $ARCHITECTURE = "sun" ]; then
     # Ugh! --color doesn't work on braindead SUN
     alias ls="ls -F"
   else
@@ -150,7 +150,7 @@ alias ll="ls -la"
 alias whence="type -p"
 alias mroe=more
 
-if [ $ARCH = "cygwin" ]; then
+if [ $ARCHITECTURE = "cygwin" ]; then
   alias host=nslookup
 fi
 
