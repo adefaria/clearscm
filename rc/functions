@@ -189,7 +189,7 @@ function ssh {
 } # ssh
 
 function sj {
-  if [ $ARCH = "FreeBSD" ]; then
+  if [ $ARCHITECTURE = "FreeBSD" ]; then
     psopts="-aux"
   else
     psopts="-ef"
