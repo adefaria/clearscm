@@ -1,9 +1,0 @@
-clearagent.pl V1.11 started at Mon Jul 15 12:15:52 2013
-clearagent: ERROR #1: Could not create socket - Address already in use
-clearagent.pl V1.11 started at Sun Jul 28 10:12:43 2013
-20130728@10:12:43 Clearexec V1.18 accepting clients at Sun Jul 28 10:12:43 2013
-clearagent.pl V1.11 started at Sun Jul 28 10:21:48 2013
-20130728@10:21:48 Clearexec V1.18 accepting clients at Sun Jul 28 10:21:48 2013
-clearagent.pl V1.11 started at Sun Jul 28 10:34:17 2013
-20130728@10:34:17 Clearexec V1.18 accepting clients at Sun Jul 28 10:34:17 2013
-Argument "no" isn't numeric in numeric le (<=) at /opt/clearscm/clearadm/../lib/Display.pm line 1059.
