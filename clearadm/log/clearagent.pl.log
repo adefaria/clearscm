@@ -14,3 +14,6 @@ clearagent.pl V1.11 started at Sun Jul 28 20:32:54 2013
 clearagent.pl V1.11 started at Sun Jul 28 20:34:34 2013
 20130728@20:34:34 Clearexec V1.18 accepting clients at Sun Jul 28 20:34:34 2013
 Argument "no" isn't numeric in numeric le (<=) at /opt/clearscm/clearadm/../lib/Display.pm line 1059.
+clearagent.pl V1.11 started at Thu Aug  1 20:34:05 2013
+20130801@20:34:05 Clearexec V1.18 accepting clients at Thu Aug  1 20:34:05 2013
+Argument "no" isn't numeric in numeric le (<=) at /opt/clearscm/clearadm/../lib/Display.pm line 1059.
