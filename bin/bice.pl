@@ -66,7 +66,7 @@ my $security_logfile = '/var/log/auth.log';
 # Customize these variables
 my $domain   = 'DeFaria.com';
 my $contact  = 'Andrew@DeFaria.com';
-my $location = 'San Diego, California, USA';
+my $location = 'Santa Clara, California, USA';
 my $UTC	     = 'UTC-8';
 my $mailhost = $domain;
 # End customize these variables
