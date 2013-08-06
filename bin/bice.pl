@@ -117,7 +117,7 @@ sub AddToIPTables (@) {
   `/sbin/iptables -N BICE`;
   
   # Add all new @ips to iptables
-  `/sbin/iptables -A BICE -s $_ -p tcp --destination-port 22 -j DROP` foreach (sort keys %ips);
+  `/sbin/iptables -A BICE -s $_ -p tcp -j DROP` foreach (sort keys %ips);
   
   return;
 } # AddToIPTables
