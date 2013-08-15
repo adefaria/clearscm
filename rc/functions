@@ -55,7 +55,7 @@ function title_bar {
 
   # Add GIT info if available
   if in_git_repo; then
-    current_dir="git: $(git branch | sed -n -e 's/^\* \(.*\)/\1/p') $current_dir"
+    current_dir="$current_dir [git: $(git branch | sed -n -e 's/^\* \(.*\)/\1/p')]"
   fi
 
   if [ "$TERM" = "hpterm" -o \
