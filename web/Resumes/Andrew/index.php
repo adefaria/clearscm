@@ -53,8 +53,8 @@ function stoptimer () {
     <?php start_box ("cs2")?>
       <h2 align=center><a href="http://defaria.com">Andrew P. DeFaria</a></h2>
       <address style="text-align:center">
-      11064 West Ocean Air Drive #230<br>
-      San Diego, California 92130-4605<br>
+      1676 Hope Drive #230<br>
+      Santa Clara, California 95054-1721<br>
       </address>
       <p style="text-align:center">
       Phone: 408-596-4937</a><br>
@@ -159,13 +159,25 @@ function stoptimer () {
   </table>
 
   <br>
+
   <hr noshade>
 
   <h2>Clients</h2>
 
+  <p><a href="http://www.axcient.com"><img src="Axcient.png" alt="Axcient" border="0"></a></p>
+
+  <p>July 2013 - Present<br>
+  <font class=dim>Contract</font><br>
+  <a href="http://defaria.com/blogs/Status/archives/cat_axcient.html">Workblog</a></p>
+
+  <p>Worked as a Build and Release Engineer for AxOS. The Axcient product is
+  a customized derivative of Ubuntu. The SCM system being used is git.
+
+  <hr noshade>
+  
   <p><a href="http://www.broadcom.com"><img src="Broadcom.gif" alt="Broadcom" border="0"></a></p>
 
-  <p>December 2011 - Present<br>
+  <p>December 2011 - April 2013<br>
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_broadcom.html">Workblog</a></p>
 
