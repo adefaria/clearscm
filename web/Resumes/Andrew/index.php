@@ -184,10 +184,10 @@ function stoptimer () {
   <p>Worked as a Clearquest Designer and hook code writer. The Clearquest 
   database used Visual Basic. Implemented fixed and feature development for
   Clearquest as well as wrote several Perl scripts to perform data maintenance as
-  required by utilizing ClearSCM's <a href="/php/cvs_man.php?file=lib/Clearcase.pm">Clearquest</a>
-  module. Also utilized <a href="/php/cvs_man.php?file=lib/Clearquest/Server.pm">Clearquest::Server<a/>,
-  <a href="/php/cvs_man.php?file=lib/Clearquest/Client.pm">Clearquest::Client</a> 
-  and <a href="/php/cvs_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a> modules.</p>
+  required by utilizing ClearSCM's <a href="/php/scm_man.php?file=lib/Clearcase.pm">Clearquest</a>
+  module. Also utilized <a href="/php/scm_man.php?file=lib/Clearquest/Server.pm">Clearquest::Server<a/>,
+  <a href="/php/scm_man.php?file=lib/Clearquest/Client.pm">Clearquest::Client</a> 
+  and <a href="/php/scm_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a> modules.</p>
   
   <p>Worked with <a href="http://www.electric-cloud.com/products/electriccommander.php">Electric 
   Commander</a> migrating a group from their unsupported build environment into
@@ -196,7 +196,7 @@ function stoptimer () {
   Builds were down using Visual Studio 8.0, 9.0 and 10.0. Build system also used
   Perforce and Perforce trigger to fire builds as the engineers checked in code.</p>
   
-  <p>Implemented Perl module, <a href="/php/cvs_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>,
+  <p>Implemented Perl module, <a href="/php/scm_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>,
   to replace a <a href="http://clearscm.com/clearquest/cqd/">Clearquest Daemon</a>
   that was in use so that systems that did not have Clearquest installed (e.g.
   Linux build machines) could talk to Clearquest to update defects when required.
@@ -237,7 +237,7 @@ function stoptimer () {
 
   <p>Performed Clearcase/Clearquest administration with an emphasis on
   UCM administration. Wrote several Perl scripts including an <a
-  href="http://clearscm.com/php/cvs_man.php?file=cc/etf.pl">Evil Twin
+  href="http://clearscm.com/php/scm_man.php?file=cc/etf.pl">Evil Twin
   Finder</a>. Created UCM Projects and streams as appropriate as well
   as created and updated Build Forge jobs to automate work
   flow. Assisted in consultations with UCM concepts such as
