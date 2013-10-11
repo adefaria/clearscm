@@ -12,6 +12,8 @@
 // (c) Copyright 2007, ClearSCM Inc., all rights reserved
 //
 ////////////////////////////////////////////////////////////////////////////////
+include_once "scm.php";
+
 $base = $_SERVER['DOCUMENT_ROOT'];
 
 function menu_css () {
@@ -63,9 +65,9 @@ function menu () {
                 <div class="imsubc" style="width:140px;top:-23px;left:132px;">
                   <ul style="">
                     <li><a href="/clearcase/triggers.php">Triggers</a></li>
-                    <li><a href="/php/cvs_man.php?file=cc/etf.pl">Evil Twin Finder</a></li>
-                    <li><a href="/php/cvs_man.php?file=cc/diffbl.pl">GUI DiffBL</a></li>
-                    <li><a href="/php/cvs_man.php?file=cc/viewager.cgi">View Ager</a></li>
+                    <li><a href="/php/scm_man.php?file=cc/etf.pl">Evil Twin Finder</a></li>
+                    <li><a href="/php/scm_man.php?file=cc/diffbl.pl">GUI DiffBL</a></li>
+                    <li><a href="/php/scm_man.php?file=cc/viewager.cgi">View Ager</a></li>
                     <li><a href="/clearcase/OpenSourceBuild.php/">Open Source Builds</a></li>
                   </ul>
                 </div>
@@ -81,11 +83,11 @@ function menu () {
                 </div>
               </div>
             </li>
-            <li><a href="/cvs"><span class="imea imeas"><span></span></span>CVS</a>
+            <li><a href="/scm"><span class="imea imeas"><span></span></span>Git</a>
               <div class="imsc">
                 <div class="imsubc" style="width:140px;top:-23px;left:132px;">
                   <ul style="">
-                    <li><a href="/viewvc/clearscm.com/">Respository</a></li>
+                    <li><a href="/gitweb/?p=.git;a=tree">Respository</a></li>
                   </ul>
                 </div>
               </div>
@@ -184,12 +186,11 @@ function copyright ($start_year	= "",
 	            $email	= "info@clearscm.com",
 		    $home       = "") {
   global $base;
-  global $base1;
 
   $today	= getdate ();
   $current_year	= $today ["year"];
 
-  $this_file = $base1 . "/" . $_SERVER['PHP_SELF'];
+  $this_file = $base . "/" . $_SERVER['PHP_SELF'];
 
   $mod_time  = date ("F d Y @ g:i a", filemtime ($this_file));
 
@@ -208,20 +209,6 @@ $current_year, ClearSCM Inc. - All rights reserved
 </p></div>
 END;
 } // copyright
-
-function get_file_from_cvs ($file,
-			    $machine	= "clearscm.com",
-			    $port	= ":8080",
-			    $path	= "/viewvc/clearscm.com/") {
-  $user     = "andrew";
-  $password = "airafed";
-  $url  = "http://$user:$password@$machine$port$path$file?view=co";
-
-  $contents = @file ($url)
-    or die ("$url not found");
-
-  return $contents;
-} # get_file_from_cvs
 
 function display_contents_as_code ($contents) {
   print "<div class=code>";
@@ -278,14 +265,10 @@ function display_code ($file,
 		       $machine	= "clearscm.com",
 		       $port	= ":8080",
 		       $path	= "/viewvc/clearscm.com/") {
-  display_contents_as_code (get_file_from_cvs ($file, $machine, $port, $path));
+  display_contents_as_code (getSCMFile ($file));
 } # display_code
 
-function cvs_man ($file,
-		  $machine	= "clearscm.com",
-		  $port		= ":8080",
-		  $path		= "/viewvc/clearscm.com/") {
-
+function scm_man ($file) {
   $desc_spec = array (
     0 => array ("pipe", "r"), // stdout
     1 => array ("pipe", "w"), // stdin
@@ -302,7 +285,7 @@ function cvs_man ($file,
   $stdout	= $pipes [1];
   $stderr	= $pipes [2];
 
-  $contents = get_file_from_cvs ($file, $machine, $port, $path);
+  $contents = getSCMFile ($file);
 
   // Write to stdin
   foreach ($contents as $line) {
@@ -310,13 +293,10 @@ function cvs_man ($file,
   } // foreach
   fclose ($stdin);
 
-  $end_of_index		= 0;
-  $pre_just_ended	= 0;
-  $machine		= "clearscm.com";
-  $port			= "";
-  $path			= "/viewvc/clearscm.com/";
-  $url			= "http://$machine$port$path$file?view=co";
-  $history		= "http://$machine$port$path$file";
+  $end_of_index	  = 0;
+  $pre_just_ended = 0;
+  $url            = "/gitweb/?p=.git;a=blob_plain;f=$file;hb=HEAD";
+  $history        = "/gitweb/?p=.git;a=history;f=$file;hb=HEAD";
 
   // Now get the output and write it out
   while (!feof ($stdout)) {
@@ -383,13 +363,8 @@ function cvs_man ($file,
   } // while
 
   fclose ($stdout);
-
-  //while (!feof ($stderr)) {
-  //  echo fgets ($stderr) . "<br>";
-  //} // while
-
   fclose ($stderr);
 
   proc_close ($pod2html);
-} // cvs_man
+} // scm_man
 ?>

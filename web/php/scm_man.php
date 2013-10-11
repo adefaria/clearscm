@@ -1,12 +1,13 @@
 <?php
-$cvs_file = $_REQUEST["file"];
+$file = $_REQUEST["file"];
 ?>
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
    "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>ClearSCM: <?php echo $cvs_file?></title>
+  <title>ClearSCM: <?php echo $file?></title>
   <link rel="stylesheet" type="text/css" media="screen" href="/css/ManPage.css">
   <link rel="stylesheet" type="text/css" media="screen" href="/css/Code.css">
   <link rel="stylesheet" type="text/css" media="print"  href="/css/Print.css">
@@ -31,7 +32,7 @@ $cvs_file = $_REQUEST["file"];
 
 <div id="page">
   <div id="content">
-    <?php cvs_man ($cvs_file);?>
+    <?php scm_man ($file);?>
   </div>
 </div>
 

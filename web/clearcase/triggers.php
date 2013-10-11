@@ -53,7 +53,7 @@
       Removes empty branches.</p>
 
       <li><a name="mktriggers"></a><a
-      href="/php/cvs_man.php?file=cc/mktriggers.pl">mktriggers.pl</a>: Make triggers.</li>
+      href="/php/scm_man.php?file=cc/mktriggers.pl">mktriggers.pl</a>: Make triggers.</li>
     </ul>
   </div>
 
