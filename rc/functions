@@ -26,7 +26,7 @@ function in_git_repo {
       return;
     fi
 
-    pwd=$(dirname $pwd)
+    pwd=$(dirname "$pwd")
   done
   
   false
