@@ -39,7 +39,7 @@ function stoptimer () {
   Google Analytics -->
 
   <?php
-  include "../../php/clearscm.php";
+  include "clearscm.php";
   menu_css ();
   ?>
 </head>

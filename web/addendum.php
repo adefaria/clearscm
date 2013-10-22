@@ -10,7 +10,7 @@
   <link rel="SHORTCUT ICON" href="http://clearscm.com/favicon.ico" type="image/png">
 
   <?php
-  include "php/clearscm.php";
+  include "clearscm.php";
   menu_css ();
   ?>
 </head>
