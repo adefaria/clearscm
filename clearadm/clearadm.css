@@ -16,7 +16,7 @@ body {
   font-family:veranda, times;
   font-size:14px;
   margin:0px;
-  background-image:url('/clearadm/banner.jpg');
+  background-image:url('banner.jpg');
   background-repeat:repeat-x;
   margin-bottom:100px;
 }	
