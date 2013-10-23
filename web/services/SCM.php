@@ -91,7 +91,7 @@
       <div id="related">
         <?php start_box ("cs2");?> 
 
-          <h2><a href="/services/scm.php">SCM</a></h2>
+          <h2><a href="/services/SCM.php">SCM</a></h2>
 
           <p>Managing the complexities of modern software requires
           professional methodologies, professional tools and, well,
