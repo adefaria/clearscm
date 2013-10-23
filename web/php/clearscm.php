@@ -67,7 +67,7 @@ function menu () {
                     <li><a href="/clearcase/triggers.php">Triggers</a></li>
                     <li><a href="/php/scm_man.php?file=cc/etf.pl">Evil Twin Finder</a></li>
                     <li><a href="/php/scm_man.php?file=cc/diffbl.pl">GUI DiffBL</a></li>
-                    <li><a href="/php/scm_man.php?file=cc/viewager.cgi">View Ager</a></li>
+                    <li><a href="/php/scm_man.php?file=clearadm/viewager.cgi">View Ager</a></li>
                     <li><a href="/clearcase/OpenSourceBuild.php/">Open Source Builds</a></li>
                   </ul>
                 </div>
