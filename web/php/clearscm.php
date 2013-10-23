@@ -261,10 +261,7 @@ function display_contents_as_snippet ($contents) {
   print "</div>";
 } // display_contents_as_snippet
 
-function display_code ($file,
-		       $machine	= "clearscm.com",
-		       $port	= ":8080",
-		       $path	= "/viewvc/clearscm.com/") {
+function display_code ($file) {
   display_contents_as_code (getSCMFile ($file));
 } # display_code
 

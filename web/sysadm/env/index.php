@@ -84,7 +84,7 @@ $
 <h3>History</h3>
 
 <p>Full version history can be viewed <a
-href="http://clearscm.com/viewvc/clearscm.com/rc/">here</a>.</p>
+href="/gitweb/?p=.git;a=tree;f=rc">here</a>.</p>
 
 <p>I now have separated out client customizations, i.e. startup
 functionality particular to different clients or employers, into the
