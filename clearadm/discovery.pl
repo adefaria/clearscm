@@ -179,9 +179,9 @@ L<Socket>
 =begin html
 
 <blockquote>
-<a href="http://clearscm.com/php/cvs_man.php?file=clearadm/lib/Clearadm.pm">Clearadm</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Display.pm">Display</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Utils.pm">Utils</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=clearadm/lib/Clearadm.pm">Clearadm</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Display.pm">Display</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Utils.pm">Utils</a><br>
 </blockquote>
 
 =end html

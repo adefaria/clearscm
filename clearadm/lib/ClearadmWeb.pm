@@ -2682,7 +2682,7 @@ sub footing () {
   my $dateModified = "$mon/$mday/$year @ $hour:$min";
   
   $script = a {
-    -href => "http://clearscm.com/php/cvs_man.php?file=clearadm/$script"
+    -href => "http://clearscm.com/php/scm_man.php?file=clearadm/$script"
   }, $script;
   
   display end_div;
@@ -2737,10 +2737,10 @@ L<GD>
 =begin html
 
 <blockquote>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearadm.pm">Clearadm</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/DateUtils.pm">DateUtils</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Display.pm">Display</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Utils.pm">Utils</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearadm.pm">Clearadm</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/DateUtils.pm">DateUtils</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Display.pm">Display</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Utils.pm">Utils</a><br>
 </blockquote>
 
 =end html

@@ -353,8 +353,8 @@ L<Data::Dumper|Data::Dumper>
 =begin html
 
 <blockquote>
-<a href="http://clearscm.com/php/cvs_man.php?file=CCDB/lib/CCDBService.pm">CCDBService</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=CCDB/triggers/TriggerUtils.pm">TriggerUtils</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=CCDB/lib/CCDBService.pm">CCDBService</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=CCDB/triggers/TriggerUtils.pm">TriggerUtils</a><br>
 </blockquote>
 
 =end html

@@ -2079,10 +2079,10 @@ L<Net::Domain|Net::Domain>
 =begin html
 
 <blockquote>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/DateUtils.pm">DateUtils</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Display.pm">Display</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/GetConfig.pm">GetConfig</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Mail.pm">Mail</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/DateUtils.pm">DateUtils</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Display.pm">Display</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/GetConfig.pm">GetConfig</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Mail.pm">Mail</a><br>
 </blockquote>
 
 =end html

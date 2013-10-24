@@ -308,12 +308,12 @@ L<Getopt::Long|Getopt::Long>
 =begin html
 
 <blockquote>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase.pm">Clearcase</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase/View.pm">Clearcase::View</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=cc/DiffBLUI.pm">DiffBLUI</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Display.pm">Display</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/OSDep.pm">OSDep</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Utils.pm">Utils</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase.pm">Clearcase</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase/View.pm">Clearcase::View</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=cc/DiffBLUI.pm">DiffBLUI</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Display.pm">Display</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/OSDep.pm">OSDep</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Utils.pm">Utils</a><br>
 </blockquote>
 
 =end html

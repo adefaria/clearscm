@@ -330,9 +330,9 @@ L<File::Spec|File::Spec>
 
 =head2 ClearSCM Perl Modules
 
-=for html <p><a href='/php/cvs_man.php?file=lib/Display.pm'>Display</a></p>
+=for html <p><a href='/php/scm_man.php?file=lib/Display.pm'>Display</a></p>
 
-=for html <p><a href='/php/cvs_man.php?file=lib/Logger.pm'>Logger</a></p>
+=for html <p><a href='/php/scm_man.php?file=lib/Logger.pm'>Logger</a></p>
 
 =head1 INCOMPATABILITIES
 

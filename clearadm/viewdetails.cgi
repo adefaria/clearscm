@@ -302,12 +302,12 @@ L<Getopt::Long|Getopt::Long>
 =begin html
 
 <blockquote>
-<a href="http://clearscm.com/php/cvs_man.php?file=clearadm/lib/ClearadmWeb.pm">ClearadmWeb</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase.pm">Clearcase</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase/View.pm">Clearcase::View</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase/Views.pm">Clearcase::Views</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Display.pm">Display</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Utils.pm">Utils</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=clearadm/lib/ClearadmWeb.pm">ClearadmWeb</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase.pm">Clearcase</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase/View.pm">Clearcase::View</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase/Views.pm">Clearcase::Views</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Display.pm">Display</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Utils.pm">Utils</a><br>
 </blockquote>
 
 =end html

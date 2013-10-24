@@ -1362,9 +1362,9 @@ L<IPC::Open3|IPC::Open3>
 
 =head2 ClearSCM Perl Modules
 
-=for html <p><a href="/php/cvs_man.php?file=lib/Display.pm">Display</a></p>
+=for html <p><a href="/php/scm_man.php?file=lib/Display.pm">Display</a></p>
 
-=for html <p><a href="/php/cvs_man.php?file=lib/OSDep.pm">OSdep</a></p>
+=for html <p><a href="/php/scm_man.php?file=lib/OSDep.pm">OSdep</a></p>
 
 =head1 BUGS AND LIMITATIONS
 

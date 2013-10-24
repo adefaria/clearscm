@@ -251,7 +251,7 @@ sub processHashTableSize () {
 
 =head2 DEPENDENCIES
 
-=for html <p><a href="/php/cvs_man.php?file=lib/Clearcase.pm">Clearcase</a></p>
+=for html <p><a href="/php/scm_man.php?file=lib/Clearcase.pm">Clearcase</a></p>
 
 =head2 INCOMPATABILITIES
 

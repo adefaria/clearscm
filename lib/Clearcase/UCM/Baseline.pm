@@ -473,7 +473,7 @@ value.
 
 =head2 ClearSCM Perl Modules
 
-=for html <p><a href="/php/cvs_man.php?file=lib/Clearcase.pm">Clearcase</a></p>
+=for html <p><a href="/php/scm_man.php?file=lib/Clearcase.pm">Clearcase</a></p>
 
 =head1 INCOMPATABILITIES
 

@@ -913,15 +913,15 @@ L<IO::Handle>
 
 =head3 ClearSCM Perl Modules
 
-=for html <p><a href="/php/cvs_man.php?file=lib/DateUtils.pm">DateUtils</a></p>
+=for html <p><a href="/php/scm_man.php?file=lib/DateUtils.pm">DateUtils</a></p>
 
-=for html <p><a href="/php/cvs_man.php?file=lib/Display.pm">Display</a></p>
+=for html <p><a href="/php/scm_man.php?file=lib/Display.pm">Display</a></p>
 
-=for html <p><a href="/php/cvs_man.php?file=lib/Mail.pm">Mail</a></p>
+=for html <p><a href="/php/scm_man.php?file=lib/Mail.pm">Mail</a></p>
 
-=for html <p><a href="/php/cvs_man.php?file=lib/OSDep.pm">OSDep</a></p>
+=for html <p><a href="/php/scm_man.php?file=lib/OSDep.pm">OSDep</a></p>
 
-=for html <p><a href="/php/cvs_man.php?file=lib/Utils.pm">Utils</a></p>
+=for html <p><a href="/php/scm_man.php?file=lib/Utils.pm">Utils</a></p>
 
 =head2 INCOMPATABILITIES
 

@@ -533,18 +533,18 @@ L<Term::ANSIColor|Term::ANSIColor>
 =begin html
 
 <blockquote>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase.pm">Clearcase</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase/Element.pm">Element</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase/View.pm">View</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase/Views.pm">Views</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase/Vob.pm">Vob</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase/Vobspm">Vobs</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/DateUtils.pm">DateUtils</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Display.pm">Display</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/GetConfig.pm">GetConfig</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Logger.pm">Logger</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/OSDep.pm">OSDep</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Utils.pm">Utils</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase.pm">Clearcase</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase/Element.pm">Element</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase/View.pm">View</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase/Views.pm">Views</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase/Vob.pm">Vob</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase/Vobspm">Vobs</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/DateUtils.pm">DateUtils</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Display.pm">Display</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/GetConfig.pm">GetConfig</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Logger.pm">Logger</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/OSDep.pm">OSDep</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Utils.pm">Utils</a><br>
 </blockquote>
 
 =end html

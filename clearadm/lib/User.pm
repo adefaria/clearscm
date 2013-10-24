@@ -235,7 +235,7 @@ L<Net::LDAP|Net::LDAP>
 =begin html
 
 <blockquote>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/GetConfig.pm">GetConfig</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/GetConfig.pm">GetConfig</a><br>
 </blockquote>
 
 =end html

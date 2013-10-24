@@ -448,12 +448,12 @@ L<Getopt::Long|Getopt::Long>
 =begin html
 
 <blockquote>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase.pm">Clearcase</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase/Element.pm">Element</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Display.pm">Display</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Logger.pm">Logger</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/TimeUtils.pm">TimeUtils</a><br>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/Utils.pm">Utils</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase.pm">Clearcase</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase/Element.pm">Element</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Display.pm">Display</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Logger.pm">Logger</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/TimeUtils.pm">TimeUtils</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/Utils.pm">Utils</a><br>
 </blockquote>
 
 =end html

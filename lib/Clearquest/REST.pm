@@ -2152,7 +2152,7 @@ L<MIME::Base64|MIME::Base64>
 =begin html
 
 <blockquote>
-<a href="http://clearscm.com/php/cvs_man.php?file=lib/GetConfig.pm">GetConf</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=lib/GetConfig.pm">GetConf</a><br>
 </blockquote>
 
 =end html

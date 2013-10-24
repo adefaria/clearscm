@@ -1260,7 +1260,7 @@ Returns:
 
 =head3 Perl Modules
 
-=for html <p><a href="/php/cvs_man.php?file=lib/Display.pm">Display</a></p>
+=for html <p><a href="/php/scm_man.php?file=lib/Display.pm">Display</a></p>
 
 =head1 INCOMPATABILITIES
 
