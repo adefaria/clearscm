@@ -118,7 +118,7 @@ while () {
   open my $log, '>', "$ENV{HOME}/.$FindBin::Script"
     or error "Unable to open $ENV{HOME}/.setbg for writing - $!", 1;
 
-  display "Current background: $image", $log;
+  display $image, $log;
 
   my $cmd = "$setbg $setbgOpts$image\" 2> /dev/null";
 
