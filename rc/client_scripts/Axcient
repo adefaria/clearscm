@@ -1,0 +1,16 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: Axcient,v $
+# Revision:	$Revision: 1.0 $
+# Description:	Client specific start up for Axcient
+# Author:       Andrew@ClearSCM.com
+# Created:      Fri Nov  8 13:50:01 PST 2013
+# Modified:     $Date: $
+# Language:     bash
+#
+# (c) Copyright 2013, ClearSCM, Inc., all rights reserved.
+#
+################################################################################
+export SMTPHOST=tesla3.axcient.inc
+export SMTPFROM=admin@axcient.com
