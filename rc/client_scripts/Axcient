@@ -13,4 +13,4 @@
 #
 ################################################################################
 export SMTPHOST=tesla3.axcient.inc
-export SMTPFROM=admin@axcient.com
+export SMTPFROM=buildandrelease@axcient.com
