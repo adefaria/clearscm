@@ -1,7 +1,7 @@
 ################################################################################
 #
 # File:         $RCSfile: bash_login,v $
-# Revision:	$Revision: 1.29 $
+# Revision:	    $Revision: 1.29 $
 # Description:  bash startup file
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Aug 20 17:35:01  2001
@@ -114,6 +114,11 @@ fi
 # MultiSite Stuff
 if [ -f ~/.rc/multisite ]; then
   source ~/.rc/multisite
+fi
+
+# Git Stuff
+if [ -f ~/.rc/git ]; then
+  source ~/.rc/git
 fi
 
 # Import shell functions:

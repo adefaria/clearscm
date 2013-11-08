@@ -17,21 +17,6 @@ CR=$(echo "\015")
 
 view_name=
 
-function in_git_repo {
-  pwd=$PWD
-  
-  while [ "$pwd" != "/" ]; do
-    if [ -d "$pwd/.git" ]; then
-      true;
-      return;
-    fi
-
-    pwd=$(dirname "$pwd")
-  done
-  
-  false
-} # in_git_repo
-
 # Function to set the title bar. Works on the terminal emulators listed.
 function title_bar {
   prefix="$@"
