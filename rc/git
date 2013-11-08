@@ -1,0 +1,41 @@
+#!/bin/bash
+################################################################################
+#
+# File:        $RCSfile: git,v $
+# Revision:    $Revision: 1.0 $ 
+# Description: This script set up some useful environment variables and aliases
+#              for git execution. File should be sourced (e.g . git) 
+# Author:      Andrew@DeFaria.com
+# Created:     Thu Nov  7 18:00:34 PST 2013
+# Modified:    $Date: $
+# Language:    bash
+#
+# (c) Copyright 2000-2013, ClearSCM, Inc., all rights reserved.
+#
+################################################################################
+function in_git_repo {
+  pwd=$PWD
+  
+  while [ "$pwd" != "/" ]; do
+    if [ -d "$pwd/.git" ]; then
+      true;
+      return;
+    fi
+
+    pwd=$(dirname "$pwd")
+  done
+  
+  false
+} # in_git_repo
+
+function git () {
+  # Need to reset title since we put the branch name in the titlebar
+  git=$(which git)
+
+  if [ "$1" = "checkout" -o "$1" = "co" ]; then
+    $git $@
+    set_title
+  else
+    $git $@
+  fi
+} # git

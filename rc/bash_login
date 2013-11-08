@@ -1,7 +1,7 @@
 ################################################################################
 #
 # File:         $RCSfile: bash_login,v $
-# Revision:	$Revision: 1.29 $
+# Revision:	    $Revision: 1.29 $
 # Description:  bash startup file
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Aug 20 17:35:01  2001
@@ -116,6 +116,11 @@ if [ -f ~/.rc/multisite ]; then
   source ~/.rc/multisite
 fi
 
+# Git Stuff
+if [ -f ~/.rc/git ]; then
+  source ~/.rc/git
+fi
+
 # Import shell functions:
 if [ -f ~/.rc/functions ]; then
   source ~/.rc/functions
@@ -222,6 +227,11 @@ fi
 
 # Color man pages with yellow keywords
 export LESS_TERMCAP_md=$'\e[1;33m'
+
+# If /opt/clearscm/lib is around then set PERL5LIB
+if [ -d /opt/clearscm/lib ]; then
+  export PERL5LIB="$PERL5LIB:/opt/clearscm/lib"
+fi
 
 # Client specific customizations
 for script in $(\ls ~/.rc/client_scripts); do
