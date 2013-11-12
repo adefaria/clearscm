@@ -82,24 +82,34 @@ $0 = "$FindBin::Script " . join ' ', @ARGV;
 verbose "$FindBin::Script v$VERSION";
 
 my $sleep  = 60 * 60;
-my $imgDir = $ENV{SETBG_DIR} ? $ENV{SETBG_DIR} : '/web/Pictures';
+my @imgDir;
 
 GetOptions (
-  'usage'		=> sub { Usage },
-  'verbose'		=> sub { set_verbose },
-  'debug'		=> sub { set_debug },
-  'sleep=i'		=> \$sleep,
-  'bgdir=s'		=> \$imgDir,
+  'usage'   => sub { Usage },
+  'verbose' => sub { set_verbose },
+  'debug'   => sub { set_debug },
+  'sleep=i' => \$sleep,
+  'bgdir=s' => \@imgDir,
 ) || Usage;
 
-error "$imgDir is not a directory", 1 unless -d $imgDir;
+foreach (@imgDir) {
+  error "$_ is not a directory", 1 unless -d $_;
+} # foreach
 
 # Using gsettings
 my $setbg	= "gsettings";
 my $setbgOpts	= "set org.gnome.desktop.background picture-uri \"file://";
 
-chomp (my @images = `find $imgDir -type f -name "*.jpg"`);
+my @images;
 
+foreach (@imgDir) {
+  my @pics = `find "$_" -type f -name "*.jpg"`;
+  chomp @pics;
+  push @images, @pics;
+} # foreach
+
+Usage "No images to display. Must specify -imgDir" unless @images;
+ 
 sub SwitchWallPaper {
   # We don't need to do anything here, just handle the interrupt and
   # let the while loop continue.
@@ -118,7 +128,7 @@ while () {
   open my $log, '>', "$ENV{HOME}/.$FindBin::Script"
     or error "Unable to open $ENV{HOME}/.setbg for writing - $!", 1;
 
-  display "Current background: $image", $log;
+  display $image, $log;
 
   my $cmd = "$setbg $setbgOpts$image\" 2> /dev/null";
 
