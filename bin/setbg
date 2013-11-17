@@ -57,6 +57,7 @@ use warnings;
 use FindBin;
 use Getopt::Long;
 use Proc::ProcessTable;
+use CGI qw/:standard/;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -123,7 +124,7 @@ my $debugger = $DB::OUT;
 EnterDaemonMode unless defined $DB::OUT;
 
 while () {
-  my $image = $images[int (rand $#images)];
+  my $image = escapeHTML ($images[int (rand $#images)]);
 
   open my $log, '>', "$ENV{HOME}/.$FindBin::Script"
     or error "Unable to open $ENV{HOME}/.setbg for writing - $!", 1;
