@@ -14,3 +14,5 @@
 ################################################################################
 export SMTPHOST=tesla3.axcient.inc
 export SMTPFROM=buildandrelease@axcient.com
+
+append_to_path /opt/axscripts/bin
