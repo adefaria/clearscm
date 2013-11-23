@@ -1,0 +1,4 @@
+Options +ExecCGI
+RewriteEngine On
+RewriteRule ^$ gitweb.cgi
+RewriteRule ^([?].*)$ gitweb.cgi)$1
