@@ -98,7 +98,7 @@ foreach (@imgDir) {
 } # foreach
 
 # Using gsettings
-my $setbg	= "gsettings";
+my $setbg	    = "gsettings";
 my $setbgOpts	= "set org.gnome.desktop.background picture-uri \"file://";
 
 my @images;
@@ -133,8 +133,14 @@ while () {
 
   my $cmd = "$setbg $setbgOpts$image\" 2> /dev/null";
 
-  `$cmd`;
+  my @output = `$cmd`;
 
+  if ($? != 0) {
+    display "ERROR Trying to set background - command used \"$cmd\"", $log;
+    display "Output:";
+    display join "\n", @output, $log;
+  } # if
+  
   close $log;
   
   sleep $sleep;

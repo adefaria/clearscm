@@ -100,8 +100,6 @@ if [ -r /etc/bash_completion -a $ARCHITECTURE != "cygwin" ]; then
   source /etc/bash_completion
 fi
 
-export CVSROOT=:ext:andrew@clearscm.com:/var/cvs/cvsroot
-
 if [ -x ~/.rc/logout ]; then
   trap "~/.rc/logout" 0
 fi
