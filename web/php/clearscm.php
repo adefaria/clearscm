@@ -14,6 +14,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 include_once "scm.php";
 
+date_default_timezone_set('America/Los_Angeles');
+
 $base = $_SERVER['DOCUMENT_ROOT'];
 
 function menu_css () {
