@@ -53,7 +53,7 @@ function stoptimer () {
     <?php start_box ("cs2")?>
       <h2 align=center><a href="http://defaria.com">Andrew P. DeFaria</a></h2>
       <address style="text-align:center">
-      1676 Hope Drive #230<br>
+      1676 Hope Drive #1915<br>
       Santa Clara, California 95054-1721<br>
       </address>
       <p style="text-align:center">
