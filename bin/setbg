@@ -61,6 +61,7 @@ use CGI qw/:standard/;
 
 use lib "$FindBin::Bin/../lib";
 
+use DateUtils;
 use Display;
 use Utils;
 
@@ -68,6 +69,7 @@ my $VERSION  = '$Revision: 1.10 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
 my $processes = new Proc::ProcessTable;
+my @imgDirs;
 
 foreach my $process (@{$processes->table}) {
   if ($process->cmndline =~ /setbg/ and
@@ -78,22 +80,34 @@ foreach my $process (@{$processes->table}) {
   } # if
 } # foreach
 
+sub fillPictures () {
+  my @images;
+  
+  foreach (@imgDirs) {
+    my @pics = `find "$_" -type f -name "*.jpg"`;
+    
+    chomp @pics;
+    push @images, @pics;
+  } # foreach
+
+  return @images;  
+} # fillPictures
+
 $0 = "$FindBin::Script " . join ' ', @ARGV;
 
 verbose "$FindBin::Script v$VERSION";
 
 my $sleep  = 60 * 60;
-my @imgDir;
 
 GetOptions (
   'usage'   => sub { Usage },
   'verbose' => sub { set_verbose },
   'debug'   => sub { set_debug },
   'sleep=i' => \$sleep,
-  'bgdir=s' => \@imgDir,
+  'bgdir=s' => \@imgDirs,
 ) || Usage;
 
-foreach (@imgDir) {
+foreach (@imgDirs) {
   error "$_ is not a directory", 1 unless -d $_;
 } # foreach
 
@@ -101,13 +115,7 @@ foreach (@imgDir) {
 my $setbg	    = "gsettings";
 my $setbgOpts	= "set org.gnome.desktop.background picture-uri \"file://";
 
-my @images;
-
-foreach (@imgDir) {
-  my @pics = `find "$_" -type f -name "*.jpg"`;
-  chomp @pics;
-  push @images, @pics;
-} # foreach
+my @images = fillPictures;
 
 Usage "No images to display. Must specify -imgDir" unless @images;
  
@@ -118,8 +126,10 @@ sub SwitchWallPaper {
 } # SwitchWallPaper
 
 $SIG{USR2} = \&SwitchWallPaper;
+$SIG{USR1} = \&fillPictures;
 
 my $debugger = $DB::OUT;
+my $today;
 
 EnterDaemonMode unless defined $DB::OUT;
 
@@ -143,5 +153,11 @@ while () {
   
   close $log;
   
+  $today = YMD;  
+  
   sleep $sleep;
+  
+  if ($today ne YMD){
+    @images = fillPictures;
+  } # if
 } # while
