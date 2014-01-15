@@ -1,4 +1,4 @@
-#!/usr/bin/env cqperl
+#!/usr/bin/env perl
 ################################################################################
 #
 # File:         $RCSfile: testmail.pl,v $
@@ -75,7 +75,7 @@ END
 
 my $heading	= "<h1>Helpdesk Report as of 20070801</h1>";
 my $subject	= "Helpdesk Report";
-my $to		= "andrew.defaria\@gdc4s.com";
+my $to		= "Andrew\@DeFaria.com";
 
 # Main
 mail (
