@@ -71,6 +71,13 @@ function stoptimer () {
       </center>
     </td>
   </tr>
+  <tr>
+    <td align="center">
+      <center>
+      <font size=-1>For the most up to date copy of this resume see <a href="http://clearscm.com/Resumes/Andrew">http://clearscm.com/Resumes/Andrew</a></font>
+      </center>
+    </td>
+  </tr>
 </table>
     <?php end_box ();?>
 
