@@ -231,7 +231,7 @@ function stoptimer () {
 
   <p><a href="https://www2.gehealthcare.com/portal/site/usen"><img src="GEHealthcare.gif" alt="General Electric" border="0"></a></p>
 
-  <p>January 2010 - December 2010<br>
+  <p>January 2010 - October 2010<br>
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_general_electric.html">Workblog</a></font>
 
