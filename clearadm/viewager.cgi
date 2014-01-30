@@ -728,13 +728,10 @@ L<Time::localtime|Time::localtime>
 <a href="http://clearscm.com/php/scm_man.php?file=lib/Display.pm">Display</a><br>
 <a href="http://clearscm.com/php/scm_man.php?file=lib/Mail.pm">Mail</a><br>
 <a href="http://clearscm.com/php/scm_man.php?file=lib/Utils.pm">Utils</a><br>
+<a href="http://clearscm.com/php/scm_man.php?file=clearadm/lib/User.pm">User</a><br>
 </blockquote>
 
 =end html
-
-=head2 User module
-
-L<User>
 
 =head1 BUGS AND LIMITATIONS
 
