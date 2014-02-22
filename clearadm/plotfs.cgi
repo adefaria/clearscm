@@ -87,12 +87,6 @@ if ($opts{tiny}) {
   $opts{scaling} = 'Day';
 } # if
 
-sub labelY ($) {
-  my ($value) = @_;
-
-  return $opts{tiny} ? '' : $value;  
-} # labelY
-
 my $clearadm = Clearadm->new;
 
 my $graph = GD::Graph::area->new ($opts{width}, $opts{height});
@@ -132,7 +126,8 @@ foreach (@fs) {
     push @x, $fs{timestamp};
   } # if
 
-  push @y, sprintf ('%.2f', $fs{used} / (1024 * 1024));    
+  push @y, $opts{meg} ? $fs{used} / (1024 * 1024) :
+                        $fs{used} / (1024 * 1024 * 12024);
 }
 my @data = ([@x], [@y]);
 
@@ -143,9 +138,11 @@ my $x_label_skip = @x > 1000 ? 200
                  : 0;
                  
 my $x_label = $opts{tiny} ? '' : 'Filesystem Usage';
-my $y_label = $opts{tiny} ? '' : 'Used (Meg)';
+my $y_label = $opts{tiny} ? '' : 
+              $opts{msg}  ? 'Used (Meg)' : 'Used (Gig)';
 my $title   = $opts{tiny} ? '' : "Filesystem usage for "
                                . "$opts{system}:$opts{filesystem}";
+my $labelY  = $opts{tiny} ? '' : '%.2f';
 
 $graph->set (
   x_label           =>$x_label,
@@ -153,7 +150,7 @@ $graph->set (
   x_label_skip      => $x_label_skip,
   x_label_position  => .5,
   y_label           => $y_label,
-  y_number_format   => &labelY,
+  y_number_format   => $labelY,
   title             => $title,
   dclrs             => [$opts{color}],
   bgclr             => 'white',
