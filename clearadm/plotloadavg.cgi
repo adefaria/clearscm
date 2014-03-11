@@ -85,12 +85,6 @@ if ($opts{tiny}) {
   $opts{scaling} = 'Hour';
 } # if
 
-sub labelY ($) {
-  my ($value) = @_;
-
-  return $opts{tiny} ? '' : $value;  
-} # labelY
-
 my $clearadm = Clearadm->new;
 
 my $graph = GD::Graph::area->new ($opts{width}, $opts{height});
@@ -122,7 +116,7 @@ foreach (@loads) {
   } else {
     push @x, $load{timestamp};
   } # if
-  
+
   push @y, $load{loadavg};
 } # foreach
 
@@ -137,6 +131,7 @@ my $x_label_skip = @x > 1000 ? 200
 my $x_label = $opts{tiny} ? '' : 'Time';
 my $y_label = $opts{tiny} ? '' : 'Load';
 my $title   = $opts{tiny} ? '' : "Load Average for $opts{system}";
+my $labelY  = $opts{tiny} ? '' : '%.2f';
 
 $graph->set (
   x_label           => $x_label,
@@ -144,7 +139,7 @@ $graph->set (
   x_label_skip      => $x_label_skip,
   x_label_position  => .5,
   y_label           => $y_label,
-  y_number_format   => &labelY,
+  y_number_format   => $labelY,
   title             => $title,
   dclrs             => [$opts{color}],
   bgclr             => 'white',

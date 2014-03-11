@@ -5,4 +5,5 @@ syntax enable
 set nocompatible
 set backspace=indent,eol,start
 colorscheme evening
+set hlsearch
 map!  

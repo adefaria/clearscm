@@ -57,6 +57,7 @@ use warnings;
 use FindBin;
 use Getopt::Long;
 use Proc::ProcessTable;
+use File::Spec;
 use CGI qw/:standard/;
 
 use lib "$FindBin::Bin/../lib";
@@ -107,8 +108,10 @@ GetOptions (
   'bgdir=s' => \@imgDirs,
 ) || Usage;
 
-foreach (@imgDirs) {
-  error "$_ is not a directory", 1 unless -d $_;
+for (my $i = 0; $i < scalar @imgDirs; $i++) {
+  error "$imgDirs[$i] is not a directory", 1 unless -d $imgDirs[$i];
+  
+  $imgDirs[$i] = File::Spec->rel2abs ($imgDirs[$i]);
 } # foreach
 
 # Using gsettings
@@ -117,7 +120,7 @@ my $setbgOpts	= "set org.gnome.desktop.background picture-uri \"file://";
 
 my @images = fillPictures;
 
-Usage "No images to display. Must specify -imgDir" unless @images;
+Usage "No images to display. Must specify -bgdir" unless @images;
  
 sub SwitchWallPaper {
   # We don't need to do anything here, just handle the interrupt and
