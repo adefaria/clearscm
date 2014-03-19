@@ -36,11 +36,11 @@ create table system (
                      'Unix',
                      'Windows'
                    ) not null,
-  region	   tinytext,
+  region	         tinytext,
   port             int default 25327,
   lastheardfrom    datetime,
   notification     varchar (255),
-  description	   text,
+  description	     text,
   loadavgHist      enum (
                      '1 month',
                      '2 months',
@@ -58,7 +58,7 @@ create table system (
   loadavgThreshold float (4,2) default 5.00,
 
   primary key (name)
-) type=innodb; -- system
+) engine=innodb; -- system
 
 -- clearcase: Information about a Clearcase system
 create table clearcase (
@@ -90,7 +90,7 @@ create table clearcase (
     on delete cascade
     on update cascade,
   primary key (system)
-) type=innodb; -- clearcase
+) engine=innodb; -- clearcase
 
 -- package: A package is any software package that we wish to keep track of
 create table package (
@@ -106,7 +106,7 @@ create table package (
     on delete cascade
     on update cascade,
   primary key (system, name)
-) type=innodb; -- package
+) engine=innodb; -- package
   
 -- filesystem: A systems file systems that we are monitoring 
 create table filesystem (
@@ -136,7 +136,7 @@ create table filesystem (
     on delete cascade
     on update cascade,
   primary key (system, filesystem)
-) type=innodb; -- filesystem
+) engine=innodb; -- filesystem
 
 -- fs: Contains a snapshot reading of a filesystem at a given date and time
 create table fs (
@@ -155,7 +155,7 @@ create table fs (
     references filesystem (system, filesystem)
       on delete cascade
       on update cascade
-) type=innodb; -- fs
+) engine=innodb; -- fs
 
 -- loadavg: Contains a snapshot reading of a system's load average
 create table loadavg (
@@ -165,11 +165,11 @@ create table loadavg (
   users         int,
   loadavg       float (4,2),
 
-  primary key   (system, timestamp).
+  primary key   (system, timestamp),
   foreign key systemLink (system) references system (name)
     on delete cascade
     on update cascade
-) type=innodb; -- loadavg
+) engine=innodb; -- loadavg
 
 -- vobs: Describe a system's vobs
 create table vob (
@@ -181,7 +181,7 @@ create table vob (
     on delete cascade
     on update cascade,
   primary key (tag)
-) type=innodb; -- vob 
+) engine=innodb; -- vob 
 
 -- view: Describe views
 create table view (
@@ -208,7 +208,7 @@ create table view (
     on update cascade,
   key regionIndex (region),
   primary key (region, tag)
-) type=innodb; -- view
+) engine=innodb; -- view
 
 create table task (
   name          varchar (255) not null,
@@ -221,10 +221,11 @@ create table task (
                 ) not null default 'true',
   
   primary key (name)
-  foreign key systemLink (system) references system (name)
-    on delete cascade
-    on update cascade,
-) type=innodb; -- task
+--  primary key (name),
+--  foreign key systemLink (system) references system (name)
+--    on delete cascade
+--    on update cascade
+) engine=innodb; -- task
 
 create table runlog (
   id            int not null auto_increment,
@@ -242,32 +243,12 @@ create table runlog (
   primary key (id, task, system),
   foreign key taskLink (task) references task (name)
     on delete cascade
-    on update cascade
+    on update cascade,
   foreign key systemLink (system) references system (name)
     on delete cascade
     on update cascade
-) type=innodb; -- runlog
+) engine=innodb; -- runlog
   
-create table schedule (
-  name          varchar (255) not null,
-  task          varchar (255) not null,
-  notification  varchar (255) not null,
-  frequency     tinytext,
-  active        enum (
-                  'true',
-                  'false'
-                ) not null default 'true',
-  lastrunid     int,
-  
-  primary key (name),
-  foreign key taskLink (task) references task (name)
-    on delete cascade
-    on update cascade
-  foreign key notificationLink (notification) references notification (name)
-    on delete cascade
-    on update cascade
-) type=innodb; -- schedule
-
 create table alert (
   name varchar (255) not null,
   type enum (
@@ -278,7 +259,7 @@ create table alert (
   who  tinytext,
   
   primary key (name)
-) type=innodb; -- alert
+) engine=innodb; -- alert
 
 create table notification (
   name         varchar (255) not null,
@@ -294,10 +275,30 @@ create table notification (
   primary key (name),
   foreign key alertLink (alert) references alert (name)
     on delete cascade
-    on update cascade,
- ) type=innodb; -- notification
+    on update cascade
+ ) engine=innodb; -- notification
  
- create table alertlog (
+create table schedule (
+  name          varchar (255) not null,
+  task          varchar (255) not null,
+  notification  varchar (255) not null,
+  frequency     tinytext,
+  active        enum (
+                  'true',
+                  'false'
+                ) not null default 'true',
+  lastrunid     int,
+  
+  primary key (name),
+  foreign key taskLink (task) references task (name)
+    on delete cascade
+    on update cascade,
+  foreign key notificationLink (notification) references notification (name)
+    on delete cascade
+    on update cascade
+) engine=innodb; -- schedule
+
+create table alertlog (
   id           int not null auto_increment,
   alert        varchar (255) not null,
   system       varchar (255) not null,
@@ -314,7 +315,7 @@ create table notification (
   foreign key notificationLink (notification) references notification (name)
     on delete cascade
     on update cascade,
-  foreigh key runlogLink (runlog) references runlog (id)
+  foreign key runlogLink (runlog) references runlog (id)
     on delete cascade
     on update cascade
-) type=innodb; -- alertlog
+) engine=innodb; -- alertlog
