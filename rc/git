@@ -16,7 +16,7 @@
 function in_git_repo {
   pwd=$PWD
   
-  while [ "$pwd" != "/" ]; do
+  while [ "$pwd" != "/" -a "$pwd" != "//" ]; do
     if [ -d "$pwd/.git" ]; then
       true;
       return;
