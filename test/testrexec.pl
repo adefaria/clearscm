@@ -14,6 +14,16 @@ my $hostname = $ENV{HOST}     || 'localhost';
 my $username = $ENV{USERNAME};
 my $password = $ENV{PASSWORD};
 
+my $command  = $ENV{COMMAND};
+
+if (@ARGV) {
+  $command = join ' ', @ARGV;
+} else {
+  $command = 'ls /tmp' unless $command;  
+} # if
+
+print "Attempting to connect to $username\@$hostname to execute \"$command\"\n";
+
 my $remote = Rexec->new (
   host     => $hostname,
   username => $username,
@@ -24,19 +34,18 @@ my $remote = Rexec->new (
 if ($remote) {
   print "Connected to $username\@$hostname using "
       . $remote->{protocol} . " protocol\n";
-    
-  $cmd = "/bin/ls /nonexistent";
 
-  @output = $remote->execute ($cmd);
+  print "Executing command \"$command\" on $hostname as $username\n";    
+  @output = $remote->execute ($command);
   $status = $remote->status;
 
-  print "$cmd status: $status\n";
+  print "\"$command\" status: $status\n";
 
-  $remote->print_lines;
-
-  print "$_\n" foreach ($remote->execute ('cat /etc/passwd'));
+  if (@output == 0) {
+    print "No lines of output received!\n";
+  } else {
+    print "$_\n" foreach (@output);
+  } # if
 } else {
   print "Unable to connect to $username@$hostname\n";
 } # if
-
-
