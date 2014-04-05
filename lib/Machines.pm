@@ -54,119 +54,275 @@ package Machines;
 use strict;
 use warnings;
 
+use Carp;
+use DBI;
+use FindBin;
+
+use DateUtils;
 use Display;
-use Utils;
+use GetConfig;
 
-use base 'Exporter';
+our %MACHINESOPTS = GetConfig ("$FindBin::Bin/../etc/machines.conf");
 
-our @EXPORT = qw (
-  all
-  new
-);
+my $defaultFilesystemThreshold = 90;
+my $defaultFilesystemHist      = '6 months';
+my $defaultLoadavgHist         = '6 months';
+
+# Internal methods
+sub _dberror ($$) {
+  my ($self, $msg, $statement) = @_;
+
+  my $dberr    = $self->{db}->err;
+  my $dberrmsg = $self->{db}->errstr;
+  
+  $dberr    ||= 0;
+  $dberrmsg ||= 'Success';
+
+  my $message = '';
+  
+  if ($dberr) {
+    my $function = (caller (1)) [3];
+
+    $message = "$function: $msg\nError #$dberr: $dberrmsg\n"
+             . "SQL Statement: $statement";
+  } # if
+
+  return $dberr, $message;  
+} # _dberror
+
+sub _formatValues (@) {
+  my ($self, @values) = @_;
+  
+  my @returnValues;
+  
+  # Quote data values
+  push @returnValues, $_ eq '' ? 'null' : $self->{db}->quote ($_)  
+    foreach (@values);
+  
+  return @returnValues;
+} # _formatValues
+
+sub _formatNameValues (%) {
+  my ($self, %rec) = @_;
+  
+  my @nameValueStrs;
+  
+  push @nameValueStrs, "$_=" . $self->{db}->quote ($rec{$_})
+    foreach (keys %rec);
+    
+  return @nameValueStrs;
+} # _formatNameValues
+
+sub _error () {
+  my ($self) = @_;
+  
+  if ($self->{msg}) {
+    if ($self->{errno}) {
+      carp $self->{msg};
+    } else {
+      cluck $self->{msg};
+    } # if
+  } # if
+} # _error
+
+sub _addRecord ($%) {
+  my ($self, $table, %rec) = @_;
+  
+  my $statement  = "insert into $table (";
+     $statement .= join ',', keys %rec;
+     $statement .= ') values (';
+     $statement .= join ',', $self->_formatValues (values %rec);
+     $statement .= ')';
+  
+  my ($err, $msg);
+  
+  $self->{db}->do ($statement);
+  
+  return $self->_dberror ("Unable to add record to $table", $statement);
+} # _addRecord
+
+sub _checkRequiredFields ($$) {
+  my ($fields, $rec) = @_;
+  
+  foreach my $fieldname (@$fields) {
+    my $found = 0;
+    
+    foreach (keys %$rec) {
+      if ($fieldname eq $_) {
+         $found = 1;
+         last;
+      } # if
+    } # foreach
+    
+    return "$fieldname is required"
+      unless $found;
+  } # foreach
+  
+  return;
+} # _checkRequiredFields
+
+sub _connect (;$) {
+  my ($self, $dbserver) = @_;
+  
+  $dbserver ||= $MACHINESOPTS{MACHINES_SERVER};
+  
+  my $dbname   = 'machines';
+  my $dbdriver = 'mysql';
+
+  $self->{db} = DBI->connect (
+    "DBI:$dbdriver:$dbname:$dbserver", 
+    $MACHINESOPTS{MACHINES_USERNAME},
+    $MACHINESOPTS{MACHINES_PASSWORD},
+    {PrintError => 0},
+  ) or croak (
+    "Couldn't connect to $dbname database " 
+  . "as $MACHINESOPTS{MACHINESADM_USERNAME}\@$MACHINESOPTS{MACHINESADM_SERVER}"
+  );
+  
+  $self->{dbserver} = $dbserver;
+  
+  return;
+} # _connect
+
+sub _getRecords ($$) {
+  my ($self, $table, $condition) = @_;
+  
+  my ($err, $msg);
+    
+  my $statement = "select * from $table where $condition";
+  
+  my $sth = $self->{db}->prepare ($statement);
+  
+  unless ($sth) {
+    ($err, $msg) = $self->_dberror ('Unable to prepare statement', $statement);
+    
+    croak $msg;
+  } # if
+
+  my $attempts    = 0;
+  my $maxAttempts = 3;
+  my $sleepTime   = 30;
+  my $status;
+  
+  # We've been having the server going away. Supposedly it should reconnect so
+  # here we simply retry up to $maxAttempts times to re-execute the statement. 
+  # (Are there other places where we need to do this?)
+  $err = 2006;
+  
+  while ($err == 2006 and $attempts++ < $maxAttempts) {
+    $status = $sth->execute;
+    
+    if ($status) {
+      $err = 0;
+      last;
+    } else {
+      ($err, $msg) = $self->_dberror ('Unable to execute statement',
+                                      $statement);
+    } # if
+    
+    last if $err == 0;
+    
+    croak $msg unless $err == 2006;
+
+    my $timestamp = YMDHMS;
+      
+    $self->Error ("$timestamp: Unable to talk to DB server.\n\n$msg\n\n"
+                . "Will try again in $sleepTime seconds", -1);
+                
+    # Try to reconnect
+    $self->_connect ($self->{dbserver});
+
+    sleep $sleepTime;
+  } # while
+
+  $self->Error ("After $maxAttempts attempts I could not connect to the database", $err)
+    if ($err == 2006 and $attempts > $maxAttempts);
+  
+  my @records;
+  
+  while (my $row = $sth->fetchrow_hashref) {
+    push @records, $row;
+  } # while
+  
+  return @records;
+} # _getRecord
+
 
 sub new {
   my ($class, %parms) = @_;
 
 =pod
 
-=head2 new (<parms>)
+=head2 new ($server)
 
-Construct a new Machines object. The following OO style arguments are
-supported:
-
-Parameters:
-
-=for html <blockquote>
-
-=over
-
-=item file:
-
-Name of an alternate file from which to read machine information. This
-is intended as a quick alternative.
-
-=back
-
-=for html </blockquote>
-
-Returns:
-
-=for html <blockquote>
-
-=over
-
-=item Machines object
-
-=back
-
-=for html </blockquote>
+Construct a new Machines object.
 
 =cut
 
-  my $file = $parms{file} ? $parms{file} : "$FindBin::Bin/../etc/machines";
-
-  error "Unable to find $file", 1 if ! -f $file;
-
-  my %machines;
-
-  foreach (ReadFile $file) {
-    my @parts = split;
-
-    # Skip commented out or blank lines
-    next if $parts[0] =~ /^#/ or $parts[0] =~ /^$/;
-
-    $machines{$parts[0]} = $parts[1];
-  } # foreach
-
-  bless {
-    file     => $parms {file},
-    machines => \%machines,
-  }, $class; # bless
-
-  return $class;
+  # Merge %parms with %MACHINEOPTS
+  foreach (keys %parms) {
+    $MACHINESOPTS{$_} = $parms{$_};
+  } # foreach;
+  
+  my $self = bless {}, $class;
+  
+  $self->_connect ();
+  
+  return $self;
 } # new
 
-sub all () {
-  my ($self) = @_;
+sub add (%) {
+  my ($self, %system) = @_;
+  
+  my @requiredFields = qw(
+    name
+    admin
+    type
+  );
 
-=pod
+  my $result = _checkRequiredFields \@requiredFields, \%system;
+  
+  return -1, "add: $result" if $result;
+  
+  $system{loadavgHist} ||= $defaultLoadavgHist;
+  
+  return $self->_addRecord ('system', %system);
+} # add
 
-=head3 all ()
+sub delete ($) {
+  my ($self, $name) = @_;
 
-Returns all known machines as an array of hashes
+  return $self->_deleteRecord ('system', "name='$name'");  
+} # delete
 
-Parameters:
+sub update ($%) {
+  my ($self, $name, %update) = @_;
 
-=for html <blockquote>
+  return $self->_updateRecord ('system', "name='$name'", %update);
+} # update
 
-=over
+sub get ($) {
+  my ($self, $system) = @_;
+  
+  return unless $system;
+  
+  my @records = $self->_getRecords (
+    'system', 
+    "name='$system' or alias like '%$system%'"
+  );
+  
+  if ($records[0]) {
+    return %{$records[0]};
+  } else {
+        return;
+  } # if
+} # get
 
-=item none
+sub find (;$) {
+  my ($self, $condition) = @_;
 
-=back
-
-=for html </blockquote>
-
-Returns:
-
-=begin html
-
-<blockquote>
-
-=end html
-
-=over
-
-=item Array of machine hash records
-
-=back
-
-=for html </blockquote>
-
-=cut
-
-  return %{$self->{machines}};
-} # display
+  return $self->_getRecords ('system', $condition);
+} # find
 
 1;
 
