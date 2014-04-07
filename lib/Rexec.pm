@@ -500,6 +500,10 @@ Returns:
   # Close any prior opened sessions
   $self->logoff if ($self->{handle});
 
+  # Check to see if this machines is known in DNS. If not then the chance is
+  # good that we will not be able to log in
+  return unless gethostbyname $self->{host};
+    
   my $remote;
 
   if ($self->{protocol}) {
