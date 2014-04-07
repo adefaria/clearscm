@@ -2,6 +2,9 @@
 use strict;
 use warnings;
 
+use Getopt::Long;
+use Pod::Usage; 
+
 use FindBin;
 
 use lib "$FindBin::Bin/../lib";
@@ -10,36 +13,45 @@ use Rexec;
 
 my ($status, $cmd, @output);
 
-my $hostname = $ENV{HOST}     || 'localhost';
-my $username = $ENV{USERNAME};
-my $password = $ENV{PASSWORD};
+my %opts = (
+  usage    => sub { podusage() } ,
+  hostname => $ENV{HOST}     || 'localhost',
+  username => $ENV{USERNAME} ? $ENV{USERNAME} : $ENV{USER},
+  password => $ENV{PASSWORD},
+  command  => 'ls /tmp',
+);
 
-my $command  = $ENV{COMMAND};
+GetOptions (
+  \%opts,
+  'usage',
+  'host=s',
+  'host=s',
+  'username=s',
+  'password=s',
+  'command=s'
+);
 
 if (@ARGV) {
-  $command = join ' ', @ARGV;
-} else {
-  $command = 'ls /tmp' unless $command;  
+  $opts{command} = join ' ', @ARGV;
 } # if
 
-print "Attempting to connect to $username\@$hostname to execute \"$command\"\n";
+print "Attempting to connect to $opts{username}\@$opts{hostname} to execute \"$opts{command}\"\n";
 
 my $remote = Rexec->new (
-  host     => $hostname,
-  username => $username,
-  password => $password,
-  timeout  => 30,
+  host     => $opts{hostname},
+  username => $opts{username},
+  password => $opts{password},
 );
 
 if ($remote) {
-  print "Connected to $username\@$hostname using "
+  print "Connected to $opts{username}\@$opts{hostname} using "
       . $remote->{protocol} . " protocol\n";
 
-  print "Executing command \"$command\" on $hostname as $username\n";    
-  @output = $remote->execute ($command);
+  print "Executing command \"$opts{command}\" on $opts{hostname} as $opts{username}\n";    
+  @output = $remote->execute ($opts{command});
   $status = $remote->status;
 
-  print "\"$command\" status: $status\n";
+  print "\"$opts{command}\" status: $status\n";
 
   if (@output == 0) {
     print "No lines of output received!\n";
@@ -47,5 +59,5 @@ if ($remote) {
     print "$_\n" foreach (@output);
   } # if
 } else {
-  print "Unable to connect to $username@$hostname\n";
+  print "Unable to connect to $opts{username}\@$opts{hostname}\n";
 } # if
