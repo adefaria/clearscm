@@ -160,6 +160,18 @@ our @EXPORT = qw (
 
 my @lines;
 
+sub _debug ($) {
+  my ($msg) = @_;
+  
+  my $logfile = "/tmp/rexex_debug.log";
+  
+  open my $file, '>>', $logfile or die "Unable to open $logfile for writing - $!";
+  
+  print $file "DEBUG: $msg\n";
+  
+  close $file;
+} # _debug
+
 sub ssh {
   my ($self) = shift;
 
@@ -228,12 +240,19 @@ sub ssh {
     $self->{prompt} = '@@@';
     $self->{handle} = $remote;
 
+    # OK this is real tricky. If we call execute with a command of PS1=@@@
+    # and we've changed our prompt to '@@@' then we'll see the '@@@' in the
+    # PS1=@@@ statement as the prompt! That'll screw us up so we instead say
+    # PS1=\@\@\@. The shell then removes the extra backslashes for us and sets
+    # the prompt to just "@@@" for us. We catch that as our prompt and now we
+    # have a unique prompt that we can easily recognize.
     if ($self->{shellstyle} eq 'sh') {
-      $self->execute ('PS1=@@@');
+      $self->execute ('PS1=\@\@\@');
     } else {
-      $self->execute ('set prompt=@@@');
+      $self->execute ('set prompt=\@\@\@');
     } # if
 
+    $self->{handle}->flush;
     return $remote;
   } elsif ($timedout) {
     carp "WARNING: $self->{host} is not responding to $self->{protocol} protocol";
@@ -313,10 +332,16 @@ sub rlogin {
     $self->{prompt} = '@@@';
     $self->{handle} = $remote;
 
+    # OK this is real tricky. If we call execute with a command of PS1=@@@
+    # and we've changed our prompt to '@@@' then we'll see the '@@@' in the
+    # PS1=@@@ statement as the prompt! That'll screw us up so we instead say
+    # PS1=\@\@\@. The shell then removes the extra backslashes for us and sets
+    # the prompt to just "@@@" for us. We catch that as our prompt and now we
+    # have a unique prompt that we can easily recognize.
     if ($self->{shellstyle} eq 'sh') {
-      $self->execute ('PS1=@@@');
+      $self->execute ('PS1=\@\@\@');
     } else {
-      $self->execute ('set prompt=@@@');
+      $self->execute ('set prompt=\@\@\@');
     } # if
 
     return $remote;
@@ -412,10 +437,16 @@ sub telnet {
     $self->{prompt} = '@@@';
     $self->{handle} = $remote;
 
+    # OK this is real tricky. If we call execute with a command of PS1=@@@
+    # and we've changed our prompt to '@@@' then we'll see the '@@@' in the
+    # PS1=@@@ statement as the prompt! That'll screw us up so we instead say
+    # PS1=\@\@\@. The shell then removes the extra backslashes for us and sets
+    # the prompt to just "@@@" for us. We catch that as our prompt and now we
+    # have a unique prompt that we can easily recognize.
     if ($self->{shellstyle} eq 'sh') {
-      $self->execute ('PS1=@@@');
+      $self->execute ('PS1=\@\@\@');
     } else {
-      $self->execute ('set prompt=@@@');
+      $self->execute ('set prompt=\@\@\@');
     } # if
 
     return $remote;
@@ -708,7 +739,7 @@ retained in the object. Use status method to retrieve it.
   # Hopefully we will not see the following in the output string
   my $errno_str = "ReXeCerRoNO=";
   my $start_str = "StaRT";
-
+  
   my $compound_cmd;
 
   # If cmd ends in a & then it makes no sense to compose a compound
