@@ -86,6 +86,7 @@ use warnings;
 
 use Carp;
 use DBI;
+use File::Basename;
 use Net::Domain qw(hostdomain);
 
 use FindBin;
@@ -97,7 +98,9 @@ use Display;
 use GetConfig;
 use Mail;
 
-our %CLEAROPTS = GetConfig ("$FindBin::Bin/etc/clearadm.conf");
+my $conf = dirname (__FILE__) . '/../etc/clearadm.conf';
+
+our %CLEAROPTS = GetConfig ($conf);
 
 # Globals
 our $VERSION  = '$Revision: 1.54 $';
@@ -483,6 +486,14 @@ sub FindSystem (;$) {
                          
   return $self->_getRecords ('system', $condition);
 } # FindSystem
+
+sub SearchSystem (;$) {
+  my ($self, $condition) = @_;
+  
+  $condition = "name like '%'" unless $condition;
+  
+  return $self->_getRecords ('system', $condition); 
+} # SearchSystem
 
 sub AddPackage (%) {
   my ($self, %package) = @_;
