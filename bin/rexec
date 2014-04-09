@@ -193,34 +193,37 @@ sub execute ($$;$) {
   return ($status, @lines);
 } # execute
 
-sub parallelize ($%) {
-  my ($cmd, %machines) = @_;
+sub parallelize ($@) {
+  my ($cmd, @machines) = @_;
 
   my $thread_count = 1;
 
-  foreach my $host (sort keys %machines) {
+  foreach (@machines) {
+    my %system = %$_;
+     
     if ($thread_count <= $opts{parallel}) {
-      debug "Processing $host ($thread_count)";
+      debug "Processing $system{name} ($thread_count)";
       $thread_count++;
 
       if (my $pid = fork) {
         # In parent process - record this host and its status
-        $workerNames{$pid} = $host;
+        display "Putting $system{name} into workerName{$pid}";
+        $workerNames{$pid} = $system{host};
       } else {
         # In spawned child...
         $pid = $$;
 
-        debug "Starting process for $host [$pid]";
+        debug "Starting process for $system{name} [$pid]";
 
-        $workerNames{$pid} = $host;
+        $workerNames{$pid} = $system{name};
         
         # Mark currentHost for interrupt (How does this work in the presence
         # of parallelization?).
-        $currentHost = $host;
+        $currentHost = $system{name};
        
-        my ($status, @lines) = execute $cmd, $host, $machines{$host};
+        my ($status, @lines) = execute $cmd, $system{name};
 
-        $log = Logger->new (name => $host);
+        $log = Logger->new (name => $system{name});
 
         $log->log ($_) foreach (@lines);
 
@@ -229,8 +232,16 @@ sub parallelize ($%) {
     } else {
       # Wait for somebody to finish;
       debug "Waiting for somebody to exit...";
+      
+      display "Current status of workerNames:";
+      display $_ foreach (keys %workerNames);
       my $reaped = wait;
 
+      if ($workerNames{$reaped}) {
+        display "workerNames for pid $reaped exists!";
+      } else {
+        display "workerNames for pid $reaped does not exist!";
+      }
       debug "Reaped $workerNames{$reaped} [$reaped] (Status: $?)";
       $workerStatuses{$reaped} = $? >> 8 if $reaped != -1;
 
@@ -260,13 +271,15 @@ sub parallelize ($%) {
 
   # Gather output...
   display "Output of all executions";
-  foreach my $host (sort keys %machines) {
-    if (-f "$host.log") {
-      display "$host:$_" foreach (ReadFile ("$host.log"));
+  foreach (@machines) {
+    my %system = %$_;
+    
+    if (-f "$system{name}.log") {
+      display "$system{name}:$_" foreach (ReadFile ("$system{name}.log"));
 
-      #unlink "$_host.log";
+      unlink "$system{name}.log";
     } else {
-      warning "Unable to find output for $host ($host.log missing)";
+      warning "Unable to find output for $system{name} ($system{name}.log missing)";
     } # if
   } # foreach
   
@@ -296,7 +309,9 @@ pod2usage ('No command specified') unless $cmd;
 my $machines = Clearadm->new;
 
 if ($opts{parallel} > 0) {
-  #parallelize ($cmd, %machines);
+  my @machines = $machines->SearchSystem ("type='$opts{type}'");
+  
+  parallelize ($cmd, @machines);
   Stats \%total, $log;
   exit;
 } # if
