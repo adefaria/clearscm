@@ -80,7 +80,7 @@ sub Interrupted {
 
   display BLUE . "\nInterrupted execution on $currentHost" . RESET;
 
-  Stats \%total, $log;
+  Stats \%total;
 
   display_nolf "Executing on " . YELLOW . $currentHost . RESET . " - "
     . GREEN     . BOLD . "S" . RESET . GREEN    . "kip"         . RESET . ", "
@@ -109,7 +109,7 @@ sub Interrupted {
     $total{Skips}++;
   } elsif ($answer eq "a") {
     display RED . "Aborting run". RESET;
-    Stats \%total, $log;
+    Stats \%total;
     exit;
   } else {
     display "Continuing...";
