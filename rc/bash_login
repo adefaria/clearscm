@@ -144,7 +144,7 @@ else
   if [ $ARCHITECTURE = "sun" ]; then
     # Ugh! --color doesn't work on braindead SUN
     alias ls="ls -F"
-  else
+  else        
     alias ls="ls -F --color=auto"
   fi
 fi
@@ -157,6 +157,14 @@ if [ $ARCHITECTURE = "cygwin" ]; then
   alias host=nslookup
 fi
 
+if [ -f "$SYSTEMDRIVE/Perl64/bin/perl" ]; then
+  alias asperl="$SYSTEMDRIVE/Perl64/bin/perl"
+fi
+
+if [ -f "$SYSTEMDRIVE/Perl/bin/perl" ]; then
+  alias asperl="$SYSTEMDRIVE/Perl64/bin/perl"
+fi
+  
 export LANG=C
 
 if [ $(type -p vim) ]; then
