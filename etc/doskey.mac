@@ -1,10 +1,13 @@
+;= rem doskey macros to make cmd more Linux like
 ls=dir /w $*
 ll=dir /n /-c /q /ta $*
 ct=cleartool $*
-grep=find "$1" $*
+grep=findstr $*
 rm=del $*
 cp=copy $*
-perl=\\rtnlprod02\viewstore\PMO\CM_TOOLS\perl\bin\perl $*
+cat=type $*
+history=doskey /history
+asperl=C:\Perl\bin\perl $*
 lsvob=cleartool lsvob $*
 llvob=cleartool lsvob -long $*
 lsview=cleartool lsview $*
@@ -54,4 +57,3 @@ lsepoch=multitool lsepoch -vob $*
 llepoch=multitool lsepoch -long -vob $*
 chepoch=multitool chepoch -vob $*
 syncreplica=multitool syncreplica $*
-
