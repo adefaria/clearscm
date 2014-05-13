@@ -4,7 +4,7 @@ $songs = glob ("/web/songbook/Songs/*.pro");
 function songsDropdown () {
   global $songs;
 
-  print "<form method=\"post\" action=\"/bin/webchord.cgi\" name=\"song\">";
+  print "<form method=\"post\" action=\"webchord.cgi\" name=\"song\">";
   print "Songs:&nbsp;&nbsp;";
   print "<select name=\"chordpro\">";
 
@@ -76,7 +76,7 @@ function formatTable ($songs) {
 
     $title = basename ($song, ".pro");
 
-    echo "<li><a href=\"/bin/webchord.cgi?chordpro=$song\">$title</a>";
+    echo "<li><a href=\"webchord.cgi?chordpro=$song\">$title</a>";
 
     if ($artist != "") {
     echo "&nbsp;($artist)";

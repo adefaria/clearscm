@@ -37,7 +37,7 @@ foreach ($songs as $song) {
 print "<ol>";
 
 foreach ($artistsSongs as $artistSong) {
-  print "<li><a href=\"/bin/webchord.cgi?chordpro=$artistSong\">";
+  print "<li><a href=\"webchord.cgi?chordpro=$artistSong\">";
   print basename ($artistSong, ".pro");
   print "</a></li>";
 } // foreach
