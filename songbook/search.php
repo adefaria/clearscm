@@ -69,7 +69,7 @@ if (count ($songmatches) > 0) {
 foreach ($songmatches as $songmatch) {
   $artist = getArtist ($songmatch);
   $title  = basename ($songmatch, ".pro");
-  print "<li><a href=\"/bin/webchord.cgi?chordpro=$songmatch\">$title</a>";
+  print "<li><a href=\"webchord.cgi?chordpro=$songmatch\">$title</a>";
   print "&nbsp;(<a href=\"displayartist.php?artist=$artist\">$artist</a>)</li>";
 } // foreach
 
