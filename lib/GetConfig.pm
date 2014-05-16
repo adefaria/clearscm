@@ -28,7 +28,7 @@ $Date: 2013/01/17 01:08:34 $
 
 =head1 SYNOPSIS
 
-Parse config files.
+Parse config files. 
 
  # Comment lines are skipped - white space is eliminated...
  app:                   MyApp
@@ -48,11 +48,12 @@ yields
 
 =head1 DESCRIPTION
 
-This module is a simple interface to reading config files. Config file
-format is roughly like .XDefaults format - <name>:<value> pairs. A
-hash of the name/value pairs are returned. Variable interpolation is
-supported such that env(1) variables will be interpolated as well as
-previously defined values. Thus:
+This module is a simple interface to reading config files. Config file format is
+roughly like .XDefaults format - <name>:<value> pairs. Note that you can use 
+either ':' or '=' as a separator between the name and value. A hash of the 
+name/value pairs are returned. Variable interpolation is supported such that 
+env(1) variables will be interpolated as well as previously defined values. 
+Thus:
 
  temp_files: tmp
  temp_dir:   $HOME/$temp_files
@@ -124,7 +125,7 @@ sub _processFile ($%) {
 
     next if /^\s*[\#|\!]/;    # Skip comments
 
-    if (/\s*(\w*)\s*:\s*(.*)\s*$/) {
+    if (/\s*(.*?)\s*[:=]\s*(.*)\s*/) {
       my $key   = $1;
       my $value = $2;
 
