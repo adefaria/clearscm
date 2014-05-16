@@ -28,7 +28,7 @@ $Date: 2013/01/17 01:08:34 $
 
 =head1 SYNOPSIS
 
-Parse config files.
+Parse config files. 
 
  # Comment lines are skipped - white space is eliminated...
  app:                   MyApp
