@@ -4,6 +4,7 @@ set autowrite
 syntax enable
 set nocompatible
 set backspace=indent,eol,start
-colorscheme evening
 set hlsearch
+set ff=unix
+colorscheme evening
 map!  
