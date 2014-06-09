@@ -63,6 +63,7 @@ use base 'Exporter';
 use POSIX qw (setsid);
 use File::Spec;
 use Carp;
+use Term::ReadKey;
 
 use OSDep;
 use Display;
@@ -71,6 +72,7 @@ our @EXPORT = qw (
   EnterDaemonMode
   Execute
   GetChildren
+  GetPassword
   InArray
   PageOutput
   PipeOutput
@@ -82,6 +84,15 @@ our @EXPORT = qw (
   StopPipe
   Usage
 );
+
+sub _restoreTerm () {
+  # In case the user hits Ctrl-C
+  print "\nControl-C\n";
+  
+  ReadMode 'normal';
+  
+  exit;
+} # _restoreTerm
 
 sub EnterDaemonMode (;$$$) {
   my ($logfile, $errorlog, $pidfile) = @_;
@@ -131,13 +142,6 @@ Returns:
 
   my $file;
   
-  if ($pidfile) {
-    $pidfile =  File::Spec->rel2abs ($pidfile); 
-
-    open $file, '>', $pidfile
-      or warning "Unable to open pidfile $pidfile for writing - $!";  
-  } # if
-  
   # Redirect STDIN to $NULL
   open STDIN, '<', $NULL
     or error "Can't read $NULL ($!)", 1;
@@ -167,6 +171,11 @@ Returns:
   
   # Write pidfile if specified
   if ($pidfile) {
+    $pidfile =  File::Spec->rel2abs ($pidfile); 
+
+    open $file, '>', $pidfile
+      or warning "Unable to open pidfile $pidfile for writing - $!";  
+
     print $file "$$\n";
     
     close $file; 
@@ -299,6 +308,44 @@ Returns:
 
   return @children;
 } # GetChildren
+
+sub GetPassword (;$) {
+  my ($prompt) = @_;
+  
+  $prompt ||= 'Password';
+  
+  my $password;
+  
+  local $| = 1;
+  
+  print "$prompt:";
+  
+  $SIG{INT} = \&_restoreTerm;
+  
+  ReadMode 'cbreak';
+
+  while () {
+    my $key;
+    
+    while (not defined ($key = ReadKey -1)) { }
+
+    if ($key =~ /(\r|\n)/) {
+       print "\n";
+
+       last;
+    } # if
+
+    print '*';
+    
+    $password .= $key;
+  } # while
+  
+  ReadMode 'restore'; # Reset tty mode before exiting.
+
+  $SIG{INT} = 'DEFAULT';
+  
+  return $password;
+} # GetPassword
 
 sub InArray ($@) {
   my ($item, @array) = @_;
@@ -447,7 +494,7 @@ Returns:
 
 =cut
 
-  open my $pipe, "|$to" 
+  open my $pipe, '|', $to 
     or error "Unable to open pipe - $!", 1;
 
   foreach (@output) {
@@ -549,6 +596,8 @@ Returns:
   $pipeToStop ||= $pipe;
 
   close $pipeToStop if $pipeToStop;
+  
+  return;
 } # StopPipe
 
 sub PageOutput (@) {
@@ -715,7 +764,7 @@ Returns:
   
     return @cleansed_lines;
   } else {
-    local $/;
+    local $/ = undef;
     
     return <$file>;
   } # if
