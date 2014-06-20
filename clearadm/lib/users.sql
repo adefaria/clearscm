@@ -11,17 +11,32 @@
 -- Copyright (c) 2010, ClearSCM, Inc., all rights reserved
 --
 -- -----------------------------------------------------------------------------
+
+-- Seems that in order to grant access to a user from really all hosts you need
+-- to do both @'%' and @localhost!
 grant all privileges 
   on clearadm.*
-  to clearadm@"%"
+  to clearadm@'%'
+identified by 'clearscm';
+grant all privileges
+  on clearadm.*
+  to clearadm@localhost
 identified by 'clearscm';
 
 grant select
   on clearadm.*
-  to cleareader@"%"
+  to cleareader@'%'
+identified by 'cleareader';
+grant select
+  on clearadm.*
+  to cleareader@localhost
 identified by 'cleareader';
 
 grant insert, select, update, delete
   on clearadm.*
-  to clearwriter@"%"
+  to clearwriter@'%'
+identified by 'clearwriter';
+grant insert, select, update, delete
+  on clearadm.*
+  to clearwriter@localhost
 identified by 'clearwriter';
