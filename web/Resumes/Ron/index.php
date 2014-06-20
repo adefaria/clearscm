@@ -22,10 +22,7 @@
   <div id="content">
     <?php start_box ("cs2")?>
       <h2><a href="http://penwin.net">Ron Van Scherpe</a></h2>
-      <p style="text-align:center">1225 Vienna Drive #157<br>
-      Sunnyvale, California 94089<br>
-      (650) 722-0759<br>
-      Email: <a href="mailto:rvanscherpe@gmail.com">rvanscherpe@gmail.com</a>
+      <p style="text-align:center">Email: <a href="mailto:rvanscherpe@gmail.com">rvanscherpe@gmail.com</a>
 
       <p style="text-align:center"><a href="Resume.doc">MS Word format</a></p>
 

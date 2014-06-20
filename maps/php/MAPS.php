@@ -37,18 +37,18 @@ $Types = array (
 function DBError ($msg, $statement) {
   $errno  = mysql_errno ();
   $errmsg = mysql_error ();
-  print "$msg\nError # $errno $errmsg";
-  print "SQL Statement: $statement";
+  print "$msg<br>Error # $errno $errmsg";
+  print "<br>SQL Statement: $statement";
 
   exit ($errno);
 } // DBError
 
 function OpenDB () {
-  $db = mysql_pconnect ("localhost", "mapsadmin", "mapsadmin")
+  $db = mysql_connect ("localhost", "mapsadmin", "mapsadmin")
     or DBError ("OpenDB: Unable to connect to database server", "Connect");
 
   mysql_select_db ("MAPS")
-    or DBError ("OpenDB: Unable to select MAPS database", "MAPS");
+    or DBError ("OpenDB: Unable to select MAPS database", "adefaria_maps");
 } // OpenDB
 
 function SetContext ($new_userid) {
@@ -144,7 +144,7 @@ function Today2SQLDatetime () {
 function countem ($table, $condition) {
   $statement = "select count(distinct sender) as count from $table where $condition";
 
-  $result = mysql_query ($statement) 
+  $result = mysql_query ($statement)
     or DBError ("countem: Unable to perform query: ", $statement);
 
   // How many rows are there?
@@ -164,7 +164,7 @@ function countlog ($condition="") {
 } // countlog
 
 function SubtractDays ($date, $nbr_days) {
-  
+
 } // SubtractDays
 
 function GetStats ($nbr_days, $date = "") {
@@ -205,31 +205,31 @@ function displayquickstats () {
 
   $processed		= $dates[$today]["processed"];
   $returned		= $dates[$today]["returned"];
-  $returned_pct		= $processed == 0 ? 0 : 
+  $returned_pct		= $processed == 0 ? 0 :
     number_format ($returned / $processed * 100, 1, ".", "");
   $whitelist		= $dates[$today]["whitelist"];
-  $whitelist_pct	= $processed == 0 ? 0 : 
+  $whitelist_pct	= $processed == 0 ? 0 :
     number_format ($whitelist / $processed * 100, 1, ".", "");
   $blacklist		= $dates[$today]["blacklist"];
-  $blacklist_pct	= $processed == 0 ? 0 : 
+  $blacklist_pct	= $processed == 0 ? 0 :
     number_format ($blacklist / $processed * 100, 1, ".", "");
   $registered		= $dates[$today]["registered"];
   $mailloop		= $dates[$today]["mailloop"];
   $nulllist		= $dates[$today]["nulllist"];
-  $nulllist_pct		= $processed == 0 ? 0 : 
+  $nulllist_pct		= $processed == 0 ? 0 :
     number_format ($nulllist / $processed * 100, 1, ".", "");
 
-  $returned_link = $returned == 0 ? 0 : 
+  $returned_link = $returned == 0 ? 0 :
     "<a href=/maps/bin/detail.cgi?type=returned;date=$today>$returned</a>";
-  $whitelist_link = $whitelist == 0 ? 0 : 
+  $whitelist_link = $whitelist == 0 ? 0 :
     "<a href=/maps/bin/detail.cgi?type=whitelist;date=$today>$whitelist</a>";
-  $blacklist_link = $blacklist == 0 ? 0 : 
+  $blacklist_link = $blacklist == 0 ? 0 :
     "<a href=/maps/bin/detail.cgi?type=blacklist;date=$today>$blacklist</a>";
-  $registered_link = $registered == 0 ? 0 : 
+  $registered_link = $registered == 0 ? 0 :
     "<a href=/maps/bin/detail.cgi?type=registered;date=$today>$registered</a>";
-  $mailloop_link = $mailloop == 0 ? 0 : 
+  $mailloop_link = $mailloop == 0 ? 0 :
     "<a href=/maps/bin/detail.cgi?type=mailloop;date=$today>$mailloop</a>";
-  $nulllist_link = $nulllist == 0 ? 0 : 
+  $nulllist_link = $nulllist == 0 ? 0 :
     "<a href=/maps/bin/detail.cgi?type=nulllist;date=$today>$nulllist</a>";
 
 print <<<EOT
@@ -326,7 +326,7 @@ END;
   <div class="search">
   <form method="get" action="/maps/bin/search.cgi" name="search">
     Search Sender/Subject
-    <input type="text" class="searchfield" id="searchfield" name="str" 
+    <input type="text" class="searchfield" id="searchfield" name="str"
      size="20" maxlength="255"  value="" onclick="document.search.str.value='';">
   </form>
   </div>
@@ -399,7 +399,7 @@ function DisplayList ($type, $next, $lines) {
     $last_hit = substr ($last_hit, 5, 2) . "/" .
                 substr ($last_hit, 8, 2) . "/" .
                 substr ($last_hit, 0, 4);
-    $leftclass = ($i == $lines || $sequence == $total || $sequence == $last) ? 
+    $leftclass = ($i == $lines || $sequence == $total || $sequence == $last) ?
       "tablebottomleft" : "tableleftdata";
     $dataclass = ($i == $lines || $sequence == $total || $sequence == $last) ?
       "tablebottomdata"  : "tabledata";
@@ -505,8 +505,8 @@ function Space () {
     or DBError ("Space: Unable to execute query: ", $statement);
 
   while ($row = mysql_fetch_array ($result)) {
-    $msg_space = 
-      strlen ($row["userid"])		+ 
+    $msg_space =
+      strlen ($row["userid"])		+
       strlen ($row["sender"])		+
       strlen ($row["subject"])		+
       strlen ($row["timestamp"])	+
