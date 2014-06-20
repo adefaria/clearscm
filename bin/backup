@@ -15,7 +15,8 @@
 # Full Backup
 backup=/sbin/dump
 dumppath=/backup
-files2backup=/
+filesystems="sda1 sdb1"
+compression=9
 
 if [ -f /etc/dump.excludes ]; then
   excludes="-E /etc/dump.excludes"
@@ -38,12 +39,10 @@ function usage {
 type="$1"
 host=$(hostname)
 
-host=$(hostname)
-
 if [ "$type" = "full" ]; then
-  rm -f $dumppath/$host.$type.backup
-  rm -f $dumppath/$host.$type.backup.log
-  rm -f $dumppath/$host.$type.list  
+  rm -f $dumppath/$host.*.$type.backup
+  rm -f $dumppath/$host.*.$type.backup.log
+  rm -f $dumppath/$host.*.$type.list  
   level=0
 elif [ "$type" = "incremental" ]; then
   level=1
@@ -51,11 +50,12 @@ else
   usage $type
 fi
 
-log=$dumppath/$host.$type.backup.log
-
-$backup -$level\
-  -A $dumppath/$host.$type.list\
-  -f $dumppath/$host.$type.backup\
-  -z\
-  $excludes\
-  -u $files2backup > $log 2>&1 
+for fs in $filesystems; do
+  log=$dumppath/$host.$fs.$type.backup.log
+  $backup -$level\
+    -A $dumppath/$host.$fs.$type.list\
+    -f $dumppath/$host.$fs.$type.backup\
+    -z$compression\
+    $excludes\
+    -u /dev/$fs > $log 2>&1 
+done
