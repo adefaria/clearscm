@@ -20,7 +20,7 @@ insert into alert (
   'email'
 );
 
--- Predefined notifications
+-- Predefined notificationsTables
 insert into notification (
   name,
   alert,
@@ -98,24 +98,24 @@ insert into task (
   name,
   system,
   description,
-  command,
+  command
 ) values (
   'Loadavg',
   'Localhost',
   'Obtain a loadavg snapshot on all systems',
-  'updatela.pl',
+  'updatela.pl'
 );
 
 insert into task (
   name,
   system,
   description,
-  command,
+  command
 ) values (
   'Filesystem',
   'Localhost',
   'Obtain a filesystem snapshot on all systems/filesystems',
-  'updatefs.pl',
+  'updatefs.pl'
 );
 
 insert into task (
@@ -127,17 +127,19 @@ insert into task (
   'Scrub',
   'Localhost',
   'Scrub Clearadm database',
-  'clearadmscrub.pl',
+  'clearadmscrub.pl'
 );
 
 insert into task (
   name,
   system,
-  description
+  description,
+  command
 ) values (
   'System checkin',
   'Localhost',
   'Checkin from all systems',
+  'default'
 );
 
 insert into task (
@@ -149,7 +151,7 @@ insert into task (
   'Update systems',
   'Localhost',
   'Update all systems',
-  'updatesystem.pl -host all',
+  'updatesystem.pl -host all'
 );
 
 -- Predefined schedule
@@ -186,5 +188,5 @@ insert into schedule (
   'Scrub',
   'Scrub',
   'Scrub',
-  '1 day
+  '1 day'
 );
