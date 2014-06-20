@@ -311,7 +311,41 @@ Returns:
 
 sub GetPassword (;$) {
   my ($prompt) = @_;
-  
+
+=pod
+
+=head2 GetPassword (;$prompt)
+
+Prompt for a password
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $prompt
+
+Prompt string to use (Default: "Password:")
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $password
+
+=back
+
+=for html </blockquote>
+
+=cut  
+
   $prompt ||= 'Password';
   
   my $password;
@@ -900,6 +934,8 @@ L<File::Spec|File::Spec>
 L<FindBin>
 
 L<POSIX>
+
+L<Term::ReadKey>
 
 =head2 ClearSCM Perl Modules
 
