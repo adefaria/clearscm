@@ -5,6 +5,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="GENERATOR" content="Mozilla/4.61 [en] (Win98; U) [Netscape]">
   <meta name="verify-v1" content="zmJmtrlhCOjGAk5w/JcwHaDsI3gxxRug9f4Vcl8YftU=" />
+  <meta name="google-site-verification" content="zkTOHKQ7DzVWZ4QCw33m9wJb6-FSRWEIlZhEKwVl6is" />
 
   <title>ClearSCM</title>
 

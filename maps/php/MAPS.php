@@ -37,18 +37,18 @@ $Types = array (
 function DBError ($msg, $statement) {
   $errno  = mysql_errno ();
   $errmsg = mysql_error ();
-  print "$msg\nError # $errno $errmsg";
-  print "SQL Statement: $statement";
+  print "$msg<br>Error # $errno $errmsg";
+  print "<br>SQL Statement: $statement";
 
   exit ($errno);
 } // DBError
 
 function OpenDB () {
-  $db = mysql_pconnect ("localhost", "mapsadmin", "mapsadmin")
+  $db = mysql_connect ("mysql.clearscm.com", "adefaria_admin", "adefaria_admin")
     or DBError ("OpenDB: Unable to connect to database server", "Connect");
 
-  mysql_select_db ("MAPS")
-    or DBError ("OpenDB: Unable to select MAPS database", "MAPS");
+  mysql_select_db ("adefaria_maps")
+    or DBError ("OpenDB: Unable to select MAPS database", "adefaria_maps");
 } // OpenDB
 
 function SetContext ($new_userid) {
