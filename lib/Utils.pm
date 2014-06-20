@@ -346,6 +346,7 @@ Returns:
 
 =cut  
 
+  
   $prompt ||= 'Password';
   
   my $password;
@@ -934,8 +935,6 @@ L<File::Spec|File::Spec>
 L<FindBin>
 
 L<POSIX>
-
-L<Term::ReadKey>
 
 =head2 ClearSCM Perl Modules
 
