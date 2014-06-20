@@ -1,0 +1,59 @@
+# Robots.txt: Configure which spiders can crawl this site
+
+# Why is this server crawling my site?
+User-agent: panscient_data_services.demarc.cogentco.com
+Disallow: /
+User-agent: Inktomi
+Disallow: /
+User-agent: BaiDuSpider
+Disallow: /
+User-agent: crawl
+Disallow: /
+User-agent: GigaBot
+Disallow: /
+User-agent: arks
+Disallow: /
+User-agent: EchO!
+Disallow: /
+User-agent: Viola
+Disallow: /
+User-agent: hit
+Disallow: /
+User-agent: WISENutbot
+Disallow: /
+User-agent: BBot
+Disallow: /
+User-agent: spider
+Disallow: /
+User-agent: psbot
+Disallow: /
+User-agent: SurveyBot
+Disallow: /
+
+# Allow all others not listed above
+User-agent: *
+Disallow: /Backgrounds
+Disallow: /bin
+Disallow: /binme
+Disallow: /doc
+Disallow: /Fonts
+Disallow: /gallery
+Disallow: /Icons
+Disallow: /Images
+Disallow: /INS
+Disallow: /Legal
+Disallow: /msoffice
+Disallow: /Music
+Disallow: /Olga
+Disallow: /Personal
+Disallow: /Pictures
+Disallow: /Senators
+Disallow: /Software
+Disallow: /Sounds
+Disallow: /Warsaw
+Disallow: /Wedding
+Disallow: /jinzora
+Disallow: /jinzora2
+Disallow: /blogs/Status
+Disallow: /IBM
+Disallow: /Broadcom

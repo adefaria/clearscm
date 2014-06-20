@@ -171,49 +171,64 @@ function stoptimer () {
 
   <h2>Clients</h2>
 
+  <p><a href="http://audience.com"><img alt="Audience" src="Audience.png" border="0"></a></p>
+
+  <p>March 2014 - Present<br>
+  <font class=dim>Contract</font><br>
+  <a href="http://defaria.com/blogs/Status/archives/cat_audience.html">Workblog</a></p>
+
+  <p>Worked as a Linux Admin, Perforce Admin maintaining an inhouse developed build system
+  that utilizes Perl/PHP/Apache/Linux/Windows servers to allow engineers in the field to
+  perform customized builds around the world. Helped set up and establish Swarm installation,
+  integration between Bugzilla and Perforce (P4DTG) on various vituralized hardware. Established
+  and maintained documentation of various Dev/Test/Prod environments throughout the organization.</p>
+
+  <hr noshade>
+
   <p><a href="http://www.axcient.com"><img src="Axcient.png" alt="Axcient" border="0"></a></p>
 
-  <p>July 2013 - Present<br>
+  <p>July 2013 - Dec 2013<br>
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_axcient.html">Workblog</a></p>
 
   <p>Worked as a Build and Release Engineer for AxOS. The Axcient product is
-  a customized derivative of Ubuntu. The SCM system being used is git.
+  a customized derivative of Ubuntu. The SCM system being used is git. Developed
+  and standardized procedures for performing builds.</p>
 
   <hr noshade>
-  
+
   <p><a href="http://www.broadcom.com"><img src="Broadcom.gif" alt="Broadcom" border="0"></a></p>
 
   <p>December 2011 - April 2013<br>
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_broadcom.html">Workblog</a></p>
 
-  <p>Worked as a Clearquest Designer and hook code writer. The Clearquest 
+  <p>Worked as a Clearquest Designer and hook code writer. The Clearquest
   database used Visual Basic. Implemented fixed and feature development for
   Clearquest as well as wrote several Perl scripts to perform data maintenance as
   required by utilizing ClearSCM's <a href="/php/scm_man.php?file=lib/Clearcase.pm">Clearquest</a>
   module. Also utilized <a href="/php/scm_man.php?file=lib/Clearquest/Server.pm">Clearquest::Server<a/>,
-  <a href="/php/scm_man.php?file=lib/Clearquest/Client.pm">Clearquest::Client</a> 
+  <a href="/php/scm_man.php?file=lib/Clearquest/Client.pm">Clearquest::Client</a>
   and <a href="/php/scm_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a> modules.</p>
-  
-  <p>Worked with <a href="http://www.electric-cloud.com/products/electriccommander.php">Electric 
+
+  <p>Worked with <a href="http://www.electric-cloud.com/products/electriccommander.php">Electric
   Commander</a> migrating a group from their unsupported build environment into
   the standard Electric Commander based solution. This involved using Cygwin,
   bash and LSF to farm builds out to a pool of Windows servers to perform builds.
   Builds were down using Visual Studio 8.0, 9.0 and 10.0. Build system also used
   Perforce and Perforce trigger to fire builds as the engineers checked in code.</p>
-  
+
   <p>Implemented Perl module, <a href="/php/scm_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>,
   to replace a <a href="http://clearscm.com/clearquest/cqd/">Clearquest Daemon</a>
   that was in use so that systems that did not have Clearquest installed (e.g.
   Linux build machines) could talk to Clearquest to update defects when required.
   Modified Perforce and Git triggers to use this REST interface.</p>
-  
+
   <p>Served as a mentor to the group on issues of programming in Perl as well as
   using and configuring Eclipse IDE.</p>
 
   <hr noshade>
-  
+
   <p><a href="http://www.tellabs.com"><img src="Tellabs.gif" alt="Tellabs" border="0"></a></p>
 
   <p>March 2011 - December 2011<br>
