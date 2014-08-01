@@ -129,6 +129,11 @@ set -o emacs
 set -o monitor
 set +u
 
+# Shell options
+shopt -s autocd
+shopt -s cdspell
+shopt -s dirspell
+shopt -s histappend
 shopt -s lithist
 
 # Aliases:
