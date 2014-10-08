@@ -185,8 +185,12 @@ fi
 if [ -f "$SYSTEMDRIVE/Perl/bin/perl" ]; then
   alias asperl="$SYSTEMDRIVE/Perl64/bin/perl"
 fi
-  
-export LANG=C
+
+if [ $(locale -a | grep -c en_US.utf8) != 0 ]; then
+  export LANG=en_US.utf8
+else
+  export LANG=C
+fi
 
 if [ $(type -p vim) ]; then
   alias vi=vim
