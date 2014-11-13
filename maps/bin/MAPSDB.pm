@@ -814,10 +814,10 @@ sub OpenDB ($$) {
 
   my $dbname   = 'MAPS';
   my $dbdriver = 'mysql';
-  my $dbserver = $ENV{MAPS_SERVER} ? $ENV{MAPS_SERVER} : 'jupiter';
+  my $dbserver = $ENV{MAPS_SERVER} || 'jupiter';
 
   if (!$DB || $DB eq '') {
-    $dbserver='localhost';
+    #$dbserver='localhost';
     $DB = DBI->connect("DBI:$dbdriver:$dbname:$dbserver", $username, $password, {PrintError => 0})
       or die "Couldn't connect to $dbname database as $username\n" . $DBI::errstr;
   } # if
