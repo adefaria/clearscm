@@ -177,11 +177,14 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_audience.html">Workblog</a></p>
 
-  <p>Worked as a Linux Admin, Perforce Admin maintaining an inhouse developed build system
-  that utilizes Perl/PHP/Apache/Linux/Windows servers to allow engineers in the field to
-  perform customized builds around the world. Helped set up and establish Swarm installation,
-  integration between Bugzilla and Perforce (P4DTG) on various vituralized hardware. Established
-  and maintained documentation of various Dev/Test/Prod environments throughout the organization.</p>
+  <p>Worked in the Devops group performing Linux Admin, Perforce Admin and
+  maintaining an inhouse developed build system that utilizes Perl/PHP/Apache/Linux/Windows
+  servers to allow engineers in the field to perform customized builds around the
+  world. Helped set up and establish Perforce Swarm installation, integration between
+  Bugzilla and Perforce (P4DTG) on various vituralized hardware. Established and
+  maintained documentation of various Dev/Test/Prod environments throughout the
+  organization. Wrote scripts to import data from Bugzilla to JIRA, assisted with
+  JIRA setup and integration of Salesforce with JIRA.</p>
 
   <hr noshade>
 
