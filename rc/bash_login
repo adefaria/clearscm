@@ -264,6 +264,9 @@ if [ -d /opt/clearscm/lib ]; then
   export PERL5LIB="$PERL5LIB:/opt/clearscm/lib"
 fi
 
+# Lessfile
+eval $(lessfile)
+
 # Client specific customizations
 for script in $(\ls ~/.rc/client_scripts); do
   # This is not working as long as ACLs are not supported from the remote
