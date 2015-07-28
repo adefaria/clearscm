@@ -685,7 +685,7 @@ Returns:
 
   display "\$ $cmd", $self->{handle} if get_debug;
 
-  my $status = open my $output, '|', "$cmd 2>&1";
+  my $status = open my $output, '-|', "$cmd 2>&1";
 
   if (!$status) {
     $self->{error}++;
