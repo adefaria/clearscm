@@ -187,7 +187,6 @@ function stoptimer () {
   JIRA setup and integration of Salesforce with JIRA.</p>
 
   <p>Also helped administer and support a wide array of engineering tools such as Perforce, Jama, Jira, Git, Gerrit, Bugzilla, Autobuilder, Build Script, Jenkins, Confluence and Swarm.</p>
-
   <hr noshade>
 
   <p><a href="http://www.axcient.com"><img src="Axcient.png" alt="Axcient" border="0"></a></p>
