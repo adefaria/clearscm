@@ -11,6 +11,22 @@
 # (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
 #
 ################################################################################
+# The following will set HOME, temporarily, to the directory of my $HOME so that
+# somebody other than me can envoke my startup scripts. I use this mainly for
+# when I become root with sudo -s and what a better environment that the bare
+# bones root environment gives you. Note that for us to be effective one must
+# source (or .) this file and if so the ${BASH_ARGV[0]} is the normal $0
+home=$(dirname ${BASH_ARGV[0]})
+
+# Strip off .rc
+home=${home/%\/\.rc/}
+
+# Now set $HOME if $home is different.
+saved_home=$HOME
+if [ "$HOME" != "$home" ]; then
+  HOME=$home
+fi
+
 # Set ARCHITECTURE of the machine
 KERNEL=$(uname -s)
 if [[ $KERNEL = CYGWIN* ]]; then
@@ -129,6 +145,11 @@ set -o emacs
 set -o monitor
 set +u
 
+# Shell options
+shopt -s autocd
+shopt -s cdspell
+shopt -s dirspell
+shopt -s histappend
 shopt -s lithist
 
 # Aliases:
@@ -164,8 +185,12 @@ fi
 if [ -f "$SYSTEMDRIVE/Perl/bin/perl" ]; then
   alias asperl="$SYSTEMDRIVE/Perl64/bin/perl"
 fi
-  
-export LANG=C
+
+if [ $(locale -a | grep -c en_US.utf8) != 0 ]; then
+  export LANG=en_US.utf8
+else
+  export LANG=C
+fi
 
 if [ $(type -p vim) ]; then
   alias vi=vim
@@ -239,6 +264,9 @@ if [ -d /opt/clearscm/lib ]; then
   export PERL5LIB="$PERL5LIB:/opt/clearscm/lib"
 fi
 
+# Lessfile
+eval $(lessfile)
+
 # Client specific customizations
 for script in $(\ls ~/.rc/client_scripts); do
   # This is not working as long as ACLs are not supported from the remote
@@ -254,6 +282,9 @@ done
 
 # Set display to local
 export DISPLAY=${DISPLAY:-:0}
+
+# Reset home in case it changed
+HOME=$saved_home
 
 # Now go home (in case we were not autmatically cd'ed there)
 if [ $(id -u) -ne 0 ]; then

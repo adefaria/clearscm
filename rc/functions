@@ -19,7 +19,13 @@ view_name=
 
 # Function to set the title bar. Works on the terminal emulators listed.
 function title_bar {
+  if [ $# -gt 1 ]; then
+    ROOT=shift
+    ROOT="${NORMAL}\($ROOT\)"
+  fi
+
   prefix="$@"
+
   # Change $HOME -> ~
   if [ "${PWD#$HOME*}" != "$PWD" ]; then
     current_dir="~${PWD#$HOME*}"
@@ -53,7 +59,8 @@ function title_bar {
     string=$(echo "${SYSNAME##*:}:$@")
     echo -n "${ESC}]2;$string\007"
   elif [ "$TERM" = "cygwin" -o "$TERM" = "vt100" -o "$TERM" = "xterm" ]; then
-    PS1="\[\e]0;$prefix$current_dir\a\e[01;33m\]$SYSNAME:\[\e[0m\]"
+    # Here's where we set the prompt with root
+    PS1="\[\e]0;$prefix$current_dir\a$AQUA\]$ROOT\[$YELLOW\]$SYSNAME:\[$NORMAL\]"
   fi
 } # title_bar
 
@@ -96,7 +103,7 @@ function set_title {
     view_name=""
     title_bar "$ROOT"
   else
-    title_bar "${ROOT}View: $view_name: "
+    title_bar "$ROOT" "View: $view_name: "
   fi
 
   icon_name "${SYSNAME##*:}"

@@ -178,7 +178,7 @@ sub SendEmail ($$$$$) {
   mail (
     from	=> "BICE\@$domain",
     to		=> $to,
-    cc		=> $contact,
+    #cc		=> $contact,
     subject	=> $subject,
     mode	=> 'html',
     data	=> $message,
