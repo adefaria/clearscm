@@ -1,0 +1,24 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: Audience,v $
+# Revision:	$Revision: 1.0 $
+# Description:	Client specific start up for Audience
+# Author:       Andrew@ClearSCM.com
+# Created:      Fri Nov  8 13:50:01 PST 2013
+# Modified:     $Date: $
+# Language:     bash
+#
+# (c) Copyright 2013, ClearSCM, Inc., all rights reserved.
+#
+################################################################################
+export SMTPHOST=cas.audience.local
+export SMTPFROM=cm@audience.com
+export CLEARADM_SERVER=adefaria-lt
+export P4CONFIG=.p4config
+
+append_to_path /cygdrive/c/Program\ Files/Perforce
+append_to_path /cygdrive/c/Program\ Files\ \(x86\)/MATLAB/R2013a/bin
+append_to_path /mnt/fs-ReleaseEng/Dev/bin
+
+export CDPATH=~/p4/prod/AudEngr/Import/VSS/ReleaseEng

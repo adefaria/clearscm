@@ -5,6 +5,7 @@ ct=cleartool $*
 grep=findstr $*
 rm=del $*
 cp=copy $*
+mv=copy $*
 cat=type $*
 history=doskey /history
 asperl=C:\Perl\bin\perl $*

@@ -529,7 +529,7 @@ Returns:
 
 =cut
 
-  open my $pipe, '|', $to 
+  open my $pipe, '|-', $to 
     or error "Unable to open pipe - $!", 1;
 
   foreach (@output) {
@@ -827,7 +827,8 @@ and the values of the hash will be the counters.
 
 =item $log
 
-Logger object to log stats to (if specified)
+Logger object to log stats to (if specified). Note: if the Logger object has 
+errors or warnings then they will be automatically included in the output.
 
 =back
 
@@ -849,7 +850,12 @@ Returns:
 
   my $msg = "$FindBin::Script Run Statistics:";
   
-  if (scalar keys %$total) {
+  if ($log and ref $log eq 'Logger') {
+    $total->{errors}   = $log->{errors};
+    $total->{warnings} = $log->{warnings};
+  } # if
+  
+  if (keys %$total) {
     # Display statistics (if any)
     if ($log) {
       $log->msg ($msg);
@@ -858,10 +864,10 @@ Returns:
     } # if
 
     foreach (sort keys %$total) {
-      $msg = $$total{$_} . "\t $_";
+      $msg = $total->{$_} . "\t $_";
       
       if ($log) {
-        $log->msg ($$total{$_} . "\t $_");
+        $log->msg ($total->{$_} . "\t $_");
       } else {
         display $msg;
       } # if
