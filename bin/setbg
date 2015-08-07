@@ -140,7 +140,7 @@ while () {
   my $image = escapeHTML ($images[int (rand $#images)]);
 
   open my $log, '>', "$ENV{HOME}/.$FindBin::Script"
-    or error "Unable to open $ENV{HOME}/.setbg for writing - $!", 1;
+    or error "Unable to open $ENV{HOME}/.$FindBin::Script for writing - $!", 1;
 
   display $image, $log;
 
