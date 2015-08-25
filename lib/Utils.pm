@@ -74,6 +74,7 @@ our @EXPORT = qw (
   GetChildren
   GetPassword
   InArray
+  LoadAvg
   PageOutput
   PipeOutput
   PipeOutputArray
@@ -430,6 +431,60 @@ Returns:
   return $FALSE;
 } # InArray
 
+sub LoadAvg () {
+
+=pod
+
+=head2 LoadAvg ()
+
+Return an array of the 1, 5, and 15 minute load averages.
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item An array of the 1, 5, and 15 minute load averages in a list context.
+In a scalar context just the 1 minute load average.
+
+=back
+
+=for html </blockquote>
+
+=cut  
+
+  # TODO: Make it work on Windows...
+  return if $^O =~ /win/i;
+  
+  open my $loadAvg, '/proc/loadavg'
+    or croak "Unable to open /proc/loadavg\n";
+    
+  my $load = <$loadAvg>;
+  
+  close $loadAvg;
+  
+  my @loadAvgs = split /\s/, $load;
+  
+  if (wantarray) {
+    return @loadAvgs;
+  } else {
+    return $loadAvgs[0]; # This is the 1 minute average
+  }
+} # LoadAvg
+
 our $pipe;
 
 sub StartPipe ($;$) {
@@ -529,7 +584,7 @@ Returns:
 
 =cut
 
-  open my $pipe, '|-', $to 
+  open my $pipe, '|', $to 
     or error "Unable to open pipe - $!", 1;
 
   foreach (@output) {
