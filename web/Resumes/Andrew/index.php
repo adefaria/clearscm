@@ -230,6 +230,7 @@ function stoptimer () {
 
   <p>March 2011 - December 2011<br>
   <font class=dim>Contract</font><br>
+  <a href="#">Tellabs</a></font>
 
   <p>Automated various informational systems using Perl/MySQL/Oracle and the web.</p>
 
