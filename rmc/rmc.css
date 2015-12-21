@@ -1,0 +1,355 @@
+/*******************************************************************************
+*
+* File:        $RCSfile: rmc.css,v $
+* Revision:    $Revision: 1 $
+* Description: Cascading Style Sheet definitions for rmc
+* Author:      Andrew@ClearSCM.com
+* Created:     Tue May 27 20:48:21 PDT 2014
+* Modified:    $Date: $
+* Language:    Cascading Style Sheet
+*
+* (c) Copyright 2014, Audience, all rights reserved.
+*
+*******************************************************************************/
+body {
+  font-size: 11px;
+  color: black;
+  /*background-color:#f1f1ed;*/
+  margin: 0px;
+  /*padding: 0; */
+  /*overflow:scroll;*/
+}
+
+body,p,h1,h2,h3,table,td,th,ul,ol,textarea,input {
+  font-family: verdana, helvetica, arial, sans-serif;
+}
+
+h1.title {
+  font-size: 3em;
+  color: #838;
+  text-shadow: 3px 2px 5px #666;
+}
+.nobr {
+  white-space: nowrap;
+  wrap: off;
+}
+
+table.noborder {
+  border: none;
+}
+
+table.noborder td {
+  border: none;
+}
+
+td.noboder {
+  border-top: none;
+}
+
+table.invisible1 {
+  border: none;
+  border-collapse: collapse;
+}
+
+.indent {
+  display: block;
+  margin-left: 50px;
+}
+
+table {
+  border: 1px solid #c3c3c3;
+  padding: 3px;
+  border-collapse: collapse;
+}
+
+table.framework {
+  /*border:none;*/
+  border-collapse: collapse;
+  /*width:100%;*/
+}
+
+table.frameworktop {
+  border: none;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+tr.highlighthover:hover {
+  background-color: #FFF8F0;
+  color: #000;
+}
+
+td.highlighthover:hover {
+  background-color: #F8F0F0;
+  color: #000;
+}
+
+caption {
+  font-size: 130%;
+  font-weight: bold;
+  text-align: left;
+  padding-bottom: 2px;
+}
+
+.envbanner {
+  color: RED;
+  font-weight: bold;
+  font-style: Italic;
+}
+
+.statuserrorfont {
+  color: RED;
+  /*font-weight:Bold;*/
+}
+
+.statusinprogressfont {
+  color: Blue;
+  font-style: Italic
+}
+
+.statusgoodfont {
+  color: #10B618;
+}
+
+span.rightalign {
+  /* display:block; */
+  display: block;
+  text-align: right;
+  padding: 0px;
+  margin: 0px;
+}
+
+table th {
+  vertical-align: top;
+  text-align: center;
+  border: 1px solid #c3c3c3;
+  padding: 3px;
+  background-color: #f0f0f0;
+}
+
+table td {
+  vertical-align: top;
+  /*text-align: left;*/
+  border: 1px solid #c3c3c3;
+  padding: 3px;
+}
+
+/* Sorting */
+th.table-sortable {
+    cursor:pointer;
+    /*background-image:url("/icons/sortable.gif");*/
+    background-position:center left;
+    background-repeat:no-repeat;
+    padding-left:12px;
+}
+th.table-sorted-asc {
+    background-image:url("/icons/sorted_up.gif");
+    background-position:center left;
+    background-repeat:no-repeat;
+}
+th.table-sorted-desc {
+    background-image:url("/icons/sorted_down.gif");
+    background-position:center left;
+    background-repeat:no-repeat;
+}
+
+table.framework td.frameworkleft /*td.frameworkleft */ {
+  /*background: #ffff00;*/
+  width: 15em;
+  min-width: 15em;
+  max-width: 15em;
+  vertical-align: top;
+  border-collapse: collapse;
+  border-left-width: 0px;
+  border-right-width: 1px;
+  border-top-width: 0px;
+  border-bottom-width: 0px;
+  /*width:15%;*/
+  /*max-width:80px;*/
+}
+
+table.framework td.frameworkcenter {
+  /*border:3px red;*/
+  border-collapse: collapse;
+  border-left-width: 0px;
+  border-right-width: 0px;
+  border-top-width: 0px;
+  border-bottom-width: 0px;
+  /*width:75%;*/
+}
+
+table.frameworktop td.frameworktop {
+  border-collapse: collapse;
+  border: none;
+}
+
+table.framework td.frameworkright {
+  border-collapse: collapse;
+  border-left-width: 0px;
+  border-right-width: 0px;
+  border-top-width: 0px;
+  border-bottom-width: 0px;
+  width: 5%; /* modify if there is content */
+}
+smallfiltericon {
+  width: 8px;
+  min-width: 8px;
+  max-width: 8px;
+  width: 8px;
+  visibility: hidden;
+}
+
+h1,h2,h3 {
+  background-color: transparent;
+  color: #000000;
+  margin-bottom: 3px;
+}
+
+pre {
+  font-family: "Courier New", monospace;
+  margin-left: 0;
+  margin-bottom: 0;
+  white-space: pre-wrap;
+}
+
+span.show {
+  display: block;
+}
+
+span.hide {
+  visibility: hidden;
+}
+
+a:link {
+  text-decoration: none;
+  color: #5150F7;
+}
+
+a:visited {
+  color: #8E0094;
+}
+
+a:hover,a:active {
+  text-decoration: none;
+  border-bottom-width: 1px;
+  border-bottom-style: dotted;
+}
+
+a.downloadgood {
+  color: #10B618;
+}
+
+
+hr {
+  background-color: #d4d4d4;
+  color: #d4d4d4;
+  height: 1px;
+  border: 0px;
+}
+
+
+span.insert {
+  color: #e80000;
+  background-color: transparent;
+}
+
+span.highlight_code {
+  color: #e80000;
+  background-color: transparent;
+}
+
+a.m_item:link {
+  text-decoration: none;
+  color: white;
+  background-color: transparent
+}
+
+a.m_item:visited {
+  text-decoration: none;
+  color: white;
+  background-color: transparent
+}
+
+a.m_item:active {
+  text-decoration: underline;
+  color: white;
+  background-color: transparent
+}
+
+a.m_item:hover {
+  text-decoration: underline;
+  color: white;
+  background-color: transparent
+}
+
+a.bold {
+  font-weight: bold;
+}
+
+table.noborder td {
+  border: none;
+}
+
+table.dashboardtable th {
+  border: none;
+  background-color: none;
+  border-bottom: 1px solid #000000;
+  border-top: 1px solid #000000;
+}
+
+div.showdiv {
+  display: block;
+}
+
+div.hidediv {
+  display: none;
+}
+
+div.inline {
+  display: inline;
+}
+
+greyfont {
+  font-color: red;
+}
+
+img {
+  border: none;
+}
+
+/* Copyright block */
+.copyright {
+  border-bottom:1px dotted #ccc;
+  border-top:1px dotted #ccc;
+  color:#999;
+  font-family:verdana, arial, sans-serif;
+  font-size:10px;
+  margin-top:5px;
+  text-align:center;
+  width:auto;
+}
+
+.copyright a:link, a:visited {
+  color:#666;
+  font-weight:bold;
+  text-decoration:none;
+}
+
+.copyright a:hover {
+  color:#333;
+}
+
+.error {
+  color:red;
+  font-weight:bold;
+}
+
+.dim {
+  color: #aaa;
+}
+
+pre.code {
+  display: inline;
+  white-space: pre-line;
+  font-family: monospace;
+}
