@@ -195,6 +195,18 @@ function ssh {
   set_prompt
 } # ssh
 
+function processRunning {
+  if [ $ARCHITECTURE = "FreeBSD" ]; then
+    psopts="-aux"
+  else
+    psopts="-ef"
+  fi
+
+  if [ $1 != '' ]; then
+    return $(ps $psopts | grep "$1" | grep -v "grep $1" | grep -v "grep -d skip" | wc -l)
+  fi
+} # processRunning
+
 function sj {
   if [ $ARCHITECTURE = "FreeBSD" ]; then
     psopts="-aux"
@@ -248,17 +260,47 @@ function cmdline {
 } # cmdline
 
 function user {
+  processRunning ypbind;  ypbind=$?
+  processRunning winbind; winbind=$?
+
   if [ $# -gt 0 ]; then
-    ypcat passwd | grep -i $@
+    if [ $ypbind -gt 0 ]; then
+      ypcat passwd | grep -i $@
+    elif [ $winbind -gt 0 ]; then
+      for user in $(wbinfo -u | grep -i $@); do
+        wbinfo --user-info $user
+      done
+    fi
   else
-    ypcat passwd | $PAGER
+    if [ $ypbind -gt 0 ]; then
+      ypcat passwd | $PAGER
+    elif [ $wbind -gt 0 ]; then
+      for user in $(wbinfo -u); do
+        wbinfo --user-info $user
+      done | $PAGER
+    fi
   fi
 } # user
 
 function group {
+  processRunning ypbind;  ypbind=$?
+  processRunning winbind; winbind=$?
+
   if [ $# -gt 0 ]; then
-    ypcat group | grep -i $@
+    if [ $ypbind -gt 0 ]; then
+      ypcat group | grep -i $@
+    elif [ $winbind -gt 0 ]; then
+      for group in $(wbinfo -g | grep -i $@); do
+        wbinfo --group-info $group
+      done
+    fi
   else
-    ypcat group | $PAGER
+    if [ $ypbind -gt 0 ]; then
+      ypcat group | $PAGER
+    elif [ $winbind -gt 0 ]; then
+      for group in $(wbinfo -g); do
+        wbinfo --group-info $group
+      done | $PAGER
+    fi
   fi
 } # group
