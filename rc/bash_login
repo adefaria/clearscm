@@ -16,7 +16,11 @@
 # when I become root with sudo -s and what a better environment that the bare
 # bones root environment gives you. Note that for us to be effective one must
 # source (or .) this file and if so the ${BASH_ARGV[0]} is the normal $0
-home=$(dirname ${BASH_ARGV[0]})
+if [ -n "${BASH_ARGV[0]}" ]; then
+  home=$(dirname ${BASH_ARGV[0]})
+else
+  home=$HOME
+fi
 
 # Strip off .rc
 home=${home/%\/\.rc/}
@@ -146,9 +150,12 @@ set -o monitor
 set +u
 
 # Shell options
-shopt -s autocd
+if ! grep -qP '5\.(6|7|8|9|10)' /etc/*release; then
+  shopt -s autocd
+  shopt -s dirspell
+fi
+
 shopt -s cdspell
-shopt -s dirspell
 shopt -s histappend
 shopt -s lithist
 
@@ -265,7 +272,9 @@ if [ -d /opt/clearscm/lib ]; then
 fi
 
 # Lessfile
-eval $(lessfile)
+if type lessfile > /dev/null 2>&1; then
+  eval $(lessfile)
+fi
 
 # Client specific customizations
 for script in $(\ls ~/.rc/client_scripts); do

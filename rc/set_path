@@ -71,19 +71,20 @@ path_dirs="$path_dirs\
   /opt/Rational/Clearcase/bin\
   /opt/Rational/ClearQuest\
   /opt/Rational/Common\
-  /bin\
-  /sbin\
   /usr/local/mysql/bin\
   /usr/local/maps/bin\
+  /usr/local/ddts/bin\
+  /usr/local/bin\
   /usr/afsws/bin\
   /usr/afsws\
+  /bin\
+  /sbin\
   /usr/bin\
   /usr/X11R6/bin\
   /usr/bin/X11\
-  /usr/local/ddts/bin\
-  /usr/local/bin\
   /usr/dt/bin\
   /usr/openwin/bin\
+  /usr/kerberos/bin\
   /opt/rational/clearcase/bin\
   /opt/ibm/rationalsdlc/clearcase/bin\
   /opt/ibm/rationalsdlc/clearcase/etc\
