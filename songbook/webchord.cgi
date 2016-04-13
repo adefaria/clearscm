@@ -143,32 +143,33 @@ body {
 h1 {
   text-align: center;
   font-family: Arial, Helvetica;
-  font-size: 32pt;
+  font-size: 24;
+  line-height: 10%;
 }
 h2 {
   text-align: center;
   font-family: Arial, Helvetica;
-  font-size: 24pt;
+  font-size: 18;
+  line-height: 50%;
 }
 .lyrics, .lyrics_chorus {
-  font-size: 18pt;
+  font-size: 10pt;
 }
 .lyrics_tab, .lyrics_chorus_tab {
   font-family: "Courier New", Courier;
-  font-size: 18pt;
+  font-size: 10pt;
 }
 .lyrics_chorus, .lyrics_chorus_tab, .chords_chorus, .chords_chorus_tab {
   font-weight: bold;
 }
 .chords, .chords_chorus, .chords_tab, .chords_chorus_tab {
-  font-size: 18pt;
+  font-size: 10pt;
   color: blue;
-  padding-right:
-  4pt;
+  padding-right: 4pt;
 }
 .comment, .comment_italic {
   color: #999;
-  font-size: 18pt;
+  font-size: 10pt;
 }
 .comment_box {
   background-color: #ffbbaa;
