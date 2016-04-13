@@ -16,6 +16,7 @@ export SMTPHOST=cas.audience.local
 export SMTPFROM=cm@audience.com
 export CLEARADM_SERVER=adefaria-lt
 export P4CONFIG=.p4config
+export P4USER=adefaria
 
 append_to_path /cygdrive/c/Program\ Files/Perforce
 append_to_path /cygdrive/c/Program\ Files\ \(x86\)/MATLAB/R2013a/bin
