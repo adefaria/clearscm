@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+y<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
    "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
@@ -62,7 +62,7 @@ function stoptimer () {
 <table align="center" width="400">
   <tr>
     <td>
-      <marquee behavior="alternate" onmouseover="this.stop()" onmouseout="this.start()"><a id="blink" href="Resume.doc">Download an MS Word copy!</a></marquee><br>
+      <marquee behavior="alternate" onmouseover="this.stop()" onmouseout="this.start()"><a id="blink" href="Resume.odt">Download an MS Word copy!</a></marquee><br>
     </td>
   </tr>
     <td align="center">
@@ -95,34 +95,85 @@ function stoptimer () {
 
   <p><span class="standout">Linux</span> (Redhat, Centos, Ubuntu),
   <span class="standout">Windows</span>, <span class="standout">Unix</span>
-  (Solaris, HP-UX).</p>
+  (Solaris, HP-UX), <span class="standout"><a href="http://cygwin.com">Cygwin</a></span></p>
 
   <h3>Networking</h3>
 
-  <p>Knowledge of TCP/IP, Windows and Unix Networking, <span
+  <p>TCP/IP, Windows and Unix Networking, <span
   class="standout">Active Directory/LDAP</span>, <span
-  class="standout">Samba</span>.</p>
+  class="standout">Samba</span></p>
 
   <h3>Software</h3>
 
-  <p><span class="standout">Clearcase</span>,
-  <span class="standout">Clearquest</span>, <span class="standout">git</span>,
-  <span class="standout">Perforce</span>, <span class="standout">Perl</span>,
-  <span class="standout">Bash</span>, <span class="standout">PHP</span>,
-  Apache, <span class="standout">Build Forge</span>, <span
-  class="standout">VMWare</span>, <span class="standout">MySQL</span>,
-  C++, <a href="http://cygwin.com">Cygwin</a>.</p>
+  <table align=center border=1 cellspacing=0 cellpadding=2 width="60%">
+    <tbody>
+      <tr>
+        <td>Version Control Systems</td>
+        <td>
+          <span class="standout">Git</span>, <span class="standout">Perforce</span>,
+          <span class="standout">Clearcase</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Issue Tracking</td>
+        <td>
+          <span class="standout">JIRA</span>, <span class="standout">Clearquest</span>,
+          <span class="standout">Bugzilla</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Languages</td>
+        <td>
+          <span class="standout">Perl</span>, <span class="standout">Bash</span>,
+          <span class="standout">PHP</span>, <span class="standout">C++</span>,
+          <span class="standout">C</span>, <span class="standout">Ada</span>,
+          <span class="standout">TCL</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Middleware</td>
+        <td>
+          <span class="standout">Apache</span>, <span class="standout">Tomcat</span>,
+          <span class="standout">Samba</span>, <span class="standout">Winbind</span>,
+          <span class="standout">LDAP</span>, <span class="standout">REST</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Web Apps</td>
+        <td>
+          <span class="standout">JIRA</span>, <span class="standout">Confluence</span>,
+          <span class="standout">Swarm</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Databases</td>
+        <td>
+          <span class="standout">MySQL</span>, <span class="standout">Oracle</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Coninuous Integration</td>
+        <td>
+          <span class="standout">Build Forge</span>, <span class="standout">Electric Commander</span>,
+          <span class="standout">Jenkins</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Virtualization</td>
+        <td>
+          <span class="standout">VMWare</span>, <span class="standout">VirtualBox</span>,
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
   <h3>Education</h3>
 
-  <p>A.A.S. in Computer Science from Union County College in Scotch
-  Plains, New Jersey.</p>
+  <p>
+    A.A.S. in Computer Science from Union County College in Scotch Plains, New
+    Jersey. Continued studies at Fairleigh Dickenson University,  San Jose State
 
-  <p>Attended approximately one year at Fairleigh Dickenson
-  University, Rutherford, New Jersey, in pursuit of BS in Computer
-  Science, concentrating on computer courses. Have also attended San
-  Jose State University, Mission College and Chico State in pursuit of
-  my degree.</p>
+    University, Mission College and Chico State in pursuit of my degree.</p>
 
   <h3>References</h3>
 
@@ -167,24 +218,29 @@ function stoptimer () {
 
   <h2>Clients</h2>
 
-  <p><a href="http://audience.com"><img alt="Audience" src="Audience.png" border="0"></a></p>
+  <p><a href="http://audience.com"><img alt="Audience" src="Audience.png" border="0"></a><br><b>A Knowles Company</b></p>
 
   <p>March 2014 - Present<br>
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_audience.html">Audience</a></p>
 
-  <p>Worked in the Devops group performing Linux Admin, Perforce Admin and
-  maintaining an inhouse developed build system that utilizes Perl/PHP/Apache/Linux/Windows
-  servers to allow engineers in the field to perform customized builds around the
-  world. Helped set up and establish Perforce Swarm installation, integration between
-  Bugzilla and Perforce (P4DTG) on various vituralized hardware. Established and
-  maintained documentation of various Dev/Test/Prod environments throughout the
-  organization. Wrote scripts to import data from Bugzilla to JIRA, assisted with
-  JIRA setup and integration of Salesforce with JIRA.</p>
+  <p>Served in the <span class="standout">Devops</span> group as admin for
+  <span class="standout">JIRA</span>, <span class="standout">Perforce</span>,
+  <span class="standout">Swarm</span> (code review tool), <span class="standout">Git
+  Fusion</span>, <span class="standout">Linux</span> (<span class="standout">Centos</span>/<span class="standout">Ubuntu</span>/<span class="standout">Redhat Enterprise</span>).
+  Maintained custom build system that utilized <span class="standout">Perl</span>/<span class="standout">PHP</span>/<span class="standout">Apache</span>/<span class="standout">Linux</span>/<span class="standout">Windows</span>
+  servers to allow engineers in the field to perform customized builds. Integrated
+  <span class="standout">Bugzilla</span> and Perforce (P4DTG). Wrote scripts to
+  import data from Bugzilla to JIRA, assisted with JIRA setup and integration of
+  <span class="standout">Salesforce</span> with JIRA. Assisted in the migration
+  for users to new Knowles domain.</p>
 
-  <p>Also helped administer and support a wide array of engineering tools such
-  as Perforce, Jama, Jira, Git, Gerrit, Bugzilla, Autobuilder, Build Script,
-  Jenkins, Confluence and Swarm.</p>
+  <p>Tools used: <span class="standout">Perforce</span>, <span class="standout">Jama</span>,
+  <span class="standout">JIRA</span>, <span class="standout">Git</span>, <span class="standout">Gerrit</span>,
+  <span class="standout">Bugzilla</span>, <span class="standout">Autobuilder</span>,
+  <span class="standout">Build Script</span>, <span class="standout">Jenkins</span>,
+  <span class="standout">Confluence</span> and <span class="standout">Swarm</span>.</p>
+
   <hr noshade>
 
   <p><a href="http://www.axcient.com"><img src="Axcient.png" alt="Axcient" border="0"></a></p>
@@ -193,9 +249,10 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_axcient.html">Axcient</a></p>
 
-  <p>Worked as a Build and Release Engineer for AxOS. The Axcient product is
-  a customized derivative of Ubuntu. The SCM system being used is git. Developed
-  and standardized procedures for performing builds.</p>
+  <p>Worked as a <span class="standout">Build and Release Engineer</span> for
+  AxOS. The Axcient product is a customized derivative of <span class="standout">Ubuntu</span>.
+  The SCM system being used is <span class="standout">git</span>. Developed and
+  standardized procedures for performing builds.</p>
 
   <hr noshade>
 
@@ -205,24 +262,27 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_broadcom.html">Broadcom</a></p>
 
-  <p>Clearquest Designer and hook code writer. The Clearquest database used
-  Visual Basic. Integrated this Clearquest server by utilizing ClearSCM's
-  <a href="/php/scm_man.php?file=lib/Clearcase.pm">Clearquest</a>
-  module as well as
-  <a href="/php/scm_man.php?file=lib/Clearquest/Server.pm">Clearquest::Server</a>,
-  <a href="/php/scm_man.php?file=lib/Clearquest/Client.pm">Clearquest::Client</a>
-  and <a href="/php/scm_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>
-  modules so that systems that did not have Clearquest installed (e.g. Linux
+  <p><span class="standout">Clearquest Designer</span> and hook code writer. The
+  Clearquest database used <span class="standout">Visual Basic</span>. Integrated
+  this Clearquest server by utilizing ClearSCM's <a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase.pm">Clearquest</a>
+  module as well as <a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearquest/Server.pm">Clearquest::Server</a>,
+  <a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearquest/Client.pm">Clearquest::Client</a>
+  and <a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>
+  modules so that systems that did not have Clearquest installed (e.g. <span class="standout">Linux</span>
   build machines) could talk to Clearquest to update defects when required. Used
-  the, Clearquest::REST, to replace a Clearquest Daemon that was in use.
-  Modified Perforce and Git triggers to use this REST interface.</p>
+  the, <a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>,
+  to replace a <a href="http://clearscm.com/clearquest/cqd/">Clearquest Daemon</a>
+  that was in use. Modified <span class="standout">Perforce</span> and <span class="standout">Git</span>
+  triggers to use this REST interface.</p>
 
-  <p>Worked with <a href="http://www.electric-cloud.com/products/electriccommander.php">Electric Commander</a>
+  <p>Worked with <span class="standout"><a href="http://www.electric-cloud.com/products/electriccommander.php">Electric Commander</a></span>
   migrating a group from their unsupported build environment into the standard
-  Electric Commander based solution. This involved using Cygwin, bash and LSF to
-  farm builds out to a pool of Windows servers to perform builds. Builds were
-  done using Visual Studio 8.0, 9.0 and 10.0. Build system also used Perforce
-  and Perforce trigger to fire builds as the engineers checked in code.</p>
+  Electric Commander based solution. This involved using <span class="standout">Cygwin</span>,
+  <span class="standout">bash</span> and <span class="standout">LSF</span> to
+  farm builds out to a pool of <span class="standout">Windows</span> servers to
+  perform builds. Builds were done using <span class="standout">Visual Studio 8.0</span>,
+  9.0 and 10.0. Build system also used Perforce and Perforce trigger to fire builds
+  as the engineers checked in code.</p>
 
   <hr noshade>
 
@@ -232,13 +292,14 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="#">Tellabs</a></font>
 
-  <p>Automated various informational systems using Perl/MySQL/Oracle and the web.</p>
+  <p>Automated various informational systems using <span class="standout">Perl</span>/
+  <span class="standout">MySQL</span>/<span class="standout">Oracle</span>, and the web.</p>
 
   <p>Developed a command line debugger called raid which provided a consistent
   interface with complete command history and variable substitution. This Perl
-  process utilized Inline::C to interface to the developer libraries and provide
-  a consistent interface for the various command line debuggers developed by
-  various different groups.</p>
+  process utilized <span class="standout">Inline::C</span> to interface to the
+  developer libraries and provide a consistent interface for the various command
+  line debuggers developed by various different groups.</p>
 
   <hr noshade>
 
@@ -248,12 +309,10 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_general_electric.html">General Electric</a></font>
 
-  <p>Performed Clearcase/Clearquest administration with an emphasis on UCM
-  administration. Wrote several Perl scripts including an
-  <a
-  href="http://clearscm.com/php/scm_man.php?file=cc/etf.pl">Evil Twin Finder</a>.
-  Created UCM Projects and streams as appropriate as well as created and updated
-  Build Forge jobs to automate work flow.</p>
+  <p>Performed <span class="standout">Clearcase</span>/<span class="standout">Clearquest UCM</span>
+  administration. Developed an <a href="http://clearscm.com/php/cvs_man.php?file=cc/etf.pl">Evil Twin Finder</a>
+  in Perl. Worked with <span class="standout">Build Forge</span> (IBM's CI tool
+  similar to <span class="standout">Jenkins</span>) jobs to automate work flow.</p>
 
   <hr noshade>
 
@@ -263,24 +322,19 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html">General Dynamics</a></font>
 
-  <p>Clearcase/Clearquest Administrator, Build Release and Automation using Perl
-  scripts. Updated C++/Qt application that integrates UCM/Clearquest integrated
-  environment into one tool.</p>
+  <p><span class="standout">Clearcase</span>/<span class="standout">Clearquest</span>
+  Administrator, <span class="standout">Build Release</span> and <span class="standout">Automation</span>
+  using <span class="standout">Perl</span> scripts. Updated <span class="standout">C++</span>/<span class="standout">Qt</span>
+  application that integrates <span class="standout">UCM</span>/Clearquest
+  integrated environment into one tool and ported it to Linux.</p>
 
   <p>Instrumental in establishment of Perl standards and introduction of Perl
-  tools such as <a href="http://perlcritic.com/">Perl::Critic</a> and
-  <a href="http://perltidy.sourceforge.net/">Perl::Tidy</a>. Worked at promoting
-  usage of CPAN modules.</p>
+  tools such as <a href="v">Perl::Critic</a> and <a href="http://perltidy.sourceforge.net/">Perl::Tidy</a>.
+  Worked at promoting usage of CPAN modules.</p>
 
-  <p>Developed test driver application that automated tests using
-  <a href="https://www.nethawk.fi/products/nethawk_simulators/">NetHawk EAST
-  Simulators</a>. Automated regression tests, official testing, collecting of
-  log files, checking log files into Clearcase and records status into a MySQL
-  database. Developed a PHP web page to present the data in various forms
-  including graphs, reports, exporting to CSV files and emailing of reports.</p>
-
-  <p>Worked on many enhancements to the extensive Clearquest system in use at
-  GD including the required forms and action hook code.</p>
+  <p>Automated tests using <a href="">NetHawk EAST Simulators</a> to automate
+  all testing and store results into a <span class="standout">MySQL</span> database.
+  Also developed a <span class="standout">PHP</span> app to report/graph results.</p>
 
   <hr noshade>
 
@@ -291,10 +345,10 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_texas_instruments.html">Texas Instruments</a></font>
 
-  <p>Clearcase/Clearquest Administrator. Responsible for development and
-  deployment of a Perl/Oracle application to track information about projects
-  worldwide. Automated Clearcase license usage reporting and load balancing of
-  Clearquest web servers.</p>
+  <p><span class="standout">Clearcase</span>/<span class="standout">Clearquest</span>
+  Administrator. Wrote a <span class="standout">Perl</span>/<span class="standout">Oracle</span>
+  application to track information about projects worldwide. Automated Clearcase
+  license usage reporting and load balancing of Clearquest web servers.</p>
 
   <hr noshade>
 
@@ -305,11 +359,11 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_hewlett_packard.html">Hewlett Packard</a></p>
 
-  <p>Clearcase/Clearquest Administrator assisting with UCM streams, rebases and
-  delivery issues. Wrote triggers to notify users of deliveries. Baselined
-  official builds as well as other release duties. Automated the build process
-  to perform simple continuous integration. Created a dynamic web page to show
-  Junit test history.</p>
+  <p><span class="standout">Clearcase</span>/<span class="standout">Clearquest UCM</span>
+  Administrator. Wrote triggers to notify users of deliveries. Baselined
+  official builds. Automated the build process to perform simple <span class="standout">continuous
+  integration</span>. Created a dynamic web page to show <span class="standout">Junit</span>
+  test history.</p>
 
   <hr noshade>
 
@@ -320,18 +374,14 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_broadcom.html">Broadcom</a></p>
 
-  <p>Clearcase/Clearquest Administrator and support of systems. Developed
-  several <a href="/clearcase/triggers.php">triggers</a>.</p>
+  <p><span class="standout">Clearcase</span>/<span class="standout">Clearquest</span>
+  Administrator and support of systems. Developed several <a href="http://clearscm.com/clearcase/triggers.php">triggers</a>.</p>
 
-  <p>Developed a complex <a href="/clearquest/db.php">Perl script</a> to merge
-  two Clearquest databases to a new database with many schema changes. This
-  script handled all aspects of the conversion including changing non US ASCII
-  characters found in the data to their HTML equivalents, dynamic creation of
-  dynamic lists, field renaming and dynamically creating new stateless records
-  as needed.</p>
+  <p>Wrote <a href="http://clearscm.com/clearquest/db.php">Perl script</a> to
+  merge Clearquest databases.</p>
 
-  <p>Designed and developed another Clearquest database for the Mobile
-  Multimedia group.</p>
+  <p>Designed and developed another Clearquest database for the Mobile Multimedia
+  group.</p>
 
   <hr noshade>
 
@@ -341,21 +391,13 @@ function stoptimer () {
   <p>December 2004 - September 2005<br>
   <a href="http://defaria.com/blogs/Status/archives/cat_lynuxworks.html">LynuxWorks</a></p>
 
-  <p>Served as a build engineer in the Integration Group responsible
-  for building LynxOS (Linux RTOS) as well as tool chains, testing,
-  releasing and process improvement. LynuxWorks uses CVS for version
-  control.</p>
+  <p>Build engineer building <span class="standout">LynxOS</span> (Linux RTOS)
+  as well as tool chains, testing, releasing and process improvement. LynuxWorks
+  uses <span class="standout">CVS</span> for version control.</p>
 
-  <p>Developed a process of providing full text search of the
-  company's defect database using Perl and Htdig (See <a
-  href="/scripts/ecrd">ECRDig</a>). Developed a web
-  based report to show CVS activity as well as several other CVS
-  related utilities(See <a href="http://defaria.com/Resume/cvs_utilities">CVS Utilities</a>) as
-  well as report on the differences between two CVS tags.  Automated
-  the build process so that nightly builds could be
-  performed. Developed a web application that allows one to maintain
-  CVS account information including account creation,
-  setting/resetting of password, etc.</p>
+  <p>Implemented full text search using Perl and Htdig (See <a href="http://clearscm.com/scripts/ecrd">ECRDig</a>).
+  Developed <a href="http://defaria.com/Resume/cvs_utilities">CVS Utilities</a>).
+  Automated nightly builds could be performed.</p>
 
   <hr noshade>
 
@@ -367,8 +409,9 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_ameriquest.html">Ameriquest</a></p>
 
-  <p>Served as Clearcase/Clearquest administrator to this major mortgage
-  company. Importing source code from file systems, PVCS and VSS.</p>
+  <p>Served as <span class="standout">Clearcase</span>/<span class="standout">Clearquest</span>
+  administrator to this major mortgage company. Importing source code from file
+  systems, PVCS and VSS.</p>
 
   <hr noshade>
 
@@ -379,24 +422,19 @@ function stoptimer () {
   <p>August 2001 - February 2004<br>
   <a href="http://defaria.com/blogs/Status/archives/cat_salira.html">Salira</a></p>
 
-  <p>After consulting briefly with Salira Optical Network Systems I joined this
-  startup company serving in the role of Clearcase/Clearquest Administrator for
-  this mostly Windows shop.</p>
+  <p>Served as <span class="standout">Clearcase</span>/<span class="standout">Clearquest</span>
+  Administrator and <span class="standout">Release Engineer</span>, employing
+  <a href="http://Cygwin.com/">Cygwin</a> to engineer a build environment using
+  GNU make. Analyzed <a href="http://defaria.com/Resume/SmakeOpt">Build
+  Performance</a> and <a href="http://defaria.com/Resume/BuildPerf">Build Stress
+  Testing</a>.</p>
 
-  <p>I was the Release Engineer, employing <a href="http://Cygwin.com">Cygwin</a>
-  to engineer a build environment using GNU make. Analyzed
-  <a href="http://defaria.com/Resume/SmakeOpt">Build Performance</a> and
-  <a href="http://defaria.com/Resume/BuildPerf">Build Stress Testing</a>.</p>
+  <p>Setup Clearquest and bug tracking system as well as served as an advisor/expert
+  on Clearcase issues, branching strategies, labeling and release management.
+  Wrote C application for product packaging.</p>
 
-  <p>Setup Clearquest and bug tracking system as well as served as an
-  advisor/expert on Clearcase issues, branching strategies, labeling and release
-  management.</p>
-
-  <p>While working at Salira I designed and developed a tool in C that packaged
-  the product into a more compact form.</p>
-
-  <p>I designed and implemented a <a href="/clearquest/cqd">Clearquest Daemon</a>.
-  Developed Release Reporting system. Automated branch merging.</p>
+  <p>I designed and implemented a <a href="http://clearscm.com/clearquest/cqd">Clearquest
+  Daemon</a>. Developed Release Reporting system. Automated branch merging.</p>
 
   <hr noshade>
 
@@ -412,93 +450,14 @@ function stoptimer () {
 
   <h4><a href="http://pdlweb.cup.hp.com">Enterprise Java Lab</a></h4>
 
-  <p>Setup security system automating the running of Medusa (an internal
-  security audit tool) on approximately 100 machines. Reports are generated
-  automatically and are viewable on the web.</p>
-
-  <p>Migrated user data to HP NetStorage 6000. Worked extensively with HP
-  NetStorage 6000 Support on problems with this machines OS and interfacing with
-  Windows 2000.</p>
+  <p>Performed Security Audit for the lab. Also migrated user data to HP NetStorage
+  6000.</p>
 
   <p>Set up Netscape Enterprise Web Server and iPlanet 4.1 Web Server.</p>
 
   <hr noshade>
 
-  <p><a href="http://www.cisco.com"><img src="Cisco.gif" alt="Cisco
-  Systems" title="Cisco Systems" border=0></a></p>
-
-  <p>March 1999 - August 1999<br>
-  <font class=dim>Contract</font><br>
-  <a href="#">Hewlett Packard</a></p>
-
-  <p>Served as Clearcase/Unix Systems Administrator. Responsible for all
-  Clearcase operations in CNS/AD</p>
-
-  <hr noshade>
-
-  <p><a href="http://www.sun.com"><img src="Sun.jpg" alt="Sun
-  Microsystems" title="Sun Microsystems" border=0></a></p>
-
-  <p>December 1998 - March 1999<br>
-  <font class=dim>Contract</font><br>
-  <a href="#">Sun Microsystems</a></p>
-
-  <p>Worked on the Sunpeak Configuration Management team performing promotions
-  of code updates into test and production environments. Also worked on
-  improving the process flow of promotions utilizing make and rdist.</p>
-
-  <hr noshade>
-
-  <p><a href="http://www.hp.com"><img src="HPLogo.gif" alt="Hewlett
-  Packard Company" title="Hewlett Packard Company" border=0></a></p>
-
-  <p>February 1988 - November 1998<br>
-  <font class="dim">(60-Level Software Engineer)</font>
-  <a href="#">Sun Microsystems</a></p>
-
-  <h3><a href="http://hprasmg.cup.hp.com/Org/STD.html">Systems
-  Technology Division</a></h3>
-
-  <h4><a href="http://cllweb.cup.hp.com">California Language
-  Labs</a></h4>
-
-  <p>Primary Clearcase/Multisite Administrator and System Administrator for a
-  large Clearcase environment. Instituted policies and procedures to keep the
-  network running smoothly. Participated in the design and restructuring the
-  Clearcase network topology.</p>
-
-  <p>Maintained a repository of software tools. Performed help desk activities.</p>
-
-  <p>Served as webmaster for the lab as well as consult on HTML questions and
-  design issues.</p>
-
-  <p>I developed an <a href="http://cllweb.cup.hp.com/productivity/AppServer/">Application
-  Server</a> providing many machines with many software packages without the
-  need for individual system administration utilizing scripting and NFS heavily.</p>
-
-  <p>Prior to the Productivity Project I worked on COBOL/SoftBench product
-  which consists of encapsulating some core <a href="http://hpcll50.cup.hp.com/">HP
-  Micro Focus COBOL</a> tools using C++ 3.0 and the SoftBench Encapsulator
-  libraries.</p>
-
-  <p>Worked in the Ada project on Ada/SoftBench. This project was similar to
-  COBOL/SoftBench in that it involved some SoftBench encapsulations using a
-  language called edl.</p>
-
-  <p>Worked producing Ada Bindings to Xlib, Xt and Motif. This involved using a
-  modified C compiler to translate C header and source files to Ada declarations
-  and function prototypes. Using this methodology we were able to migrate our
-  product from X11 R3 and Motif 1.0 to X11 R4 and Motif 1.1 in one week!</p>
-
-  <p>Worked on a project that produced Ada Bindings to HP-UX, which enabled me
-  to get good breath knowledge into all system calls, and another binding to
-  Starbase graphical subsystem.</p>
-
-  <p>Performed destructive testing on MPE/XL 1.0-1.3. Wrote several programs to
-  stress the OS. Submitted 300+ Service Requests many of which appeared on Must
-  Fix lists.</p>
-
-  <hr noshade>
+  <h2>Copyright (GPL)</h2>
 
   <?php start_box ("cs2")?>
     <a name="copyleft"></a>
