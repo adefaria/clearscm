@@ -41,6 +41,8 @@ elif [ $KERNEL = "SunOS" ]; then
   export ARCHITECTURE=sun
 elif [ $KERNEL = "FreeBSD" ]; then
   export ARCHITECTURE=$KERNEL
+elif [ $KERNEL = "Darwin" ]; then
+  export ARCHITECTURE=$KERNEL
 else
   export ARCHITECTURE=''
   echo "Warning: Unknown architecture ($KERNEL)"
@@ -150,9 +152,11 @@ set -o monitor
 set +u
 
 # Shell options
-if ! grep -qP '5\.(6|7|8|9|10)' /etc/*release; then
-  shopt -s autocd
-  shopt -s dirspell
+if [ $ARCHITECTURE != 'Darwin' ]; then
+  if ! grep -qP '5\.(6|7|8|9|10)' /etc/*release; then
+    shopt -s autocd
+    shopt -s dirspell
+  fi
 fi
 
 shopt -s cdspell
@@ -160,7 +164,7 @@ shopt -s histappend
 shopt -s lithist
 
 # Aliases:
-if [ $ARCHITECTURE = "FreeBSD" ]; then
+if [ $ARCHITECTURE = "FreeBSD" -o $ARCHITECTURE = "Darwin" ]; then
   alias ls="ls -FG"
 else
   if [ -f ~/.rc/dircolors ]; then
@@ -172,7 +176,7 @@ else
   if [ $ARCHITECTURE = "sun" ]; then
     # Ugh! --color doesn't work on braindead SUN
     alias ls="ls -F"
-  else        
+  else
     alias ls="ls -F --color=auto"
   fi
 fi
@@ -290,8 +294,8 @@ for script in $(\ls ~/.rc/client_scripts); do
 done
 
 # Set display to local
-export DISPLAY=${DISPLAY:-:0}
 
+export DISPLAY=${DISPLAY:-:0}
 # Reset home in case it changed
 HOME=$saved_home
 

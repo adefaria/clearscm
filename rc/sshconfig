@@ -6,6 +6,12 @@ Host *
   ServerAliveInterval 300
   ServerAliveCountMax 2
 
-Host jira
-  HostName %h.audience.local
+Host home
+  Hostname defaria.com
+  User andrew
+
+Host defaria.com
+  User andrew
+
+Host *
   User adefaria

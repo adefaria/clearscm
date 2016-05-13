@@ -11,26 +11,9 @@
 # Modified:    $Date: 2011/10/24 18:07:05 $
 # Language:    bash
 #
-# (c) Copyright 2000-2011, ClearSCM, Inc., all rights reserved.
+# (c) Copyright 2000-2016, ClearSCM, Inc., all rights reserved.
 #
 ################################################################################
-# Set ARCHITECTURE of the machine
-KERNEL=$(uname -s)
-
-if [[ $KERNEL = CYGWIN* ]]; then
-  export ARCHITECTURE=cygwin
-  vobtagPrefix='\\\\\\\'
-elif [ $KERNEL = "Linux" ]; then
-  export ARCHITECTURE=linux
-elif [ $KERNEL = "SunOS" ]; then
-  export ARCHITECTURE=sun
-elif [ $KERNEL = "FreeBSD" ]; then
-  export ARCHITECTURE=$KERNEL
-else
-  export ARCHITECTURE=''
-  echo "Warning: Unknown architecture ($KERNEL)"
-fi
-
 if [ $ARCHITECTURE = 'cygwin' ]; then
   export CCHOME=$(cygpath -u "$(regtool get '/machine/SOFTWARE/Rational Software/RSINSTALLDIR' 2>/dev/null)"/Clearcase 2>/dev/null);
 else 

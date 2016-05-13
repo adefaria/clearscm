@@ -20,3 +20,10 @@ SYSNAME=${SYSNAME%%\.*}
 
 # Set to initial cap
 SYSNAME=$(echo ${SYSNAME:0:1} | tr [:lower:] [:upper:])$(echo ${SYSNAME:1}   | tr [:upper:] [:lower:])
+
+# Aliasing
+case "$SYSNAME" in
+  Ande-4848)
+    SYSNAME="ADeFaria"
+    ;;
+esac
