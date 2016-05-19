@@ -215,13 +215,14 @@ fi
 
 #alias grep="grep -d skip"
 
-if [ "$TERM" = "hpterm"    -o \
-     "$TERM" = "hp"        -o \
-     "$TERM" = "dtterm"    -o \
-     "$TERM" = "sun-color" -o \
-     "$TERM" = "vt100"     -o \
-     "$TERM" = "vt220"     -o \
-     "$TERM" = "xterm"     -o \
+if [ "$TERM" = "hpterm"         -o \
+     "$TERM" = "hp"             -o \
+     "$TERM" = "dtterm"         -o \
+     "$TERM" = "sun-color"      -o \
+     "$TERM" = "vt100"          -o \
+     "$TERM" = "vt220"          -o \
+     "$TERM" = "xterm"          -o \
+     "$TERM" = "xterm-256color" -o \
      "$TERM" = "cygwin" ]; then
   alias cd=mycd
   alias pushd=mypushd
