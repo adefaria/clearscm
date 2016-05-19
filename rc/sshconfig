@@ -12,6 +12,7 @@ Host home
 
 Host defaria.com
   User andrew
+  IdentityFile		~/.ssh/id_ecdsa
 
 Host *
   User adefaria

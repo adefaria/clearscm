@@ -23,9 +23,8 @@ function title_bar {
     ROOT=shift
     ROOT="${NORMAL}\($ROOT\)"
   fi
-
+  
   prefix="$@"
-
   # Change $HOME -> ~
   if [ "${PWD#$HOME*}" != "$PWD" ]; then
     current_dir="~${PWD#$HOME*}"
@@ -58,9 +57,11 @@ function title_bar {
 	 "$TERM" = "vt221" ]; then
     string=$(echo "${SYSNAME##*:}:$@")
     echo -n "${ESC}]2;$string\007"
-  elif [ "$TERM" = "cygwin" -o "$TERM" = "vt100" -o "$TERM" = "xterm" ]; then
-    # Here's where we set the prompt with root
-    PS1="\[\e]0;$prefix$current_dir\a$AQUA\]$ROOT\[$YELLOW\]$SYSNAME:\[$NORMAL\]"
+  elif [ "$TERM" = "cygwin" -o \
+         "$TERM" = "vt100"  -o \
+         "$TERM" = "xterm"  -o \
+         "$TERM" = "xterm-256color" ]; then
+    PS1="\[\e]0;$prefix$current_dir\a\[$RED\]$ROOT\[$LIGHT_CYAN\]$SYSNAME:\[$WHITE\]"
   fi
 } # title_bar
 
@@ -103,7 +104,7 @@ function set_title {
     view_name=""
     title_bar "$ROOT"
   else
-    title_bar "$ROOT" "View: $view_name: "
+    title_bar "${ROOT}View: $view_name: "
   fi
 
   icon_name "${SYSNAME##*:}"
@@ -118,17 +119,19 @@ function set_prompt {
          "$TERM"   = "dtterm" -o \
          ! -z "$DTTERM" ]; then
       ROOT="${RED}Wizard$NORMAL "
-    elif [ "$TERM" = "vt100" -o \
-           "$TERM" = "xterm" -o \
-	   "$TERM" = "vt220" ]; then
+    elif [ "$TERM" = "vt100"          -o \
+           "$TERM" = "xterm"          -o \
+           "$TERM" = "xterm-256color" -o \
+           "$TERM" = "vt220" ]; then
       ROOT="${BOLD}${BLINK}Wizard$NORMAL "
     fi
   else
     ROOT=""
   fi
 
-  if [ "$TERM" = "vt100" -o \
-       "$TERM" = "xterm" -o \
+  if [ "$TERM" = "vt100"          -o \
+       "$TERM" = "xterm"          -o \
+       "$TERM" = "xterm-256color" -o \
        "$TERM" = "vt220" ]; then
     PS1="$ROOT$BOLD$SYSNAME:$NORMAL"
   else

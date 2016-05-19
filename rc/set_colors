@@ -16,12 +16,13 @@ esc=$(echo "\033")
 
 if [ "$TERM" = "vt100" -o \
      "$TERM" = "vt220" ]; then
-  NORMAL="$esc[0m"
-  BOLD="$esc[1m"
-  UNDERLINE="$esc[4m"
-  BLINK="$esc[5m"
-  INVERSE="$esc[7m"
-elif [ "$TERM" = "dtterm" -o "$TERM" = "vt100" -o "$TERM" = "xterm" -o -z DTTERM ]; then
+     NORMAL="$esc[0m"
+     BOLD="$esc[1m"
+     UNDERLINE="$esc[4m"
+     BLINK="$esc[5m"
+     INVERSE="$esc[7m"
+elif [ "$TERM" = "dtterm" -o \
+       "$TERM" = "xterm"     ]; then
   NORMAL="$esc[39m"
   RED="$esc[31m"
   B_RED=$RED
@@ -37,6 +38,23 @@ elif [ "$TERM" = "dtterm" -o "$TERM" = "vt100" -o "$TERM" = "xterm" -o -z DTTERM
   B_AQUA=$AQUA
   WHITE="$esc[36m"
   B_WHITE=$WHITE
+elif [ "$TERM" = "xterm-256color" ]; then
+  NORMAL="$esc[39m"
+  BLACK="$esc[30m"
+  RED="$esc[31m"
+  GREEN="$esc[32m"
+  YELLOW="$esc[33m"
+  BLUE="$esc[34m"
+  MAGENTA="$esc[35m"
+  CYAN="$esc[36m"
+  LIGHT_GRAY="$esc[37m"
+  DARK_GRAY="$esc[90m"
+  LIGHT_RED="$esc[91m"
+  LIGHT_GREEN="$esc[92m"
+  LIGHT_YELLOW="$esc[93m"
+  LIGHT_MAGENTA="$esc[94m"
+  LIGHT_CYAN="$esc[96m"
+  WHITE="$esc[97m"
 elif [ "$TERM" = "hp" -o "$TERM" = "hpterm" ]; then
   NORMAL="$esc&d@$esc&v0S"
   RED="$esc&v1S"
