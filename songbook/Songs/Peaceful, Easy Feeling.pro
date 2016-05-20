@@ -1,37 +1,39 @@
 {title:Peaceful, Easy Feeling}
 {subtitle:Eagles}
-{key:G}
+{key:E}
 
-[G]I like the [C]way your sparkling [G]earrings [C]lay.
-[G]Against your [C]skin so [D]brown[D7]
-[G]And I want to [C]sleep with you in the [G]desert to[C]night
-[G]With a billion [C]stars all a[D]round[D7]
+[E] [Esus4]
+
+[E]I like the [A]way your sparkling [E]earrings [A]lay.
+[E]Against your [A]skin so [B]brown
+[E]And I want to [A]sleep with you in the [E]desert to[A]night
+[E]With a billion [A]stars all a[B]round[B7]
 
 {c:Chorus}
 
-'Cause I get a [C]peaceful, easy [G]feeling
-[C]And I know you won't let me [Am]down[D7]
-[D]'Cause I'm [G]allll-[Am]ready [C]standing[D7]
-On the [G]ground[Am][C][D]
+'Cause I get a [A]peaceful, easy [E]feeling
+[A]And I know you won't let me [F#m]down[B]
+'Cause I'm [E]allll-[F#m]ready [A]standing[B]
+On the [E]ground[Esus4][E][Esus4]
   
-[G]I found [C]out a long [G]time a[C]go
-[G]What a woman can [C]do to your [D]soul[D7]
-[G]Ah, but [C]she can't take you [G]any[C]where
-[G]You don't already [C]know how to [D]go [D7]
+I found out a long time ago
+What a woman can do to your soul
+Ah, but she can't take you anywhere
+You don't already know how to go
 
 {c:Chorus}
 
 {c:Lead}
 
-[G]I get this [C]feeling I may [G]know [C]you
-[G]As a l[C]over and a [D]friend[D7]
-[G]This voice keeps [C]whispering i[G]n my other [C]ear
-[C]Sayin' [G]I may never [C]see you [D]again[D7]
+I get this feeling I may know you
+As a lover and a friend
+This voice keeps whispering in my other ear
+Sayin' I may never see you again
 
-But I get a [C]peaceful, easy [G]feeling
-[C]And I know you won't let me [Am]down[D7]
-[D]'Cause I'm [G]alll-[Am]ready [C]standing [D]
-I'm [G]alll-[Am]ready [C]standing[D]
-[D]Yes, I'm [G]allll-[Am]ready [C]standing,[D]
-On the [G]ground[Am][C][D7] [G]
+But I get a peaceful, easy feeling
+And I know you won't let me down
+'Cause I'm alll-ready standing 
+I'm alll-ready standing
+Yes, I'm allll-ready standing,
+On the ground 
 {musicpath:/sdcard/SongBook/Media/Peaceful, Easy Feeling.mp3}
