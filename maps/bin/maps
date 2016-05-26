@@ -69,12 +69,13 @@ use MAPSLog;
 use Display;
 use Utils;
 
-my $verbose	= 0;
-my $execute	= 1;
-my $userid 	 = $ENV{USER};
+my $verbose    = 0;
+my $execute    = 1;
+my $userid     = $ENV{USER};
 
-my $logpath	= "$FindBin::Bin/../log";
-my $logfile	= "$logpath/debug.log";
+my $logpath    = "$FindBin::Bin/../log";
+my $logfile    = "$logpath/debug.log";
+my $forwardto = $ENV{MAPS_FORWARDTO} || 'adefaria@gmail.com';
 
 # For some reason I'm not parsing messages correctly but it only seems to
 # happen when the message is piped in from the MTA. This routine will
@@ -98,13 +99,13 @@ sub SaveStdin () {
 sub save_msg {
   my ($sender, $sender_long, $reply_to, $subject, $data) = @_;
 
-  open SAVED_MSG, ">>$logpath/$sender"
+  open SAVED_MSG, '>>', "$logpath/$sender"
     or die "Unable to open $logpath/$sender - $!\n";
 
-  print SAVED_MSG "Sender	= $sender\n";
-  print SAVED_MSG "Sender long	= $sender\n";
-  print SAVED_MSG "reply_to	= $reply_to\n";
-  print SAVED_MSG "subject	= $subject\n";
+  print SAVED_MSG "Sender = $sender\n";
+  print SAVED_MSG "Sender long = $sender\n";
+  print SAVED_MSG "reply_to = $reply_to\n";
+  print SAVED_MSG "subject  = $subject\n";
   print SAVED_MSG "data:\n\n";
   print SAVED_MSG $data;
   print SAVED_MSG "*** END OF DATA***\n";
@@ -116,7 +117,7 @@ sub ValidDomainUser ($) {
   my ($username, $domainname);
 
   if ($sender =~ /(.*)\@(.*)/) {
-    $username	= $1;
+    $username   = $1;
     $domainname = $2;
   } else {
     return 1;
@@ -141,27 +142,66 @@ sub ProcessMsgs ($$$) {
   while (!eof *$msgfile) {
     my ($sender, $sender_long, $reply_to, $subject, $data) = ReadMsg (*$msgfile);
 
-    my ($onlist, $rule, $sequence, $hit_count);
+    #if ($forwardto) {
+      # Forward a copy
+      #open my $mail, '|', "/usr/lib/sendmail $forwardto"
+        #or die "Unable to open pipe to sendmail - $!";
 
-    if ($sender eq "" or $sender eq "@" or $sender =~ /.*\@$/) {
-      verbose "Sender not found in message";
+      #print $mail "$data\n";
+
+      #close $mail
+        #or die "Unable to forward email to $forwardto - $!";      
+    #} # if
+    
+    my ($onlist, $rule, $sequence, $hit_count);
+    
+    # Algorithm change: We now first check to see if the sender is not found
+    # in the message and skip it if so. Then we handle if we are the sender
+    # and that the from address is formatted properly. Spammers often use 
+    # the senders email address (i.e. andrew@defaria.com) as their from address
+    # so we check "Andrew DeFaria <Andrew@DeFaria.com>", which they have never
+    # forged. This catches a lot of spam actually.
+    #
+    # Next we check to see if the sender is on our whitelist. If so then we let
+    # them in. This allows us to say whitelist josephrosenberg@hotmail.com while
+    # still nulllisting all of the other hotmail.com spammers.
+    #
+    # Next we process blacklisted people as they are also of high priority.
+    #
+    # Then we process nulllist people.
+    #
+    # Finally, we handle return processing
+
+    # Special sender handling: 
+    if ($sender !~ /.+\@.+/) {
+      verbose "Sender not found in message or invalid";
       next;
-    } elsif ($sender eq $user_email and
+    } # if
+    
+    if ($sender eq $user_email and
             (lc ($sender_long) !~ lc ("\"$username\" <$user_email>") and
              lc ($sender_long) !~ lc ("$username <$user_email>"))) {
       verbose "Nulllisting message from sender ($sender_long) pretending to be $user_email";
       Nulllist $sender;
       next;
     } # if
-
-    ($onlist, $rule, $sequence, $hit_count) = OnNulllist $sender;
+    
+    # Check whitelist:
+    ($onlist, $rule, $sequence, $hit_count) = OnWhitelist $sender;
 
     if ($onlist) {
-      verbose "Nulllisting $sender";
-      Nulllist $sender, $sequence, $hit_count;
+      if (ValidDomainUser $sender) {
+        verbose "Whitelisting $sender";
+        Whitelist $sender, $data, $sequence, $hit_count;
+      } else {
+        verbose "Sender from this domain but user not found";
+        Nulllist $sender;
+      } # if
+      
       next;
     } # if
-
+    
+    # Check blacklist:
     ($onlist, $rule, $sequence, $hit_count) = OnBlacklist $sender;
 
     if ($onlist) {
@@ -172,33 +212,28 @@ sub ProcessMsgs ($$$) {
       next;
     } # if 
 
-    ($onlist, $rule, $sequence, $hit_count) = OnWhitelist $sender;
+    # Check nulllist:
+    ($onlist, $rule, $sequence, $hit_count) = OnNulllist $sender;
 
     if ($onlist) {
-      if (ValidDomainUser $sender) {
-	verbose "Whitelisting $sender";
-	Whitelist $sender, $data, $sequence, $hit_count;
-      } else {
-	verbose "Sender from this domain but user not found";
-	Nulllist $sender;
-      } # if
-    } else {
-      if ($sender !~ /\@/) {
-	verbose "Sender ($sender) does not appear to be a valid email address";
-      } else {
-        verbose "Returning message from $sender";
-        ReturnMsg $sender, $reply_to, $subject, $data;
-      } # if
+      verbose "Nulllisting $sender";
+      Nulllist $sender, $sequence, $hit_count;
+      next;
     } # if
+
+    # Return processing:
+    verbose "Returning message from $sender";
+    ReturnMsg $sender, $reply_to, $subject, $data;
   } # while
 } # ProcessMsgs
 
 # Main
 GetOptions (
-  'user=s'	 => \$userid,
-  'verbose'	 => sub { set_verbose },
-  'debug'	   => sub { set_debug },
-  'execute!' => \$execute,
+  'user=s'      => \$userid,
+  'verbose'     => sub { set_verbose },
+  'debug'       => sub { set_debug },
+  'execute!'    => \$execute,
+  'forwardto=s' => \$forwardto
 ) || Usage;
 
 my $msgfile;
