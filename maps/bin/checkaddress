@@ -45,23 +45,31 @@ foreach (@ARGV) {
     next;
   } # if
 
-  ($status, $rule) = OnNulllist $sender;
-
-  if ($status) {
-    display "Sender $sender would be nulllist'ed\n$rule";
+  # Algorithm change: We now first check to see if the sender is not found
+  # in the message and skip it if so. Then we handle if we are the sender
+  # and that the from address is formatted properly. Spammers often use 
+  # the senders email address (i.e. andrew@defaria.com) as their from address
+  # so we check "Andrew DeFaria <Andrew@DeFaria.com>", which they have never
+  # forged. This catches a lot of spam actually.
+  #
+  # Next we check to see if the sender is on our whitelist. If so then we let
+  # them in. This allows us to say whitelist josephrosenberg@hotmail.com while
+  # still nulllisting all of the other hotmail.com spammers.
+  #
+  # Next we process blacklisted people as they are also of high priority.
+  #
+  # Then we process nulllist people.
+  #
+  # Finally, we handle return processing
+  
+  # Check whitelist
+  if (OnWhitelist $sender) {
+    display "Sender $sender would be whitelisted";
+  } elsif (OnBlacklist $sender) {
+    display "Sender $sender would be be blacklisted";
+  } elsif (OnNulllist $sender) {
+    display "Sender $sender would be nulllisted"
   } else {
-    ($status, $rule) = OnBlacklist $sender;
-
-    if ($status) {
-      display "Sender $sender would be blacklist'ed\n$rule";
-    } else {
-      ($status, $rule) = OnWhitelist $sender;
-
-      if ($status) {
-	display "Sender $sender would be whitelist'ed\n$rule";
-      } else {
-	display "Sender $sender would be returned";
-      } # if
-    } # if
-  } # if
+    display "Sender $sender would be returned"
+  } # if 
 } # foreach

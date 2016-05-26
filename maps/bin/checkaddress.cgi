@@ -46,32 +46,51 @@ sub Heading {
 } # Heading
 
 sub Body {
-  my ($status, $rule);
+  my ($onlist, $rule);
 
-  ($status, $rule) = OnNulllist $sender;
-  if ($status) {
-    print div {-align	=> "center"},
-      font {-color	=> "grey"},
-      "Messages from", b ($sender), "will be", b ("discarded"), br, hr;
-    print $rule;
+  # Algorithm change: We now first check to see if the sender is not found
+  # in the message and skip it if so. Then we handle if we are the sender
+  # and that the from address is formatted properly. Spammers often use 
+  # the senders email address (i.e. andrew@defaria.com) as their from address
+  # so we check "Andrew DeFaria <Andrew@DeFaria.com>", which they have never
+  # forged. This catches a lot of spam actually.
+  #
+  # Next we check to see if the sender is on our whitelist. If so then we let
+  # them in. This allows us to say whitelist josephrosenberg@hotmail.com while
+  # still nulllisting all of the other hotmail.com spammers.
+  #
+  # Next we process blacklisted people as they are also of high priority.
+  #
+  # Then we process nulllist people.
+  #
+  # Finally, we handle return processing
+  ($onlist, $rule) = OnWhitelist $sender;
+  
+  if ($onlist) {
+    print div {-align => "center"},
+      font {-color => "green"},
+        "Messages from", b ($sender), "will be", b ("delivered"), br, hr;
+   	print $rule;
   } else {
-    ($status, $rule) = OnBlacklist $sender;
-    if ($status) {
+    ($onlist, $rule) = OnBlacklist $sender;
+    
+    if ($onlist) {
       print div {-align	=> "center"},
-	font {-color	=> "black"},
-	"Messages from", b ($sender), "will be", b ("blacklisted"), br, hr;
+        	font {-color	=> "black"},
+            "Messages from", b ($sender), "will be", b ("blacklisted"), br, hr;
       print $rule;
     } else {
-      ($status, $rule) = OnWhitelist $sender;
-      if ($status) {
-	print div {-align	=> "center"},
-	  font {-color	=> "green"},
-          "Messages from", b ($sender), "will be", b ("delivered"), br, hr;
-	print $rule;
+      ($onlist, $rule) = OnNulllist $sender;
+  
+      if ($onlist) {
+        print div {-align	=> "center"},
+          font {-color	=> "grey"},
+            "Messages from", b ($sender), "will be", b ("discarded"), br, hr;
+        print $rule;
       } else {
-	print div {-align	=> "center"},
-	  font {-color	=> "red"},
-          "Messages from", b ($sender), "will be", b ("returned");
+        print div {-align	=> "center"},
+          font {-color	=> "red"},
+            "Messages from", b ($sender), "will be", b ("returned");
       } # if
     } # if
   } # if
