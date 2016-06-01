@@ -1,0 +1,18 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: ICANN,v $
+# Revision:	$Revision: 1.0 $
+# Description:	Client specific start up for ICANN
+# Author:       Andrew@ClearSCM.com
+# Created:      Thu May 26 10:20:51 PDT 2016
+# Modified:     $Date: $
+# Language:     bash
+#
+# (c) Copyright 2016, ClearSCM, Inc., all rights reserved.
+#
+################################################################################
+#export SMTPHOST=cas.audience.local
+#export SMTPFROM=cm@audience.com
+
+append_to_path ~/mongo/bin
