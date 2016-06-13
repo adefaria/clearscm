@@ -711,6 +711,8 @@ Returns:
   my $AmPm    = $hours > 12 ? "Pm" : "Am";
 
   $hours = $hours - 12 if $hours > 12;
+  
+  $hours = "0$hours" if length $hours == 1;
 
   return "$hours:$minutes $AmPm";
 } # FormatTime
