@@ -39,4 +39,4 @@ It c[Em]alls me on and on [A]across the universe
 
 {c:Chorus}
 {tempo-android:60}
-{zoom-android:1.3710576}
+{zoom-android:1.3710576}{musicpath:/storage/emulated/0/SongBook/Media/Across the Universe.mp3}

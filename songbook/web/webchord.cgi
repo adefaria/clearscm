@@ -26,6 +26,14 @@ my $documentRoot = "/web";
 my $debug        = param ('debug');
 my $infile       = param ('chordpro');
 
+unless (-f $infile) {
+  $infile = '/opt/clearscm/songbook/Songs/' . $infile;
+
+  unless (-f $infile) {
+    print "Unable to $infile";
+    exit 1;
+  } # unless
+} # unless
 
 sub debug ($) {
   my ($msg) = @_;
@@ -63,14 +71,14 @@ sub musicFileExists ($) {
   debug "ENTER musicFileExists ($song)";
   
   my $title     = fileparse ($song, qr/\.pro/);
-  my $musicfile = "/songbook/Media/$title.mp3";
+  my $musicfile = "/opt/clearscm/songbook/Media/$title.mp3";
 
-  if (-r "$documentRoot$musicfile") {
+  if (-r $musicfile) {
     debug "Exists!";
     
     return $title;
   } else {
-    debug "Could not find $documentRoot$musicfile";
+    debug "Could not find $musicfile";
     
     return undef;
   } # if
@@ -203,7 +211,7 @@ END
         print <<"END";
 <td align="right">
 <audio controls autoplay>
- <source src="http://defaria.com/songbook/Media/$title.mp3" type='audio/mp3'>
+ <source src="http://defaria.com/Media/$title.mp3" type='audio/mp3'>
  <p>Your user agent does not support the HTML5 Audio element.</p>
 </audio>
 </td>

@@ -5,16 +5,16 @@ $songs   = glob (dirname($baseDir) . "/Songs/*.pro");
 function getSongs () {
   global $songs;
 
-  $path = $baseDir . "../Songs/*.pro";
+  $path = "/opt/clearscm/songbook/Songs";
 
   // Why didn't the previous one execute correctly?
-  $songs = glob($baseDir . '../Songs/*.pro');
+  $songs = glob("$path/*.pro");
 } // getSongs
 
 function songsDropdown () {
   global $songs;
 
-  print "<form method=\"post\" action=\"webchord.cgi\" name=\"song\">";
+  print "<form method=\"get\" action=\"webchord.cgi\" name=\"song\">";
   print "Songs:&nbsp;&nbsp;";
   print "<select name=\"chordpro\">";
 
@@ -23,11 +23,11 @@ function songsDropdown () {
     $title = basename ($song, ".pro");
     $artist = getArtist ($song);
 
+    print "<option value=\"$title.pro\">$title</option>";
+
     if ($artist != "") {
       $title .= "&nbsp;($artist)";
     } // if
-
-    print "<option value=\"$song\">$title</option>";
   } // foreach
 
   print "<input type=\"submit\" value=\"Go\">";
@@ -40,7 +40,7 @@ function artistsDropdown () {
 
   $artists = getArtists ($songs);
 
-  print "<form method=\"post\" action=\"displayartist.php\" name=\"artist\">";
+  print "<form method=\"get\" action=\"displayartist.php\" name=\"artist\">";
   print "Artists:&nbsp;&nbsp;";
   print "<select name=\"artist\">";
 
