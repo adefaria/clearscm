@@ -1,4 +1,4 @@
-{t:Drug Store Novels}
+{t:Drugstore Novels}
 {st:Cast of Shadows}
 {key:A}
 
