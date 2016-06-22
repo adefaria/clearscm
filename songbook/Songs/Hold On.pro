@@ -45,3 +45,4 @@ You're on the right track
 
 {c:2x}
 {c:chorus}
+{musicpath:/storage/emulated/0/SongBook/Media/Hold On.mp3}

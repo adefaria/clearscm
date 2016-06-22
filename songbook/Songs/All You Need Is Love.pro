@@ -28,3 +28,4 @@ Nothing you can see that isn't shown.
 Nowhere you can be that isn't where, you're meant to be. It's easy.
 
 {c:Chorus 2x}
+{musicpath:/storage/emulated/0/SongBook/Media/All You Need Is Love.mp3}

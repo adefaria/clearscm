@@ -62,3 +62,4 @@ Free failing never
 ...
 {eoc}
 
+{musicpath:/storage/emulated/0/SongBook/Media/Free Fallin.mp3}

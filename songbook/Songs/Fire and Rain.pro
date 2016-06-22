@@ -39,4 +39,4 @@ But I always thought that I'd see you, baby, one more time again, now
 Thought I'd see you one more time again
 There's just a few things coming my way this time around, now
 Thought I'd see you, thought I'd see you fire and rain, now
-{zoom-android:1.2828981}
+{zoom-android:1.2828981}{musicpath:/storage/emulated/0/SongBook/Media/Fire and Rain.mp3}

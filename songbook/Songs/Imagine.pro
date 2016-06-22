@@ -39,3 +39,4 @@ But I'm not the only one
 I hope some day you'll join us
 And the world will live as one
 {eoc}
+{musicpath:/storage/emulated/0/SongBook/Media/Imagine.mp3}

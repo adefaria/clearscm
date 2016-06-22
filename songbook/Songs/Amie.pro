@@ -34,4 +34,4 @@ If its[C] one of us I'm sure we'll both will[E] see
 (won't you look at me and tell me)
 
 {c:Chorus 2x}
-{zoom-android:1.4235265}
+{zoom-android:1.4235265}{musicpath:/storage/emulated/0/SongBook/Media/Amie.mp3}

@@ -22,3 +22,4 @@ It's gonna be a b[C]right, (bright) br[G]ight, (bright) sun shiny d[D]ay
 [D].  Here is the [G]rainbow I've been [D]praying for
 It's gonna be a b[C]right, (bright) br[G]ight, (bright) sun shiny d[D]ay
 It's gonna be a b[C]right, (bright) br[G]ight, (bright) sun shiny d[D]ay
+{musicpath:/storage/emulated/0/SongBook/Media/I Can See Clearly Now.mp3}

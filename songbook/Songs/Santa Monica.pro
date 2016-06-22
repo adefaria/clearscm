@@ -19,8 +19,8 @@ I will try and shake away this disease
 
 [G]We can live be[D]side the [C]ocean
 Leave the [D]fire behind[G]
-Swim out [D]past the [C]breakers
-Watch the [Am]world [G]die
+Swim out [Em]past the [D]breakers
+Watch the [C]world [G]die
 
 I am still dreaming of you face
 Hungry and hollow for all the things you took away
@@ -36,4 +36,4 @@ I just want to find some place to be alone
 
 {c:Chorus 4x}
 
-Yeah, watch the world die 4x
+Yeah, watch the world die 4x{musicpath:/storage/emulated/0/SongBook/Media/Santa Monica.mp3}
