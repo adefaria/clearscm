@@ -19,7 +19,11 @@
   $next = (isset ($_GET ["next"])) ? $_GET ["next"] : 0;
 //  $prev;
   $type = $_GET ["type"];
-  $message = $_GET ["message"];
+  if (isset($_GET['message'])) {
+    $message = $_GET["message"];
+  } else {
+    $message = '';
+  } // if
   $Type = ucfirst ($type);
   $Userid = ucfirst ($userid);
 ?>
