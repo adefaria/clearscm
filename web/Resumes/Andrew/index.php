@@ -62,7 +62,7 @@ function stoptimer () {
 <table align="center" width="400">
   <tr>
     <td>
-      <marquee behavior="alternate" onmouseover="this.stop()" onmouseout="this.start()"><a id="blink" href="Resume.odt">Download an MS Word copy!</a></marquee><br>
+      <marquee behavior="alternate" onmouseover="this.stop()" onmouseout="this.start()"><a id="blink" href="Resume.docx">Download an MS Word copy!</a></marquee><br>
     </td>
   </tr>
     <td align="center">
