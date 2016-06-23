@@ -2,7 +2,7 @@
 #################################################################################
 #
 # File:         $RCSfile: MAPS.pm,v $
-# Revision:	$Revision: 1.1 $
+# Revision:  $Revision: 1.1 $
 # Description:  Main module for Mail Authentication and Permission System (MAPS)
 # Author:       Andrew@DeFaria.com
 # Created:      Fri Nov 29 14:17:21  2002
@@ -208,8 +208,8 @@ sub Add2Whitelist ($$;$) {
   my ($dbsender, $subject, $timestamp, $message);
 
   # Deliver old emails
-  my $messages		= 0;
-  my $return_status	= 0;
+  my $messages    = 0;
+  my $return_status  = 0;
 
   while (($userid, $dbsender, $subject, $timestamp, $message) = GetEmail $handle) {
     last 
@@ -468,12 +468,12 @@ sub ReadMsg ($) {
   # date and data, which is a copy of the entire message.
   my ($input) = @_;
 
-  my $sender		= "";
-  my $sender_long	= "";
-  my $envelope_sender	= "";
-  my $reply_to		= "";
-  my $subject		= "";
-  my $data		= "";
+  my $sender           = "";
+  my $sender_long      = "";
+  my $envelope_sender  = "";
+  my $reply_to         = "";
+  my $subject          = "";
+  my $data             = "";
   my @data;
 
   # Find first message's "From " line indicating start of message
@@ -505,27 +505,27 @@ sub ReadMsg ($) {
     # Extract sender's address
     if (/^from: .*/i) {
       $_ = substr ($_, 6);
+      
       $sender_long = $_;
+      
       if (/<(\S*)@(\S*)>/) {
-	$sender = lc ("$1\@$2");
+        $sender = lc ("$1\@$2");
       } elsif (/(\S*)@(\S*)\ /) {
-	$sender = lc ("$1\@$2");
+        $sender = lc ("$1\@$2");
       } elsif (/(\S*)@(\S*)/) {
-	$sender = lc ("$1\@$2");
+        $sender = lc ("$1\@$2");
       } # if
     } elsif (/^subject: .*/i) {
       $subject = substr ($_, 9);
     } elsif (/^reply-to: .*/i) {
       $_ = substr ($_, 10);
       if (/<(\S*)@(\S*)>/) {
-	$reply_to = lc ("$1\@$2");
+        $reply_to = lc ("$1\@$2");
       } elsif (/(\S*)@(\S*)\ /) {
-	$reply_to = lc ("$1\@$2");
+        $reply_to = lc ("$1\@$2");
       } elsif (/(\S*)@(\S*)/) {
-	$reply_to = lc ("$1\@$2");
+        $reply_to = lc ("$1\@$2");
       } # if
-    } else {
-      next;
     } # if
   } # while
 
@@ -541,29 +541,24 @@ sub ReadMsg ($) {
   seek ($input, -length () - 1, 1) if !eof $input;
 
   # Sanitize email addresses
-  $envelope_sender	=~ s/\<//g;
-  $envelope_sender	=~ s/\>//g;
-  $envelope_sender	=~ s/\"//g;
-  $envelope_sender	=~ s/\'//g;
-  $sender		=~ s/\<//g;
-  $sender		=~ s/\>//g;
-  $sender		=~ s/\"//g;
-  $sender		=~ s/\'//g;
-  $reply_to		=~ s/\<//g;
-  $reply_to		=~ s/\>//g;
-  $reply_to		=~ s/\"//g;
-  $reply_to		=~ s/\'//g;
-
-  # Now let's pack the @data array to a scalar
-  foreach (@data) {
-    $data = $data . $_ . "\n";
-  } # foreach
+  $envelope_sender =~ s/\<//g;
+  $envelope_sender =~ s/\>//g;
+  $envelope_sender =~ s/\"//g;
+  $envelope_sender =~ s/\'//g;
+  $sender          =~ s/\<//g;
+  $sender          =~ s/\>//g;
+  $sender          =~ s/\"//g;
+  $sender          =~ s/\'//g;
+  $reply_to        =~ s/\<//g;
+  $reply_to        =~ s/\>//g;
+  $reply_to        =~ s/\"//g;
+  $reply_to        =~ s/\'//g;
 
   # Determine best addresses
-  $sender	= $envelope_sender	if $sender eq "";
-  $reply_to	= $sender    		if $reply_to eq "";
+  $sender    = $envelope_sender if $sender eq "";
+  $reply_to  = $sender          if $reply_to eq "";
 
-  return $sender, $sender_long, $reply_to, $subject, $data;
+  return $sender, $sender_long, $reply_to, $subject, join "\n", @data;
 } # ReadMsg
 
 sub ResequenceList ($$) {
@@ -585,7 +580,7 @@ sub ReturnSenders ($$$;$$) {
 } # ReturnSenders
 
 sub ReturnList ($$$) {
-  my ($type, $start_at, $lines)	= @_;
+  my ($type, $start_at, $lines)  = @_;
 
   return MAPSDB::ReturnList $type, $start_at, $lines;
 } # ReturnList
@@ -653,11 +648,11 @@ sub ForwardMsg ($$$) {
   my $to = "renn.leech\@compassbank.com";
 
   my $msg = MIME::Entity->build (
-    From	=> $sender,
-    To		=> $to,
-    Subject	=> $subject,
-    Type	=> "text/html",
-    Data	=> \@lines,
+    From  => $sender,
+    To    => $to,
+    Subject  => $subject,
+    Type  => "text/html",
+    Data  => \@lines,
   );
 
   # Send it
@@ -695,18 +690,18 @@ sub SendMsg ($$$$@) {
 
   # Create the message, and set up the mail headers:
   my $msg = MIME::Entity->build (
-    From	=> "MAPS\@DeFaria.com",
-    To		=> $sender,
-    Subject	=> $subject,
-    Type	=> "text/html",
-    Data	=> \@lines
+    From  => "MAPS\@DeFaria.com",
+    To    => $sender,
+    Subject  => $subject,
+    Type  => "text/html",
+    Data  => \@lines
   );
 
   # Need to obtain the spam message here...
   $msg->attach (
-    Type	=> "message",
-    Disposition	=> "attachment",
-    Data	=> \@spammsg
+    Type  => "message",
+    Disposition  => "attachment",
+    Data  => \@spammsg
   );
 
   # Send it
@@ -741,7 +736,7 @@ sub UpdateUser ($$$$) {
 } # UpdateUser
 
 sub UpdateUserOptions ($@) {
-  my ($userid, %options)	= @_;
+  my ($userid, %options)  = @_;
 
   my $status;
 

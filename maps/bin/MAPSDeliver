@@ -59,6 +59,7 @@ sub DeliverMail ($$) {
   Lock $maildrop;
 
   # Write msgfile -> $maildrop
+  print $maildrop "\n";
   print $maildrop $_
     while (<$msgfile>);
 

@@ -814,7 +814,7 @@ sub OpenDB ($$) {
 
   my $dbname   = 'MAPS';
   my $dbdriver = 'mysql';
-  my $dbserver = $ENV{MAPS_SERVER} || 'jupiter';
+  my $dbserver = $ENV{MAPS_SERVER} || 'localhost';
 
   if (!$DB || $DB eq '') {
     #$dbserver='localhost';
