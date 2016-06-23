@@ -44,3 +44,4 @@ Got no troubles, got no time, and everything is fine
 Coz I'm the king of everything
 It's all mine...
 Mine, mine, mine, mine, mine, mine
+{musicpath:/storage/emulated/0/SongBook/Media/Last Man on Earth.mp3}
