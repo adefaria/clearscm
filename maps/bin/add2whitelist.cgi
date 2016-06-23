@@ -2,8 +2,8 @@
 ################################################################################
 #
 # File:         $RCSfile: add2whitelist.cgi,v $
-# Revision:	$Revision: 1.1 $
-# Description:	Add an email address to the blacklist
+# Revision:     $Revision: 1.1 $
+# Description:  Add an email address to the blacklist
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Jan 16 20:25:32 PST 2006
 # Modified:     $Date: 2013/06/12 14:05:47 $
@@ -32,16 +32,16 @@ my $Userid;
 my $type = 'white';
 
 sub Add2List {
-  my $sender	= '';
-  my $nextseq	= MAPSDB::GetNextSequenceNo $userid, $type;
+  my $sender  = '';
+  my $nextseq = MAPSDB::GetNextSequenceNo $userid, $type;
 
   while () {
-    my $pattern	= param "pattern$nextseq";
-    my $domain	= param "domain$nextseq";
-    my $comment	= param "comment$nextseq";
+    my $pattern = param "pattern$nextseq";
+    my $domain  = param "domain$nextseq";
+    my $comment = param "comment$nextseq";
 
     last if ((!defined $pattern || $pattern eq '') &&
-	     (!defined $domain  || $domain  eq ''));
+             (!defined $domain  || $domain  eq ''));
 
     $sender = lc "$pattern\@$domain";
 
@@ -54,31 +54,31 @@ sub Add2List {
 
       print br "The email address, $sender, has been added to ${Userid}'s $type list";
       if ($messages > 0) {
-	if ($messages == 1) {
-	  print br 'Your previous message has been delivered';
-	} else {
-	  print br "Your previous $messages messages have been delivered";
-	} # if
+        if ($messages == 1) {
+          print br 'Your previous message has been delivered';
+        } else {
+          print br "Your previous $messages messages have been delivered";
+        } # if
       } elsif ($messages == -1) {
-	print br {-class => 'error'}, 'Unable to deliver message';
+        print br {-class => 'error'}, 'Unable to deliver message';
       } else {
-	print br 'Unable to find any old messages but future messages will now be delivered.';
+        print br 'Unable to find any old messages but future messages will now be delivered.';
       } # if
 
       # Now remove this entry from the other lists (if present)
       foreach my $otherlist ('black', 'null') {
-	my $sth = FindList $otherlist, $sender;
-	my ($sequence, $count);
+        my $sth = FindList $otherlist, $sender;
+        my ($sequence, $count);
 
-	($_, $_, $_, $_, $_, $sequence) = GetList $sth;
+        ($_, $_, $_, $_, $_, $sequence) = GetList $sth;
 
-	if ($sequence) {
-	  $count = DeleteList $otherlist, $sequence;
-	  print br "Removed $sender from ${Userid}'s " . ucfirst $otherlist . ' list'
-	    if $count > 0;
+        if ($sequence) {
+          $count = DeleteList $otherlist, $sequence;
+          print br "Removed $sender from ${Userid}'s " . ucfirst $otherlist . ' list'
+            if $count > 0;
 
-	  ResequenceList $userid, $otherlist;
-	} # if
+          ResequenceList $userid, $otherlist;
+        } # if
       } # foreach
     } # if
 
@@ -105,16 +105,16 @@ NavigationBar $userid;
 Add2List;
 
 print start_form {
-  -method	=> 'post',
-  -action	=> 'processaction.cgi',
-  -name		=> 'list'
+  -method => 'post',
+  -action => 'processaction.cgi',
+  -name   => 'list'
 };
 
 print '<p></p><center>',
-  hidden ({-name	=> 'type',
-	   -default	=> $type}),
-  submit ({-name	=> 'action',
-	   -value	=> 'Add New Entry'}),
+  hidden ({-name    => 'type',
+           -default => $type}),
+  submit ({-name    => 'action',
+           -value   => 'Add New Entry'}),
   '</center>';
 
 Footing;
