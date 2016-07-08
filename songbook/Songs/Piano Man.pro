@@ -58,4 +58,4 @@ And say, "Man, what are you doin' here?"
 Oh, la la la, di da da
 La la, di da da da dum
 
-{c:Chorus}
+{c:Chorus}{musicpath:/storage/emulated/0/SongBook/Media/Piano Man.mp3}

@@ -1,5 +1,6 @@
 {title:I Can See Clearly Now}
 {subtitle:Johnny Nash}
+
 {key:D}
 
 [D]I can see c[G]learly now the r[D]ain is gone

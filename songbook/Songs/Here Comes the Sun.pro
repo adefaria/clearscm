@@ -34,3 +34,4 @@ Here comes the sun, here comes the sun
 And I say it's all right
 Here comes the sun, here comes the sun
 It's all right, it's all right
+{musicpath:/storage/emulated/0/SongBook/Media/Here Comes the Sun.mp3}
