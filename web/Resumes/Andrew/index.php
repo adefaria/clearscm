@@ -53,8 +53,8 @@ function stoptimer () {
     <?php start_box ("cs2")?>
       <h2 align=center><a href="http://defaria.com">Andrew P. DeFaria</a></h2>
       <address style="text-align:center">
-      1676 Hope Drive #1915<br>
-      Santa Clara, California 95054-1721<br>
+      4139 Via Marina #709<br>
+      Marina del Rey, California 90292-5395<br>
       </address>
       <p style="text-align:center">
       Phone: 408-596-4937</a><br>
@@ -218,9 +218,22 @@ function stoptimer () {
 
   <h2>Clients</h2>
 
+  <p>May 2016 - Present<br>
+  <font class=dim>Contract</font><br>
+
+  <p><a href="http://icann.org"><img alt="ICANN" src="ICANN.png" border="0"></a><br></p>
+
+  <p>Working on keeping the Internet from exploding! ;-)</p>
+
+  <p>Working on creating servers to implement protocols such as RDAP (pretty
+  much the new whois(1)) and the like for testing SLA compliance of various TLD
+  registrars around the world.</p>
+
+  <hr noshade>
+
   <p><a href="http://audience.com"><img alt="Audience" src="Audience.png" border="0"></a><br><b>A Knowles Company</b></p>
 
-  <p>March 2014 - Present<br>
+  <p>March 2014 - April 2016<br>
   <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_audience.html">Audience</a></p>
 
@@ -435,25 +448,6 @@ function stoptimer () {
 
   <p>I designed and implemented a <a href="http://clearscm.com/clearquest/cqd">Clearquest
   Daemon</a>. Developed Release Reporting system. Automated branch merging.</p>
-
-  <hr noshade>
-
-  <p><a href="http://www.hp.com"><img src="HPLogo.gif" alt="Hewlett
-  Packard Company" title="Hewlett Packard Company" border=0></a></p>
-
-  <p>August 1999 - February 2001<br>
-  <font class=dim>Contract</font><br>
-  <a href="#">Hewlett Packard</a></p>
-
-  <h3><a href="http://hprasmg.cup.hp.com/Org/STD.html"> Systems
-  Technology Division</a></h3>
-
-  <h4><a href="http://pdlweb.cup.hp.com">Enterprise Java Lab</a></h4>
-
-  <p>Performed Security Audit for the lab. Also migrated user data to HP NetStorage
-  6000.</p>
-
-  <p>Set up Netscape Enterprise Web Server and iPlanet 4.1 Web Server.</p>
 
   <hr noshade>
 
