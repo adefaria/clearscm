@@ -48,4 +48,4 @@ But not to fear that you've seen better days
 {c:Break}
 
 {c:Chorus 3x fade} 
-{musicpath:/sdcard/SongBook/Media/The Raven.mp3}
+{musicpath:/sdcard/SongBook/Media/Strong Enough to Win.mp3}

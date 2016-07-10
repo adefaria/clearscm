@@ -18,7 +18,7 @@ That is burning in it's greed
 
 [F] [C]
 
-[Eb] [F] [Eb] [D] 2x
+[Eb] [Dm] [C] 2x
 
 Why do we never get an answer
 When we're knocking at the door
