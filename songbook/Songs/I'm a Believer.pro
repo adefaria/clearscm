@@ -39,3 +39,4 @@ Dissapointment haunted all my dream
 {c:Chorus}
 
 {c:vamp}
+{musicpath:/storage/emulated/0/SongBook/Media/I'm a Believer.mp3}
