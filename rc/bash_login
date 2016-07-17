@@ -300,6 +300,9 @@ export DISPLAY=${DISPLAY:-:0}
 # Reset home in case it changed
 HOME=$saved_home
 
+# Odd but Eclipse's Egit can't seem to work with defaria.com unless this is set.
+export GIT_SSH=/usr/bin/ssh
+
 # Now go home (in case we were not autmatically cd'ed there)
 if [ $(id -u) -ne 0 ]; then
   cd
