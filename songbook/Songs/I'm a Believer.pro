@@ -1,27 +1,41 @@
-{title:All Right Now}
-{subtitle:Free}
-{Key: A}
+{title:I'm a Believer}
+{subtitle:Monkees}
+{Key: G}
 
-[A] [D] [A] [G] [D] [A]
-
-There she [A]stood, in [D]the [A]street, Smi[G]ling from her [D]head to her [A]feet
-I said hey[A], what is [D]this[A], Now ba[G]by, maybe sh[D]e's in [A]need of a kiss
-I said [A]hey, what’s your [D]name b[A]aby, [G]Maybe we can [D]see things the [A]same
-Now don't you [A]wait, or [D]hesit[A]ate, let's move[G] before they raise they [D]parking rate[A],
+[G7] [C] [G]
+          [c] [d] [f] [c] [d] [f]
+          
+[G]I thought love was [D]only true in [G]fairy tales
+[G]Meant for someone [D]else but not for [G]me
+Oh, [C]love was out to [G]get me (do do do do)
+[C]That's the way it [G]seemed
+[C]Disappointment [G]haunted all my [D7]dreams
 
 {c:Chorus}
-[A]All riiight no[G]w, baby, it's a[D]ll right [A]now
-All riiight now, baby, it's all right now
 
-I took her home, to my place, Watching every move on her face
-She said look, what's your game, baby, Are you trying to put me in shame
-I said slow, don't go so fast, Don't you think that love can last
-She said love, Lord above, Now you're trying to trick me in love
+Then I saw her [G7]face [C] [G] 
+Now I'm a be[G7]liever[C] [G]
+Not a [G7]trace [C] [G]
+Of doubt in my [G7]mind[C] [G]
+I'm in [G]love mmmm [C]ah
+I'm a [G]believer
+I couldn't [F]leave her if I tried[D]
+
+I thought love was more or les
+A giving thing
+Seems the more I gave the less I got
+What's the use in trying?
+All you get is pain
+When I needed sunshine I got rain
 
 {c:Chorus}
 
 {c:Instrumental Break}
 
-{c:Verse 2}
+Ah love was out to get me
+Now that's the way it seemed
+Dissapointment haunted all my dream 
 
-{c:Chorus: 4x}
+{c:Chorus}
+
+{c:vamp}
