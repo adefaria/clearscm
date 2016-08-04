@@ -61,7 +61,7 @@ function title_bar {
          "$TERM" = "vt100"  -o \
          "$TERM" = "xterm"  -o \
          "$TERM" = "xterm-256color" ]; then
-    PS1="\[\e]0;$prefix$current_dir\a\[$RED\]$ROOT\[$LIGHT_CYAN\]$SYSNAME:\[$WHITE\]"
+    PS1="\[\e]0;$prefix$current_dir\007\]\[$RED\]$ROOT\[$LIGHT_CYAN\]$SYSNAME:\[$WHITE\]"
   fi
 } # title_bar
 
