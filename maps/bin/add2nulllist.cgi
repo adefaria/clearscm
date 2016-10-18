@@ -36,12 +36,13 @@ sub Add2List {
   my $nextseq  = MAPSDB::GetNextSequenceNo $userid, $type;
 
   while () {
-    my $pattern = param "pattern$nextseq";
-    my $domain  = param "domain$nextseq";
-    my $comment = param "comment$nextseq";
+    my $pattern   = param "pattern$nextseq";
+    my $domain    = param "domain$nextseq";
+    my $comment   = param "comment$nextseq";
+    my $hit_count = param "hit_count$nextseq";
 
     last if ((!defined $pattern || $pattern eq '') &&
-              (!defined $domain  || $domain  eq ''));
+              (!defined $domain || $domain  eq ''));
 
     $sender = lc "$pattern\@$domain";
 
@@ -50,10 +51,10 @@ sub Add2List {
     if ($status != 0) {
       print br {-class => 'error'}, "The email address $sender is already on ${Userid}'s $type list";
     } else {
-      Add2Nulllist $sender, $userid, $comment;
+      Add2Nulllist $sender, $userid, $comment, $hit_count;
 
       print br "The email address, $sender, has been added to ${Userid}'s $type list";
-        
+
       # Now remove this entry from the other lists (if present)
       foreach my $otherlist ('white', 'black') {
         my $sth = FindList $otherlist, $sender;
@@ -100,7 +101,7 @@ print start_form {
 
 print '<p></p><center>',
   hidden ({-name        => 'type',
-           -default   => $type}),
+           -default     => $type}),
   submit ({-name        => 'action',
            -value       => 'Add New Entry'}),
   '</center>';

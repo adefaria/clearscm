@@ -169,15 +169,15 @@ sub Add2Blacklist {
   Info "Removed $count emails from $sender"
 } # Add2Blacklist
 
-sub Add2Nulllist ($$;$) {
+sub Add2Nulllist ($$;$$) {
   # Add2Nulllist will add an entry to the nulllist
-  my ($sender, $userid, $comment) = @_;
+  my ($sender, $userid, $comment, $hit_count) = @_;
   
   # First SetContext to the userid whose null list we are adding to
   MAPSDB::SetContext $userid;
 
   # Add to null list
-  AddList "null", $sender, 0, $comment;
+  AddList "null", $sender, 0, $comment, $hit_count;
 
   # Log that we null listed the sender
   Info "Added $sender to " . ucfirst $userid . "'s null list";
@@ -242,10 +242,12 @@ sub AddEmail ($$$) {
   MAPSDB::AddEmail $sender, $subject, $data;
 } # AddEmail
 
-sub AddList ($$$;$) {
-  my ($listtype, $pattern, $sequence, $comment) = @_;
+sub AddList ($$$;$$) {
+  my ($listtype, $pattern, $sequence, $comment, $hit_count) = @_;
 
-  MAPSDB::AddList $listtype, $pattern, $sequence, $comment, CountMsg $pattern;
+  $hit_count //= CountMsg $pattern;
+
+  MAPSDB::AddList $listtype, $pattern, $sequence, $comment, $hit_count;
 } # AddList
 
 sub AddUser ($$$$) {
@@ -723,10 +725,10 @@ sub Space ($) {
   return MAPSDB::Space $userid;
 } # Space
 
-sub UpdateList ($$$$$$) {
-  my ($userid, $type, $pattern, $domain, $comment, $sequence) = @_;
+sub UpdateList ($$$$$$$) {
+  my ($userid, $type, $pattern, $domain, $comment, $hit_count, $sequence) = @_;
 
-  return MAPSDB::UpdateList $userid, $type, $pattern, $domain, $comment, $sequence;
+  return MAPSDB::UpdateList $userid, $type, $pattern, $domain, $comment, $hit_count, $sequence;
 } # UpdateList
 
 sub UpdateUser ($$$$) {

@@ -2,8 +2,8 @@
 ################################################################################
 #
 # File:         $RCSfile: modifyentries.cgi,v $
-# Revision:	$Revision: 1.1 $
-# Description:	Modify list entries
+# Revision:     $Revision: 1.1 $
+# Description:  Modify list entries
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Jan 16 20:25:32 PST 2006
 # Modified:     $Date: 2013/06/12 14:05:47 $
@@ -49,7 +49,6 @@ sub ReturnSequenceNbrs {
 # Main
 my $i = 0;
 
-
 foreach (ReturnSequenceNbrs) {
   UpdateList
     $userid,
@@ -57,6 +56,7 @@ foreach (ReturnSequenceNbrs) {
     param ("pattern$_"),
     param ("domain$_"),
     param ("comment$_"),
+    param ("hit_count$_"),
     $_;
   $i++;
 } # foreach
