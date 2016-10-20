@@ -93,7 +93,7 @@ sub PrintInputLine ($$$$$) {
       ($pattern, $domain) = split /\@/, $email;
     } # if
 
-    $hit_count = param "hit_count$email_nbr";
+    $hit_count = CountMsg $email;
   } # if
 
   print Tr [

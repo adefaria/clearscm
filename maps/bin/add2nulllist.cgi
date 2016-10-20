@@ -51,6 +51,8 @@ sub Add2List {
     if ($status != 0) {
       print br {-class => 'error'}, "The email address $sender is already on ${Userid}'s $type list";
     } else {
+      $hit_count ||= CountMsg $sender;
+
       Add2Nulllist $sender, $userid, $comment, $hit_count;
 
       print br "The email address, $sender, has been added to ${Userid}'s $type list";
