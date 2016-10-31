@@ -14,7 +14,7 @@
 ################################################################################
 function append_to_path {
   component="$1"
-  
+
   if [ -d "$component" ]; then
     if [ -z "$PATH" ]; then 
       PATH="$component"
@@ -23,6 +23,14 @@ function append_to_path {
     fi
   fi
 } # append_to_path
+
+function prepend_to_path {
+ component="$1"
+
+  if [ -d "$component" ]; then
+    PATH="$component:$PATH"
+  fi
+} # prepend_to_path
 
 function append_to_manpath {
   component="$1"
@@ -135,4 +143,3 @@ if [ "hp-ux" = "10" ]; then
   export SHLIB_PATH=$SHLIB_PATH:$M_LROOT/bin
   export LD_LIBRARY_PATH=$SHLIB_PATH:$M_LROOT/bin
 fi
-

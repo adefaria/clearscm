@@ -12,12 +12,10 @@
 # (c) Copyright 2012, Andrew@DeFaria.com, all rights reserved.
 #
 ################################################################################
-append_to_path /projects/mob_tools/scripts
-append_to_path /projects/mob_tools/bin
+prepend_to_path /tools/bin
+prepend_to_path /usr/brcm/ba/bin
+
 append_to_path /tools/ecloud/commander/bin
-append_to_path /usr/brcm/ba/bin
-append_to_path /projects/mob_tools/scripts
-append_to_path /tools/bin
 append_to_path /opt/Perforce
 
 if [ -f "/cygdrive/c/Program Files/Perforce/p4.exe" ]; then
@@ -28,6 +26,4 @@ fi
 
 alias baperl=/usr/brcm/ba/bin/perl
 
-export CDPATH=$CDPATH:/mcsi:/mob_tools
-
-alias repo=/projects/mob_tools/bin/repo
+export CDPATH=$CDPATH:/tools:/projects

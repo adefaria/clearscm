@@ -23,7 +23,7 @@ SYSNAME=$(echo ${SYSNAME:0:1} | tr [:lower:] [:upper:])$(echo ${SYSNAME:1}   | t
 
 # Aliasing
 case "$SYSNAME" in
-  Ande-4848)
-    SYSNAME="ADeFaria"
+  C02s608vg8wp)
+    SYSNAME="Venus"
     ;;
 esac

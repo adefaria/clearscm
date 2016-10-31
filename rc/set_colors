@@ -16,11 +16,19 @@ esc=$(echo "\033")
 
 if [ "$TERM" = "vt100" -o \
      "$TERM" = "vt220" ]; then
-     NORMAL="$esc[0m"
-     BOLD="$esc[1m"
-     UNDERLINE="$esc[4m"
-     BLINK="$esc[5m"
-     INVERSE="$esc[7m"
+  NORMAL="$esc[0m"
+  BOLD="$esc[1m"
+  UNDERLINE="$esc[4m"
+  BLINK="$esc[5m"
+  INVERSE="$esc[7m"
+
+  if [ "$1" = '-v' ]; then
+    echo    "Terminal: $TERM"
+    echo -e "${BOLD}Bold$NORMAL"
+    echo -e "${UNDERLINE}Underline$NORMAL"
+    echo -e "${BLINK}Blink$NORMAL"
+    echo -e "${INVERSE}Inverse$NORMAL"
+  fi
 elif [ "$TERM" = "dtterm" -o \
        "$TERM" = "xterm"     ]; then
   NORMAL="$esc[39m"
@@ -38,6 +46,17 @@ elif [ "$TERM" = "dtterm" -o \
   B_AQUA=$AQUA
   WHITE="$esc[36m"
   B_WHITE=$WHITE
+
+  if [ "$1" = "-v" ]; then
+    echo    "Terminal: $TERM"
+    echo -e "${RED}Red$NORMAL\t${B_RED}Bright red$NORMAL"
+    echo -e "${GREEN}Green$NORMAL\t${B_GREEN}Bright green$NORMAL"
+    echo -e "${YELLOW}Yellow$NORMAL\t${B_YELLOW}Bright green$NORMAL"
+    echo -e "${BLUE}Blue$NORMAL\t${B_BLUE}Bright blue$NORMAL"
+    echo -e "${MAGENTA}Magenta$NORMAL\t${B_MAGENTA}Bright magenta$NORMAL"
+    echo -e "${AQUA}Aqua$NORMAL\t${B_AQUA}Bright aqua$NORMAL"
+    echo -e "${WHITE}White$NORMAL\t${B_WHITE}Bright white$NORMAL"
+  fi
 elif [ "$TERM" = "xterm-256color" ]; then
   NORMAL="$esc[39m"
   BLACK="$esc[30m"
@@ -55,6 +74,15 @@ elif [ "$TERM" = "xterm-256color" ]; then
   LIGHT_MAGENTA="$esc[94m"
   LIGHT_CYAN="$esc[96m"
   WHITE="$esc[97m"
+
+  if [ "$1" = "-v" ]; then
+    echo    "Terminal: $TERM"
+    echo -e "${RED}Red$NORMAL\t${GREEN}Green$NORMAL\t${YELLOW}Yellow$NORMAL"
+    echo -e "${BLUE}Blue$NORMAL\t${MAGENTA}Magenta$NORMAL\t${CYAN}Cyan$NORMAL"
+    echo -e "${BLACK}Black$NORMAL\t${LIGHT_GRAY}Light gray$NORMAL\t${DARK_GRAY}Dark gray$NORMAL"
+    echo -e "${LIGHT_RED}Light red$NORMAL\t${LIGHT_GREEN}Light green$NORMAL\t${LIGHT_YELLOW}Light yellow$NORMAL"
+    echo -e "${LIGHT_MAGENTA}Light magenta\t${LIGHT_CYAN}Light cyan$NORMAL\t${WHITE}White$NORMAL"
+  fi
 elif [ "$TERM" = "hp" -o "$TERM" = "hpterm" ]; then
   NORMAL="$esc&d@$esc&v0S"
   RED="$esc&v1S"
@@ -81,4 +109,15 @@ elif [ "$TERM" = "hp" -o "$TERM" = "hpterm" ]; then
   INVERSE="$esc&v7S"
   HB_INVERSE="$esc&v7S$esc&dK"
   B_INVERSE="$esc&v7S$esc&dB"
+
+  if [ "$1" = "-v" ]; then
+    echo    "Terminal: $TERM"
+    echo -e "${RED}Red$NORMAL\t${HB_RED}Half bright red$NORMAL\t${B_RED}Bright red$NORMAL"
+    echo -e "${GREEN}Green$NORMAL\t${HB_GREEN}Half bright green$NORMAL\t${B_GREEN}Bright green$NORMAL"
+    echo -e "${YELLOW}Yellow$NORMAL\t${HB_YELLOW}Half bright yellow$NORMAL\t${B_YELLOW}Bright yellow$NORMAL"
+    echo -e "${BLUE}Blue$NORMAL\t${HB_BLUE}Half bright blue$NORMAL\t${B_BLUE}Bright blue$NORMAL"
+    echo -e "${PURPLE}Purple$NORMAL\t${HB_PURPLE}Half bright purple$NORMAL\t${B_PURPLE}Bright Purple$NORMAL"
+    echo -e "${AQUA}Aqua\t${HB_AQUA}Half bright aqua$NORMAL\t${B_AQUA}Bright aqua$NORMAL"
+    echo -e "${INVERSE}Inverse$NORMAL\t${HB_INVERSSE}Half bright inverse$NORMAL\t${B_INVERSE}Bright inverse$NORMAL"
+  fi
 fi
