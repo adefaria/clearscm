@@ -1,0 +1,336 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+=pod
+
+=head1 NAME $RCSfile: rexec,v $
+
+Run arbitrary command on a set of machines
+
+=head1 VERSION
+
+=over
+
+=item Author
+
+Andrew DeFaria <Andrew@ClearSCM.com>
+
+=item Revision
+
+$Revision: 1.0 $
+
+=item Created:
+
+Tue Jan  8 15:57:27 MST 2008
+
+=item Modified:
+
+$Date: 2008/02/29 15:09:15 $
+
+=back
+
+=head1 SYNOPSIS
+
+ Usage: rexec [-u|sage] [-v|erbose] [-d|ebug] [-t|ype <machine type>]
+              <command>
+
+ Where:
+   -u|sage     Print this usage
+   -v|erbose:  Verbose mode
+   -d|ebug:    Print debug messages
+   -t|ype:     Machine type (Linux, Windows)
+   <command>:  Command to execute
+
+=head1 DESCRIPTION
+
+This script will perform and arbitrary command on a set of machines.
+
+=cut
+
+use FindBin;
+use Getopt::Long;
+use Pod::Usage;
+use Term::ANSIColor qw(:constants);
+use POSIX ":sys_wait_h";
+
+use lib "$FindBin::Bin/../lib", "$FindBin::Bin/../clearadm/lib";
+
+use Display;
+use Clearadm;
+use Logger;
+use Rexec;
+use Utils;
+
+my %total;
+my ($currentHost, $skip, $log);
+
+my %opts = (
+  usage    => sub { pod2usage },
+  help     => sub { pod2usage (-verbose => 2)},
+  verbose  => sub { set_verbose },
+  debug    => sub { set_debug },
+  parallel => 0,
+);
+
+my (%workerStatuses, %workerNames);
+
+sub Interrupted {
+  use Term::ReadKey;
+
+  display BLUE . "\nInterrupted execution on $currentHost" . RESET;
+
+  Stats \%total;
+
+  display_nolf "Executing on " . YELLOW . $currentHost . RESET . " - "
+    . GREEN     . BOLD . "S" . RESET . GREEN    . "kip"         . RESET . ", "
+    . CYAN      . BOLD . "C" . RESET . CYAN     . "ontinue"     . RESET . " or "
+    . MAGENTA   . BOLD . "A" . RESET . MAGENTA  . "bort run"    . RESET . " ("
+    . GREEN     . BOLD . "s" . RESET . "/"
+    . CYAN      . BOLD . "C" . RESET . "/"
+    . MAGENTA   . BOLD . "a" . RESET . ")?";
+
+  ReadMode ("cbreak");
+  my $answer = ReadKey (0);
+  ReadMode ("normal");
+
+  if ($answer eq "\n") {
+    display "c";
+  } else {
+    display $answer;
+  } # if
+
+  $answer = lc $answer;
+
+  if ($answer eq "s") {
+    *STDOUT->flush;
+    display "Skipping $currentHost";
+    $skip = 1;
+    $total{Skips}++;
+  } elsif ($answer eq "a") {
+    display RED . "Aborting run". RESET;
+    Stats \%total;
+    exit;
+  } else {
+    display "Continuing...";
+    $skip = 0;
+  } # if
+  
+  return;
+} # Interrupted
+
+sub workerDeath {
+  while ((my $worker = waitpid (-1, WNOHANG)) > 0) {
+    my $status  = $?;
+
+    # Ignore all child deaths except for processes we started
+    next if !exists $workerStatuses{$worker};
+
+    $workerStatuses{$worker} = $status;
+  } # while
+
+  $SIG{CHLD} = \&workerDeath;
+  
+  return;
+} # workerDeath
+
+sub execute ($$;$) {
+  my ($cmd, $host, $prompt) = @_;
+
+  my ($remoteHost, @lines);
+
+  # Mark $currentHost for interrupt
+  $currentHost = $host;
+  
+  # Start a log...
+  $log = Logger->new (name => $host) if $opts{log};
+  
+  verbose_nolf "Connecting to machine $host...";
+
+  display_nolf YELLOW . "$host:" . RESET;
+
+  eval {
+    $remoteHost = Rexec->new (
+      host   => $host,
+      prompt => $prompt,
+    );
+  };
+
+  # Problem with creating Rexec object. Log error if logging and return.
+  if ($@ || !$remoteHost) {
+    if ($opts{log}) {
+      $log->err ("Unable to connect to $host to execute command: $cmd") if $opts{log};
+    } else {
+      display RED . 'ERROR:' . RESET . " Unable to connect to $host to execute command: $cmd";
+    } # if
+
+    $total{ConnectFailures}++;
+
+    return (1, ());
+  } # if
+
+  verbose " connected";
+
+  display UNDERLINE . "$cmd" . RESET unless $opts{quiet};
+
+  @lines = $remoteHost->execute ($cmd);
+
+  if ($skip) {
+    # Kick current connection
+    kill INT => $remoteHost->{handle}->pid;
+  } # if
+
+#  if ($opts{parallel} != 0) {
+#    $log->err ("Unable to connect to $host to execute command\n$cmd") if $opts{log};
+#
+#    $total{ConnectFailures}++;
+#  } # if
+
+  verbose "Disconnected from $host";
+
+  my $status = $remoteHost->status;
+
+  return ($status, @lines);
+} # execute
+
+sub parallelize ($%) {
+  my ($cmd, %machines) = @_;
+
+  my $thread_count = 1;
+
+  foreach my $host (sort keys %machines) {
+    if ($thread_count <= $opts{parallel}) {
+      debug "Processing $host ($thread_count)";
+      $thread_count++;
+
+      if (my $pid = fork) {
+        # In parent process - record this host and its status
+        $workerNames{$pid} = $host;
+      } else {
+        # In spawned child...
+        $pid = $$;
+
+        debug "Starting process for $host [$pid]";
+
+        $workerNames{$pid} = $host;
+        
+        # Mark currentHost for interrupt (How does this work in the presence
+        # of parallelization?).
+        $currentHost = $host;
+       
+        my ($status, @lines) = execute $cmd, $host, $machines{$host};
+
+        $log = Logger->new (name => $host);
+
+        $log->log ($_) foreach (@lines);
+
+        exit $status;
+      } # if
+    } else {
+      # Wait for somebody to finish;
+      debug "Waiting for somebody to exit...";
+      my $reaped = wait;
+
+      debug "Reaped $workerNames{$reaped} [$reaped] (Status: $?)";
+      $workerStatuses{$reaped} = $? >> 8 if $reaped != -1;
+
+      $thread_count--;
+    } # if
+  } # foreach
+
+  # Wait for all kids
+  my %threads = %workerNames;
+
+  foreach (keys %threads) {
+    if (waitpid ($_, 0) == -1) {
+      delete $threads{$_};
+    } else {
+      $workerStatuses{$_} = $? >> 8;
+      debug "$threads{$_} [$_] exited with a status of $workerStatuses{$_}";
+    } # if
+  } # foreach
+
+  debug "All processed completed - Status:";
+
+  if (get_debug) {
+    foreach (sort keys %workerStatuses) {
+      debug "$workerNames{$_}\t[$_]:\tStatus: $workerStatuses{$_}";
+    } # foreach
+  } # if
+
+  # Gather output...
+  display "Output of all executions";
+  foreach my $host (sort keys %machines) {
+    if (-f "$host.log") {
+      display "$host:$_" foreach (ReadFile ("$host.log"));
+
+      #unlink "$_host.log";
+    } else {
+      warning "Unable to find output for $host ($host.log missing)";
+    } # if
+  } # foreach
+  
+  return;
+} # parallelize
+
+# Print the totals if interrupted
+$SIG{INT} = \&Interrupted;
+
+# Get our options
+GetOptions (
+  \%opts,
+  'usage',
+  'help',
+  'verbose',
+  'debug',
+  'log',
+  'quiet',
+  'type=s',
+  'parallel=i',
+);
+
+my $cmd = join ' ', @ARGV;
+
+pod2usage ('No command specified') unless $cmd;
+
+my $machines = Clearadm->new;
+
+if ($opts{parallel} > 0) {
+  #parallelize ($cmd, %machines);
+  Stats \%total;
+  exit;
+} # if
+
+display "NOTE: Logging outputs to <host>.log" if $opts{log};
+
+my $condition = $opts{type} ? "type=$opts{type}" : '';
+
+foreach ($machines->SearchSystem ($condition)) {
+  my %system = %$_;
+  $total{Machines}++;
+
+  my ($status, @lines) = execute $cmd, $system{name};
+
+  if ($skip) {
+    $skip = 0;
+    next;
+  } # if
+
+  if (defined $status) {
+    if ($status == 0) {
+      $total{Executions}++;
+    } else {
+      $total{Failures}++;
+
+      next;
+    } # if
+  } # if
+
+  if ($opts{log}) {
+    $log->log ($_) foreach (@lines);
+  } else {
+    display $_ foreach (@lines);
+  } # if
+} # foreach
+
+Stats \%total;

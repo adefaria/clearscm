@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+# Simple script to use ssh to tunnel ports for IMAP (1143 -> 143) and SMTP (1025 -> 25)
+# to defaria.com so I can read and write email to my home server.
+#
+# Note -Nf puts ssh in the background after establishing the tunnel.
+ssh -Nf -L localhost:1025:defaria.com:25 -L localhost:1143:defaria.com:143 andrew@defaria.com

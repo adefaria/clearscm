@@ -30,9 +30,10 @@ sub GetItems {
 
     my @address = split /\@/, $fields [0];
 
-    $item {pattern}	= $address [0];
-    $item {domain}	= $address [1];
-    $item {comment}	= $fields [1] ? $fields [1] : "";
+    $item{pattern}   = $address[0];
+    $item{domain}    = $address[1];
+    $item{comment}   = $fields[1] ? $fields[1] : '';
+    $itme{hit_count} = $fields[2] ? $fields[2] : 0;
 
     push @items, \%item;
   } # while
@@ -41,37 +42,42 @@ sub GetItems {
 } # GetItems
 
 sub Add2List {
-  my @items	= @_;
+  my @items = @_;
 
-  my $sender	= "";
-  my $nextseq	= MAPSDB::GetNextSequenceNo $userid, $type;
+  my $sender  = "";
+  my $nextseq = MAPSDB::GetNextSequenceNo $userid, $type;
 
   foreach (@items) {
-    my %item	= %{$_};
+    my %item = %{$_};
 
-    my $pattern	= $item {pattern};
-    my $domain	= $item {domain};
-    my $comment	= $item {comment};
+    my $pattern   = $item{pattern};
+    my $domain    = $item{domain};
+    my $comment   = $item{comment};
+    my $hit_count = $item{hit_count};
 
     display_nolf "Adding $pattern\@$domain ($comment) to null list ($nextseq)...";
-    last if ((!defined $pattern || $pattern eq "") &&
-	     (!defined $domain  || $domain eq ""));
-    $sender	= lc ("$pattern\@$domain");
+
+    last if ((!defined $pattern || $pattern eq '') &&
+             (!defined $domain  || $domain  eq ''));
+
+    $sender = lc ("$pattern\@$domain");
 
     if (OnNulllist $sender) {
       display " Already on list";
     } else {
-      Add2Nulllist $sender, $userid, $comment;
+      Add2Nulllist $sender, $userid, $comment, $hit_count;
       display " done";
-	
+
       # Now remove this entry from the other lists (if present)
       foreach my $otherlist ("white", "black") {
-	my $sth = FindList $otherlist, $sender;
-	my ($sequence, $count);
-	($_, $_, $_, $_, $_, $sequence) = GetList $sth;
-	if (defined $sequence) {
-	  $count = DeleteList $otherlist, $sequence;
-	} # if
+        my $sth = FindList $otherlist, $sender;
+        my ($sequence, $count);
+
+        ($_, $_, $_, $_, $_, $sequence) = GetList $sth;
+
+        if ($sequence) {
+          $count = DeleteList $otherlist, $sequence;
+        } # if
       } # foreach
     } # if
     $nextseq++;
@@ -82,7 +88,7 @@ sub Add2List {
 my $filename;
 
 if ($ARGV [0]) {
-  $filename = $ARGV [0];
+  $filename = $ARGV[0];
 } else {
   error "Must specify a filename of addresses to null list", 1;
 } # if

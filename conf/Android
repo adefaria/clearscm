@@ -1,0 +1,215 @@
+How to use adb with the HTC Hero:
+
+Reference: http://theunlockr.com/2009/11/07/how-to-root-your-cdma-htc-hero-sprint-verizon/
+
+. Make sure Settings: Applications: Development has USB debugging toggle on
+
+. Connect Hero to USB cable
+
+. On desktop cd to /opt/android/bin
+
+. Start adb server as root by doing:
+
+	$ root ./adb start-server
+
+. Verify that you can talk to the device with:
+
+	$ adb devices
+	List of devices attached 
+	HT9BJHF01436	device
+
+  if you don't see a device listed then something's wrong (Like perhaps
+  you didn't run the adb server as root)
+
+. Get root shell with:
+
+	$ adb shell
+        $ /data/local/asroot2 /system/bin/sh
+
+  Actually just doing adb shell gives me a root shell now.
+
+. Remount /system as read/write:
+
+	$ mount -o remount,rw -t yaffs2 /dev/block/mtdblock3 /system
+
+  You now have /system mounted as read/write!
+
+  I think this has been simplified to adb remount before doing adb shell.
+  Not sure how to mount it read only again... Of course you could try
+
+	$ mount -o remount,ro -t yaffs2 /dev/block/mtdblock3 /system
+
+Pushing and pulling files:
+
+From Linux you can copy files to and from the Hero with
+
+	$ adb push <from> <to>
+	$ adb pull <from> <to>
+--------------------------------------------------------------------------------
+List of current apps (* saved to /scard/saved and uninstalled with pm
+uninstall <program name>)
+
+AccountSyncManager.apk
+AdobeReader.apk
+AppSharing.apk
+ApplicationsProvider.apk
+** Blockbuster_htc.apk
+Bluetooth.apk
+BrcmBluetoothServices.apk
+Browser.apk
+BugReport.apk
+Calculator.apk
+Calendar.apk
+CalendarProvider.apk
+CertInstaller.apk
+CheckinProvider.apk
+ContactsProvider.apk
+CustomizationSettingsProvider.apk
+CustomizationSetup.apk
+DCSImpl.apk
+DCSStock.apk
+DCSUtility.apk
+DMClient.apk
+DMPortRead.apk
+DebugTool.apk
+DefaultContainerService.apk
+* DownloadProvider.apk
+* DownloadProviderUi.apk
+DrmProvider.apk
+EPST.apk
+Facebook.apk
+FieldTrial.apk
+FilePicker.apk
+* FlashLitePlugin.apk
+* Flashlight.apk
+Flickr.apk
+* FriendStream.apk
+FutureDialService.apk
+GSD.apk
+GenieWidget.apk
+Gmail.apk
+GoogleCalendarSyncAdapter.apk
+GoogleContactsSyncAdapter.apk
+GoogleFeedback.apk
+GooglePartnerSetup.apk
+GoogleQuickSearchBox.apk
+GoogleServicesFramework.apk
+HTCAlbum.apk
+HTCCamera.apk
+** HTCMobileGuide.apk
+HTCSetupWizard.apk
+HTC_Evo_Sprint_NOVA_HEP_ML_320.apk
+HTC_IME.apk
+HTMLViewer.apk
+HtcAddProgramWidget.apk
+HtcCalculatorWidget.apk
+** HtcCarPanel.apk
+HtcCdmaMccProvider.apk
+HtcClockWidget.apk
+HtcContacts.apk
+HtcDialer.apk
+HtcDm.apk
+** HtcFMRadio.apk
+HtcFacebook.apk
+** HtcFootprints.apk
+** HtcFootprintsWidget.apk
+HtcIQAgent.apk
+HtcLocationPicker.apk
+HtcLocationService.apk
+HtcLockScreen.apk
+HtcLoggers.apk
+HtcMessageProvider.apk
+HtcMessageUploader.apk
+HtcMusic.apk (This is tempting)
+HtcPhotoWidget.apk
+HtcProfileWidget.apk
+** HtcRingtoneTrimmer.apk
+** HtcRingtoneWidget.apk
+HtcSettingsProvider.apk
+HtcSoundRecorder.apk
+HtcSprintService.apk
+HtcStreamPlayer.apk
+HtcSyncwidget.apk
+* HtcTwitter.apk
+HtcWeatherWallpaper.apk
+IQRD.apk
+** Kindle-1.0.2.80600055-OEM-SingleSign.apk
+LiveWallpapers.apk
+LiveWallpapersPicker.apk
+MagicSmokeWallpapers.apk
+Mail.apk
+Maps.apk
+MarketUpdater.apk
+MediaProvider.apk
+MediaUploader.apk
+Mms.apk
+Mode10Wallpapers.apk
+NetworkLocation.apk
+* NewsReader.apk
+PCSCII.apk
+PVWmdrmProxy.apk
+PVWmdrmService.apk
+PackageInstaller.apk
+Phone.apk
+PicoTts.apk
+PluginManager.apk
+QuickLookup.apk
+Quickoffice.apk
+* RSS.apk
+Rosie.apk
+Settings.apk
+SettingsProvider.apk
+SetupWizard.apk
+SocialNetworkProvider.apk
+SoundRecorder.apk
+* SprintTVWidget.apk
+* SprintTV_v1_0_4_46_124166.apk
+* SprintZoneNC.apk
+* Sprint_InstallerNC_v2_1_0.apk
+* Sprint_Navigator.apk
+Stock.apk
+Street.apk
+Superuser.apk
+* Swype.apk
+SystemUI.apk
+Talk.apk
+TelephonyProvider.apk
+TtsService.apk
+Updater.apk
+UpgradeSetup.apk
+UploadProvider.apk
+UserDictionaryProvider.apk
+Vending.apk
+VisualizationWallpapers.apk
+VoiceDialer.apk
+VoiceSearch.apk
+VpnServices.apk
+Weather.apk
+WeatherAgentService.apk
+WeatherProvider.apk
+WeatherSyncProvider.apk
+* WidgetDownloadManager.apk
+WifiRouter.apk
+WorldClock.apk
+YouTube.apk
+** amazonmp3.apk
+** com.htc.FMRadioWidget.apk
+* com.htc.FriendStreamWidget.apk
+com.htc.MusicWidget.apk
+* com.htc.NewsReaderWidget.apk
+com.htc.StockWidget.apk
+* com.htc.TwitterWidget.apk
+com.htc.WeatherWidget.apk
+htcbookmarkwidget.apk
+htccalendarwidgets.apk
+htccontactwidgets.apk
+htcmailwidgets.apk
+htcmsgwidgets.apk
+htcsettingwidgets.apk
+install_flash_player.apk
+* nascar09-prod-release.apk
+* qik.apk
+restartapp.apk
+sfl-prod-release.apk
+teeter.apk
+vtt-sprint_v5_1_60.apk

@@ -1,0 +1,17 @@
+Protocol:		XMPP
+Username:		andrewdefaria
+Domain:			chat.facebook.com
+Resource:		Pidgin
+Password:
+Local alias:		Andrew DeFaria
+New mail notificiation:	On
+Use this buddy icond fo rthis account...
+Connection security:	Use encryption if available
+Allow plaintext		Off
+Connect port:		5222
+Connect Server:		chat.facebook.com
+File transfer proxies:	proxy.eu.jabber.org
+Show Custom Smileys:	On
+Use Bot Sentry with this account: On
+Proxy type:		Use GNOME Proxy Settings
+Create this new account on the server: Off

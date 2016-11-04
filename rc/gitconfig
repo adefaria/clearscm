@@ -1,39 +1,45 @@
 [user]
-	name = Andrew DeFaria
-	email = Andrew@DeFaria.com
+  name = Andrew DeFaria
+  email = Andrew@DeFaria.com
+
 [pack]
-	windowMemory=128m
-	threads=1
-	deltaCacheSize=128m
+  windowMemory=128m
+  threads=1
+  deltaCacheSize=128m
+
 [core]
-	pager = less -RX
-	packedGitLimit=128m
-	packedGitWindowSize=128m
+  pager = less -RX
+  packedGitLimit=128m
+  packedGitWindowSize=128m
+
 [color]
-	status=auto
-	diff=auto
-	branch=auto
+  status=auto
+  diff=auto
+  branch=auto
 
 # Currently these are restating the default
 [color "branch"]
-	current=green
-	local=white
-	remote=red
+  current=green
+  local=white
+  remote=red
+
 [color "diff"]
-	external = /usr/local/bin/git-meld
+  external = /usr/local/bin/git-meld
+
 [color "status"]
-	added=yellow
-	changed=green
-	untracked=cyan
+  added=yellow
+  changed=green
+  untracked=cyan
 
 [alias]
-	co=checkout
-	ci=commit
-	st=status
-	br=branch
-	hist=log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
-	type=cat-file -t
-	dump=cat-file -p
-	dlog=log --decorate
+  co=checkout
+  ci=commit
+  st=status
+  br=branch
+  hist=log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+  type=cat-file -t
+  dump=cat-file -p
+  dlog=log --decorate
+
 [push]
-	default = simple
+  default = simple

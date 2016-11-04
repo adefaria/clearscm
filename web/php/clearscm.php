@@ -301,15 +301,6 @@ function scm_man ($file) {
   while (!feof ($stdout)) {
     $line = fgets ($stdout);
 
-    if (preg_match ("/<!-- INDEX END -->/", $line)) {
-      $end_of_index = 1;
-      continue;
-    }
-
-    if (!$end_of_index) {
-      continue;
-    } // if
-
     // Filter some CVS keywords properly
     $line = preg_replace ("/\\\$Revision\:\s*(\S*)\s*\\\$/",
     			  "Revision <a href=\"$history\">$1</a>",

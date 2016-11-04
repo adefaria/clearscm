@@ -1,6 +1,7 @@
 ForwardX11 yes
-#ForwardX11Trusted yes
+ForwardX11Trusted yes
 StrictHostKeyChecking no
+Loglevel QUIET
 
 Host *
   ServerAliveInterval 300
@@ -9,10 +10,33 @@ Host *
 Host home
   Hostname defaria.com
   User andrew
-
-Host defaria.com
-  User andrew
   IdentityFile		~/.ssh/id_ecdsa
+ 
+Host gerrit-rtp
+  Hostname gerrit-ccxsw.rtp.broadcom.com
+  User svcccxswgit
 
-Host *
-  User adefaria
+Host vdi
+  Hostname sjrvda0482.sjs.avagotech.net
+
+Host eca-rtp-02
+  Hostname eca-rtp-02.rtp.broadcom.com
+  User ccxswbuild
+
+Host eca-rtp-04
+  Hostname eca-rtp-04.rtp.broadcom.com
+  User ccxswbuild
+
+Host git-ric
+  Hostname git-ccxsw.ric.broadcom.com
+  #User svcccxswgit
+  User ccxswbuild
+
+Host git-rtp
+  Hostname git-ccxsw.rtp.broadcom.com
+  #User svcccxswgit
+  User ccxswbuild
+  
+Host jira-dev
+  Hostname jira-rtp-06.rtp.broadcom.com
+>>>>>>> 9956e403ab89bc984faf9cb22a8860a34c310ac7

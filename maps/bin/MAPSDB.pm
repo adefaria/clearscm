@@ -2,7 +2,7 @@
 #################################################################################
 #
 # File:         $RCSfile: MAPSDB.pm,v $
-# Revision:	$Revision: 1.1 $
+# Revision:        $Revision: 1.1 $
 # Description:  MAPS Database routines
 # Author:       Andrew@DeFaria.com
 # Created:      Fri Nov 29 14:17:21  2002
@@ -216,18 +216,18 @@ sub CheckOnList ($$) {
   while (my @row = $sth->fetchrow_array) {
     last if !@row;
 
-    my $hit_count	= pop (@row);
-    my $sequence	= pop (@row);
-    my $comment		= pop (@row);
-    my $domain 		= pop (@row);
-    my $pattern		= pop (@row);
+    my $hit_count = pop (@row);
+    my $sequence  = pop (@row);
+    my $comment   = pop (@row);
+    my $domain    = pop (@row);
+    my $pattern   = pop (@row);
     my $email_on_file;
 
     unless ($domain) {
       $email_on_file = $pattern;
     } else {
       unless ($pattern) {
-	$email_on_file = '@' . $domain;
+        $email_on_file = '@' . $domain;
       } else {
         $email_on_file = $pattern . '@' . $domain;
       } # if
@@ -404,16 +404,16 @@ sub CleanList ($;$) {
   while (my @row = $sth->fetchrow_array) {
     last if !@row;
 
-    my $hit_count	= pop (@row);
-    my $sequence	= pop (@row);
-    my $listtype	= pop (@row);
+    my $hit_count = pop (@row);
+    my $sequence  = pop (@row);
+    my $listtype  = pop (@row);
 
     if ($hit_count == 0) {
       $count++;
 
       $statement = "delete from list where userid='$userid' and type='$listtype' and sequence=$sequence";
       $DB->do ($statement)
-	or DBError 'CleanList: Unable to execute statement', $statement;
+        or DBError 'CleanList: Unable to execute statement', $statement;
     } else {
       # Age entry: Sometimes entries are initially very popular and
       # the $hit_count gets very high quickly. Then the domain is
@@ -430,14 +430,14 @@ sub CleanList ($;$) {
       # $hit_count's too quickly, therefore once their numbers drop to
       # < 30 we revert to the old method of subtracting 1.
       if ($hit_count < 30) {
-	$hit_count--;
+        $hit_count--;
       } else {
-	$hit_count = $hit_count / 2;
+        $hit_count = $hit_count / 2;
       } # if
 
       $statement = "update list set hit_count=$hit_count where userid='$userid' and type='$listtype' and sequence=$sequence;";
       $DB->do ($statement)
-	or DBError 'CleanList: Unable to execute statement', $statement;
+        or DBError 'CleanList: Unable to execute statement', $statement;
     } # if
   } # while
 
@@ -452,7 +452,7 @@ sub CloseDB () {
 
 sub CountMsg ($) {
   my ($sender) = @_;
-  
+
   return count ('email', "userid = '$userid' and sender like '%$sender%'");
 } # CountMsg
 
@@ -686,14 +686,14 @@ sub GetList ($) {
   my @list;
 
   if (@list = $sth->fetchrow_array) {
-    my $last_hit	= pop @list;
-    my $hit_count	= pop @list;
-    my $sequence	= pop @list;
-    my $comment		= pop @list;
-    my $domain		= pop @list;
-    my $pattern		= pop @list;
-    my $type		= pop @list;
-    my $userid		= pop @list;
+    my $last_hit  = pop @list;
+    my $hit_count = pop @list;
+    my $sequence  = pop @list;
+    my $comment   = pop @list;
+    my $domain    = pop @list;
+    my $pattern   = pop @list;
+    my $type      = pop @list;
+    my $userid    = pop @list;
     return $userid, $type, $pattern, $domain, $comment, $sequence, $hit_count, $last_hit;
   } else {
     return undef;
@@ -731,10 +731,10 @@ sub GetUser ($) {
   my @user;
 
   if (@user = $sth->fetchrow_array) {
-    my $password	= pop @user;
-    my $email		= pop @user;
-    my $name		= pop @user;
-    my $userid		= pop @user;
+    my $password = pop @user;
+    my $email    = pop @user;
+    my $name     = pop @user;
+    my $userid   = pop @user;
     return ($userid, $name, $email, $password);
   } else {
     return undef;
@@ -778,8 +778,8 @@ sub GetUserOptions ($) {
   %useropts = ();
 
   while (@useropts = $sth->fetchrow_array) {
-    my $value	= pop @useropts;
-    my $name	= pop @useropts;
+    my $value = pop @useropts;
+    my $name  = pop @useropts;
     pop @useropts;
     $useropts{$name} = $value;
   } # while
@@ -883,10 +883,10 @@ sub ResequenceList ($$) {
 
     if ($old_sequence != $sequence) {
       my $update_statement = "update list set sequence = $sequence " .
-			     "where userid = '$userid' and " .
-			     "type = '$type' and sequence = $old_sequence";
+                             "where userid = '$userid' and " .
+                             "type = '$type' and sequence = $old_sequence";
       $DB->do ($update_statement)
-	or DBError 'ResequenceList: Unable to do statement', $statement;
+        or DBError 'ResequenceList: Unable to do statement', $statement;
     } # if
 
     $sequence++;
@@ -1138,13 +1138,13 @@ END
       my $date    = pop @row;
 
       if ($earliestDate) {
-	my $earliestDateShort = substr $earliestDate, 0, 10;
+        my $earliestDateShort = substr $earliestDate, 0, 10;
         my $dateShort         = substr $date,         0, 10;
 
         if ($earliestDateShort eq $dateShort and
-	    $earliestDate > $date) {
+            $earliestDate > $date) {
           $earliestDate = $date
-	    if $earliestDateShort eq $dateShort;
+            if $earliestDateShort eq $dateShort;
         } # if
       } else {
         $earliestDate = $date;
@@ -1162,7 +1162,7 @@ END
       push @emails, [$earliestDate, [$sender, @messages]];
     } else {
       push @emails, [$earliestDate, [$sender, @messages]]
-	if @messages > 0;
+        if @messages > 0;
     } # unless
   } # while
 
@@ -1180,11 +1180,11 @@ sub ReturnList ($$$) {
   my $statement;
 
   if ($start_at) {
-    $statement = "select * from list where userid = '$userid' "	.
-                 "and type = '$type' order by sequence "		.
-		 "limit $start_at, $lines";
+    $statement = "select * from list where userid = '$userid' " .
+                 "and type = '$type' order by sequence "        .
+                 "limit $start_at, $lines";
   } else {
-    $statement = "select * from list where userid = '$userid' "	.
+    $statement = "select * from list where userid = '$userid' "        .
                  "and type = '$type' order by sequence";
   } # if
 
@@ -1202,14 +1202,14 @@ sub ReturnList ($$$) {
 
     my %list;
 
-    $list {last_hit}	= pop @row;
-    $list {hit_count}	= pop @row;
-    $list {sequence}	= pop @row;
-    $list {comment}	= pop @row;
-    $list {domain}	= pop @row;
-    $list {pattern}	= pop @row;
-    $list {type}		= pop @row;
-    $list {userid}	= pop @row;
+    $list {last_hit}  = pop @row;
+    $list {hit_count} = pop @row;
+    $list {sequence}  = pop @row;
+    $list {comment}   = pop @row;
+    $list {domain}    = pop @row;
+    $list {pattern}   = pop @row;
+    $list {type}      = pop @row;
+    $list {userid}    = pop @row;
     push @list, \%list;
   } # for
 
@@ -1219,7 +1219,7 @@ sub ReturnList ($$$) {
 sub ReturnListEntry ($$) {
   my ($type, $sequence) = @_;
 
-  my $statement = "select * from list where userid = '$userid' "	.
+  my $statement = "select * from list where userid = '$userid' "        .
                  "and type = '$type' and sequence = '$sequence'";
 
   my $sth = $DB->prepare ($statement)
@@ -1241,8 +1241,8 @@ sub ReturnListEntry ($$) {
   return %list;
 } # ReturnListEntry
 
-sub UpdateList ($$$$$$) {
-  my ($userid, $type, $pattern, $domain, $comment, $sequence) = @_;
+sub UpdateList ($$$$$$$) {
+  my ($userid, $type, $pattern, $domain, $comment, $hit_count, $sequence) = @_;
 
   if (!$pattern || $pattern eq '') {
     $pattern = 'NULL';
@@ -1261,10 +1261,16 @@ sub UpdateList ($$$$$$) {
   } else {
     $comment = "'" . quotemeta ($comment) . "'";
   } # if
+
+  if (!$hit_count || $hit_count eq '') {
+    $hit_count = 0;
+  #} else {
+  # TODO: Check if numeric
+  } # fi
   
   my $statement =
     'update list set ' .
-    "pattern = $pattern, domain = $domain, comment = $comment " .
+    "pattern = $pattern, domain = $domain, comment = $comment, hit_count = $hit_count " .
     "where userid = '$userid' and type = '$type' and sequence = $sequence";
 
   $DB->do ($statement)
@@ -1319,7 +1325,7 @@ sub SetContext ($) {
 sub Space ($) {
   my ($userid) = @_;
 
-  my $total_space	= 0;
+  my $total_space        = 0;
   my %msg_space;
 
   my $statement = "select * from email where userid = '$userid'";

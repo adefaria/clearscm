@@ -162,14 +162,16 @@ my @lines;
 
 sub _debug ($) {
   my ($msg) = @_;
-  
+
   my $logfile = "/tmp/rexex_debug.log";
-  
-  open my $file, '>>', $logfile or die "Unable to open $logfile for writing - $!";
-  
+
+  open my $file, '>>', $logfile or croak "Unable to open $logfile for writing - $!";
+
   print $file "DEBUG: $msg\n";
-  
+
   close $file;
+
+  return;
 } # _debug
 
 sub ssh {
@@ -571,7 +573,7 @@ Returns:
 } # logoff
 
 sub new {
-  my ($class) = shift;
+  my ($class, %parms) = @_;
 
 =pod
 
@@ -635,8 +637,6 @@ Returns:
 =for html </blockquote>
 
 =cut
-
-  my %parms = @_;
 
   my $self = {};
 
