@@ -203,11 +203,11 @@ else
   export LANG=C
 fi
 
-if [ $(type -p vim) ]; then
+if [ "$(type -p vim)" ]; then
   alias vi=vim
 fi
 
-if [ $(type -p ncftp) ]; then
+if [ "$(type -p ncftp)" ]; then
   alias ftp=ncftp
   alias ftpput=ncftpput
   alias ftpget=ncftpget
