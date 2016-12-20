@@ -218,7 +218,9 @@ function stoptimer () {
 
   <h2>Clients</h2>
 
- <p><a href="http://www.broadcom.com"><img src="Broadcom.gif" alt="Broadcom/Avago" border="0"></a></p>
+  <hr noshade>
+
+  <p><a href="http://www.broadcom.com"><img src="Broadcom.gif" alt="Broadcom/Avago" border="0"></a></p>
 
   <p>August 2016 - Present<br>
   <font class=dim>Contract</font><br>
@@ -229,6 +231,8 @@ function stoptimer () {
   executables. Wrote a Perl script to remotely execute commands remotely on Windows
   systems using Cygwin/ssh. This script also supplied username/password so that
   when logged into the Windows system, Windows could access remote filesystems.</p>
+
+  <hr noshade>
 
   <p>May 2016 - July 2016<br>
   <font class=dim>Contract</font><br>
