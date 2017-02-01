@@ -29,12 +29,14 @@ Host eca-rtp-04
 
 Host git-ric
   Hostname git-ccxsw.ric.broadcom.com
-  #User svcccxswgit
   User ccxswbuild
 
 Host git-rtp
   Hostname git-ccxsw.rtp.broadcom.com
-  #User svcccxswgit
+  User ccxswbuild
+
+Host git-sj
+  Hostname git-ccxsw.sj.broadcom.com
   User ccxswbuild
   
 Host jira-dev
