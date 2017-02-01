@@ -43,7 +43,7 @@ sub Bigfiles {
 
   foreach (@dirs) {
     next if !-d "$_";
-    my $cmd	= "find \"$_\" -xdev -type f -size +$size -exec ls -lLGQ {} \\;";
+    my $cmd	= "find \"$_\" -xdev -type f -size +$size -exec ls -lLG {} \\;";
     my @lines	= `$cmd`;
 
     foreach (@lines) {
@@ -51,7 +51,8 @@ sub Bigfiles {
 
       my %info;
 
-      if (/\S+\s+\d+\s+(\S+)\s+(\d+).*\"\.\/(.*)\"/) {
+      #if (/\S+\s+\d+\s+(\S+)\s+(\d+).*\"\.\/(.*)\"/) {
+      if (/\S+\s+\d+\s+(\S+)\s+\S+ \S+\s+(\d+)\s+\S+\s+\d+\s+\S+\s+(\S+)/){
 	$info {user}	= $1;
 	$info {filesize}	= $2;
 	$info {filename}	= $3;
