@@ -53,8 +53,8 @@ function stoptimer () {
     <?php start_box ("cs2")?>
       <h2 align=center><a href="http://defaria.com">Andrew P. DeFaria</a></h2>
       <address style="text-align:center">
-      4139 Via Marina #709<br>
-      Marina del Rey, California 90292-5395<br>
+      11727 Stoney Peak Dr #65<br>
+      San Diego, California 92128-6440<br>
       </address>
       <p style="text-align:center">
       Phone: 408-596-4937</a><br>
@@ -218,7 +218,23 @@ function stoptimer () {
 
   <h2>Clients</h2>
 
-  <p>May 2016 - Present<br>
+  <hr noshade>
+
+  <p><a href="http://www.broadcom.com"><img src="Broadcom.gif" alt="Broadcom/Avago" border="0"></a></p>
+
+  <p>August 2016 - Present<br>
+  <font class=dim>Contract</font><br>
+
+  <p>Working on converting an internal project from a <span class="standout">Jenkins</span>/<span class="standout">Perforce</span>
+  build system to the Broadcom/Avago standard of <span class="standout">Electric Commander</span>
+  and <span class="standout">Git</span>. Wrote a Perl script to driving signing of
+  executables. Wrote a Perl script to remotely execute commands remotely on Windows
+  systems using Cygwin/ssh. This script also supplied username/password so that
+  when logged into the Windows system, Windows could access remote filesystems.</p>
+
+  <hr noshade>
+
+  <p>May 2016 - July 2016<br>
   <font class=dim>Contract</font><br>
 
   <p><a href="http://icann.org"><img alt="ICANN" src="ICANN.png" border="0"></a><br></p>

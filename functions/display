@@ -56,3 +56,15 @@ function debug {
     display_stderr "$@"
   fi
 } # debug
+
+function traceEnter {
+  if [ ! -z "$trace" ]; then
+    display_stderr "ENTER function ${FUNCNAME[1]}"
+  fi
+} # traceEnter
+
+function traceExit {
+  if [ ! -z "$trace" ]; then
+    display_stderr "EXIT function ${FUNCNAME[1]}"
+  fi
+} # traceExit
