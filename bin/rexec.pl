@@ -74,6 +74,7 @@ use POSIX ":sys_wait_h";
 
 use lib "$FindBin::Bin/../lib", "$FindBin::Bin/../clearadm/lib";
 
+use CmdLine;
 use Display;
 use Logger;
 use Rexec;
@@ -228,10 +229,13 @@ for my $machine (@{$opts{machines}}) {
     connectHost $machine;
 
     if ($currentHost) {
-      while () {
-        display_nolf BOLD . YELLOW . "$machine:" . RESET . WHITE;
+      my $cmdline = CmdLine->new ();
 
-        $cmd = <STDIN>; 
+      $cmdline->set_prompt (BOLD . YELLOW . "$machine:" . RESET . WHITE);
+
+      while () {
+        #$cmd = <STDIN>;
+        $cmd = $cmdline->get(); 
 
         unless ($cmd) {
           display '';
