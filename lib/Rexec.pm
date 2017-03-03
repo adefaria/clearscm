@@ -239,7 +239,7 @@ sub ssh {
 
   if ($logged_in) {
     # It's always hard to find the prompt. So let's make a distintive one
-    $self->{prompt} = '@@@';
+    $self->{prompt} = "\n@@@";
     $self->{handle} = $remote;
 
     # OK this is real tricky. If we call execute with a command of PS1=@@@

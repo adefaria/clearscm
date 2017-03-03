@@ -146,8 +146,8 @@ the specified file.',
     description => 'Sets a variable. Note that expression can be any valid expression.',
   },
 
-  vars	        => {
-    help	=> 'vars',
+  vars          => {
+    help        => 'vars',
     description => 'Displays all known variables.',
   },
 
@@ -182,7 +182,7 @@ sub _cmdCompletion ($$) {
   } # for
 
   return;
-}# _cmdCompletion
+} # _cmdCompletion
 
 sub _complete ($$$$) {
   my ($text, $line, $start, $end) = @_;
@@ -192,7 +192,7 @@ sub _complete ($$$$) {
 
 sub _gethelp () {
   my ($self) = @_;
-  
+
   return unless %_cmds;
 
   my $line = $_cmdline->{line_buffer};
@@ -276,7 +276,7 @@ sub _builtinCmds ($) {
   # Search for matches of partial commands
   my $foundCmd;
 
-  foreach (keys %builtin_cmds) {    
+  for (keys %builtin_cmds) {    
     if ($_ eq $cmd) {
       # Exact match - honor it
       $foundCmd = $cmd;
@@ -292,7 +292,7 @@ sub _builtinCmds ($) {
         last;
       } # unless
     } # if
-  } # foreach
+  } # for
 
   # If we found a command, substitute it into line
   if ($foundCmd) {
@@ -392,7 +392,7 @@ sub _interrupt () {
 
   # Free up all of the line state info
   $_cmdline->free_line_state;
-  
+
   # Allow readline to clean up
   $_cmdline->cleanup_after_signal;
 
@@ -400,7 +400,7 @@ sub _interrupt () {
   $_cmdline->on_new_line;
   $_cmdline->{line_buffer} = '';
   $_cmdline->redisplay;
-  
+
   return;
 } # _interrupt
 
@@ -410,36 +410,36 @@ sub _displayMatches ($$$) {
   # Work on a copy... (Otherwise we were getting "Attempt to free unreferenced
   # scalar" internal errors from perl)
   my @Matches;
-  
-  push @Matches, $_ foreach (@$matches);  
+
+  push @Matches, $_ for (@$matches);  
 
   my $match = shift @Matches;
-  
+
   if ($match =~/^\s*(.*) /) {
     $match = $1;
   } elsif ($match =~ /^\s*(\S+)$/) {
     $match = '';
   } # if
-  
+
   my %newMatches;
-  
-  foreach (@Matches) {
+
+  for (@Matches) {
     # Get next word
     s/^$match//;
-    
+
     if (/(\w+)/) {
       $newMatches{$1} = $1;
     } # if
-  } # foreach
-  
+  } # for
+
   my @newMatches = sort keys %newMatches;
 
   unshift @newMatches, $match;
-  
+
   $_cmdline->display_match_list (\@newMatches);
   $_cmdline->on_new_line;
   $_cmdline->redisplay;
-  
+
   return;
 } # _displayMatches
   
@@ -508,10 +508,10 @@ Returns:
   my $me = get_me;
 
   $histfile ||= ".${me}_hist";
-  
+
   error "Creating bogus .${me}_hist file!"
-    if $me eq '-';
-    
+    if $me eq '-' or $me eq '';
+
   unless (-f $histfile) {
     open my $hist, '>', $histfile
       or error "Unable to open $histfile for writing - $!", 1;
@@ -566,7 +566,7 @@ Returns:
     $opts{trace} = 0;
     $ENV{ANSI_COLORS_DISABLED} = 1;
   } # if
-  
+
   return $self;
 } # new
 
@@ -612,9 +612,9 @@ Returns:
     my $prompt = $self->{prompt};
 
     $prompt =~ s/\\\#/$self->{cmdnbr}/g;
-    
+
     use POSIX;
-    
+
     # Term::ReadLine::Gnu restarts whatever system call it is using, such that
     # once we ctrl C, we don't get back to Perl until the user presses enter, 
     # finally whereupon we get our signal handler called. We use sigaction
@@ -622,16 +622,16 @@ Returns:
     # routine. Sure, sigaction poses race conditions, but you'd either be at a
     # prompt or executing whatever command your prompt prompted for. The user
     # has said "Abort that!" with his ctrl-C and we're attempting to honor that.
-    
+
     # Damn Windows can't do any of this
     my $oldaction;
-    
+
     if ($Config{cppflags} !~ /win32/i) {
       my $sigset    = POSIX::SigSet->new;
       my $sigaction = POSIX::SigAction->new (\&_interrupt, $sigset, 0);
-      
+
       $oldaction = POSIX::SigAction->new;
-    
+
       # Set up our unsafe signal handler
       POSIX::sigaction (&POSIX::SIGINT, $sigaction, $oldaction);
     } # if
@@ -660,7 +660,7 @@ Returns:
 
 sub set_cmds (%) {
   my ($self, %cmds) = @_;
-  
+
 =pod
 
 =head2 set_cmds
@@ -698,17 +698,17 @@ Returns:
   %_cmds = %cmds;
 
   # Add in builtins
-  foreach (keys %builtin_cmds) {
+  for (keys %builtin_cmds) {
     $_cmds{$_}{help}        = $builtin_cmds{$_}{help};
     $_cmds{$_}{description} = $builtin_cmds{$_}{description};
-  } # foreach
+  } # for
 
   return;
 } # set_cmds
 
 sub set_prompt ($) {
   my ($self, $prompt) = @_;
-  
+
 =pod
 
 =head2 set_prompt
@@ -789,7 +789,7 @@ Returns:
 
   if ($histfile and -f $histfile) {  
     $self->{histfile} = $histfile;
-    
+
     if ($_haveGnu) {
       # Clear old history (if any);
       $_cmdline->clear_history;
@@ -797,7 +797,7 @@ Returns:
       # Now read histfile
       $_cmdline->ReadHistory ($histfile);
     } # if
-    
+
     # Determine the number of lines in the history file
     open my $hist, '<', $histfile;
 
@@ -903,34 +903,34 @@ Returns:
   $cmd ||= '';
   $cmd =~ s/^\s+//;
   $cmd =~ s/\s+$//;
-  
+
   if ($cmd =~ /^\s*(.+)/) {
     my ($searchStr, $helpFound);
-    
+
     $searchStr = $1;
 
-    foreach (sort keys %_cmds) {
+    for (sort keys %_cmds) {
       if (/$searchStr/i) {
-	      $helpFound = 1;
+        $helpFound = 1;
 
         my $cmdcolor = $builtin_cmds{$_} ? color ('cyan') : color ('magenta');
         my $boldOn   = $builtin_cmds{$_} ? color ('white on_cyan') : color ('white on_magenta');
         my $boldOff  = color ('reset') . $cmdcolor;
-         
-        my $cmd  = "$cmdcolor$_";
+
+           $cmd  = "$cmdcolor$_";
            $cmd =~ s/($searchStr)/$boldOn$1$boldOff/g;
            $cmd .= " $_cmds{$_}{parms}"  if $_cmds{$_}{parms};
            $cmd .= color ('reset');
            $cmd .= " - $_cmds{$_}{help}" if $_cmds{$_}{help};
-        
+
         push @help, $cmd;
 
         if ($_cmds{$_}{description}) {
           push @help, "  $_"
-            foreach (split /\n/, $_cmds{$_}{description});
-	      } # if
+            for (split /\n/, $_cmds{$_}{description});
+        } # if
       } # if
-    } # foreach
+    } # for
 
     unless ($helpFound) {
       display "I don't know about $cmd";
@@ -938,7 +938,7 @@ Returns:
       return;
     } # if
   } else {
-    foreach (sort keys %_cmds) {
+    for (sort keys %_cmds) {
       my $cmdcolor = $builtin_cmds{$_} ? color ('cyan') : color ('magenta');
 
       my $cmd  = "$cmdcolor$_";
@@ -949,10 +949,10 @@ Returns:
       push @help, $cmd;
 
       if ($_cmds{$_}{description}) {
-	      push @help, "  $_"
-        foreach (split /\n/, $_cmds{$_}{description});
+        push @help, "  $_"
+        for (split /\n/, $_cmds{$_}{description});
       } # if
-    } # foreach
+    } # for
   } # if
 
   $self->handleOutput ($cmd, @help);
@@ -1012,7 +1012,7 @@ Returns:
 
     return;
   } # if
-  
+
   my ($file, $start, $end);
 
   if ($action eq 'list') {
@@ -1064,26 +1064,26 @@ Returns:
 
     if ($action eq 'save') {
       unless ($file) {
-	error "Usage: savehist <file> [<start> <end>]";
-	return;
+        error "Usage: savehist <file> [<start> <end>]";
+        return;
       } # unless
 
       if (-f $file) {
-	display_nolf "Overwrite $file (yN)? ";
+        display_nolf "Overwrite $file (yN)? ";
 
-	my $response = <STDIN>;
+        my $response = <STDIN>;
 
-	unless ($response =~ /(y|yes)/i) {
-	  display "Not overwritten";
-	  return;
-	} # unless
+        unless ($response =~ /(y|yes)/i) {
+          display "Not overwritten";
+          return;
+        } # unless
       } # if
 
       my $success = open $savefile, '>', $file;
 
       unless ($success) {
-	error "Unable to open history file $file - $!";
-	return;
+        error "Unable to open history file $file - $!";
+        return;
       } # unless
     } # if
 
@@ -1093,9 +1093,9 @@ Returns:
       last unless $histline;
 
       if ($action eq 'list') {
-	display "$pos) $histline";
+        display "$pos) $histline";
       } else {
-	print $savefile "$histline\n";
+        print $savefile "$histline\n";
       } # if
     } # for
 
@@ -1193,13 +1193,13 @@ Returns:
 
   if (defined $value) {
     $value = $self->_interpolate ($value);
-    
+
     # Do not call eval if we are setting result - otherwise we recurse
     # infinitely.
     unless ($name eq 'result') {
       no strict;
       $value = $self->{eval} ($value)
-	if $self->{eval};
+        if $self->{eval};
       use strict;
     } # unless
 
@@ -1247,10 +1247,10 @@ Returns:
 =cut
 
   my @output;
-  
+
   push @output, "$_ = $self->{vars}{$_}"
-    foreach (keys %{$self->{vars}});
-    
+    for (keys %{$self->{vars}});
+
   $self->handleOutput ($cmd, @output);
 } # vars
 
@@ -1300,7 +1300,7 @@ Returns:
 =cut
 
   my ($outToFile, $pipeToCmd);
-  
+
   # Handle piping and redirection
   if ($line =~ /(.*)\>{2}\s*(.*)/) {
     $line      = $1;
@@ -1315,21 +1315,21 @@ Returns:
 
   # Store @output
   $self->{output} = \@output;
-  
+
   if ($pipeToCmd) {
     my $pipe;
-    
+
     local $SIG{PIPE} = 'IGNORE';
-    
-    open $pipe, "|$pipeToCmd"
+
+    open $pipe, '|', $pipeToCmd
       or undef $pipe;
-    
+
     # TODO: Not handling the output here. Need open2 and then recursively call
     # handleOutput.
     if ($pipe) {
       print $pipe "$_\n"
-        foreach (@output);
-        
+        for (@output);
+
       close $pipe
         or error "Unable to close pipe for $pipeToCmd - $!";
     } else {
@@ -1339,21 +1339,21 @@ Returns:
     unless ($outToFile) {
       PageOutput @output;
     } else {
-      open my $output, ">$outToFile";
-      
+      open my $output, '>', $outToFile;
+
       if ($output) {
         print $output "$_\n"
-          foreach (@output);
+          for (@output);
 
         close $output;
-      
+
         undef $outToFile;
       } else {
         error "Unable to open $outToFile for writing - $!"
       } # if
     } # unless
   } # if
-  
+
   return;
 } # handleOutput
 
@@ -1428,25 +1428,25 @@ Returns:
     display "$prompt$_" if $CmdLine::opts{trace};
 
     next if /^\s*($|\#)/;
-    
+
     $_ = $self->_interpolate ($_);
-    
+
     # Check to see if it's a builtin
     my ($cmd, $line, $result) = $self->_builtinCmds ($_);
-    
+
     next if $builtin_cmds{$cmd};
 
     no strict;
     $result = $self->{eval} ($line);
     use strict;
-    
+
     if (defined $result) {
       if (ref \$result eq 'SCALAR') {
         PageOutput (split /\n/, $result);
       } else {
         display "Sorry but I cannot display structured results";
       } #  if
-    } # if    
+    } # if
   } # while
 
   $self->{sourcing} = 0;
@@ -1461,6 +1461,8 @@ sub DESTROY {
 
   $_cmdline->WriteHistory ($self->{histfile})
     if $_cmdline and $_haveGnu;
+
+  return;
 } # DESTROY
 
 our $cmdline = CmdLine->new;
