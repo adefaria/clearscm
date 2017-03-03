@@ -233,6 +233,55 @@ sub _checkDBError ($;$) {
 sub openJIRADB (;$$$$) {
   my ($dbhost, $dbname, $dbuser, $dbpass) = @_;
 
+=pod
+
+=head2 openJIRADB ()
+
+Opens the JIRA database directly using MySQL. This is only for certain 
+operations for which there is no corresponding REST interface
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $dbhost
+
+Name of the database host
+
+=item $dbname
+
+database name
+
+=item $dbuser
+
+Database user name
+
+=item $dbpass
+
+Database user's password
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $dbhandle
+
+Handle for database
+
+=back
+
+=for html </blockquote>
+
+=cut
+
   $dbhost //= $main::opts{jiradbhost};
   $dbname //= 'jiradb';
   $dbuser //= 'root';
@@ -254,8 +303,52 @@ sub openJIRADB (;$$$$) {
   return $jiradb;
 } # openJIRADB
 
-sub Connect2JIRA (;$$$) {
+sub Connect2JIRA (;$$$) {  
   my ($username, $password, $server) = @_;
+
+=pod
+
+=head2 Connect2JIRA ()
+
+Establishes a connection to the JIRA instance using the REST API
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $username
+
+Username to authenticate with
+
+=item $password
+
+Password to authenticate with
+
+=item $server
+
+JIRA server to connect to
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $jira
+
+JIRA REST handle
+
+=back
+
+=for html </blockquote>
+
+=cut
 
   my %opts;
   
@@ -276,6 +369,46 @@ sub Connect2JIRA (;$$$) {
 
 sub count ($$) {
   my ($table, $condition) = @_;
+
+=pod
+
+=head2 count ()
+
+Return the count of a table in the JIRA database given a condition
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $table
+
+Name of table to perform count of
+
+=item $condition
+
+MySQL condition to apply
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $count
+
+Count of qualifying entries
+
+=back
+
+=for html </blockquote>
+
+=cut
 
   my $statement;
   
@@ -316,6 +449,44 @@ sub count ($$) {
 sub addDescription ($$) {
   my ($issue, $description) = @_;
   
+=pod
+
+=head2 addDescription ()
+
+Add a description to a JIRA issue
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $issue
+
+Issue ID
+
+=item $description
+
+Description to add
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item <nothing>
+
+=back
+
+=for html </blockquote>
+
+=cut
+
   if ($main::opts{exec}) {
     eval {$jira->PUT ("/issue/$issue", undef, {fields => {description => $description}})};
   
@@ -329,6 +500,44 @@ sub addDescription ($$) {
 
 sub addJIRAComment ($$) {
   my ($issue, $comment) = @_;
+
+=pod
+
+=head2 addJIRAComment ()
+
+Add a comment to a JIRA issue
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $issue
+
+Issue ID
+
+=item $comment
+
+Comment to add
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item <nothing>
+
+=back
+
+=for html </blockquote>
+
+=cut
   
   if ($main::opts{exec}) {
     eval {$jira->POST ("/issue/$issue/comment", undef, { body => $comment })};
@@ -359,6 +568,44 @@ sub blankBugzillaNbr ($) {
 sub attachmentExists ($$) {
   my ($issue, $filename) = @_;
   
+=pod
+
+=head2 attachmentExists ()
+
+Determine if an attachment to a JIRA issue exists
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $issue
+
+Issue ID
+
+=item $filename
+
+Filename of attachment
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item <nothing>
+
+=back
+
+=for html </blockquote>
+
+=cut
+
   my $attachments = getIssue ($issue, qw(attachment));
   
   for (@{$attachments->{fields}{attachment}}) {
@@ -370,6 +617,44 @@ sub attachmentExists ($$) {
 
 sub attachFiles2Issue ($@) {
   my ($issue, @files) = @_;
+
+=pod
+
+=head2 attachFiles2Issue ()
+
+Attach a list of files to a JIRA issue
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $issue
+
+Issue ID
+
+=item @files
+
+List of filenames
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item <nothing>
+
+=back
+
+=for html </blockquote>
+
+=cut  
 
   my $status = $jira->attach_files ($issue, @files);
   
@@ -398,6 +683,7 @@ sub findIssue ($%) {
   my ($bugid, %bugmap) = @_;
   
 =pod
+
   # Check the cache...
   if ($cache{$bugid}) {
     if ($cache{$bugid} =~ /^\d+/) {
@@ -409,7 +695,9 @@ sub findIssue ($%) {
       return $cache{$bugid};
     } # if
   } # if
-=cut  
+
+=cut
+
   my $issue;
 
   my %query = (
@@ -490,7 +778,45 @@ sub findIssue ($%) {
 
 sub findIssues (;$@) {
   my ($condition, @fields) = @_;
-  
+
+=pod
+
+=head2 findIssues ()
+
+Set up a find for JIRA issues based on a condition
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $condition
+
+Condition to use. JQL is supported
+
+=item @fields
+
+List of fields to retrieve data for
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item <nothing>
+
+=back
+
+=for html </blockquote>
+
+=cut  
+
   push @fields, '*all' unless @fields;
   
   $findQuery{jql}        = $condition || '';
@@ -503,6 +829,40 @@ sub findIssues (;$@) {
 
 sub getNextIssue () {
   my $result;
+  
+=pod
+
+=head2 getNextIssue ()
+
+Get next qualifying issue. Call findIssues first
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item <none>
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item %issue
+
+Perl hash of the fields in the next JIRA issue
+
+=back
+
+=for html </blockquote>
+
+=cut
   
   eval {$result = $jira->GET ('/search/', \%findQuery)};
   
@@ -519,6 +879,56 @@ sub getNextIssue () {
 
 sub getIssues (;$$$@) {
   my ($condition, $start, $max, @fields) = @_;
+  
+=pod
+
+=head2 getIssues ()
+
+Get the @fields of JIRA issues based on a condition. Note that JIRA limits the
+amount of entries returned to 1000. You can get fewer. Or you can use $start
+to continue from where you've left off. 
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $condition
+
+JQL condition to apply
+
+=item $start
+
+Starting point to get issues from
+
+=item $max
+
+Max number of entrist to get
+
+=item @fields
+
+List of fields to retrieve
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item @issues
+
+Perl array of hashes of JIRA issue records
+
+=back
+
+=for html </blockquote>
+
+=cut
   
   push @fields, '*all' unless @fields;
   
@@ -545,6 +955,46 @@ sub getIssues (;$$$@) {
 
 sub getIssue ($;@) {
   my ($issue, @fields) = @_;
+
+=pod
+
+=head2 getIssue ()
+
+Get individual JIRA issue
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $issue
+
+Issue ID
+
+=item @fields
+
+List of fields to retrieve
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item %issue
+
+Perl hash of JIRA issue
+
+=back
+
+=for html </blockquote>
+
+=cut
   
   my $fields = @fields ? "?fields=" . join ',', @fields : '';
 
@@ -605,6 +1055,46 @@ sub linkIssues ($$$) {
 
 sub getRemoteLink ($;$) {
   my ($jiraIssue, $id) = @_;
+  
+=pod
+
+=head2 getRemoteLink ()
+
+Retrieve a remote link
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $jiraIssue
+
+Issue ID
+
+=item $id
+
+Which ID to retrieve
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item %issue
+
+Perl hash of remote links
+
+=back
+
+=for html </blockquote>
+
+=cut
   
   $id //= '';
   
@@ -853,6 +1343,46 @@ sub getIssueWatchers ($) {
 
 sub updateIssueWatchers ($%) {
   my ($issue, %watchers) = @_;
+  
+=pod
+
+=head2 updateIssueWatchers ()
+
+Updates the issue watchers list
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $issue
+
+Issue ID
+
+=item %watchers
+
+List of watchers to add
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $error 
+
+Error message or '' to indicate no error
+
+=back
+
+=for html </blockquote>
+
+=cut
 
   my $existingWatchers;
   
@@ -905,6 +1435,42 @@ sub updateIssueWatchers ($%) {
 sub getUsersGroups ($) {
   my ($username) = @_;
   
+=pod
+
+=head2 getUsersGroups ()
+
+Returns the groups that the user is a member of
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $username
+
+Username
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item @groups
+
+List of groups
+
+=back
+
+=for html </blockquote>
+
+=cut
+  
   my ($result, %query);
   
   %query = (
@@ -925,6 +1491,46 @@ sub getUsersGroups ($) {
 
 sub updateUsersGroups ($@) {
   my ($username, @groups) = @_;
+
+=pod
+
+=head2 updateUsersGroups ()
+
+Updates the users group membership
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $username
+
+Username to operate on
+
+=item @groups
+
+List of groups the user should be a member of
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item @errors
+
+List of errors (if any)
+
+=back
+
+=for html </blockquote>
+
+=cut
   
   my ($result, @errors);
   
@@ -953,6 +1559,54 @@ sub copyGroupMembership ($$) {
 
 sub updateColumn ($$$%) {
   my ($table, $oldvalue, $newvalue, %info) = @_;
+  
+=pod
+
+=head2 updateColumn ()
+
+Updates a column in the MySQL JIRA database (SQL surgery)
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $table
+
+Table to operate on
+
+=item $oldvalue
+
+Old value
+
+=item $newvalue
+
+New value
+
+=item %info
+
+Hash of column names and optional conditions
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $numrows
+
+Number of rows updated
+
+=back
+
+=for html </blockquote>
+
+=cut
   
   # UGH! Sometimes values need to be quoted
   $oldvalue = quotemeta $oldvalue;
@@ -983,6 +1637,42 @@ sub updateColumn ($$$%) {
 
 sub renameUsers (%) {
   my (%users) = @_;
+
+=pod
+
+=head2 renameUsers ()
+
+Renames users
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item %users
+
+Hash of old -> new usernames
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $errors
+
+Number of errors
+
+=back
+
+=for html </blockquote>
+
+=cut
 
   for my $olduser (sort keys %users) {
     my $newuser = $users{$olduser};
