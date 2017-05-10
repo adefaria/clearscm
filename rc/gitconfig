@@ -40,6 +40,7 @@
   type=cat-file -t
   dump=cat-file -p
   dlog=log --decorate
+  oldest-ancestor = !bash -c 'diff -u <(git rev-list --first-parent "${1:-master}") <(git rev-list --first-parent "${2:-HEAD}") | sed -ne \"s/^ //p\" | head -1' -
 
 [push]
   default = simple

@@ -40,15 +40,11 @@ sub ReturnSequenceNbrs {
   my @names = param;
   my @sequence_nbrs;
 
-  Debug "Entered ReturnSequenceNbrs";
-
   foreach (@names) {
     if (/action(\d+)/) {
       push @sequence_nbrs, $1;
     } # if
   } # foreach
-
-  Debug "Returning sequence nbrs " . join ' ', @sequence_nbrs;
 
   return @sequence_nbrs;
 } # ReturnSequenceNbrs

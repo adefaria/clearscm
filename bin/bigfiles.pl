@@ -2,11 +2,11 @@
 ################################################################################
 #
 # File:         $RCSfile: bigfiles.pl,v $
-# Revision:	$Revision: 1.3 $
+# Revision:     $Revision: 1.3 $
 # Description:  Reports large files
 # Author:       Andrew@DeFaria.com
 # Created:      Mon May 24 09:09:24 PDT 1999
-# Modified:	$Date: 2011/04/18 05:15:29 $
+# Modified:     $Date: 2011/04/18 05:15:29 $
 # Language:     Perl
 #
 # (c) Copyright 2001, ClearSCM, Inc., all rights reserved
@@ -36,8 +36,8 @@ sub Usage {
 } # usage
 
 sub Bigfiles {
-  my $size	= shift;
-  my @dirs	= @_;
+  my $size = shift;
+  my @dirs = @_;
 
   my @files;
 
@@ -53,10 +53,11 @@ sub Bigfiles {
 
       #if (/\S+\s+\d+\s+(\S+)\s+(\d+).*\"\.\/(.*)\"/) {
       if (/\S+\s+\d+\s+(\S+)\s+\S+ \S+\s+(\d+)\s+\S+\s+\d+\s+\S+\s+(\S+)/){
-	$info {user}	= $1;
-	$info {filesize}	= $2;
-	$info {filename}	= $3;
-	push @files, \%info;
+        $info {user}     = $1;
+        $info {filesize} = $2;
+        $info {filename} = $3;
+
+        push @files, \%info;
       } # if
     } # foreach
   } # foreach
@@ -64,11 +65,11 @@ sub Bigfiles {
   return @files;
 } # Bigfiles
 
-my $lines		= defined $ENV {LINES} ? $ENV {LINES} :-24;
-my $top			= $lines - 2;
-my $bytes_in_meg	= 1048576;
-my $block_size		= 512;
-my $size_in_meg		= 1;
+my $lines        = $ENV{LINES} || 24;
+my $top          = $lines - 2;
+my $bytes_in_meg = 1048576;
+my $block_size   = 512;
+my $size_in_meg  = 1;
 my %opts;
 
 my $result = GetOptions (
@@ -80,19 +81,20 @@ my $result = GetOptions (
   'size=i',
 );
 
-my @dirs = @ARGV ? @ARGV : ".";
-
+my @dirs = @ARGV || '.';
 my $size = $opts {size} ? $opts {size} * $bytes_in_meg / $block_size : 4096;
 
 # Now do the find
 verbose "Directory:\t$_"
-  foreach (@dirs);
-verbose "Size:\t\t$size_in_meg Meg ($size blocks)";
-verbose "Top:\t\t$top";
 
-my $head = $top ? "cat" : "head -$top";
+foreach (@dirs) {
+  verbose "Size:\t\t$size_in_meg Meg ($size blocks)";
+  verbose "Top:\t\t$top";
 
-my @files = Bigfiles $size, @dirs;
+  my $head = $top ? "cat" : "head -$top";
+
+  my @files = Bigfiles $size, @dirs;
+} # for each
 
 foreach (@files) {
   my %info = %{$_};
