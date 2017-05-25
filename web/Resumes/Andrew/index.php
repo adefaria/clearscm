@@ -180,12 +180,6 @@ function stoptimer () {
   <table align=center border=1 cellspacing=0 cellpadding=2 width="90%">
     <tbody>
       <tr>
-        <td><a href="http://www.linkedin.com/profile/view?id=14959116">David Petro</a></td>
-        <td>(425)-391-4185</td>
-        <td><a href="mailto:david.petro@ge.com">david.petro@ge.com</a></td>
-        <td>Manager, General Electric</td>
-      </tr>
-      <tr>
         <td><a href="http://www.linkedin.com/profile/view?id=276869">Tom Connor</a></td>
         <td>(512)-422-1172</td>
         <td><a href="mailto:tomhillconnor@yahoo.com">tomhillconnor@yahoo.com</a></td>
@@ -293,13 +287,13 @@ function stoptimer () {
 
   <p><span class="standout">Clearquest Designer</span> and hook code writer. The
   Clearquest database used <span class="standout">Visual Basic</span>. Integrated
-  this Clearquest server by utilizing ClearSCM's <a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearcase.pm">Clearquest</a>
-  module as well as <a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearquest/Server.pm">Clearquest::Server</a>,
-  <a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearquest/Client.pm">Clearquest::Client</a>
-  and <a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>
+  this Clearquest server by utilizing ClearSCM's <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase.pm">Clearquest</a>
+  module as well as <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/Server.pm">Clearquest::Server</a>,
+  <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/Client.pm">Clearquest::Client</a>
+  and <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>
   modules so that systems that did not have Clearquest installed (e.g. <span class="standout">Linux</span>
   build machines) could talk to Clearquest to update defects when required. Used
-  the, <a href="http://clearscm.com/php/cvs_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>,
+  the, <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>,
   to replace a <a href="http://clearscm.com/clearquest/cqd/">Clearquest Daemon</a>
   that was in use. Modified <span class="standout">Perforce</span> and <span class="standout">Git</span>
   triggers to use this REST interface.</p>
@@ -339,7 +333,7 @@ function stoptimer () {
   <a href="http://defaria.com/blogs/Status/archives/cat_general_electric.html">General Electric</a></font>
 
   <p>Performed <span class="standout">Clearcase</span>/<span class="standout">Clearquest UCM</span>
-  administration. Developed an <a href="http://clearscm.com/php/cvs_man.php?file=cc/etf.pl">Evil Twin Finder</a>
+  administration. Developed an <a href="http://clearscm.com/php/scm_man.php?file=cc/etf.pl">Evil Twin Finder</a>
   in Perl. Worked with <span class="standout">Build Forge</span> (IBM's CI tool
   similar to <span class="standout">Jenkins</span>) jobs to automate work flow.</p>
 
@@ -358,10 +352,11 @@ function stoptimer () {
   integrated environment into one tool and ported it to Linux.</p>
 
   <p>Instrumental in establishment of Perl standards and introduction of Perl
-  tools such as <a href="v">Perl::Critic</a> and <a href="http://perltidy.sourceforge.net/">Perl::Tidy</a>.
+  tools such as <a href="http://perlcritic.com/">Perl::Critic</a>
+  and <a href="http://perltidy.sourceforge.net/">Perl::Tidy</a>.
   Worked at promoting usage of CPAN modules.</p>
 
-  <p>Automated tests using <a href="">NetHawk EAST Simulators</a> to automate
+  <p>Automated tests using <a href="https://www.nethawk.fi/">NetHawk EAST Simulators</a> to automate
   all testing and store results into a <span class="standout">MySQL</span> database.
   Also developed a <span class="standout">PHP</span> app to report/graph results.</p>
 
@@ -425,7 +420,7 @@ function stoptimer () {
   uses <span class="standout">CVS</span> for version control.</p>
 
   <p>Implemented full text search using Perl and Htdig (See <a href="http://clearscm.com/scripts/ecrd">ECRDig</a>).
-  Developed <a href="http://defaria.com/Resume/cvs_utilities">CVS Utilities</a>).
+  Developed CVS Utilities).
   Automated nightly builds could be performed.</p>
 
   <hr noshade>
@@ -454,9 +449,7 @@ function stoptimer () {
   <p>Served as <span class="standout">Clearcase</span>/<span class="standout">Clearquest</span>
   Administrator and <span class="standout">Release Engineer</span>, employing
   <a href="http://Cygwin.com/">Cygwin</a> to engineer a build environment using
-  GNU make. Analyzed <a href="http://defaria.com/Resume/SmakeOpt">Build
-  Performance</a> and <a href="http://defaria.com/Resume/BuildPerf">Build Stress
-  Testing</a>.</p>
+  GNU make. Analyzed Build Performance and Build Stress Testing.</p>
 
   <p>Setup Clearquest and bug tracking system as well as served as an advisor/expert
   on Clearcase issues, branching strategies, labeling and release management.
