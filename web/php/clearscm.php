@@ -89,7 +89,7 @@ function menu () {
               <div class="imsc">
                 <div class="imsubc" style="width:140px;top:-23px;left:132px;">
                   <ul style="">
-                    <li><a href="/gitweb/?p=clearscm.git">Repository</a></li>
+                    <li><a href="/gitweb/?p=clearsc.git">Repository</a></li>
                   </ul>
                 </div>
               </div>
@@ -294,8 +294,8 @@ function scm_man ($file) {
 
   $end_of_index	  = 0;
   $pre_just_ended = 0;
-  $url            = "/gitweb/?p=.git;a=blob_plain;f=$file;hb=HEAD";
-  $history        = "/gitweb/?p=.git;a=history;f=$file;hb=HEAD";
+  $url            = "/gitweb/?p=clearscm.git;a=blob_plain;f=$file;hb=HEAD";
+  $history        = "/gitweb/?p=clearscm.git;a=history;f=$file;hb=HEAD";
 
   // Now get the output and write it out
   while (!feof ($stdout)) {

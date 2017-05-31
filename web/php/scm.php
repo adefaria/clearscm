@@ -13,7 +13,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 function getSCMFile ($file) {
-  $url = "http://clearscm.com/gitweb/?p=.git;a=blob_plain;f=$file;hb=HEAD";
+  $url = "http://clearscm.com/gitweb/?p=clearscm.git;a=blob_plain;f=$file;hb=HEAD";
 
   $contents = @file ($url)
     or die ("$url not found");
