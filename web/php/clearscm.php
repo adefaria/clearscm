@@ -89,7 +89,7 @@ function menu () {
               <div class="imsc">
                 <div class="imsubc" style="width:140px;top:-23px;left:132px;">
                   <ul style="">
-                    <li><a href="/gitweb/?p=clearsc.git">Repository</a></li>
+                    <li><a href="/gitweb/?p=clearscm.git">Repository</a></li>
                   </ul>
                 </div>
               </div>
