@@ -121,6 +121,9 @@ GetOptions (
   'logpath=s' => \$logpath,
 ) or Usage 'Invalid parameter';
 
+# Need to reset $initial_sleep if it GetOptions changed it
+$initial_sleep = $sleep;
+
 $SIG {INT}  =
 $SIG {TERM} = \&Shutdown;
 
@@ -137,7 +140,11 @@ $log->msg (
   "Started $FindBin::Script $VERSION logging to $logpath/$FindBin::Script.log"
 );
 
-$log->msg ("Polling DNS on host $host every $sleep minutes");  
+if ($sleep > 1) {
+  $log->msg ("Polling DNS on host $host every $sleep minutes");
+} else {
+  $log->msg ("Polling DNS on host $host every minute");  
+} # if
 
 EnterDaemonMode 
   unless get_debug;
