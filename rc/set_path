@@ -99,6 +99,8 @@ path_dirs="$path_dirs\
   /opt/ibm/rationalsdlc/clearquest/bin\
   /opt/ibm/rationalsdlc/clearquest\
   /opt/ibm/rationalsdlc/common\
+  /opt/perforce/bin\
+  /opt/perforce/sbin\
   /usr/sbin\
   /usr/ccs/bin\
   /usr/seos/bin\
