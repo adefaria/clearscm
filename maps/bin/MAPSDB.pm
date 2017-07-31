@@ -17,6 +17,7 @@ package MAPSDB;
 use strict;
 use vars qw (@ISA @EXPORT);
 use DBI;
+use Carp;
 
 use MAPSUtil;
 
@@ -95,11 +96,13 @@ sub AddEmail ($$$) {
 
   $DB->do ($statement)
     or DBError 'AddEmail: Unable to do statement', $statement;
+
+  return;
 } # AddEmail
 
-sub AddList ($$$;$$) {
-  my ($listtype, $pattern, $sequence, $comment, $hitcount) = @_;
-  
+sub AddList ($$$;$$$) {
+  my ($listtype, $pattern, $sequence, $comment, $hitcount, $last_hit) = @_;
+
   $hitcount ||= 0;
 
   my ($user, $domain)  = split /\@/, $pattern;
@@ -123,16 +126,18 @@ sub AddList ($$$;$$) {
   } # if
 
   # Get next sequence #
-  if ($sequence eq 0) {
+  if ($sequence == 0) {
     $sequence = GetNextSequenceNo $userid, $listtype;
   } # if
 
-  my $timestamp = UnixDatetime2SQLDatetime (scalar (localtime));
+  $last_hit //= UnixDatetime2SQLDatetime (scalar (localtime));
 
-  my $statement = "insert into list values (\"$userid\", \"$listtype\", $pattern, $domain, $comment, $sequence, $hitcount, \"$timestamp\")";
+  my $statement = "insert into list values (\"$userid\", \"$listtype\", $pattern, $domain, $comment, $sequence, $hitcount, \"$last_hit\")";
 
   $DB->do ($statement)
     or DBError 'AddList: Unable to do statement', $statement;
+
+  return;
 } # AddList
 
 sub AddLog ($$$) {
@@ -152,6 +157,8 @@ sub AddLog ($$$) {
 
   $DB->do ($statement)
     or DBError 'AddLog: Unable to do statement', $statement;
+
+  return;
 } # AddLog
 
 sub AddUser ($$$$) {
@@ -195,6 +202,8 @@ sub RecordHit ($$$) {
 
   $DB->do ($statement)
     or DBError 'AddList: Unable to do statement', $statement;
+
+  return;
 } # RecordHit
 
 sub CheckOnList ($$) {
@@ -296,7 +305,7 @@ sub CleanEmail ($) {
   } # unless
 
   # Just return if there's nothing to delete
-  return $count if ($count eq 0);
+  return $count if ($count == 0);
 
   # Delete emails for userid whose older than $timestamp
   $statement = "delete from email where userid = '$userid' and timestamp < '$timestamp'";
@@ -342,7 +351,7 @@ sub CleanLog  ($) {
   } # unless
 
   # Just return if there's nothing to delete
-  return $count if ($count eq 0);
+  return $count if ($count == 0);
 
   # Delete log entries for userid whose older than $timestamp
   $statement = "delete from log where userid = '$userid' and timestamp < '$timestamp'";
@@ -386,7 +395,7 @@ sub CleanList ($;$) {
   $count = $row[0] ? $row[0] : 0;
 
   # Just return if there's nothing to delete
-  return $count if ($count eq 0);
+  return $count if ($count == 0);
 
   # Get data for these entries
   $statement = "select type, sequence, hit_count from list where userid = '$userid' and type = '$listtype' and last_hit < '$timestamp'";
@@ -448,6 +457,8 @@ sub CleanList ($;$) {
 
 sub CloseDB () {
   $DB->disconnect;
+
+  return;
 } # CloseDB
 
 sub CountMsg ($) {
@@ -504,7 +515,7 @@ sub DeleteEmail ($) {
   my $count = count ('email', $condition);
 
   # Just return if there's nothing to delete
-  return $count if ($count eq 0);
+  return $count if ($count == 0);
 
   my $statement = 'delete from email where ' . $condition;
 
@@ -521,7 +532,7 @@ sub DeleteList ($$) {
   my $count = count ('list', "userid = '$userid' and type = '$type' and sequence = '$sequence'");
 
   # Just return if there's nothing to delete
-  return $count if ($count eq 0);
+  return $count if ($count == 0);
 
   my $statement = "delete from list where userid = '$userid' and type = '$type' and sequence = '$sequence'";
 
@@ -547,7 +558,7 @@ sub DeleteLog ($) {
   my $count = count ('log', $condition);
 
   # Just return if there's nothing to delete
-  return $count if ($count eq 0);
+  return $count if ($count == 0);
 
   my $statement = 'delete from log where ' . $condition;
 
@@ -676,7 +687,7 @@ sub GetEmail ($) {
     my $userid    = pop @email;
     return $userid, $sender, $subject, $timestamp, $message;
   } else {
-    return undef;
+    return;
   } # if
 } # GetEmail
 
@@ -696,7 +707,7 @@ sub GetList ($) {
     my $userid    = pop @list;
     return $userid, $type, $pattern, $domain, $comment, $sequence, $hit_count, $last_hit;
   } else {
-    return undef;
+    return;
   } # if
 } # GetList
 
@@ -713,7 +724,7 @@ sub GetLog ($) {
     my $userid    = pop @log;
     return $userid, $timestamp, $sender, $type, $message;
   } else {
-    return undef;
+    return;
   } # if
 } # GetLog
 
@@ -737,7 +748,7 @@ sub GetUser ($) {
     my $userid   = pop @user;
     return ($userid, $name, $email, $password);
   } else {
-    return undef;
+    return;
   } # if
 } # GetUser
 
@@ -819,7 +830,7 @@ sub OpenDB ($$) {
   if (!$DB || $DB eq '') {
     #$dbserver='localhost';
     $DB = DBI->connect("DBI:$dbdriver:$dbname:$dbserver", $username, $password, {PrintError => 0})
-      or die "Couldn't connect to $dbname database as $username\n" . $DBI::errstr;
+      or croak "Couldn't connect to $dbname database as $username\n" . $DBI::errstr;
   } # if
 
   return $DB;
@@ -853,6 +864,8 @@ sub OptimizeDB () {
 
   $sth->execute
     or DBError 'OptimizeDB: Unable to execute statement', $statement;
+  
+  return;
 } # OptimizeDB
 
 sub ResequenceList ($$) {
@@ -921,7 +934,7 @@ sub ReturnSenders ($$$;$$) {
     $dateCond = "and timestamp > '$sod' and timestamp < '$eod'";
   } # if
 
-  my $statement = <<END;
+  my $statement = <<"END";
 select
   sender,
   timestamp
@@ -993,7 +1006,7 @@ sub ReturnMessages ($$) {
   # squashed) yet they still will count towards the number of hits
   # before we autonullist. We should squash these upon receipt, not
   # upon report. Maybe latter...
-  my $statement = <<END;
+  my $statement = <<"END";
 select
   subject,
   left(timestamp,16)
@@ -1038,7 +1051,7 @@ sub ReturnEmails ($$$;$$) {
     my $eod = $date . ' 23:59:59';
 
     if ($type eq 'returned') {
-      $statement = <<END;
+      $statement = <<"END";
 select
   log.sender
 from
@@ -1056,7 +1069,7 @@ limit
   $start_at, $nbr_emails
 END
     } else {
-      $statement = <<END;
+      $statement = <<"END";
 select
   sender
 from
@@ -1074,7 +1087,7 @@ END
     } # if
   } else {
     if ($type eq 'returned') {
-      $statement = <<END;
+      $statement = <<"END";
 select
   log.sender
 from
@@ -1092,7 +1105,7 @@ limit
   $start_at, $nbr_emails
 END
     } else {
-      $statement = <<END;
+      $statement = <<"END";
 select
   sender
 from
@@ -1267,7 +1280,7 @@ sub UpdateList ($$$$$$$) {
   #} else {
   # TODO: Check if numeric
   } # fi
-  
+
   my $statement =
     'update list set ' .
     "pattern = $pattern, domain = $domain, comment = $comment, hit_count = $hit_count " .
@@ -1337,21 +1350,21 @@ sub Space ($) {
 
   while (my @row = $sth->fetchrow_array) {
     last if !@row;
-    my $data		= pop @row;
-    my $timestamp	= pop @row;
-    my $subject		= pop @row;
-    my $sender		= pop @row;
-    my $user		= pop @row;
+    my $data      = pop @row;
+    my $timestamp = pop @row;
+    my $subject   = pop @row;
+    my $sender    = pop @row;
+    my $user      = pop @row;
 
     my $msg_space =
-      length ($userid)		+
-      length ($sender)		+
-      length ($subject)		+
-      length ($timestamp)	+
+      length ($userid)    +
+      length ($sender)    +
+      length ($subject)   +
+      length ($timestamp) +
       length ($data);
 
-    $total_space	+= $msg_space;
-    $msg_space{$sender}	+= $msg_space;
+    $total_space        += $msg_space;
+    $msg_space{$sender} += $msg_space;
   } # while
 
   $sth->finish;

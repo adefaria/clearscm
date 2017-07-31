@@ -2,8 +2,8 @@
 ################################################################################
 #
 # File:         $RCSfile: exportlist.cgi,v $
-# Revision:	$Revision: 1.1 $
-# Description:	Export an address list
+# Revision:  $Revision: 1.1 $
+# Description:  Export an address list
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Jan 16 20:25:32 PST 2006
 # Modified:     $Date: 2013/06/12 14:05:47 $
@@ -15,7 +15,7 @@
 use strict;
 
 use FindBin;
-$0 = $FindBin::Script;
+local $0 = $FindBin::Script;
 
 use lib $FindBin::Bin;
 
@@ -25,9 +25,10 @@ use MAPSWeb;
 use CGI qw/:standard *table/;
 use CGI::Carp "fatalsToBrowser";
 
-my $type	= param ("type");
-my $userid	= cookie ("MAPSUser");
-my $Userid	= ucfirst $userid;
+my $type   =   param ("type");
+my $userid =   cookie ("MAPSUser");
+   $userid //= $ENV{USER};
+my $Userid =   ucfirst $userid;
 
 sub PrintList {
   my $type = shift;
@@ -49,20 +50,28 @@ sub PrintList {
 
   while (($_, $_, $pattern, $domain, $comment, $_, $hit_count, $last_hit) = GetList $sth) {
     last if !(defined $pattern or defined $domain);
-    $pattern	= !defined $pattern	? "" : $pattern;
-    $domain	= !defined $domain	? "" : $domain;
-    if ($domain eq "") {
+
+    $pattern //= '';
+    $domain  //= '';
+
+    if ($domain eq '') {
       print "$pattern,$comment,$hit_count,$last_hit\n";
     } else {
       print "$pattern\@$domain,$comment,$hit_count,$last_hit\n";
     } # if
   } # while
+
+  return;
 } # PrintList
 
 # Main
 SetContext $userid;
 
-print header (-type		=> "application/octet-stream",
-	      -attachment	=> "$type.list");
+print header (
+  -type        => "application/octet-stream",
+  -attachment  => "$type.list",
+);
+
 PrintList $type;
+
 exit;

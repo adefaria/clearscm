@@ -242,12 +242,12 @@ sub AddEmail ($$$) {
   MAPSDB::AddEmail $sender, $subject, $data;
 } # AddEmail
 
-sub AddList ($$$;$$) {
-  my ($listtype, $pattern, $sequence, $comment, $hit_count) = @_;
+sub AddList ($$$;$$$) {
+  my ($listtype, $pattern, $sequence, $comment, $hit_count, $last_hit) = @_;
 
   $hit_count //= CountMsg $pattern;
 
-  MAPSDB::AddList $listtype, $pattern, $sequence, $comment, $hit_count;
+  MAPSDB::AddList $listtype, $pattern, $sequence, $comment, $hit_count, $last_hit;
 } # AddList
 
 sub AddUser ($$$$) {
