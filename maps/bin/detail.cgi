@@ -75,11 +75,13 @@ sub MakeButtons {
   my $type = shift;
 
   my $prev_button = $prev >= 0 ?
-    a ({-href => "detail.cgi?type=$type;date=$date;next=$prev"},
-      '<img src=/maps/images/previous.gif border=0 alt=Previous align=middle>') : '';
+    a ({-href      => "detail.cgi?type=$type;date=$date;next=$prev",
+        -accesskey => 'p',
+    }, '<img src=/maps/images/previous.gif border=0 alt=Previous align=middle>') : '';
   my $next_button = ($next + $lines) < $total ?
-    a {-href => "detail.cgi?type=$type;date=$date;next=" . ($next + $lines)},
-      '<img src=/maps/images/next.gif border=0 alt=Next align=middle>' : '';
+    a {-href      => "detail.cgi?type=$type;date=$date;next=" . ($next + $lines),
+       -accesskey => 'n',
+    }, '<img src=/maps/images/next.gif border=0 alt=Next align=middle>' : '';
 
   my $buttons = $prev_button;
 

@@ -87,9 +87,9 @@ $this_page = $next / $lines + 1;
   <div class="toolbar" align="center">
     <?php
     $prev_button = $prev >= 0 ? 
-      "<a href=list.php?type=$type&next=$prev><img src=/maps/images/previous.gif border=0 alt=Previous align=middle></a>" : "";
-    $next_button = ($next + $lines) < $total ? 
-      "<a href=list.php?type=$type&next=" . ($next + $lines) . "><img src=/maps/images/next.gif border=0 alt=Previous align=middle></a>" : "";
+      "<a href=list.php?type=$type&next=$prev><img src=/maps/images/previous.gif border=0 alt=Previous align=middle accesskey=p></a>" : "";
+    $next_button = ($next + $lines) < $total ?
+      "<a href=list.php?type=$type&next=" . ($next + $lines) . "><img src=/maps/images/next.gif border=0 alt=Next align=middle accesskey=n></a>" : "";
     print $prev_button;
     ?>
     <input type="submit" name="action" value="Add New Entry"

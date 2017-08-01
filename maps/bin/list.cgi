@@ -67,11 +67,13 @@ sub Body {
   print start_div {-class  => "toolbar",
                    -align  => "center"};
   my $prev_button = $prev >= 0 ?
-    a ({-href => "list.cgi?type=$type;next=$prev"},
-      "<img src=/maps/images/previous.gif border=0 alt=Previous align=middle>") : "";
+    a ({-href      => "list.cgi?type=$type;next=$prev",
+        -accesskey => 'p',
+    }, "<img src=/maps/images/previous.gif border=0 alt=Previous align=middle>") : "";
   my $next_button = ($next + $lines) < $total ?
-    a {-href => "list.cgi?type=$type;next=" . ($next + $lines)},
-      "<img src=/maps/images/next.gif border=0 alt=Next align=middle>" : "";
+    a {-href      => "list.cgi?type=$type;next=" . ($next + $lines),
+       -accesskey => 'n',
+    }, "<img src=/maps/images/next.gif border=0 alt=Next align=middle>" : "";
   print $prev_button,
     submit ({-name    => "action",
              -value   => "Add New Entry",
