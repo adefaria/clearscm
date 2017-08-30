@@ -94,7 +94,7 @@ our ($log, %total);
 
 sub sanitize ($) {
   my ($str) = @_;
-  
+
   my $p4web    = 'http://p4web.audience.local:8080/@md=d&cd=//&c=vLW@/';
   my $bugzilla = 'http://bugs.audience.com/show_bug.cgi?id=';
 
@@ -159,7 +159,7 @@ sub addComments ($$) {
 
 sub main () {
   my $startTime = time;
-  
+
   GetOptions (
     \%opts,
     'verbose',
@@ -182,24 +182,24 @@ sub main () {
   if ($opts{file}) {
     open my $file, '<', $opts{file} 
       or $log->err ("Unable to open $opts{file} - $!", 1);
-      
+
     $opts{bugids} = [<$file>];
-    
+
     chomp @{$opts{bugids}};
   } else {
     my @bugids;
-    
+
     push @bugids, (split /,/, join (',', $_)) for (@{$opts{bugids}}); 
-  
+
     $opts{bugids} = [@bugids];
   } # if
-  
+
   pod2usage 'Must specify -bugids <bugid>[,<bugid>,...] or -file <filename>'
     unless $opts{bugids};
-  
+
   openBugzilla $opts{bugzillaserver}
     or $log->err ("Unable to connect to $opts{bugzillaserver}", 1);
-  
+
   Connect2JIRA ($opts{username}, $opts{password}, $opts{jiraserver})
     or $log->err ("Unable to connect to $opts{jiraserver}", 1);
 
@@ -207,10 +207,10 @@ sub main () {
 
   for (@{$opts{bugids}}) {
     my $jiraIssue = findIssue $_;
-    
+
     if ($jiraIssue =~ /^[A-Z]{1,5}-\d+$/) {
       my $result = addComments $jiraIssue, $_;
-      
+
       if ($result =~ /^Unable/) {
         $total{'Comment failures'}++;
 
@@ -222,13 +222,13 @@ sub main () {
       } # if
     } else {
       $total{'Missing JIRA Issues'}++;
-      
+
       $log->err ("Unable to find JIRA Issue for Bug $_");
     } # if
   } # for
 
   display_duration $startTime, $log;
-  
+
   Stats (\%total, $log) unless $opts{quiet};
 
   return 0;
