@@ -18,17 +18,17 @@ possible)
 * {
   /* IE5/Mac likes this, doesn't like ...:relative;. */
   /* hide from IE5/Mac */ 
-  position:	static;
+  position:   static;
   /* rumored to help with some IE problems (other than IE5/Mac. */
-  position:	relative;
+  position:   relative;
   /* IE sometimes decides to center stuff for the heck of it */
-  text-align:	left; 
-  font-size:	1em;
+  text-align: left; 
+  font-size:  1em;
 }
 
 body {
-  margin:	0;
-  padding:	0;
+  margin:  0;
+  padding: 0;
 }
 
 /*ul,
@@ -49,7 +49,7 @@ p,
 blockquote,
 fieldset,
 input {
-  margin:	0;
+  margin:  0;
 }
 
 dt {
@@ -57,7 +57,7 @@ dt {
 }
 
 blockquote {
-  padding-left:	25px;
+  padding-left:  25px;
 }
 
 /*****************************************************************************
@@ -70,38 +70,42 @@ Link underlines tend to make hypertext less readable, because
 underlines obscure the shapes of the lower halves of words
 *****************************************************************************/
 :link,:visited {
-  text-decoration:	none;
+  text-decoration:  none;
 }
 
 /*****************************************************************************
 Try getting rid of blue linked borders. 
 *****************************************************************************/
-#page a {
-  border:	none;
-  font-weight:	bold;
+a {
+  border:      none;
+  font-weight: bold;
 }
 
-#page a:link {
-  color:	red;
+a:link {
+  color:  red;
+  text-decoration: underline;
 }
 
-#page a:visited {
-  color:	teal;
+a:visited {
+  color:  teal;
+  text-decoration: underline;
 }
 
-#page a:active { 
-  color:	red;
+a:active { 
+  color:  red;
+  text-decoration: underline;
 }
 
-#page a:hover {
-  color:	blue;
-  background:	#ffff80;
+a:hover {
+  color:      blue;
+  background: #ffff80;
+  text-decoration: underline;
 }
 
 a img,
 :link img,
 :visited img {
-  border:	none;
+  border:  none;
 }
 
 /*****************************************************************************
@@ -111,9 +115,9 @@ We'll start with a size of 12px (1em = 12px)
 *****************************************************************************/
 
 body {
-  font-family:	verdana, arial, sans-serif;
-  font-size:	75%; /* assumes a 14-16px default size */
-  line-height:	137%;
+  font-family: verdana, arial, sans-serif;
+  font-size:   75%; /* assumes a 14-16px default size */
+  line-height: 137%;
 }
 
 /*****************************************************************************
@@ -121,71 +125,71 @@ Let IE use percentage for base font size so it can still zoom
 text. Everyone else we'll give a pixel value to ...
 *****************************************************************************/
 html>body {
-  font-size:	12px; /* For everyone except IE ... */
+  font-size:  12px; /* For everyone except IE ... */
 }
 
 p {
-  font-size:	1.0em; /* ~12px */
+  font-size:  1.0em; /* ~12px */
 }
 
 h1, h2, h3, h4, h5, h6 { /* georgia is a better x-browser font */
-  font-family:		georgia, "new century schoolbook", times, serif;
-  margin-top:		4px;
-  margin-bottom:	10px;
-  color:		#993333;
+  font-family:   georgia, "new century schoolbook", times, serif;
+  margin-top:    4px;
+  margin-bottom: 10px;
+  color:         #993333;
 }
 
 h1 {
-  font-weight:		normal;
+  font-weight:    normal;
 }
 h2, h3, h4, h5, h6 {
-  font-weight:		bolder;
+  font-weight:    bolder;
 }
 
 
 h1 {
-  font-size:	2em;
-  font-variant:	small-caps;
-  text-align:	center;
+  font-size:    2em;
+  font-variant: small-caps;
+  text-align:   center;
 }
 
 h2 {
-  font-size:	1.5em;
-  font-variant:	small-caps;
-  font-weight:	bolder;
+  font-size:    1.75em;
+  font-variant: small-caps;
+  font-weight:  bolder;
 }
 
 h3 {
-  font-size:	1em;
-  font-weight:	bolder;
+  font-size:    1.5em;
+  font-weight:  bolder;
 }
 
 h4 {
-  font-size:	0.8em;
-  font-style:	italic;
+  font-size:   1.25em;
+  font-style:  italic;
 }
 
 h5 {
-  font-size:	0.6em;
-  font-style:	italic;
+  font-size:   1.0em;
+  font-style:  italic;
 }
 
 h6 {
-  font-size:	0.4em;
-  font-weight:	bold;
+  font-size:    0.8em;
+  font-weight:  bold;
 }
 
 .standout {
-  font-family:		verdana,
-			arial,
-			sans-serif;
-  font-size:		12px;
-  color:		#933;
-  line-height:		13px;
-  font-weight:		bold;
-  margin-bottom:	10px;
+  font-family:   verdana,
+                 arial,
+                 sans-serif;
+  font-size:     12px;
+  color:         #933;
+  line-height:   13px;
+  font-weight:   bold;
+  margin-bottom: 10px;
 }
 
 .dim {
-  color:		#999;
+  color:    #999;
 }

@@ -81,6 +81,25 @@ function stoptimer () {
 </table>
     <?php end_box ();?>
 
+    <table cellspacing="0" cellpadding="0" width="300" border="0" align="center">
+      <tbody>
+        <tr>
+         <td valign="top" align center>
+            <a href="AWS Certified Solutions Architect - Associate certificate.pdf" target="_blank">
+            <div>
+                <img src="AWS_Certified_Logo_SAA_294x230_Color.png" alt="AWS Certified Solutions Architect"><br>
+              <br>
+                <img src="AWS_Certified_Tag__SAA_294x230-Color.png" alt="Associate">
+              <br>
+              <b>Validation Number:</b> 4Q2XDJDCK1EE1HC5
+            </div>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
   <h3>Objective</h3>
 
   <p>To work with state of the art operating systems and networks to
@@ -108,21 +127,21 @@ function stoptimer () {
   <table align=center border=1 cellspacing=0 cellpadding=2 width="60%">
     <tbody>
       <tr>
-        <td>Version Control Systems</td>
+        <th>Version Control Systems</th>
         <td>
           <span class="standout">Git</span>, <span class="standout">Perforce</span>,
           <span class="standout">Clearcase</span>
         </td>
       </tr>
       <tr>
-        <td>Issue Tracking</td>
+        <th>Issue Tracking</th>
         <td>
           <span class="standout">JIRA</span>, <span class="standout">Clearquest</span>,
           <span class="standout">Bugzilla</span>
         </td>
       </tr>
       <tr>
-        <td>Languages</td>
+        <th>Languages</th>
         <td>
           <span class="standout">Perl</span>, <span class="standout">Bash</span>,
           <span class="standout">PHP</span>, <span class="standout">C++</span>,
@@ -131,7 +150,7 @@ function stoptimer () {
         </td>
       </tr>
       <tr>
-        <td>Middleware</td>
+        <th>Middleware</th>
         <td>
           <span class="standout">Apache</span>, <span class="standout">Tomcat</span>,
           <span class="standout">Samba</span>, <span class="standout">Winbind</span>,
@@ -139,29 +158,41 @@ function stoptimer () {
         </td>
       </tr>
       <tr>
-        <td>Web Apps</td>
+        <th>Web Apps</th>
         <td>
           <span class="standout">JIRA</span>, <span class="standout">Confluence</span>,
           <span class="standout">Swarm</span>
         </td>
       </tr>
       <tr>
-        <td>Databases</td>
+        <th>Databases</th>
         <td>
           <span class="standout">MySQL</span>, <span class="standout">Oracle</span>
         </td>
       </tr>
       <tr>
-        <td>Coninuous Integration</td>
+        <th>Coninuous Integration</th>
         <td>
           <span class="standout">Build Forge</span>, <span class="standout">Electric Commander</span>,
           <span class="standout">Jenkins</span>
         </td>
       </tr>
       <tr>
-        <td>Virtualization</td>
+        <th>Virtualization</th>
         <td>
           <span class="standout">VMWare</span>, <span class="standout">VirtualBox</span>,
+        </td>
+      </tr>
+      <tr>
+        <th>Cloud Computing</th>
+        <td>
+          <span class="standout">AWS: EC2</span>, 
+          <span class="standout">IAM</span>, 
+          <span class="standout">S3</span>, 
+          <span class="standout">Glacier</span>, 
+          <span class="standout">CloudFront</span>, 
+          <span class="standout">Route53, 
+          <span class="standout">VPC</span>
         </td>
       </tr>
     </tbody>
@@ -219,12 +250,12 @@ function stoptimer () {
   <p>August 2016 - Present<br>
   <font class=dim>Contract</font><br>
 
-  <p>Working on converting an internal project from a <span class="standout">Jenkins</span>/<span class="standout">Perforce</span>
+  <p>Converted an internal project from a <span class="standout">Jenkins</span>/<span class="standout">Perforce</span>
   build system to the Broadcom/Avago standard of <span class="standout">Electric Commander</span>
-  and <span class="standout">Git</span>. Wrote a Perl script to driving signing of
-  executables. Wrote a Perl script to remotely execute commands remotely on Windows
-  systems using Cygwin/ssh. This script also supplied username/password so that
-  when logged into the Windows system, Windows could access remote filesystems.</p>
+  and <span class="standout">Git</span>. Developed Perl scripts to sign executables. Developed Perl
+  script to remotely execute commands on Windows systems using <span class="standout">Cygwin/ssh</span>.
+  This script also supplied username/password so that when logged into the Windows system, Windows 
+  could access remote filesystems.</p>
 
   <hr noshade>
 
@@ -233,11 +264,8 @@ function stoptimer () {
 
   <p><a href="http://icann.org"><img alt="ICANN" src="ICANN.png" border="0"></a><br></p>
 
-  <p>Working on keeping the Internet from exploding! ;-)</p>
-
-  <p>Working on creating servers to implement protocols such as RDAP (pretty
-  much the new whois(1)) and the like for testing SLA compliance of various TLD
-  registrars around the world.</p>
+  <p>Developed <a href="https://en.wikipedia.org/wiki/Registration_Data_Access_Protocol">RDAP</a>
+  server for testing SLA compliance of various TLD registrars around the world.</p>
 
   <hr noshade>
 
@@ -318,8 +346,9 @@ function stoptimer () {
   <p>Automated various informational systems using <span class="standout">Perl</span>/
   <span class="standout">MySQL</span>/<span class="standout">Oracle</span>, and the web.</p>
 
-  <p>Developed a command line debugger called raid which provided a consistent
-  interface with complete command history and variable substitution. This Perl
+  <p>Developed a command line debugger called <a href="http://clearscm.com/php/scm_man.php?file=bin/raid">RAID</a> (a Real Aid In Debugging) which 
+  provided a consistent interface with complete command history and variable substitution courtsey of a Perl
+  module that I wrote called <a href="http://clearscm.com/php/scm_man.php?file=lib/CmdLine.pm">Cmdline.pm</a>. This Perl
   process utilized <span class="standout">Inline::C</span> to interface to the
   developer libraries and provide a consistent interface for the various command
   line debuggers developed by various different groups.</p>
