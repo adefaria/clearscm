@@ -171,6 +171,7 @@ sub PrintTable {
 
   foreach my $sender (ReturnSenders $userid, $type, $next, $lines, $date) {
     my @msgs = ReturnMessages $userid, $sender;
+    my @msgs2 = @msgs;
 
     $next++;
     print
@@ -191,12 +192,12 @@ sub PrintTable {
                    -width       => '100%',
                    -bgcolor     => '#d4d0c8'};
     print
-      td {-class => 'tablelabel',
-          -valign => 'middle',
-          -width  => '40'}, 'Sender:',
-      td {-class  => 'sender',
-          -valign => 'middle'},
-      a {-href    => "mailto:$sender"}, $sender;
+      td {-class   => 'tablelabel',
+          -valign  => 'middle',
+          -width   => '40'}, 'Sender:',
+      td {-class   => 'sender',
+          -valign  => 'middle'},
+        a {-href   => "mailto:$sender?subject=$msgs2[0][0]"}, $sender;
     print
       end_table;
 
