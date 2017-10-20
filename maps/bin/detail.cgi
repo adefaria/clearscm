@@ -239,7 +239,7 @@ sub PrintTable {
               -bgcolor => '#ffffff'},
            a {-href    => "display.cgi?sender=$sender;msg_nbr=$msg_nbr"}, $subject,
           td {-class   => 'date',
-              -width   => '130',
+              -width   => '150',
               -valign  => 'middle'}, $msg_date
         ];
       print end_table;
