@@ -996,27 +996,17 @@ END
 sub ReturnMessages ($$) {
   my ($userid, $sender) = @_;
 
-  # Note, the left(timestamp,16) chops off the seconds and the group
-  # by effectively squashes two emails received in the same minute to
-  # just one. We get a lot of double emails within the same minute. I
-  # think it's a result of the mailer configuration and it attempting
-  # to resend the message, not that it's the spammer sending just two
-  # emails in under a minute then going away. This will mean we will
-  # see fewer emails listed (essentially dups within one minute are
-  # squashed) yet they still will count towards the number of hits
-  # before we autonullist. We should squash these upon receipt, not
-  # upon report. Maybe latter...
   my $statement = <<"END";
 select
   subject,
-  left(timestamp,16)
+  timestamp
 from
   email
 where
   userid = '$userid' and
   sender = '$sender'
 group by
-  left(timestamp,16) desc
+  timestamp desc
 END
 
   my $sth = $DB->prepare ($statement)
