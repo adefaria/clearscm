@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Remedy/Irvine Access/P4 ticket</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000418.html" title="Backup Registry Server/Triggers" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000421.html" title="CQ/Triggers/Binary merge/CVS" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000418.html">&laquo; Backup Registry Server/Triggers</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000421.html">CQ/Triggers/Binary merge/CVS &raquo;</a>
+                     </p>
+
+                     <a id="a000420"></a>
+                     <div class="entry" id="entry-420">
+                        <h3 class="entry-header">Remedy/Irvine Access/P4 ticket</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Finally got Remedy access. Turns out I had it all along just my username was ADEFARIA instead of adefaria!</li>
+
+  <li>Looked into P4 ticket. I am unable to perform the action because I don't have a login to Irvine. P4 stuff gets performed in Irvine and I don't have an account there. Actually I have an account but didn't know the password. Actually I figured out the password - it was my initial password when I came to Broadcom and was never set. The Help desk had me set my password in the beginning but that was in the San Jose domain. I've now set it for Irvine too. There are two problems with my Linux login:
+
+  <ol>
+    <li>In Irvine I have no home directory! As a result I cannot create ~/public_html and write web pages as well as I cannot set up my startup scripts, etc. I put in a ticket for this. Hopefully they will set up Irvine like San Jose in that my home directory will be share amoungst all three areas.</li>
+
+    <li>My default shell is (yuck) csh! I asked for that to be changed to bash.</lI
+  </ol>
+  </li>
+
+  <li>Worked with Shivdutt on disk space problem on ccase-rmna-3</li>
+
+  <li>Added RM_EMPTY_BRANCH trigger to vobs on ccase-rmna-3</li>
+
+  <li>Investigating other triggers to include them in mktriggers.pl</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>San Jose/Irvine Domains</h3>
+
+<p>Here in Broadcom there are multiple NIS domains here including sanjose and irvine. For example, ssh'ing into xserver.sj works for me and puts me in /home/adefaria. Insterestingly /home/adefaria corresponds with my Windows home directory. IOW if I touch file on Linux I can see file in my home directory in Windows. Cool. The world is as it should be!</p>
+
+<p>However in Irvine I have no home directory at all. It seems that home directories are automounted from the NIS auto_home map and that San Jose home directories come from fs-sj1-* while Irivine home direcrtories come from fs-irva-*. Ugh!</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 13, 2005 10:50 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000420.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

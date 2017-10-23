@@ -1,0 +1,210 @@
+#!/bin/bash
+################################################################################
+#
+# File:         notify_err
+# Description:  Checks the log files for errors and notifies the appropriate
+#		component owners
+# Author:       zran@salira.com - modified by Andrew@DeFaria.com
+# Created:      Fri Jun 27 12:42:28 PDT 2003
+# Language:     bash
+# Modification: 
+#
+# (c) Copyright 2001-2003, Salira Optical Network Systems, all rights reserved.
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+owner_list="$SITE_TOOLS_PATH/adm/data/owner_list"
+ssmtp=/usr/sbin/ssmtp
+
+# Get cards definition
+. $SITE_TOOLS_PATH/adm/etc/cards
+
+function usage {
+  if [ ! -z "$1" ]; then
+    error "$1\n"
+  fi
+  display "Usage: $me <cards to check>"
+  display
+  display "Where <cards to check> are a list of cards to check (default: all cards)"
+  exit 1
+} # usage
+
+notify_cc="$SITE_ADMIN_EMAIL"
+
+# This function composes the email header and then appends the portion
+# of the logfile as the body.
+function send_email {
+  subject="$1"
+  component="$2"
+  logfile="$3"
+  err_lines="$4"
+
+  # Determine who owns this component
+  grep -qi "^$component" $owner_list
+
+  if [ $? -ne 0 ]; then 
+    warning "Unknown component $component"
+    notify_to=$notify_cc
+  else
+    if [ "$SITE_NAME" = "US" ]; then
+      owner_email=$(grep -i "^$component	" $owner_list | awk '{print $2}')"@salira.com"
+    else
+      owner_email=$(grep -i "^$component	" $owner_list | awk '{print $3}')"@salira.com"
+    fi
+    notify_to=$owner_email
+  fi
+
+  # Compose header
+  echo "From: ccadmin" 		 > /tmp/$me.msg
+  echo "To: $notify_to"		>> /tmp/$me.msg
+  echo "cc: $notify_cc"		>> /tmp/$me.msg
+  echo "Subject: $subject"	>> /tmp/$me.msg
+       
+  # Append section of logfile
+  tail -$err_lines $logfile >> /tmp/$me.msg
+
+  # Mail it
+  cat /tmp/$me.msg | $ssmtp -t
+
+  if [ $? -eq 0 ]; then
+    verbose "Sent email To: $notify_to Cc: $notify_cc"
+    verbose "Re: $subject"
+    rm -f /tmp/$me.msg
+  else
+    echo "Unable to send email. Message left in /tmp/$me.msg"
+    exit 1
+  fi
+} # send_email
+
+# This function returns the number of lines from the end of the logfile
+# that must be output to show the error. Input is the logfile name and
+# the search line which denotes the area to start.
+function error_lines {
+  logfile="$1"
+  search_line="$2"
+
+  # Determine the line number of the start of the error lines
+  startline=$(grep -n "$search_line" $logfile | cut -f1 -d':')
+
+  # Determine the number of lines in logfile
+  endline=$(wc -l $logfile | awk '{print $1}')
+
+  # Calculate the error lines
+  err_lines=$(($endline-$startline+1))
+  
+  # Trim area to no more than 50 lines
+  if (( $err_lines > 50 )); then
+    err_lines=50
+  fi
+
+  return $err_lines
+} # error_lines
+
+function check_error {
+  card="$1"
+
+  # Set logfile
+  logfile=$card.build.log
+
+  # If logfile doesn't exist then no error so simply return
+  if [ ! -f $logfile ]; then
+    verbose "Unable to find logfile for card $card"
+    return
+  fi
+
+  # Check for successful build
+  grep -q "^Packing.*superfile" $logfile
+
+  if [ $? -eq 0 ]; then
+    verbose "$card built successfully!"
+    return
+  fi
+
+  grep -q "Timestamp & Version" $logfile
+
+  if [ $? -ne 0 ]; then
+    verbose "$card compile failure"
+    # Loop through the logfile scanning for the "----" line which
+    # denotes a component. If there is an error then we are interested
+    # in the last component so save that.
+    while read line dir component; do 
+      if [ "$line" = "--------------------------------------" ]; then
+        hitline="$dir $component"
+        hitdir=$dir
+        hitcomponent=$component
+
+        # Not sure why we are trying bsp special...
+        if [ "$hitdir" = "(neopon/src/bsp)" ]; then
+          hitcomponent=bsp
+        fi
+      fi
+    done < $logfile
+
+    error_lines $logfile "$hitline"
+    err_lines=$?
+
+    send_email "Build of view: $view_tag Card: $card Component $hitcomponent failed to compile" $hitcomponent $logfile $err_lines
+  else # link error
+    verbose "$card link failure"
+    error_lines $logfile "Timestamp & Version"
+    err_lines=$?
+
+    send_email "Build of view: $view_tag Card: $card failed to link" link $logfile $err_lines
+  fi
+} # check_error
+
+# Get parameters
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -v|-verbose)
+      verbose="yes"
+    ;;
+
+    -d|-debug)
+      debug="yes"
+    ;;
+
+    -u|-usage)
+      usage
+      ;;
+
+    *)
+      cards_to_check="$cards_to_check $1"
+  esac
+  shift
+done
+
+# What view are we in?
+view_tag=$(cleartool pwv -short)
+
+if [ ! -z "$cards_to_check" ]; then
+  for card in $cards_to_check; do
+    card=$(echo $card | tr [:lower:] [:upper:])
+    verbose "Checking card $card..."
+    check_error $card
+  done
+else
+  for card in $cards; do
+    card=$(echo $card | tr [:lower:] [:upper:])
+    verbose "Checking card $card..."
+    check_error $card
+  done
+fi

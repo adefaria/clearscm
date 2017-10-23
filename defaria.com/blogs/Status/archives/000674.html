@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Import.pl</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000673.html" title="Building Qt/UCMWB officially" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000675.html" title="UCMWB/Document Visibility" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000674.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/61"
+    dc:title="Import.pl"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000674.html"
+    dc:subject="General Dynamics"
+    dc:description=" Performed merge for build 1-&gt; build 2 and build 2 -&gt; build 3 Resolved RoseRT issue Code reviewed Tom&apos;s changes to createView.pl..."
+    dc:creator=""
+    dc:date="2007-09-11T12:25:55-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000673.html">&laquo; Building Qt/UCMWB officially</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000675.html">UCMWB/Document Visibility &raquo;</a>
+                     </p>
+
+                     <a id="a000674"></a>
+                     <div class="entry" id="entry-674">
+                        <h3 class="entry-header">Import.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Performed merge for build 1-> build 2 and build 2 -> build 3</li>
+
+  <li>Resolved RoseRT issue</li>
+
+  <li>Code reviewed Tom's changes to createView.pl</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>RANCQ00013181: MUOS document Project Views Are not Showing All Needed Documents</h3>
+
+<p>Process was written to perform this importation. The process takes 3 parameters: a from_view, a branch and a label. The process is designed to run in the to_view context. It proceeds to search the from_view for elements that do not exist in the to_view and upon finding them it merges the parent directory and then the element in question is "imported".</p>
+
+<p>Both a branch and a label is used because the merge procedure used on directory elements first tries to merge with the LATEST on the specified branch. If the branch does not exist (because the element was never branched) then the label is used to locate the source directory for the merge.</p>
+
+<p>File elements aren't merged - they are imported (i.e. copied from the from_view to the to_view)</p>
+
+<p>There are a few errors and/or warnings that can result in such a process that this script cannot hueristically determine the correct action to take. The problems arise from the renaming or removing of elements in the to_view. It is not possible for this script to determine what the user intended. An example will better explain this.</p>
+
+<p>For build 1 there was a directory named:</p>
+
+<div class=code><pre>
+/vobs/gdrandocs/development/proj/ran/fdd/RNC_Initialization_Configuration
+</pre></div>
+
+<p>This was on the ran_fdd_doc_bld1_integration branch version 2 which was labled RAN_FDD_RELEASE_BUILD1. At version 17 RNC_Intitialization_Configuration was renamed to RBS_RNC_Intitialization_Configuration. By version 28 the RAN_FDD_RELEASE_BUILD2 label was applied.</p>
+
+<p>Since this directory was renamed there is no way to guess what it was renamed to. Sure it's easy for a human to look at it and make a loose association based on the fact that most of the directory name is the same, this sort of AI is very difficult to program. The script marks these as an error. It's an error because somebody should verify if a directory was simply renamed or if it was removed (rmname'd). Also it's not known what to do at this point. Shall we assume that the newly named directory contains all it needs? Or does further merging/importing need to take place?</p>
+
+<p>Additionally, since a directory is renamed, the elements contained in the directory went along with it. So in the script, the from_view keeps producing paths with RNC_Intitialization_Configuration in them not RBS_RNC_Intitialization_Configuration. Such elements then appear to have disappeared and the script issues a warning for these. At this point we really cannot tell if the file element was simply removed (where we would assume that the act was deliberate and that we should not be importing the element back in) or if it's a result of a directory renaming of the parent directory (or some parent of the parent) thus falling into the error described in the preceeding paragraph.</p>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 11, 2007 12:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000674.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/61</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

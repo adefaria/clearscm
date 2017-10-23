@@ -1,0 +1,485 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: March 2010 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2010_02.html" title="February 2010" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2010_04.html" title="April 2010" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2010_02.html">&laquo; February 2010</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2010_04.html">April 2010 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000733"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/105"
+    dc:title="Dang Eclipse"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000733"
+    dc:subject="General Electric"
+    dc:description="Dang IDEs! They&apos;re often more trouble than they are worth!! Be wary! I&apos;m in Eclipse and I was trying to clean up my view a little bit. I selected a few view private files I wanted to delete with Control-Click...."
+    dc:creator=""
+    dc:date="2010-03-31T16:28:01-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 31, 2010</h2>
+                     <a id="a000733"></a>
+                     <div class="entry" id="entry-733">
+                        <h3 class="entry-header">Dang Eclipse</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Dang IDEs! They're often more trouble than they are worth!! Be wary!</p>
+
+<p>I'm in Eclipse and I was trying to clean up my view a little bit. I selected a few view private files I wanted to delete with Control-Click. Then I hit the delete key to delete them. Eclipse prompted me "Are you sure you want to delete these files?" and I responded yes. But then I noticed that one of the files that was selected was mktriggers.pl!!! I did not select mktriggers.pl explicitly - it was selected because that was the last file I was editing was mktriggers.pl. And, remember, I only expected this delete to be deleting the view private files I selected, not Clearcase elements. I did not expect any rmnames to be happening.</p>
+
+<p>No worries you say? This is in Clearcase you say? Yes it was. But it was also checked out and with my most recent modifications. "Ah", I hear you saying, "Clearcase shouldn't be doing any explicit destructive activities without asking you first" - well it just did! It rmnamed mktriggers.pl without confirmation. Sure it asked whether or not I wanted to remove files, and I did, the ones I explicitly selected - not the one it had selected simply because I was editing a file. "Well shouldn't there be an option on rmname that you have to specify in order for rmname to proceed?" Yes there is - it's -force and good old Eclipse must have called rmname with -force!</p>
+
+<p>"But surely there's a .keep file around or something that you can recover from". Well ah, no. Not in this case. My work has been lost!</p>
+
+<p>You have been warned!</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:28 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000733.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000733.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000732"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/104"
+    dc:title="QC work/mktriggers progress/sync from Tandem issues
+"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000732"
+    dc:subject="General Electric"
+    dc:description=" Detailed which fields are currently getting QC Synchronized Updated vbs scripts to be more Unix like, accepting parameters, etc. and to be able to update the status both backwards and forwards, as well as have a -noexec mode. Met..."
+    dc:creator=""
+    dc:date="2010-03-26T19:18:23-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 26, 2010</h2>
+                     <a id="a000732"></a>
+                     <div class="entry" id="entry-732">
+                        <h3 class="entry-header">QC work/mktriggers progress/sync from Tandem issues
+</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Detailed which fields are currently getting QC Synchronized</li>
+
+  <li>Updated vbs scripts to be more Unix like, accepting parameters, etc. and to be able to update the status both backwards and forwards, as well as have a -noexec mode.</li>
+
+  <li>Met with ??? regarding QC synchronization</li>
+
+  <li>Worked a lot with Randy on Evil Twin issues for Polaris</li>
+
+  <li>Documented duplicate code problems</li>
+
+  <li>Documented how to use dynamic views in Eclipse</li>
+
+  <li>Working on trying to compare files from the pathway for SDDLS</li>
+
+  <li>Worked on getting mktriggers.pl finished.</li>
+</ul>
+                              
+                              <h2>Issues with getsysid.pl</h2>
+
+<p>There is a script called getsysid.pl which will get stuff from the Tandem and ftp it locally. The hope was that we could just get stuff back from the Tandem and then use something like diff -r to compare things. There are some issue with that:</p>
+
+<ol>
+  <li>Since files are coming off the Tandem their extensions are lost. Therefore while it may be foo.c when in Clearcase, it's just foo when it gets to the Tandem and thus when it comes back from the Tandem it's also just foo. diff -r will not be matching up foo and foo.c</li>
+
+  <li>Typically views on Windows in <i>transparent</i> mode retain their CRLF characteristics. In other words they are in "DOS" mode. Files come back from the Tandem however are in "Unix" mode. This makes every line report as different from diff!</li>
+
+  <li>There's the issue of these "squiggle" lines where version information is encoded in Clearcase and filled in on the Tandem (or visa versa). This lines, of course, will compare differently. Ugh!</li>
+</ol>
+
+<p>Perhaps a tool that can take these differences into account...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:18 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000732.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000732.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000731"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/103"
+    dc:title="SDDLS progress/m_pPerl != 0 fix/Merging directories"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000731"
+    dc:subject="General Electric"
+    dc:description=" Updated documentation on UCM Batch Delivery to describe how to use user selectors on BF Release Power Point presentation about SDDLS component Found out that the m_pPerl != 0 bug is fixed by install package on SCM Tools page..."
+    dc:creator=""
+    dc:date="2010-03-24T14:25:10-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 24, 2010</h2>
+                     <a id="a000731"></a>
+                     <div class="entry" id="entry-731">
+                        <h3 class="entry-header">SDDLS progress/m_pPerl != 0 fix/Merging directories</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Updated documentation on UCM Batch Delivery to describe how to use user selectors on BF</li>
+
+  <li>Release Power Point presentation about SDDLS component</li>
+
+  <li>Found out that the m_pPerl != 0 bug is fixed by install package on SCM Tools page</li>
+
+  <li>Went through exercise with Randy of merging directories to allow backporting of code to an earlier release. General procedure is to use the Version Tree to select the appropriate parent directory, right click, merge to... and select the current view's version. Merge everything from the current view <b>except</b> the files that are to be backported. THis gets you an empty copy of the right OID. Then the user needs to do the same procedure with the individual files to get the content.</li>
+
+  <li>Made some progress with mktriggers.pl</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000731.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000731.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000730"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/102"
+    dc:title="SDDLS sync to guardian/QC updates"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000730"
+    dc:subject="General Electric"
+    dc:description=" After a 5 hour run, finally managed to get the sync to guardian of SDDLS to work. Looks like it worked correctly. Need to work on documenting. Also need to get Randy to check things out and deliver a..."
+    dc:creator=""
+    dc:date="2010-03-16T19:01:46-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 16, 2010</h2>
+                     <a id="a000730"></a>
+                     <div class="entry" id="entry-730">
+                        <h3 class="entry-header">SDDLS sync to guardian/QC updates</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>After a 5 hour run, finally managed to get the sync to guardian of SDDLS to work. Looks like it worked correctly. Need to work on documenting. Also need to get Randy to check things out and deliver a simple change</li>
+
+  <li>Spoke with Jason more. It seems the .vbs script are indeed updating a QC database - one with "clearquest" in the name but a QC database nonetheless</li>
+
+  <li>Described how to use dynamic views in Eclipse</li>
+</ul>
+                              
+                              <h3>Eclipse plugin support for Clearcase<br></h3>
+
+<p>There are 3 plugins that I see in my Eclipse environment. You can see them by selecting <b>Help: Software Updates: Manage Configuration</b>. Expand the C:\Program Files\Eclipse (or wherever you put Eclipse). You'll see the following Clearcase related plugins:</p>
+
+<ul>
+  <li>Rational Clearcase MVFS Support 7.0.0.200801131A: I think this is what supports dynamic views</li>
+
+  <li>Rational Clearcase Remote Client for Eclipse 7.0.1.D061004: I think this is what supports web views or CCRC<br></li>
+
+  <li>Rational Clearcase SCM Adapter 7.0.0.20061206A: I think this is just an adapter that translates Clearcase CM commands to Eclipse - which can use Clearcase or CVS or SVN, etc.</li>
+</ul>
+
+<h3>Accessing an existing dynamic view in Eclipse</h3>
+
+<p>When you are in Eclipse with the above plugins many operations seem to be CCRC focused. For example, attempting to join a UCM project will lead you down a path to creating a CCRC or webview. Also, things like <b>Clearcase: Create Clearcase View</b> start with 1) a dialog box that says <b>Create Base Clearcase View</b> and asks to <b>Select a Clearcase Web Server for the view</b>. But you can create dynamic views outside the context of Eclipse and then use them in Eclipse.</p>
+
+<p>Assuming you made a view by joining a project say from the Project Explorer, select <b>File: New Project</b>, expand <b>General</b> and then select <b>Project</b> and <b>Next</b>.</p>
+
+<img src="/blogs/Status/images/NewProject.png" alt="New Project Dialog box">
+
+<p>Give your project a name, toggle off <b>Use Default Location</b> and browse to your view mounted under the M drive and into a vob (must be done in some vob):</p>
+
+<img src="/blogs/Status/images/NewProject2.png" alt="New Project Dialog 2">
+
+<p>Click <b>Finish</b>. If you get the following dialog box then click <b>Cancel.</b></p>
+
+<img src="/blogs/Status/images/AddElement.png" alt="Add Element">
+
+<p>This may be required. In Eclipse select <b>Window: Preferences</b> and then filter by "mvfs". If necessary click on <u>Workspace</u> and <b>Apply</b> then do <b>Windows: Preferences</b> again and click on <b>Enable ClearCase dynamic view file system support</b>.</p>
+
+<img src="/blogs/Status/images/MVFSPreferences.png" alt="MVFS Preferences">
+
+<p>You should see Eclipse <b>Refreshing Workspace</b> running in the background. I'm not 100% what that's doing (getting Clearcase attributes to cache them?)</p>
+
+<p>You should be able to right click on your newly created project (GDN_6.6.3 in the example above) and select<b> Team</b> then things like <b>Show Version Tree</b> or <b>Compare with Previous Version</b> etc.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:01 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000730.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000730.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000727"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/101"
+    dc:title="Clearquest problems"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000727"
+    dc:subject="General Electric"
+    dc:description=" Had a problem with Clearquest, something about m_pPerl != 0. Got it when trying to create a UCM project. Traced that down to not being able to create the UCM Project in Clearquest. Then I couldn&apos;t even complete a..."
+    dc:creator=""
+    dc:date="2010-03-05T18:41:52-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March  5, 2010</h2>
+                     <a id="a000727"></a>
+                     <div class="entry" id="entry-727">
+                        <h3 class="entry-header">Clearquest problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Had a problem with Clearquest, something about m_pPerl != 0. Got it when trying to create a UCM project. Traced that down to not being able to create the UCM Project in Clearquest. Then I couldn't even complete a Clearquest activity! I was able to do so over on Omair's machine so we suspected my install was somehow corrupted. Ended up uninstalling and reinstalling Clearquest</li>
+
+  <li>Created new UCM Project for Nancy</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:41 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000727.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000727.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000726"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/100"
+    dc:title="Undo checkout"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000726"
+    dc:subject="General Electric"
+    dc:description=" Met with Jodi, Lyle, etc. Decided to go with the proposed solution of making BF jobs to do the deliveries as Lyle or designate. Sent him instructions on how to set up the BF part. Unco should be simple...."
+    dc:creator=""
+    dc:date="2010-03-03T15:28:54-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March  3, 2010</h2>
+                     <a id="a000726"></a>
+                     <div class="entry" id="entry-726">
+                        <h3 class="entry-header">Undo checkout</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Met with Jodi, Lyle, etc. Decided to go with the proposed solution of making BF jobs to do the deliveries as Lyle or designate. Sent him instructions on how to set up the BF part. Unco should be simple.</li>
+
+  <li>Worked with Sherri to get her going with starting a view. They seem to have been told to go through Eclipse to start the view and mount the vob. Odd.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:28 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000726.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000726.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000725"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/99"
+    dc:title="UCM Project Creation"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000725"
+    dc:subject="General Electric"
+    dc:description=" Created 3 UCM Projects/streams - one including an Import Project component Investigated what causes users to be considered Clearcase Admins..."
+    dc:creator=""
+    dc:date="2010-03-02T16:34:37-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March  2, 2010</h2>
+                     <a id="a000725"></a>
+                     <div class="entry" id="entry-725">
+                        <h3 class="entry-header">UCM Project Creation</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created 3 UCM Projects/streams - one including an Import Project component</li>
+
+  <li>Investigated what causes users to be considered Clearcase Admins</li>
+</ul>
+                              
+                              <p>A question was asked about what causes users to be considered Clearcase admins:</p>
+
+<p>From <a
+ href="http://www-01.ibm.com/support/docview.wss?uid=swg21143292">About
+ClearCase permissions on Windows</a>:<br>
+<blockquote><b>ClearCase Administrative Access</b><br>
+  <br>
+Privileged users in ClearCase have rights to create, modify, and delete
+any ClearCase object. Access to these permissions should be restricted
+to ClearCase Administrators and the ClearCase Process Account (Atria
+Location Broker Service - ALBD). Access is controlled by membership in
+the ClearCase Administrators group.<br>
+  <br>
+This group which is designated during the setup and installation of
+ClearCase is referred to as the ClearCase privileged group. By default,
+this group is called <i>clearcase</i>. Some defining characteristics
+of the ClearCase (or privileged) group are:<br>
+  <ul>
+    <li type="disc"><b>The account under which whose identity Atria
+Location Broker Daemon (ALBD) runs has to be a member of this group,
+such as </b><b><i>clearcase_albd</i></b><b>.</b><br>
+    </li>
+    <li type="disc">This group has Full Control of the view and VOB
+storage directories.<br>
+    </li>
+    <li type="disc">Members of this group are considered ClearCase
+Administrators.</li>
+  </ul>
+  <br>
+  <b>Note</b>: The ClearCase privileged group must never be used as the
+primary group on a VOB or set as a primary group for ClearCase access.<br>
+
+</blockquote>
+And from <a
+ href="http://www.ibm.com/developerworks/rational/library/1111.html">ClearCase
+administration: The first ten things</a>:<br>
+<blockquote>The ClearCase administrator is the most powerful user
+having full control of a site installation. On Unix, this would be the
+superuser, UID=0, on the VOB server. On Windows, it is any user who is
+a member of the <i>clearcase</i> domain group.<br>
+</blockquote>
+proving, once again, that root is everything on Unix!<br>
+<br>
+So now you know...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:34 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000725.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000725.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000724"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/98"
+    dc:title="Busy day"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2010_03.html#entry-000724"
+    dc:subject="General Electric"
+    dc:description="Need to keep status if even to remind myself what I&apos;m doing. Fixed case #9225676 for Kemyss about evil twins - turns out there was no twin Closed case #9214530 regarding evil twins for Curtis Attended meeting about MQC Submitted..."
+    dc:creator=""
+    dc:date="2010-03-01T17:47:49-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March  1, 2010</h2>
+                     <a id="a000724"></a>
+                     <div class="entry" id="entry-724">
+                        <h3 class="entry-header">Busy day</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Need to keep status if even to remind myself what I'm doing.</p>
+
+<ul>
+  <li>Fixed case #9225676 for Kemyss about evil twins - turns out there was no twin</li>
+
+  <li>Closed case #9214530 regarding evil twins for Curtis</li>
+
+  <li>Attended meeting about MQC</li>
+
+  <li>Submitted ticket to get a MQC account</li>
+
+  <li>Weekly high level status meeting with Dave and Rob. Focusing on SDDLS & Uncheckout problem</li>
+
+  <li>Solved another evil twin case with Marlene</li>
+
+  <li>Submitted helpdesk ticket to get Anthony added to the proper NIS group. They can have a Unix account but not be given access to Unix itself. So, ypmatch &lt;username> passwd will show them but id will not. This is because they are not in the users_seattle_clearcase_users NIS netgroup so thus they are not considered a user on this Unix system. Still have yet to figure out how they do Samba here...</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:47 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000724.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000724.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,710 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: April 2004 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2004_03.html" title="March 2004" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2004_05.html" title="May 2004" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2004_03.html">&laquo; March 2004</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2004_05.html">May 2004 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">April 30, 2004</h2>
+                     <a id="a000169"></a>
+                     <div class="entry" id="entry-169">
+                        <h3 class="entry-header">rgy_backup and server upgrade</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Spent time trying to understand the Clearcase scheduler and why rgy_backup is not being performed. Apparently modifications were made to the Clearcase scheduler on rtnlprod01 in particular by Paul Kruchmer (or whoever). The net result was the cascading jobs were failing. This should be working more correctly on the new server</li>
+
+<li><b>Dave & Busters</b> - Enuff said</li>
+
+<li>Back at the farm for the server swap: Things went well in the beginning - didn't even need to run reregister script. Then some problems occurred. Eventually we nailed it down to only one real problem - the inability of plain users to create views. Mentioned we should create one plain user in each production group so we can "play" plain user. Eventually Mike discovered that Windows 2003 Server tighened up security on the Share Permissions (not the permissions of the shared folder but the permissions of the share itself) such that <b>Full Control</b> for <b>Everybody</b> is now by default off. Toggled that on and all is well</li>
+
+<li>Added lockvobs jobs to new rtnlprod01. Script was failing due to recent relative path fixes. Works from the shell but not from the Clearcase Scheduler perspective. Backed out changes for now</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:14 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000169.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 28, 2004</h2>
+                     <a id="a000168"></a>
+                     <div class="entry" id="entry-168">
+                        <h3 class="entry-header">Meetings/Script review/Backup Registry Service</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Attended 3 meetings today which, by far, occupied most of my time</li>
+
+<li>Script review meeting was good. In particular I've implemented the following changes to reregister</li>
+
+<ul>
+
+<li>Script not loops through regions for vobs as well as views</li>
+
+<li>Script now uses -host on lsvob and lsregion to restrict execution to the vob and view hosts only</li>
+
+<li>Script mktag's for both public and private vobs</li>
+
+</ul>
+
+<li>Cleaned up the registry a little bit. Subba created some vobs in cs-nt that were:
+
+<ol>
+
+<li>Not public</li>
+
+<li>Not in the pmo-nt region</li>
+
+</ol><br>
+
+Also cleaned up a vob or two that was tagged in another region as private while it was public in the pmo-nt region. This happens semi-silently in that if you mktag -vob -region &lt;<i>other region</i>&gt;... the mktag will prompt for registry password, giving you the <i>illusion</i> that it is making the tag in <i>other region</i> as public when it is not. <u>If you are mktag'ing into another region a public vob you must explicitly state -public!</u></li>
+
+<li>Investigated backup registry service. It is not working in the current environment. Here's how I believe it is supposed to work:
+
+<ul>
+
+<li>You must, of course, configure backup registry server setting on all clients to point to the backup registry server properly. This we had already done.</li>
+
+<li>You can manually take a snapshot of the registry by executing rgy_backup. If run on any machine other than the designated backup registry server it will merely ask the current registry server what the backup registry server is and set the backup registry server key in the Windows registry. If run on the backup registry server it will copy a snapshot of the registry files in $CCASE_DIR/var/rgy/backup. It appends a date timestamp to the file name and in the non timestamped filename, records a pointer to this file (e.g. the backup/vob_tag file contains the machine relative path to vob_tag_<timestamp>).</li>
+
+<li>Clearcase relies on the Clearcase scheduler and the <b>Standard Daily Job</b> to perform daily snapshots of the registry via rgy_backup. There are two problems with this:
+
+<ol>
+
+<li>Currently the <b>Standard Daily Job</b> is not even scheduled by default!</li>
+
+<li>One can envision crude developing in the backup directory after months of these daily jobs! I'm not sure how or if there is a mechanism for cleaning up such stuff</li>
+
+</ol>
+
+</ul>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:04 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000168.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 27, 2004</h2>
+                     <a id="a000166"></a>
+                     <div class="entry" id="entry-166">
+                        <h3 class="entry-header">Server Swap Prep</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Sent email to Rory Valle for him to install the backup software and start backing up the new servers</li>
+
+<li>Already tested the transfer of [un]lock vobs jobs. Need to have the new servers up and to activate this to test them</li>
+
+<li>Scheduled review meeting for reregister script</li>
+
+<li>Checked the local users/groups on the old and new servers and they appear to be OK</li>
+
+<li>Re: Genius move: Verified that EntData_ARCH wants R/W access for others denied but Core_automation will go with the standard vob permissions</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:17 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000166.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 26, 2004</h2>
+                     <a id="a000165"></a>
+                     <div class="entry" id="entry-165">
+                        <h3 class="entry-header">CRPS/Genius Move</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Recieved laptop today</li>
+<li>Fixed problem with tables for IE</li>
+<li>Worked on CRPS</li>
+<li>Figured out how to move Genius vobs</li>
+<li>Helped Subba with a vob import</li>
+
+</ul>
+                              
+                              <h3>Laptop and Password Issues</h3>
+
+<p>When getting my laptop I was asked to change my password so the person could login as me and set up my laptop. I did this. After completing the laptop setup I attempted to change my password back to what it was before. This failed. I then tried to change my password to something else. This also failed. I called Helpdesk and they set my password to Summer1 and told me to log out and back in and I should be prompted to set my password. I did this but was not prompted to set my password. So I hit Control-Alt-Del and selected Change password. I then specified Summer1 as my existing password and selected yet another new, unique password (conforming to the Password Policies, of course). I received the message "The password cannot be changed at this time". Called HelpDesk and they told me that I must wait a while and then I could change my password. Waited a day. Reattempted to change my password. Same message.</p>
+
+<p>Meantime the Clearcase License Monitoring, which is running on my desktop, and the web pages also on my desktop were unavailable while I was rebooting my system and working on this problem.</p>
+
+<p>For your reference I took this opportunity to look up exactly what "The password cannot be changed at this time" according to Microsoft. The article is <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;273004">here</a>. According to it you need to make a change to the Minimum Password Age in Active Directory to change it from Not Defined to something defined (like 0 or perhaps something else).</p>
+
+<h3>Genius VOB move</h3>
+
+<p>As you know we had difficulties performing the move of EntDataARCH and Core_Automation from the Genius region to the standard environment. This was partly due to having the vobadm password changed on us but it was also partly due to the fact that these vobs were created in a "different" environment, thus leaving us with ownership and permissions problems. </p>
+
+<p>I believe I have a fix. Here's what we need to do.</p>
+
+<ol>
+<li>Set up another time where we can perform the move</li>
+<li>Lock the vobs</li>
+<li>Remove tag for these vobs in the Genius region</li>
+<li>Re-move (that's re then move not remove! ) the vobs to rtnlprod01</li>
+<li>Fix permissions<sup><a href="#note1">1</a></sup></li>
+<li>Register and re-tag these vobs</li>
+<li>Unlock vobs</li>
+<li>Configure clients<sup><a href="#note2">2</a></sup></li>
+<li>Test access</li>
+</ol>
+
+<p><b>Notes:</b></p>
+
+<ol>
+
+<li><a name="note1"></a>The permissions fix entails running fix_prot -force -root -recurse -chown vobadm -chgrp <group> <vob>.vbs, then register and mktag followed by a cleartool protect -chown vobadm -chgrp <group> -recurse <vob root dir>. The first fix_prot fixes the protection on various objects but the second cleartool protect is needed to set the owners correctly.</li>
+
+<li><a name="note2"></a>Configuration of the clients should be more than just setting their region, CLEARCASE_PRIMARY_GROUP and clearcase_albd service login properly. It should be a complete uninstall of Clearcase followed by a standard Clearcase installation so that we have a proper and known environment.</li>
+
+</ol>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:30 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000165.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 23, 2004</h2>
+                     <a id="a000164"></a>
+                     <div class="entry" id="entry-164">
+                        <h3 class="entry-header">Genius move</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Attempted to move Core_automation and EntData_ARCH vobs to prod01 but failed</li>
+
+<li> Worked with security people to get vobadm password back</li>
+
+<li>Worked a little to configure RWP for Perl CGI</li>
+
+</ul>
+
+<h3> Vob move problems</h3>
+
+<p>First problem with the move of these vobs was that vobadm's password had changed. Therefore I had to perform this vob move in an unfamilar environment. Also, ownerships and permissions on these vobs are odd as they were done before we started standardizing things. As ccadmin1 I was eventually able to copy the vob storage but was not able to register these vobs at the new location.  Attempts to do so would fail with </p>
+
+<div class="code">
+cleartool: Error: Failed to record hostname "rtnlprod01" in storage directory<br>
+"D:\vobstore\EntData_ARCH.vbs". Check that root or the ClearCase<br> administrators group has permission to write to this directory.<br>
+</div>
+
+<p>Even after changing ownerships this was still failing. I suggest we take soem time to get the ownerships and permissions standardized on these vobs in the Genuis region before we attempt to move them again (that and perhaps doing some test moving...)</p>
+
+<h3>Vobadm password problems</h3>
+
+<p>AFAICT somebody changed the vobadm password. Now I'm not pointing any fingers however nobody in our group did and the only other group who knows the vobadm password is...  Well you fill in the rest! Anyways, for some reason at about 3 Pm that somebody must have changed the password back.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000164.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 22, 2004</h2>
+                     <a id="a000163"></a>
+                     <div class="entry" id="entry-163">
+                        <h3 class="entry-header">Web views/register/Pauls Vob</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Removed web views from rtnlprod03</li>
+<li>Worked with Timmie regarding move of Genius vobs</li>
+<li>Fixed reregister to handle web views</li>
+<li>Worked with Paul to create CM_Docs vob</li>
+<li>Helped Subba import some code and setup stuff for cs-nt</li>
+<li>Started Clearcase Problem Reporting System</li>
+
+</ul>
+                              
+                              We need to change the Clearcase group from clearcase1 -> ccadmin in the registry of the Genius clients. Additionally we need to have the ALBD process started as Ameriquest\clearcase_albd and specify the proper password for the service to start. We can change the login for the service through the registry but I have not been able to find how to set the password correctly.
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:31 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000163.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 21, 2004</h2>
+                     <a id="a000162"></a>
+                     <div class="entry" id="entry-162">
+                        <h3 class="entry-header"></h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Requested LDAP access from James Portugal</li>
+<li>Spoke to Tom regarding Niku. Says we'll only need to report time and that he'll hold a brown bag seminar for it</li>
+<li>Requested that rtnlprod01/02 be renamed to 04/05</li>
+<li>Converted web pages to new standard template</li>
+<li>Set up RWP on prodfix01 so that it can access user FAQs</li>
+<li>Checked that Clearcase web is working on prodfix02</li>
+<li>Changed reregister to handle UCM PVOBS in a more intelligent way</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000162.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 20, 2004</h2>
+                     <a id="a000161"></a>
+                     <div class="entry" id="entry-161">
+                        <h3 class="entry-header">M Drive problem, LDAP stuff, Installation Areas</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>M drive problem appears to be a networking problem at Eric's location</li>
+
+<li>Condensed Client release areas to one release area</li>
+
+<li>Attempted to access LDAP through Perl</li>
+
+</ul>
+                              
+                              <h3>M drive problem appears to be a networking problem at Eric's location</h3>
+
+<p>Today Eric sent over somebody to install and setup Weblogic on my desktop in an attempt to reproduce the problem with Jbuilder writing to the M drive. After much installation, setup and configuration the problem was not reproducable. IOW it worked like a champ from my desktop.</p>
+
+<p>During the installation we copied over the VIP sources instead of using the sources in the vob and we got these from Eric's desktop. It took a very long time leading me to further believe that there are networking problems either on Eric's desktop or somewhere between his desktop and the servers.</p>
+
+<h3>Condensed Client release areas to one release area</h3>
+
+<p>On //rtnlprod03/CC_REL_2003.6 there exists the following client release areas:</p>
+
+<ul>
+
+<li>Training-client</li>
+<li>asap-tavant-client</li>
+<li>resolve-client</li>
+<li>asap-integration-client</li>
+<li>eag-client</li>
+<li>scc-client</li>
+<li>asap-qa-client</li>
+<li>pmo-client</li>
+<li>vip-client</li>
+
+</ul>
+
+<p>and a server area:</p>
+
+<ul>
+
+<li>pmo-server</li>
+
+</ul>
+
+<p>TUP exists at //rtnlprod03/sqldb/TUP and XDE-Java at //rtnlprod03/sqldb/XDE-Java.</p>
+
+<p>The Clearcase client and server installation areas have all been condensed to one Server and one Client installation area (//rtnlprod03/CC_REL_2003.6/Server and Client). Instead we now have .reg file that set the uniquely different configuration settings for the various groups in the CM_TOOLS vob under etc with names like ASAP.reg, SCC.reg, EAG-ESB.reg. After a client install we will send a link to these files that will cause the settings to be installed on their desktop.</p>
+
+<p>Currently the various client reg files have only the setting of Region, RegBackup and CLEARCASE_PRIMARY_GROUP.</p>
+
+<h3>Attempted to access LDAP through Perl</h3>
+
+<p>I installed Perl modules to deal with LDAP in the hopes of being able to set up a web page that will list out the membership of the various CC groups from Active Directory. Trouble is I do not know the server name of Active Directory nor the <i>distinguished name</i> to use in order to access this data.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:29 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000161.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 19, 2004</h2>
+                     <a id="a000160"></a>
+                     <div class="entry" id="entry-160">
+                        <h3 class="entry-header">reregister, ccperl, fix FAQ, view private files</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Finished reregister script. This script will reregister all vobs and views that were based on rtnlprod02. This is needed since the new server will not have the same IP address as the old server.</li>
+
+<li>Changed mktriggers to use ccperl unqualified instead of fully qualifying it. This will allow the triggers to work on the servers as well as the clients</li>
+
+<li>Added FAQ entry describing view private and derived objects</li>
+
+<li>Fixed the FAQ pages. Mike had switched rtnlprod02 over to using rwp. This broke the FAQ pages since they used Apache under Cygwin. Reported rwp to the old FAQ pages.</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:21 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000160.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 16, 2004</h2>
+                     <a id="a000159"></a>
+                     <div class="entry" id="entry-159">
+                        <h3 class="entry-header">Reregistering Clearcase objects</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Worked with Mike trying to get Clearcase web to function correctly</li>
+
+<li>Since the IP address of the new servers will be different I worked on a script that will reregister views and vobs. This reregistering and retragging should fix up the IP address problem</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:34 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000159.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 15, 2004</h2>
+                     <a id="a000158"></a>
+                     <div class="entry" id="entry-158">
+                        <h3 class="entry-header">Clearcase & Clearquest Web</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              Today...
+
+<ul>
+
+<li><p>Partitioned drive</p></li>
+<li><p>Installed Windows XP</p></li>
+<li><p>Attended Peregrine Training</p></li>
+<li><p>Configured Clearquest web</p></li>
+<li><p>Worked with Michael on Clearcase web problems</p></li>
+<li><p>Worked on problem with accessing Clearcase due to outgrowing the lockmgr's limits</p></li>
+<li><p>Implemented Heap Size fix and Lockmgr fix to new production servers</p></li>
+
+</ul>
+                              
+                              <p>Several people have been reporting odd problems with Clearcase. In investigating this I checked the server log files and found a lot of:<p>
+
+<blockquote>
+<pre>
+*** db_VISTA database error -922 - the lock manager is busy
+</pre>
+</blockquote>
+
+<p>Searching Rational's web I saw <a href="http://www-1.ibm.com/support/docview.wss?uid=swg21125258">lock manager problems, settings and guidelines</a> which seems to indicate that we've probably already outgrown the default parameters for the lockmgr. The article talks about monitoring the server processes for a week to determine how to best set the values for lockmgr. Unfortunately we don't have a week to wait so for the mean time I simply set the following parms on the lockmgr and restarted Clearcase on the vob sever:</p>
+
+<blockquote>
+<pre>
+-a almd -u 100 -f 200 -q 500
+</pre>
+</blockquote>
+
+That should give us some breathing room. Meantime I set up a quick script to monitor the number of server processes as per the article.
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:37 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000158.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 13, 2004</h2>
+                     <a id="a000157"></a>
+                     <div class="entry" id="entry-157">
+                        <h3 class="entry-header">The new servers have arrived!</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>The new servers have arrived and I have been testing them today. Here's what I managed to do:</p>
+
+<ul>
+
+<li>Installed Clearcase server software on new machines.</li>
+<li>Configured storage locations for vobs/views</li>
+<li>Practiced moving a vob and view over to the new servers. The view even had a checked out file.</li>
+<li>Once set up on the new servers accessed the view and insured that I could access it and that the checked out element was still accessible.</li>
+
+</ul>
+
+<p>In setting up prodfix01 as a the vob server I encountered some problems attempting to set the storage location. The default wizard was not the right way to go. Instead I had to:</p>
+
+<div class="code">
+cleartool> mkstgloc -vob -host prodfix01 -hpath D:\vobstore -gpath \\prodfix01\vobstore vobstore \\prodfix01\vobstore
+</div>
+
+<p>Naturally this will not due as this machine will eventually be renamed as rtnlprod01, not prodfix01. This will need to be adjusted during the downtime.
+Just some notes from my testing session:</p>
+
+<blockquote>
+
+<p>After setting up the servers I had to create the storage locations as above. I called them vobstore and viewstore instead of ccvobstg/ccviewstg. Personally I find the former more descriptive.</p>
+
+<p>I tried to simply mktag for the vob and view on the new server but that would not work. Instead I had to:</p>
+
+<div class="code">
+cleartool register -replace -view \\path\to\view<br>
+cleartool register -replace -vob \\path\to\vob<br>
+cleartool mktag -replace -view -tag <viewtag> \\path\to\view<br>
+cleartool mktag -replace -vob -tag <vobtag> \\path\to\vob<br>
+cleartool startview <viewtag><br>
+cleartool mount <vobtag><br>
+</div>
+
+<p>Again, if we slide the server into place after changing the DNS/Machine name <-> IP address mapping this should not be an issue.</p>
+
+</blockquote>
+
+<p>We should be ready to go, perhaps this coming Thursday evening (sometime after 7 Pm). What we would need to do is:</p>
+
+<ol>
+
+<li>Announce to the Clearcase community that Clearcase will be down for a few hours Thursday night (7 Pm - 9 Pm)</li>
+<li>At 7 Pm stop Clearcase on rtnlprod01 and rtnlprod02</li>
+<li><tt>xcopy <rtnlprod01:/vobstore> <prodfix01:/vobstore> /e /i /f /h /k /x > C:\vobstore_xcopy.log 2>&1</tt></li>
+<li><tt>xcopy <rtnlprod02:/viewstore> <prodfix02:/viewstore> /e /i /f /h /k /x > C:\viewstore_xcopy.log 2>&1</tt></li>
+<li>Shutdown rtnlprod01 and rtnlprod02</li>
+<li>Switch DNS so that prodfix01 -> rtnlprod01 and prodfix02 -> rtnlprod02</li>
+<li>Test vob/view access from desktop clients.</li>
+</ol>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000157.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April  7, 2004</h2>
+                     <a id="a000156"></a>
+                     <div class="entry" id="entry-156">
+                        <h3 class="entry-header">VIP Imports</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Imported source into many vobs today with Subba. Had some problems with the vob server (db_VISTA error -922). Ended up stopping and restarting Clearcase on rtnlprod01.</p>
+
+<p>Was assigned to set up both Clearcase web and Clearquest web. Luckily Clearcase web is already up on rtnlprod03. Need to set up Clearquest web...</p>
+
+<p>Modified protect trigger to use current owner instead of original creator of the VOB to change the ownership of new elements.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:59 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000156.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April  6, 2004</h2>
+                     <a id="a000155"></a>
+                     <div class="entry" id="entry-155">
+                        <h3 class="entry-header">Lockvobs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Re-wrote the lock vobs script in Perl to be much more flexible. It now locks or unlocks (-u) vobs. Also you can supply an -smtphost which defaults to notesmail01. Finally you can specify either -to or -errors-to as a list of email addresses that the report is send to. The later, -errors-to, are for people who only want to be notified if there is an error (i.e. me! :-).</p>
+
+<p>Changed bat files accordingly and tested out adding these to the Clearcase Job Scheduler on my machine. Have not yet added this to "production" (rtnlprod01). Perhaps tomorrow...</p>
+
+<p>Also worked with Subba to clean up and clear out some UCM vobs.</p>
+
+<p>Spend some time trying to get MySQL running under Cygwin.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:54 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000155.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April  5, 2004</h2>
+                     <a id="a000154"></a>
+                     <div class="entry" id="entry-154">
+                        <h3 class="entry-header">Lock Vobs jobs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Came in today and noticed that Notes was complaining that a network operation had failed. Also saw a couple of messages that Clearcase was having problems so I started investigating. Apparently the albd_server was not running on rtnlprod01. Scanning the logs I found:</p>
+
+<blockquote><tt>albd_log: Error: Unable to connect to SMTP server "172.16.101.56[6400]": Bad file descriptor.</tt></blockquote>
+
+<p>Well 172.16.101.56 happens to be notesadmin01:</p>
+
+<pre>
+C09-272-A:nslookup 172.16.101.56
+Server:  dhcp01.ameriquest.net
+Address:  172.16.101.100
+
+Name:    notesadmin01.ameriquest.net
+Address:  172.16.101.56
+</pre>
+
+<p>Why are we trying to email through notesadmin01 instead of notesmail01?</p>
+
+<p>Meantime I unlocked the vobs...</p>
+
+<p>Looking at the SMTP setting in Control Panel: Clearcase: Options I find the SMTP Host set to appsmtp.ameriquest.net which is an alias to notestadmin01.ameriquest.net:</p>
+<pre>
+C09-272-A:nslookup appsmtp
+Server:  dhcp01.ameriquest.net
+Address:  172.16.101.100
+
+Name:    notesadmin01.ameriquest.net
+Address:  172.16.101.56
+Aliases:  appsmtp.ameriquest.net
+</pre>
+<p>I guess the questions are:</p>
+
+<ul>
+
+  <li>What is the official SMTP host that we can rely on?</li>
+  <li>Why does the [un]lock vobs job have problems and eventually kill the albd_server process simply because it cannot contact the SMTP host?</li>
+
+</ul>
+
+<p>Further investigation yields the following: The lock and unlock vobs scripts apparently appear in .../Rational/Clearcase/var/scheduler/tasks. There are 4 files involved:</p>
+
+<ul>
+
+  <li>ccase_lock_vobs.bat: Simple bat file that fires off Perl on...</li>
+  <li>lock_vobs.pl: This locks the vobs and sends email</li>
+  <li>ccase_unlock_vobs.bat: Simple bat file that fires off Perl on...</li>
+  <li>unlock_vobs.pl: This unlocks the vob and sends email</li>
+
+</ul>
+
+<p>Additionally these Perl scripts use C:/Winnt/System32/blat.exe to send mail.</p>
+
+<p>Finally the task_registry file was modified to add these custom jobs.</li>
+
+<p>I believe that this was done by perhaps Paul and/or Brian and it is fine work and does the job. However, seeing as we are about to reburn this system to Windows 2003 Server such work would be lost! And who would remember where this blat came from and that it needed to be reinstalled?</p>
+
+<h3>Suggestions:</h3>
+
+<p>I think we should use the Rational supplied tool, notify, instead of blat. This way we would not need to remember to find and reinstall this blat thing. I think Brian had problems getting notify to work and instead fell back on something he knew, blat, to get this working. Additionally IMHO blat should not be in the Windows directory! If we must use blat then perhaps we should install it into CM_TOOLS/bin.</p>
+
+<p>Additionally I suggest that we relocate the .bat files and Perl scripts to CM_TOOLS/bin also and task_registry file should be pointed to CM_TOOLS/bin.</p>
+
+<p>Finally I think there should be a script set up to reproduce/reinstall this environment.</p>
+
+<p>IOW our stuff should also be version controlled and scripts written to automate it's installation and workings.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000154.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

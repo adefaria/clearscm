@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: gethostbyaddr fails</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000543.html" title="Ant Rant" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000545.html" title="Building on sons-sc-cc (Fixing smake)" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000543.html">&laquo; Ant Rant</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000545.html">Building on sons-sc-cc (Fixing smake) &raquo;</a>
+                     </p>
+
+                     <a id="a000544"></a>
+                     <div class="entry" id="entry-544">
+                        <h3 class="entry-header">gethostbyaddr fails</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Researched problem with Tony and Bingchun's machines WRT cqd/cqc</li>
+
+  <li>Attempted to fix problems with Clearquest Desktop Installation</li>
+</ul>
+
+<p><b>Time Spent:</b> 2 Hours</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Here's the progress I made last night:</p>
+
+<ul>
+  <li>Determined that part of the problem with Tony Liu's machine and Bingchun's machines was due to the fact that Clearquest was not even installed on their machines. Installed Clearquest 2002.05.00 on Tony's machine - Bingchun installed Clearquest on his own machine.</li>
+
+  <li>Despite the above cqc was still unable to connect to cqd. Determined that a call to gethostbyaddr in cqd was failing for some still unknown reason. The subsequent called to get the host's name would fail in Perl. Not sure why that causes the server to hang, however getting the hostname is only really so that cqd could report nice hostnames. So instead I changed the code to do:</li>
+
+  <div class=code><pre>
+# Service this client
+my $hostinfo = gethostbyaddr ($cqclient-&gt;peeraddr);
+my $host = !defined $hostinfo ? "Unknown" : $hostinfo-&gt;name || $cqclient-&gt;peerhost;
+  </pre></div>
+   
+<p>So if the hostinfo is not attainable with the gethostbyaddr call we'll simply use the host of "unknown". This means that Tony and Bingchun should be able to at least checkin their files.</p>
+
+  <li>Fixed shortcut in //sons-sc-cc/Rational/Clearquest to be named "Install Clearquest" so people can update to the new version of Clearquest.</li>
+
+  <li>Attempted to update the machine adefaria with the new version of Clearquest. Need to uninstall the old version of Clearquest first. Bummer.</li>
+
+  <li>Uninstalled Clearquest on adefaria and installed new version of Clearquest. I was able to make a connection to the new Clearquest server (sons-sc-cc) but I was unable to make a connection to the old and current production version of Clearquest on sons-clearcase!</li>
+
+  <li>I was unable to make a connection to the old version of Clearquest on sons-clearcase on either of Tony's or Bingchun's machines. To summarize, I installed CQ Version 2003.06.00 on adefaria and CQ Version 2002.05.00 on Tony's and Bingchun's machines but none of these were able to establish a CQ connection (via the Clearquest Maintenance Tool) to the current production Clearquest SQL Anywhere database on sons-clearcase! For Clearquest, people in China usually use the web interface anyway. I need to talk to Rational about why I am unable to connect to the old, production Clearquest database.</li>
+
+  <li>Uninstalled CQ 2003.06.00 on adefaria and reinstalled CQ 2002.05.00. Alas even after reinstalling CQ Version 2002.05.00 I still can't create a connection to sons-clearcase on adefaria! Must be something I'm doing wrong but I'm too tired to figure it out.</li>
+
+  <li>I was unable to look into rsh/telnet issues and build issues that Simon reported.<br>
+  </li>
+</ul>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 17, 2006  7:38 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000544.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

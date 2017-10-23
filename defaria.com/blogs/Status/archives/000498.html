@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: CQ Web/Rebase/GNATS Access</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000497.html" title="get_views_for_stream/create_dev_snapview.pl" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000499.html" title="BinRebase/ccase-rmna-4 problems" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000497.html">&laquo; get_views_for_stream/create_dev_snapview.pl</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000499.html">BinRebase/ccase-rmna-4 problems &raquo;</a>
+                     </p>
+
+                     <a id="a000498"></a>
+                     <div class="entry" id="entry-498">
+                        <h3 class="entry-header">CQ Web/Rebase/GNATS Access</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Set up GNATS access for a user</li>
+
+  <li>Helped Vinh with issues regarding old CQ Web and a bug that it has</li>
+
+  <li>Assisted a few users with resolving Evil Twin problems</li>
+
+  <li>More fully documented how to resolve Evil Twin problems by merging the parent directory</li>
+
+  <lI>Investigated implementing the other half of BinMerge where we use rebase instead of find merge</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Rebase</h2>
+
+<p>Initially I thought that rebase did not work like findmerge in that it didn't have options for performing essentially the merge operate and just telling you what needed to merge. Turns out it does have that option - cleartool merge -preview -long. The long option causes rebase to list out what needs to be merged.</p>
+
+<p>But rebase is more than just a findmerge. Additionally one needs to do the following:</p>
+
+  <ul>
+    <li>Create and set an activity for the view</li>
+
+    <li>Check out items first</li>
+
+    <li>Perform the merge with -abort noting which merges failed and how they failed</li>
+
+    <li>Execute the rebase command to mark the view as being rebased</li>
+
+    <li>Execute the rebase -complete to mark the rebase completed (IFF all elements are rebased)</li>
+  </ul>
+
+<p>Of course this is just a preliminary list - we still need to figure out if rebasing, merging actually, of directories need to be done first (probably), how to execute rebase to mark "rebase in progress" without actually attempting to merge anything, etc.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on December 15, 2005  5:06 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000498.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

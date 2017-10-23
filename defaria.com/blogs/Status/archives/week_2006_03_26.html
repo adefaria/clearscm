@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: March 26, 2006 - April  1, 2006 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2006_02_19.html" title="February 19, 2006 - February 25, 2006" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2006_04_02.html" title="April  2, 2006 - April  8, 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2006_02_19.html">&laquo; February 19, 2006 - February 25, 2006</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2006_04_02.html">April  2, 2006 - April  8, 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">March 30, 2006</h2>
+                     <a id="a000532"></a>
+                     <div class="entry" id="entry-532">
+                        <h3 class="entry-header">Unit Test bugs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>I think I finally resolved the problem with the Unit Tests not running at night</li>
+
+  <li>Changed to get the test failures and the test errors. If everything passed then no email is to be sent. Otherwise I now include the test failures and errors in the email and the subject line will no longer say SUCCEEDED</li>
+
+  <li>Changed build_status.php to sense if this is a continuous build or just a regular build and act accordingly</li>
+</ul>
+                              
+                              <h3>Unit Tests</h3>
+
+<p>It was a problem to debug because we have a sitaution here where build is calling streamBuild.pl which is in turn calling Build.pl with -runtests. Additionally streamBuild.pl was using a library called buildRec.pm who had a functon called unitTests. Now recently I added code to fork before exec'ing "perl Build.pl -runtests" so that I could set an alarm and time out test suites that hang. I have not yet mastered debugging forked processes in Perl.</p>
+
+<p>Additionally, build was not just calling streamBuild.pl in a Perl sense, rather it was exec'ing streamBuild.pl as it's a Perl script in its own right. So I was attempting to debug just the exeuction of streamBuild.pl from the command line. But whenever I did that the tests would work. Still the nightly testing would fail on trying to call "perl Build.pl -runtests" stating that it could not find Build.pl!</p>
+
+<p>It seems to turn out that there was a clash between my using the Cwd module (which more accurately tracks changing of directories) while streamBuild.pl was not using that module. Additionally it (or rather buildRec.pm which streamBuild.pl uses) was reffering to $ENV {PWD} and that was returning inaccurate information. For example, it was saying that we were in the directory /build when we had just did a chdir to /build/views/&lt;view&gt;/vobs/platform/L3 - were there is indeed a Build.pl! However the script got the wrong current directory and then based things off that, including the finding of Build.pl. I changed this to use `pwd` and now it appears happy!</p>
+
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:54 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000532.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">March 28, 2006</h2>
+                     <a id="a000531"></a>
+                     <div class="entry" id="entry-531">
+                        <h3 class="entry-header">Remove Empty Branch Trigger</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              I have a trigger called the <i>Remove Empty Branch Trigger</i>:<br>
+<blockquote>
+  <p><a  href="https://defaria.com/Resume/Clearcase/RemoveEmptyBranch.php">Remove
+Empty Branch Trigger</a>: This trigger removes the branch and the zero element that is left when a user checks out an element on a branch then cancels the checkout. Normally this causes a branch with only a zero element which is identical to the version from which it was branched. Essentially this empty branch is useless. This trigger prevents that.</p>
+</blockquote>
+
+<p>Not only is this empty branch useless but:</p>
+<ul>
+  <li>It clutters the version tree</li>
+
+  <li>Causes Clearcase to maintain more meta data, slowing down operations</li>
+
+  <li>Can cause additional work for UCM when you rebase</li>
+</ul>
+
+<p>I'm experiencing that last bullet item right now. At one time I was attempting to do a delivery for somebody from another stream, first rebasing my stream. The delivery was unsuccessful and it was decided that this other engineer would work on it and deliver himself. So I canceled the delivery. One would think then that my view was relatively clean.</p>
+
+<p>However now I want to deliver something else and I see this old rebase activity hanging around. In looking into the change set I notice a bunch of items from that older attempt at delivering. Why were these still hanging around? I had canceled that delivery right?</p>
+
+<p>Well I believe the problem comes from having empty branches. Take for example the following:</p>
+
+<p><img src="/blogs/images/RmEmptyBranch.png" alt=""></p>
+
+<p>It shows a rebase from osaka/5 -&gt; defaria_osaka/1. Yet these two version compare to be the same! How did this happen? Well think about it. Prior to the rebase I had an empty branch (i.e. I had
+defaria_osaka/0 left over from the canceled delivery which merely did an unco). This means that osaka/4 and defaria_osaka/0 were identical. Then osaka/5 came into existance. Now 4 != 5 and when I rebase Clearcase has to propogate osaka/5 creating defaria_osaka/1. Now I have two identical versions and associate meta data and all for naught! Additionally I have a baseline lable on defaria_osaka/1 which give the air of importance to this unimportant version.</p>
+
+<p>Had we had a remove empty branch trigger, when the delivery canceled, the unco would have left defaria_osaka/0 and the remove empty branch trigger would have removed the empty branch. Then my view would have been pointing to osaka/4 (and would have moved to osaka/5 if I were using .../osaka/LATEST and a dynamic view or updated to osaka/5 during the normal course of updating the view). Indeed, allowing empty branches to persist can cause developers to unknowingly get "stuck in
+time".</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000531.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">March 27, 2006</h2>
+                     <a id="a000530"></a>
+                     <div class="entry" id="entry-530">
+                        <h3 class="entry-header">Resuming</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>I haven't been keeping this up lately but I've decided to resume my status even if I don't use this as my actual status report.</p>
+
+<p>First I'll try to catch up by summarizing what I've been working on lately. Mostly I've been working on this CIT (Continuous Integration and Test) Perl script. CIT is basically an controlling script that calls other build scripts in use here. The idea was to have this script continually build the software, if it needs to build. A primative form of build avoidance is implemented in that a cleartool update is done and if no files are updated in a particular component then that component will not be built.</p>
+
+<p>Some of its characteristics include:</p>
+
+<ul>
+  <li>Can run in one time mode as well as in -cit mode (continuous mode)</li>
+
+  <li>Works off of a config, which specifics defaults for the various parameters which can be overriden on the command line</li>
+
+  <li>If -cit is specified, the script goes into <i>daemon mode</i>.
+
+  <li>Script checks to see if you are in the necessary chrooted environment for building (a requirement)</li>
+
+  <li>Added code in cit mode to eliminate the logfiles created if nothing was built</li>
+
+  <li>At key points in a build a build_status.log file is updated so status can be displayed on a web page</li>
+
+  <li>After a successful build a series of tests are run. Continuous build is not too continuous if the testing hangs! And tests have been known to hang! So the script now forks the tests then sets an overall alarm (default 2 hours) for tests to complete. If they don't then a QUIT signal is sent so that the JREs can try to dump their stacks. After a small wait for that a TERM signal is send to all children fo the tests and again we wait. Finally a KILL signal is sent and an appropriate email is then sent out saying that the tests have timed out</li>
+
+  <li>Corresponding PHP script was written to show the status of the cit</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:42 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000530.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

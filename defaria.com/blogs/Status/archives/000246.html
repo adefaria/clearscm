@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Env var problems</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000244.html" title="Server Heap Size/Comment PINE code" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000245.html" title="Code complete for cmconfig.vbs" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000244.html">&laquo; Server Heap Size/Comment PINE code</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000245.html">Code complete for cmconfig.vbs &raquo;</a>
+                     </p>
+
+                     <a id="a000246"></a>
+                     <div class="entry" id="entry-246">
+                        <h3 class="entry-header">Env var problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>There is a slight problem with the "set everything and verify it" script cmconfig.cmd. The idea was that that one script would perform 3 separate actions:</p>
+
+<ol>
+  <li>Set up Clearquest configuration parameters (installutil)</li>
+
+  <li>Set up Clearcase configuration parameters (as per the logged in user) (setccconf.vbs)</li>
+
+  <li>Verify the installation (cmverify.cmd)</li>
+</ol>
+
+<p>The problem is with #2 being VBScript and #3 happening as a result of executing from the cmconfig.cmd script. While setccconf.vbs does indeed set the proper configuration environment variables as soon as it ends those settings are no longer set anymore by the evoking script only. All other (new) processes know about the change to the environment variables. To illustrate this odd phenomena:</p>
+
+<div class="code">
+<pre>
+$ <u>type setenv_var.vbs</u>
+Set sh  = WScript.CreateObject ("WScript.Shell")
+Set env = sh.Environment ("USER")
+
+env ("foo") = "bar"
+$ <u>type senenv_var.cmd</u>
+@echo off
+set foo=bar
+$ <u>echo foo = %foo%</u>
+foo = %foo%
+$ <u>cscript setenv_var.vbs</u>
+$ <u>echo foo = %foo%</u>
+foo = %foo%
+$ <u>call setenv_var.cmd</u>
+$ <u>echo foo = %foo%</u>
+foo = bar
+$ <u>cmd /c echo foo = %foo%</u>
+foo = bar
+</pre>
+</div>
+
+<p>Why it works for a .cmd script but not for a .vbs script I don't know.</p>
+
+<p>So I will change cmconfig.cmd to do #1 and #2 above but skip #3. This means two things:</p>
+
+<ol>
+  <li>Customers will have to run cmconfig.cmd first, then cmverify.cmd second</li>
+
+  <li>The running of cmverify.cmd must be done in a separate, new cmd session</li>
+</ol>
+
+<p>The reason for #2 is that even after cmconfig.cmd is run environment variables such as CLEARCASE_PRIMARY_GROUP and CLEARCASE_GROUPS will not have been "exported" into that cmd's environment (unless somebody can tell me how to set the parent's environment variables from VBScript...).</p>
+
+<p>For the point and click crowd this should be OK. The email message you send the customer should have two links: one to cmconfig.cmd and one to cmverify.cmd. If the customer clicks the cmconfig.cmd link then cmconfig.cmd should run, in it's own process, and go away. Subsequently if the user clicks on cmverify.cmd that will run in it's own cmd process and it should pick up the appropriate environment variable settings.</p>
+
+<p>There have been many requests for enhancements to the configuration scripts including updating the TOOLS database on successful verification and performing additional checks such as "is this user really in the AD group". I believe I will only be able to solve the above problem by having the setccconf.vbs script actually envoke the cmverify.cmd directly so that the environment variables that setccconf.vbs just set are exported into the cmverify.cmd's environment.</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 13, 2004  6:07 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000246.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

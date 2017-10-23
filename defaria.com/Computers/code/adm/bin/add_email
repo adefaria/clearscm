@@ -1,0 +1,182 @@
+#!/bin/bash
+################################################################################
+#
+# File:         add_email
+# RCS:          $Header: add_email,v 1.2 98/05/13 09:42:40 defaria Exp $
+# Description:  This script adds a new person to moa
+# Author:       Andrew@DeFaria.com
+# Created:      Tue Jun  3 11:08:01 PDT 1997
+# Modified:     Fri Jan 14 10:12:04 PST 2000
+#               Changed wording for eJL
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+tmpprefix=/tmp/add_email
+. $adm_fpath/tmpfiles
+
+function usage {
+  print -u2 "Usage: $me -username <username> -fullname <fullname>"
+  print -u2 "\t-employeetype <employeetype> -employeenumber
+<employeenumber>"
+  print -u2 "\t-manager <manager> -mailserver <mailserver>"
+  exit 1
+} # usage
+
+function email_postmaster {
+  notify="postmaster pdl-support"
+  mailx -s "Please setup email for $fullname" $notify < $message_file
+} # email_postmaster
+
+message_file=$tmp_prefix.msg.$$
+username=
+fullname=
+employeetype=
+employeenumber=
+manager=
+mailserver=
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+      ;;
+
+    -username)
+      if [ $# -le 1 ]; then
+        error "Username not specified!"
+        usage
+      fi
+      shift
+      username="$1"
+      ;;
+
+    -fullname)
+      if [ $# -le 1 ]; then
+        error "Full name not specified!"
+        usage
+      fi
+      shift
+      fullname="$1"
+      ;;
+
+    -employeetype)
+      if [ $# -le 1 ]; then
+        error "Employee type not specified!"
+        usage
+      fi
+      shift
+      employeetype="$1"
+
+      case "$employeetype" in
+        Employee|SEED|Contractor)
+          ;;
+        *)
+           error "Employeetype must be one of \"Employee\", \"SEED\" or \"Contractor\""
+           exit 1
+          ;;
+      esac
+      ;;
+
+    -employeenumber)
+      if [ $# -gt 1 ]; then
+        shift
+        employeenumber="$1"
+      fi
+      ;;
+
+    -manager)
+      if [ $# -le 1 ]; then
+        error "Manager name not specified!"
+        usage
+      fi
+      shift
+      manager="$1"
+      ;;
+
+    -mailserver)
+      if [ $# -le 1 ]; then
+        error "Mail server not specified!"
+        usage
+      fi
+      shift
+      mailserver="$1"
+      ;;
+
+    *)
+      error "Unknown parameter encounter: \"$1\""
+      usage
+      ;;
+  esac
+  shift
+done
+
+if [ "_$username"       = "_" -o \
+ "_$fullname"   = "_" -o \
+ "_$employeetype"       = "_" -o \
+ "_$manager"    = "_" -o \
+ "_$mailserver" = "_" ]; then
+  error "Missing parameter"
+  usage
+fi
+
+case "$employeetype" in
+  Contractor)
+    if [ "_$employeenumber" != "_" ]; then
+      error "Contractors should not have an HP Employee number"
+      exit 1
+    fi
+    ;;
+  *) # already verified that employeetype is correct
+    if [ "_$employeenumber" = "_" ]; then
+      error "Employee number is required for HP Employees and SEEDs"
+      exit 1
+    fi
+    ;;
+esac
+
+firstname=$(print $fullname | awk '{print $1}')
+
+cat > $message_file <<!EOD
+
+A new $employeetype, $fullname ($username), has recently joined the HP
+Enterprize Java Lab (eJL). Please set up an email account for
+$fullname. $firstname will be working for $manager and will receive
+email on the machine named $mailserver.
+
+!EOD
+
+if [ ! "$employeetype" = "Contractor" ]; then
+  cat >> $message_file <<!EOD
+$fullname's HP Employee number is $employeenumber.
+
+!EOD
+
+fi
+
+cat >> $message_file <<!EOD
+Please respond to this message when this task has been completed.
+
+Thank you.
+!EOD
+
+email_postmaster
+
+if [ $? -eq 0 ]; then
+  info "Request for email account for $fullname has been successfully sent"
+else
+  error "Problems were encountered while sending request for email account
+for $fullname"
+fi

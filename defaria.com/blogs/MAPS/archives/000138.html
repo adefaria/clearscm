@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 3.2" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/MAPS/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/MAPS/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/MAPS/index.xml" />
+
+   <title>MAPS: Space</title>
+
+   <link rel="start" href="http://defaria.com/blogs/MAPS/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/MAPS/archives/000137.html" title="Delete bug" />
+   <link rel="next" href="http://defaria.com/blogs/MAPS/archives/000139.html" title="Login bug" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/MAPS/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/MAPS/" accesskey="1">MAPS</a></h1>
+               <h2 id="banner-description"></h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/MAPS/archives/000137.html">&laquo; Delete bug</a> |
+                        <a href="http://defaria.com/blogs/MAPS/">Main</a>
+                        | <a href="http://defaria.com/blogs/MAPS/archives/000139.html">Login bug &raquo;</a>
+                     </p>
+
+                     <a id="a000138"></a>
+                     <div class="entry" id="entry-138">
+                        <h3 class="entry-header">Space</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Added new "Space Usage" report. Not sure if I like this because 1) it's too slow and 2) the resulting report is not very impressive - it's just a line saying "User is using X bytes in the databsase". Might wish to implement a space counter in the user table. This would require that all procedures updating the database update the space counter. The intent for this space counter is to judge how much space a user is using in the database for the purposes of quotas or perhaps to charge people if they want more space.</p>
+
+<p>Also, currently this space report is only counting space used in the email table. Might wish to add in the log table, which can add up, and the user and useropts tables. The latter two are minimal but including them would make the report more accurate.</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by Andrew DeFaria on February 16, 2004 11:12 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/MAPS/archives/000138.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

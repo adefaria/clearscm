@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Backup Registry Server/Triggers</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000417.html" title="Clearcase Support/New Clearquest setup" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000420.html" title="Remedy/Irvine Access/P4 ticket" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000417.html">&laquo; Clearcase Support/New Clearquest setup</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000420.html">Remedy/Irvine Access/P4 ticket &raquo;</a>
+                     </p>
+
+                     <a id="a000418"></a>
+                     <div class="entry" id="entry-418">
+                        <h3 class="entry-header">Backup Registry Server/Triggers</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Investigated how to setup, configure and failover Clearcase backup registry</li>
+
+  <li>Working with Shivdutt to set up new Clearquest server software</li>
+
+  <li>Ported mktriggers.pl and RemoveEmptyBranch.pl. Added RM_EMPTY_BRANCH to vobs on ccase-rmna-1</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Clearcase Backup Registry</h2>
+
+<p>I've looked into how to setup a Clearcase Backup Registry as well as how it is supposed to function when a failure occurs and a switchover is necessary.</p>
+
+<h3>Introduction</h3>
+
+<p>Clearcase provides a mechanism to set up a backup registry server in the event that the primary registry server fails. If done properly switching over to the backup registry server is quick and easy. It is not, however, without it's potential problems<sup>1</sup>.</p>
+
+<h3>Setup</h3>
+
+<p>To setup a Clearcase Backup Registry Server you must first define which servers will be the primary and secondary register servers<sup>2</sup>. Let's assume rgy1 is the primary and rgy2 is the backup. Next you configure rgy1 to tell it that the backup registry server is rgy2 by adding a line to /var/adm/rational/clearcase/rgy/rgy_hosts.conf.</p>
+
+<h3>Normal Operation</h3>
+
+<p>In normal operation Clearcase runs a scheduled job called Daily Registry Backup on all hosts. On all hosts except the designated backup registry server this job does little if anything.</p>
+
+<blockquote>
+  <p><font class="dim">I have a note that when run on a Windows client it will ask what the backup registry server is and if found and if different, will store that value in the Windows registry, thus Windows clients are self configuring. This should be tested however.</font></p>
+</blockquote>
+
+<p>On the backup registry host the job will obtain a snapshot of the registry from the primary registry server. By default 3 days worth of copies are kept.
+
+<h3>Switchover</h3>
+
+<p>If the primary registry server fails all that needs to be done is to run rgy_switchover which will promote the backup registry server to be a primary registry server. It will also inform all clients of the change. When the primary comes back it is configured as a backup of the new primary and optionally rgy_switchover'd to be a primary again</p>
+
+<h3>Notes</h3>
+  <ol>
+    <li>There is no guarantee that rgy_switchover will be able to successfully switch over all clients. Clients may not be available on the network, for example. It will report which clients were not switched over and they can be fixed manually.</li>
+
+    <li>What are our registry servers? The Clearcase Admin Console shows me the following:<br>
+    <blockquote>
+      <ol>
+        <li>ccase-atla-1</li>
+        <li>ccase-gera-1</li>
+        <li>ccase-irva-2</li>
+        <li>ccase-rmna-3</li>
+        <li>ccase-sdoa-1</li>
+        <li>ccase-sj1-1</li>
+        <li>ccase-sj1-3</li>
+        <li>ccase-sj1-4</li>
+        <li>ccase-sj1-5</li>
+        <li>ccase-sj1-7</li>
+        <li>ccase-sj1-8</li>
+        <li>ldt-sdoa-013</li>
+      </ol>
+   </blockquote>
+
+    <p>It seems as if multiple registry servers were used instead of using one global registry and dividing things up by Clearcase regions. In any event, which of these primary registry servers need to be backed up and to where?</p>
+
+    <p>Also, it is not a good practice to put your registry on the same box as your other Clearcase objects (i.e. views or vobs). Say, for example, ccase-rmna-3 blows a disk drive and will be down for quite some time. Sure ccase-rmna-2 might be it's backup registry server and we could switch over the clients, etc. However what good would that do if the vob data they wish to get to is on ccase-rmna-3! Answer: No good at all. That machine is down - period.</p>
+
+    <p>I would recommend that we have one global registry server and a backup server. The backup server can be a vob machine or some other machine which houses important Clearcase data. The theory here is that, as a backup server, it's service time is limited - IOW it's only going to be functioning as a primary registry server for the time that the primary is out. While slightly risky it's only used for a limited time and when there's an emergency.</p>
+  </ol>
+
+<h3>Mktriggers.pl & RemoveEmptyBranch.pl</li>
+
+<p>Shivdutt and I feel that the problem that check_full_baseline is hitting is initially caused by having elements that have a 0 element on a branch. This is a common problem as I've explained before - a user checks out a file, it is branched and a 0 element is created as well as a checked out element:</p>
+
+<img src="/Images/CheckedOut.jpg">
+
+<p>If the user then cancels the checkout then we are left with:</p>
+
+<img src="/Images/AfterCancellingCheckout.jpg">
+
+<p>There is no difference between /main/1 and /main/andys_branch/0. Both /main/andys_branch/0 and /main/andys_branch can be safely removed. I believe that check_full_baseline corrects this situation by creating yet another identical version /main/andys_branch/1 and checking in yet another identical version.</p>
+
+<p>The RemoveEmptyBranch.pl trigger corrects this condition at uncheckout (rmver and rmbranch) time by detecting this situation and removing both /main/andys_branch/0 and /main/andys_branch. It will only do so if the 0 element is the only thing there. If there are labels attached to the 0 element it will not remove it.</p>
+
+<p>In order to implement this trigger I had to get the code working here at Broadcom. The RemoveEmptyBranch.pl trigger runs right out of the box, however things must be placed the proper places here at Broadcom. Additionally this trigger should be added to all vobs. Suffice to say, as a Clearcase Admin, I've hit this problem before.</p>
+
+<p>My solution is a mktriggers.pl script which adds (or replaces) triggers on all public vobs in a region based on data in a data file which describes triggers. Mktriggers.pl is smart to skips private vobs and UCM project vobs.</p>
+
+<p>Finally, mktriggers.pl uses a module of mine called Display.pm, which provides a consistent way of displaying messages.</p>
+
+<p>To this regard I have created/ported the following files in //fs-rmna-01/Projects-V0/cc4:</p>
+
+<blockquote><p>
+  <b>bin/mktriggers.pl:</b> Script to make/replace triggers in all vobs based on triggers.dat<br>
+  <b>etc/triggers.dat:</b> Data file describing triggers (currently only describing RM_EMPTY_BRANCH)<br>
+  <b>triggers/RemoveEmptyBranch.pl:</b> The RM_EMPTY_BRANCH trigger<br>
+  <b>lib/Display.pm:</b> Perl module for displaying messages, errors, warnings consistently<br>
+  <b>lib/Logger.pm:</b> Perl Object for handling creating and manipulating log files (Not used yet)<br>
+</p></blockquote>
+
+<p>Here's a usage for mktriggers.pl:</p>
+<div class="code"><pre>
+    $ mktriggers.pl -u
+    Usage mktriggers.pl: [-u] [-n] [-a] [-r] [-v] [ -vobs <vob tag list> ]
+    Where:
+            -u      Displays this usage
+            -n      No execute mode - just echo out what would have been done
+            -r      Perform only replacements of triggers
+            -a      Perform only adds of triggers that are missing
+            -v      Verbose
+            -d      Debug
+            -vobs   List of vob tags to apply triggers to (default all vobs)
+</pre></div>
+
+<p>As you can see there is a no execute mode which just shows what would have been done. Add -v for verbose and it will also echo out the commands that would have been performed. You can also limit mktriggers.pl to only doing additions (-a) or replacements (-r).</p>
+
+<p>Mktrigger.pl's data files is in etc/triggers.dat. It's format is relatively simple:</p>
+<div class="code"><pre>
+    # Triggers
+    #################################################################################
+    #
+    # File:         triggers.dat
+    # Description:  Describes the triggers to be implemented.
+    # Author:       Andrew@DeFaria.com
+    # Created:      Mon Mar 15 08:48:24 PST 2004
+    # Language:     None
+    #
+    # (c) Copyright 2004, Andrew@DeFaria.com, all rights reserved.
+    #
+    ################################################################################
+    #
+    # Only the following keywords are currently recognized:
+    #
+    #       Trigger:        Introduces the trigger and gives it its name
+    #       Description:    Used for the trigger type's comment
+    #       Type:           Type of trigger (so far they're all -element -all)
+    #       Opkinds:        Operation kinds that will cause the trigger to fire
+    #       ScriptEngine:   Currently only supporting ccperl (C:\Program
+    #                       Files\Rational\ClearCase\bin\ccperl)
+    #       Script:         Script to run (under triggers)
+    #       Vobs:           Can be either base, ucm, all or a list of vob tags.
+    #                       If base is specified then the trigger is applied to
+    #                       all base Clearcase vobs. If ucm is specified then the
+    #                       trigger is applied to all ucm vobs. If all is
+    #                       specified (or if Vobs is not present) then the trigger
+    #                       is applied to all vobs (base and ucm). Otherwise the
+    #                       value is considered a space separated list of vob tags
+    #                       (without the leading "\") and the trigger is applied
+    #                       only to those vobs.
+    #       EndTrigger      Ends this trigger definition.
+    #
+    ################################################################################
+    Trigger:        RM_EMPTY_BRANCH
+    Description:    Remove empty branches after uncheckout, rmver or rmbranch
+    Type:           -element -all
+    Opkinds:        -postop rmbranch,rmver,uncheckout
+    ScriptEngine:   Perl
+    Script:         RemoveEmptyBranch.pl
+    EndTrigger
+</pre></div>
+
+<p>Next I applied the triggers to ccase-rnma-1 since this is our replicated backup of production and here's the output:</p>
+
+<div class="code"><pre>
+    bash-2.05b$ bin/mktriggers.pl -v
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/A1... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/CommEngine... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/NewTest... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/OnePhone... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/SpiceBoxSW... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/TrainCommEngine... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/alpha_video... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/bfc_systems... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/cablex... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/cablex_tools... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/docs... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/ldx_apps... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/ldx_dev... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/ldx_hausware... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/ldx_tools... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/lucentexcel... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/netro_apps... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/phonex... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/prot_callctrl... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/prot_h248... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/prot_mgcp... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/prot_openssl... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/prot_tools... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/rmna_projects... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/sec_uHSMnCipher... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/telecan... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/test_comp1... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/test_docs... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/test_pvob... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/test_trp_vob... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/voice_res_gw... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/widcomm_bluetooth... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_common... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_drivers... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_qa... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_qa_cbx... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_qa_ipp... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_qa_ldx... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_qa_op... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_qa_xme... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xme... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xme_sa... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_Nucleus... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_TCL... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_VxWorks... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_cygwin... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_eCos... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_gnu_mips_elf... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_misc... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_psos... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_ti54x... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_vc... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_x86... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_zsp... done
+</pre></div>
+
+<p>When neither add (-a) or replace (-r) is specified mktriggers.pl both adds and/or replaces triggers. If run again with only -a (meaning only add missing triggers) no additional triggers are added. This is a good way to check that no new vobs have been created that are missing triggers or to only add triggers to a vob you just created. You could also specify something like mktriggers.pl -a -vobs /vobs/newvob. Combined with no execute mode and you can easily check if there are any missing triggers without adding them (i.e. mktriggers.pl -n -a).</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 12, 2005 12:54 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000418.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

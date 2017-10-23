@@ -1,0 +1,230 @@
+#!/bin/bash
+# Oslo Feb. 2 1995
+# sys_info 1.3, a hack by Ole Kristian Foss, HPNAS,
+# to display HP9000 model and the clock frequency of the CPU(s)
+# Version 1.0                                                 Oslo Jan. 25
+1995
+# Version 1.1 added call to the $SCHED_FILE.                  Oslo Jan. 25
+1995
+# Version 1.2 added the get_physmem function.                 Oslo Feb. 2
+1995
+# Version 1.3 added limited functionality for HP-UX 10.X.     Oslo Feb. 28
+1995
+# Version 1.4 more robust 10.X handling.                      Oslo Mar. 13
+1996
+#             This version should handle all cominations of
+#             HP-UX 9.X and 10.X as well as S700 and S800
+#
+#
+# Initialize variables:
+ADB="adb -k"
+ADB_CMD=""
+MODEL=""
+PA_INFO=""
+PA_RISC=""
+CPU_REV=""
+OS_REV=""
+VER="1.4"
+CORES=""
+PROG=`basename $0`
+SCHED_FILE="/usr/lib/sched.models"
+export PATH=/etc:/bin:/usr/bin
+typeset -R4 ID=""
+typeset -i FADB_OUT
+typeset -i MHZ
+typeset -i HZ
+typeset -i SPEED
+#
+function usage
+{
+        print -u2 "Usage: $PROG <-h|-m> [-v]"
+        exit 1
+}
+#
+function get_os_rev
+{
+        OS_REV=`uname -r| cut -f2 -d"."`
+        case $OS_REV in
+                09) CORES="/hp-ux /dev/kmem"
+                   if /bin/hp9000s700
+                   then
+                        ADB_CMD="mpproc_info+34/X"
+                   elif /bin/hp9000s800
+                   then
+                         ADB_CMD="mpproc_info+1E8/X"
+                   else
+                        echo "This machine is not supported by $PROG"
+                   exit 1
+                   fi ;;
+
+                10) CORES="/stand/vmunix /dev/kmem"
+                    ADB_CMD="_mpproc_info+270/X" ;;
+
+                 *) echo "$PROG does not support this version of HP-UX"
+                    exit 1 ;;
+        esac
+
+}
+function get_id
+{
+        ID=`echo $ADB_CMD | $ADB $CORES |  tail -1 | cut -d: -f 2`
+}
+#
+#
+function get_model
+{
+        case $ID in
+                "  40"|0040) MODEL="840" ;;
+                "  80"|0080) MODEL="825" ;;
+                "  A0"|00A0) MODEL="835/635" ;;
+                "  B0"|00B0) MODEL="845/645" ;;
+                "  C0"|00C0) MODEL="850" ;;
+                " 810"|0810) MODEL="855" ;;
+                " 820"|0820) MODEL="860" ;;
+                " 830"|0830) MODEL="865/870" ;;
+                1010) MODEL="822" ;;
+                1020) MODEL="832" ;;
+                1040) MODEL="842" ;;
+                1050) MODEL="852" ;;
+                1810) MODEL="890" ;;
+                1820) MODEL="891/T500" ;;
+                1830) MODEL="892/T520" ;;
+                2000) MODEL="720" ;;
+                2010) MODEL="750" ;;
+                2020) MODEL="730" ;;
+                2030) MODEL="735" ;;
+                2040) MODEL="755" ;;
+                2060) MODEL="735/125" ;;
+                2800) MODEL="817/F20" ;;
+                2800) MODEL="827/H20" ;;
+                2810) MODEL="837/F30" ;;
+                2810) MODEL="847/G30/H30" ;;
+                2810) MODEL="857/I30" ;;
+                2820) MODEL="807/F10" ;;
+                2830) MODEL="867/G40/H40" ;;
+                2830) MODEL="877/I40" ;;
+                2840) MODEL="887/G50/H50" ;;
+                2840) MODEL="897/I50" ;;
+                2870) MODEL="887/G70/H70" ;;
+                2870) MODEL="897/I70" ;;
+                2880) MODEL="887/G60/H60" ;;
+                2880) MODEL="897/I60" ;;
+                3000) MODEL="710" ;;
+                3020) MODEL="705" ;;
+                3100) MODEL="715/50" ;;
+                3110) MODEL="715/33" ;;
+                3120) MODEL="715s/50" ;;
+                3130) MODEL="715s/33" ;;
+                3140) MODEL="715t/50" ;;
+                3150) MODEL="715t/33" ;;
+                3160) MODEL="715/75" ;;
+                3180) MODEL="725/50" ;;
+                3190) MODEL="725/75" ;;
+                4010) MODEL="745i/50" ;;
+                4020) MODEL="742i" ;;
+                4030) MODEL="745i/100" ;;
+                4800) MODEL="806/E25" ;;
+                4810) MODEL="816/E35" ;;
+                4820) MODEL="826/E45" ;;
+                4830|4831) MODEL="856/E55" ;;
+                5800) MODEL="809/K100" ;;
+                5810) MODEL="839/K210" ;;
+                5820) MODEL="829/K400" ;;
+                5830) MODEL="849/K410" ;;
+                5870) MODEL="841/D210/D410" ;;
+                5880) MODEL="851/D210/D4102-way" ;;
+                5890) MODEL="821/D200/D400" ;;
+                58A0) MODEL="831/D200/D4002-way" ;;
+                58B0) MODEL="819/K200" ;;
+                58C0) MODEL="859/K230" ;;
+                58D0) MODEL="869/K430" ;;
+                6000) MODEL="712/60" ;;
+                6010) MODEL="712/80" ;;
+                6020) MODEL="712/100" ;;
+                6030) MODEL="743i/60" ;;
+                6040) MODEL="743i/100" ;;
+                60A0) MODEL="715/64" ;;
+                60B0) MODEL="715/100" ;;
+                60D0) MODEL="725/100" ;;
+                6170) MODEL="V743i" ;;
+                6180) MODEL="V743i/100" ;;
+                6190) MODEL="715/80" ;;
+                61A0) MODEL="811/DX5" ;;
+                61B0) MODEL="801/DXO" ;;
+                *)     MODEL="UNKNOWN" ;;
+        esac
+}
+#
+function get_tics
+{
+        ADB_CMD="itick_per_tick/D"
+        FADB_OUT=`echo $ADB_CMD | $ADB $CORES | tail -1 | cut -f 2`
+#
+        if [ $1 = "HZ" ]
+        then
+                ((HZ=$FADB_OUT * 100))
+                SPEED=$HZ
+        else
+                ((MHZ=$FADB_OUT / 10000))
+                SPEED=$MHZ
+        fi
+}
+#
+function get_physmem
+{
+        ADB_CMD="physmem/D"
+        PHYS_MEM=`echo $ADB_CMD | $ADB $CORES | tail -1 | \
+        awk '$2 > 0 { print $2 / 256 }' `
+        echo "Your system has $PHYS_MEM Mbyte ram installed"
+}
+#
+function get_painfo
+{
+        MODEL="`echo $MODEL|cut -f1 -d'/'`"
+        PA_INFO=`grep ^$MODEL $SCHED_FILE`
+        if [  -n "$PA_INFO" ]
+        then
+                PA_RISC="`echo $PA_INFO | cut -d' ' -f 3 `"
+                CPU_REV="`echo $PA_INFO | cut -d' ' -f 2 `"
+                echo "The PA-RISC processor(s) is of type $PA_RISC rev.
+$CPU_REV"
+        fi
+}
+
+## Main program ##
+if [ $# -eq 0 ]
+then
+        usage
+        exit 1
+fi
+#
+if [ `whoami` != "root" ]
+then
+        echo "You must be root to run $PROG ! "
+        exit 1
+fi
+
+while getopts :mMhHv OPT
+do case $OPT in
+   h|H) get_os_rev
+        get_id
+        get_model
+        get_tics HZ
+        print "Your HP9000 Model $MODEL has CPU(s) running at $SPEED Hz"
+        get_painfo
+        get_physmem
+        ;;
+   m|M) get_os_rev
+        get_id
+        get_model
+        get_tics MHZ
+        print "Your HP9000 Model $MODEL has CPU(s) running at $SPEED MHz"
+        get_painfo
+        get_physmem
+        ;;
+     v) echo "You are running version $VER of $PROG"
+        ;;
+   \?)  print -u2 "$PROG: unknown option $OPTARG"
+        usage
+   esac
+done

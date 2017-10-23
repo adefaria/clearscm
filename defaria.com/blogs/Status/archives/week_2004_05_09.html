@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: May  9, 2004 - May 15, 2004 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2004_05_02.html" title="May  2, 2004 - May  8, 2004" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2004_05_16.html" title="May 16, 2004 - May 22, 2004" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2004_05_02.html">&laquo; May  2, 2004 - May  8, 2004</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2004_05_16.html">May 16, 2004 - May 22, 2004 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">May 14, 2004</h2>
+                     <a id="a000181"></a>
+                     <div class="entry" id="entry-181">
+                        <h3 class="entry-header">BUCS PVOB</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<p><li>Worked with Don on BUCS import. Problem was that the PVOB was not created with the proper name. Tried repairing the situation but was unable to. Don gave up is recreating the BUCS and BUCS_PVOB properly (again).</li></p>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:43 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000181.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">May 13, 2004</h2>
+                     <a id="a000180"></a>
+                     <div class="entry" id="entry-180">
+                        <h3 class="entry-header">Lab/ASAP_NOTIFY Trigger</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Finished up the lab by reregistring the views properly. Also found and tagged the INDIA vobs and views. One thing left on the environment is the Clearquest stuff but I have no idea what the username/passwords might be. I would like to get Mike on this but he's out. Oh well, the licenses are stille expiring in two days anyhow...</li>
+
+<li>Reworked the ASAP_NOTIFY trigger:</br>
+
+<br>I have changed the trigger that you sent us to operate correctly in the Clearcase environment. This involved quite a few steps:
+
+<ul>
+<li>Changed to use the proper Perl conventions of -w and use strict.</li>
+<li>Changed to work under ccperl, thus guaranteeing that it will work for all Clearcase clients</li>
+<li>Changed to use Net::SMTP, which is already in ccperl, instead of requiring sendmail.pm</li>
+<li>General code clean up. Also made a few subroutine to help logic flow.</li>
+<li>Changed to write html logfiles to their web server</li>
+<li>Changed to send link to html log file in the email.</li>
+<li>Added this ASAP_NOTIFY trigger to the mktriggers mechanism.</li>
+</ul>
+</li>
+
+<li>Started investigating Ant</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:58 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000180.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">May 12, 2004</h2>
+                     <a id="a000179"></a>
+                     <div class="entry" id="entry-179">
+                        <h3 class="entry-header">Installs/Code Review/rgy_backup</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Used Altris to connect to Nash's computer to investigate her create view problem. Turns out her install was not done properly and she lacked MVFS. Instructed her to speak with Desktop folks to get a proper install</li>
+
+<li>Installed licenses onto the lab machines. Clearcase and Multisite are now functioning in the lab... Well at least until May 15th! Also need to reregister vobs and views to have the new machine names in them. Haven't finished the views yet...</li>
+
+<li>Assisted Rick Cunneen with some issues he had with the Evil Twin Trigger</li>
+
+<li>Code reviewed ASAP's <a href="/Notification.php">Notification Trigger</a>.</li>
+
+<li>Fixed rgy_backup on rtnlprod01. Don't know how it was broke nor how exactly I fixed it. I suspect that perhaps the backup registry server field in the Clearcase Control Panel Applet was mispelled. Sure looked right to me! Anyways I set it to blank thinking that might fix it but it didn't. When setting back I guess I typed it in correctly where it was incorrect before</li>
+
+<li>Looked over Don's changed to the Evil Twin Trigger</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:07 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000179.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">May 11, 2004</h2>
+                     <a id="a000178"></a>
+                     <div class="entry" id="entry-178">
+                        <h3 class="entry-header">Lab</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<p><li>Updated the lab to get Clearcase runnnig</li></p>
+
+<p><li>Closed ASAP_BUS_REQ vob ticket</li></p>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:31 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000178.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">May 10, 2004</h2>
+                     <a id="a000177"></a>
+                     <div class="entry" id="entry-177">
+                        <h3 class="entry-header">ASAP_BUS_REQ move</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              In trying to test this out before actually implementing this on the production vob I found that this does not appear to work as expected. Here's what I did:
+
+<ol>
+
+<li>Created a new share on the production server (rtnlprod01) named defaria</li>
+<li>Set share permissions to Everyone: Full Control (for now).</li>
+<li>Created a private vob defaria2 with a path of \\rtnlprod01\defaria\defaria2.vbs. This vob is owned by vobadm and the group is CC-PMO.</li>
+<li>Mounted the vob on my desktop and through my already existing defaria view I copied some files into the vob root directory as well as made a subfolder with some files in there too.</li>
+<li>Added all files and folders to source control. This is now my test vob.</li>
+<li>Unmounted the \defaria2 vob from my desktop. (Note I also had to find and kill the vob_server, db_server and vobrpc_server processes on the vob server that were associated with this vob, \defaria2, as unmounting a vob does not stop these processes)</li>
+<li>Changed the share permission on the \\rtnlprod01\defaria share by removing Everyone and adding two groups: CC-PMO, which I am a part of, which will serve as the read/write test group and CC-TTE, which I am not a part of, which will serve as the read only test group. These two groups were added with Full Control to the share. Since CC-TTE is not a member of the vob group list they will fall into using the "other" permissions setting for the vob, which will limit them to read only. CC-PMO, being part of the vob group list will use the "group" permissions setting which will provide read/write.</li>
+<li>Next I remounted the vob on my desktop and checked out a file. So far so good. (I'm acting as a member of CC-PMO - a read/writer at this time)</li>
+<li>When I went to check in this file, however, I received the following error: "mvfs: ERROR: view=defaria vob=\defaria2 - ClearCase vob error see view_log on host rtnlprod02 for more info"</li>
+<li>Checking rtnlprod02 (the view server)'s view log shows me: 'view_server.exe(5684): Error: Unable to construct cleartext for object "0x46" in VOB "rtnlprod01:D:\defaria\defaria2.vbs": error detected by ClearCase subsystem' and 'text_file_delta: Error: Unable to open file  \\rtnlprod01\defaria\defaria2.vbs\s\sdft\1f\a\0-8d2a90ad41134b1e9cddf04d42034d38-tk": Permission denied'</li>
+<li>Unmounted the vob again and went to the server and killed the vob_server/db_server/vobrpc_process again</li>
+<li>Added Everyone: Full Control back to the share point (leaving both CC-PMO and CC-TTE)</li>
+<li>Remounted the vob on my desktop. The first thing that I noticed was that the element did not have a checked out symbol next to it and it was accessible. Checked out and checked in the element again. No problems.</li>
+
+</ol>
+
+<p>So it seems that there is some process in the Clearcase Explorer that requires that the share point have Everyone: Full Control set (or at least something more than just CC-PMO and CC-TTE). Note that if I click somewhere out of the directory, like to the subfolder then go back I get the "mvfs: ERROR..." again. I see no errors in the cleartool command line - just in Clearcase Explorer.</p>
+
+<p>Seems the answer to the problem is to add clearcase_albd to the share permissions. I also added vobadm and the CCADMIN group</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:10 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000177.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

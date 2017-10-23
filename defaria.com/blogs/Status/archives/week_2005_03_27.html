@@ -1,0 +1,463 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: March 27, 2005 - April  2, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_03_20.html" title="March 20, 2005 - March 26, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_04_03.html" title="April  3, 2005 - April  9, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_03_20.html">&laquo; March 20, 2005 - March 26, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_04_03.html">April  3, 2005 - April  9, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">April  1, 2005</h2>
+                     <a id="a000328"></a>
+                     <div class="entry" id="entry-328">
+                        <h3 class="entry-header">Tagged HybridOS/Bluecat RH 8.0 building</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Tagged HybridOS with the proper release tag</li>
+
+  <li>Started attempting to build BlueCat on Europa (RH 8.0)</li>
+</ul>
+                              
+                              <h3>Building BlueCat on Europa Notes</h3>
+
+<p>Some setup issues. Had to get int to be able to rsh without a password to t3. Additionally cvs was not being found once the rsh to t3 was working. This was because the PATH was merely /usr/bin. Tried for a long time to get rsh to execute int's ~/.bashrc but it wouldn't. Turns out the problem was the int's shell on t3 was not set to bash in /etc/passwd.</p>
+
+<p>Additionally make sure you set CVSROOT=:ext:int@t3:/cm/CVS! I think I'll put this in int@europa's ~/.bashrc!</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:24 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000328.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">March 31, 2005</h2>
+                     <a id="a000327"></a>
+                     <div class="entry" id="entry-327">
+                        <h3 class="entry-header">Finalized HybridOS</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Finished up CR 1 for HybridOS checkin - assigned to Thu for review</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:10 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000327.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">March 30, 2005</h2>
+                     <a id="a000326"></a>
+                     <div class="entry" id="entry-326">
+                        <h3 class="entry-header">HybridOS Binary Comparison problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Managed to perform binary comparison of HybridOS</li>
+</ul>
+                              
+                              <h3>HybridOS Binary Comparison</h3>
+
+<p>HybridOS has been checked in and built. As you know the binary comparison procedure described in the GS: LOS178 Impact Summary discovered more differences. Specifically 227 .o files had differences. Further investigation revealed that the action of committing the sources to CVS caused $Header/ident strings to change. The following describes the changes to the $Header strings due to cvs commit:</p>
+
+<div class="code"><pre>
+tomcat:strings -a orig.uipc_usrreq.o | grep Header
+$Header: /cvs/<font color="blue"><b>los178-cvs</b></font>/los178/sys/networking/tcpip/general/uipc_usrreq.c,v  <font color="orange"><b>1.1.1.1</b></font> <font color="green"><b>2004/03/03 00:59:24</b></font> <font color="purple"><b>emooring</b></font> Exp $
+tomcat:strings -a new.uipc_usrreq.o | grep Header
+$Header: /cvs/<font color="blue"><b>hybrid-os-cvs</b></font>/los178/sys/networking/tcpip/general/uipc_usrreq.c,v <font color="orange"><b>1.1</b></font> <font color="green"><b>2005/03/30 00:39:03</b></font> <font color="purple"><b>adefaria</b></font> Exp $
+</pre></div>
+
+<p>The changes are as follows:</p>
+
+<ol>
+  <li>CVS Repository name changed from los178-cvs -> hybrid-os-cvs (<font color="blue">blue</font>)</li>
+
+  <li>Revision changed from whatever it was -> 1.1 (<font color="orange">orange</font>) All revisions for HybridOS are now 1.1</li>
+
+  <li>Date changed to reflect time of cvs commit to new CVS repository (<font color="green">green</font>)</li>
+
+  <li>User changed from whatever it was -> adefaria (<font color="purple">purple</font>) since I was the user to perform the commit</li>
+</ol>
+
+<p>Using objdump once again to disassemble these .o files and comparing the output left us with the following .o files that were still different:</p>
+
+<ol>
+  <li>/sys/lib/libcsp_970.a (context_asm.o)</li>
+
+  <li>/sys/lib/libcsp_970.a (csp_cpu_asm.o)</li>
+
+  <li>/sys/lib/libcsp_970.a (flih.o)</li>
+
+  <li>/sys/lib/libcsp_970.a (fpu_asm.o)</li>
+
+  <li>/sys/lib/libcsp_970.a (launch_asm.o)</li>
+
+  <li>/sys/lib/libcsp_970.a (tlbmiss.o)</li>
+</ol>
+
+<p>Closer examination of these .o files reveals that the also contained ident strings in the text segment that had the same differences as the $Header differences described above. In other words the code was the same but the version strings and dates changed, as is expected.</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:59 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000326.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">March 29, 2005</h2>
+                     <a id="a000325"></a>
+                     <div class="entry" id="entry-325">
+                        <h3 class="entry-header">Hybrid OS</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Checked HybridOS into CVS</li>
+
+  <li>Rebuilt HybridOS</li>
+
+  <li>Attempted binary comparison - fails due to $Header$ strings</li>
+</ul>
+                              
+                              <h3>Binary Differences</h3>
+
+<p>Well the build finished but the binary comparison as per the Impact Summary failed. For a while I thought I did something wrong so I went back and re-extracted from the SCL and rebuild the old LOS178 that I had stored on the side, etc. Still it kept failing! Not only 25 files that were different and needed to be disassembled and compared but more like 228 files! What's going on?!?</p>
+
+<p>So I dug deeper... Seems that $Header is embedded in some .o files and the $Headers differ (picking at random a .o that didn't compare):</p>
+
+<div class="code"><pre>
+tomcat:strings -a new.uipc_usrreq.o | grep Header
+$Header: /cvs/hybrid-os-cvs/los178/sys/networking/tcpip/general/uipc_usrreq.c,v 1.1 2005/03/30 00:39:03 adefaria Exp $
+tomcat:strings -a orig.uipc_usrreq.o | grep Header
+$Header: /cvs/los178-cvs/los178/sys/networking/tcpip/general/uipc_usrreq.c,v 1.1.1.1 2004/03/03 00:59:24 emooring Exp $
+tomcat:
+</pre></div>
+
+<p>So as you can see, we have differences. I don't know why all 2543 .o files extracted from the .a files didn't all differ.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:08 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000325.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">March 28, 2005</h2>
+                     <a id="a000324"></a>
+                     <div class="entry" id="entry-324">
+                        <h3 class="entry-header">HybridOS built</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Built Hybrid OS for GD and performed binary comparison</li>
+
+  <li>Adding files to CVS on Tomcat</li>
+
+  <li>Completed GD LOS178 Impact Summary</li>
+
+  <li>Resolved long standing issue regarding gnuaout vs. gnu</li>
+</ul>
+                              
+                              <h2>GD LOS178 Impact Summary</h2>
+
+<h3>Export sources from LOS178</h3>
+
+<p>Export sources from LOS178 CVS tree using the CVS tag REL_LOS178_2p0p0_ppc_FCS. The export will come from the machine named Rock using CVSROOT=:pserver:anoncvs@rock:/cvs/los178-cvs:</p>
+
+<div class="code"><pre>
+tomcat:export CVSROOT=:pserver:anoncvs@rock:/cvs/los178-cvs
+tomcat:cvs login
+Logging in to :pserver:anoncvs@rock:2401/cvs/los178-cvs
+CVS password:
+tomcat:cvs export -r REL_LOS178_2p0p0_ppc_FCS los178
+</pre></div>
+
+<h3>Extract prebuilt CDK</h3>
+
+<p>Extract prebuilt CDK (sunos-xcoff-ppc) binary also using the tag of REL_LOS178_2p0p0_ppc_FCS from Rock. Note that this prebuilt CDK comes from the bin-image section of the CVS repository and that we are only using the ppc.cdksol.tar.gz image:</p>
+
+<div class="code"><pre>
+tomcat:cvs export -r REL_LOS178_2p0p0_ppc_FCS bin-image/ppc.cdksol.tar.gz
+</pre></div>
+
+<h3>Extract other tools</h3>
+
+<p>The package.sh script from the toolbox area is used to package up the images so we need to extract that too:</p>
+
+<div class="code"><pre>
+tomcat:cvs export -r REL_LOS178_2p0p0_ppc_FCS toolbox/package.sh
+</pre></div>
+
+<h3>Test Build</h3>
+
+<p>Perform test build.</p>
+
+<div class="note">
+Note: Test build requires a symlink from /usr/lynx/3.1.0/ppc/cdk/sunos-xcoff-ppc/bin/bison.simple -> $ENV_PREFIX/cdk/sunos-xcoff-ppc-/bin/bison-simple due to a hard coded path dependency.  This path was not modified due to LOS-178 RSC restrictions
+</div>
+
+<p>Steps performed are:</p>
+
+<ol>
+  <li>Create ppc_dev area to perform the build in:<br>
+
+<div class="code"><pre>
+tomcat:mkdir ppc_dev
+</pre></div></li>
+
+  <li>Copy in sources:<br>
+
+<div class="code"><pre>
+tomcat:rsync -a los178 ppc_dev
+</pre></div></li>
+
+  <li>Unpack CDK into build area<br>
+
+<div class="code"><pre>
+tomcat:cd ppc_dev
+tomcat:gnutar -zxpf ../bin-image/ppc.cdksol.tar.gz
+</pre></div></li>
+
+  <li>Perform build:<br>
+
+<div class="code"><pre>
+tomcat:make DEVELOPMENT=yes install > install.log
+</pre></div></li>
+
+  <li>Check install.log for errors</li>
+</ol>
+
+<h3>Perform binary comparison test</h3>
+
+<p>This binary comparison test is different from the normal binary comparison tests. Basically we are simply extracting all .o's from all .a's in the packaged versions of the product. A little utility script was written to find all .a libraries and copy them to an area (complibs) broken out by the path to the library, then extract all .o's from the .a's. This script is called unpack_libs. It is not intended that such a comparison be performed on a regular basis so this script is more of a one shot script.</p>
+
+<p>Further, a build will create a lot of libraries but not all libraries created will be packaged and shipped. Since we are comparing against a previously built and packaged release we must package up and unpack the build we just performed. This is done using the toolbox/package.sh script as follows:</p>
+
+<ol>
+  <li>Package up the image just built:<br>
+
+<div class="code"><pre>
+tomcat:toolbox/package.sh ppc_dev dev
+</pre></div></li>
+
+    <li>Unpack images to new area:<br>
+
+<div class="code"><pre>
+tomcat:mkdir new
+tomcat:cd new
+tomcat:for tarfile in ../media/*.tar.gz; do
+> gnutar -zxpf $tarfile
+> done
+</pre></div></li>
+
+  <li>Gather all libraries and extract their .o's:<br>
+
+<div class="code"><pre>
+tomcat:mkdir complibs
+tomcat:../unpack_libs
+</pre></div></li>
+
+  <li>Unpack old images (from  t3:/export/scl/los178/2p0p0/FCS/) to old area:<br>
+
+<div class="code"><pre>
+tomcat:cd ..
+tomcat:mkdir old
+tomcat:cd old
+tomcat:# copy old tar images here
+tomcat:for tarfile in *.tar.gz; do
+> gnutar -zxpf $tarfile
+> done
+</pre></div></li>
+
+  <li>Gather all libraries and extract their .o's:<br>
+
+<div class="code"><pre>
+tomcat:mkdir complibs
+tomcat:../unpack_libs
+</pre></div></li>
+
+  <li>Perform diff<br>
+
+<div class="code"><pre>
+tomcat:cd ..
+tomcat:diff -r old/complibs new/complibs
+</pre></div></li>
+
+  <li>The above will result in 25 .o files being different. Use objdump -D to disassemble these files and compare the disassembled output. No differences detected in disassembled output.</li>
+</ol>
+
+<h3>Import sources into new CVS repository</h3>
+
+<p>Sources  will be  imported into the CVS repository using the following command:</p>
+
+<div class="code"><pre>
+tomcat:cd los178
+tomcat:export CVSROOT=:pserver:adefaria@tomcat:/cvs/hybrid-os-cvs
+tomcat:cvs login
+Logging in to :pserver:adefaria@tomcat:2401/cvs/hybrid-os-cvs
+CVS password:
+tomcat:# First add all directories
+tomcat:find . ! -name CVS -type d -exec cvs add -m "HybridOS import from LOS178" {} \;
+tomcat:# Now add all files
+tomcat:find . -type f -exec cvs add -m "HybridOS import from LOS178" {} \;
+tomcat:cvs commit
+</pre></div>
+
+<p>Additionally the binary CDK image was checked into binary-image:</p>
+
+<div class="code"><pre>
+tomcat:cd ../bin-image
+tomcat:cvs add -m "HybridOS import from LOS178" ppc.cdksol.tar.gz
+tomcat:cvs commit
+</pre></div>
+
+<p>Finally the toolbox/package.sh script as checked into toolbox:</p>
+
+<div class="code"><pre>
+tomcat:cd ../toolbox
+tomcat:cvs add -m "HybridOS import from LOS178" package.sh
+tomcat:cvs commit
+</pre></div>
+
+<h3>Tag initial sources with the tag REL_HYBRIDOS_1p0_ppc_20050328</h3>
+
+<p>All sources, bin packages and toolbox scripts are then tagged:</p>
+
+<div class="code"><pre>
+tomcat:cvs tag REL_HYBRIDOS_1p0_ppc_20050328 los178 bin-image toolbox
+</pre></div>
+
+<h3>Check out all sources and prebuilt CDK and perform build procedure again</h3>
+
+<p>Next we check out all sources, bin-image and toolbox scripts into new fresh areas and then perform the build procedure as described above.</p>
+
+<h3>Following successful build perform binary comparison test again</h3>
+
+<p>Perform the binary comparison described above again.</p>
+
+<h3>Package build to archive area</h3>
+
+<p>Use the package script to package up the images and place in the archive area at tomcat:/export/dev_archive/hybridos/1p0/20050328/solaris/media/ppc</p>
+
+<h2>Long standing issue regarding gnuaout vs. gnu</h2>
+
+<p>This has been bugging me for a while and I finally tracked it down. Often I'd build a toolchain then attempt to build LynxOS and it would fail when attempting to get the compiler. It seems that the toolchain build was packing up the compiler tar image with one name and the build scripts were using another name to try to find it. This resulted in errors. Now I had gotten around this via a symlink but I've been wanting to make the two build procedures agree on the names of things...</p>
+
+<p>As Adam writes here the preferred name for the toolchain tar image is derived from config.guess:</p>
+
+<blockquote type=cite>
+<p>Andrew DeFaria writes:</p>
+
+  <blockquote type=cite>
+  <p>toolchain-i686-pc-linux-gnu-i386.tar.gz</p>
+  </blockquote>
+
+<p>This. But I think we get this from config.guess so try to see how this nice level of abstraction fails before you hard-code something.</p>
+</blockquote>
+
+<p>The "toolchain-" portion is standard for the toolchain. The "i686-pc-linux-gnu" portion comes out of config.guess:</p>
+
+<div class="code"><pre>
+[int@dopey 20050207]$ /export/build1/LYNXOS_500/work_area/toolchain/3.2.2/toolchain/src/config.guess
+    i686-pc-linux-gnu
+</pre></div>
+
+<p>However the int_tools uses the following code to determine the name of the toolchain tar image:</p>
+
+<div class="code"><pre>
+proc Unload_com { platform dir comp_release format host } {
+
+  switch "$host" {
+    <font color="red"><b>"linux"  { set host_platform "i686-pc-linux-<u>gnuaout</u>" }</b></font>
+    "win32"  { set host_platform "i686-pc-cygwin" }
+    "sunos"  { set host_platform "sparc-sun-solaris2.7" }
+    "lynxos" { if { "$platform" == "x86" } {
+                   set host_platform "i386-lynx-lynxos"
+               }
+               if { "$platform" == "ppc" } {
+                     set host_platform "powerpc-lynx-lynxos"
+               }
+             }
+  }
+  if { "$platform" == "x86" } {
+        set target_platform "i386"
+  } else {
+        set target_platform "$platform"
+  }
+  set COMPILER_TAR_GZ "toolchain-$host_platform-$target_platform.tar.gz"
+</pre></div>
+
+<p>The highlighted portion above is the line in error and the underlined portion should change to simply "gnu". The int_tools do not have the benefit of being able to call config.guess so this could likely break in the future again.</p>
+
+<p>I will perform this change, along with other int_tool changes required for the new tag labeling under and ECR.</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:30 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000324.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

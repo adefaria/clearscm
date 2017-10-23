@@ -1,0 +1,61 @@
+#!/bin/bash
+################################################################################
+#
+# File:         reinstall_patch_bundle
+# RCS:          $Header:$
+# Description:  A script to reinstall the Patches bundle by removing it and
+#               reinstalling it.
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Thu May  1 23:06:48 PDT 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=`basename $0`
+notify=defaria@cup.hp.com
+machine=`uname -n`
+osver=`uname -r | cut -f2- -d.`
+major_osver=`echo $osver | cut -f1 -d.`
+depot="wampus:/Depots/$osver"
+
+if [ "$major_osver" = "10" ]; then
+  if [ `id -u` -ne 0 ]; then
+    print -u2 "$me: Error: You must be root to use this command"
+    exit 1
+  fi
+  message="Reinstalling Patches bundle from $depot to $machine via $0"
+  mailx -s "$message" $notify <<!EOF
+$message
+!EOF
+  # First remove the old Patches bundle. Note that we do not enforce_scripts
+  # nor auto_kernel_build because we are going to be totally replacing the
+  # Patches bundle
+  additional_patches=$(/usr/sbin/swlist | grep PH | tr "        " " " | cut -c3- | cut -f1 -d' ')
+  /usr/sbin/swremove \
+    -x enforce_scripts=false \
+    -x auto_kernel_build=false \
+    Patches $additional_patches > /tmp/$me.$$ 2>&1
+
+  if [ $? -ne 0 ]; then
+    message="Removal of Patches bundle failed!"
+    mailx -s "$message" $notify < /tmp/$me.$$
+    exit 1
+  fi
+
+  # Next install the new Patches bundle.
+  /usr/sbin/swinstall \
+     -x autoreboot=true \
+     -s $depot Patches > /tmp/$me.$$ 2>&1
+
+  if [ $? -ne 0 ]; then
+    message="Installation of Patches bundle failed!"
+    mailx -s "$message" $notify < /tmp/$me.$$
+    exit 1
+  fi
+else
+  message="Sorry but $0 only works on 10.x machines. This machine is
+$major_osver."
+  exit 1
+fi

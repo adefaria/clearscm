@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Rebuilding glibc RH 8.0</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000338.html" title="BC Step 3 still broke" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000340.html" title="BC Builds/CVS Corruption" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000338.html">&laquo; BC Step 3 still broke</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000340.html">BC Builds/CVS Corruption &raquo;</a>
+                     </p>
+
+                     <a id="a000339"></a>
+                     <div class="entry" id="entry-339">
+                        <h3 class="entry-header">Rebuilding glibc RH 8.0</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Rebuild glibc on RH 8.0 in order to obtain static .a files for libnss_dns and libnss_files.</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Rebuilding glibc</h3>
+
+<p>According to Sasha I downloaded a copy of glibc-2.2.93.5.src.rpm. Next I modified the spec file to include --enable-static-nss=yes. In attempting to rebuild using rpmbuild -bb I received notice that I had to get and install gd-devel-1.8.4-9.i386.rpm and libpng-devel-1.2.2-8.i386.rpm. After that the rpmbuild worked OK and I copied the libraries like so:</p>
+
+<div class="code"><pre>
+$ cp /usr/src/redhat/BUILD/glibc-2.2.93/build-i386-linux/resolv/libnss_dns.a /usr/lib/libnss_dns.a
+$ cp /usr/src/redhat/BUILD/glibc-2.2.93/build-i385-linux/nss/libnss_files.a /usr/lib/libnss_files.a
+</pre></div>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 20, 2005  3:44 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000339.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

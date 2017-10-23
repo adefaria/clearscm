@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en-us" itemscope itemtype="http://schema.org/Article">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content=" Attempted to migrate Clearquest databases to new server. I was unable to. I've opened up a PMR with IBM Rational #8552849R and expect to get email from them tomorrow. Attempting to switch the machine adefaria over to this newly...">
+    <meta name="generator" content="Movable Type 5.2.3">
+    <title>SQL Anywhere - Status</title>
+    <link rel="alternate" type="application/atom+xml" title="Recent Entries" href="http://defaria.com/blogs/Status/atom.xml">
+    <link rel="canonical" href="http://defaria.com/blogs/Status/2006/04/sql-anywhere.html">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles.css">
+    <!--[if lt IE 9]>
+    <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles_ie.css">
+    <script src="/mt/mt-static/support/theme_static/rainier/js/html5shiv.js"></script>
+    <![endif]-->
+    
+    <link rel="start" href="http://defaria.com/blogs/Status/">
+
+    <link rel="prev" href="http://defaria.com/blogs/Status/2006/04/new-registry-se.html" title="New Registry Server">
+    <link rel="next" href="http://defaria.com/blogs/Status/2006/04/save-the-logfil.html" title="Save the logfiles! IFrames">
+    <!-- Open Graph Protocol -->
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en-us">
+    <meta property="og:title" content="SQL Anywhere">
+    <meta property="og:url" content="http://defaria.com/blogs/Status/2006/04/sql-anywhere.html">
+    <meta property="og:description" content=" Attempted to migrate Clearquest databases to new server. I was unable to. I've opened up a PMR with IBM Rational #8552849R and expect to get email from them tomorrow. Attempting to switch the machine adefaria over to this newly...">
+    <meta property="og:site_name" content="Status">
+    <meta property="og:image" content="/mt/mt-static/support/theme_static/rainier/img/siteicon-sample.png">
+    <!-- Metadata -->
+    <meta itemprop="description" content=" Attempted to migrate Clearquest databases to new server. I was unable to. I've opened up a PMR with IBM Rational #8552849R and expect to get email from them tomorrow. Attempting to switch the machine adefaria over to this newly...">
+    <link itemprop="url" href="http://defaria.com/blogs/Status/2006/04/sql-anywhere.html">
+    <link itemprop="image" href="/mt/mt-static/support/theme_static/rainier/img/siteicon-sample.png">
+    
+  </head>
+  <body>
+    <div id="container">
+      <div id="container-inner">
+        <header id="header" role="banner">
+          <div id="header-inner">
+            <div id="header-content">
+              <h1>
+                <a href="http://defaria.com/blogs/Status/">
+
+                  Status
+
+                </a>
+              </h1>
+              
+            </div>
+
+            <nav role="navigation">
+          <ul>
+            <li><a href="http://defaria.com/blogs/Status/">Home</a></li>
+
+
+          </ul>
+        </nav>
+
+          </div>
+        </header>
+        <div id="content">
+          <div id="content-inner">
+            <ul class="breadcrumb breadcrumb-list">
+              <li class="breadcrumb-list-item"><a href="http://defaria.com/blogs/Status/">Home</a></li>
+              <li class="breadcrumb-list-item">SQL Anywhere</li>
+            </ul>
+            <div id="individual-main" class="main" role="main">
+              <article id="entry-1799" class="entry entry-asset asset hentry">
+                <div class="asset-header">
+                  <h2 itemprop="name" class="asset-name entry-title">SQL Anywhere</h2>
+                  <footer class="asset-meta">
+                    <ul class="asset-meta-list">
+                      <li class="asset-meta-list-item">Posted on <time datetime="2006-04-09T19:07:50-08:00" itemprop="datePublished">April  9, 2006</time></li>
+                      <li class="asset-meta-list-item">by <span class="author entry-author vcard"></span></li>
+
+  
+                      <li class="asset-meta-list-item">in <a itemprop="articleSection" rel="tag" href="http://defaria.com/blogs/Status/salira/">Salira</a></li>
+  
+
+                   </ul>
+                </footer>
+                </div>
+                <div class="entry-content asset-content" itemprop="articleBody">
+                  <ul>
+  <li>Attempted to migrate Clearquest databases to new server. I was unable to. I've opened up a PMR with IBM Rational #8552849R and expect to get email from them tomorrow.</li>
+
+  <li>Attempting to switch the machine adefaria over to this newly created registry server (sons-sc-cc). Decided to reboot the machine. It never came back up! If you can boot this machine that would be great. You might need to go into the Clearcase Control Panel and set the registry server back to sons-clearcase and set the region to US. It might require a reboot to be effective. Why, when I rebooted it, it failed to come back up?</li>
+</ul>
+
+<p><b>Time Spent:</b> 4 hours</p>
+                  <h2>Migrating databases to new SQLAnywhere 8.x</h2>
+
+<p>Spent most of the day banging against SQL Anywhere. We need to migrate the databases (both the schema.db and the salira_bugs.db) to the new server. With the new server comes new DBMS software (Sorry but SQL Anywhere 5.5.05 which is what you have on sons-clearcase is being sunsetted anyway).</p>
+
+<p>Now I've done some extensive Clearquest work over at <a href="http://defaria.com/blogs/Status/archives/cat_pqa.html">Broadcom</a> it was all MS SQL based in the back end.</p>
+
+<p>The first problem I have is that there is not service for SQL Anywhere like there used to be over on sons-clearcase. I managed to find C:\Program Files\Rational\SQLAnywhere8\win32\dbeng8.exe and dbsrv8.exe and that appears to be the process to start, there still isn't any automatically starting service for SQL Anywhere 8. That plus when run it prompts with a dialog box that queries about the database to use. I was always under the impression that a DBMS server just runs for any and all databases on the machine. I can just specify the server and leave the database blank but other times when running Sybase Central it complains that it can't start the DB server.</p>
+
+<p>I thought that I could simply use Sybase Central to backup the databases on sons-clearcase then use the restore function of Sybase Central on sons-sc-cc. There are also options like Migrate Database, etc. to deal with differences in databases between old and new versions of SQL Anywhere. All of these had problems for me...</p>
+
+<h2>Backup/Restore</h2>
+
+<p>I backed up the salira_bugs.db file over to \\sons-sc-cc\Clearquest\backup\salira_bugs.db. Next I attempted to restore it on sons-sc-cc I get "Unable to start database server".</p>
+
+<h2>Connect to backup database</h2>
+
+<p>When I attempt to simply connect to that db I get:</p>
+
+<blockquote>
+  <p>You are attempting to connect to a version 5.5.03 database running on a version 8.0.2-3601 server. In order for the Sybase Central to use this database, the database must be unloaded and reloaded into a new database (Sybase Central only supports version 7.0.0 and later database). The Unload Database wizard can step you through this process, after which Sybase Central will diconnect from this database.</p>
+
+  <p>Do you want to unload and reload this database? (If not, Sybase Central will disconnect from this database now.)</p>
+</blockquote>
+
+<p>If I step through this wizard I eventually get:</p>
+
+<div class=code><pre>
+java.lang.UnsatisfiedLinkError: unloadDatabase
+Could not unload the database 'salira_bugs'.
+</pre></div>
+
+<h2>Migrate Database</h2>
+
+<p>If I attempt to Migrate Database I get a message saying "You must be connected to the database to which you want to migrate" which, of course, I can't...</p>
+
+<h2>Creating and Erase Database</h2>
+
+<p>I have not managed to create a database through Sybase Central (but I have been able to create it through Clearquest Maintainance Tool and the Clearquest Designer - see below). When I try I get: Unable to start database server.</p>
+
+<p>For databases created via Clearquest tools I cannot erase them using Erase database. Instead I get the same thing: Unable to start database server. So far when I need to delete a database I merely remove the databse files themselves.</p>
+
+<p>I can create a schema database and even user databases through the Clearcase Maintainance Tool and Clearquest Designer respectively. But we don't want a new schema nor empty user databases - we want to migrate the old scheme that has our modifications and we want to migrate our old database!</p>
+
+<h2>Moving Databases</h2>
+
+<p>There's also an option to move a database from one server to another. Now I don't want to move databases right yet - I want to copy them. However this move seems to copy the database and then lock the original database. So I tried it out on the test2 database. Effectively you go into the Clearquest Designer on sons-clearcase and then select Database: Move Database then go through the dialog box specifying that you want to move the database over to sons-sc-cc. That works and test2.db does appear over on sons-sc-cc. But when I attempt to connect to it Sybase Central again goes through the unload/load procedure which fails the same way as described above.</p>
+                </div>
+                <nav class="page-navigation entry-navigation pagination content-nav">
+                  <ul class="page-navigation-list">
+
+                    <li class="page-navigation-list-item page-navigation-prev"><a rel="prev" href="http://defaria.com/blogs/Status/2006/04/new-registry-se.html" title="New Registry Server">Previous entry</a></li>
+
+
+                    <li class="page-navigation-list-item page-navigation-next"><a rel="next" href="http://defaria.com/blogs/Status/2006/04/save-the-logfil.html" title="Save the logfiles! IFrames">Next entry</a></li>
+
+                  </ul>
+                </nav>
+                <!--
+<aside id="zenback" class="zenback feedback">
+  Please paste Zenback script code here.
+</aside>
+-->
+                
+                
+              </article>
+            </div>
+            <aside class="widgets related" role="complementary">
+              <nav class="widget-search widget">
+  <div class="widget-content">
+    <form method="get" id="search" action="http://defaria.com/mt/mt-search.cgi">
+      <div>
+        <input type="text" name="search" value="" placeholder="Search...">
+
+        <input type="hidden" name="IncludeBlogs" value="8">
+
+        <input type="hidden" name="limit" value="20">
+        <button type="submit" name="button">
+          <img alt="Search" src="/mt/mt-static/support/theme_static/rainier/img/search-icon.png">
+        </button>
+      </div>
+    </form>
+  </div>
+</nav>
+<nav class="widget-archive-category widget">
+  <h3 class="widget-header">Categories</h3>
+  <div class="widget-content">
+    
+      
+    <ul class="widget-list">
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/ameriquest/">Ameriquest (99)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/audience/">Audience (3)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/broadcom/">Broadcom (76)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/gpdb/">GPDB (35)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/general-dynamics/">General Dynamics (61)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/general-electric/">General Electric (13)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/hewlett-packard/">Hewlett Packard (13)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/lynuxworks/">LynuxWorks (162)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/pqa/">PQA (35)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/salira/">Salira (79)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/tellabs/">Tellabs (2)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/texas-instruments/">Texas Instruments (31)</a>
+      
+      
+      </li>
+      
+    </ul>
+      
+    
+  </div>
+</nav>
+  
+
+<nav class="widget-archive-dropdown widget">
+  <h3 class="widget-header">Archives</h3>
+  <div class="widget-content">
+    <select>
+      <option>Select a Month...</option>
+    
+      <option value="http://defaria.com/blogs/Status/2016/02/">February 2016</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/09/">September 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/04/">April 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/03/">March 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2013/02/">February 2013</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/09/">September 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/08/">August 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/05/">May 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/04/">April 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/02/">February 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/01/">January 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2011/10/">October 2011</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2011/07/">July 2011</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/09/">September 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/08/">August 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/04/">April 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/03/">March 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/02/">February 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2009/05/">May 2009</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2009/04/">April 2009</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/07/">July 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/05/">May 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/04/">April 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/03/">March 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/02/">February 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/01/">January 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/12/">December 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/11/">November 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/10/">October 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/09/">September 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/08/">August 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/07/">July 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/06/">June 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/05/">May 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/04/">April 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/03/">March 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/01/">January 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/12/">December 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/11/">November 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/10/">October 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/09/">September 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/07/">July 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/06/">June 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/05/">May 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/04/">April 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/03/">March 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/02/">February 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/01/">January 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/12/">December 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/11/">November 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/10/">October 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/09/">September 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/08/">August 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/07/">July 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/06/">June 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/05/">May 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/04/">April 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/03/">March 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/02/">February 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/01/">January 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/12/">December 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/09/">September 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/08/">August 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/07/">July 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/06/">June 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/05/">May 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/04/">April 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/03/">March 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/02/">February 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/01/">January 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2003/12/">December 2003</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2003/11/">November 2003</option>
+    
+    </select>
+  </div>
+</nav>
+    
+  
+
+<div class="widget-syndication widget section">
+  <div class="widget-content">
+    <p><img src="http://defaria.com/mt/mt-static/images/status_icons/feed.gif" alt="Subscribe to feed" width="9" height="9" /> <a href="http://defaria.com/blogs/Status/atom.xml">Subscribe to this blog's feed</a></p>
+
+  </div>
+</div>
+
+            </aside>
+          </div>
+        </div>
+        <footer id="footer" role="contentinfo">
+          <div id="footer-inner">
+            <div id="footer-content">
+  <nav role="navigation">
+          <ul>
+            <li><a href="http://defaria.com/blogs/Status/">Home</a></li>
+
+
+          </ul>
+        </nav>
+
+  <p class="license">&copy; Copyright 2016.</p>
+  <p class="poweredby">Powered by <a href="http://www.movabletype.org/">Movable Type</a></p>
+</div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <script src="http://defaria.com/mt/mt-static/jquery/jquery.min.js"></script>
+    <script src="http://defaria.com/blogs/Status/mt-theme-scale2.js"></script>
+  </body>
+</html>

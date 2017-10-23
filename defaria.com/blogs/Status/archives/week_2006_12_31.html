@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: December 31, 2006 - January  6, 2007 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2006_12_24.html" title="December 24, 2006 - December 30, 2006" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2007_01_07.html" title="January  7, 2007 - January 13, 2007" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2006_12_24.html">&laquo; December 24, 2006 - December 30, 2006</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2007_01_07.html">January  7, 2007 - January 13, 2007 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">January  5, 2007</h2>
+                     <a id="a000609"></a>
+                     <div class="entry" id="entry-609">
+                        <h3 class="entry-header">Checkpoint</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Checked in recent changes to GPDB and its associated scripts</li>
+</ul>
+                              
+                              <ul>
+  <li>gpdb_add_project:</li>
+
+  <ul>
+    <li>Added interrupt handling</li>
+
+    <li>Moved logic that determines what site a machine is in from here to gpdb.pm</li>
+
+    <li>Fixed but in checking "no such map" from NIS</li>
+  </ul>
+
+  <li>gpdb_add_vob:</li>
+
+  <ul>
+    <li>Added function prototypes</li>
+
+    <li>Changed to put together list of vobs from all regions</li>
+
+    <li>Added getting of Vob Family UUID and Vob UUID</li>
+
+    <li>Now using gpdb_currentSite</li>
+  </ul>
+
+  <li>gpdb_convertuk:</p>
+
+  <ul>
+    <li>Added function prototypes</li>
+  </ul>
+
+  <li>gpdb.pm:</li>
+
+  <ul>
+    <li>Reorganized export list</li>
+
+    <li>Added gpdb_mklink_user_to_site,  gpdb_mklink_user_to_project, gpdb_unlink_user_from_project, gpdb_unlink_user_from_site<li>
+
+    <li>Implement gpdb_siteForHostname. This routine returns the site name for the passed in hostname (default localhost)</li>
+
+    <li>Implemented gpdb_getuserByID</li>
+
+    <li>Changed handling of retunred %ccdefaults</li>
+
+    <li>Changed gpdb_getProject to properly return the retired flag</li>
+
+    <li>Change gpdb_putProject to call gpdb_mklink_user_to_project</li>
+
+    <li>Renamed siteName and projectName to gpdb_siteName and gpdb_projectName respctively</li>
+
+    <li>Implemented gpdb_siteAdmins. This returns an array of AXIDs who are site admins</li>
+  </ul>
+
+  <li>tables.sql:</li>
+
+  <ul>
+    <li>Added family_uuid and vob_uuid</li>
+  </ul>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:30 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000609.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000607"></a>
+                     <div class="entry" id="entry-607">
+                        <h3 class="entry-header">Nice is not so "nice"</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed gpdb_add_vob.pl to use Rexec.pm in order that it may be able to collect information about vobs from other sites</li>
+</ul>
+                              
+                              <h3>gpdb_add_vob.pl and other sites</h3>
+
+<p>It was hoped that we cout point things to "login servers" instead of machines specifically designated as DesignSync servers as had been the case for gpdb_add_project.pl. These script really only require cleartool and access, through the automount map, to the sync_custom area in order to pick up the SiteRegistry.reg file.</p>
+
+<p>However gpdb_add_vob.pl uses a heuristic in an attempt to determine what project a particular vob is associated with. The heuristic states that the vob storage path will have as part of it's path, a project directory. While this is often, but not always, the case here in Dallas, it is not the case at all in Nice! Thus, even though gpdb_add_vob.pl can log into remote sites to gather information about vobs, when logging into Nice it finds that no vob in Nice adheres to this convention and thus it cannot add vob records for any vob in Nice. Nice had been using vob attributes for things like the AID of the owner of the vob but there is no attribute for the project that a vob is associated with!</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  8:27 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000607.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January  4, 2007</h2>
+                     <a id="a000605"></a>
+                     <div class="entry" id="entry-605">
+                        <h3 class="entry-header">gpdb_add_vob.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed gpdb_getProjectsAtSite to be able to separately return all Clearcase projects, Designsync projects, Clearcase & Designsync projects, projects without Clearcase or Designsync associated with them</li>
+
+  <li>Modified gpdb_add_vob.pl to traverse through all regions of current registry server to collect all vob tags</li>
+
+  <li>Modified clearcase record to include fields for VOB Family uuid and VOB uuid. Also modified gpdb_add_vob.pl to get these uuids</li>
+
+  <li>Investigated Victor's CC Metrics database</li>
+
+  <li>Fixed bug in gpdb_add_vob.pl that was adding clearcase records assigned to the wrong site.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:20 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000605.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January  3, 2007</h2>
+                     <a id="a000606"></a>
+                     <div class="entry" id="entry-606">
+                        <h3 class="entry-header">Site Admins</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed gpdb_convertuk.pl to properly add mapping records for <i>Site Admins</i></li>
+
+  <li>Changed Single Site Display to display <i>Site Admins</i></li>
+
+  <li>Change Single Site Display to include all information from Excel design spreadsheet from Bill. Also tightened up display of cc_defaults</li>
+
+  <li>Added new gpdb_siteForHostname that returns the site for a given hostname. Default is current host. Uses nslookup to retrieve the CNAME for the host</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:27 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000606.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

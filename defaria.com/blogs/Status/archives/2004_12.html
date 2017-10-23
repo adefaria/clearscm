@@ -1,0 +1,770 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: December 2004 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2004_09.html" title="September 2004" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2005_01.html" title="January 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2004_09.html">&laquo; September 2004</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2005_01.html">January 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">December 30, 2004</h2>
+                     <a id="a000267"></a>
+                     <div class="entry" id="entry-267">
+                        <h3 class="entry-header">More documentation</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<p><li>Yet more documenting of Build, Test, Release processes</li></p>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:27 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000267.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 29, 2004</h2>
+                     <a id="a000266"></a>
+                     <div class="entry" id="entry-266">
+                        <h3 class="entry-header">Documentation</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Spent most of the day documenting <a href="http://saturn.lynx.com/build/">Build/Test/Release</a> processes</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:09 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000266.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 28, 2004</h2>
+                     <a id="a000265"></a>
+                     <div class="entry" id="entry-265">
+                        <h3 class="entry-header">Releasing 5.0.0</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Attempting to archive this 5.0.0 build both toolchain and lynxos. Not really sure where everything comes from or goes to</li>
+
+<li>More work on cmptags.pl</li>
+
+</ul>
+                              
+                              <p>Directories, builds, dated directories, etc are all over, spead out between t3, dopey, t-k1g-1, etc.. It's hard to know where things are and where they need to end up. Will look into this tomorrow with Thu</p>
+
+<p>Regarding cmptags.pl, rearranged this to attempt to produce a simple list like:</p>
+
+<pre>
+ECR Number ####
+      path/to/foo.c            1.30
+      path/to/bar.c            1.2.3.1
+</pre>
+
+<p>Unfortunately this appears to be very slow to process. cmptags.pl does not attempt to optimise things only working on files recently updated, rather it goes though all of the files in CVS and generates, parsed and creates data structures for all the CVS info, even that which it's not particularly interested in at the momment so that it can be more generally used. This takes forever with CVS as each file must be found and a cvs log issued and output parsed. Unlike Clearcase there doesn't seemto be a cvs command line prompt so cvs is constantly being invoked (process overhead) and it's always talking to the server (network overhead) and there's a lot of data (tags, revisions, comments, etc) to be processed. Clearly CVS has not been optimized for this sort of access.</p>
+
+<p>Not sure how or if this can be optimized any further. It's a shame because I'm almost at the point where I can ask "Show me the files and version numbers for the following ECR's" which is something I know I'm gonna need quickly here for the impending build note that needs to be created.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:05 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000265.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 27, 2004</h2>
+                     <a id="a000264"></a>
+                     <div class="entry" id="entry-264">
+                        <h3 class="entry-header">Fix Copyright, native 3.2.2/5.0.0 build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Modified fix_copyright.pl to take into account the situation where the LynuxWork copyright is contained inside a comment block with another company's copyright.</li>
+
+<li>Was able to build 3.2.2/5.0.0 toolchain natively by booking to the ide.0c partition</li>
+
+<li>Build of non-development los178 is successful with expected errors</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  9:36 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000264.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 22, 2004</h2>
+                     <a id="a000263"></a>
+                     <div class="entry" id="entry-263">
+                        <h3 class="entry-header">los178 build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Finished los178 build of sources with fixed copyrights!</li>
+
+<li>Still an error with the non development build of los178 :-(</li>
+
+<li>Made more progress on cmptags.pl (a Perl script to compare and report on the difference in terms of revisions and associated ECRs, authors and dates between two tags in CVS)</li>
+
+</ul>
+                              
+                              <p>First I obtained the latest TOT for los178 - apparently they are still fixing things. This makes it imperative that fix_copyright.pl work flawlessly. Was able to build los178 from old, unmodified sources thus I know I'm starting from a good set of sources.</p>
+
+<p>Next was to run fix_copyright.pl and attempt a compile. This time, instead of just hand editing the files I examined the file in question and why fix_copyright.pl failed in this case. Then fix fix_copyright.pl and repeat.</p>
+
+<p>One problem was that some files have MS-DOS line endings. Fixed this by removing such line endings and making them standard Unix line endings.</p>
+
+<p>Next some files ended the comment block with */ and then some additional spaces. This was fixed by not attempting to anchor the end comment block match with the end of the line (i.e. $).</p>
+
+<p>Injected these actual two or three files back into the build process until it built.</p>
+
+<p>For safety's sake I then destroyed my build area and recreated from scratch with cvs update -C then running fix_copyright.pl again and bringing that over to grumpy.</p>
+
+<p>WRT cmptags.pl, made some more progress parsing cvs log info...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:28 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000263.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 21, 2004</h2>
+                     <a id="a000262"></a>
+                     <div class="entry" id="entry-262">
+                        <h3 class="entry-header">Fixing fix_copyright.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Decided to improve fix_copyright.pl. If two copyrights appear in a single copyright block it now just leaves that copyright intact.</li>
+
+<li>Attempted rebuild of los178 and working out problems</li>
+
+<li>Developing a better CVS report Perl script</li>
+
+</li> 
+                              
+                              <p>Generally these copyright blocks with two copyrights are of the form described yesterday, with a single copyright line added for LynuxWorks. Such files will not be modified</p>
+
+<p>Need to work out remaing los178 build problem and make fix_copyright handle them too.</p>
+
+<p>Tried to get a Perl CVS module instead of coding it myself - seems there are no complete Perl CVS modules on CPAN!</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:18 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000262.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 20, 2004</h2>
+                     <a id="a000261"></a>
+                     <div class="entry" id="entry-261">
+                        <h3 class="entry-header">Improving fix_copyright.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Still unable to build 3.2.2/5.0.0 natively</li>
+
+<li>Worked on improving algorithm for copyright replacement</li>
+
+</ul>
+                              
+                              <p>I'm finding it very difficult to develop a hueristic algorithm to find what I call "LynuxWorks copyright blocks" in existing source files. The problem is that the input data is not necessarily consistant. Sure we can go for the 80% fix and hand fix the rest (in fact, that's what I did before) however those 20% often cause compiler errors during the build. What's potential worse is that it is possible that some files will be altered in such a way as to not produce a compiler error but rather to change behavior of the resulting code.</p>
+
+<p>My current algorithm attempts to do the following:</p>
+
+<ul>
+  <li>Locate the start of a C comment (i.e. "/*"). This comment must be at the beginning of the line (for now I am not considering inline comments as the chances of these containing a bona fide copyright statement is unlikely).</il>
+
+  <li>Scan until the enclosing end comment (i.e. "*/"). Again this must appear at the end of a line ($).</li>
+
+  <li>Take those lines and examine them for the works "(C) Copyright" and "LynuxWorks" (additionally I found some files that had "LynuxWork,").</li>
+
+  <li>If found then the comment block it throw out (to be replaced by the new, more consistent copyright block.</li>
+
+</ul>
+
+<p>Currently the "official" copyright block is of the form:</p>
+
+<div class="code">
+<pre>
+    /* vi: ts=4 sw=4
+    *************************************************************
+    (C) Copyright $copy
+    LynuxWorks, Inc.
+    San Jose, CA
+    All rights reserved.
+
+    $Date: $Date$
+    $Revision: $Revision$
+    $Source: $Source$
+    ************************************************************/
+</pre>
+</div>
+
+<p>The "$copy" is replaced by the copyright date found in the file. Dates of the form <year> are changed to <year>-<current year> (unless <year> == <current year>. Dates of the form <year1>, <year2>, <year3> are changed to <year1>-<curernt year>. In order to make finding such copyright information eaiser in the future I would suggest changing the above format to:</p>
+
+<div class="code">
+<pre>
+    /* Start Copyright ******************************************
+    vi: ts=4 sw=4
+    (C) Copyright $copy LynuxWorks, Inc.
+    San Jose, CA
+    All rights reserved.
+
+    $Date: $Date$
+    $Revision: $Revision$
+    $Source: $Source$
+    * End Copyright *********************************************/
+</pre>
+</div>
+
+<p>This would 1) retain the "vi: ts=4 sw=4" annotation that I assume is for vi users, 2) group both the copyright string ("(C) Copyright") along with the company name of LynuxWorks on the same line. This makes it easier to grep for in the future considering some files have Rockwell copyrights. 3) Clearly delineates the start and stop of the copyright block.</p>
+
+<p>The problems that I'm having is that I'm seeing copyright blocks of the following forms:</p>
+
+<div class="code">
+<pre>  /************************************************************
+    (C) Copyright 1987-2000
+    Lynx Real-Time Systems, Inc.
+    San Jose, CA
+    All rights reserved.
+
+    $Date: 2003/11/14 22:44:44 $
+    $Revision: 1.1 $
+    ************************************************************/
+</pre>
+</div>
+
+<p>(Does not contain LynuxWorks, rather Lynx Real-Time Systems)</p>
+
+<div class="code">
+<pre>
+    /*
+    .FP
+    ***********************************************************************
+     Revision History
+     See ClearCase
+     Version:
+    ***********************************************************************
+    *
+    * EXPORT NOTICE:
+    *
+    *   INFORMATION SUBJECT TO EXPORT CONTROL LAWS
+    *
+    * Subject to local country rules and laws when applicable, you
+    * must comply with the following:
+    *
+    * These commodities, technology, or software were exported from
+    * the United States in accordance with the Export Administration
+    * Regulations.  Diversion contrary to U. S. law and other relevant
+    * export controls is prohibited.   They may not be re-exported to
+    * any of the following destinations without authorization; Cuba,
+    * Iran, Iraq, Libya, North Korea, Sudan or any other country to
+    * which shipment is prohibited; nor to end-use(r)s involved in
+    * chemical, biological, nuclear, or missile weapons activity.
+    *
+    * COPYRIGHT NOTICE:
+    *   (C) Copyright 2001 Rockwell Collins, Inc.  All rights reserved.
+    *
+    * FILE NAME:
+    *   df.c
+    *
+    * PURPOSE:
+    *   utility to display disk usage
+    *
+    * NOTES:
+    *
+    * ABBREVIATIONS/ACRONYMS:
+    *
+    *****************************************************************
+    .FP END
+    */
+    /************************************************************
+    (C) Copyright 1987-1996
+    Lynx Real-Time Systems, Inc.
+    San Jose, CA
+    All rights reserved.
+
+    $Date: 2003/09/10 15:24:57 $
+    $Revision: 1.1.1.1 $
+    ************************************************************/
+</pre>
+</div>
+
+<p>Contains multiple "(C) Copyright" strings, one being ours and the other being Rockwell's. Should both exist in the resultant file?</p>
+
+<div class="code">
+<pre>
+    /*
+    .FP
+     **********************************************************************
+     *
+     * FILE NAME:
+     *   hm_load_header.c
+     *
+     * PURPOSE:
+     *    Performs the integrity check of the program and data files
+     *    in the CPR read only file system.
+     *
+     * ABBREVIATIONS/ACRONYMS: (optional)
+     *
+     * NOTES: none
+     *
+     * COPYRIGHT NOTICE:
+     *   (C) Copyright 2001-2002 Rockwell Collins, Inc.  All rights reserved.
+     *       Proprietary and confidential material.  Distribution,
+     *       use, and disclosure restricted by Rockwell Collins, Inc.
+     *    Copyright (c) 2003-2004, LynuxWorks, Inc. All Rights Reserved.
+     *
+     ***********************************************************************
+    .FP END
+    */
+</pre>
+</div>
+
+<p>Contains multiple "(C) Copyright" strings, one being ours and the other being Rockwells, in the same comment block! Also notice the inconsistant form of one bying "(C) Copyright" while the other being "Copyright (C)". How should this case be handled?</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000261.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 17, 2004</h2>
+                     <a id="a000260"></a>
+                     <div class="entry" id="entry-260">
+                        <h3 class="entry-header">LOS178 Build/5.0.0 native toolchain build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>LOS178 build after copyright fix builds with 12 errors. Test build of LOS178 without copyright fix also builds with 12 errors!</li>
+
+<li>Building of 5.0.0 toolchain natively is failing</li>
+
+</ul>
+                              
+                              <h3>LOS178 copyright fix</h3>
+
+<p>The Perl script to fix the copyrights in LOS178 sources needs detect if there was a prior copyright block and replace it if necessary. Finding old copyright blocks is hueristic in nature and thus fallable. The problem is there are no sentenals clearly marking our copyright. The best the script can do is attempt to find a comment block that starts and ends with a particular comment line based on the "/" and a number of "*"'s for the start and a number of "*"'s and a "/" for the end. Problem is we do not know if what's inbetween is really our copyright. The hueristic can be tuned finer with some difficulty but currently it does not.</p>
+
+<p>The real difficulty is that there is no real standard in our copyright blocks thus it is hard to get this right</p>
+
+<p>As it stands the script occasionally misinterprets a comment block, sometimes just the ending comment block, and alters the file in such a way that it introduces compile errors.</p>
+
+<p>There were a number of files that this occurred in and they were hand edited</p>
+
+<h3>5.0.0 Native Toolchain Build</h3>
+
+<p>In picking up ECR 23084 I was able to build the toolchain for both cross x86 and ppc. In building the native toolchain there is an error:</p>
+
+<pre>
+Configuring texinfo...
+configure: error: invalid package name: gcc-version-trigger
+Configure in /mnt/toolchain/build-i386/texinfo failed, exiting.
+make: *** [stamp-configure-i386] Error 1
+</pre>
+
+<p>Thu says that I didn't run fixup.sh but I did. The toolchain does not package up fixup.sh so I grabbed one from somewhere. Thu suggests that we file an ECR for this and fix the Makefile.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:38 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000260.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 16, 2004</h2>
+                     <a id="a000259"></a>
+                     <div class="entry" id="entry-259">
+                        <h3 class="entry-header">LOS178 & ECR 23084</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Wrote a Perl script to fix up copyrights on LynxOS (178). Working on running that and getting the build to work</li>
+
+<li>Pulled ECR 23084 and built toolchain for x86 & ppc. Need to build native</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  9:24 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000259.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 14, 2004</h2>
+                     <a id="a000258"></a>
+                     <div class="entry" id="entry-258">
+                        <h3 class="entry-header">ECRs 23079 & 23080</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Submitted ECR: 23079: PPC: target elf32-powerpc-lynx not found</li>
+
+<li>Submitted ECR: 23080: OUTPUT_FORMAT directive should  be adjusted to elf32-powerpc-lynx</li>
+
+</ul>
+                              
+                              <p>Thu determined that we have a toolchain problem here so she had me submit ECR 23079. Adam debugged the problem which produced 23080</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000258.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 13, 2004</h2>
+                     <a id="a000257"></a>
+                     <div class="entry" id="entry-257">
+                        <h3 class="entry-header">Rebuilding PPC</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Rebuilding for the PPC. I messed up a step or two</li>
+
+</ul>
+                              
+                              <h2>Building cross lynxos for PPC</h2>
+
+<ul>
+
+<li>Cleaned up by removing the ppc directories (i.e. starting from scratch WRT the ppc)</li>
+
+<li>Linked /usr/lynx/5.0.0 -> /export/build1/LYNXOS_500/build/lynxos/120604-A</li>
+
+<li>In /export/build1/LYNXOS_500/build/lynxos/120604-A/int_tools modified START to change steps_ppc to just 1 and 2. We're gonna take this slowly.</li>
+
+<li>Made sure that __profile.exp points to 120604-A. It still does, from before. There are a lot of settings in here that sometimes need to change depending on the situation. For example, right now the TOP_OF_TRUNK variable is set to no but it is usually set to yes.</li>
+
+<li>Execute START and then tail -f LOGS/ppc.log.</li>
+
+<li>Checked out with "check ppc". Seems OK.</li>
+
+<li>Changed START to do steps 3 and 4. I think I could have done 1, 2, 3 and 4 together but Thu only wrote down 1 and 2</li>
+
+<li>Checked again with check ppc. Still seems fine</li>
+
+<li>Changed START to do steps 5en 5el 7 9 14 15 16 (17 doesn't work yet so why do it?) <font color="red"><b>Failure:</b></font> got:<br>
+
+<blockquote>
+Failure reason : Compiler does not exist: /export/dev_archive/lynxos/tools-5.0.0/3.2.2-072304/toolchain-powerpc-lynx-lynxos-ppc.tar.gz
+</blockquote>
+
+Ah ha! See this is one of those things that just confuses me. Contained in __profile.exp there's:
+
+<tt><pre>
+                                                        # compiler binary
+#set DIR_PATH(compilers) "/usr/lynx/t3/dev_archive/lynxos/tools-5.0.0/3.2.2-072304"
+set DIR_PATH(compilers) "/export/dev_archive/lynxos/tools-5.0.0/3.2.2-072304"
+</pre></tt>
+
+ need to uncomment the first line and comment out the second line.</li>
+
+<li>After making the above change I reran START. Errors in makeall.log</li>
+
+</ul>
+
+<h2>Build ppc toolchain</h2>
+
+<p>Thu said that the error sin makeall.log were acceptable. Continuing on to build the ppc toolchain...</p>
+
+<ul>
+
+<li>cd /usr/lynx/5.0.0/ppc (note that /usr/lynx/5.0.0 still points to 120604-A)</li>
+
+<li>Ran . SETUP.bash setting ENV_PREFIX to cwd, target = ppc. which gcc yeilds /usr/lynx/5.0.0/ppc/cdk/linux-elf-ppc/bin/gcc</li>
+
+<li>Toolchain is in /export/build1/LYNXOS_500/build/toolchain/3.2.2/120804 so cd'ed there</li>
+
+<li>make install > install-ppc.log 2>&1 &</li>
+
+<li>Toolchain seemed to build OK this time. Archived toolchain by doing make package then moving toolchain-i686-pc-linux-gnu-powerpc.tar.gz to       /usr/lynx/t3/dev_archive/lynxos/tools-5.0.0/3.2.2-120604. This is a little tricky because this path is a link to a mount on t3 and as such is considered a read only file system. The following worked for me, in /export/build1/LYNXOS_500/build/toolchain/3.2.2/120804:</li>
+
+<tt><pre>
+$ rcp toolchain-i686-pc-linux-gnu-powerpc.tar.gz int@t3:/export/dev_archive/lynxos/tools-5.0.0/3.2.2-120604
+</pre></tt>
+
+</ul>
+
+<h2>Building cross lynxos for PPC (again)</h2>
+
+<ul>
+
+<li>Linked /usr/lynx/5.0.0 -> /export/build1/LYNXOS_500/build/lynxos/120604-B</li>
+
+<li>In /export/build1/LYNXOS_500/build/lynxos/120604-B/int_tools modified START to change steps_ppc to for 1, 2, 3 and 4.</li>
+
+<li>Execute START and then tail -f LOGS/ppc.log. Steps 1-4 seemed to have worked OK</li>
+
+<li>Looked at __profile.exp and found
+
+<tt><pre>set DIR_PATH(compilers) "/usr/lynx/t3/dev_archive/lynxos/tools-5.0.0/3.2.2-120604"
+</pre></tt>
+
+The compiler exists there (because of the archiving step above). Note there was no t3 style reference here.</li>
+
+<li>Ran START again and monitored logs... Errors stating "gcc: installation problem, cannot exec `cc1': No such file or directory"</li>
+
+</ul>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:40 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000257.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 10, 2004</h2>
+                     <a id="a000256"></a>
+                     <div class="entry" id="entry-256">
+                        <h3 class="entry-header">Building 5.0.0 ppc cross toolchain</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Built 5.0.0 ppc cross toolchain - looking for ppc to build native</li>
+
+<li>Rebuilding 5.0.0 ppc using previous toolchain (having problems)</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:06 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000256.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December  9, 2004</h2>
+                     <a id="a000255"></a>
+                     <div class="entry" id="entry-255">
+                        <h3 class="entry-header">Building 5.0.0 for ppc</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Built 5.0.0 for ppc</li>
+
+<li>Studying CVS</li>
+
+</ul>
+                              
+                              <p>I was under a mistaken assumption that I needed to have a PPC machine in order to do this and was waiting for one. Thu informed me that I could build 5.0.0 for cross and even rebuild the toolchain cross - that I wouldn't need a ppc machine until I needed to build a native gcc.</p>
+
+<p>Building for ppc takes a long time as our ppc machines are slow and there's a lot more to build for ppc.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:04 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000255.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December  8, 2004</h2>
+                     <a id="a000254"></a>
+                     <div class="entry" id="entry-254">
+                        <h3 class="entry-header">Booting 5.0.0 LynxOS</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Used loadit.exp to run ATS of for this new 5.0.0 LynxOS
+
+</ul>
+                              
+                              <p>Failed to get loadit.exp to work. Seems that it is oriented to getting the images off of t3. But I didn't put this new images on T3 yet. Seems there's some rync process that Thu flew by me and I missed.</p>
+
+<p><b>Note:</b> loadit.exp <b>requires</b> a working network connection to the System Under Test! When last we left t-k1g-1 it was booted to lynxos with non-working networking. loadit.exp sits and waits at an rcp command and the SUT never responds!</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:37 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000254.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December  7, 2004</h2>
+                     <a id="a000253"></a>
+                     <div class="entry" id="entry-253">
+                        <h3 class="entry-header">Building 5.0.0 TOT toolchain</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Built 3.2.2 toolchain natively on Lynxos 5.0.0</li>
+
+</ul>
+                              
+                              <p>Came in to find that the native build of the 5.0 toolchain went nowhere. Seems, as I expected, that I need to unpack 18010.x11r6.tar.gz and 18011.pd.tar.gz too. Unpacked that and restarted build.<p>
+
+<p>Build failed again, this time <i>Memory Exhausted</i>. I had to do <tt>ulimit -s -d 1000000</tt> and restart build</p>
+
+<p>Build finally succeeded. Did make package then copied to t3 area (to be precise <tt>t3:/export/dev_archive/lynxos/tools-5.0.0/3.2.2-120604</tt>). Only needed to copy over the <tt>toolchain-i386-lynx-lynxos-i386.tar.gz</tt> as this package is the 5.0.0 toolchain built natively</p>
+
+<p>Created a new build area on dopey @ <tt>/export/build1/LYNXOS_500/build/lynxos/120604-C</tt>. Needed to copy over int_tools and modify <tt>int_tools/__profile.exp</tt> to:
+
+<ol>
+
+<li>Change <tt>DIR_PATH(archive)</tt> back to dopey (it was at t3 for 120604-B) </li>
+
+<li>Change <tt>int_tools/EXP_LIB/steps.exp</tt> to use gnuaout instead of gnu in the name of the package. There is a little debate of which way this should go</li>
+
+</ol>
+
+<p><b>Note:</b> I find all of these different machines with different long pathnames confusing. For example, I would think using the principal of separation of code and data that the <i>int_tools</i> code should be globally accessible and that one should not be modifying variable contents before running scripts. That's data and should either have to be supplied or kept in a data file perhaps separate for each build run. IOW <i>int_tools</i> should be globally visable (perhaps in one's PATH) and execuable as code and not modified per run. Also, as such it should in CVS and perhaps grabbed from CVS with an official TAG.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:54 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000253.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December  6, 2004</h2>
+                     <a id="a000252"></a>
+                     <div class="entry" id="entry-252">
+                        <h3 class="entry-header">Building LynxOS with gcc 3.2.2</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<p><li>Build 3.2.2 toolchain successfully</li></p>
+
+</ul>
+
+                              
+                              <p>Managed to build the toolchain (gcc 3.2.2) successfully. We had to first build LynxOS then build the compiler then build LynxOS again. Confusing indeed. Lot's of paths and scripts. I'm still not totally comfortable with the environment, how to build, native vs. cross, toolchain vs. LynxOS, CVS top of trunk, etc.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:01 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000252.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+#!/bin/bash
+################################################################################
+#
+# File:         setup_cron
+# Description:  This script sets up Cygwin's cron on the local machine
+# Author:       Andrew@DeFaria.com
+# Created:      <date>
+# Language:     Bash Shell
+# Modifications:<modifications>
+#
+# (c) Copyright 2002, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+# Make sure that certain directories and files do not exist! This is to let
+# cron create them, which appears to be the only way to get these created
+# correctly! 
+if [ ! -d /var/cron ]; then
+  rm -rf /var/cron
+  rm -rf /var/run/cron.pid
+  rm -rf /var/log/cron.log
+
+  # Install cron service:
+  cygrunsrv -I cron -p /usr/sbin/cron -a -D -d "Cygwin cron" -e "MAILTO=$USER@Salira.com" -e "CYGWIN=ntsec"
+fi
+
+# Start cron service
+cygrunsrv -S cron

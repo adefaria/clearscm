@@ -1,0 +1,146 @@
+#!/bin/bash
+################################################################################
+#
+# File:         files4bug
+# Description:  Displays the files related to a bug ID
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Jun 11 13:22:11 PDT 2003
+# Language:     Bash Shell
+# Modifications:06/17/2003 AD: Changed 2310_onu -> onu2310 as the card directory
+#		has changed. Also added -to and -cc options.
+#
+# (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath="${adm_fpath:-$adm_base/functions}"
+
+# Source functions
+. "$adm_fpath/common"
+
+function usage {
+  display "$me: [ -view <viewtag> ] <bugid> [<bugid>]"
+  display
+  display "Where:"
+  display
+  display "\t-view\tView path to use (default $SITE_OFFICIAL_VIEW)"
+  display "\t<bugid>\tBug ID(s) to search for"
+ 
+  exit 1
+} # usage
+
+function cleanup {
+  debug "ENTER cleanup"
+  rm -f /tmp/$me.$$
+  debug "EXIT cleanup"
+  exit
+} # cleanup
+
+trap cleanup INT EXIT ERR
+
+# Get parameters                                                                
+view_path=""
+bugs=""
+while (($# > 0)); do
+  case "$1" in
+      -usage)
+        usage
+      ;;
+
+      -v|-verbose)
+        verbose=yes
+      ;;                                                                        
+
+      -d|-debug)
+        debug=yes
+      ;;                                                                        
+
+      -view)
+        shift
+	view_path="$1"
+      ;;
+
+      *)
+        bugs="$bugs $1"
+      ;;
+  esac
+  shift
+done
+
+if [ -z "$view_path" ]; then
+  vob="$SITE_SNAPSHOT_VIEW_PATH/$SITE_OFFICIAL_VIEW/salira"
+  view_name="$SITE_OFFICIAL_VIEW"
+else
+  vob="$view_path/salira"
+fi
+
+cd $vob > /dev/null 2>&1
+
+if (($? != 0)); then
+  error "Unable to cd to $vob" 1
+fi
+
+if [ -z "$view_name" ]; then
+  view_name=$(cleartool pwv -short)
+fi
+
+for bug in $bugs; do
+  # Check for bug IDs supplied as numbers only. Prepend "BUGS2" and 
+  # number of required zeros to make bug ID. IOW you can specify "7"
+  # or BUGS200000007 but not "BUGS07", etc
+  if ((${#bug} < 13)); then
+    declare -i len=13-${#bug}
+    if (($len < 5)); then
+      # Can't even prepend "BUGS2"!
+      display "Invalid bug id \"$bug\" encounterd - skipping..."
+      continue
+    else
+      bugid="BUGS2"
+      declare -i zeros=len-5
+      while (($zeros > 0)); do
+        bugid="${bugid}0"
+	((zeros--))
+      done
+      newbug=$bugid$bug
+      declare -i nbr=${newbug:4}
+      declare str=${newbug:4}
+      if [ $nbr != $str ]; then
+        warning "Invalid bug ID encountered: $bug"
+        continue
+      fi
+      bug=$newbug
+    fi
+  fi
+
+  display "Files involved in bug ID $bug:"
+  cleartool find -all -version "lbtype($bug)" -print | tr "\\\\" "/" >/tmp/$me.$$
+
+  declare -i i=0
+
+  while read element_version; do
+    ((i++))
+    # Chop off leading view path
+    element_version=$(echo ${element_version##*$view_name})
+    # Extract element portion
+    element=$(echo $element_version | cut -f1 -d@)
+    # Extract version portion
+    version=$(echo $element_version | cut -f3 -d@)
+    display "\t$element\t$version"
+  done < /tmp/$me.$$
+
+  if (($i == 0)); then
+    display "No files involved in bug ID $bug"
+  elif [ $i -eq 1 ]; then
+    display "1 file involved in bug ID $bug"
+  else
+    display "$i files involved in bug ID $bug"
+  fi
+done 
+
+cleanup

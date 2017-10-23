@@ -1,0 +1,13 @@
+/net -hosts                             -intr
+/- /etc/auto.direct                     -intr
+/home auto.home                         -intr
+/proj auto.proj                         -intr
+/test auto.test                         -intr
+/vbs/Components auto.vbs.components     -intr
+/vbs/Products auto.vbs.products         -intr
+/vbs/Tests auto.vbs.tests               -intr
+/vbs/Tdtests auto.vbs.tdtests           -intr
+/vbs/Misc auto.vbs.misc                 -intr
+/vbs/ux auto.vbs.ux                     -intr
+/vws auto.vws                           -intr
+/vws_backups auto.view_backups          -intr

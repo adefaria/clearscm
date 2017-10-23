@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Code Page/rgy_switchover</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000431.html" title="Clearquest Code Pages" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000435.html" title="Clearcase Deliver problem" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000431.html">&laquo; Clearquest Code Pages</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000435.html">Clearcase Deliver problem &raquo;</a>
+                     </p>
+
+                     <a id="a000432"></a>
+                     <div class="entry" id="entry-432">
+                        <h3 class="entry-header">Code Page/rgy_switchover</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked more on detecting and report invalid ASCII characters in PQA databases</li>
+
+  <li>Working with IBM Rational Support regarding rgy_switchover</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Code Page</h3>
+
+<p>Managed to get the non ASCII characters in the databases down to a handful of cases and implement a "fix_char" routine. The basic mapping turns out to be:</p.
+
+<div class="code"><pre>
+# Translate from special char -> ASCII
+my %char_mapping = (
+  "ffffff85"	=> "_",
+  "ffffff91"	=> "\'",
+  "ffffff92"	=> "\'",
+  "ffffff93"	=> "\"",
+  "ffffff94"	=> "\"",
+  "ffffff96"	=> "-",
+#  "ffffffa2"	=>
+#  "ffffffae"	=>
+  "ffffffb7"	=> "\."
+#  "ffffffbd"	=> "1/2",
+#  "ffffffe7"	=> ???
+);
+</pre></div>
+
+<p>The commented out lines represent characters I have not be able to determine the ASCII equivalents, except the 1/2 which is a 1/2 in one character. In order to translate the one character 1/2 to the 3 character 1/2 I would need to expand the array. I have not done this yet.</p>
+
+<h3>PMR#59845,999,000 backup rgy switchover not working on Windows clients</h3>
+
+<p>Steven Chaves wrote:</p>
+
+<blockquote><p>Andrew,</p>
+
+<p>During the tech session, other TSEs did say that rgy_switchover does not always work. For DNS resolution, running:  ipconfig /release and then afterwards ipconfig /renew usually works, but this would have to be done on each client. Can you give the servers fixed IP addresses.</p></blockquote>
+
+<p>There still seems to be some confusion here. I will attempt to be explicit here.</p>
+
+<p>I realize that rgy_switchover will not always work 100%. Client machines may be down, etc. However what I'm seeing is that rgy_switchover never works - or at least never works with any of the Windows client  machines who has their IP address assigned via DHCP and who's Windows machine name (WINS name) != Unix DNS CNAME.</p>
+
+<p>Here's the situation. There are two Unix Solaris boxes: ccase-sj1-3 (10.16.191.241) and ccase-sj1-4 (10.16.191.243). Both are servers and have statically assigned IP addresses.</p>
+
+<p>There are just a few Windows clients in this test scenario, mostly laptops. All fail. All have DHCP assigned IP addresses and Windows computer names that are not the same as DNS. Let's use my laptop as an example: ltsjca-adefaria (10.16.191.243) is it's name. It's a Windows XP box, is a laptop yet remains docked at my desk.</p>
+
+<p>When the rgy_switchover command was run from ccase-sj1-3 to switch over to ccase-sj1-4 both ccase-sj1-3 and ccase-sj1-4 became aware of the change and switched over. None (i.e. 0) of the other clients (all DHCP assigned Windows boxes) failed, including my laptop (who's IP address, BTW, had not changed).</p>
+
+<p>Investigating I find that I can nslookup and ping ccase-sj1-3 and ccase-sj1-4 from my laptop, ltsjca-adefaria</p>
+
+<div class="code"><pre>
+    <font color="blue"><b>Local:</b></font><u>nslookup ccase-sj1-3</u>
+    Server:  dns-sj1-1b.sj.broadcom.com
+    Address:  10.16.64.11
+
+    Name:    ccase-sj1-3.sj.broadcom.com
+    Address:  10.16.191.241
+    Aliases:  ccase-sj1-3.broadcom.com
+
+    <font color="blue"><b>Local:</b></font><u>nslookup ccase-sj1-4</u>
+    Server:  dns-sj1-1b.sj.broadcom.com
+    Address:  10.16.64.11
+
+    Name:    ccase-sj1-4.sj.broadcom.com
+    Address:  10.16.191.243
+    Aliases:  ccase-sj1-4.broadcom.com
+    <font color="blue"><b>Local:</b></font><u>ping ccase-sj1-3</u>
+    Pinging ccase-sj1-3.sj.broadcom.com [10.16.191.241] with 32 bytes of data:
+
+    Reply from 10.16.191.241: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.241: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.241: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.241: bytes=32 time<1ms TTL=254
+
+    Ping statistics for 10.16.191.241:
+        Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+        Minimum = 0ms, Maximum = 0ms, Average = 0ms
+    <font color="blue"><b>Local:</b></font><u>ping ccase-sj1-4</u>
+    Pinging ccase-sj1-4.sj.broadcom.com [10.16.191.243] with 32 bytes of data:
+
+    Reply from 10.16.191.243: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.243: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.243: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.243: bytes=32 time<1ms TTL=254
+
+    Ping statistics for 10.16.191.243:
+        Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+        Minimum = 0ms, Maximum = 0ms, Average = 0ms
+</pre></div>
+
+<p>I can ping my laptop by name but I cannot nslookup it:</p>
+
+<div class="code"><pre>
+    <font color="blue"><b>Local:</b></font><u>ping ltsjca-adefaria</u>
+    Pinging LTSJCA-ADEFARIA.corp.ad.broadcom.com [10.16.65.94] with 32 bytes of data:
+
+    Reply from 10.16.65.94: bytes=32 time<1ms TTL=64
+    Reply from 10.16.65.94: bytes=32 time<1ms TTL=64
+    Reply from 10.16.65.94: bytes=32 time<1ms TTL=64
+    Reply from 10.16.65.94: bytes=32 time<1ms TTL=64
+
+    Ping statistics for 10.16.65.94:
+        Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+        Minimum = 0ms, Maximum = 0ms, Average = 0ms
+    <font color="blue"><b>Local:</b></font><u>nslookup ltsjca-adefaria</u>
+    *** dns-sj1-1b.sj.broadcom.com can't find ltsjca-adefaria: Non-existent domain
+    Server:  dns-sj1-1b.sj.broadcom.com
+    Address:  10.16.64.11
+</pre></div>
+
+<p>From the Solaris boxes (either ccase-sj1-3 or ccase-sj1-4) I cannot nslookup nor ping ltsjca-adefaria by name:</p>
+
+<div class="code"><pre>
+    <font color="red"><b>ccase-sj1-3:</b></font><u>nslookup ltsjca-adefaria</u>
+    Server:  dns-sj1-1c.sj.broadcom.com
+    Address:  10.16.128.11
+
+    *** dns-sj1-1c.sj.broadcom.com can't find ltsjca-adefaria: Non-existent host/domain
+    ccase-sj1-3:ping ltsjca-adefaria
+    ping: unknown host ltsjca-adefaria
+    ccase-sj1-3:
+</pre></div>
+
+<p>I can ping by IP address:</p>
+
+<div class="code"><pre>
+    <font color="red"><b>ccase-sj1-3:</b></font><u>ping 10.16.65.94</u>
+    10.16.65.94 is alive
+</pre></div>
+
+<p>However the Solaris boxes (nor the laptop it seems) can resolve the name ltsjca-adefaria to an IP address:</p>
+
+<div class="code"><pre>
+    <font color="red"><b>ccase-sj1-3:</b></font><u>nslookup ltsjca-adefaria</u>
+    Server:  dns-sj1-1c.sj.broadcom.com
+    Address:  10.16.128.11
+
+    *** dns-sj1-1c.sj.broadcom.com can't find ltsjca-adefaria: Non-existent host/domain
+</pre></div>
+
+<p>Finally a nslookup by IP address yields the following:</p>
+
+<div class="code"><pre>
+    <font color="red"><b>ccase-sj1-3:</b></font><u>nslookup 10.16.65.94</u>
+    Server:  dns-sj1-1c.sj.broadcom.com
+    Address:  10.16.128.11
+
+    Name:    dhcpe1-sj1-094.sj.broadcom.com
+    Address:  10.16.65.94
+</pre></div>
+
+<p>Thus showing that the DNS CNAME for 10.16.65.94 is dhcpe1-sj1-094.sj.broadcom.com not ltsjca-adefaria.</p>
+
+<p>If I cannot translate ltsjca-adefaria to an IP address for ping then how is rgy_switchover gonna do it?</p>
+
+<p>Now assuming that it's prevalent or common here at my client's site to have Windows clients with DHCP assigned addresses who's Windows machine names do not resolve in DNS and assuming that if the client name does not resolve in DNS then rgy_switchover fails, can it be said that rgy_switchover is relatively useless given this enviornment?</p>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 27, 2005  2:08 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000432.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

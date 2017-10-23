@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: April  8, 2007 - April 14, 2007 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2007_03_25.html" title="March 25, 2007 - March 31, 2007" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2007_04_15.html" title="April 15, 2007 - April 21, 2007" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2007_03_25.html">&laquo; March 25, 2007 - March 31, 2007</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2007_04_15.html">April 15, 2007 - April 21, 2007 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_04_08.html#entry-000631"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/20"
+    dc:title="Deleting Site Domains"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_04_08.html#entry-000631"
+    dc:subject="Texas Instruments"
+    dc:description=" Implemented gpdb_deleteSiteDomain..."
+    dc:creator=""
+    dc:date="2007-04-13T21:44:25-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">April 13, 2007</h2>
+                     <a id="a000631"></a>
+                     <div class="entry" id="entry-631">
+                        <h3 class="entry-header">Deleting Site Domains</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Implemented gpdb_deleteSiteDomain</li>
+</ul>
+                              
+                              <p>As we know, in GPDB there's very little in the realm of editing or validating of data. We've seen this with IP ranges where we let any old data in, including invalid IP ranges (let along the fact that the whole concept of IP ranges identifying sites is flawed to start with).</p>
+
+<p>But as we can also see a site may have multiple domains (e.g. Dallas has many).</p>
+
+<p>Site domains are implemented as their own table with the Site ID as the key and the "extended fields" of domain, IP range lower and upper being the data files.<p>
+
+<div class=code><pre>
+-- site_domain_map: Table to map multiple domains to sites
+create table site_domain_map (
+  id                number      (10)    not null,
+  domain            varchar2    (256)   not null,
+  ip_range_lower    varchar2    (15),
+  ip_range_upper    varchar2    (15),
+  foreign key (id) references sites (id)
+);
+</pre></div>
+
+<p>But nothing stops the user or worse yet, a script, from adding more than one site domain that is exactly identical! So we can have, for example, two site domains for Dallas that have the domain name of "dal.design.ti.com".</p>
+
+<p>As if that is not enough a real problem come when one attempts to delete. Let's say somebody added a second "dal.design.ti.com" Site Domain, notices the mistake and wants to delete the extra one.</p>
+
+<p>Currently the code deletes site_domain_map entries using the following SQL statement:</p>
+
+<div class=code><pre>
+DELETE FROM SITE_DOMAIN_MAP WHERE ID = 1000007 AND DOMAIN = 'dal.design.ti.com';
+</pre></div>
+
+<p>This would delete both dal.design.ti.com entries, not just one.</p>
+
+<p>I think the answer is to implement some validation such that people cannot add a second Site Domain of the same Domain name. Of course, this leaves the question is it considered legal to have two dal.design.ti.com Site Domains with different IP ranges. Which brings up the idea of validating not only a single IP range, but that no IP ranges overlap!</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  9:44 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000631.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000631.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_04_08.html#entry-000630"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/19"
+    dc:title="testcc.pl"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_04_08.html#entry-000630"
+    dc:subject="Texas Instruments"
+    dc:description=" Created testcc.pl. This script creates a test vob, test view, makes elements, checks them in, out, modifies them, checks them in again and compares! Basic Clearcase sanity testing......"
+    dc:creator=""
+    dc:date="2007-04-10T17:53:20-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">April 10, 2007</h2>
+                     <a id="a000630"></a>
+                     <div class="entry" id="entry-630">
+                        <h3 class="entry-header">testcc.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created testcc.pl. This script creates a test vob, test view, makes elements, checks them in, out, modifies them, checks them in again and compares! Basic Clearcase sanity testing...</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:53 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000630.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000630.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_04_08.html#entry-000629"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/18"
+    dc:title="Convert Dallas/Licensing/Solaris 10 testing"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_04_08.html#entry-000629"
+    dc:subject="Texas Instruments"
+    dc:description=" Changed gpdb_convertuk.pl to open and use the new Dallas database cclic_report.pl reporting everybody as &quot;UNK&quot;. Tried to run this in debugger and it just worked! Hmmm... Is this a cron problem? Running again tonight Rick got the Jackson filer..."
+    dc:creator=""
+    dc:date="2007-04-09T19:23:36-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">April  9, 2007</h2>
+                     <a id="a000629"></a>
+                     <div class="entry" id="entry-629">
+                        <h3 class="entry-header">Convert Dallas/Licensing/Solaris 10 testing</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed gpdb_convertuk.pl to open and use the new Dallas database</li>
+
+  <li>cclic_report.pl reporting everybody as "UNK". Tried to run this in debugger and it just worked! Hmmm... Is this a cron problem? Running again tonight</li>
+
+  <li>Rick got the Jackson filer to mount to dslabcc01 however while I can create the vob storage area I cannot mount the vob!</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:23 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000629.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000629.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: verifycrs</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000394.html" title="complogs" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000396.html" title="LOS178 3.0.0 200508012" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000394.html">&laquo; complogs</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000396.html">LOS178 3.0.0 200508012 &raquo;</a>
+                     </p>
+
+                     <a id="a000395"></a>
+                     <div class="entry" id="entry-395">
+                        <h3 class="entry-header">verifycrs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created a script, verifycrs, which when given a lot of parameters will insure that the file revisions associated with a set of CRs (or ECRs) has been properly migrated into another CVS repository</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>verifycrs</h3>
+
+<p>The verifycrs script verify that the files associated with a list
+of [E]CRs from one CVS repository are present in another CVS repository.</p>
+
+<p>Odd as it seems we have a situation here where CVS repositories have to remain separate due to contract concerns. Nevertheless code is routinely exported from one repository to the other. Then it is needed to verify that a set of [E]CRs have successfully made it into the other repository.</p>
+
+<p>The plan here is simple: Checkout both repositories as per a base tag to a temporary area. Then update the "from" repository by utilizing files4[e]cr in update mode. At this point we are sure that the from repository is correct.</p>
+
+<p>The "to" repository - also checked out via a tag - should be already up to date (IOW we use a to tag of the resultant build). Then all that is needed is to compare the list of files associated with the [E]CRs being imported.</p>
+
+<p>In order to minimize false diffs, checkouts are down without keywords (i.e. -kk).</p>
+
+<div class="code"><pre>
+Usage: verifycrs [-u] [-v] [-d]
+        -fcvsroot &lt;CVSROOT&gt; -fmod &lt;CVS module&gt; -ftag &lt;tag&gt;
+        -tcvsroot &lt;CVSROOT&gt; -tmod &lt;CVS module&gt; -ttag &lt;tag&gt;
+        [-c &lt;CRs...&gt;|-e &lt;ECRs...&gt;]
+
+Where:
+
+        -u              Display usage
+        -v              Turn on verbose mode
+        -d              Turn on debug mode
+        -fcvsroot       CVSROOT specification for from repository
+        -fmod           CVS module (e.g. los178)
+        -ftag           From tag (e.g. DEV_LOS178_3p0p0_ppc_20050704)
+        -tcvsroot       CVSROOT specification for to repository
+        -tmod           CVS module (e.g. los178)
+        -ttag           To tag (e.g. DEV_HYBRIDOS_3p0p0_ppc_20050707)
+        &lt;CRs&gt;           CR numbers included in this export/import
+        &lt;ECRs&gt;          ECR numbers included in this export/import
+</pre></div>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on July 29, 2005 12:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000395.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

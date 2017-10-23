@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en-us" itemscope itemtype="http://schema.org/Article">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content=" Sent out UCMWB 1.2.3 for review before release...">
+    <meta name="generator" content="Movable Type 5.2.3">
+    <title>UCMWB 1.2.3 - Status</title>
+    <link rel="alternate" type="application/atom+xml" title="Recent Entries" href="http://defaria.com/blogs/Status/atom.xml">
+    <link rel="canonical" href="http://defaria.com/blogs/Status/2007/09/ucmwb-123-2.html">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles.css">
+    <!--[if lt IE 9]>
+    <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles_ie.css">
+    <script src="/mt/mt-static/support/theme_static/rainier/js/html5shiv.js"></script>
+    <![endif]-->
+    
+    <link rel="start" href="http://defaria.com/blogs/Status/">
+
+    <link rel="prev" href="http://defaria.com/blogs/Status/2007/08/building-oracle.html" title="Building Oracle 10.x for Linux">
+    <link rel="next" href="http://defaria.com/blogs/Status/2007/09/importpluncoall.html" title="import.pl/uncoall/qt">
+    <!-- Open Graph Protocol -->
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en-us">
+    <meta property="og:title" content="UCMWB 1.2.3">
+    <meta property="og:url" content="http://defaria.com/blogs/Status/2007/09/ucmwb-123-2.html">
+    <meta property="og:description" content=" Sent out UCMWB 1.2.3 for review before release...">
+    <meta property="og:site_name" content="Status">
+    <meta property="og:image" content="/mt/mt-static/support/theme_static/rainier/img/siteicon-sample.png">
+    <!-- Metadata -->
+    <meta itemprop="description" content=" Sent out UCMWB 1.2.3 for review before release...">
+    <link itemprop="url" href="http://defaria.com/blogs/Status/2007/09/ucmwb-123-2.html">
+    <link itemprop="image" href="/mt/mt-static/support/theme_static/rainier/img/siteicon-sample.png">
+    
+  </head>
+  <body>
+    <div id="container">
+      <div id="container-inner">
+        <header id="header" role="banner">
+          <div id="header-inner">
+            <div id="header-content">
+              <h1>
+                <a href="http://defaria.com/blogs/Status/">
+
+                  Status
+
+                </a>
+              </h1>
+              
+            </div>
+
+            <nav role="navigation">
+          <ul>
+            <li><a href="http://defaria.com/blogs/Status/">Home</a></li>
+
+
+          </ul>
+        </nav>
+
+          </div>
+        </header>
+        <div id="content">
+          <div id="content-inner">
+            <ul class="breadcrumb breadcrumb-list">
+              <li class="breadcrumb-list-item"><a href="http://defaria.com/blogs/Status/">Home</a></li>
+              <li class="breadcrumb-list-item">UCMWB 1.2.3</li>
+            </ul>
+            <div id="individual-main" class="main" role="main">
+              <article id="entry-1918" class="entry entry-asset asset hentry">
+                <div class="asset-header">
+                  <h2 itemprop="name" class="asset-name entry-title">UCMWB 1.2.3</h2>
+                  <footer class="asset-meta">
+                    <ul class="asset-meta-list">
+                      <li class="asset-meta-list-item">Posted on <time datetime="2007-09-04T10:48:56-08:00" itemprop="datePublished">September  4, 2007</time></li>
+                      <li class="asset-meta-list-item">by <span class="author entry-author vcard"></span></li>
+
+  
+                      <li class="asset-meta-list-item">in <a itemprop="articleSection" rel="tag" href="http://defaria.com/blogs/Status/general-dynamics/">General Dynamics</a></li>
+  
+
+                   </ul>
+                </footer>
+                </div>
+                <div class="entry-content asset-content" itemprop="articleBody">
+                  <ul>
+  <li>Sent out UCMWB 1.2.3 for review before release</li>
+</ul>
+                  <p>I know everybody's busy however could you please take a few moments to help verify this new release of ucmwb 1.2.3. The following is a list  of 12 tickets resolved in this release along with a little description telling you what was fixed and how you can verify it. You can run ucmwb from the command line to run ucmwb 1.2.2 and ucmwbpre from the command line to run the new ucmwb 1.2.3. This way you can do a side by side comparison.</p>
+
+<p>There are a few tickets that have not been addressed for this release because they require a lot more effort to implement but I would like to release 1.2.3 and knock out a bunch of tickets.<BR><BR>Finally there remains a licensing issue for Qt upon which ucmwb is built. The licensing has been approved and the next step needs to take place...</p>
+
+<hr width="100%">
+
+<b>RANCQ00010523: UCM Workbench - View Browser - Copy View Privates - Preserve
+Modification Times</b></p>
+
+<p><b>Status:</b> Fixed in 1.2.3</p>
+
+<p><b>To reproduce:</b>
+
+<ul>
+  <li>From the command line, setview to a view that has view private files</li>
+
+  <li>Note the access/creation time in the view. (ls -l &lt;view private file(s)&gt;)</li>
+
+  <li>Use ucmwb's View Browser (<B>Tools: Start View Browser</B>) and select the view.</li>
+
+  <li>Select <b>Copy View Private Files</b> and copy the view private files to an area (e.g. /tmp/&lt;viewname&gt;).</li>
+
+  <li>Compare time stamps with the newly created view private files.</li>
+</ul>
+
+<hr width="100%">
+
+<p><b>RANCQ00011414: UCMWB create view with common target dev WOR incorrectly creates new stream</b><br>
+
+<b>RANCQ00011424: UCM Workbench doesn't create the correct stream for Target WORs</b><br>
+
+<b>RANCQ00012828&nbsp;&nbsp;&nbsp; Fix shared stream view creation from UCM Workbench.</b></p>
+
+<p><b>Status:</b> Fixed in 1.2.3</p>
+
+<p><b>To reproduce:</b>
+
+<ul>
+  <li>Create a Collector WOR and Worker WORs using Clearquest (If people want they can use the test ones I've created)<br><br>
+
+RANCQ00014260: Test Collector WOR #1<br>
+RANCQ00014259: Test Worker WOR #1<br>
+RANCQ00014261: Test Worker WOR #2<br><br></li>
+
+  <li>Designate one child WOR as the shared child WOR in Clearquest (RANCQ00014259 is the designated shared WOR above).</li>
+
+  <li>Right on the non shared child WOR in ucmwb and select <b>Create view</b>.</li>
+
+  <li>Verify that the view was created on the shared child WOR's stream.</li>
+</ul>
+
+<hr width="100%">
+
+<p><b>RANCQ00012827: Many developers are getting deliver issue where default view is not found.</b></p>
+
+<p><b>Status:</b> Verified not a problem.</p>
+
+<p>This merely verifies that duplicate stream views are not being created by ucmwb (neither 1.2.2 nor 1.2.3 did this).</p>
+
+<hr width="100%">
+
+<p><b>RANCQ00012829: View creation issue against Collector WORs</b></p>
+
+<p><b>Status:</b> Verified not a problem.</p>
+
+<p>This merely verifies that ucmwb does not allow creation of views for Collector WORs.</p>
+
+<hr width="100%">
+
+<p><b>RANCQ00013782: ucmwb defect - does not delete view when rebase pending</b></p>
+
+<p><b>Status:</b> Fixed in 1.2.3<BR><BR>When deleting a view, stderr from the cleartool rmview is now displayed if there were any errors. This covers both the rebase problem and deliver problems...</p>
+
+<p><b>To reproduce:</b>
+
+<ul>
+  <li>Start a rebase or deliver for a view. Instead of completing it, close the dialog box thus leaving the view in an uncompleted rebase or deliver.</li>
+
+  <li>Return to (or start ucmwb). Select view.</li>
+
+  <li>Notice that the right click menu allows rebase stream (previously, i.e. old ucmwb, rebasing of a stream was considered always completed).</li>
+
+  <li>Start view browser (<b>Tools: Start View Browser</b>)</li>
+
+  <li>Select view with rebase/deliver not yet completed</li>
+
+  <li>Select <b>Delete View</b></li>
+</ul>
+
+<p>Deletion of view now fails properly indicating that you cannot delete the view while it's in the middle of a rebase/deliver. User can return to ucmwb, select view and rebase stream then undo or complete the rebase, then deletion of the view will work.</p>
+
+<hr width="100%">
+
+<p><b>RANCQ00014267: UCMWB should save Clearquest password so it doesn't need to be
+constantly specified</b></p>
+
+<p><b>Status:</b> Fixed in 1.2.3</p>
+
+<p><b>To reproduce:</b>
+
+<ul>
+  <li>Start ucmwb</li>
+
+  <li>Right click on a WOR and select <b>Properties</b></li>
+
+  <li>Select <b>Effort</b> (tab) and <b>Update</b></li>
+
+  <li>Add an hour of effort. ucmwb prompts for your Clearquest password<li>
+
+  <li>Repeat and note that you are not prompted for your Clearquest password again (1.2.2 prompted every time).</li>
+</ul>
+
+<p>Note that the password is saved only for the duration of the ucmwb session. Saving it in preference would involve encryption/security concerns.</p>
+
+<hr width="100%">
+
+<p><b>RANCQ00014268: UCMWB Save Activity List improvements</b></p>
+
+<p><b>Status:</b> Fixed in 1.2.3</p>
+
+<p><b>To reproduce:</b>
+
+<ul>
+  <li>Start ucmwb</li>
+
+  <li>Select <b>File: Save Activity List</b></li>
+
+  <li><b>Cancel</b> the file save dialog box</li>
+
+  <li>You no longer receive an "Unable to write file" error</li>
+</ul>
+
+<p>Note: The part about adding .html is more problematic than initially anticipated and therefore not addressed.</p>
+
+<hr width="100%">
+
+<p><b>RANCQ00014402: UCMWB should unset activity before deleting the view</b></p>
+
+<p><b>Status:</b> Fixed in 1.2.3</p>
+
+<p><b>To reproduce:</b>
+
+<ul>
+  <li>After creating a view for a WOR use ucmwb's View Browser to delete the view</li>
+
+  <li>You should briefly see "Unsetting activity..." in the status area before "Deleting view..."</li>
+
+  <li>Close View Browser and right click on the WOR in the activity list. You should be able to <b>Create View</b> again.</li>
+</ul>
+
+<p>ucmwb 1.2.2 did not bother to unset the view's activity when a view was deleted. As a result Clearquest was never updated WRT its association of that just deleted view with this activity. User could not therefore use ucmwb to create a view for that WOR anymore!</p>
+
+<hr width="100%">
+
+<p><b>RANCQ00014935: Allow the UCM Workbench to create WOR from Collector</b></p>
+
+<p><b>Status:</b> Not fixed</p>
+
+<p>This issue involves a much more complicated interaction between ucmwb and Clearquest than is currently capable. Code exists in ucmwb to use cqtool (which is going away at 7.0 BTW) to pop up the submission dialog box from Clearquest. While this will allow a WOR to be created, the trouble is 1) it's non blocking and 2) the newly created WOR # is not returned, thus we do not know how to do the linking required by this request.</p>
+
+<p>A totally different approach is needed, one that will solve a few other issues such as being able to offer a way to create WORs (not just child WORs nor Collector WORs but just normal WORs) directly from ucmwb - which would make ucmwb much more useful, but might be able to solve the problem with cqtool going away for 7.0. If we could reliably create WORs in ucmwb by interacting with a Perl process talking to Clearquest, then the above ticket only involves performing the link afterwards.</p>
+
+<hr width="100%">
+
+<p><b>RANCQ00015381: Port UCMWB to Linux</b></p>
+
+<p><b>Status:</b> Fixed in 1.2.3!</p>
+
+<p><b>To reproduce:</b>
+
+<ul>
+  <li>Start ucmwb on a Linux machine (i.e. ranlin02 or ranlin03)</li>
+</ul>
+
+<p>Also exhibits that ucmwbpre (actually /prj/muosran/bin/ucmwbpre) is a shell script which kicks off the correct binary based on architecture.</p>
+                </div>
+                <nav class="page-navigation entry-navigation pagination content-nav">
+                  <ul class="page-navigation-list">
+
+                    <li class="page-navigation-list-item page-navigation-prev"><a rel="prev" href="http://defaria.com/blogs/Status/2007/08/building-oracle.html" title="Building Oracle 10.x for Linux">Previous entry</a></li>
+
+
+                    <li class="page-navigation-list-item page-navigation-next"><a rel="next" href="http://defaria.com/blogs/Status/2007/09/importpluncoall.html" title="import.pl/uncoall/qt">Next entry</a></li>
+
+                  </ul>
+                </nav>
+                <!--
+<aside id="zenback" class="zenback feedback">
+  Please paste Zenback script code here.
+</aside>
+-->
+                
+                
+              </article>
+            </div>
+            <aside class="widgets related" role="complementary">
+              <nav class="widget-search widget">
+  <div class="widget-content">
+    <form method="get" id="search" action="http://defaria.com/mt/mt-search.cgi">
+      <div>
+        <input type="text" name="search" value="" placeholder="Search...">
+
+        <input type="hidden" name="IncludeBlogs" value="8">
+
+        <input type="hidden" name="limit" value="20">
+        <button type="submit" name="button">
+          <img alt="Search" src="/mt/mt-static/support/theme_static/rainier/img/search-icon.png">
+        </button>
+      </div>
+    </form>
+  </div>
+</nav>
+<nav class="widget-archive-category widget">
+  <h3 class="widget-header">Categories</h3>
+  <div class="widget-content">
+    
+      
+    <ul class="widget-list">
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/ameriquest/">Ameriquest (99)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/audience/">Audience (3)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/broadcom/">Broadcom (76)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/gpdb/">GPDB (35)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/general-dynamics/">General Dynamics (61)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/general-electric/">General Electric (13)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/hewlett-packard/">Hewlett Packard (13)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/lynuxworks/">LynuxWorks (162)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/pqa/">PQA (35)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/salira/">Salira (79)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/tellabs/">Tellabs (2)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/texas-instruments/">Texas Instruments (31)</a>
+      
+      
+      </li>
+      
+    </ul>
+      
+    
+  </div>
+</nav>
+  
+
+<nav class="widget-archive-dropdown widget">
+  <h3 class="widget-header">Archives</h3>
+  <div class="widget-content">
+    <select>
+      <option>Select a Month...</option>
+    
+      <option value="http://defaria.com/blogs/Status/2016/02/">February 2016</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/09/">September 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/04/">April 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/03/">March 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2013/02/">February 2013</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/09/">September 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/08/">August 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/05/">May 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/04/">April 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/02/">February 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/01/">January 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2011/10/">October 2011</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2011/07/">July 2011</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/09/">September 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/08/">August 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/04/">April 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/03/">March 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/02/">February 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2009/05/">May 2009</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2009/04/">April 2009</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/07/">July 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/05/">May 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/04/">April 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/03/">March 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/02/">February 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/01/">January 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/12/">December 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/11/">November 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/10/">October 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/09/">September 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/08/">August 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/07/">July 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/06/">June 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/05/">May 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/04/">April 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/03/">March 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/01/">January 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/12/">December 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/11/">November 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/10/">October 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/09/">September 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/07/">July 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/06/">June 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/05/">May 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/04/">April 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/03/">March 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/02/">February 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/01/">January 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/12/">December 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/11/">November 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/10/">October 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/09/">September 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/08/">August 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/07/">July 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/06/">June 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/05/">May 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/04/">April 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/03/">March 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/02/">February 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/01/">January 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/12/">December 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/09/">September 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/08/">August 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/07/">July 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/06/">June 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/05/">May 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/04/">April 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/03/">March 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/02/">February 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/01/">January 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2003/12/">December 2003</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2003/11/">November 2003</option>
+    
+    </select>
+  </div>
+</nav>
+    
+  
+
+<div class="widget-syndication widget section">
+  <div class="widget-content">
+    <p><img src="http://defaria.com/mt/mt-static/images/status_icons/feed.gif" alt="Subscribe to feed" width="9" height="9" /> <a href="http://defaria.com/blogs/Status/atom.xml">Subscribe to this blog's feed</a></p>
+
+  </div>
+</div>
+
+            </aside>
+          </div>
+        </div>
+        <footer id="footer" role="contentinfo">
+          <div id="footer-inner">
+            <div id="footer-content">
+  <nav role="navigation">
+          <ul>
+            <li><a href="http://defaria.com/blogs/Status/">Home</a></li>
+
+
+          </ul>
+        </nav>
+
+  <p class="license">&copy; Copyright 2016.</p>
+  <p class="poweredby">Powered by <a href="http://www.movabletype.org/">Movable Type</a></p>
+</div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <script src="http://defaria.com/mt/mt-static/jquery/jquery.min.js"></script>
+    <script src="http://defaria.com/blogs/Status/mt-theme-scale2.js"></script>
+  </body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Clearquest Migrated</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000550.html" title="trlock" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000552.html" title="sons-sc-cc crontab and checking in files" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000550.html">&laquo; trlock</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000552.html">sons-sc-cc crontab and checking in files &raquo;</a>
+                     </p>
+
+                     <a id="a000551"></a>
+                     <div class="entry" id="entry-551">
+                        <h3 class="entry-header">Clearquest Migrated</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Backed up production database again</li>
+
+  <li>Shutdown Clearquest database and cqd on sons-clearcase</li>
+
+  <li>Changed several scripts that used to refer to sons-clearcase to refer to sons-sc-cc. For example, cqc now defaults to sons-sc-cc to find the server instead of sons-clearcase</li>
+
+  <li>Added setting of Clearquest connection parameters via a reg file to upgrade clearquset</li>
+
+  <li>Checked in changes to scripts as well as added the switch-sons-clearcase and switch-sons-sc-cc scripts and their assoicated reg files into Clearcase</li>
+
+  <li>Fixed up sons-cc, its albd_server process was stuck, and made sure that the changes multisited over to sons-cc.</li>
+
+  <li>Checked out to insure that cqc on sons-cc contacts and works with sons-sc-cc</li>
+</ul>
+
+<p><b>Time Spent:</b> 3 hours</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Well I have migrated the Clearquest database to sons-sc-cc and I believe I've tidied up the necessary scripts and other things so that this transition will be relatively smooth.</p>
+
+<p>You should announce that you are now on a new Clearquest server. Users using the web interface (i.e. China) should point there browsers to <a href="http://sons-sc-cc/cqweb/login">http://sons-sc-cc/cqweb/login</a> and login as usual. Although the new Clearquest web is a total redesign most of it is pretty intuitive and I don't think current Clearquest web users will require much hand holding.</p>
+
+<p>Meantime I made sure that cqd is working and cqc can talk to it. Additionally I had to get sons-cc to work. Seems it was kinda stuck with the albd_server process running at 50% and multisite getting stuck. I believe I cleared that up. cqc appears to work from sons-cc now.</p>
+
+<p>For any Clearquest client users (worse case they can use Clearquest web) they need to update to the new version of the Clearquest Client. They should be able to simply do "upgrade clearquest" in a Cygwin shell. If, however, there are problems with that here would be roughly the equivalent steps from Windows:</p>
+
+<ul>
+  <li>Uninstall the old version of Clearquest (Control Panel: Add/Remove Programs: Rational Clearquest... etc.) You may need to reboot.</li>
+
+  <li>Install new version of Clearquest. Browse to \\sons-sc-cc\Rational\Clearquest and double click on the Install Clearquest shortcut. This shortcut runs setup with the sitedefs.dat as a parameter. Follow instructions - reboot when requested.</li>
+
+  <li>Start: Programs: Rational Software: Rational Clearquest:Clearquest Maintenance Tool.</li>
+
+  <li>Select File: Import Profile.</li>
+
+  <li>Click on the ellipsis button (...) and browse to
+\\sons-sc-cc\Clearquest (Note this is not the same as \\sons-sc-cc\Rational\Clearquest where the installation lives) and select the 2003.06.00.ini file. This connection profile has all of the connection parameters for the new database.</li>
+
+  <li>Select Next then Finish</li>
+</ul>
+
+<p>That should set up your connection to the database. Then try the Clearquest Client.</p>
+
+<p>I will try to make myself available Monday in case there are problems.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on May  7, 2006  5:37 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000551.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,960 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>Status</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/" />
+    <link rel="self" type="application/atom+xml" href="http://defaria.com/blogs/Status/atom.xml" />
+    <id>tag:defaria.com,2014-02-17:/blogs/Status//8</id>
+    <updated>2016-04-18T21:40:10Z</updated>
+    
+    <generator uri="http://www.sixapart.com/movabletype/">Movable Type 5.2.3</generator>
+
+<entry>
+    <title>Configuring Linux to Authenticate to Active Directory using Winbind</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2016/04/configuring-linux-to-authenticate-to-active-directory-using-winbind-1.html" />
+    <id>tag:defaria.com,2016:/blogs/Status//8.1998</id>
+
+    <published>2016-04-18T21:32:48Z</published>
+    <updated>2016-04-18T21:40:10Z</updated>
+
+    <summary>Under Linux, you can use winbind from the Samba suite of tools to authenticate with Windows Active Directory. Refer to Setup CentOS to authenticate via Active Directory for how to set up CentOS to authenticate to Active directory. Windows uses...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<p>Under Linux, you can use winbind from the Samba suite of tools to authenticate with Windows Active Directory. Refer to Setup CentOS to authenticate via Active Directory for how to set up CentOS to authenticate to Active directory. Windows uses Kerberos to perform authentication so you'll need to set that up. The above link talks about running authconf with lots of parameters to set it all up. That may be a better way in the end but I got it working starting with authconf then tweaking. Here are my resultant files that seem to work. Later I might figure out how to do it with authconfig.</p>
+<ol>
+<li>First you'll need some software if it was not previously installed. The following installs all you need for CentOS (Ubuntu still needs to be investigated for the corresponding apt-get installation):<br /><br /><span style="line-height: 1.618;">Install software<br /><br /></span><span style="line-height: 1.618;">$ yum -y install authconfig krb5-workstation pam_krb5 samba-common<br /><br /></span></li>
+<li><span style="line-height: 1.618;">Edit /etc/krb5.conf to look like:<br /><br /></span><span style="line-height: 1.618;">/etc/krb5.conf (Audience)</span></li>
+</ol>
+<p style="margin-left: 30px;">[libdefaults]<br /><span style="line-height: 1.618;">default_realm = AUDIENCE.LOCAL<br /></span><span style="line-height: 1.618;">ns_lookup_realm = true<br />d</span><span style="line-height: 1.618;">ns_lookup_kdc = true<br /></span><span style="line-height: 1.618;">ticket_lifetime = 24h<br /></span><span style="line-height: 1.618;">renew_lifetime = 7d<br /></span><span style="line-height: 1.618;">forwardable = true</span></p>
+<p style="margin-left: 30px;">[realms]<br /><span style="line-height: 1.618;">audience.com = {<br /></span><span style="line-height: 1.618;">  kdc = dc1.audience.local<br /></span><span style="line-height: 1.618;">  admin_server = dc1.audience.local<br /></span><span style="line-height: 1.618;">}</span></p>
+<p style="margin-left: 30px;">/etc/krb5.conf (Knowles)</p>
+<p style="margin-left: 30px;">[libdefaults]<br /><span style="line-height: 1.618;">default_realm = KNOWLES.COM<br /></span><span style="line-height: 1.618;">dns_lookup_realm = true<br /></span><span style="line-height: 1.618;">dns_lookup_kdc = true<br /></span><span style="line-height: 1.618;">ticket_lifetime = 24h<br /></span><span style="line-height: 1.618;">renew_lifetime = 7d<br /></span><span style="line-height: 1.618;">forwardable = true</span></p>
+<p style="margin-left: 30px;">[realms]<br /><span style="line-height: 1.618;">knowles.com = {<br /></span><span style="line-height: 1.618;">  kdc = dc1.knowles.com<br /></span><span style="line-height: 1.618;">  admin_server = dc1.knowles.com<br /></span><span style="line-height: 1.618;">}</span></p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Syntactical sugar</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2014/09/syntactical-sugar.html" />
+    <id>tag:defaria.com,2014:/blogs/Status//8.1987</id>
+
+    <published>2014-09-23T18:00:40Z</published>
+    <updated>2016-04-18T21:09:27Z</updated>
+
+    <summary>Many people write code and specify all kinds of what I call &quot;syntactic sugar&quot;. These come in the form of largely punctuation characters especially in Perl. Such things are usually included for the benefit of the compiler or more correctly...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Audience" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<p>Many people write code and specify all kinds of what I call "syntactic sugar". These come in the form of largely punctuation characters especially in Perl. Such things are usually included for the benefit of the compiler or more correctly the parser. They are there to avoid ambigutity but a coding style of specifing all of the defaults so that it's clear is IMHO ridiculous. Humans and human understanding of languages uses short cuts, context and implied meaning. Write your code for the next human - not the parser.</p>
+<p>So, for example, I encountered the following line of Perl code the other day:</p>
+<pre>if (scalar(@ARGV != 1)) { die "\nUsage:\nAD_auth.pl \%username\%\n" }</pre>
+<p>Here are some of the unnecessary syntactic sugar:</p>
+<ul>
+<li>scalar is unnessesary. An array evaluated in a scalar context, returns the number of entries in the area. Comparing an array to a number like 1 is evaluating an array in a scalar context.</li>
+<li>The () around @ARGV != 1. Parantheses used to specify correct presidence in mathimatical expressions - sure, but only as many as you need. Here however the parantheses are unnessesary. Sure some say "it's a function call therefore its parms should be enclosed in ()" I ask "why?". Do you always likewise do print ("a string") or do you do print "a string"?</li>
+<li>The () around the boolean expression for if. It's require, unless if appears at the end...</li>
+<li>The {} around the then portion of the if statement. Technically not needed as without them the die statement would be the only statement in the then block. However in practice I pretty much always use {} even if only one statement. I find that way too often I need to stick more statements in there and if so then {} are already there.</li>
+<li>Needless escape of %: There is no need to specify \%. Oh, and this is a bad, non-portable practice as if they meant %username% as in expand the environment variable username well that'd only work in Windows.</li>
+</ul>
+<p>How do I think this would be better written:</p>
+<pre>die "Usage: $FindBin::Script &lt;username&gt;\n" unless @ARGV == 1;</pre>
+<p>I believe the advantages are:</p>
+<ul>
+<li>Dynamically obtaining the script's name instead of hard coding it</li>
+<li>Specifying &lt;username&gt; is a more standard way of indicating that the user should fill in this parameter</li>
+<li>Positive logic, with the help of unless. Unless is like if not. But I find too many nots become confusing. It took a little bit of time for me to feel comfortable with unless, to trust it was the right thing. But it's pretty much English - unless the array ARGV has only 1 element. Unless also reads better at the end of a line.</li>
+</ul>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Setting up PuTTY to do passwordless logins using pre-shared key</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2014/04/-setting-up-putty-to.html" />
+    <id>tag:defaria.com,2014:/blogs/Status//8.1984</id>
+
+    <published>2014-04-29T16:02:08Z</published>
+    <updated>2014-05-05T19:14:00Z</updated>
+
+    <summary>Setting up PuTTY to do passwordless logins using pre-shared key Seems I&apos;ve been here before: http://cygwin.com/ml/cygwin/2012-01/msg00284.html This site seems helpful: https://support.hostgator.com/articles/specialized-help/technical/ssh-keying-through-putty-on-windows-or-linux Generating your ssh keys You need to use PuttyGen to generate your ssh keys to share. One problem is...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Audience" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<h2>Setting up PuTTY to do passwordless logins using pre-shared key</h2>
+
+<p>Seems I've been here before: <a href="http://cygwin.com/ml/cygwin/2012-01/msg00284.html">http://cygwin.com/ml/cygwin/2012-01/msg00284.html</a></p>
+
+<p>This site seems helpful: <a href="https://support.hostgator.com/articles/specialized-help/technical/ssh-keying-through-putty-on-windows-or-linux">
+https://support.hostgator.com/articles/specialized-help/technical/ssh-keying-through-putty-on-windows-or-linux</a></p>
+
+<h2>Generating your ssh keys</h2>
+
+<p>You need to use PuttyGen to generate your ssh keys to share.
+One problem is that Putty does it's own form of ssh keys which is non-standard or at least non-Unix like. Once you install PuttyGen you should generate your key. SSH-2 DSA is more secure than the default SSH-2 RSA keys so toggle that on then do generate,
+then move the cursor around the blank area. PuTTYgen uses this movement to generate the key's randomness.</p>
+
+<p><img src="PuttyKeyGenerator.png"></p>
+
+<p>Once this is generated, you can set a key comment, or a passphrase. The comment isn't important, as it's just a label, but the passphrase will require that you enter this passphrase when using the key. If you're trying to have a "passwordless login" then this should be left blank.</p>
+
+<p><img src="PuttyKeyGenerator2.png"></p>
+
+<p>Now click Save Public Key, and save this file to a name of your choosing somewhere safe on your hard drive. Please remember the location of this file, as it is needed later. Then do the same for Save Private Key.</p>
+
+<h2>Installing your ssh keys into the server</h2>
+
+<p>Now that we have the keys generated and saved, we need to getthe keys on the server. Copy the data inside the putty window under Public Key for pasting into SSH authorized keys file. The key appears to be to put these keys into your ~/.ssh/authorized_keys2 file not you're ~/.ssh/authorized_keys file. You want to putthis into your NFS home directory not your Windows home directory. Why we maintain two different sets of home directories is unknown. 
+
+<blockquote>
+  <p><b>Note:</b> If you don't have a .ssh directory on your Unix/Linux machines then execute ssh-keygen -t dsa on Linux to create that and your DSA keys.</p>
+
+  <p><b>Note 2:</b> If a Linux machine does not use your NFS mounted home directory then you'll have to duplicate your home environment and things like ~/.ssh on the machines that do not share your one home directory.</p>
+</blockquote>
+
+<p>Make sure your ~/.ssh/authorized_keys2 is set to 600.</p>
+
+<h2>Setting up colored sessions for PuTTY and tying that to shortcuts</h2>
+
+<p>It's best to set up sessions in putty. A session is merely a set of configuration parameters tied to a name. We will create sessions for different types or categories of machines then invoke them with different machine names. We will set up session for dev/test/prod environments.</p>
+
+<p>In putty do the following:</p>
+
+<ul>
+  <li>Window: Lines of scrollback - you might want to set this to something larger than 200 like maybe 2000.</li>
+
+  <li>Window: Colours: Set Default Background and Default Bold Background to some color. You may want to use a theme of dev blue, test 3D orange and prod red, for example. I also change Default Foreground to a solid white and Default Bold Foreground to a bright yellow. This setting will be the main setting to change between dev/test and prod.</li>
+
+  <li>Connection: Data: Auto-login username. Set this to your username (e.g. adefaria)</li>
+
+  <li>Connection: SSH: Auth: Private key file for authentication: Browse to where you put your generated Putty Private Key.</li>
+
+  <li>Connection: SSH: X11 - toggle on Enable X11 forwarding. Consider installing Cygwin's Xorg server</li>
+</ul>
+
+<p>Then go back to the Session page and enter a name for your Saved Session and click save. Next you can change that name, go toConnection: Colours, set up your color scheme for test or prod and save those sessions. Now you have dev/test and prod sessions
+ colored to your liking.</p>
+
+<h2>Executing PuTTY sessions</h2>
+
+<p>Now you can set up shortcuts to use these saved session parameters but apply them to different machines like so:</p>
+
+<blockquote>
+  <tt>C:\Program Files\Putty\Putty.exe -load dev cm-job-ldev01</tt><br>
+  <tt>C:\Program Files\Putty\Putty.exe -load test cm-job-ltest01</tt><br>
+<br>
+</blockquote>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Bugzilla::Webservice</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2014/03/bugzillawebservice.html" />
+    <id>tag:defaria.com,2014:/blogs/Status//8.1983</id>
+
+    <published>2014-03-26T18:34:15Z</published>
+    <updated>2014-03-26T18:50:00Z</updated>
+
+    <summary>On mozilla.support.bugzilla Thorsten Schöning wrote: Still how does one get this Bugzilla::Webserves::Bug? There are different ways of course, one is BZ::Client, others depending on your environment may exist or you need to create your own client or whatever. Name a...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Audience" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<p>On mozilla.support.bugzilla Thorsten Schöning wrote:</p>
+<blockquote type="cite">
+<blockquote type="cite">Still how does one get this Bugzilla::Webserves::Bug?</blockquote>
+</blockquote>
+<blockquote type="cite">There are different ways of course, one is BZ::Client, others depending on your environment may exist or you need to create your own client or whatever.</blockquote>
+<p>Name a way then. You see when I say BZ::Client I can do cpan BZ::Client and I will get downloaded actually code that I can run (It's pretty clear I'm workign in Perl no?). However when I say Bugzilla::Webservice::Bug I cannot do cpan Bugzilla::Webservice::Bug and get code because cpan says it can't find anything listed under Bugzilla::Webservice::Bug. Now I know that it's not part of CPAN so what is it part of and how do I get the code?</p>
+<p>'Cause you just got through telling me that BZ::Client is not an official Bugzilla project and yet you pointed me to specifically to <a href="http://www.bugzilla.org/docs/4.4/en/html/api/Bugzilla/WebService/Bug.html#search">http://www.bugzilla.org/docs/4.4/en/html/api/Bugzilla/WebService/Bug.html#search</a> which is in bugzilla.org. Was I not to think that that would be "an official Bugzilla project"? Yet there's nothing there that I can see about getting that code!</p>
+<blockquote type="cite">
+<blockquote type="cite">Looking at <a href="https://wiki.mozilla.org/Bugzilla:Addons#Client_libraries_for_the_Bugzilla_Webservices.2FREST_API">https://wiki.mozilla.org/Bugzilla:Addons#Client_libraries_for_the_Bugzilla_Webservices.2FREST_API</a> I see it telling me to use BZ::Client (and not even mentioning BZ::Client::Bug, which is much more to the point)</blockquote>
+Because the wiki can't know your use case. :-)</blockquote>
+<p>Looking at CPAN for BZ::Client (<a href="http://search.cpan.org/~jwied/BZ-Client-1.04/lib/BZ/Client.pm">http://search.cpan.org/~jwied/BZ-Client-1.04/lib/BZ/Client.pm</a>) we have the following methods:</p>
+<pre style="margin-left: 30px;">new<br />url<br />user<br />password<br />login<br />api_call</pre>
+<p>Not exactly a bastion of functionality! The Wiki could anticipate that I might need a bit more functionality for any functional use case! Just my opinion of course :-).</p>
+<p>Looking at BZ::Client::Bug (<a href="http://search.cpan.org/~jwied/BZ-Client-1.04/lib/BZ/Client/Bug.pm">http://search.cpan.org/~jwied/BZ-Client-1.04/lib/BZ/Client/Bug.pm</a>) I see:</p>
+<pre style="margin-left: 30px;"><strong>CLASS METHODS</strong><br />get<br />new<br />create<br />search<br /><strong>INSTANCE METHODS</strong><br />id<br />alias<br />assigned_to<br />component<br />creation_time<br />dupe_of<br />is_open<br />last_change_time<br />priority<br />product<br />resolution<br />severity<br />status<br />summary</pre>
+<p>At the very least, couldn't the wiki mention both?</p>
+<blockquote>
+<blockquote>
+<p>for a client side solution. I guess I didn't mention I'm working client side. Actually I see little difference between client and server side API's here.</p>
+</blockquote>
+That sounds like one of the design goals of BZ::Client, but I'm only guessing.</blockquote>
+<p>You mean a design goal to work on more than one machine? I'd say it's basic functionality but perhaps that's just me.</p>
+<blockquote>
+<blockquote>I want the API that can get me the Bugzilla data from wherever I happen to run it. Oh and I'm working in Perl.</blockquote>
+I don't think I understand this paragraph, BZ::Client works wherever your client is able to access your Bugzilla from. But your problem is totally different, you want functionality that may or may not be provided currently by the WebService-API. Check the docs and if it's not sufficient check the code and maybe provide patches for the docs for anyone else with a similar problem.</blockquote>
+<p>It looked like you were telling me that BZ::Client was not an official project and that I shouldn't be using it. I realize you were saying that I'd be better off contacting that module's owner, and I have (have not heard back yet). It's just I thought there would be some sort of official or at least full featured way to access the functionality of Bugzilla from scripts, specifically Perl scripts as from what I can tell Bugzilla is largely written in Perl. And as it is quite old in Internet terms I find it surprising there isn't a full featured Perl module that everybody's using already.</p>
+<p>So far I've found WWW::Bugzilla and things like WWW::Bugzilla::Bugtree and WWW::Bugzilla::Search. These use some sort of WWW::Mechanize thingy and seems to be horribly inefficient. For example, the new method requires a bugid and takes a while to instantiate. If a script had to process a 1000 bugs and instantiate each one of them at like 4-5 second per instantiation it would take just way too long to get anything done. The Search module's no better. If you have a couple of thousand bugs qualifying then it gathers all of the data, returns a huge structure and takes tens of minutes to return from the search call. I emailed the author about this module but haven't received a response.</p>
+<p>I then found BZ::Client and BZ::Client::Bug, which work fairly decently. It's quicker and pretty flexible but got stopped at the lack of search capability.</p>
+<p>I see this Bugzilla::Webservice::Bug but have no idea on how to download the code.</p>
+<p>I also see this BzAPI thing but it appears to be server side only.</p>
+<p>One thing I'm trying to accomplish: We have a number of saved searches. One process we have here executes a number of these and saves the results to .csv files. This is done manually through the web UI. Another Perl script gathers a bunch of these .csv files and produces another .csv file in the form of a report that is useful to management. I'd like to change this Perl process to simply interrogate the Bugzilla database directly, possibly utilizing the saved searches directly and produce the final .csv file directly (or perhaps make a web page instead). There are also many other scripts I could imagine Perl doing by having full functioned access to Bugzilla.</p>
+<p>Oh and I checked BZ::Client::Bug::search's code. It descends off in to a plethora of web related technologies that sufficiently obscures what's going on, what's expected and what works WRT search.</p>
+<blockquote>
+<p>I for example simply don't use the WebServices and therefore can't tell you if your needed behavior is implemented or not.</p>
+</blockquote>
+<p>I don't particularly care if it's WebServices or not. I just want to interact with the functionality of Bugzilla programmatically through Perl. The backend can be WebServices, client/server socket stuff or a direct API.</p>
+<blockquote>
+<blockquote>Indeed. I've worked with 2 REST APIs so far and they both shared the characteristic of 1) being poorly documented</blockquote>
+I don't find the WebServices API of Bugzilla documented that poorly,</blockquote>
+<p>Starting from <a href="http://www.bugzilla.org/docs/4.4/en/html/api/index.html">http://www.bugzilla.org/docs/4.4/en/html/api/index.html</a> it's not immediately clear that this is a server side only technology. If it's not a server side only technology then it's not at all clear how to get the client side code. And there's an appalling lack of real world examples.</p>
+<blockquote>
+<p>if it is you are in a happy position because you just need to check the implementation and provide patches to improve the docs, because your behavior is already implemented.</p>
+</blockquote>
+<p>You make the incorrect assumption that 1) I understand enough about the code base to make contributions, 2) I have that time and 3) I wish to work for free. I'm a consultant and I need to get stuff done for my client. My client does not pay me to work on open source projects. I'm not totally opposed to working on open source projects nor contributing to them but I don't have the time nor inclination to do so here. Sorry.</p>
+<blockquote>
+<p>If it is not your have a bigger problem because your functionality needs implementation. :-)</p>
+</blockquote>
+<p>Not necessarily. Somebody else could have already implemented this or there may be another solution. That's why I'm posting here. I'm shocked that such a mature technology has such a lack of an interface, supported or not...</p>
+<blockquote>
+<blockquote>and 2) not supporting full search. What's up with that?</blockquote>
+As often it's a matter of available resources.</blockquote>
+<p>I see it as more of a matter of professionalism. I know that I would not release code, open source or not, unless it was not at least reasonably feature complete.</p>
+<p>REST APIs seem, in my experience, to use too much web technologies and vagueness, attempting to be language agnostic, that they read as if they say nothing and you need to go elsewhere for answers to simple questions. There's never any good examples of real code, they often don't describe what data is returned other than to say that it's of XML or JSON format - how are multiple records indicated? How empty fields handled? Different field data types? How are exceptions handled? These questions are often not answered. And usually the search portion is "not totally implemented". I think that this is because representing search conditions appears to be difficult to do in a REST scenario (largely because they seem to try to represent the search in terms of data structures like XML instead of simply strings that must be parsed - REST APIs seem to eschew conditional parsers).</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>File this one under Paid Support vs Open Source</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2013/02/file-this-one-u.html" />
+    <id>tag:defaria.com,2013:/blogs/status//8.1979</id>
+
+    <published>2013-02-04T20:16:36Z</published>
+    <updated>2014-02-17T18:09:48Z</updated>
+
+    <summary>I use both proprietary software as well as open source software. One would think that when you pay for your software and pay a lot for support, then obviously you must be in a better situation should something not work...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Broadcom" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<p>I use both proprietary software as well as open source software. One would think that when you pay for your software and pay a lot for support, then obviously you must be in a better situation should something not work correctly. But my experience has been the opposite. Not always but often. I can only attribute this to the fact that when dealing with OSS you often are talking directly with the developer who has pride in his work and wants it to work correctly. He is bothered when people report problems in his software and motivated to try and fix it.</p>
+
+<p>On the other hand we've all had our "experiences" with so called front line support people who sometimes barely know how the software they support operates or even how to spell its name correctly, who ask their customers to reboot their Linux server that's been up for the last 3 years to see if that will "help".</p>
+
+<p>IBM/Rational Support is far from that bad - often they are excellent. But it does seem that sometimes when the problem is a little thorny they will punt and say this is "outside of scope" - whatever that means.</p>
+
+<p>I must admit my process is slightly complicated - a CQPerl script which serves as a multiprocess server which forks off a copy of itself to handle request to process Clearquest data. For anybody who has written such server processes they can be tricky at first to program and get right, but soon turn into just another programming task like any other.</p>
+
+<p>The problem arises in an odd way in which a request comes in to add a record. BuildEntity is called and the record is successfully added. But when a second process later attempts to do a similar thing - add a record - the BuildEntity fails stating:</p>
+
+<blockquote>
+Status: 1 unknown exception from CQSession_BuildEntity in CQPerlExt at  cqserver.pl line 31. 
+</blockquote>
+
+<p>The support engineer eventually responded with:</p>
+
+<blockquote>
+On 1/25/2013 10:40 AM, Naomi Guerrero wrote:<br><br>
+Hi Andrew,<br><br>
+I'm following up on escalated PMR#16866,227,000. After escalating this PMR to L3 support, and Development having discussions about this issue, this request goes outside the scope of support. This is not something we can assist you with in support. Instead, I would recommend you reach out to your Sales agent at IBM (or I can) so that someone from the Rational Services team can further assist you. 
+</blockquote>
+
+To which I responded:
+
+<blockquote>
+<p>On 1/25/2013 11:00 AM, Andrew DeFaria wrote:</p>
+<p>How can you possibly say that this goes outside the scope of support?!? We have a situation here where <b>your</b> software returns the words "unknown exception", fails to do what it's advertised to do (Build and entity) and even stops my script from continuing! This is clearly an error in IBM's software. I have a reproducible test case (you'll need our schema, which I supplied). There's is nothing in my code that is outside of a supported situation - I'm using regular CQPerl stuff and every call is supported. It's on supported hardware, with supported versions of OS, Clearquest, CQPerl, etc. Why BuildEntity returning "unknown exception"? Surely this is in the code for BuildEntity. Somebody should examine it and report back! This is clearly an error and I fail to see how it goes outside of the scope of support at all. If the problem is difficult to solve that does not put it into the realm of "outside of support".</p>
+
+<p>My client pays IBM big $$$ for support every year if I remember how IBM support contracts go. We want our money's worth. While I fail to see how a "Sales" agent will be able to assist (I personally think a knowledgable software developer like the guy who's responsible for the BuildEntity code - you do have somebody like that no? - should look into the code and see exactly what circumstances causes BuildEntity to emit such an error) if that's the next step then by all means take it and reach out to whoever is next in line to assist. But from where I sit this is indeed a bug and is not outside the scope of support. If you believe it is then please explain yourself. Why is this "outside the scope of support"?</p>
+</blockquote>
+
+<p>Now granted it appears that this happens <b>only</b> with out schema (Works fine with the SAMPL database) but that seems to point to either a problem somewhere with action hook code being executed (which would also be deemed a bug as action hook code should never cause <b>unknown exception</b>s to happen or it could be caused by some corruption in my client's database - something that should be pursued - not dropped to "Sales"!</p>
+
+<p>Problem report <a href="https://www-947.ibm.com/support/servicerequest/problemDescriptionSelect.action?srNumber=16866&branch=227&retainCountryCode=000">16866,227 000: unknown exception from CQSession_BuildEntity</a></p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Speed of network reads as opposed to network writes</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2012/09/speed-of-networ.html" />
+    <id>tag:defaria.com,2012:/blogs/status//8.1978</id>
+
+    <published>2012-09-21T21:06:08Z</published>
+    <updated>2014-02-17T18:09:48Z</updated>
+
+    <summary> body { font: Helvetica, Arial, sans-serif; } p { font: Helvetica, Arial, sans-serif; } .standout { font-family: verdana, arial, sans-serif; font-size: 12px; color: #993333; line-height: 13px; font-weight: bold; margin-bottom: 10px; } .code { border-top: 1px solid #ddd; border-left: 1px...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Broadcom" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<html>
+<head>
+<style type="text/css">
+body {
+font: Helvetica, Arial, sans-serif;
+}
+p {
+font: Helvetica, Arial, sans-serif;
+}
+.standout {
+font-family: verdana,
+arial,
+sans-serif;
+font-size: 12px;
+color: #993333;
+line-height: 13px;
+font-weight: bold;
+margin-bottom: 10px;
+}
+.code {
+border-top: 1px solid #ddd;
+border-left: 1px solid #ddd;
+border-right: 2px solid #000;
+border-bottom: 2px solid #000;
+padding: 10px;
+margin-top: 5px;
+margin-left: 5%;
+margin-right: 5%;
+background: #ffffea;
+color: black;
+font-family: courier;
+white-space: pre;
+-moz-border-radius: 10px;
+}
+.terminal {
+border-top: 10px solid #03f;
+border-left: 1px solid #ddd;
+border-right: 2px solid grey;
+border-bottom: 2px solid grey;
+padding: 10px;
+margin-top: 5px;
+margin-left: 5%;
+margin-right: 5%;
+background: black;
+color: white;
+font-family: courier;
+white-space: pre;
+-moz-border-radius: 10px;
+}
+a:link {
+color: blue;
+}
+a:visited {
+color: darkblue;
+}
+a:hover {
+color: black;
+background-color: #ffffcc;
+text-decoration: underline;
+}
+a:active {
+color: red;
+}
+</style>
+</head><body>I was asked to test the difference in speed between network reads and network writes. Now, of course, a lot of this is highly tuneable and depends on various things like protocol used (NFS vs SMB), whether you are writing over a LAN or a WAN, the rated speed of those links (1G vs 100M vs 10M or less), as well as the options used (for NFS things like rsize, wsize to name a few). However as currently configured the following test was done:<br><br>I created a file of some size (336M) which I will copied between local and remote file systems using a push strategy and a pull strategy. Lacking having root capability needed to mount filesystems via NFS between say San Jose and Irvine or playing around with SMB I decided to use my home directory, which is NFS mounted, and the local file system of /tmp.&nbsp; By push I mean that cp copying the file from /tmp to my home directory which is NFS mounted thus over the network. By pull I mean that cp was copying the file from my NFS mounted home directory and writing it to /tmp. Therefore push = local reads with network writes and pull = network reads and local writes. Here are the results...<br><br>First I did a little loop:<br><blockquote><tt>Xl-irv-05:i=0; while [ $i -lt 100 ]; do<br>/usr/bin/time -f %E -a -o pull.csv cp ~/336megfile /tmp/336megfile<br>let i=i+1<br>done</tt><br></blockquote>This pulls this 336megfile 100 times from my home directory to the local /tmp directory. The GNU time command is used to capture the time each of these takes. Network conditions and system workloads can cause this to vary so I take 100 samples.<br><br>Similarly this loop does the push:<br><blockquote><tt>Xl-irv-05:i=0; while [ $i -lt 100 ]; do<br>/usr/bin/time -f %E -a -o push.csv cp /tmp/336megfile ~/336megfile<br>let i=i+1<br>done<br></tt></blockquote>Doing a little Excel yields:<br><br><img src="data:image/png;base64,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0LELQQcREdGhBB27EHQQEREdStCxC0EHERHRoQQduxB0EBERHUrQsQtBBxER0aEEHbsQdBARER1K0LELQQcREdGhBB27EHQQEREdStCxC0EHERHRoQQduxB0EBERHUrQsQtBBxER0aEEHbsQdBARER1K0LELQQcREdGhBB27EHQQEREdStCxC0EHERHRoQQduxB0EBERHUrQsQtBBxER0aEEHbsQdBARER1K0LELQQcREdGhBB27EHQQEREdStCxC0EHERHRoQQduxB0EBERHUrQsQtBBxER0aEtDTrDfmdkhU5/mPj2oDuS/LbyQYMGOX+PERERW2s7g86guxpVhv3OSHcQ/+6I/G3xtfJBowY5f48RERFbazuDzmOk/CI9JEWflScoHzRrkPP3GBERsbW2NOg8HrqKd+fE+3iG/U6nP1Q+mPafT09P91aZmJj4z/866vxtRkREbKd/7/8hf5zwl9w9OslhqPJBJ9agy08/5fxtRkREbKct7dGRiA9DxTKN+LbyQcMGEXQQERFd2cqgIxfcDLrx4Su5kyf6WvmgWYMu79jp/G1GRERsp60MOvLscmXkkWaSPw5BygcNGkTQQUREdGU7g0599Hq9S7v2OH+bERER2ylBxy69Xu/9Fyecv82IiIjtlKBjl16vN/PypPO3GRERsZ0SdOzS6/XeOnjE+duMiIjYTgk6diHoICIiOpSgY5der/fGoTecv82IiIjtlKBjF4IOIiKiQwk6dun1en+aOu38bUZERGynBB279Hq9Q1NnnL/NiIiI7ZSgY5der7d38qzztxkREbGdEnTs0uv1nntl4PxtRkREbKcEHbv0er2tB885f5sRERHbKUHHLr1eb3TfjPO3GRERsZ0SdOxC0EFERHQoQccuIujMPfkL5+80IiJiCyXo2EUEnctPP+X8nUZERGyhBB27iKAzv+0Z5+80IiJiCyXo2GWlR2fHTufvNCIiYgsl6NhlpUbnhV3O32lERMQWStCxiwg677844fydRkREbKEEHbsQdBARER1K0LGLCDpvHTzi/J1GRERsoQQduxB0EBERHUrQsYsIOqcO/dX5O42IiNhCCTp2EUHnjUNvOH+nERERWyhBxy4i6Byd+pvzdxoREbGFEnTsIoLOoakzzt9pRETEFkrQsYsIOr2pfzh/pxEREVsoQccuIug898rA+TuNiIjY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" alt=""><br><br>Bottom line: <br><blockquote>
+<table style="width: 192pt;" bgcolor="#000000" border="0" cellpadding="2" cellspacing="1" width="256"><colgroup><col style="width:48pt" span="4" width="64">
+</colgroup><tbody><tr style="height:15.0pt" height="20">
+<th style="height:15.0pt;width:48pt" bgcolor="#ffffcc" height="20" width="64"><br></th>
+<th class="xl68" style="width:48pt" bgcolor="#ffffcc" width="64">Pull</th>
+<th class="xl68" style="width:48pt" bgcolor="#ffffcc" width="64">Push</th>
+<th class="xl69" style="width:48pt" bgcolor="#ffffcc" width="64">Diff</th>
+</tr>
+<tr style="height:15.0pt" height="20">
+<th class="xl66" style="height:15.0pt" bgcolor="#ffffcc" height="20">Average</th>
+<td class="xl67" align="right" bgcolor="#ffffff">0.79</td>
+<td class="xl67" align="right" bgcolor="#ffffff">4.29</td>
+<td class="xl65" align="right" bgcolor="#ffffff">5.45<br></td>
+</tr>
+</tbody></table></blockquote>
+Pulling data where the writes are local took on average 0.79 seconds and is 5.45 times quicker than pushing data where the writes are over the network which took, on average, 4.29 seconds.<br><br><b>Moral</b>: If you have to work over a LAN or WAN, try to make your writes local...]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Shebang and script interpreters</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2012/09/shebang-and-scr.html" />
+    <id>tag:defaria.com,2012:/blogs/status//8.1977</id>
+
+    <published>2012-09-15T00:48:31Z</published>
+    <updated>2014-02-17T18:09:48Z</updated>
+
+    <summary>Turns out that you cannot put a script as the interpreter for your #! line. It must be a binary. Also, many IT departments forced with supporting various Unix/Linux&apos;s often have a set of scripts that &quot;do the right thing(tm)&quot;...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Broadcom" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<p>Turns out that you cannot put a script as the interpreter for your #! line. It must be a binary. Also, many IT departments forced with supporting various Unix/Linux's often have a set of scripts that "do the right thing(tm)" to set up an environment for the target architecture then execute the architecturally appropriate binary. I did this way back with /app server.</p>
+
+<p>So what do you do when you are say writing an expect script and wish to use #!/app/expect? The trick is to use something like #!/usr/bin/env /app/expect. Most people are familiar with using env(1) to print out the environment and it turns out it does - if you don't give it any other parameter. But it's real main purpose is "run a program in a modified environment". So if you wish to use an interpreter that is a script use #!/usr/bin/env /path/to/script as your shebang line.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Creating a Development Schema</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2012/08/creating-a-deve.html" />
+    <id>tag:defaria.com,2012:/blogs/status//8.1976</id>
+
+    <published>2012-08-30T04:08:12Z</published>
+    <updated>2014-02-17T18:09:48Z</updated>
+
+    <summary>Creating a dev schema is not that difficult. Note you can create a dev schema in the production schema repo or in a dev schema repo. The later is a just a bit safer as it is a bit more...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Broadcom" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<p>Creating a dev schema is not that difficult. Note you can create a dev schema in the production schema repo or in a dev schema repo. The later is a just a bit safer as it is a bit more isolated.</p>
+
+<p>To create a dev schema from the CQ Designer, right click on the schema repo and select <b>New: Schema</b>. We are creating a new schema by basing it off of an existing schema. Expand the + sign and select the version that you wish to base your new schema off of. Right now there is only Version 1. Select next and name your schema. I suggest that you use your username (e.g. adefaria) indicating that we are the owner of this dev schema. Enter comments if you like and then <b>Finish</b>.</p>
+
+<p>After the schema is created it will ask you if you want to associate this with a database. You could select <b>Yes</b> and then go though naming your database and connecting it to an existing user database but chances are you don't have one of those yet. So select <b>No</b> for now. You now have a development schema.</p>
+
+<h3>Creating a Test Database</h3>
+
+<p>You must create an empty database on the database server. Use RDP to get a remote desktop there and run the SQL Server Management Studio and connect to the database server engine.</p>
+
+<p>Next right click on databases and select New Database. Name your database. The convention for test databases is &lt;schemaname&gt;_&lt;id&gt;. For our personal test databases again I'd suggest using your user ID so I will create &lt;schemaname&gt;_adefaria for me.</p>
+
+<h3>Setting the db_owner and schema owner</h3>
+
+<p>In MSSQL we need to set the dbowner and the schema for this new database. Expand the folder tree (+) on your newly created database (MobDev_adefaria) then right click on Security and select New: User. Type &lt;dbadmin&gt; in the User Name edit box and then select and copy this string. We'll need it several times more in this process. Paste this into the Login name and Default Schema and then toggle on db_owner in both the Schemas owned by this user and Database role membership boxes then select OK.</p>
+
+<p>Next right click on Security again and select <b>New: Schema</b>. Paste &lt;dbadmin&gt; into Schema Name and Schema Owner and click OK.</p>
+
+<p>Now you have an empty database that you can associate with your schema.</p>
+
+<h3>Associating your new test database with your dev schema</h3>
+
+<p>Go back to CQ Designer and right click on your development schema again and select <b>Show: User Databases</b>. You should see a list of databases. Right click on an empty area and select <b>Create Database</b>. Seems odd to call it create database when the database has already been created - it really means "take this schema and it's definition of what should be in the user database and apply that definition/schema to my newly created empty database".</p>
+
+<p>Give this database a Logical Database Name. Alas we only have 5 characters. I just use my initials - apd - short and simple. Add comments if you like. We use MSSQL for the database vendor. Then toggle Database Type to Test Database. We already have a production database in our dev schema repo then select next.</p>
+
+<p>Now we fill in Physical Database Name with the name of the database (&lt;schemaname&gt;_adefaria) and the Database Server . Then paste that &lt;dbadmin&gt; into Administrator User and Administrator Password (See I told you you'd need it!) then Next and Next again.</p>
+
+<p>Now we need to expand the adefaria (your dev schema) and select which version you want this new test database to start with. Select Version 1 and Finish.</p>
+
+<p>Clearquest Designer now goes out and creates all the necessary tables and transfers all of the necessary data, hook scripts, etc. from Version 1 of the dev schema adefaria into your database. Get coffee...</p>
+
+<p>After the database is created follow the steps at Seeding a test database to seed your test database with some test data.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Creating Development Schema Repositories</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2012/08/creating-develo.html" />
+    <id>tag:defaria.com,2012:/blogs/status//8.1975</id>
+
+    <published>2012-08-28T21:41:42Z</published>
+    <updated>2014-02-17T18:09:48Z</updated>
+
+    <summary> When you have multiple Clearquest Designers you quickly realize that you cannot easily do parallel development of the schema. The best way to do this is to work through a development schema repository and to create development schemas for...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Broadcom" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[            <p>When you have multiple Clearquest Designers you quickly realize that you cannot easily do parallel development of the schema. The best way to do this is to work through a development schema repository and to create development schemas for each schema designer. To create a development schema repository you should first create an empty database for Clearquest to work in. You can create an empty database by following the instructions for&nbsp;<span class="nobr"><a href="http://confluence.broadcom.com/display/MWGMPSSCM/Creating+a+Development+Schema#CreatingaDevelopmentSchema-CreatingaTestDatbase" class="external-link" rel="nofollow">Creating a Test Database</a>. Next you must use the Clearquest Maintenance Tool to create a new Schema Repository:</p>
+
+<ul>
+  <li>Start the Clearquest Maintenance Tool</li>
+  <li>Select <b>Schema Respository: Create</b></li>
+  <li>The Maintenance Tool then asks you to fill out information regarding the location of your schema database. Fill in information about the database server and Administrator Name and password. Do not create a sample database at this time. The Clearquest Maintenance tool will take some time to set up the new schema repository.</li>
+</ul>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-ExportingaCQProfile.iniforthisnewDevelopmentSchemaRepository"></a>Exporting a CQProfile.ini for this new Development Schema Repository</h3>
+
+<p>In order to see this new development schema repository you should export the schema repository from the Clearquest&nbsp;Maintenance&nbsp;Tool. This exported cqprofile.ini can be shared with out Schema Developers who would import the .ini file into their environment using the Clearquest Maintenance Tool. You export the cqprofile.ini by selecting&nbsp;<b>File: Export Profile</b>. You need only select the new repository you created.</p>
+
+<p><img src="images/Export cqprofile.png"></p>
+
+<p>Click on the "..." button to select where to store the .ini file and what it's name will be - I used C:\Cygwin\tmp\MPSDev.ini and click&nbsp;<b>Finish</b>. This file can be passed to your fellow Schema Developers.</p>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-ImportingUsers"></a>Importing Users</h3>
+
+<p>Your new development schema repo has no users in it except a default set of users including the "admin" user (with no password). Run the User Administration tool on production (MCBU) and export all of the users. Run the User Administration tool again on the new development schema repo (e.g. MPSDev) and import the users.</p>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-CleanupUnnecessarySchemas"></a>Clean up Unnecessary Schemas</h3>
+
+<p>Now's a good time to remove additional default schemas in your development schema repo like Common, DefectTracking, Enterprise, etc. You cannot delete the Blank schema.</p>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-SeedingtheDevelopmentSchemaRepowiththeLatestVersionfromProduction"></a>Seeding the Development Schema Repo with the Latest Version from Production</h3>
+
+<p>One trick to seed your new development schema repo with a recent version of the production schema is to create a new development schema in the production schema repo based off of the latest version of the production schema. Then export that whole schema of the <b>new</b> development schema and import it into the new development schema repo. You will only have the history of the latest version of the schema but that's OK for development purpose. Make sure you specify an appropriate Schema Name and Comment when you export the schema from production:</p>
+
+<p><img src="images/New Schema.png"></p>
+
+<p><b>Note:</b>&nbsp;We are giving this schema the name MPSDev because that's what we want it to be called in the new development schema repo. Also, the comment is appropriate when we will be looking at it in the MPSDev development schema repo.</p>
+
+<p>Do not associate a database with this schema, there's no reason. We don't care as we are only using this to exportschema from production &#45;&gt; development schema repo. We'll create databases there. We don't need to check out this schema either.</p>
+
+<h4><a name="CreatingDevelopmentSchemaRepositories-ExportingtheSchemafromProduction"></a>Exporting the Schema from Production</h4>
+
+<p>We assume you have created a new development schema in the production schema repo based off of the tip of the production database. You need to export that with:</p>
+
+<div class="code" >$ cqload exportschema -dbset MCBU admin &lt;password&gt; &lt;schemaname&gt; &lt;path to &lt;schemaname&gt;.full.schema&gt;]]&gt;
+</div>
+
+<p>Where &lt;schemaname&gt; is the name of the development schema name you created in the production schema repo</p>
+
+<h4><a name="CreatingDevelopmentSchemaRepositories-ImportingtheSchemaintotheDevelopmentSchemaRepo"></a>Importing the Schema into the Development Schema Repo</h4>
+
+<p>Next we import this full.schema of only the tip of production to seed a development schema in the development schema repo.</p>
+
+<p><div class="code">$ cqload importschema -dbset MPSDev admin &lt;password&gt; &lt;path to &lt;schemaname&gt;.full.schema&gt;
+*********************************************************
+Starting importschema
+*********************************************************
+
+CRMMD1264E The import file ".\MPSDev.full.schema" is invalid:
+CRMMD1422E The schema requires the following package(s), which is(are) not currently installed in the database...
+    revision '2.1' of package 'EmailPlus'
+    revision '1.2' of package 'Resolution'
+    revision '2.1' of package 'Attachments'.
+
+*********************************************************
+ERROR: importschema FAILED!
+*********************************************************
+</div>
+
+<p>Oops! We need to import these packages into our new schema. Right click on your new development schema repo in Clearquest Designer and select <b>Install Package</b>. Expand the EmailPlus and select 2.1 to install that. Repeat this for Resolution and Attachments. Repeat the cqload importschema.</p>
+
+<h4><a name="CreatingDevelopmentSchemaRepositories-RemoveOldSchemainProductionRepo"></a>Remove Old Schema in Production Repo</h4>
+
+<p>You can remove the schema you created above in the Production repo as it is no longer needed.</p>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-CreateDevSchemas"></a>Create Dev Schemas</h3>
+
+<p>You are now free to create development schemas in the new development schema repo as described&nbsp;<a href="/display/MWGMPSSCM/Creating+a+Development+Schema" title="Creating a Development Schema">Creating a Development Schema</a>&nbsp;as well as test databases and <a href="/display/MWGMPSSCM/Seeding+a+Test+Database" title="Seeding a Test Database">seeding them</a>.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Eliminating Perl Syntactic Sugar</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2012/08/eliminating-per.html" />
+    <id>tag:defaria.com,2012:/blogs/status//8.1974</id>
+
+    <published>2012-08-03T03:13:44Z</published>
+    <updated>2014-02-17T18:09:48Z</updated>
+
+    <summary>Programming complex systems is... well... complicated. You need to focus on the task at hand and be able to see the trees from the forest as they say. That&apos;s why I like to eliminate as much what I call syntactic...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<p>Programming complex systems is... well... complicated. You need to focus on the task at hand and be able to see the trees from the forest as they say. That's why I like to eliminate as much what I call syntactic sugar from the language. Syntactic sugar are ornaments, special characters and restating the obvious or default that makes your mind drift from the problem at hand to how to formulate syntactic sugar. Additionally such sugar takes time to type in, is prone to errors if you don't get it right and usually are comprised of characters that, as a touch typist, you have to often stretch to reach on the keyboard.</p>
+
+<p>Here's an example. Recently I came across the following code:</p>
+
+<div class="code">
+    delete($self->{'cqc'}->{'fields'}->{'PCP_ID'}) if (exists $self->{'cqc'}->{'fields'}->{'PCP_ID'}); # PCP_ID  is read-only and should not be passed through.<br>
+    delete($self->{'cqc'}->{'fields'}->{'Approved_by_CCB'}) if (exists $self->{'cqc'}->{'fields'}->{'Approved_by_CCB'});<br>
+    delete($self->{'cqc'}->{'fields'}->{'record_type'}) if (exists $self->{'cqc'}->{'fields'}->{'record_type'});<br>
+</div>
+
+<p>Now that takes a some time to parse... (Did you see the comment buried in there?) And here's the same code with the syntactic sugar removed:</p>
+
+<div class="code">
+    delete $self->{cqc}{fields}{PCP_ID};<br>
+    delete $self->{cqc}{fields}{Approved_by_CCB};<br>
+    delete $self->{cqc}{fields}{record_type};<br>
+</div>
+
+<p>which do you find easier to read?</p>
+
+<p><b>Notes:</b></p>
+
+<ul>
+  <li> Surrounding hash keys with '' is unnecessary unless you use special characters in the key name like spaces and '-'. The '_' character is OK (the Perl interpreter views '-' as a possible subtraction). Use '' for hash keys only when necessary.</li>
+
+  <li>The additional '->' operators are unnecessary. The first one is necessary since $self is a hashref, but after that you don't need them - why type them?</li>
+
+  <li>The delete call need not have (). Granted, delete is a function and some people field all function should have () even if there are no parameters. And yet even people who feel this way rarely use () on Perl builtins like print and die. If you define your subroutines before they are used you can call them without ().</li>
+
+  <li>There's no reason to include "if (exists $self->{'cqc'}->{'fields'}->{'PCP_ID'})". First off, if clauses that follow the statement do not need (). Even "exists" is unnecessary as if it is omitted the if statement works the same anyway. Finally, delete $hashref->{unknown} will not error out if $hashref->{unknown} doesn't exist.</li>
+</ul>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>2012-05-11-adefaria</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2012/05/20120511adefari.html" />
+    <id>tag:defaria.com,2012:/blogs/status//8.1973</id>
+
+    <published>2012-05-09T03:56:12Z</published>
+    <updated>2014-02-17T18:09:48Z</updated>
+
+    <summary>Clearquest Consulted with Venkat on new hook code for Clearquest Described how to properly handle additions to VersionInfo Worked with Kunjal on problem with Email Rules and corrupted queries ... Platform Tools Modified mps-scm-ec-ab-trigger.pl to parse XML for name value...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Broadcom" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<h1>Clearquest</h1>
+
+<ul>
+  <li>Consulted with Venkat on new hook code for Clearquest</li>
+
+  <li>Described how to properly handle additions to VersionInfo</li>
+
+  <li>Worked with Kunjal on problem with Email Rules and corrupted queries</li>
+
+  <li>...</li>
+</ul>
+
+<h1>Platform Tools</h1>
+
+<ul>
+  <li>Modified mps-scm-ec-ab-trigger.pl to parse XML for name value pairs. No more translations! What you say in the XML is what is passed to EC!</li>
+
+  <li>Got call to EC runProcedure working</li>
+
+  <li>Investigated build issue caused by missing WinZip Self Extractor on 102</li>
+
+  <li>...</li>
+</ul>
+
+<h1>DevEnv</h1>
+
+<ul>
+  <li>Got newer Eclipse installed on Linux (/tools/bin/eclipse). Tested out installing plugins (EPIC, etc.). Worked well.</li>
+
+  <li>Consulted with Dennis Sass Re: Cygwin environment</li>
+
+  <li>...</li>
+</ul>
+
+<h1>Emergency Firefighting Incidents/Urgent Unplanned Work</h1>
+
+<ul>
+  <li>Bug in Email Rules package - debugging with Kunjal</li>
+
+  <li>...</li>
+</ul>
+
+<h1>Other Tasks</h1>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Perl::Critic</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2012/04/perlcritic-1.html" />
+    <id>tag:defaria.com,2012:/blogs/status//8.1972</id>
+
+    <published>2012-04-11T20:38:27Z</published>
+    <updated>2014-02-17T18:09:48Z</updated>
+
+    <summary>OK, I&apos;m a nerd and I&apos;m pretty passionate about Perl. But in my defense this is my business and my chosen career - it is what I went to school for way back in the day. So I listen to...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Broadcom" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<p>OK, I'm a nerd and I'm pretty passionate about Perl. But in my defense this is my business and my chosen career - it is what I went to school for way back in the day. So I listen to podcasts about many topics including technology. One podcast I listen to regularly is <a href="http://twit.tv/show/floss-weekly">FLOSS Weekly</a> with <a href="https://en.wikipedia.org/wiki/Randal_Schwartz">Randal Schwartz</a>. Randal wrote <a href="http://www.amazon.com/Learning-Perl-Randal-L-Schwartz/dp/1449303587">Learning Perl</a> among other Perl books and he had on <a href="http://search.cpan.org/~thaljef/">Jeffery Thalhammer</a> who talked about his creation <a href="http://www.perlcritic.org/">Perl::Critic</a>. For those who may be interested the Perl::Critic episode is <a href="http://twit.tv/show/floss-weekly/189">here</a>.</p>
+
+<p>The easiest way you can try out Perl::Critic by going to <a href="http://www.perlcritic.org/">http://www.perlcritic.org/</a>. You can even evaluate your own Perl scripts by using the Choose File and set your severity level. You can start with gentle but I usually do harsh as that's in the middle.</p>
+
+<p>Perl::Critic is a static analyzer that finds inconsistencies and possible errors in your Perl code as well as tries to enforce best practices as written about in <a href="http://shop.oreilly.com/product/9780596001735.do">Perl Best Practices</a> by Damian Conway. Perl::Critic is implemented as a CPAN module. There is also a command line (<a href="http://search.cpan.org/%7Eschwigon/Benchmark-Perl-Formance-Cargo-0.03/lib/auto/Benchmark/Perl/Formance/Cargo/PerlCritic/perlcritic">/usr/bin/perlcritic</a>) that allows you to run perlcritic on your code from the command line. But the web page is better because it provides links to explanations of why Perl::Critic thinks what it complains about is a problem as well as tells you how to fix it.</p>
+
+<p>Now, of course, critiquing your code is highly subjective and you may not agree with the rational for why Perl::Critic flags this as a problem. Perl::Critic is very tunable - you can set settings in ~/.perlcriticrc to say "We don't want you, Perl::Critic, to flag this as a problem".</p>
+
+<p>If you use <a href="https://eclipse.org/">Eclipse</a> as your IDE and have <a href="http://www.epic-ide.org/">EPIC, the Eclipse Perl Integration plugin</a>, and have <a href="http://cygwin.com/">Cygwin</a> installed with <a href="http://search.cpan.org/%7Eschwigon/Benchmark-Perl-Formance-Cargo-0.03/lib/auto/Benchmark/Perl/Formance/Cargo/PerlCritic/perlcritic">perlcritic</a> installed too, you can configure Eclipse to use Perl::Critic directly in the editor and flag errors as you code which you can then fix.</p>
+
+<p>For example, you can see the little triangle with "!" in it relates to the line in the Problems tab at the bottom which says that I've defined $value but never used it.</p>
+
+<img src="/blogs/Status/images/Eclipse.png">]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Using PDSQL to update Clearquest databases</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2012/02/using-pdsql-to.html" />
+    <id>tag:defaria.com,2012:/blogs/status//8.1971</id>
+
+    <published>2012-02-13T23:10:03Z</published>
+    <updated>2014-02-17T18:09:48Z</updated>
+
+    <summary>Using PDSQL to update Clearquest databases Often when you add a new field to a Clearquest database you need to tackle the problem of how to update or set the value on all of your old records. Often specialized scripts...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Broadcom" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<h2>Using PDSQL to update Clearquest databases</h2>
+
+<p>Often when you add a new field to a Clearquest database you need to tackle the problem of how to update or set the value on all of your old records. Often specialized scripts are created to say set the new field to some known value in all of the older records by using the Clearquest API. This takes time to write such scripts and it takes time to run because all of the action hook code needs to be executed to validate the record, etc. Often this is needless rechecking of already correct values of all of the fields in the record. Updates of this kind can take literally hours to process large numbers of records and have all of that action hook code run for no particular reason.</p>
+
+<p>There is a utility in C:\Program Files\IBM\RationalSDLC\ClearQuest named pdsql. It provides a command line interface to the database directly which you can use to perform updates of fields in a lightning fast manner. The updating of all defect records setting a new field to say "foo" would take literally hours using the Clearquest API but less than a second or two in pdsql.</p>]]>
+        <![CDATA[<h3>Running PDSQL</h3>
+
+<p>You should have C:\Program Files\IBM\RationalSDLC\ClearQuest in your PATH. When you start up pdsql you need to specify a lot of parameters to connect to the database. Remember you are talking to the database so you must use the true database name, not the Clearquest database name. You can use pdsql -help to see the help usage but usually you'll specify the following parameters:</p>
+
+<div class=code><pre>
+$ pdsql -u &lt;username&gt; -p &lt;password&gt; -v ss -s &lt;server&gt; -db &lt;database&gt;
+</pre></div>
+
+<p>Note that the username (-u) is the database username. Also the -db is the database name not the Clearquest database name. The -v ss stands for SQLServer and -s is the server name. for ease I have a simply Bash script to get into pdsql that I've named cqsql.sh:</p>
+
+<div class=code><pre>
+Ltsdo-adefaria:cat /mcsi/scm_tools/cq/cqsql.sh
+#!/bin/bash
+if [ $# -ne 1 ]; then
+  echo "Usage: cqsql <db>"
+  exit 1
+fi
+ 
+if [ -n "$(type -p rlwrap)" ]; then
+  rlwrap=rlwrap
+fi
+ 
+$rlwrap pdsql -u &lt;username&gt; -p &lt;password&gt; -v ss -s &lt;server&gt; -db $1
+</pre></div>
+
+<p>Once in pdsql you can issue SQL statements. Note that ';' is required to terminate all commands - even quit! Also note there is no command line history and very poor editing. If, for example, you forget and do say an up arrow you have put unprintable characters in your command line and your command will fail. If you use Cygwin and have installed the wonderful utility rlwrap (readline wrap) then you will have a full, bash like command history which is extremely useful!</p>
+
+<h3>Issuing SQL commands</h3>
+
+<p>Remember, you are talking to the back end database directly so all field names will be the database field names shown in Clearquest Designer - not the field names that Clearquest users use. Some useful, non SQL commands are tables; and columns <tablename>;. These commands show the table names in the database and the columns in the a particular table.</p>
+
+<p>Most standard SQL commands work as expected. Here is an example session where I used pdsql to set Reproducible to the string "NO" if it was previously NULL (New short strings are set to NULL when a field is added to a record).</p>
+
+<div class=code><pre>
+>select count(*) from defect where reproducible is not null;
+ 
+   <EXPR-1>
+         11
+ 
+>select reproducible from defect where reproducible is not null;
+ 
+                           reproducible
+                                                NO
+                                                NO
+                                                NO
+                                                NO
+                                                NO
+                                                NO
+                                                NO
+                                                NO
+                                                NO
+                                                NO
+                                                NO
+                                               YES
+ 
+>update defect set reproducible = 'NO' where reproducible  is null;
+93326 rows affected.
+>
+</pre></div>
+
+<p>I used to the count(*) syntax to determine how many of the defect records had reproducible not set to NULL. These would be from any new records created since the action hook code makes sure to set this field to either "YES" or "NO". It's the old records we need to set to "NO" if they were NULL. Since there were only 11 records that were not null I decided to see what they contained. Good, they contain what I expect - "NO"'s and "YES"'s only. Then the simple update command to set reproducible = 'NO' if it was null. This command took a second or two to update 93326 defects!</p>
+
+<h3>Setting a reference field</h3>
+
+<p>When you look into the database directly you start learning how Clearquest does some of its magic. For a reference field one does not see the key to the reference field in textual form rather one sees an integer field, a dbid. Records have a dbid which allows direct access to the particular record. This way if the textual representation of the key (i.e. Name in the Certification stateless record as shown here) you only need update one record instead of potentially thousands of referenced records.</p>
+
+<p>So then how do you change a reference field? The trick is to find the dbid for that stateless record and plop it into the record that references it. Unfortunately, when the stateless record Certification was created its internal table name was never changed from the default "new1" so we need to use the database name for this table - new1. We select the fields for new1 to reveal that 35541127 is the dbid for the "N/A" record in Certification. We then do a small test changing only one record - DB00031023 - carriercertification reference from 0 -> 35541127. Next I checked that this defect (DB00031023) had a Certification of "N/A" in the Clearquest client. It did. So I know this method works.</p>
+
+<div class=code><pre>
+>select * from new1;
+ 
+       dbid   is_active     version lock_version   locked_by ratl_mastership ratl_keysite          name
+          0        NULL           1            0           0               0            0          NULL
+   35541119           1           1            0           0        16777313     16777313          Grade A
+   35541121           1           1            0           0        16777313     16777313          Grade B
+   35541123           1           1            0           0        16777313     16777313          Grade C
+   35541125           1           1            0           0        16777313     16777313          Grade D
+   35541127           1           1            0           0        16777313     16777313          N/A
+ 
+>select certification from defect where id='DB00031023';
+ 
+certification
+                   0
+ 
+>update defect set certification=35541127 where id='DB00031023';
+1 rows affected.
+ 
+>select id from defect where id='DB00031024' and certification = 0;
+ 
+           id
+DB00031024
+ 
+ 
+>select id from defect where id='DB00031024' and certification = 1;
+ 
+           id
+ 
+>select count(*) from defect;
+   <EXPR-1>
+      93407
+ 
+>select count(*) from defect where certification = 0;
+   <EXPR-1>
+      93026
+ 
+>update defect set certification = 35541127 where certification= 0;
+93025 rows affected.
+</pre></div>]]>
+    </content>
+</entry>
+
+<entry>
+    <title>Outlook Top Posting</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2012/01/outlook-top-pos.html" />
+    <id>tag:defaria.com,2012:/blogs/status//8.1970</id>
+
+    <published>2012-01-26T08:52:46Z</published>
+    <updated>2014-02-17T18:09:47Z</updated>
+
+    <summary>It never ceases to amaze me how poorly business communications are handled and how badly businesses&apos; #1 tool of communication supports, or rather doesn&apos;t support, good communication. Case in point: I believe you are talking about how I use interleaved...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Broadcom" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<p>It never ceases to amaze me how poorly business communications are handled and how badly businesses' #1 tool of communication supports, or rather doesn't support, good communication. Case in point:</p>
+
+<p>I believe you are talking about how I use interleaved posting. Wikipedia has a good article on this: <a href="https://en.wikipedia.org/wiki/Posting_style">Posting Style</a> and I find the following blog posting about <a href="http://idallen.com/topposting.html">Top Posting</a>, convincing:
+
+<blockquote><pre>
+A: Because we read from top to bottom, left to right.
+Q: Why should I start my reply below the quoted text?
+A: Because it messes up the order in which people normally read text.
+Q: Why is top-posting such a bad thing?
+A: The lost context.
+Q: What makes top-posted replies harder to read than bottom-posted?
+A: Yes.
+Q: Should I trim down the quoted part of an email to which I'm replying?
+</pre></blockquote>
+
+<p>Read normally, top to bottom and left to right, this makes little sense. Reading this from the bottom up you get the meaning. How do you guys do it? How do you keep track and parse such long email chains I have no idea!</p>
+
+<p>Unfortunately Outlook does not make this easier. As the Wikipedia article states:</p>
+
+<blockquote>
+<h3>Quoting support in popular mail clients</h3>
+
+<p>This widespread policy in business communication [top posting only] made bottom and inline posting so unknown among most users that some of the most popular email programs no longer support the traditional posting style. For example Microsoft Outlook, AOL, and Yahoo! make it difficult or impossible to indicate which part of a message is the quoted original or do not let users insert comments between parts of the original.</p>
+</blockquote>
+
+<p>Here's how it looks to me:</p>
+
+<img src="/blogs/Status/images/EMail.png"></img>
+
+<p>Which is quite readable. I had tried to help Outlook users by including CSS code in my responses to replicate the quote bars you see above, but somewhere around Outlook 2007 or so Outlook broke it and no longer honors &lt;blockquote type=cite&gt; citations and I gave up.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Remote Editing</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/Status/2011/10/remote-editing.html" />
+    <id>tag:defaria.com,2011:/blogs/status//8.1969</id>
+
+    <published>2011-10-11T18:13:02Z</published>
+    <updated>2014-02-17T18:09:47Z</updated>
+
+    <summary>Setting: ;; Set default tramp-default-method to ssh as well as ;; insert &quot;:&quot; into shell-prompt-pattern (setq tramp-default-method &quot;ssh&quot;) (setq shell-prompt-pattern &quot;^[^#$%&gt;:\n]*[#$%&gt;:] *&quot;) helps tremendously in getting tramp to work using ssh. Now just get ssh pre-shared key working through Cygwin...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+        <category term="Tellabs" scheme="http://www.sixapart.com/ns/types#category" />
+    
+    
+    <content type="html" xml:lang="en-us" xml:base="http://defaria.com/blogs/Status/">
+        <![CDATA[<p>Setting:</p>
+
+<div type=code><pre>
+;; Set default tramp-default-method to ssh as well as
+;; insert ":" into shell-prompt-pattern
+(setq tramp-default-method "ssh")
+(setq shell-prompt-pattern "^[^#$%>:\n]*[#$%>:] *")
+</pre></div>
+
+<p>helps tremendously in getting tramp to work using ssh. Now just get ssh pre-shared key working through Cygwin and run xemacs (or emacs) through Cygwin and tramp should work fine!</p>
+
+<p>But even better may be to get editing of remote files working in Eclipse. Here's how you do that:</p>
+
+<ol>
+  <li>Install the following from http://download.eclipse.org/releases/helios:</li>
+    <ul>
+      <li>Remote System Explorer End-User Adapter</li>
+      <li>Remote System Explorer User Actions</li>
+      <li>PTP RDT Remote Tools Support</lib>
+      <li>PTP Remote Development Tools (RDT)</li>
+      <li>PTP Remote System Explorer</li>
+    </ul>
+
+    <li>Configure new systems through the Remote Systems view</li>
+</ol>
+
+<p>System monitor can be very useful to pin various deeply nested remote folders to.</p>]]>
+        
+    </content>
+</entry>
+
+</feed>

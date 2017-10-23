@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Genius move</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000163.html" title="Web views/register/Pauls Vob" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000165.html" title="CRPS/Genius Move" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000163.html">&laquo; Web views/register/Pauls Vob</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000165.html">CRPS/Genius Move &raquo;</a>
+                     </p>
+
+                     <a id="a000164"></a>
+                     <div class="entry" id="entry-164">
+                        <h3 class="entry-header">Genius move</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Attempted to move Core_automation and EntData_ARCH vobs to prod01 but failed</li>
+
+<li> Worked with security people to get vobadm password back</li>
+
+<li>Worked a little to configure RWP for Perl CGI</li>
+
+</ul>
+
+<h3> Vob move problems</h3>
+
+<p>First problem with the move of these vobs was that vobadm's password had changed. Therefore I had to perform this vob move in an unfamilar environment. Also, ownerships and permissions on these vobs are odd as they were done before we started standardizing things. As ccadmin1 I was eventually able to copy the vob storage but was not able to register these vobs at the new location.  Attempts to do so would fail with </p>
+
+<div class="code">
+cleartool: Error: Failed to record hostname "rtnlprod01" in storage directory<br>
+"D:\vobstore\EntData_ARCH.vbs". Check that root or the ClearCase<br> administrators group has permission to write to this directory.<br>
+</div>
+
+<p>Even after changing ownerships this was still failing. I suggest we take soem time to get the ownerships and permissions standardized on these vobs in the Genuis region before we attempt to move them again (that and perhaps doing some test moving...)</p>
+
+<h3>Vobadm password problems</h3>
+
+<p>AFAICT somebody changed the vobadm password. Now I'm not pointing any fingers however nobody in our group did and the only other group who knows the vobadm password is...  Well you fill in the rest! Anyways, for some reason at about 3 Pm that somebody must have changed the password back.</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 23, 2004  3:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000164.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

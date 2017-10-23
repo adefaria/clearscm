@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+  xmlns:admin="http://webns.net/mvcb/"
+  xmlns:cc="http://web.resource.org/cc/"
+  xmlns="http://purl.org/rss/1.0/">
+
+<channel rdf:about="http://defaria.com/blogs/Danielle/">
+<title>Danielle</title>
+<link>http://defaria.com/blogs/Danielle/</link>
+<description></description>
+<dc:language>en-us</dc:language>
+<dc:creator></dc:creator>
+<dc:date>2004-05-08T18:51:14-06:00</dc:date>
+<admin:generatorAgent rdf:resource="http://www.movabletype.org/?v=3.2" />
+
+
+<items>
+<rdf:Seq><rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000175.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000147.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000135.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000104.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000064.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000065.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000066.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000067.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000068.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000069.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000070.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000072.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000071.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000074.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Danielle/archives/000073.html" />
+</rdf:Seq>
+</items>
+
+</channel>
+
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000175.html">
+<title>Church band</title>
+<link>http://defaria.com/blogs/Danielle/archives/000175.html</link>
+<description>Recently Danni got accepted into the church band. It&apos;s pretty cool what Christian musician&apos;s are doing now a days. For Danni&apos;s birthday this year I got her a bunch of Christian CDs because that&apos;s what she wanted. She sings them...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2004-05-08T18:51:14-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000147.html">
+<title>Diamond injured</title>
+<link>http://defaria.com/blogs/Danielle/archives/000147.html</link>
+<description>Recently tragedy struck Diamond, Danielle&apos;s dog. Mary-Anne, her mother, explains: Hello All, I wanted to let you know about our little sheltie. The gate got left opened by Accident on Tuesday and I was inside with 2 toddlers and a...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2004-03-03T08:18:52-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000135.html">
+<title>Valentines Day</title>
+<link>http://defaria.com/blogs/Danielle/archives/000135.html</link>
+<description>Danni and I are currently fighting. I grounded her for misbehaving and, of course, she doesn&apos;t like that. She asked me to move the punchment to next weekend, which defeats the purpose really. It&apos;s a pity that this is ruining...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2004-02-13T19:44:06-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000104.html">
+<title>New Bedroom</title>
+<link>http://defaria.com/blogs/Danielle/archives/000104.html</link>
+<description>Well Danni&apos;s new bedroom set arrived today and I spend time putting it together. I have to admit I think she picked out a nice set. I think she feels that she has her own style and taste and that...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2004-01-14T16:00:57-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000064.html">
+<title>Halloween</title>
+<link>http://defaria.com/blogs/Danielle/archives/000064.html</link>
+<description>Halloween was relatively uneventual this year, especially compared to last year when my wife was thrown in jail for domestic violence a week or two before. Danni was a biker chick and she and her best friend Destiny, did some...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2003-10-31T23:36:36-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000065.html">
+<title>Carving Pumpkins</title>
+<link>http://defaria.com/blogs/Danielle/archives/000065.html</link>
+<description>Went over Mary-Anne&apos;s today to carve pumpkins. It was nice to be involved in a family activity. The pumpkins came out pretty good too. Ready for Halloween. After a very hot October this year the temperature finally dropped to be...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2003-10-30T21:08:47-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000066.html">
+<title>Pumpkin Patch</title>
+<link>http://defaria.com/blogs/Danielle/archives/000066.html</link>
+<description>Yesterday we went to the Pumpkin Patch in Morgan Hill as is customary. I had bad vibes going there since last year it was so horrible with Olga being upset and all. We went at night so we didn&apos;t have...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2003-10-29T11:10:00-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000067.html">
+<title>I Don&apos;t Think So!</title>
+<link>http://defaria.com/blogs/Danielle/archives/000067.html</link>
+<description>I had just come back from visiting my Mom and had been away from Danni for a week. Mary-Anne was kind enough to pick me up at San Francisco Airport. Danni was glad to see me and woke up immediately...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>1997-10-01T23:19:49-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000068.html">
+<title>The Tumbling Cat</title>
+<link>http://defaria.com/blogs/Danielle/archives/000068.html</link>
+<description>Recently I got a cat for Danielle. She wanted a kitten but kittens are not typically born in the winter. We settled for 1 year 3 month old &quot;kitty&quot;. We got her from the Santa Clara Animial Shelter and her...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>1997-01-01T21:40:02-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000069.html">
+<title>Christmas</title>
+<link>http://defaria.com/blogs/Danielle/archives/000069.html</link>
+<description>I had Danielle for Christmas Eve and Christmas morning. It was interesting having her for the night and her excitement level was up about Santa Claus. We had watched a couple of Christmas videos including The Santa Clause by Tim...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>1996-12-26T22:18:14-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000070.html">
+<title>The Magic Stone</title>
+<link>http://defaria.com/blogs/Danielle/archives/000070.html</link>
+<description>One day while driving Danni to school I told her that Daddy was thinking of getting his hair done again and that I might color is back to my natural brown color. Danni ask why and I said because my...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>1996-09-01T21:39:40-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000072.html">
+<title>Driving a Stick</title>
+<link>http://defaria.com/blogs/Danielle/archives/000072.html</link>
+<description>Danni has been getting into helping Daddy drive. She no longer needs to use a car seat and sits strapped into the front seat. I had brought Mary-Anne&apos;s old Dodge Colt and it had a stick shift. Danni became curious...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>1996-07-15T08:16:22-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000071.html">
+<title>Swimming Lessons</title>
+<link>http://defaria.com/blogs/Danielle/archives/000071.html</link>
+<description>Preschool had a summer program of swimming lessons that I signed Danni up for. Soon she would talking about how she would blow bubbles in the water and do things at &quot;the green wall&quot;. Whenever she would visit she would...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>1996-07-01T20:14:30-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000074.html">
+<title>Getting Married</title>
+<link>http://defaria.com/blogs/Danielle/archives/000074.html</link>
+<description>Danielle quickly got interested in marriage and the whole custom. She described to me once what getting married was all about. &quot;When you get married - You go to church and you stand before God&quot;, she said with a wonderment...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>1996-06-18T20:20:16-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Danielle/archives/000073.html">
+<title>Danni&apos;s First Bike</title>
+<link>http://defaria.com/blogs/Danielle/archives/000073.html</link>
+<description>Danni&apos;s real first bike was a tricycle that her mom got her however Danni&apos;s school was having &quot;bike day&quot; so I thought that I should buy Danni a two wheeler (with training wheels). Danni was all excited about her new...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>1996-06-10T15:18:49-06:00</dc:date>
+</item>
+
+
+</rdf:RDF>

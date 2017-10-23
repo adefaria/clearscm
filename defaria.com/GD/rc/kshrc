@@ -1,0 +1,131 @@
+#!/bin/ksh
+###############################################################################
+#
+# File:         $RCSfile: kshrc,v $
+# Revision:     $Revision: 1.2 $
+# Description:  ksh startup file
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Jun  6 08:31:57 PDT 1996
+# Modified:     $Date: 2005/12/30 08:36:46 $
+# Language:     ksh
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+###############################################################################
+umask 002
+
+# Check to see if we're interactive
+if [[ $- = *i* ]]; then
+  interactive=true
+else
+  interactive=false
+fi
+
+if [ "$interactive" = "true" ]; then
+  stty tostop intr ^C kill ^X susp ^Z erase  -inpck -istrip -ixany -echok -echonl
+fi
+
+# Load Runner environment
+export M_LROOT=/opt/loadrunner
+
+# Set adm_base
+adm_base=${adm_base:-$HOME/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+if [ -f $adm_fpath/common ]; then
+  . $adm_fpath/common
+else
+  echo "Warning: Cannot find $adm_fpath/common!"
+fi
+
+# Set machines
+machines=${machines:-$adm_base/data/machines}
+
+# Set PATH
+if [ -f ~/.rc/set_path ]; then
+   . ~/.rc/set_path
+else
+  echo "Warning: ~/.rc/set_path does not exist!"
+fi
+
+# Set DISPLAY properly
+export DISPLAY=${DISPLAY:-wmoc8888:0}
+
+if [ -x ~/.rc/logout ]; then
+  trap ~/.rc/logout 0
+fi
+
+# ClearCase Stuff
+if [ -f ~/.rc/clearcase ]; then
+  . ~/.rc/clearcase
+fi
+
+# MultiSite Stuff
+if [ -f ~/.rc/multisite ]; then
+  . ~/.rc/multisite
+fi
+
+# Import shell functions:
+if [ -f ~/.rc/functions ]; then
+  . ~/.rc/functions
+fi
+
+# Other settings:
+set -o emacs
+set -o markdirs
+set -o trackall
+set -o monitor
+set -o ignoreeof
+set -o viraw 
+set +u
+
+# Aliases:
+alias ls="ls -F"
+alias ll="ls -la"
+#alias ftp=ncftp
+
+if [ "$TERM" = "hpterm" -o \
+     "$TERM" = "hp"     -o \
+     "$TERM" = "dtterm" -o \
+     "$TERM" = "vt100"  -o \
+     "$TERM" = "vt220" ]; then
+  alias cd=_cd
+fi
+
+# Miscellaneous:
+less=$(whence less)
+
+if [ ! -z "$less" ]; then
+   export LESS=eiM; alias more=less
+   export PAGER="less -s"
+else 
+   export MORE=-es
+   export PAGER=more
+fi
+
+export PS4='${0##*/} line $LINENO:'
+
+set_title
+set_prompt
+
+# Fix TERM for 9.x machines running dtterm.
+if [ "$TERM" = "dtterm" ]; then
+  export TERM=vt100
+  export DTTERM=True
+fi
+
+case "$0" in
+  "/usr/dt/bin/dtksh" | \
+   "-dtksh" | \
+   "dtksh")
+  if [ -o vi ]; then
+    trap vi_completion KEYBD
+  elif [ -o emacs ]; then
+    trap emacs_completion KEYBD
+  fi
+  trap "eval $(resize)" WINDOW
+  ;;
+esac

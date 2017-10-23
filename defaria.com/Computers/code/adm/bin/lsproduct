@@ -1,0 +1,25 @@
+#!/bin/bash
+################################################################################
+#
+# File:         lsproduct
+# RCS:          $Header: lsproduct,v 1.1 96/07/24 04:01:51 defaria Exp $
+# Description:  Lists products for a 10.x machine
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Wed Jul 24 04:00:36 PDT 1996
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# First source the appserver script
+if [ -x /app/appserver ]; then
+  . /app/appserver
+fi
+
+if [ $# -eq 0 ]; then
+  print -u2 "All products on $(uname -n):"
+  /usr/sbin/swlist -l product
+else
+  /usr/sbin/swlist -l product "$@"
+fi

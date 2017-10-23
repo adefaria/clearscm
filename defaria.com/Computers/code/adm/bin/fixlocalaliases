@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo "Now on `uname -n`"
+grep "root:		cll-support" /etc/mail/aliases >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+	echo "   No change"
+	exit 0;
+fi
+
+echo "   Changing aliases.local"
+sed	-e "s/root\:		cll-support/root\:		cll-root/" \
+	-e "s/paladm\:		cll-support/paladm\:		cll-paladm/" \
+	< /etc/mail/aliases.local > /tmp/aliases.local.new
+mv /etc/mail/aliases.local /etc/mail/aliases.local.`date +"%m%d%y_%H%M%S"`
+mv /tmp/aliases.local.new /etc/mail/aliases.local
+chmod 644 /etc/mail/aliases.local
+chown root:root /etc/mail/aliases.local

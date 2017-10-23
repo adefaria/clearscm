@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: CRPS/Genius Move</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000164.html" title="Genius move" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000166.html" title="Server Swap Prep" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000164.html">&laquo; Genius move</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000166.html">Server Swap Prep &raquo;</a>
+                     </p>
+
+                     <a id="a000165"></a>
+                     <div class="entry" id="entry-165">
+                        <h3 class="entry-header">CRPS/Genius Move</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Recieved laptop today</li>
+<li>Fixed problem with tables for IE</li>
+<li>Worked on CRPS</li>
+<li>Figured out how to move Genius vobs</li>
+<li>Helped Subba with a vob import</li>
+
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Laptop and Password Issues</h3>
+
+<p>When getting my laptop I was asked to change my password so the person could login as me and set up my laptop. I did this. After completing the laptop setup I attempted to change my password back to what it was before. This failed. I then tried to change my password to something else. This also failed. I called Helpdesk and they set my password to Summer1 and told me to log out and back in and I should be prompted to set my password. I did this but was not prompted to set my password. So I hit Control-Alt-Del and selected Change password. I then specified Summer1 as my existing password and selected yet another new, unique password (conforming to the Password Policies, of course). I received the message "The password cannot be changed at this time". Called HelpDesk and they told me that I must wait a while and then I could change my password. Waited a day. Reattempted to change my password. Same message.</p>
+
+<p>Meantime the Clearcase License Monitoring, which is running on my desktop, and the web pages also on my desktop were unavailable while I was rebooting my system and working on this problem.</p>
+
+<p>For your reference I took this opportunity to look up exactly what "The password cannot be changed at this time" according to Microsoft. The article is <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;273004">here</a>. According to it you need to make a change to the Minimum Password Age in Active Directory to change it from Not Defined to something defined (like 0 or perhaps something else).</p>
+
+<h3>Genius VOB move</h3>
+
+<p>As you know we had difficulties performing the move of EntDataARCH and Core_Automation from the Genius region to the standard environment. This was partly due to having the vobadm password changed on us but it was also partly due to the fact that these vobs were created in a "different" environment, thus leaving us with ownership and permissions problems. </p>
+
+<p>I believe I have a fix. Here's what we need to do.</p>
+
+<ol>
+<li>Set up another time where we can perform the move</li>
+<li>Lock the vobs</li>
+<li>Remove tag for these vobs in the Genius region</li>
+<li>Re-move (that's re then move not remove! ) the vobs to rtnlprod01</li>
+<li>Fix permissions<sup><a href="#note1">1</a></sup></li>
+<li>Register and re-tag these vobs</li>
+<li>Unlock vobs</li>
+<li>Configure clients<sup><a href="#note2">2</a></sup></li>
+<li>Test access</li>
+</ol>
+
+<p><b>Notes:</b></p>
+
+<ol>
+
+<li><a name="note1"></a>The permissions fix entails running fix_prot -force -root -recurse -chown vobadm -chgrp <group> <vob>.vbs, then register and mktag followed by a cleartool protect -chown vobadm -chgrp <group> -recurse <vob root dir>. The first fix_prot fixes the protection on various objects but the second cleartool protect is needed to set the owners correctly.</li>
+
+<li><a name="note2"></a>Configuration of the clients should be more than just setting their region, CLEARCASE_PRIMARY_GROUP and clearcase_albd service login properly. It should be a complete uninstall of Clearcase followed by a standard Clearcase installation so that we have a proper and known environment.</li>
+
+</ol>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 26, 2004 10:30 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000165.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

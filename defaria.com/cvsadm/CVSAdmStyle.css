@@ -1,0 +1,525 @@
+/************************************************************************/
+/* File:	CVSAdmStyle.css						*/
+/* Description: Cascading Style Sheet definitions for CVSAdm		*/
+/* Author:	Andrew@DeFaria.com					*/
+/* Created:     Mon Nov  3 21:55:05 PST 2003				*/
+/* Language:	Cascading Style Sheet					*/
+/*									*/
+/* (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved.		*/
+/************************************************************************/
+body {
+  background-color:	#fff;
+  color:		black;
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+  			sans-serif;
+  font-size:		14px;
+  margin:		0px;
+}
+
+.heading {
+  margin-top:		5px;
+  padding:		5px;
+}
+
+#leftbar {
+  line-height:		18px;
+  height:		auto;
+  left:			2px;
+  position:		absolute;
+  top:			5px;
+  width:		135px;
+}
+
+.username {
+  color:		white;
+  font-family:		veranda, arial;
+  font-style:		bold;
+  font-size:		14px;
+  margin-left:		2px;
+  margin-bottom:	5px;
+  text-align:		center;
+  width:		125px;
+}
+
+.menu {
+  background-color:	#579;
+  border:		2px groove black;
+  font-family:		verdana, geneva, arial, helvetica, sans-serif;
+  font-size:		14px;
+  font-weight:		bold;
+  line-height:		150%;
+  margin:		2px;
+  padding:		2px;
+  width:		122px;
+}
+
+.intromenu {
+  background-color:	#579;
+  border:		2px groove black;
+  font-family:		verdana, geneva, arial, helvetica, sans-serif;
+  font-size:		14px;
+  font-weight:		bold;
+  line-height:		150%;
+  margin:		2px;
+  padding:		2px;
+  width:		125px;
+}
+
+.search {
+  background:		#4682b4;
+  border:		2px groove black;
+  color:		white;
+  font-family:		veranda, arial;
+  font-style:		bold;
+  font-size:		70%;
+  margin-left:		2px;
+  margin-right:		5px;
+  text-align:		center;
+  width:		125px;
+}
+
+.toolbar a:hover {
+  background:		transparent;
+}
+
+.content {
+  background:		#fff;
+  border:		0.1px solid #fff;
+  color:		black;
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  padding:		5px;
+  width:		auto;
+}
+
+.copyright {
+  border-bottom:	1px dotted #ccc;
+  border-top:		1px dotted #ccc;
+  color:		#999;
+  font-family:		verdana, arial, sans-serif;
+  font-size:		10px;
+  margin-top:		5px;
+  text-align:		center;
+  width:		auto;
+}
+
+.label { 
+  color:		#993333;
+  font-weight:		bold;
+  font-size:		14px;
+}
+
+.smalllabel { 
+  color:		#993333;
+  font-weight:		bold;
+  line-height:		12px;
+  font-size:		12px;
+}
+
+.smallnumber { 
+  color:		black;
+  line-height:		12px;
+  font-size:		12px;
+}
+
+.header { 
+  color:		#000099;
+  line-height:		12px;
+  font-weight:		bold;
+}
+
+.standout { 
+  color:		red;
+}
+
+.found { 
+  color:		black;
+  background:		#ffffcc;
+  font-style:		italic;
+}
+
+.error { 
+  color:		red;
+  font-style:		bold;
+}
+
+.dim { 
+  color:		#999999;
+}
+
+.dimsmall { 
+  color:		#999999;
+  font-size:		0.9em;
+  font-family:		Times;
+}
+
+.highlite { 
+  color:		#000099;
+  font-weight:		bold;
+}
+
+.inputfield { 
+  background:		#ece9d8;
+  color:		Black;
+  font-family:		Veranda,
+  			Times;
+  font-size:		12px;
+  padding-top:		0px;
+  padding-bottom:	0px;
+}
+
+.note { 
+  background:		#339999;
+  color:		White;
+  font-weight:		bold;
+}
+
+.notetext { 
+  color:		#333;
+  font-size:		10px;
+  font-weight:		italic;
+}
+
+/* Headers */
+h1, h2, h3, h4, h5 { 
+  color:		#000099;
+}
+
+h1 { 
+  font-size:		18pt;
+}
+
+h2 { 
+  font-size:		14pt;
+}
+
+h3 { 
+  font-size:		10pt;
+}
+
+h4 { 
+  font-size:		8pt;
+}
+
+/* Global anchor effects */
+a {
+  background:           transparent;
+  text-decoration:      none;
+}
+
+a:link {
+  color:		#0080c0;
+/*  color:                #0000ee; */
+}
+
+a:visited {
+  color:                #cc3300;
+}
+
+a:hover {
+  color:                blue;
+  background:		#ffff80;
+}
+
+a:active {
+  color:                #ff0000;
+}
+
+img {
+  border: none;
+}
+
+/* Table colors */
+.tableleftend {
+  background:		#804000;
+  color:		white;
+  font-style:		bold;
+  font-size:		14;
+  text-align:		center;
+  -moz-border-radius-topleft:	7px;
+}
+.tablerightend {
+  background:		#804000;
+  color:		white;
+  font-style:		bold;
+  font-size:		14;
+  text-align:		center;
+  -moz-border-radius-topright:	7px;
+}
+
+.tablebordertopleft { 
+  background:		#804000;
+  color:		white;
+  font-style:		bold;
+  font-size:		14;
+  text-align:		center;
+  -moz-border-radius-topleft:	7px;
+}
+
+.tablebordertopright { 
+  background:		#804000;
+  color:		white;
+  font-style:		bold;
+  font-size:		14;
+  text-align:		center;
+  -moz-border-radius-topright:	7px;
+}
+
+.tableborderbottomleft { 
+  background:		#804000;
+  color:		white;
+  font-style:		bold;
+  font-size:		14;
+  text-align:		center;
+  -moz-border-radius-bottomleft:	7px;
+}
+
+.tableborderbottomright { 
+  background:		#804000;
+  color:		white;
+  font-style:		bold;
+  font-size:		14;
+  text-align:		center;
+  -moz-border-radius-bottomright:	7px;
+}
+
+.tableborder {
+  background:		#804000;
+  color:		white;
+  font-style:		bold;
+  font-size:		14;
+  text-align:		center;
+}
+
+.tablebordertopleft a:hover {
+  background:		transparent;
+}
+
+.tablebordertopright a:hover {
+  background:		transparent;
+}
+
+.tableborderbottomleft a:hover {
+  background:		transparent;
+}
+
+.tableborderbottomright a:hover {
+  background:		transparent;
+}
+
+.tablelabel {
+  background:		#ece9d8;
+  text-align:		right;
+  font-family:		arial, sans-serif;
+  font-size:		10px;
+  font-weight:		bold;
+  -moz-border-radius:	7px;
+}
+
+.tableheader {
+  background:		#804000;
+  color:		white;
+  text-align:		center;
+  font-family:		arial, sans-serif;
+  font-size:		14px;
+  font-weight:		bold;
+}
+
+.msgtable {
+  background:		#d4d0c8;
+}
+
+.msgnbr {
+  font-size:		8px;
+  text-align:		center;
+}
+
+.tableleftdata {
+  background:			#ffffee;
+  border-left:			solid 3px #804000;
+  border-bottom:		1px dotted #ccc;
+  font-size:			14;
+}
+.tableleftrightdata {
+  background:			#ece9d8;
+  border-right:			solid 3px #804000;
+  border-left:			solid 1px #804000;
+  border-bottom:		1px dotted #ccc;
+  font-size:			14;
+}
+.tablerightleftdata {
+  background:			#ece9d8;
+  border-right:			solid 1px #804000;
+  border-left:			solid 3px #804000;
+  border-bottom:		1px dotted #ccc;
+  font-size:			14;
+}
+.tablerightdata {
+  background:			#ffffee;
+  border-right:			solid 3px #804000;
+  border-left:			1px dotted #ccc;
+  border-bottom:		1px dotted #ccc;
+  font-size:			14;
+}
+.tablebottomleft {
+  background:			#ffffee;
+  border-left:			solid 3px #804000;
+  border-right:			1px dotted #ccc;
+  border-bottom:		solid 3px #804000;
+  font-size:			14;
+  -moz-border-radius-bottomleft:	7px;
+}
+.tablebottomright {
+  background:			#ffffee;
+  border-right:			solid 3px #804000;
+  border-left:			1px dotted #ccc;
+  border-bottom:		solid 3px #804000;
+  font-size:			14;
+  -moz-border-radius-bottomright:	7px;
+}
+.tablebottomdata {
+  background:			#ffffee;
+  border-left:			1px dotted #ccc;
+  border-bottom:		solid 3px #804000;
+  font-size:			14;
+}
+.tablebottomlefttotal {
+  background:			#ece9d8;
+  border-left:			solid 3px #804000;
+  border-bottom:		solid 3px #804000;
+  border-right:			1px dotted #ccc;
+  font-size:			14;
+  -moz-border-radius-bottomleft:	7px;
+}
+.tablebottomrighttotal {
+  background:			#ece9d8;
+  border-right:			solid 3px #804000;
+  border-bottom:		solid 3px #804000;
+  font-size:			14;
+  -moz-border-radius-bottomright:	7px;
+}
+.tablebottomtotal {
+  background:			#ece9d8;
+  border-bottom:		solid 3px #804000;
+  border-top:			solid 1px #804000;
+  border-right:			1px dotted #ccc;
+  font-size:			14;
+}
+.tabledata {
+  background:			#ffffee;
+  border-left:			1px dotted #ccc;
+  border-bottom:		1px dotted #ccc;
+  font-size:			14;
+}
+
+.date {
+  background:		#ffffee;
+  font-size:		10px;  
+}
+
+.dateright {
+  background:		#ffffee;
+  font-size:		10px;  
+  border-right:		solid 3px #804000;
+  border-left:		1px dotted #ccc;
+  border-bottom:	1px dotted #ccc;
+}
+
+/* Special anchor effects */
+.sender {
+  background:		#ffffee;
+  font-family:		arial, sans-serif;
+  font-size:		12px;
+  font-weight:		bold;
+}
+
+.sender a:link {
+  color:		Red;
+}
+
+.sender a:visited {
+  color:		#0054e3;
+}
+
+.sender a:hover {
+  color:		White;
+  background:		Red;
+}
+
+.sender a:active {
+  color:		Yellow;
+}
+
+.subject {
+  background:		#ffffee;
+  font-family:		arial, sans-serif;
+  font-size:		10px;
+  font-weight:		bold;
+}
+
+.subject a:link {
+  color:                #0000ee;
+}
+
+.subject a:visited {
+  color:                #cc33cc;
+}
+
+.subject a:hover {
+  color:                White;
+  background:		#0054e3;
+}
+
+.subject a:active {
+  color:                #ff0000;
+}
+
+/* Menu anchors */
+.menu {
+  font-weight:		bold;
+}
+
+.menu a:link {
+  color:		White;
+}
+
+.menu a:visited {
+  color:		white;
+}
+
+.menu a:hover {
+  color:		Yellow;
+  background:		none;
+}
+
+.menu a:active {
+  color:		Yellow;
+}
+
+/* Intromenu anchors */
+.intromenu {
+  font-weight:		bold;
+}
+
+.intromenu a:link {
+  color:		Red;
+}
+
+.intromenu a:visited {
+  color:		white;
+}
+
+.intromenu a:hover {
+  color:		White;
+  background:		Red;
+}
+
+.intromenu a:active {
+  color:		Yellow;
+}

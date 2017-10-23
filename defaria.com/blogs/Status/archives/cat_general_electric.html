@@ -1,0 +1,636 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: General Electric Archives</title>
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000743"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/110"
+    dc:title="UCM Composite/Component"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000743"
+    dc:subject="General Electric"
+    dc:description="There is no formal training of this @ GE that I know of. I know of this stuff only through years of pounding it into my head by other UCM guys (and I constantly need both refreshment and research). It’s..."
+    dc:creator=""
+    dc:date="2010-09-02T13:52:39-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September  2, 2010</h2>
+                     <a id="a000743"></a>
+                     <div class="entry" id="entry-743">
+                        <h3 class="entry-header">UCM Composite/Component</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>There is no formal training of this @ GE that I know of. I know of this stuff only through years of pounding it into my head by other UCM guys (and I constantly need both refreshment and research). It’s taken me a while to get some of these UCM concepts into my head – I know, from experience you need to repeat such definitions, concepts and procedures again and again. That’s how I learned. So I’m glad to reiterate them to you… You’ll also need to read this message over and over again stopping and reflecting about what was just said. Be mindful that composite != component, etc.</p>
+
+<p>It’s best to think of this as a Producer/Consumer relationship. You may, at times, where either hat. Your production is a composite baseline that organizes  a unique set of component baselines representing some functional milestone (e.g. The 2.1 release of Foundation). These are consumed by your “customers” who rely on the functionality set that the composite baseline represents. As such you should be mindful about how your “product” (Foundation) develops over time so that you can best serve your consumers/customers.</p>
+
+<p>You’ve already performed an update of the Foundation jar set. The process or mechanics of it doesn’t really change that much. You join the Foundation project, perform your modifications, test, deliver to integration, perhaps retest the integrated changes and then produce a composite baseline (the process of doing so will force UCM to create new component baselines for all components that have changed in order to capture the change as a whole).  This composite baseline is then “advertised” to your consumers as a baseline they may wish to use. It can also be recommended (i.e. set to be the default for the rebase operation). Consumers set the baseline in their projects by using the rebase operation. Since they consume your component as non-modifiable they are free to rebase both forward and backward in the timeline of your composite’s development (If they are modifying it as well as you then things get messy – hence the recommendation and current configuration that they consume these components as non-modifiable).</p>
+
+<p>Since Foundation is a UCM Project/Stream like everybody else’s it has an integration stream associated with it. When you perform your work you work on a development stream and deliver to the integration stream. You don’t need to necessarily deliver to integration – you could produce a composite baseline on your development stream and advertise it to your consumers. Such a baseline should be thought of as more “experimental” and “to be integrated later”. After all this is why you have an integration stream – to integrate changes. Consumers could then rebase their streams to your more experimental baseline and try it out. If it fails they can easily go back to the recommended set. If they like it then you may consider the changes represented by this experimental composite baseline as “good to integrate into the main integration stream”/”tested in the field”.</p>
+
+<p>If such divergences are longer lived you may wish to create alternate streams to support such a development line. I’m not sure you’ll need this. If so we can talk about that when the time comes.</p>
+
+<p>Finally consumers can override any of the component baselines in your composite set during rebase. Doing so gives you warnings and notates the component baseline as “overridden”. Normally you should only do this for good reason and only to resolve what’s called a baseline conflict. This is an advanced topic and I don’t see it ever happening to your product (producer nor consumer) given the current configuration of the composite sets.</p>
+
+<p>Consumers of your composite baseline therefore get your changes via rebase operations. But remember the consumer is also set up as an integration/development stream project (i.e. multistream). So again the consumers integration stream is usually where you would integrate the change to its composite baseline set including your new composite baseline. That would be done via a rebase on the consumer’s integration stream. Then they test and say “Yup that new composite baseline from the Foundation guys works well” and they can create a new composite baseline of their project including your composite baseline. Developers, working isolated on their work and probably with the last set of recommended baselines for their product (i.e. CE_CSY_Lyra) then can again use rebase to pick up the new recommended composite set from their project (CE_CSY_Lrya) that will include your latest recommended composite baseline. The rebase operation “merges” any changes into their development stream. But with respect to your composite, since they consume it in a non-modifiable fashion, there cannot be any merge conflicts or even merging going on. So the rebase of your portion of the composite merely incorporates your new functionality. (Other changes in modifiable components of the composite may be merged and require attention).</p>
+
+<p>Like I said you’ll probably want to read this message a few times…</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:52 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000743.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000743.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000742"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/109"
+    dc:title="Starting a process without the DOS box"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000742"
+    dc:subject="General Electric"
+    dc:description="I needed to start a process which had it&apos;s own window (a Perl/Tk app called diffbl.pl which I have yet to document over on ClearSCM). I want to start this process and not have that silly DOS window hanging around...."
+    dc:creator=""
+    dc:date="2010-08-18T13:29:46-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 18, 2010</h2>
+                     <a id="a000742"></a>
+                     <div class="entry" id="entry-742">
+                        <h3 class="entry-header">Starting a process without the DOS box</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>I needed to start a process which had it's own window (a Perl/Tk app called diffbl.pl which I have yet to document over on ClearSCM). I want to start this process and not have that silly DOS window hanging around. Normally I'd use Cygwin's run.exe but I cannot be assured that Cygwin will be on the users Windows box. How to start a windowed application sans the DOS box?</p>
+
+<div class=code>
+set sh = wscript.createobject ("wscript.shell")
+sh.run "cqperl \\hcu-g97pnd1\Software\diffbl\bin\diffbl.pl", 0, false
+</div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:29 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000742.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000742.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000740"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/107"
+    dc:title="Slow access on Unix UCM commands"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000740"
+    dc:subject="General Electric"
+    dc:description="Found certain UCM commands to be 11-13 times slower on Unix than on Windows. Even though the registry host is the same host I was executing the commands on! Windows:time scm lsstream -short -invob \\p_cesb &gt; /dev/null real 0m1.198s user..."
+    dc:creator=""
+    dc:date="2010-08-02T18:48:43-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  2, 2010</h2>
+                     <a id="a000740"></a>
+                     <div class="entry" id="entry-740">
+                        <h3 class="entry-header">Slow access on Unix UCM commands</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Found certain UCM commands to be 11-13 times slower on Unix than on Windows. Even though the registry host is the same host I was executing the commands on!</p>
+
+<div class=code><pre>
+Windows:time scm lsstream -short -invob \\p_cesb > /dev/null
+real    0m1.198s
+user    0m0.093s
+sys     0m0.123s
+Windows:time scm lsstream -short -invob \\p_ce > /dev/null
+real    0m9.526s
+user    0m0.045s
+sys     0m0.123s
+Windows:time scm lsact -short -invob $PVOB > /dev/null
+real    0m38.788s
+user    0m0.155s
+sys     0m0.233s
+
+Unix:time scm lsstream -short -invob /vobs/p_cesb > /dev/null
+real    0m13.649s
+user    0m0.152s
+sys     0m0.203s
+Unix:time scm lsstream -short -invob /vobs/p_ce > /dev/null
+real    2m6.191s
+user    0m0.832s
+sys     0m1.501s
+Unix:time scm lsact -short -invob $PVOB > /dev/null
+real    8m52.516s
+user    0m3.647s
+sys     0m6.986s
+</pre></div>
+
+<p>Why is the Unix machine 11 – 13 times slower at getting information out of the Clearcase registry than a Windows client? Note the same does not hold true for other Clearcase registry queries (e.g. lsview takes the same amount of time on both platforms) but querying UCM stream information on the Unix system is vobdog slow! It’s not slow for projects or baselines but just streams… and activities.</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:48 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000740.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000740.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000735"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/106"
+    dc:title="View clean up"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000735"
+    dc:subject="General Electric"
+    dc:description=" Cleaned up many old views that were no longer around Cleaned up incorrect baseline in the views of some config specs. When you rename a baseline that doesn&apos;t automatically change the baseline name in the config specs that were..."
+    dc:creator=""
+    dc:date="2010-04-21T18:20:13-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">April 21, 2010</h2>
+                     <a id="a000735"></a>
+                     <div class="entry" id="entry-735">
+                        <h3 class="entry-header">View clean up</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Cleaned up many old views that were no longer around</li>
+
+  <li>Cleaned up incorrect baseline in the views of some config specs. When you rename a baseline that doesn't automatically change the baseline name in the config specs that were using the old baseline name.</li>
+
+  <li>Added Scripps to the Guardian Twin Reports</li>
+
+  <li>Tested out adaoptTwin.pl on webview. It has some problems.</li>
+
+  <li>Tested some limited updates to QC and CQ and synchronized them. Created a conflict and found a bug in the email it sends out.</lI>
+
+  <li>Submitted request to have an ALM Project made for dba_admin</li>
+
+  <li>Attempted to get the Exitcare BF job running. Still stuck on an environment setting though</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:20 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000735.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000735.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000733"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/105"
+    dc:title="Dang Eclipse"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000733"
+    dc:subject="General Electric"
+    dc:description="Dang IDEs! They&apos;re often more trouble than they are worth!! Be wary! I&apos;m in Eclipse and I was trying to clean up my view a little bit. I selected a few view private files I wanted to delete with Control-Click...."
+    dc:creator=""
+    dc:date="2010-03-31T16:28:01-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 31, 2010</h2>
+                     <a id="a000733"></a>
+                     <div class="entry" id="entry-733">
+                        <h3 class="entry-header">Dang Eclipse</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Dang IDEs! They're often more trouble than they are worth!! Be wary!</p>
+
+<p>I'm in Eclipse and I was trying to clean up my view a little bit. I selected a few view private files I wanted to delete with Control-Click. Then I hit the delete key to delete them. Eclipse prompted me "Are you sure you want to delete these files?" and I responded yes. But then I noticed that one of the files that was selected was mktriggers.pl!!! I did not select mktriggers.pl explicitly - it was selected because that was the last file I was editing was mktriggers.pl. And, remember, I only expected this delete to be deleting the view private files I selected, not Clearcase elements. I did not expect any rmnames to be happening.</p>
+
+<p>No worries you say? This is in Clearcase you say? Yes it was. But it was also checked out and with my most recent modifications. "Ah", I hear you saying, "Clearcase shouldn't be doing any explicit destructive activities without asking you first" - well it just did! It rmnamed mktriggers.pl without confirmation. Sure it asked whether or not I wanted to remove files, and I did, the ones I explicitly selected - not the one it had selected simply because I was editing a file. "Well shouldn't there be an option on rmname that you have to specify in order for rmname to proceed?" Yes there is - it's -force and good old Eclipse must have called rmname with -force!</p>
+
+<p>"But surely there's a .keep file around or something that you can recover from". Well ah, no. Not in this case. My work has been lost!</p>
+
+<p>You have been warned!</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:28 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000733.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000733.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000732"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/104"
+    dc:title="QC work/mktriggers progress/sync from Tandem issues
+"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000732"
+    dc:subject="General Electric"
+    dc:description=" Detailed which fields are currently getting QC Synchronized Updated vbs scripts to be more Unix like, accepting parameters, etc. and to be able to update the status both backwards and forwards, as well as have a -noexec mode. Met..."
+    dc:creator=""
+    dc:date="2010-03-26T19:18:23-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 26, 2010</h2>
+                     <a id="a000732"></a>
+                     <div class="entry" id="entry-732">
+                        <h3 class="entry-header">QC work/mktriggers progress/sync from Tandem issues
+</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Detailed which fields are currently getting QC Synchronized</li>
+
+  <li>Updated vbs scripts to be more Unix like, accepting parameters, etc. and to be able to update the status both backwards and forwards, as well as have a -noexec mode.</li>
+
+  <li>Met with ??? regarding QC synchronization</li>
+
+  <li>Worked a lot with Randy on Evil Twin issues for Polaris</li>
+
+  <li>Documented duplicate code problems</li>
+
+  <li>Documented how to use dynamic views in Eclipse</li>
+
+  <li>Working on trying to compare files from the pathway for SDDLS</li>
+
+  <li>Worked on getting mktriggers.pl finished.</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000732.html#more">Continue reading "QC work/mktriggers progress/sync from Tandem issues
+" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:18 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000732.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000732.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000731"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/103"
+    dc:title="SDDLS progress/m_pPerl != 0 fix/Merging directories"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000731"
+    dc:subject="General Electric"
+    dc:description=" Updated documentation on UCM Batch Delivery to describe how to use user selectors on BF Release Power Point presentation about SDDLS component Found out that the m_pPerl != 0 bug is fixed by install package on SCM Tools page..."
+    dc:creator=""
+    dc:date="2010-03-24T14:25:10-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 24, 2010</h2>
+                     <a id="a000731"></a>
+                     <div class="entry" id="entry-731">
+                        <h3 class="entry-header">SDDLS progress/m_pPerl != 0 fix/Merging directories</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Updated documentation on UCM Batch Delivery to describe how to use user selectors on BF</li>
+
+  <li>Release Power Point presentation about SDDLS component</li>
+
+  <li>Found out that the m_pPerl != 0 bug is fixed by install package on SCM Tools page</li>
+
+  <li>Went through exercise with Randy of merging directories to allow backporting of code to an earlier release. General procedure is to use the Version Tree to select the appropriate parent directory, right click, merge to... and select the current view's version. Merge everything from the current view <b>except</b> the files that are to be backported. THis gets you an empty copy of the right OID. Then the user needs to do the same procedure with the individual files to get the content.</li>
+
+  <li>Made some progress with mktriggers.pl</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000731.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000731.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000730"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/102"
+    dc:title="SDDLS sync to guardian/QC updates"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000730"
+    dc:subject="General Electric"
+    dc:description=" After a 5 hour run, finally managed to get the sync to guardian of SDDLS to work. Looks like it worked correctly. Need to work on documenting. Also need to get Randy to check things out and deliver a..."
+    dc:creator=""
+    dc:date="2010-03-16T19:01:46-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 16, 2010</h2>
+                     <a id="a000730"></a>
+                     <div class="entry" id="entry-730">
+                        <h3 class="entry-header">SDDLS sync to guardian/QC updates</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>After a 5 hour run, finally managed to get the sync to guardian of SDDLS to work. Looks like it worked correctly. Need to work on documenting. Also need to get Randy to check things out and deliver a simple change</li>
+
+  <li>Spoke with Jason more. It seems the .vbs script are indeed updating a QC database - one with "clearquest" in the name but a QC database nonetheless</li>
+
+  <li>Described how to use dynamic views in Eclipse</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000730.html#more">Continue reading "SDDLS sync to guardian/QC updates" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:01 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000730.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000730.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000727"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/101"
+    dc:title="Clearquest problems"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000727"
+    dc:subject="General Electric"
+    dc:description=" Had a problem with Clearquest, something about m_pPerl != 0. Got it when trying to create a UCM project. Traced that down to not being able to create the UCM Project in Clearquest. Then I couldn&apos;t even complete a..."
+    dc:creator=""
+    dc:date="2010-03-05T18:41:52-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March  5, 2010</h2>
+                     <a id="a000727"></a>
+                     <div class="entry" id="entry-727">
+                        <h3 class="entry-header">Clearquest problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Had a problem with Clearquest, something about m_pPerl != 0. Got it when trying to create a UCM project. Traced that down to not being able to create the UCM Project in Clearquest. Then I couldn't even complete a Clearquest activity! I was able to do so over on Omair's machine so we suspected my install was somehow corrupted. Ended up uninstalling and reinstalling Clearquest</li>
+
+  <li>Created new UCM Project for Nancy</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:41 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000727.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000727.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000726"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/100"
+    dc:title="Undo checkout"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000726"
+    dc:subject="General Electric"
+    dc:description=" Met with Jodi, Lyle, etc. Decided to go with the proposed solution of making BF jobs to do the deliveries as Lyle or designate. Sent him instructions on how to set up the BF part. Unco should be simple...."
+    dc:creator=""
+    dc:date="2010-03-03T15:28:54-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March  3, 2010</h2>
+                     <a id="a000726"></a>
+                     <div class="entry" id="entry-726">
+                        <h3 class="entry-header">Undo checkout</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Met with Jodi, Lyle, etc. Decided to go with the proposed solution of making BF jobs to do the deliveries as Lyle or designate. Sent him instructions on how to set up the BF part. Unco should be simple.</li>
+
+  <li>Worked with Sherri to get her going with starting a view. They seem to have been told to go through Eclipse to start the view and mount the vob. Odd.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:28 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000726.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000726.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000725"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/99"
+    dc:title="UCM Project Creation"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000725"
+    dc:subject="General Electric"
+    dc:description=" Created 3 UCM Projects/streams - one including an Import Project component Investigated what causes users to be considered Clearcase Admins..."
+    dc:creator=""
+    dc:date="2010-03-02T16:34:37-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March  2, 2010</h2>
+                     <a id="a000725"></a>
+                     <div class="entry" id="entry-725">
+                        <h3 class="entry-header">UCM Project Creation</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created 3 UCM Projects/streams - one including an Import Project component</li>
+
+  <li>Investigated what causes users to be considered Clearcase Admins</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000725.html#more">Continue reading "UCM Project Creation" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:34 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000725.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000725.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000724"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/98"
+    dc:title="Busy day"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000724"
+    dc:subject="General Electric"
+    dc:description="Need to keep status if even to remind myself what I&apos;m doing. Fixed case #9225676 for Kemyss about evil twins - turns out there was no twin Closed case #9214530 regarding evil twins for Curtis Attended meeting about MQC Submitted..."
+    dc:creator=""
+    dc:date="2010-03-01T17:47:49-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March  1, 2010</h2>
+                     <a id="a000724"></a>
+                     <div class="entry" id="entry-724">
+                        <h3 class="entry-header">Busy day</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Need to keep status if even to remind myself what I'm doing.</p>
+
+<ul>
+  <li>Fixed case #9225676 for Kemyss about evil twins - turns out there was no twin</li>
+
+  <li>Closed case #9214530 regarding evil twins for Curtis</li>
+
+  <li>Attended meeting about MQC</li>
+
+  <li>Submitted ticket to get a MQC account</li>
+
+  <li>Weekly high level status meeting with Dave and Rob. Focusing on SDDLS & Uncheckout problem</li>
+
+  <li>Solved another evil twin case with Marlene</li>
+
+  <li>Submitted helpdesk ticket to get Anthony added to the proper NIS group. They can have a Unix account but not be given access to Unix itself. So, ypmatch &lt;username> passwd will show them but id will not. This is because they are not in the users_seattle_clearcase_users NIS netgroup so thus they are not considered a user on this Unix system. Still have yet to figure out how they do Samba here...</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:47 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000724.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000724.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000720"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/97"
+    dc:title="Fixing evil twins"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_electric.html#entry-000720"
+    dc:subject="General Electric"
+    dc:description=" Fixed up one evil twin. The second one is a few evil directories. These require a little more care because the user cannot simply &quot;fill the directory in with new contents&quot; or rather that&apos;s done by manipulating (adding/changing) files..."
+    dc:creator=""
+    dc:date="2010-02-25T11:34:52-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">February 25, 2010</h2>
+                     <a id="a000720"></a>
+                     <div class="entry" id="entry-720">
+                        <h3 class="entry-header">Fixing evil twins</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed up one evil twin. The second one is a few evil directories. These require a little more care because the user cannot simply "fill the directory in with new contents" or rather that's done by manipulating (adding/changing) files to the directory. And those files can easily be yet another evil twin!</li>
+
+  <li>Learned a little bit about Build Forge - or Build Forge as implemented here at GE - and changed a job to use a different environment so as to sync in a new baseline. Seems here they use a sort of hierarchical include environment variable files thing</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:34 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000720.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000720.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

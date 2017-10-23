@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: August 26, 2007 - September  1, 2007 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2007_08_19.html" title="August 19, 2007 - August 25, 2007" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2007_09_02.html" title="September  2, 2007 - September  8, 2007" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2007_08_19.html">&laquo; August 19, 2007 - August 25, 2007</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2007_09_02.html">September  2, 2007 - September  8, 2007 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_08_26.html#entry-000670"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/57"
+    dc:title="Building Oracle 10.x for Linux"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_08_26.html#entry-000670"
+    dc:subject="General Dynamics"
+    dc:description=" Managed to get a 10.2 sqlplus client to talk to our 9.2 database server from Solaris. Regular expressions, however, do not work. Since there is no 9.2 Oracle 64 bit client for Linux I decided to attempt to get..."
+    dc:creator=""
+    dc:date="2007-08-30T14:35:08-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 30, 2007</h2>
+                     <a id="a000670"></a>
+                     <div class="entry" id="entry-670">
+                        <h3 class="entry-header">Building Oracle 10.x for Linux</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Managed to get a 10.2 sqlplus client to talk to our 9.2 database server from Solaris. Regular expressions, however, do not work.</li>
+
+  <li>Since there is no 9.2 Oracle 64 bit client for Linux I decided to attempt to get the 10.2 Oracle 64 bit client installed. Managed to get a 10.2 sqlplus client to talk to our 9.2 database server from Linux! Went to build the Qt OCI portion and failed.</li>
+</ol>
+                              
+                              <h2>Building Qt OCI</h2>
+
+<p>Pat, I managed to install the Oracle Client 10.x for Linux - Will
+had gotten a 64 bit version. I even managed to use sqlplus to connect
+to RANCQ_RANDBS from Linux!</p>
+
+<p>Now it's time to build Qt's OCI interface so that I can ultimately
+build the Linux version of ucmwb.</p>
+
+<p>Trolltech, makers of Qt, state:</p>
+
+<blockquote>
+  <h3>How to Build the OCI Plugin on Unix and Mac OS X</h3>
+
+  </p>For Oracle 10g, all you need is the "Instant Client Package -
+  Basic" and "Instant Client Package - SDK". For Oracle prior to 10g,
+  you require the standard Oracle client and the SDK packages.</p>
+
+  <p>Oracle library files required to build the driver:</p>
+
+  <ul>
+    <li>libclntsh.so (all versions)</li>
+
+    <li>libwtc9.so (only Oracle 9)</li>
+  </ul>
+
+  <p>Tell qmake where to find the Oracle header files and shared
+  libraries and run make:</p>
+
+  <h3>For Oracle version 9:</h3>
+
+  <pre>
+cd $QTDIR/src/plugins/sqldrivers/oci
+qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh -lwtc9" oci.pro
+make
+  </pre>
+
+  <p>For Oracle version 10, we assume that you installed the RPM
+  packages of the Instant Client Package SDK (you need to adjust the
+  version number accordingly):</p>
+
+  <pre>
+cd $QTDIR/plugins/src/sqldrivers/oci
+qmake -o Makefile "INCLUDEPATH+=/usr/include/oracle/10.1.0.3/client/" "LIBS+=-L/usr/lib/oracle/10.1.0.3/client/lib" oci.pro
+make
+  </pre>
+</blockquote>
+
+<p>Unfortunately, after installing the Oracle client I didn't have a
+/usr/include/oracle... And I didn't have a /usr/lib/oracle either. Nor
+did I see an include directory under where I installed the Oracle
+client (/opt/oracle). Before I ask Trolltech support what the
+appropriate paths should be I thought I'd ask you. Perhaps I have not
+properly installed a portion of Oracle...</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000670.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000670.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_08_26.html#entry-000669"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/56"
+    dc:title="Installing... err... I mean building Oracle"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_08_26.html#entry-000669"
+    dc:subject="General Dynamics"
+    dc:description=" Started building cqtalk, a Perl process to interact with Clearquest Spent time attempting to install/build Oracle client for Linux..."
+    dc:creator=""
+    dc:date="2007-08-29T16:13:56-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 29, 2007</h2>
+                     <a id="a000669"></a>
+                     <div class="entry" id="entry-669">
+                        <h3 class="entry-header">Installing... err... I mean building Oracle</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Started building cqtalk, a Perl process to interact with Clearquest</li>
+
+  <li>Spent time attempting to install/build Oracle client for Linux</li>
+</ul>
+                              
+                              <h2>Installing/Building Oracle</h2>
+
+<p>We have an application, ucmwb, which uses Oracle to talk directly
+to our Clearquest databases. This application runs on Solaris and
+hopefully soon Linux. In particular it talks to RANCQ on
+RANDBS. AFAICT RANDBS is an Oracle 9.2 server.</p>
+
+<p>I would love to go to Oracle 10.x because with 10.x comes regexs
+and they would help ucmwb tremendously. However I can't get a 10.x
+client to talk to this 9.x server.</p>
+
+<p>Working on the Solaris side for now, I can use the 9.2 version of
+sqlplus to connect to our RANCQ database:</p>
+
+<div class=code><pre>
+<b><font color="#3366ff">Randws016:</font></b><u>echo $ORACLE_HOME</u>
+/usr/local/oracle/product/9.2
+<b><font><b><font color="#3366ff">Randws016:</font></b></font></b><u>$ORACLE_HOME/bin/sqlplus RAN_WB/RAN_WB@RANCQ_RANDBS</u>
+SQL*Plus: Release 9.2.0.1.0 - Production on Wed Aug 29 14:46:53 2007
+
+Copyright (c) 1982, 2002, Oracle Corporation.  All rights reserved.
+
+Connected to:
+Oracle9i Enterprise Edition Release 9.2.0.6.0 - Production
+With the Partitioning, OLAP and Oracle Data Mining options
+JServer Release 9.2.0.6.0 - Production
+
+SQL&gt;
+</pre></div>
+
+<p>but I cannot use the 10.2 version of sqlplus to connect to RANCQ:</p>
+
+<div class=code><pre>
+<b><font><b><font><b><font><b><font color="#3366ff">Randws016:</font></b></font></b></font></b></font></b><u>echo $ORACLE_HOME</u>
+/home/p6258c/Solaris/10.2.0.3/instantclient_10_2
+<b><font><b><font><b><font><b><font color="#3366ff">Randws016:</font></b></font></b></font></b></font></b><u>$ORACLE_HOME/sqlplus RAN_WB/RAN_WB@RANCQ_RANDBS</u>
+SQL*Plus: Release 10.2.0.3.0 - Production on Wed Aug 29 14:48:21 2007
+
+Copyright (c) 1982, 2006, Oracle.  All Rights Reserved.
+
+ERROR:
+ORA-12154: TNS:could not resolve the connect identifier specified
+
+Enter user-name:
+</pre></div>
+
+<p>Will had stated that he thought that 10.2 clients could talk to 9.2
+servers. Is that true? If so why can't I run sqlplus and connect to
+RANCQ?</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:13 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000669.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000669.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_08_26.html#entry-000668"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/55"
+    dc:title="backBench.pl"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_08_26.html#entry-000668"
+    dc:subject="General Dynamics"
+    dc:description=" Added link and createWor to backBench.pl..."
+    dc:creator=""
+    dc:date="2007-08-28T15:55:40-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 28, 2007</h2>
+                     <a id="a000668"></a>
+                     <div class="entry" id="entry-668">
+                        <h3 class="entry-header">backBench.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added link and createWor to backBench.pl</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000668.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000668.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

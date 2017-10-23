@@ -1,0 +1,353 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: July 29, 2007 - August  4, 2007 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2007_07_22.html" title="July 22, 2007 - July 28, 2007" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2007_08_05.html" title="August  5, 2007 - August 11, 2007" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2007_07_22.html">&laquo; July 22, 2007 - July 28, 2007</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2007_08_05.html">August  5, 2007 - August 11, 2007 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_07_29.html#entry-000659"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/46"
+    dc:title="ssh"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_07_29.html#entry-000659"
+    dc:subject="General Dynamics"
+    dc:description=" Helped Aaron with ssh..."
+    dc:creator=""
+    dc:date="2007-08-03T17:56:27-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  3, 2007</h2>
+                     <a id="a000659"></a>
+                     <div class="entry" id="entry-659">
+                        <h3 class="entry-header">ssh</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Helped Aaron with ssh</li>
+</ul>
+                              
+                              <h2>Adding ssh actions to CDE</h2>
+
+<p>Secure SHell or ssh is a more modern and secure way to access a remote system. You can add ssh actions to CDE by doing the following:</p>
+
+<p>Add the following to ~/.dt/types:</p>
+
+<div class=code><pre>
+ACTION Ssh
+{
+  LABEL           Secure shell
+  ICON            Dtterm
+  ARG_COUNT       0
+  TYPE            COMMAND
+  WINDOW_TYPE     NO_STDIO
+  EXEC_STRING     ksh -c 'export _title="%"Starbase?"%";	  \
+    /usr/dt/bin/dtterm -name $_title                              \
+    -title "Opening hailing frequencies to starbase $_title..."   \
+    -e ksh -c "ssh $_title; sleep 5;";'
+  DESCRIPTION     The Secure shell action prompts the user for    \
+                  the name of a system, opens a dtterm terminal   \
+                  emulator window, and then performs an ssh to    \
+                  that system.
+}
+
+ACTION SshUser
+{
+  LABEL           Secure shell
+  ICON            Dtterm
+  ARG_COUNT       0
+  TYPE            COMMAND
+  WINDOW_TYPE     NO_STDIO
+  EXEC_STRING     ksh -c 'export _title="%"Starbase?"%";          \
+    export _user="%"Username"%";                                  \
+    /usr/dt/bin/dtterm -name $_title                              \
+    -title                                                        \
+      "Opening hailing frequencies to starbase $_user@$_title..." \
+    -e ksh -c "ssh $_user@$_title; sleep 5;";'
+  DESCRIPTION     The Secure shell action prompts the user for    \
+                  the name of a system and a username and opens   \
+                  a dtterm terminal emulator window, and then     \
+                  performs an ssh to that system.
+}
+</pre></div>
+
+<p>Then invoke the actions with:</li>
+
+<div class=code><pre>
+$ dtaction Ssh
+$ dtaction SshUser
+</pre></div>
+
+<p>or better yet put it into your Dtwm menus like:</p>
+
+<div class=code><pre>
+    Menu Terminals
+    {
+      "Terminals"           f.title
+      "Terminal"            f.action Dtterm
+      "Remote Terminal"     f.action Ssh
+      "Remote Terminal (user)"      f.action SshUser
+      "X Terminal"          f.action Xterm
+    }
+</pre></div>
+
+<h2>Configuring ssh for passwordless but secure public key authentication</h2>
+
+<p>In order to do public key authentication you need to first generate a public key. You do this for ssh with ssh-keygen:</p>
+
+<div class=code><pre>
+$ ssh-keygen -t rsa
+</pre></div>
+
+<p>Note you can also do -t dsa. There are RSA keys and DSA keys. I forget what the prompts are, something about a passphrase, etc. Enter no passphrase.</p>
+
+<p>This should create a directory ~/.ssh with files in it. For example:</p>
+
+<div class=code><pre>
+<b><font color="#3333ff">$</font></b> <u>ssh-keygen -t rsa</u>
+Enter file in which to save the key(/home/p6258c/.ssh/id_rsa):
+Generating public/private rsa key pair.
+Enter passphrase(empty for no passphrase): 
+<b><font color="#3333ff">$</font></b> <u>ls -l ~/.ssh</u>
+total 32
+-rw-------    1 p6258c   ccusers       226 Jun 15 13:28 authorized_keys
+-rw-------    1 p6258c   ccusers       887 Jun 15 13:27 id_rsa
+-rw-rw-r--    1 p6258c   ccusers       226 Jun 15 13:27 id_rsa.pub
+-rw-r--r--    1 p6258c   ccusers      4082 Jul 31 15:05 known_hosts
+<b><font color="#3333ff">$</font></b> <u>ls -ld .</u>
+drwxr-xr-x   43 p6258c   ccusers      2048 Aug  3 10:28 ./
+<b><font color="#3333ff">$</font></b>
+</pre></div>
+
+<p>Then the task is to get the ~/.ssh/id_rsa.pub key added to the authorized_keys file (creating it if you need to). Here in GD that is easy. Siimply:</p>
+
+<div class=code><pre>
+<b><font color="#3333ff">$</font></b> <u>cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys</u>
+</pre></div>
+
+<p>Now, since all GD machines in the RAN subnet share your same home directory (automounted from the same common location) viola! You now have passwordless ssh access using public key authentication through the RAN (note this does not cross from RAN -&gt; GD network due to firewall issues). Whenever you ssh to a new machine it will bother you about adding it to the known_hosts file but after that it should not prompt again.</p>
+
+<p>Also note that if this were a different situation you'd have to get the contents of ~/.ssh/id_rsa.pub over to the remote machine. For example, I could generate my keys as described above then email the ~/.ssh/id_rsa.pub from here to my home Linux system, append it to my ~/.ssh/authorized_keys on my home Linux system then I could ssh from here to home. Normally I configure my house to <b>only</b> allow public key authenticated logins from the outside world. I can't do it here from GD because the firewall prohibits it (which is odd)!</p>
+
+<p>Final note: Sometimes, if ssh is configured to by strict about permissions, you need to change your home directory to be 755 as shown above. Normally I'm a sharing kinda guy so I have my home directory set to 775 but with ssh strict permissions that'll cause passwordless ssh to not work anymore.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000659.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000659.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_07_29.html#entry-000658"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/45"
+    dc:title="ranlin0[2|3] released"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_07_29.html#entry-000658"
+    dc:subject="General Dynamics"
+    dc:description=" After resolving issue with cleartrig and fonts, released ranlin0[2|3] to production..."
+    dc:creator=""
+    dc:date="2007-08-01T13:04:27-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  1, 2007</h2>
+                     <a id="a000658"></a>
+                     <div class="entry" id="entry-658">
+                        <h3 class="entry-header">ranlin0[2|3] released</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>After resolving issue with cleartrig and fonts, released ranlin0[2|3] to production</li>
+</ul>
+                              
+                              <h3>New Linux workstations ranlin02 & 03 now ready</h3>
+
+<p>The new Linux workstations ranlin02 and ranlin03 are now ready for use. Clearcase and Clearquest have been installed on them and they have been properly configured into the RAN network.</p>
+
+<p>There is a slight issue regarding problems with Clearquest and clearprompt (a dialog box tool used by our tools) and fonts. Sometimes this leads to dialog boxes that lack any text due to font rendering problems.</p>
+
+<p>A fix had been implemented. For users who will be using these new Linux boxes (especially if they use Solaris desktops, will be remotely logging into these Linux boxes and displaying things back to their Solaris boxes running CDE) simply add the following "source" to their
+~/.cshrc:</p>
+
+<div class=code><pre>
+#ident  "@(#)local.cshrc        1.2     00/05/01 SMI"
+umask 002
+set path=(/bin /usr/bin /usr/ucb /etc /usr/sbin /usr/atria/etc
+/usr/atria/bin /usr/openwin/bin /usr/dt/bin /usr/local/bin
+/opt/hpnpl/bin .)
+if ( $?prompt ) then
+   set history=64              # previous commands to remember.
+   set savehist=64             # number to save across sessions.
+   setenv system `hostname`     # set hostname
+   set prompt="[$system`pwd`] " # set prompt
+   alias       cd      'cd \!*; set prompt="[$system`pwd`] "'
+endif
+alias ct /usr/atria/bin/cleartool
+alias ll 'ls -l'
+alias la 'ls -a'
+alias cdd 'cd ..'
+alias cddd 'cd ../..'
+#alias shello /vobs/cello/civ/test_utilities/scripts/shello
+source /prj/muosran/config/.cshrc.muosran
+<b><u><font color="#ff0000">source /prj/muosran/config/.cshrc.linux</font></u></b>
+</pre></div>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:04 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000658.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000658.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_07_29.html#entry-000657"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/44"
+    dc:title="CC/CQ on Linux"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_07_29.html#entry-000657"
+    dc:subject="General Dynamics"
+    dc:description=" Fixed problem with cleartrig for the Linux clients Investigated and found a work around to font problems between Linux and Sun Met with development/test teams regarding documentation visibility. Also worked out the differences in the documents between builds 1,..."
+    dc:creator=""
+    dc:date="2007-07-31T17:25:51-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">July 31, 2007</h2>
+                     <a id="a000657"></a>
+                     <div class="entry" id="entry-657">
+                        <h3 class="entry-header">CC/CQ on Linux</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed problem with cleartrig for the Linux clients</li>
+
+  <li>Investigated and found a work around to font problems between Linux and Sun</li>
+
+  <li>Met with development/test teams regarding documentation visibility. Also worked out the differences in the documents between builds 1, 2 and 3</li.
+</ul>
+                              
+                              <h3>Cleartrig and font problems on Linux clients</h3>
+
+<p>I hit a few problems when attempting to verify proper execution of Clearcase/Clearquest and our WOR integration on Linux machines.</p>
+
+<h3>Cleartrig problems</h3>
+
+<p>The first problem was that the Linux installation of Cleartrig (remotely accessible through /cleartrib/bin) was missing execute permissions for group and other. The solution to this was to add execute permissions.</p>
+
+<h3>Font Problems</h3>
+
+<p>his is running under the assumption that:</p>
+
+<ol>
+  <li>The user is on a Solaris box and running CDE and</li>
+
+  <li>The user is remotely logged into a Linux box (currently only ranlin02 and ranlin03) and displaying back to his/her Solaris machine</li>
+</ol>
+
+<p>The user may see dialog boxes with no text or other errors relating to fonts. Since most engineers use Solaris and CDE many X Font Resources are set to fonts only available on CDE supported systems<sup>1</sup>. For example, executing xrdb -q | grep -i font may result in the
+following:</p>
+
+<div class=code><pre>
+*Font:             -dt-interface user-medium-r-normal-s*-*-*-*-*-*-*-*-*
+*FontList:         -dt-interface user-medium-r-normal-s*-*-*-*-*-*-*-*-*
+*labelFontList:    -dt-interface user-medium-r-normal-s*-*-*-*-*-*-*-*-*
+...
+</pre></div>
+
+<p>Needless to say these "dt" fonts are not known in the Linux world and this causes Clearcase/Clearquest some problems when running remotely displayed to an X server using such font. The solution is to use more universally acceptable fonts such as fixed. The following set of X Font Resources seems to work:</p>
+
+<div class=code><pre>
+*Font:                  fixed
+*FontList:              fixed
+*labelFontList:         fixed
+*buttonFontList:        fixed
+*textFontList:          fixed
+*DtEditor*textFontList: fixed
+*systemFont:            fixed
+*XmText*FontList:       fixed
+*FontSet:               fixed
+*XmTextField*FontList:  fixed
+*fontGroup:             Courier
+</pre></div>
+
+<p>If you are experiencing problems with X Fonts when running from a Linux machine add the above lines to a file, say ~/.fonts then do</p>
+
+<div class=code><pre>
+$ xrdb -m ~/.fonts
+</pre></div>
+
+<h4>Notes:</h4>
+<ol>
+  <li><a name="note1"></a>These "dt" fonts are often set into CDE's environment when say using the Style Manager to change your font settings.</li>
+</ol>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000657.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000657.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

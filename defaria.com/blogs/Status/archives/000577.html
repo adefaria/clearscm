@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Rexec</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000576.html" title="Redirecting on ErrorDocument" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000578.html" title="Rexec" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000576.html">&laquo; Redirecting on ErrorDocument</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000578.html">Rexec &raquo;</a>
+                     </p>
+
+                     <a id="a000577"></a>
+                     <div class="entry" id="entry-577">
+                        <h3 class="entry-header">Rexec</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed bug in gpdb_add_project.pl</li>
+
+  <li>Met about MultiSite Hardening Daemon (MSHD)</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Rexec</h2>
+
+<p>The gpdb_add_project.pl script utilizes rsh to log into remote sites to execute and otherwise gather data from other sites (Actually it uses rsh locally too but that's another blog entry!). It does this with code like this:</p>
+
+<div class=code><pre>
+unless ($site_registry_handle->open("rsh $siteHash{$siteName} -n cat $syncReg |"))  {
+   print ("Can not open rsh $siteHash{$siteName} -n cat $syncReg |.\n");
+   exit;
+}
+</pre></div>
+
+<p>The problem is that the above code will not work. What is returned from the open call here is whether or not the rsh command worked - not whether or not the cat command worked! Indeed open of a pipe returns little - it's the close of the pipe that's going to return the status of the rsh! The status of the cat in this case is never returned. And in this case it was failing. There is no real reliable method for getting the status of the cat command except perhaps to process the remote session using expect or Perl/Expect.</p>
+
+<p>Since we expect the cat to work and to return lines and because there is a specific format for the first line, I implemented the following:</p>
+
+<div class=code><pre>
+sub GetDSRegFile {
+  my $file	= shift;
+  my $server	= shift;
+
+  my @lines;
+
+  if ($server) {
+    @lines = `rsh $server -n cat $file`;
+
+    return undef if $?;
+  } else {
+    @lines = `cat $file`;
+  } # if
+
+  if ($lines [0] and $lines [0] !~ /\#\# SYNC_VERSION 1\.0/) {
+    return undef;
+  } else {
+    return @lines;
+  } # if
+} # GetDSRegFile
+</pre></div>
+
+<p>This solves the problem for this particular case. However this script uses this invalid technique for many other "remote calls" and has potential for error.</p>
+
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on October  5, 2006  3:21 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000577.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

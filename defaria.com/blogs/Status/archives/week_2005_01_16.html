@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: January 16, 2005 - January 22, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_01_09.html" title="January  9, 2005 - January 15, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_01_23.html" title="January 23, 2005 - January 29, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_01_09.html">&laquo; January  9, 2005 - January 15, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_01_23.html">January 23, 2005 - January 29, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">January 21, 2005</h2>
+                     <a id="a000285"></a>
+                     <div class="entry" id="entry-285">
+                        <h3 class="entry-header">Redoing PPC build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Recreated LynxOS on PPC machine from scratch</li>
+
+  <li>Rebuilding toolchain</li>
+</ul>
+                              
+                              <p>The LynxOS I put on t-mcpn765-1 was suspect as I had untarred a couple of different X/Motifs onto the root file system and the toolchain build was failing anyway. This was a good opportunity to redo this and make sure my documentation was correct.</p>
+
+<p><b>Note:</b> For this building of the toolchain I used the 20210.xfree.tar.gz for the first time</p>
+
+<p>To build the toolchain I did the following (note that I had already got a copy of the toolchain src and unpacked it onto the k partition):</p>
+
+<div class="code"><pre>
+# . SETUP.bash
+
+  Setup : ENV_PREFIX is an environment variable that points to
+        : the root of the build/release directory.  The ENVIRONMENT
+        : file is found as $ENV_PREFIX/ENVIRONMENT.
+        : Set ENV_PREFIX to /?  [y]
+
+  Target : Please specify the target
+          (ppc, x86, arm or mips) : ppc
+
+  Setup : Complete!
+
+# ulimit -s 1000000 -d 1000000
+# mount /dev/sdncr.0k /mnt
+# cd /mnt/toolchain/3.2.2/010405/
+# ls
+Makefile                fixup.sh*               src/
+build-powerpc/          install.log             stamp-configure-powerpc
+# make clobber
+rm -rf {build,install,stamp-*}-powerpc
+# ./fixup.sh
++ cd src
++ touch texinfo/intl/plural.c
++ touch libgui/library/tclIndex
++ find . -name aclocal.m4 -exec touch '{}' ';'
++ find . '(' -name config.in -o -name config.h.in ')' -exec touch '{}' ';'
++ find . '(' -name Makefile.in -o -name stamp-h.in ')' -exec touch '{}' ';'
++ find . -name configure -exec touch '{}' ';'
+# make install > install.log 2>&1 &
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:14 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000285.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January 20, 2005</h2>
+                     <a id="a000284"></a>
+                     <div class="entry" id="entry-284">
+                        <h3 class="entry-header">Building Native PPC Toolchain</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Thu helped me recover from the makeboot -r 0,48 preboot. This LynxOS 5.0.0 has not networking so I booted back up to the b partition (LynxOS 4.0.0) and mounted the c partition. Next I got X/Motif from t3:/export/dev_archive/lynxos/xmotif/032504 (note that this tarball was named 20010.xfree86.tar.gz) and unpacked it onto the c partition. It is important that XFree is unpacked into the partition and root diretory where LynxOS is.</p>
+
+<p>I had already copied toolchain-src.tar.gz over to the k partition and unpacked under toolchain/3.2.2/010405</p>
+
+<p>Next boot up back to the 5 partition and mount the k partition. SETUP.bash for "/" then go to toolchain/3.2.2/010405 and make install...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:52 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000284.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January 19, 2005</h2>
+                     <a id="a000283"></a>
+                     <div class="entry" id="entry-283">
+                        <h3 class="entry-header">Loading LynxOS Manually</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Attempting to learn and document how to load the LynxOS manually. Normally the int_tools handles this process but occasionally we need to do this by hand.</p>
+
+<p>Messed up by not following all the required steps. Had to get a CD from Hardev in order to get past a preboot problem. Managed to do that.</p>
+
+<p>The instructions I was given to follow for manually loading LynxOS were x86 based. I am expected to translate that to PPC. In any event, the makeboot -r 0,48 preboot is wrong for this PPC machine. This has caused me to have an unbootable system once again. How does one know what numbers to use for a given system?</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:00 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000283.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000282"></a>
+                     <div class="entry" id="entry-282">
+                        <h3 class="entry-header">Documentation Review</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Reviewed documentation I've written so far, mostly just Cross LynxOS build. Several suggestions were made and being implemented.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000282.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January 18, 2005</h2>
+                     <a id="a000281"></a>
+                     <div class="entry" id="entry-281">
+                        <h3 class="entry-header">Continuing Native PPC toolchain build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Performed rsync process to get cross built PPC LynxOS over to T3's archive</li>
+ 
+  <li>Attempting to "load the 5.0.0 TOT build" onto t-mcpn765-1</li>
+
+  <li>Started documenting the <a href="http://saturn.lynx.com/build/manual_load.php">Manual OS Load</a> process</li>.
+</ul>
+                              
+                              <p>Thu's notes simply said "/dev/sdncr.0c -> load the 5.00. tot build". I was not sure how to do this. I did notice that I had never rynced my last PPC LynxOS build over to the T3 area so I did that. Still I'mnot sure how to "load the 5.0.0 tot build" onto a machine. My guess is:</p>
+
+<ul>
+  <li>Perform rsync process to sync up the build from dopey:/usr/lynx/dopey/LYNXOS_500/archive/lynxos/120406-C -> t3:/export/dev_archive/lynxos/archive-5.0.0/120604-C</li>
+
+  <li>rcp 20000.devos.tar.gz (?) and 20029.bsp_mcpn765.tar.gz (others?) from  t3:/export/dev_archive/lynxos/archive-5.0.0/120604-C/media/ppc to  t-mcpn765-1:/ (which is currently /dev/sdncr.0c)</li>
+
+  <li>Unpack those tarballs into /</li>
+
+  <li>Reboot</li>
+</ul>
+
+<p>My fear is that the devos will not fix and/or I need other tarballs than just 20029.bsp_mcpn765.tar.gz. Also, just laying this on top of root seems wrong, what happens to the old 4.0.0 stuff?</p>
+
+<p>The above is not really true. The process of manually loading and OS is more complex. It is codified into various expect script and detailed in "install logs" which appear under int_tools/INSTALL_LOG. Worked on documenting this manual OS load.</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:22 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000281.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

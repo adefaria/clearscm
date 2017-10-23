@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: rlwrap and sqlplus</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000743.html" title="UCM Composite/Component" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000748.html" title="Remote Editing" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000747.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/111"
+    dc:title="rlwrap and sqlplus"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000747.html"
+    dc:subject="Tellabs"
+    dc:description="As you know I&apos;m a fan of the CLI in many (but not all) instances, especially ones who are engineered to work well for CLI&apos;ers. I prefer mysql over Oracle and sqlplus over the heavy handed SQL Developer. The SQL..."
+    dc:creator=""
+    dc:date="2011-07-14T01:25:34-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000743.html">&laquo; UCM Composite/Component</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000748.html">Remote Editing &raquo;</a>
+                     </p>
+
+                     <a id="a000747"></a>
+                     <div class="entry" id="entry-747">
+                        <h3 class="entry-header">rlwrap and sqlplus</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>As you know I'm a fan of the CLI in many (but not all) instances, especially ones who are engineered to work well for CLI'ers. I prefer mysql over Oracle and sqlplus over the heavy handed SQL Developer. The SQL Developer weighs in at over 181 Meg and while it has a nice GUI and extensive set of trees and widgets to explore every innard of Oracle's SQL implementation it's slow, slow, slow to load and run and ended up taking > 250 Meg of my memory when running. Suffice it say it was not very workable and definitely overkill for the simple selects and the like that I wanted to do.</p>
+
+<p>Oracle's sqlplus weighs in at 700K or so, is light and quick to load and quick to execute commands. However it has a horrid CLI interface, not history, no re-editing of previous commands, etc. I'm surprised that backspace works honestly. However I could not continue to have SQL Developer bogging down my system and get any meaningful work done. My problems were twofold: 1) how to connect to the database (Oracle makes this so hard) and 2) how to improve on sqlplus' horrid CLI.</p>
+
+<p>We actually have sqlplus at /data/tools/OraInstantClient_10_2 but when I run it it prompts for username and password then complains "ORA-12162: TNS:net service name is incorrectly specified". Trying sqlplus <username>/<password>@<SID> was no better. I have no clue what's defined in tsnnames.ora on the server and can't even log into it to check if there's one at all. I've always detested Oracles tsnnames.ora approach anyway. Finally I figured out the following will work:</p>
+
+<div class=code>
+$ &lt;path_to&gt;/sqlplus -L &lt;username&gt;/&lt;password&gt;@&lt;server&gt;/&lt;sid&gt;<br>
+$ # or<br>
+$ /data/tools/OraInstantClient_10_2/sqlplus qcread/******@pdbgen02/pettd1p<br>
+</div>
+
+<p>However it still has a crummy CLI so it's rlwrap to the rescue! rlwrap is a little program that wraps a CLI with ReadLine giving you most of ReadLine's functionality. So now I have a simple alias of:</p>
+
+<div class=code>
+alias sqlplus='rlwrap /data/tools/OraInstantClient_10_2/sqlplus -L &lt;username&gt;/&lt;password&gt;@&lt;server&gt;/&lt;sid&gt;'
+</div>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on July 14, 2011  1:25 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000747.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/111</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

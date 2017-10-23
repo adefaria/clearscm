@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: February 19, 2006 - February 25, 2006 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2006_02_05.html" title="February  5, 2006 - February 11, 2006" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2006_03_26.html" title="March 26, 2006 - April  1, 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2006_02_05.html">&laquo; February  5, 2006 - February 11, 2006</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2006_03_26.html">March 26, 2006 - April  1, 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">February 23, 2006</h2>
+                     <a id="a000529"></a>
+                     <div class="entry" id="entry-529">
+                        <h3 class="entry-header">CIT Building</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Worked a lot on a script to drive the building. This script, called build, utilizes a configuration file as well as command line parameters to support adhoc kind of building (e.g. "Start a build but only build component X, noclean and do the testing, etc.).</p>
+
+<p>Recently added what is called CIT (Continuous Intergration and Test) option as well as some build avoidance at the component level (utilizing the output from cleartool's update command). With --cit turned on the build script will attempt a build by first updating the view. It will then parse cleartool's update log. If nothing new came in for the component then the assumption is made that the component does not need to be rebuilt and skips it. After all components are built, streamBuild.pl will do other things like publishing and testing, etc. Next build will make a baseline (IFF the streamBuild.pl returns 0 status and at least one component was built) as well as update change logs on the web page.</p>
+
+<p>When all of that is done, build will wait for 5 minutes and then restart itself.</p>
+
+<p>Worked out a nasty bug where build was using chdir but streamBuild.pl was using $ENV {PWD}. Turns out that chdir does not change $ENV {PWD}. Fixed by doing "use Cwd qw(chdir)" which effectively sets $ENV {PWD} when chdir is called.</p>
+
+<p><b>WARNING:</b> Found out that streamBuild.pl was not that robust and does not return non zero status for some failures. For example, if it is not able to run unitTests it still might return a 0 status. This is bad. The streamBuild.pl script will have to be investigated and made to return good exit codes.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000529.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

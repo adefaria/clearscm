@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Clearquest Code Pages</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000430.html" title="Clearquest Franchise/PQA Invalid ASCII characters" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000432.html" title="Code Page/rgy_switchover" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000430.html">&laquo; Clearquest Franchise/PQA Invalid ASCII characters</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000432.html">Code Page/rgy_switchover &raquo;</a>
+                     </p>
+
+                     <a id="a000431"></a>
+                     <div class="entry" id="entry-431">
+                        <h3 class="entry-header">Clearquest Code Pages</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Clearquest 2003.06.15 now uses Code Pages to insure that data entered into Clearquest databases are correct. When incorrect data is encountered there is a problem. The question is, which code page should we use?</p>
+
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Chris had went through this decision when he migrated Clearquest data to San Diego. We are faced with this decision now by moving to 2003.06.15.</p>
+
+<blockquote>If you have ClearQuest databases that were created with previous versions of ClearQuest, they may contain data from a variety of code pages. When you set the ClearQuest data code page, the data in your databases is not converted to characters in the selected code page. If your database contains characters that do not map to the newcode page characters, data corruption will occur.
+</blockquote>
+
+<p>There seems to be 4 choices for code pages:</p>
+
+<ol>
+  <li>ASCII</li>
+
+  <li>Latin-1</li>
+
+  <li>Chinese - Simplified</li>
+
+  <li>Japanese</li>
+</ol>
+
+<p>I'm going to assume 3 and 4 are non issues. This leaves 1 and 2. Chris went with #1 and I think that's a good choice because ASCII is a base code set. However going with #1 means we need to clean up data now as we already have non ASCII characters in the databases.</p>
+
+</p>There is also a <strong>NOCHECKING</strong> option which essentially turns off checking and allows any character in. Using <strong>NOCHECKING</strong> would mean that Clearquest Multisite will not be an option in the future as it does not support <strong>NOCHECKING</strong></p>.
+
+<p>I believe if we went with #2 our non ASCII characters would not be a problem. However:</p>
+
+<blockquote>All Windows clients must run the same operating system code page, and that code page must match the ClearQuest data code page. If you have mixed-platform environments (both Windows and UNIX clients), or clients using different operating system code pages, you must set the ClearQuest data code page to 20217 (ASCII), which is the common character set of all code pages. An alternate usage model is to set the ClearQuest data code page to a non-ASCII value and require that all users with UNIX systems interact with ClearQuest only with the Webclient.</blockquote>
+
+<p>And</p>
+
+<ul>
+  <li>If you set the ClearQuest data code page to a non-ASCII value, users can only modify data in that database from a Windows client running the same operating system code page. If the code pages do not match, the database is opened in read-only mode.</li>
+
+  <li>If you set the ClearQuest data code page to a non-ASCII value, UNIX clients will have read-only access to the databases. (UNIX users can choose to use the only the Web client, which prevents data corruption if a non-ASCII data code page value is selected.)</li>
+
+  <li>If you set the ClearQuest data code page to a non-ASCII value, invalid characters can still potentially enter the database without being detected by ClearQuest. For example, ClearQuest cannot validate text that you cut from an e-mail or Web page and paste into a database record. If the e-mail or Web page text contains characters outside of the ClearQuest data code page, the characters are corrupted during display and may show up as invalid characters (for example, a question mark (?) character).</li>
+</ul>
+
+<p>Bottom line appears to be use ASCII and bite the bullet now by cleaning up data or use Latin-1 and avoid data cleanup now with potentially a larger clean up later.</p>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 26, 2005  6:32 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000431.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

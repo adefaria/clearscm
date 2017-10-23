@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: BC Builds/CVS Corruption</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000339.html" title="Rebuilding glibc RH 8.0" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000341.html" title="Bluecat/Bluecat" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000339.html">&laquo; Rebuilding glibc RH 8.0</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000341.html">Bluecat/Bluecat &raquo;</a>
+                     </p>
+
+                     <a id="a000340"></a>
+                     <div class="entry" id="entry-340">
+                        <h3 class="entry-header">BC Builds/CVS Corruption</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Recieved hack to continue on with RH8.0 build. Proceeded to build that on Europa</li>
+
+  <li>Recieved instructions from Sasha regarding building BC 5.3 on RH 6.1. Proceeded to build that on Jaguar</li>
+
+  <li>Finished fixing CVS corruption with Vinnie's help</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>RH 8.0 BC Build</h3>
+
+<p>Sasha's only advice was to uncomment a line in the glibc_cdt.spec file that gunzip's these info files. I had seen that before. I did this and restarted a stepwise build @ step 3. I suspect, however, that were I to backtrack to step 1 or so this hack would be overwritten</p>
+
+<h3>BC 5.3 build on RH 6.1</h3>
+
+<p>Meantime BC development goes on to BC 5.3. Sasha sent a PDF file with instructions for building. Looks like they've incorporated some of the changes I suggested (fixing mktools to be part of step one as well as the patch spec). Unfortunately they have not incorporated the fix for RH 8.0 to the do_it script.</p>
+
+<p>Still the build is progressing fairly nicely and it looks as if they've also reduced the number of steps from 17 -> 13 (though do_it still described steps > 13).</p>
+
+<p>I had made a change or two to do_it essentially removing the su $BUILD_CMD_USER as that causes me problems and utilizing sudo around the mount commands in steps 7 and 11. I have configured Europa such that int has passwordless sudo privileges.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 21, 2005  4:05 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000340.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

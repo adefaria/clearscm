@@ -1,0 +1,83 @@
+#!/bin/bash
+################################################################################
+#
+# File:         machine_info
+# Description:  Displays information about a machine
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Apr 30 14:13:56 PDT 1999
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Set machines
+machines=${machines:-$adm_base/data/machines}
+
+if [ ! -f $machines ]; then
+  echo "$me: Error: Unable to find $machines file!"
+  exit 1
+fi
+
+function display_machine_info {
+  machine=$1
+
+  ISF=" "
+  line=$(grep -i "^$machine:" $machines 2> /dev/null)
+
+  if [ "_$line" = "_" ]; then
+    echo "No information on machine $machine"
+  else
+    machine=$(echo $line | cut -f1 -d:)
+    ip_address=$(echo $line | cut -f2 -d:)
+    model=$(echo $line | cut -f3 -d:)
+    osversion=$(echo $line | cut -f4 -d:)
+    ccversion=$(echo $line | cut -f5 -d:)
+    owner=$(echo $line | cut -f6 -d:)
+    phone=$(echo $line | cut -f7 -d:)
+    usage=$(echo $line | cut -f8 -d:)
+    class=$(echo $line | cut -f9 -d:)
+    location=$(echo $line | cut -f10 -d:)
+    eclipseid=$(echo $line | cut -f11 -d:)
+    echo -e "Machine:\t\t$machine"
+    echo -e "IP Address:\t\t$ip_address"
+    echo -e "Model:\t\t\t$model"
+    echo -e "OS Version:\t\t$osversion"
+    echo -e "ClearCase Version:\t$ccversion"
+    echo -e "Owner:\t\t\t$owner" | tr -s "(" "<" | tr -s ")" ">"
+    echo -e "Phone:\t\t\t$phone"
+    echo -e "Usage:\t\t\t$usage"
+    echo -e "Class:\t\t\t$class"
+    echo -e "Location:\t\t$location"
+  fi
+} # display_machine_info
+
+function dump_all_machines {
+  grep -v "^#" $machines | cut -f1 -d: | while read machine; do
+    echo -
+--------------------------------------------------------------------------------
+    display_machine_info $machine
+  done
+} # dump_all_machines
+if [ $# -eq 0 ]; then
+  display_machine_info $(uname -n)
+else
+  if [ "$1" = "-all" ]; then
+    dump_all_machines
+  else
+    for i in $@; do
+      display_machine_info $i
+    done
+  fi
+fi

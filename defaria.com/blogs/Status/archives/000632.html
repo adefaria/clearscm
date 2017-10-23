@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Oracle limit clause</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000631.html" title="Deleting Site Domains" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000633.html" title="Turning on HTML for Exchange/IMAP" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000632.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/21"
+    dc:title="Oracle limit clause"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000632.html"
+    dc:subject="GPDB"
+    dc:description=" Modify site almost functionally complete Looking into how to do what MySQL does with it&apos;s limit clause in Oracle..."
+    dc:creator=""
+    dc:date="2007-04-18T19:04:09-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000631.html">&laquo; Deleting Site Domains</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000633.html">Turning on HTML for Exchange/IMAP &raquo;</a>
+                     </p>
+
+                     <a id="a000632"></a>
+                     <div class="entry" id="entry-632">
+                        <h3 class="entry-header">Oracle limit clause</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Modify site almost functionally complete</li>
+
+  <li>Looking into how to do what MySQL does with it's limit clause in Oracle</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Oracle limit clause</h2>
+
+<p>Found this ugly workaround for MySQL's limit clause:</p>
+
+<div class=code><pre>
+select * from (
+  select rownum as limit, t.* from (
+    select * from &lt;table&gt; where &lt;condition&gt;
+  )
+t) where limit between &lt;lower limit&gt; and &lt;upper limit&gt;
+</pre></div>
+
+<p>Hey it works....</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 18, 2007  7:04 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000632.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/21</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

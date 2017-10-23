@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Eliminating Perl Syntactic Sugar</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000752.html" title="2012-05-11-adefaria" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000754.html" title="Creating Development Schema Repositories" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000753.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/117"
+    dc:title="Eliminating Perl Syntactic Sugar"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000753.html"
+    dc:subject=""
+    dc:description="Programming complex systems is... well... complicated. You need to focus on the task at hand and be able to see the trees from the forest as they say. That&apos;s why I like to eliminate as much what I call syntactic..."
+    dc:creator=""
+    dc:date="2012-08-02T20:13:44-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000752.html">&laquo; 2012-05-11-adefaria</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000754.html">Creating Development Schema Repositories &raquo;</a>
+                     </p>
+
+                     <a id="a000753"></a>
+                     <div class="entry" id="entry-753">
+                        <h3 class="entry-header">Eliminating Perl Syntactic Sugar</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Programming complex systems is... well... complicated. You need to focus on the task at hand and be able to see the trees from the forest as they say. That's why I like to eliminate as much what I call syntactic sugar from the language. Syntactic sugar are ornaments, special characters and restating the obvious or default that makes your mind drift from the problem at hand to how to formulate syntactic sugar. Additionally such sugar takes time to type in, is prone to errors if you don't get it right and usually are comprised of characters that, as a touch typist, you have to often stretch to reach on the keyboard.</p>
+
+<p>Here's an example. Recently I came across the following code:</p>
+
+<div class="code">
+    delete($self->{'cqc'}->{'fields'}->{'PCP_ID'}) if (exists $self->{'cqc'}->{'fields'}->{'PCP_ID'}); # PCP_ID  is read-only and should not be passed through.<br>
+    delete($self->{'cqc'}->{'fields'}->{'Approved_by_CCB'}) if (exists $self->{'cqc'}->{'fields'}->{'Approved_by_CCB'});<br>
+    delete($self->{'cqc'}->{'fields'}->{'record_type'}) if (exists $self->{'cqc'}->{'fields'}->{'record_type'});<br>
+</div>
+
+<p>Now that takes a some time to parse... (Did you see the comment buried in there?) And here's the same code with the syntactic sugar removed:</p>
+
+<div class="code">
+    delete $self->{cqc}{fields}{PCP_ID};<br>
+    delete $self->{cqc}{fields}{Approved_by_CCB};<br>
+    delete $self->{cqc}{fields}{record_type};<br>
+</div>
+
+<p>which do you find easier to read?</p>
+
+<p><b>Notes:</b></p>
+
+<ul>
+  <li> Surrounding hash keys with '' is unnecessary unless you use special characters in the key name like spaces and '-'. The '_' character is OK (the Perl interpreter views '-' as a possible subtraction). Use '' for hash keys only when necessary.</li>
+
+  <li>The additional '->' operators are unnecessary. The first one is necessary since $self is a hashref, but after that you don't need them - why type them?</li>
+
+  <li>The delete call need not have (). Granted, delete is a function and some people field all function should have () even if there are no parameters. And yet even people who feel this way rarely use () on Perl builtins like print and die. If you define your subroutines before they are used you can call them without ().</li>
+
+  <li>There's no reason to include "if (exists $self->{'cqc'}->{'fields'}->{'PCP_ID'})". First off, if clauses that follow the statement do not need (). Even "exists" is unnecessary as if it is omitted the if statement works the same anyway. Finally, delete $hashref->{unknown} will not error out if $hashref->{unknown} doesn't exist.</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on August  2, 2012  8:13 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000753.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/117</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

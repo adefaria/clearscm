@@ -1,0 +1,161 @@
+#!/bin/bash
+#################################################################################
+# File:         install_triggers
+# Description:  [Re]Creates Clearcase triggers
+# Author:       Andrew DeFaria <ADeFaria@Salira.com>
+# Created:      Tue Mar 12 13:56:31  2002
+# Modified:     
+# Language:     Bash
+#
+# (c) Copyright 2002, Salira Optical Network Systems, all rights reserved.
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# trigger_data contains the triggers. The fields are separated by a "%".
+#
+# Field 1: Name of trigger (must not contain spaces)
+# Field 2: Comment for trigger
+# Field 3: Options. Currently specify one of preop, postop or all. Leading "-" will be
+#	   supplied
+# Field 4: All modifier. Enter "all" if this is an all element trigger, blank otherwise
+# Field 5: Operation kind. Things like checkin, checkout (See help for mktrtype for more)
+# Field 6: Site. This is one of US, CN or all. If this trigger is only supposed to be
+#	   at one site then designate which site, otherwise all
+# Field 7: What to execute. We assume and supply perl. We also prepend this with
+#	   the path to the Triggers directory.
+# Field 8: Additional parameters (e.g. NotifyTrigger.pl <path to msg file>). Not that this
+#	   must be the full pathname (e.g. T:/Triggers/Messages/NotifySoftare.msg works fine)
+trigger_data="\
+check_in_pre%Check comments on check in%all%preop%checkin%all%CheckinPreop.pl%%\n\
+check_in_post%Label check in with bug ID label%all%postop%checkin%all%CheckinPostop.pl%%\n\
+notify_ci_software%Notify Software group of checkins%%postop%checkin%all%NotifyTrigger.pl%NotifySoftware.msg\n\
+notify_ci_software_china%Notify China Software group of checkins%%postop%checkin%CN%NotifyTrigger.pl%NotifySoftware.msg\n\
+notify_ci_rli%Notify Rick Li of checkins%all%postop%checkin%all%NotifyTrigger.pl%NotifyRickLi.msg\n\
+remove_empty_branch%Remove empty branches after uncheckout, rmver, or rmbranch%all%postop%uncheckout,rmver,rmbranch%all%RemoveEmptyBranch.pl%
+set_ownership%Set ownership to ccadmin%all%postop%mkelem%all%SetOwnershipTrigger.pl%%\
+"
+
+# Where perl is
+perl=$(cygpath -w //$SITE_BUILD_SERVER/Tools/Perl/bin/perl.exe)
+
+# Where trigger stuff is
+trigbase=$(cygpath -w //$SITE_VIEW_SERVER/$SITE_VIEW_SHARENAME/$SITE_OFFICIAL_VIEW/$SITE_TOOLS_VOB/bin/clearcase/triggers)
+
+# Where messages are
+msgbase=$(cygpath -w $trigbase/messages)
+
+function create_trigger {
+  name="$1"
+  comment="$2"
+  if [ -z "$3" ]; then
+    op1=""
+  else
+    op1="-$3"
+  fi
+  op2="-$4"
+  opkind="$5"
+
+  execute="$perl $trigbase\\$6"
+
+  if [ ! -z "$7" ]; then
+    execute="$execute $msgbase\\$7"
+  fi
+
+  # Check to see if the trigger already exists
+  cleartool lstype trtype:$name > /dev/null 2>&1
+
+  # If so set $replace with the -replace option
+  if [ $? -eq 0 ]; then
+    replace="-replace"
+  else
+    replace=""
+  fi
+
+  # [Re]Create trigger
+  echo "cleartool mktrtype $replace -element $op1 $op2 $opkind -comment \"$comment\" -execwin \"$execute\" $name" > /tmp/$me
+  cleartool mktrtype	\
+    $replace		\
+    -element		\
+    $op1 $op2 $opkind	\
+    -comment $comment	\
+    -execwin $execute	\
+    $name 1> /dev/null 2>> /tmp/$me
+
+  # Check status and inform the user
+  if [ $? -eq 0 ]; then
+    if [ -z "$replace" ]; then
+      verbose "Created $name trigger"
+    else
+      verbose "Replaced $name trigger"
+    fi
+  else
+    if [ -z "$replace" ]; then
+      warning "Unable to create $name trigger"
+    else
+      warning "Unable to replace $name trigger"
+    fi
+    cat /tmp/$me
+  fi
+
+  # Clean up temp file
+  rm -f /tmp/$me
+} # create_trigger
+
+# Get parameters
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -v|-verbose)
+      verbose=yes
+    ;;    
+
+    -d|-debug)
+      debug=yes
+    ;;
+
+    *)
+      break;
+    ;;
+    
+  esac
+  shift
+done
+
+# Need to cd to the vob so that Clearcase can determine which vob this trigger applies to. 
+# Note that we assume that the view official exists and we are applying triggers to the 
+# salira vob.
+cd $SITE_VIEW_STORAGE/$SITE_OFFICIAL_VIEW/salira
+
+# Process triggers from $trigger_data
+IFS=% 
+echo -e "$trigger_data" | while read name comment op1 op2 opkind site execstr parms; do
+  if [ "$parms" = "%" ]; then
+    parms=""
+  fi
+  if [ "$op1" = "%" ]; then
+    op1=""
+  fi
+
+  if [ "$site" = "all" -o "$site" = $SITE_NAME ]; then
+    create_trigger $name $comment "$op1" $op2 $opkind $execstr $parms
+  else
+    verbose "Skipping $name trigger - only appliable to the $site site"
+  fi
+done

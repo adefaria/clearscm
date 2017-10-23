@@ -1,0 +1,396 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: April 16, 2006 - April 22, 2006 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2006_04_09.html" title="April  9, 2006 - April 15, 2006" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2006_04_23.html" title="April 23, 2006 - April 29, 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2006_04_09.html">&laquo; April  9, 2006 - April 15, 2006</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2006_04_23.html">April 23, 2006 - April 29, 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">April 19, 2006</h2>
+                     <a id="a000546"></a>
+                     <div class="entry" id="entry-546">
+                        <h3 class="entry-header">Successful Build on sons-sc-cc</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Tracked down the problem with building on sons-sc-cc. Turns out Tornado-2.0 is slightly different</li>
+</ul>
+
+<p><b>TIme Spent:</b> 2 Hours</p>
+                              
+                              <p>Here's what I see. Looking into why I'm getting this error I searched
+Tornado-2.0 for the definition of endEtherAddressForm and I find it in
+Tornado-2.0/host/resource/synopsis/drv.syn ~line 42. On sons-clearcase
+I see:</p>
+
+<div class=code><pre>
+endEtherAddressForm() - form an Ethernet address into a packet
+
+M_BLK_ID endEtherAddressForm
+    (
+    M_BLK_ID pMblk,    /* pointer to packet mBlk */
+    M_BLK_ID pSrcAddr, /* pointer to source address */
+    M_BLK_ID pDstAddr  /* pointer to destination address */
+    )
+</pre></div>
+
+<p>However on sons-sc-cc I see:</p>
+
+<div class=code><pre>
+endEtherAddressForm() - form an Ethernet address into a packet
+
+M_BLK_ID endEtherAddressForm
+    (
+    M_BLK_ID pMblk,    /* pointer to packet mBlk */
+    M_BLK_ID pSrcAddr, /* pointer to source address */
+    M_BLK_ID pDstAddr, /* pointer to destination address */
+    BOOL     bcastFlag /* use link-level broadcast? */
+    )
+</pre></div>
+
+<p>Note the extra parm. Now I copied //sons-clearcase/Tools -&gt; //sons-sc-cc/Tools but I know that Simon was doing something WRT WindRiver. Perhaps that changed Tools on sons-sc-cc? Here's what I tried:</p>
+
+<ul>
+  <li>Renamed //sons-sc-cc/Tools/Tornado-2.0 -&gt;
+//sons-sc-cc/Tools/Tornado-2.0.save</li>
+
+  <li>Recopied //sons-clearcase/Tools/Tornado-2.0 -&gt;
+//sons-sc-cc/Tools/Tornado-2.0</li>
+
+  <li><font color="#009900"><b>Performed build - it worked! All of it!
+Not just olc!</b></font></li>
+</ul>
+
+<p>I noticed that there is a Tornado-2.0 folder in the D drive, a
+Tornado-2.0 folder in D:\Tools and a Tornado-2.0+ in D:\Tools.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:31 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000546.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 18, 2006</h2>
+                     <a id="a000545"></a>
+                     <div class="entry" id="entry-545">
+                        <h3 class="entry-header">Building on sons-sc-cc (Fixing smake)</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Looked into build issues on sons-sc-cc</li>
+
+  <li>Adjusted smake</li>
+</ul>
+
+<p><b>Time Spent:</b> 2 hours</p>
+                              
+                              <p>This problem with drive letters being unavailable when one remotely
+logs in is one that I had battled with for a while in the past as <a href="http://sourceware.org/cgi-bin/search.cgi?cmd=Search!&fmt=long&form=extended&GroupBySite=no&m=all&ps=10&q=network+drive+unavailable+2003&sp=1&sy=1&type=&ul=/ml/cygwin/%25&wf=2221&wm=wrd">history shows</a>.
+
+<p>Unfortunately I don't have a great solution yet except to say that most people do not log into the server directly to do a build as you are doing. However there's a light at the end of the tunnel and that light is smake. Smake makes an optimization by setting TOOLS_DIR to the local disk drive instead of the T drive when building on sons-clearcase (and sons-cc for that matter as well as a sonsbld1 that we were once trying to set up). As a result I've changed smake to add sons-sc-cc to the list:</p>
+
+<div class=code><pre>
+if [ $myhost = "sons-sc-cc" ]; then
+  export TOOLS_ROOT=D:/Tools &amp;&amp; nice make -e "$@"
+elif [ $myhost = "sons-clearcase" ]; then
+  export TOOLS_ROOT=E:/Tools &amp;&amp; nice make -e "$@"
+elif [ $myhost = "sons-cc" -o $myhost = "sonsbld1" ]; then
+  export TOOLS_ROOT=C:/Tools &amp;&amp; nice make -e "$@"
+else
+  nice make "$@"
+fi
+</pre></div>
+
+<p>So if you use smake instead of just make on sons-sc-cc TOOLS_ROOT will
+be set to D:/Tools (where Tools are locally on sons-sc-cc) and then it will call make. This should solve this problem for local makes. For remove smakes (an smake you invoke from your desktop - you guys still do that right?) the following code changes fix that:</p>
+
+<div class=code><pre>
+if [ $build_server = "sons-sc-cc" ]; then
+  rsh -n $build_server "ct $(pwd) &amp;&amp; export TOOLS_ROOT=D:/Tools
+&amp;&amp; nice make -e $@"
+elif [ $build_server = "sons-cc" -o $build_server = "sonsbld1" ]; then
+  rsh -n $build_server "cd $(pwd) &amp;&amp; export TOOLS_ROOT=C:/Tools
+&amp;&amp; nice make -e $@"
+else
+  rsh -n $build_server "cd $(pwd) &amp;&amp; export TOOLS_ROOT=E:/Tools
+&amp;&amp; nice make -e $@"
+fi
+</pre></div>
+
+<p>The added benefit of this approach is that builds a <font  color="#ff0000"><b>a lot</b></font> faster since you are not loading the compiler over the network connection of the T drive (even though the T drive points back to the local machine in the case of sons-sc-cc).</p>
+
+<p>Oh, another optimization I did on sons-sc-cc - I change the share cache to cache programs that are run. So for users running builds locally on there desktops (well not yet but when we get fully switched over) and they load say the C compiler from vxWorks, it will be cached on their local desktop and subsequent compilations should also run a lot faster!</p>
+
+<p>I'm still not able to build, however. Here's a build from a clean view. Note that I removed the * from your /etc/passwd line szhu so I could use rsh to switch users from ccadmin -&gt; szhu:</p>
+
+<div class=code><pre>
+<font color="#3366ff"><b>[ccadmin] sons-sc-cc:</b></font><u>rsh -l szhu sons-sc-cc</u>
+No directory /us/SZhu!
+Logging in with home = "/".
+Last login: Tue Apr 18 11:06:10 from sc-szhu.salira.com
+CYGWIN_NT-5.2 SONS-SC-CC 1.5.19(0.150/4/2) 2006-01-20 13:28 i686 Cygwin
+WARNING: HOME directory did not exist! Logging in with HOME = /tmp
+
+<b><font color="#009900">SZhu@SONS-SC-CC</font></b> <font
+ color="#cc9933">~</font>
+$ <u>id</u>
+uid=1143(SZhu) gid=513(Domain Users) groups=513(Domain Users)
+  
+<b><font color="#009900">SZhu@SONS-SC-CC</font></b> <font  color="#cc9933">~</font>
+$ <u>cd /dview/3.1.ccadmin/salira/neopon/build/</u>
+<b><font color="#009900">SZhu@SONS-SC-CC</font></b>
+<font color="#cc9933">/dview/3.1.ccadmin/salira/neopon/build</font>
+$ <u>which smake</u>
+/view/official/Tools/bin/smake
+<b><font color="#009900">SZhu@SONS-SC-CC</font></b>
+<font color="#cc9933">/dview/3.1.ccadmin/salira/neopon/build</font>
+$ <u>smake</u>
+Build server: sons-sc-cc View: 3.1.ccadmin [local]
+User: SZhu Dir: /dview/3.1.ccadmin/salira/neopon/build
+Performing build locally on sons-sc-cc
+sons-sc-cc:make 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +---------------------------+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; S a l i r a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /|
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NEOPON&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; / |
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /---------------------------/&nbsp; |
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |O|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp; /
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Building... |L|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | /
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |C|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; +---------------------------+
+-------------------------------------- (neopon/src/bsp) olc
+[ASSEMBLE]&nbsp;&nbsp;&nbsp;&nbsp; sysALib.s
+[COMPILE C]&nbsp;&nbsp;&nbsp; sysLib.c
+[COMPILE C]&nbsp;&nbsp;&nbsp; sysTffs.c
+D:/TOols/Tornado-2.0/target/src/drv/tffs/tffsConfig.c: In function `tffsShowAll':
+In file included from sysTffs.c:63:
+D:/TOols/Tornado-2.0/target/src/drv/tffs/tffsConfig.c:205: warning: comparison between signed and unsigned
+D:/TOols/Tornado-2.0/target/src/drv/tffs/tffsConfig.c: In function `tffsBootImagePut':
+D:/TOols/Tornado-2.0/target/src/drv/tffs/tffsConfig.c:389: warning: comparison between signed and unsigned
+[COMPILE C]&nbsp;&nbsp;&nbsp; 8260I2C.c
+8260I2C.c: In function `i2cInit':
+8260I2C.c:260: warning: cast from pointer to integer of different size
+8260I2C.c:261: warning: cast from pointer to integer of different size
+8260I2C.c:265: warning: cast from pointer to integer of different size
+8260I2C.c:266: warning: cast from pointer to integer of different size
+[COMPILE C]&nbsp;&nbsp;&nbsp; Fpga_download.c
+[COMPILE C]&nbsp;&nbsp;&nbsp; usrConfig_st.c
+D:/TOols/Tornado-2.0/target/src/config/../../src/config/usrTffs.c: In function `usrTffsLnConfig':
+In file included from usrExtra.c:203,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from usrConfig_st.c:123:
+D:/TOols/Tornado-2.0/target/src/config/../../src/config/usrTffs.c:154: warning: implicit declaration of function `dosFsMkfsOptionsSet'
+D:/TOols/Tornado-2.0/target/src/config/../../src/config/usrWdb.c: In function `vxTaskCreate':
+In file included from usrExtra.c:236,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from usrConfig_st.c:123:
+D:/TOols/Tornado-2.0/target/src/config/../../src/config/usrWdb.c:581: warning: unused parameter `stackBase'
+D:/TOols/Tornado-2.0/target/src/config/../../src/config/usrWindview.c: In function `wvOn':
+D:/TOols/Tornado-2.0/target/src/config/../../src/config/usrWindview.c:269: warning: unused parameter `arg4'
+[COMPILE C]&nbsp;&nbsp;&nbsp; usrConfig.c
+D:/TOols/Tornado-2.0/target/src/config/../../src/config/usrTffs.c: In function `usrTffsLnConfig':
+In file included from usrExtra.c:203,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from usrConfig.c:123:
+D:/TOols/Tornado-2.0/target/src/config/../../src/config/usrTffs.c:154: warning: implicit declaration of function `dosFsMkfsOptionsSet'
+D:/TOols/Tornado-2.0/target/src/config/../../src/config/usrWdb.c: In function `vxTaskCreate':
+In file included from usrExtra.c:236,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; from usrConfig.c:123:
+D:/TOols/Tornado-2.0/target/src/config/../../src/config/usrWdb.c:581: warning: unused parameter `stackBase'
+D:/TOols/Tornado-2.0/target/src/config/../../src/config/usrWindview.c: In function `wvOn':
+D:/TOols/Tornado-2.0/target/src/config/../../src/config/usrWindview.c:269: warning: unused parameter `arg4'
+[COMPILE C]&nbsp;&nbsp;&nbsp; fpd_end.c
+fpd_end.c: In function `np3400EndAddressForm':
+fpd_end.c:1247: too few arguments to function `endEtherAddressForm'
+make[2]: *** [../../../build/olc/obj/fpd_end.o] Error 1
+make[1]: *** [obj/bsp/olc.olist] Error 2
+make: *** [olc/vxWorks_st.elf] Error 2
+</pre></div>
+
+<blockquote type="cite">
+  Regarding checkin and bug ID labeling, when you check into Clearcase using sons-clearcase you are saying that the trigger that is supposed to label the check in with the bug ID is failing to do so. I will look into this later too.
+</blockquote>
+
+<p>I'm not seeing this. In fact I'm seeing evidence saying it's working. The triggers log to /view/official/Tools/logs/triggers.log. Looking at the bottom of that file (tail -f works nicely) shows me:</p>
+
+<div class=code><pre>
+CheckinPreop.pl: 4/18/2006@17:38: vdsouza: Checkin checks started for V:\vdsouza3.1\salira\neopon\src\gdb\gdb_csr_dump.c on rel_3.1 branch
+CheckinPreop.pl: 4/18/2006@17:38: vdsouza: Successful precheckin of V:\vdsouza3.1\salira\neopon\src\gdb\gdb_csr_dump.c on rel_3.1 branch with bug ID
+CheckinPostop.pl: 4/18/2006@17:38: vdsouza: Created label for BUGS200006029
+CheckinPostop.pl: 4/18/2006@17:38: vdsouza: Attached label BUGS200006029 to V:\vdsouza3.1\salira\neopon\src\gdb\gdb_csr_dump.c
+CheckinPostop.pl: 4/18/2006@17:38: vdsouza: Successful postcheckin of V:\vdsouza3.1\salira\neopon\src\gdb\gdb_csr_dump.c on rel_3.1 branch with bug ID BUGS200006029</tt>
+</pre></div>
+
+<p>And indeed gdb_csr_dump.c has a label of BUGS200006029:</p>
+
+<div class=code><pre>
+[ccadmin] sons-clearcase:files4bug 6029
+Files involved in bug ID BUGS200006029:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /salira/neopon/src/gdb/main/rel_2.0/hainan_integration/rel_2.2/rel_3/1/gdb_csr_dump.c<br>
+1 file involved in bug ID BUGS200006029
+</pre></div>
+
+<p>Do you have an example of where this is failing?</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:45 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000545.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 17, 2006</h2>
+                     <a id="a000544"></a>
+                     <div class="entry" id="entry-544">
+                        <h3 class="entry-header">gethostbyaddr fails</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Researched problem with Tony and Bingchun's machines WRT cqd/cqc</li>
+
+  <li>Attempted to fix problems with Clearquest Desktop Installation</li>
+</ul>
+
+<p><b>Time Spent:</b> 2 Hours</p>
+                              
+                              <p>Here's the progress I made last night:</p>
+
+<ul>
+  <li>Determined that part of the problem with Tony Liu's machine and Bingchun's machines was due to the fact that Clearquest was not even installed on their machines. Installed Clearquest 2002.05.00 on Tony's machine - Bingchun installed Clearquest on his own machine.</li>
+
+  <li>Despite the above cqc was still unable to connect to cqd. Determined that a call to gethostbyaddr in cqd was failing for some still unknown reason. The subsequent called to get the host's name would fail in Perl. Not sure why that causes the server to hang, however getting the hostname is only really so that cqd could report nice hostnames. So instead I changed the code to do:</li>
+
+  <div class=code><pre>
+# Service this client
+my $hostinfo = gethostbyaddr ($cqclient-&gt;peeraddr);
+my $host = !defined $hostinfo ? "Unknown" : $hostinfo-&gt;name || $cqclient-&gt;peerhost;
+  </pre></div>
+   
+<p>So if the hostinfo is not attainable with the gethostbyaddr call we'll simply use the host of "unknown". This means that Tony and Bingchun should be able to at least checkin their files.</p>
+
+  <li>Fixed shortcut in //sons-sc-cc/Rational/Clearquest to be named "Install Clearquest" so people can update to the new version of Clearquest.</li>
+
+  <li>Attempted to update the machine adefaria with the new version of Clearquest. Need to uninstall the old version of Clearquest first. Bummer.</li>
+
+  <li>Uninstalled Clearquest on adefaria and installed new version of Clearquest. I was able to make a connection to the new Clearquest server (sons-sc-cc) but I was unable to make a connection to the old and current production version of Clearquest on sons-clearcase!</li>
+
+  <li>I was unable to make a connection to the old version of Clearquest on sons-clearcase on either of Tony's or Bingchun's machines. To summarize, I installed CQ Version 2003.06.00 on adefaria and CQ Version 2002.05.00 on Tony's and Bingchun's machines but none of these were able to establish a CQ connection (via the Clearquest Maintenance Tool) to the current production Clearquest SQL Anywhere database on sons-clearcase! For Clearquest, people in China usually use the web interface anyway. I need to talk to Rational about why I am unable to connect to the old, production Clearquest database.</li>
+
+  <li>Uninstalled CQ 2003.06.00 on adefaria and reinstalled CQ 2002.05.00. Alas even after reinstalling CQ Version 2002.05.00 I still can't create a connection to sons-clearcase on adefaria! Must be something I'm doing wrong but I'm too tired to figure it out.</li>
+
+  <li>I was unable to look into rsh/telnet issues and build issues that Simon reported.<br>
+  </li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:38 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000544.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000543"></a>
+                     <div class="entry" id="entry-543">
+                        <h3 class="entry-header">Ant Rant</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Studying Ant</li>
+</ul>
+                              
+                              <p>Recently I started looking into Ant more seriously. Seems like it'd be a good thing to do for my career. But I must tell you, I'm not quite convinced that Ant's a solution to anything except to say that it's probably a more comfortable make for people who think in terms of Java only.</p>
+
+<p>Here's some quotes from the main <a href="http://ant.apache.org/">Ant page</a>:</p>
+
+<blockquote>
+  Apache Ant is a Java-based build tool. In theory, it is kind of like Make, but without Make's wrinkles.
+</blockquote>
+
+<p>Make wrinkles?!? What wrinkles? Wrinkles are the sign of age and wisedom. Just because you don't understand it do not play it off as if it's bad.</p>
+
+<blockquote>
+  Why another build tool when there is already make, gnumake, nmake, jam, and others? Because all those tools have limitations that Ant's original author couldn't live with when developing software across multiple platforms. Make-like tools are inherently shell-based -- they evaluate a set of dependencies, then execute commands not unlike what you would issue in a shell. This means that you can easily extend these tools by using or writing any program for the OS that you are working on. However, this also means that you limit yourself to the OS, or at least the OS type such as Unix, that you are working on.
+</blockquote>
+
+<p>That's true. But no more true than the fact that if you want to run make on any other system you also need to have make available on that other system! I take the above to mean that you have a tendency to extend your build to what is natural on the OS in question and thus you start using Unix shell commands and the like. OK. However where, in the scheme of things, can one not run Unix shell commands now a days? Surely Unix and Linux have that covered, and Mac OS/X is basically Unix under the hood too. What  you mean Windows? Well <a href="http://cygwin.com">Cygwin</a> also has that pretty much covered. So then, why avoid a well known, well understood and time test utilitiy such as make?
+
+<blockquote>
+  Makefiles are inherently evil as well. Anybody who has worked on them for any time has run into the dreaded tab problem. "Is my command not executing because I have a space in front of my tab!!!" said the original author of Ant way too many times. Tools like Jam took care of this to a great degree, but still have yet another format to use and remember.
+</blockquote>
+
+Ah so now we see the real motivation that the original author had for discarding make! He couldn't remember to start his lines with a tab character!
+
+<blockquote>
+  Ant is different. Instead of a model where it is extended with shell-based commands, Ant is extended using Java classes. Instead of writing shell commands, the configuration files are XML-based, calling out a target tree where various tasks get executed. Each task is run by an object that implements a particular Task interface.
+</blockquote>
+
+<p>Which I guess would be find if you are better at writing Java classes instead of shell commands or other scripts. And why is it that all new, improved, better things must incorporate whatever is in vogue at the time? Do we really need XML files instead of just straightforward ASCII text? And must everything be an object?</p>
+
+<blockquote>
+  Granted, this removes some of the expressive power that is inherent by being able to construct a shell command such as `find . -name foo -exec rm {}`, but it gives you the ability to be cross platform -- to work anywhere and everywhere. And hey, if you really need to execute a shell command, Ant has an <exec> task that allows different commands to be executed based on the OS that it is executing on. 
+</blockquote>
+
+<p>Ant is only as cross platform as the platforms that ant has been ported to! With things like Cygwin there no need to throw the baby out with the bath water over a few misplaced tabs. Still I guess ant has it's place and I'm sure it's comfortable for Java developers. Sure having an object oriented design probably isn't bad but now people need to learn yet another language - Java - even if they are not developing in Java. And they need to learn XML, etc. And you don't only lose the power and expressiveness of the shell but it seems to me you just lost support for just about all the other langauges as well. AFAICT I see no built in support for Ada, FORTRAN, Pascal, etc.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:06 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000543.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

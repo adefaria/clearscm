@@ -1,0 +1,144 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: set_path,v $
+# Revision:	$Revision: 1.4 $
+# Description:  Sets the path from scratch
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Jun  6 08:31:57 PDT 1996
+# Modified:     $Date: 2006/10/30 05:24:03 $
+# Language:     bash
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+function append_to_path {
+  component="$1"
+  
+  if [ -d "$component" ]; then
+    if [ -z "$PATH" ]; then 
+      PATH="$component"
+    else
+      PATH="$PATH:$component"
+    fi
+  fi
+} # append_to_path
+
+function append_to_manpath {
+  component="$1"
+  
+  if [ -d "$component" ]; then
+    if [ -z "$MANPATH" ]; then 
+      MANPATH="$component"
+    else
+      MANPATH="$MANPATH:$component"
+    fi
+  fi
+} # append_to_manpath
+
+if [ -x /app/manpath ]; then
+  OLDIFS=$IFS
+  IFS=:
+  for manpath in $(/app/manpath); do
+    manpath_dirs="$manpath_dirs $manpath"
+  done
+  IFS=$OLDIFS
+fi
+    
+# Set up PATH
+path_dirs=
+
+if [ -f /etc/PATH ]; then
+  OLDIFS=$IFS
+  IFS=:
+  for path in $(cat /etc/PATH); do
+    path_dirs="$path_dirs $path"
+  done
+  IFS=$OLDIFS
+fi
+
+if [ -x cygpath ]; then
+  home=$(cygpath -u $(cygpath -pws /home/Andrew\ DeFaria) | tr [:upper:] [:lower:])
+else
+  home=$HOME
+fi
+
+if [ "$SYSTEMROOT" ]; then
+  systemroot=$(cygpath -u $SYSTEMROOT)
+fi
+
+path_dirs="$path_dirs\
+  .\
+  "$home/bin"\
+  $home/adm/bin\
+  $home/adm/cc\
+  $home/adm/cq\
+  $home/adm/cvsbin\
+  $home/adm/hp\
+  /opt/Rational/Clearcase/bin\
+  /opt/Rational/ClearQuest\
+  /opt/Rational/Common\
+  $adm_base/bin\
+  $adm_base/clearcase\
+  /bin\
+  /usr/local/mysql/bin\
+  /usr/local/maps/bin\
+  /usr/afsws/bin\
+  /usr/afsws\
+  /usr/bin\
+  /usr/X11R6/bin\
+  /usr/bin/X11\
+  /usr/local/ddts/bin\
+  /usr/local/bin\
+  /usr/dt/bin\
+  /usr/openwin/bin\
+  /opt/rational/clearcase/bin\
+  /opt/rational/clearcase/etc\
+  /opt/rational/clearquest/bin\
+  /opt/rational/clearquest\
+  /usr/sbin\
+  /usr/ccs/bin\
+  /usr/seos/bin\
+  /usr/ucb\
+  /opt/ssh/bin\
+  /tools/bin\
+  $systemroot/System32\
+  $systemroot\
+"  
+
+manpath_dirs="\
+  /usr/share/man\
+  /usr/dt/man\
+  /usr/dt/man/man1\
+  /usr/eclipse/man\
+  /usr/atria/doc/man\
+  /usr/cns/man\
+  /usr/local/packages/ccperl/ccperl5.001m/man\
+  /usr/local/packages/atria/current/man\
+  /usr/local/packages/emacs/man\
+  /usr/seos/man\
+  /opt/ssh/man\
+  /opt/medusa/share/man\
+  /usr/afsws/man\
+"  
+
+PATH=
+for component in $path_dirs; do
+  append_to_path "$component"
+done
+
+# Set up MANPATH
+if [ -f /etc/MANPATH ]; then
+MANPATH=$(cat /etc/MANPATH)
+fi
+
+for component in $manpath_dirs; do
+  append_to_manpath "$component"
+done
+
+# Set up SHLIB_PATH
+if [ "hp-ux" = "10" ]; then
+  export SHLIB_PATH=$(cat /etc/SHLIB_PATH)
+  export SHLIB_PATH=$SHLIB_PATH:$M_LROOT/bin
+  export LD_LIBRARY_PATH=$SHLIB_PATH:$M_LROOT/bin
+fi

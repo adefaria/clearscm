@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: February 27, 2005 - March  5, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_02_20.html" title="February 20, 2005 - February 26, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_03_06.html" title="March  6, 2005 - March 12, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_02_20.html">&laquo; February 20, 2005 - February 26, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_03_06.html">March  6, 2005 - March 12, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">March  4, 2005</h2>
+                     <a id="a000309"></a>
+                     <div class="entry" id="entry-309">
+                        <h3 class="entry-header">Yet more building</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Finished Bluecat build process!</li>
+
+  <li>Pulling ECR 23001 into the LynxOS build for eventual Native PPC Toolchain build</li>
+</ul>
+                              
+                              <p>Regarding ECR 23001:</p>
+
+<p>I was trying to build the native PPC toolchain again. The ECR I submitted was 23184 but that was dupped to 22979 which is in Pending Review state. So I pulled 22979 and attempted to build. But 22979 depends on 23001 (also in Pending Review). Is it OK to pull 23001 and continue onward? How are dependencies between ECRs normally handled?</p>
+
+<blockquote>
+  <p><b>Note:</b> I say "depends on" but I'm not sure that that is the right terminology. I don't really believe that 23001 depends on 22979 nor vica versa rather there doesn't seem to be a clear process here. 22979 pulls in src/lib/libc/Makefile revision 10.25 but 10.24 has a change for 23001 in it. So 23001 is needed because of this. The other files involved in 23001 do not have the Lion_lynxos_012405 tag so they are not picked up in the normal build process - hence the build fails. This is not a classic dependency rather it's an overrunning of checkins. Of course, maybe my analysis of this situation is flawed.</p>
+</blockquote>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:53 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000309.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">March  2, 2005</h2>
+                     <a id="a000308"></a>
+                     <div class="entry" id="entry-308">
+                        <h3 class="entry-header">Building, building...</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Pulled ECR 22979 and rebuilt lynxos</li>
+
+  <li>Placed new LynxOS on T3 and updated t-mcpn765-1</li>
+
+  <li>Rebuild of Toolchain still fails with unresolved references to atoi!</li>
+
+  <li>Found some corruption in LynxOS CVS. Working to get a list of files and to have this fixed</li>
+
+  <li>Bluecat build, step 4 still failing...</li>
+
+  <li>Attempting to build TOB Toolchain on x86 still failing</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:26 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000308.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">March  1, 2005</h2>
+                     <a id="a000307"></a>
+                     <div class="entry" id="entry-307">
+                        <h3 class="entry-header">More BC building</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Moscow's BC build failed in step 4 due to lack of disk space. Moved guest account over to new partition</li>
+
+  <li>Step 4 is not building for me either. Emailed Moscow</li>
+
+  <li>Returning to other builds. PPC Native Toolchain build was failing - attempting to resolve that. Also X86 Native Toolchain build also failing.</li>
+
+  <li>Several enhancements to ECR Dig:</li>
+
+    <ul>
+      <li>ECRs now include status line with Status, State and Severity</li>
+
+      <li>Http and ftp references are made into links</li>
+
+      <li>ECR numbers are now made into links</li>
+
+      <li>Added footer with "Back to ECR Dig" link</li>
+    </ul>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:41 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000307.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February 28, 2005</h2>
+                     <a id="a000306"></a>
+                     <div class="entry" id="entry-306">
+                        <h3 class="entry-header">BC Step 3/PPC Toolchain/X86 Toolchain</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Went through steps 1 & 2 again for BC</li>
+
+  <li>After 6 hours step 3 of BC finally finished!</li>
+
+  <li>Step 4 fails though</li>
+
+  <li>Experiencing network problems in lab and so the native X86 toolchain build on t-k1g-1 keeps dying.</li>
+
+  <li>Also having problems keeping connection to t-mcn765-n (???)</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:36 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000306.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

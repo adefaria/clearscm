@@ -1,0 +1,28 @@
+#!/bin/bash
+################################################################################
+#
+# File:         install_pwplus
+# Description:  This script will install pwplus
+# Author:       Andrew DeFaria (defaria@cup.hp.com)
+# Language:     Korn Shell
+# Modified:
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# First source /app/appserver
+if [ -x /app/appserver ]; then
+  . /app/appserver
+fi
+
+if [ $(id -u) -ne 0 ]; then
+  print -u2 "Error: You must be root to execute this command!"
+  exit 1
+fi
+
+if [ "$OS" = "09" ]; then
+  print -u2 "Error: $(basename $0) does not run on 9.x!"
+  exit 1
+fi
+
+/usr/sbin/swinstall -s medusa.corp:/var/depot/security PWplus

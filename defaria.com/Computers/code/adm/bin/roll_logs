@@ -1,0 +1,115 @@
+#!/bin/bash
+################################################################################
+#
+# File:         roll_logs
+# Description:  Rolls log files
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Dec  9 10:05:09 PST 1999
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+. $adm_fpath/logs
+
+function usage {
+  if [ "_$1" != "_" ]; then
+    display "$1"
+    display
+  fi
+  display "Usage: $me -[da|aily] | -[w|eekly]"
+  exit 1
+} # usage
+
+# Check for execution by root
+if is_not_root; then
+  error "This script must be run as root" 1
+fi
+
+type=
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+    ;;
+
+    -v|-verbose)
+      verbose=yes
+    ;;
+
+    -d|-debug)
+      debug=yes
+    ;;
+
+    -da|-daily)
+      type=daily
+      ;;
+
+    -w|-weekly)
+      type=weekly
+      ;;
+
+    *)
+      usage "Unrecognized parameter $1"
+    ;;
+  esac
+  shift
+done
+
+if [ "_$type" = "_" ]; then
+  usage "Must specify -daily or -weekly"
+fi
+
+#Directory      logfile         backuplog               what
+dailylogs="\
+/var/adm        automount.log   autolog.week            automount\n\
+/var/adm        nettl.LOG00     nettl.week              nettracelog\n\
+/var/adm        ninstall.log    nlog.week               ninstall\n\
+/var/adm        ptydaemonlog    ptylog.week             ptydaemon\n\
+/var/adm        rpc.lockd.log   rpc.lockd.week          rpc.lockd\n\
+/var/adm        rpc.statd.log   rpc.statd.week          rpc.statd\n\
+/var/adm        vtdaemonlog     vtlog.week              vtdaemon\n\
+/var/adm/cron   log             log.week                cron\n\
+/var/adm/lp     log             log.week                lp\n\
+/var/adm/syslog syslog.log      syslog.week             syslogd"
+
+weeklylogs="\
+/var/adm        autolog.week    autolog.oldweek         automount\n\
+/var/adm        nettl.week      nettl.oldweek           nettracelog\n\
+/var/adm        nlog.week       nlog.oldweek            ninstall\n\
+/var/adm        ptylog.week     ptylog.oldweek          ptydaemon\n\
+/var/adm        rpc.lockd.week  rpc.lockd.oldweek       rpc.lockd\n\
+/var/adm        rpc.statd.week  rpc.statd.oldweek       rpc.statd\n\
+/var/adm        vtlog.week      vtlog.oldweek           vtdaemon\n\
+/var/adm/cron   log.week        log.oldweek             cron\n\
+/var/adm/lp     log.week        log.oldweek             lp\n\
+/var/adm/syslog syslog.week     syslog.oldweek          syslogd"
+
+if [ "$type" = "daily" ]; then
+  verbose "Daily roll_logs"
+  logfiles="$dailylogs"
+else
+  verbose "Weekly roll_logs"
+  logfiles="$weeklylogs"
+fi
+
+print "$logfiles" | while read dir logfile backup_logfile what; do
+  verbose "Rolling ($what) logfile $logfile -> $backup_logfile..."
+  if [ "$type" = "weekly" ]; then
+    # Clear out oldweek file first
+    rm -f $backup_logfile
+  fi
+  roll_log $dir $logfile $backup_logfile $what
+done

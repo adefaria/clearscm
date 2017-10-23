@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Slow access on Unix UCM commands</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000735.html" title="View clean up" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000742.html" title="Starting a process without the DOS box" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000740.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/107"
+    dc:title="Slow access on Unix UCM commands"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000740.html"
+    dc:subject="General Electric"
+    dc:description="Found certain UCM commands to be 11-13 times slower on Unix than on Windows. Even though the registry host is the same host I was executing the commands on! Windows:time scm lsstream -short -invob \\p_cesb &gt; /dev/null real 0m1.198s user..."
+    dc:creator=""
+    dc:date="2010-08-02T18:48:43-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000735.html">&laquo; View clean up</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000742.html">Starting a process without the DOS box &raquo;</a>
+                     </p>
+
+                     <a id="a000740"></a>
+                     <div class="entry" id="entry-740">
+                        <h3 class="entry-header">Slow access on Unix UCM commands</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Found certain UCM commands to be 11-13 times slower on Unix than on Windows. Even though the registry host is the same host I was executing the commands on!</p>
+
+<div class=code><pre>
+Windows:time scm lsstream -short -invob \\p_cesb > /dev/null
+real    0m1.198s
+user    0m0.093s
+sys     0m0.123s
+Windows:time scm lsstream -short -invob \\p_ce > /dev/null
+real    0m9.526s
+user    0m0.045s
+sys     0m0.123s
+Windows:time scm lsact -short -invob $PVOB > /dev/null
+real    0m38.788s
+user    0m0.155s
+sys     0m0.233s
+
+Unix:time scm lsstream -short -invob /vobs/p_cesb > /dev/null
+real    0m13.649s
+user    0m0.152s
+sys     0m0.203s
+Unix:time scm lsstream -short -invob /vobs/p_ce > /dev/null
+real    2m6.191s
+user    0m0.832s
+sys     0m1.501s
+Unix:time scm lsact -short -invob $PVOB > /dev/null
+real    8m52.516s
+user    0m3.647s
+sys     0m6.986s
+</pre></div>
+
+<p>Why is the Unix machine 11 – 13 times slower at getting information out of the Clearcase registry than a Windows client? Note the same does not hold true for other Clearcase registry queries (e.g. lsview takes the same amount of time on both platforms) but querying UCM stream information on the Unix system is vobdog slow! It’s not slow for projects or baselines but just streams… and activities.</p>
+
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on August  2, 2010  6:48 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000740.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/107</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

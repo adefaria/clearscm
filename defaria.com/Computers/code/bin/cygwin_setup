@@ -1,0 +1,485 @@
+#!/bin/bash
+################################################################################
+#
+# File:         cygwin_setup
+# Description:  This script will perform additional setup to configure the
+#		local machine into the cygwin enviornment for Salira
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Oct  5 15:30:16  2001
+# Modified:
+# Language:     Bash Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+declare -i max_steps=14
+declare -i step=0
+
+cygwin_setup_version="2.1"
+
+function usage {
+  if [ "_$1" != "_" ]; then
+    echo "$me: Error: $1"
+    echo
+  fi
+  echo "Usage: $me [US | China]"
+  exit 1
+} # usage
+
+function step {
+  msg="$1"
+  let step=step+1
+
+  if [ $step -lt 10 ]; then
+    echo -e "Step  \c"
+  else
+    echo -e "Step \c"
+  fi
+
+  echo "$step of $max_steps: $msg"
+} # step
+
+function init {
+  subnet=$(ipconfig | grep "IP Address" | awk '{ print $NF }' | cut -f1 -d.)
+
+  if [[ $subnet = 192 || $subnet = 172 ]]; then
+    region=us
+  else
+    region=china
+  fi
+  
+  if [ "$region" != "us" -a "$region" != "china" ]; then
+    usage
+  fi
+  
+  # Determine what site parms to use
+  if [ "$region" = "us" ]; then
+    # Use US site parms
+    site_parms=/view/official/Tools/adm/etc/site_parms.US
+    . $site_parms
+  else
+    # Use Shanghai site parms
+    site_parms=/view/official/Tools/adm/etc/site_parms.CN
+    . $site_parms
+  fi
+  
+  adm="$SITE_TOOLS_PATH/adm"
+  
+  # Current machine's OS
+  OS=$(uname -s | cut -f2 -d-)
+  
+  # Current machine's hostname
+  hostname=$(echo $(hostname) | tr [:upper:] [:lower:])
+
+  # Announce ourselves
+  echo "Running $me version ($cygwin_setup_version) $hostname [Windows: $OS] in region: $region"
+} # init
+
+################################################################################
+#
+# Setup home
+#
+################################################################################
+function setup_home_mount {
+  step "Setting up home mount"
+
+  # Home directory
+  mount -bsf "//$SITE_HOME_SERVER/$SITE_HOME_SHARENAME" /"$SITE_REGION"
+} # setup_home_mount
+
+################################################################################
+#
+# Clearcase views
+#
+################################################################################
+function setup_clearcase_views {
+  step "Setting up view mount points"
+
+  if [ $hostname = $SITE_VIEW_SERVER ]; then
+    if [ $region = "us" ]; then
+      mount -bsf E:/Views "$SITE_SNAPSHOT_VIEW_PATH"
+    else
+      mount -bsf D:/ "$SITE_SNAPSHOT_VIEW_PATH"
+    fi
+  else
+    mount -bsf "$SITE_VIEW_STORAGE" "$SITE_SNAPSHOT_VIEW_PATH"
+  fi
+
+  # Mount dynamic views
+  mount -bsf M: "$SITE_DYNAMIC_VIEW_PATH"
+} # setup_clearcase_views
+
+################################################################################
+#
+# Setup tools mount
+#
+################################################################################
+function setup_tools_mount {
+  step "Setting up tools mount point"
+
+  mount -bsf //$SITE_BUILD_SERVER/Tools /tools
+} # setup_tools_mount
+
+################################################################################
+#
+# Setup release mount
+#
+################################################################################
+function setup_release_mount {
+  step "Set up release mount point"
+
+  mount -bsf //$(echo $SITE_RELEASE_SERVER | 
+    cut -f1 -d' ')/$(echo $SITE_RELEASE_PATH | cut -f1 -d' ') /release
+} # setup_release_mount
+
+################################################################################
+#
+# Set cygdrive prefix to /dev
+#
+################################################################################
+function set_cygdrive_prefix {
+  step "Setting cygdrive-prefix to /dev"
+
+  mount -s --change-cygdrive-prefix /dev
+
+  # Remove user level cygdrive-prefix (Need to do this with regedit)
+  regedit /s $(cygpath -w "$SITE_TOOLS_PATH/bin/FixCygwin.reg")
+} # set_cygdrive_prefix
+
+################################################################################
+#
+# Link passwd file
+#
+################################################################################
+function link_passwd_file {
+  step "Linking to common password file"
+
+  if [ ! -f /etc/passwd.local ]; then
+    if [ ! -L /etc/passwd ]; then
+      cp /etc/passwd /etc/passwd.local
+    fi
+  fi
+
+  if [ ! -L /etc/passwd ]; then
+    if [ "$OS" != "4.0" ]; then
+      rm /etc/passwd
+      ln -s "$SITE_TOOLS_PATH/adm/etc/passwd.$SITE_NAME" /etc/passwd
+    else
+      cp "$SITE_TOOLS_PATH/adm/etc/passwd.$SITE_NAME" /etc/passwd
+    fi
+  else
+   if [ "$OS" = "4.0" ]; then
+      # Fix up NT 4.0 machines (they don't like symlinked /etc/passwd files!)
+      rm /etc/passwd
+      cp "$SITE_TOOLS_PATH/adm/etc/passwd.$SITE_NAME" /etc/passwd
+    else
+      # Check to see if link is correct
+      linkname=$(ls -l /etc/passwd | awk '{print $NF}')
+      if [ "$linkname" != "$SITE_TOOLS_PATH/adm/etc/passwd.$SITE_NAME" ]; then
+        rm /etc/passwd
+        ln -s "$SITE_TOOLS_PATH/adm/etc/passwd.$SITE_NAME" /etc/passwd
+      fi
+    fi
+  fi
+} # link_passwd_file
+
+################################################################################
+#
+# Link group file
+#
+################################################################################
+function link_group_file {
+  step "Linking to common group file"
+
+  if [ ! -f /etc/group.local ]; then
+    if [ ! -L /etc/group ]; then
+      cp /etc/group /etc/group.local
+    fi
+  fi
+
+  if [ ! -L /etc/group ]; then
+    rm /etc/group
+    ln -s "$SITE_TOOLS_PATH/adm/etc/group" /etc/group
+  else
+    # Check to see if link is correct
+    linkname=$(ls -l /etc/group | awk '{print $NF}')
+    if [ "$linkname" != "$SITE_TOOLS_PATH/adm/etc/group" ]; then
+      rm /etc/group
+      ln -s "$SITE_TOOLS_PATH/adm/etc/group" /etc/group
+    fi
+  fi
+} # link_group_file
+
+################################################################################
+#
+# Link site_parms
+#
+################################################################################
+function link_site_parms {
+  step "Linking to common site_parms file"
+
+  if [ ! -L /etc/site_parms ]; then
+    rm /etc/site_parms
+    ln -s "$site_parms" /etc/site_parms
+  else
+    # Check to see if link is correct
+    linkname=$(ls -l /etc/site_parms | awk '{print $NF}')
+    if [ "$linkname" != "$SITE_TOOLS_PATH/adm/etc/site_parms" ]; then
+      rm /etc/site_parms
+      ln -s "$site_parms" /etc/site_parms
+    fi
+  fi
+} # link_site_parms
+
+################################################################################
+#
+# Link /etc/profile
+#
+################################################################################
+function link_profile {
+  step "Linking to common profile file"
+
+  if [ ! -f /etc/profile.orig ]; then
+    if [ ! -L /etc/profile ]; then
+      cp /etc/profile /etc/profile.orig
+    fi
+  fi
+
+  if [ ! -L /etc/profile ]; then
+    rm /etc/profile
+    ln -s "$SITE_TOOLS_PATH/adm/etc/profile" /etc/profile
+  else
+    # Check to see if link is correct
+    linkname=$(ls -l /etc/profile | awk '{print $NF}')
+    if [ "$linkname" != "$SITE_TOOLS_PATH/adm/etc/profile" ]; then
+      rm /etc/profile
+      ln -s "$SITE_TOOLS_PATH/adm/etc/profile" /etc/profile
+    fi
+  fi
+} # link_profile
+
+################################################################################
+#
+# Setup inetutil config
+#
+################################################################################
+function setup_inetutil_config {
+  step "Setup inetutil config"
+
+  # First save any pre-existing /etc/motd
+  if [ -f /etc/motd ]; then
+    cp /etc/motd /etc/motd.$$
+  fi
+
+  rm -f /etc/ftpusers /etc/ftpwelcome /etc/inetd.conf /etc/motd /etc/shells
+  iu-config > /dev/null
+
+  # In order to allow anonymous ftp access we need to clear /etc/ftpusers.
+  # Do this only for the $anonymous_ftp_server for now
+  if [ $hostname = $SITE_ANON_FTP_SERVER ]; then
+    cat /dev/null > /etc/ftpusers
+  fi
+
+  # Now replace that saved /etc/motd if it existed, otherwise remove the boring
+  # /etc/motd that iu-config creates. First check to see if the user has a 
+  # personalized /etc/motd in /etc/motd.save
+  if [ -f /etc/motd.save ]; then
+    # User had a personalized motd so move it into place and remove any prior
+    # copies
+    mv /etc/motd.save /etc/motd
+    rm -f /etc/motd.$$
+  elif [ -f /etc/motd.$$ ]; then
+    # Reinstall previous motd
+    # First update uname -a line
+    uname -a > /etc/motd
+
+    # Remove old uname -a line if present
+    grep -ve "^cygwin" /etc/motd.$$ >> /etc/motd.$$
+
+    # Cleanup
+    rm -f /etc/motd.$$
+  else
+    # No saved motd or previous motd. Remove /etc/motd which will cause us
+    # to prompt for the information later.
+    rm /etc/motd
+  fi
+
+  # Need to hardlink /usr/bin/cygwin1.dll & /usr/sbin/cygwin1.dll
+  # 12/17/2001: Stopped hardlinking cygwin1.dll. Enforcing having Windows system
+  # environment variables instead. For this we need Cygwin's bin in the path. 
+  # User should also set CYGWIN=ntsec in a Windows system environment variable.
+  if [ -f /usr/sbin/cygwin1.dll ]; then
+    rm -f /usr/sbin/cygwin1.dll
+    #ln /usr/bin/cygwin1.dll /usr/sbin/cygwin1.dll
+    echo "Warning: Please make sure that you have a Windows *SYSTEM* environment"
+    echo "         variable named CYGWIN set to the value of \"ntsec\" and that"
+    echo "         you have <Cygwin>\bin inserted into the Windows *SYSTEM*"
+    echo "         environment variable named PATH"
+  fi
+  
+  # Set up anonymous ftp iff we are on the $anonymous_ftp_server
+  if [ $hostname = $SITE_ANON_FTP_SERVER ]; then
+    # Toggle on write access to ~ftp/bin
+    chmod +w ~ftp/bin
+  
+    # Remove old copies of ls and cygwin1.dll
+    rm -f ~ftp/bin/ls.exe 
+    rm -f ~ftp/bin/cygwin1.dll
+  
+    # Install new copies (Note hardlinks will not work here since ~ftp/bin is
+    # on another file system. Doing an ln simply does a copy anyway)
+    # 12/17/2001: Skipping copying of cygwin1.dll as noted above
+    cp /bin/cygwin1.dll ~ftp/bin/cygwin1.dll
+    cp /bin/ls.exe ~ftp/bin/ls.exe
+  
+    # Set security
+    chmod 555 ~ftp/bin/cygwin1.dll
+    chmod 111 ~ftp/bin/ls.exe
+    chown Administrator ~ftp/bin/cygwin1.dll 
+    chown Administrator ~ftp/bin/ls.exe
+    chmod -w ~ftp/bin
+  fi
+} # setup_inetutil_config
+  
+################################################################################
+#
+# Setup inetd
+#
+################################################################################
+function setup_inetd {
+  step "Setup inetd"
+
+  # Install inetd as a service
+  /usr/sbin/inetd --install-as-service
+  
+  # Start inetd service
+  inetd_started=$(net start | grep -i inetd)
+  
+  if [ -z "$inetd_started" ]; then
+    net start inetd > /tmp/inetd.log 2>&1 
+
+    if [ $? -ne 0 ]; then
+      echo "ERROR: Unable to start inetd service"
+      cat /tmp/inetd.log
+      return
+    else
+      rm -f /tmp/inetd.log
+    fi
+  fi
+} # setup_inetd
+
+################################################################################
+#
+# Setup ssh
+#
+################################################################################
+function setup_ssh {
+  step "Setup ssh"
+
+  # Remove previous service (if any)
+  cygrunsrv -R sshd > /dev/null 2>&1 
+
+  # Set up hosts configuration
+  echo "ntsec smbntsec" | ssh-host-config -y > /tmp/ssh-host-config.log 2>&1
+
+  # Check for error
+  if [ $? -ne 0 ]; then
+    echo "ERROR: An error occurred setting up ssh:"
+    cat /tmp/ssh-host-config.log
+    return
+  fi
+
+  # Start service
+  net start sshd > /tmp/ssh-host-config.log 2>&1 
+
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Unable to start ssh service:"
+    cat /tmp/ssh-host-config.log
+    return
+  else
+    rm -f /tmp/ssh-host-config.log
+  fi
+} # setup_ssh
+
+################################################################################
+#
+# Setup ssmtp
+#
+################################################################################
+function setup_ssmtp {
+  step "Setup ssmtp"
+  
+  # Setup SMTP
+  $SITE_TOOLS_PATH/adm/bin/setup_ssmtp
+} # setup_ssmtp
+
+################################################################################
+#
+# Setup cron
+#
+################################################################################
+function setup_cron {
+  step "Setup cron"
+  
+  # Setup cron
+  $SITE_TOOLS_PATH/adm/bin/setup_cron
+} # setup_cron
+
+################################################################################
+#
+# Create /etc/motd
+#
+################################################################################
+function create_motd {
+  step "Gathering machine specific information"
+
+  if [ ! -f /etc/motd ]; then
+    $SITE_TOOLS_PATH/adm/bin/make_motd
+    made_motd=true
+  else
+    echo "Skipped: Machine info already gathered"
+  fi
+
+  # Fixup /etc/ftpwelcome
+  host=$(hostname | tr [:upper:] [:lower:])
+  echo "Welcome to $host's ftp service" > /etc/ftpwelcome
+} # create_motd
+
+################################################################################
+#
+# Update machines file
+#
+################################################################################
+function update_machines_file {
+  step "Registering this machine"
+
+ if [ ! -z "$made_motd" ]; then
+    $SITE_TOOLS_PATH/adm/bin/update_machine_info
+  else
+    echo "Skipped: Machine already registered"
+  fi
+} # update_machines_file
+
+################################################################################
+#
+# Main
+#
+################################################################################
+init
+setup_home_mount
+setup_clearcase_views
+setup_tools_mount
+setup_release_mount
+set_cygdrive_prefix
+link_passwd_file
+link_group_file
+link_site_parms
+link_profile
+setup_inetutil_config
+setup_inetd
+setup_ssmtp
+setup_cron
+setup_ssh

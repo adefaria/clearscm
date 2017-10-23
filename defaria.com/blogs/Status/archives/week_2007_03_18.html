@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: March 18, 2007 - March 24, 2007 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2007_03_11.html" title="March 11, 2007 - March 17, 2007" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2007_03_25.html" title="March 25, 2007 - March 31, 2007" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2007_03_11.html">&laquo; March 11, 2007 - March 17, 2007</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2007_03_25.html">March 25, 2007 - March 31, 2007 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_03_18.html#entry-000625"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/14"
+    dc:title="GPDB Web Update/Oracle testing"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_03_18.html#entry-000625"
+    dc:subject="Texas Instruments"
+    dc:description=" Added menus to GPDB web Tested and documented access of Oracle databases, such as GPDB, using standard Perl and standard Oracle libraries from various architectures..."
+    dc:creator=""
+    dc:date="2007-03-21T16:52:37-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 21, 2007</h2>
+                     <a id="a000625"></a>
+                     <div class="entry" id="entry-625">
+                        <h3 class="entry-header">GPDB Web Update/Oracle testing</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added menus to GPDB web</li>
+
+  <li>Tested and documented access of Oracle databases, such as GPDB, using standard Perl and standard Oracle libraries from various architectures</li>
+</ul>
+                              
+                              <p>Joe Ramey had worked on getting the Oracle Linux client API library to work with Perl. I am trying to validate that this works on all supported architectures where <i>all supported architectures</i> is considered the subset of:</p>
+<ol>
+  <li>Solaris (e.g. Stashu)</li>
+  <li>Linux 32-bit (e.g. Fad01)</li>
+  <li>Linux 64-bit AMD Opteron processor (e.g. DrTeeth)</li>
+  <li>Linux 64-bit Intel processor (e.g. Fad11)</li>
+</ol>
+
+<h3>How to properly code Perl to access an Oracle DB</h3>
+
+<p>Normal access to SQL databases in Perl usually consists of use'ing two different Perl modules. First a DBI.pm module which is the<i> <b>D</b>ata<b>B</b>ase <b>I</b>ndependent</i> interface and the DBD or <b><i>D</i></b><i>ata<b>B</b>ase <b>D</b>river</i> module for the particular SQL database involved. We are interested in Oracle here but others include mSQL, MySQL, etc.</p>
+
+<p>Couple this with the fact that we wish to use the standard Perl (e.g. /apps/perl/5.8.3/bin/perl) and standard Perl modules (/apps/perl/modules-&lt;<i>datecode</i>&gt; where <i>datecode</i> is some combination of a year/month date code whose apparent LCD seems to be modules-0412).</p>
+
+<p>So first our Perl script should start with:</p>
+
+<div class=code><pre>
+<font color="#3333ff">#!/apps/perl/5.8.3/bin/perl</font>
+<font color="#ff0000">use strict</font>;
+<font color="#ff0000">use warnings</font>;
+
+<font color="#3333ff"># Standard CDOE modules (Modules of the month!) - need this to pick up DBI.pm</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/apps/perl/modules-0412/lib</font>";
+</pre></div>
+
+<p>So as the comment indicates we are picking up the DBI.pm module from here. Next, normally, we'd simply include the lib path for the Oracle DBD.pm (or in the special case of Oracle, the Oracle.pm file) as well as the supporting shared library Oracle.so (which is architecturally dependent) by coding the following:</p>
+
+<div class=code><pre>
+<font color="#3333ff"># Perl/Oracle libraries</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/apps/oracle/perl/10.2.0.1.0/lib</font>";
+</pre></div>
+
+<p>However, since Linux client support is not included in /apps/oracle/perl/10.2.0.1.0/lib (yet) we need to pick up Joe's stuff:</p>
+
+<div class=code><pre>
+<font color="#3333ff"># Linux API is in Ramey's home dir...</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/home/ramey/oracle/perl/10.2.0.1.0/lib</font>";
+</pre></div>
+
+<p>The next excerpt from my code, shown in it's entirety later, shows a lib path I used to use that allows Solaris clients to work correctly, however we wish to move away from this special cased library thus it's commented out here:</p>
+
+<div class=code><pre>
+<font color="#3333ff"># This is a non standard Oracle</font>
+<font color="#3333ff">#use lib "/apps/perl/5.8.0/lib/perl5/site_perl/5.8.0";</font>
+</pre></div>
+
+<p>As the full code listing that follows shows I then use my current development libraries and attempt to log into the development version of GPDB, and Oracle database, and retrieve and display some rudimentary data:</p>
+
+<p><font color="#999999">Entire code listing of ~x0062320/testgpdb.pl</font></p>
+
+<div class=code><pre>
+<font color="#3333ff">#!/apps/perl/5.8.3/bin/perl</font>
+<font color="#ff0000">use strict</font>;
+<font color="#ff0000">use warnings</font>;
+
+<font color="#3333ff"># Standard CDOE modules (Modules of the month!) - need this to pick up DBI.pm</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/apps/perl/modules-0412/lib</font>";
+
+<font color="#3333ff"># Perl/Oracle libraries</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/apps/oracle/perl/10.2.0.1.0/lib</font>";
+
+<font color="#3333ff"># Linux API is in Ramey's home dir...</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/home/ramey/oracle/perl/10.2.0.1.0/lib</font>";
+
+<font color="#3333ff"># This is a non standard Oracle</font>
+<font color="#3333ff">#use lib "/apps/perl/5.8.0/lib/perl5/site_perl/5.8.0";
+
+# Current development GPDB modules</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/web/gpdb/cgi-bin</font>";
+
+<font color="#ff0000">use GPDB::gpdb</font>;
+
+<font color="#3333ff"># Log into GPDB - read only</font>
+gpdb_login (<font color="#33cc00">undef</font>, <font color="#33cc00">undef</font>, "<font color="#009900">OracleDevelopment</font>");
+
+<font color="#3333ff"># Get a project</font>
+<font color="#ff0000">my</font> <font color="#3333ff"><b>@projects</b></font> = gpdb_getProject ("<font color="#009900">uma</font>");
+
+<font color="#3333ff"># Play with it a little bit...</font>
+<font color="#ff0000">my</font> <i><font color="#ff0000">%project</font></i> = %{<font color="#3333ff"><b>$projects</b></font> [0][0]};
+
+<font color="#33cc00">print</font> "<font color="#009900">Project: ${project {PROJECT}{NAME}}\n</font>";
+<font color="#33cc00">print</font> "<font color="#009900">Site: ${project {PROJECT}{SITE_NAME}}\n</font>";
+
+<font color="#33cc00">print</font> "<font color="#009900">Vobs:\n</font>";
+
+<font color="#ff0000">foreach</font> (@{<font color="#ff0000">$project</font> {CLEARCASE}}) {
+<font color="#ff0000">my</font> <i><font color="#ff0000">%cc</font></i> = %{$_};
+
+<font color="#33cc00">print</font> "<font color="#009900">\t${cc {VOB_TAG}}\n</font>";
+} <font color="#3333ff"># foreach</font>
+
+<font color="#33cc00">print</font> "<font color="#009900">done\n</font>";
+</pre></div>
+
+<h3>Results</h3>
+
+<p>Here's the results running on the target architectures:</p>
+
+<div class=code><pre>
+$ ssh stashu testgpdb.pl
+DBI connect('host=dflorad01.itg.ti.com;sid=flddsync;port=1521','cm_gpdb_readonly',...) failed: ERROR OCIEnvNlsCreate. Check ORACLE_HOME env var, NLS settings, permissions, etc. at /web/gpdb/cgi-bin/GPDB/DBHelper.pm line 136
+Could not connect to database. Check $ORACLE_HOME. at /web/gpdb/cgi-bin/GPDB/primitive.pm line 81
+$ ssh fad01 testgpdb.pl
+Project: uma
+Site: Dallas
+Vobs:
+        /cdb/dspumatdl
+        /cdb/uma
+        /cdb/uma_2.2
+        /cdb/uma_2.6a
+done
+$ ssh drteeth testgpdb.pl
+Project: uma
+Site: Dallas
+Vobs:
+        /cdb/dspumatdl
+        /cdb/uma
+        /cdb/uma_2.2
+        /cdb/uma_2.6a
+done
+$ ssh fad11 testgpdb.pl
+Can't load
+'/home/ramey/oracle/perl/10.2.0.1.0/lib/i686-linux-thread-multi/auto/DBI/DBI.so' for module DBI: /lib/libc.so.6: version `GLIBC_2.3' not found (required by
+/home/ramey/oracle/perl/10.2.0.1.0/lib/i686-linux-thread-multi/auto/DBI/DBI.so) at /apps/perl/5.8.3/lib/5.8.3/i686-linux-thread-multi/DynaLoader.pm line 229.
+at /home/ramey/oracle/perl/10.2.0.1.0/lib/i686-linux-thread-multi/DBI.pm line 259
+BEGIN failed--compilation aborted at /home/ramey/oracle/perl/10.2.0.1.0/lib/i686-linux-thread-multi/DBI.pm line 259.
+Compilation failed in require at /web/gpdb/cgi-bin/GPDB/primitive.pm line 24.
+BEGIN failed--compilation aborted at /web/gpdb/cgi-bin/GPDB/primitive.pm line 24.
+Compilation failed in require at /web/gpdb/cgi-bin/GPDB/gpdb.pm line 38.
+BEGIN failed--compilation aborted at /web/gpdb/cgi-bin/GPDB/gpdb.pm line 38.
+Compilation failed in require at ./testgpdb.pl line 20.
+BEGIN failed--compilation aborted at ./testgpdb.pl line 20.
+</pre></div>
+
+<p>So as we can see this is <b>not</b> working for Solaris or Linux 64-bit Intel.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:52 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000625.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000625.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

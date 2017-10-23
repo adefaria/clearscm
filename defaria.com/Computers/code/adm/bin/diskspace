@@ -1,0 +1,170 @@
+#!/bin/bash
+################################################################################
+#
+# File:         diskspace
+# Description:  Checks diskspace
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Jul 16 11:05:06 PDT 1999
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+tmpprefix=/tmp/$me.$$
+. $adm_fpath/tmpfiles
+
+function usage {
+  display "$me [-v|verbose] [-d|debug] [-u|sage] [ -n|etwork | -l|ocal ]"
+  display "        -v|erbose:      Turns on verbose mode"
+  display "        -d|ebug:        Turns on debug mode"
+  display "        -u|sage:        Print this usage message"
+  display "        -n|etwork:      Produce report for network wide storages areas"
+  display "        -l|ocal:        Produce report for local file systems only"
+
+  error "$1" 1
+} # usage
+
+function check_filesystem_space {
+  debug "ENTER check_filesystem_space ($1, $2)"
+  kind=$1
+  fs=$2
+
+  # Make sure that file system is mounted
+  ls $fs > /dev/null 2>&1
+
+  if [ $? -ne 0 ]; then
+    warning "Cannot mount $kind filesystem $fs" 1
+    debug "RETURN check_filesystem_space"
+    return
+  fi
+
+  # Isolate the disk usage line
+  diskusage=$(df -k $fs | tail -1 | tr -s ' ')
+
+  # Get hostname from the now mounted filesystem
+  # Separate field of interest
+  host=$(print $diskusage | cut -f1 -d:)
+  available=$(print $diskusage | cut -f4 -d' ' | awk '{printf "%.3f", $1/1024}')
+  integer capacity=$(print $diskusage | cut -f5 -d' ' | cut -f1 -d'%')
+
+  # Check if over threshold and report
+  if [ $capacity -le $threshold ]; then
+    if [ ! -z "$verbose" ]; then
+      display "$kind filesystem $host:$fs is $capacity% full and has $available Megs left"
+    fi
+  else
+    display "$kind filesystem $host:$fs has exceeded the threshold of $threshold%."
+    display "It is $capacity% full and has $available Megs left"
+  fi
+
+  debug "EXIT check_filesystem_space"
+} # check_filesystem_space
+
+function check_vob_space {
+  debug "ENTER check_vob_space"
+  vob_filesystems="/vbs/bog /vbs/bof /vbs/boh /vbs/bol"
+
+  for vbs in $vob_filesystems; do
+    check_filesystem_space VOB $vbs
+  done
+  debug "EXIT check_vob_space"
+} # check_vob_space
+
+function check_view_space {
+  debug "ENTER check_view_space"
+  view_filesystems="/vws/bpj /vws/bpq /vws/bpr"
+
+  for vws in $view_filesystems; do
+    check_filesystem_space View $vws
+  done
+  debug "EXIT check_view_space"
+} # check_view_space
+
+function check_local_filesystems {
+  debug "ENTER check_local_filesystems"
+  local_filesystems=$(df -k -F ufs | grep /dev | awk '{print $NF}')
+  host=$(uname -n)
+  kind=Local
+
+  for lfs in $local_filesystems; do
+    # Isolate the disk usage line
+    diskusage=$(df -k $lfs | tail -1 | tr -s ' ')
+
+    # Separate field of interest
+    available=$(print $diskusage | cut -f4 -d' ' | awk '{printf "%.3f", $1/1024}')
+    integer capacity=$(print $diskusage | cut -f5 -d' ' | cut -f1 -d'%')
+
+    # Check if over threshold and report
+    if [ $capacity -le $threshold ]; then
+      if [ ! -z "$verbose" ]; then
+        display "$kind filesystem $host:$lfs is $capacity% full and has $available Megs left"
+      fi
+    else
+      display "$kind filesystem $host:$lfs has exceeded the threshold of $threshold%."
+      display "It is $capacity% full and has $available Megs left"
+    fi
+  done
+
+  debug "EXIT check_local_filesystems"
+} # check_local_filesystems
+
+# Get parameters
+threshold=90      # default threshold
+filesystems=local # default to local filesystems
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+    ;;
+
+    -v|-verbose)
+      verbose=yes
+    ;;
+
+    -d|-debug)
+      debug=yes
+    ;;
+
+    -t|-threshold)
+      shift
+      if [ $# -lt 1 ]; then
+        error "Threshold not specified" 0
+        usage
+      fi
+
+      integer threshold=$1
+    ;;
+
+    -n|-network)
+      filesystems=network
+    ;;
+
+    -l|-local)
+      filesystems=local
+    ;;
+
+    *)
+      usage
+    ;;
+  esac
+  shift
+done
+
+if [ "$filesystems" = "local" ]; then
+  check_local_filesystems
+else
+  check_vob_space
+  check_view_space
+fi

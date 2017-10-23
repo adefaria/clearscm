@@ -1,0 +1,195 @@
+#!/bin/bash
+################################################################################
+#
+# File:         add_synchronize
+# RCS:          $Header: add_synchronize,v 1.2 97/05/27 15:35:51 defaria Exp
+$
+# Description:  This script adds a new person to synchronize
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Mon May 19 15:56:06 PDT 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+function usage {
+  print -u2 "Usage: $me -username <username> -fullname <fullname>"
+  print -u2 "\t-groupname <groupname>"
+  exit 1
+} # usage
+
+function add_to_synchronize {
+  cd $synchro_db
+  check_out_file=$synchro_users
+  co -q -l $check_out_file
+
+  if [ $? -ne 0 ]; then
+    error "Unable to checkout $check_out_file"
+    exit $?
+  fi
+
+  trap cancel_checkout INT ERR
+
+  print "$fullname,\t$username,\t$username@cup.hp.com" >> $check_out_file
+
+  if [ $? -ne 0 ]; then
+    error "Unable to add entry to $check_out_file"
+    exit $?
+  fi
+
+  ci -u -q -m"Added $fullname" $check_out_file
+  if [ $? -ne 0 ]; then
+    error "Unable to check in $check_out_file!"
+    exit $?
+  fi
+
+  trap INT ERR
+
+  cd $OLDPWD
+} # add_to_synchronize
+
+function add_to_synchronize_group {
+  cd $synchro_db/GroupTemplates
+  check_out_file=$groupname
+  co -q -l $check_out_file
+
+  if [ $? -ne 0 ]; then
+    error "Unable to checkout $check_out_file"
+    exit $?
+  fi
+
+  trap cancel_checkout INT ERR
+
+  print "$fullname" >> $check_out_file
+
+  if [ $? -ne 0 ]; then
+    error "Unable to add entry to $check_out_file"
+    exit $?
+  fi
+
+  ci -u -q -m"Added $fullname to $check_out_file" $check_out_file
+  if [ $? -ne 0 ]; then
+    error "Unable to check in $check_out_file!"
+    exit $?
+  fi
+
+  trap INT ERR
+
+  make > make.out 2>&1
+
+  if [ $? -ne 0 ]; then
+    error "Rebuilding of Synchronize groups failed"
+    exit $?
+  fi
+
+  cd $OLDPWD
+} # add_to_synchronize_group
+
+function cancel_checkout {
+  info "Canceling checkout"
+  rcs -q -u $check_out_file
+  chmod -w $check_out_file
+  co -q $check_out_file
+  exit 1
+} # cancel_checkout
+
+function user_exists {
+  grep -ve "^#" $synchro_users | cut -f1 -d',' |
+    grep "^$username$" >/dev/null 2>&1
+  return $?
+} # user_exists
+
+# Find synchro_dir
+if [ -d /net/cllapp/opt/synchronize ]; then
+  synchro_dir=/net/cllapp/opt/synchronize
+else
+  error "Internal error: Unable to ascertain synchro_dir!"
+  exit 1
+fi
+
+synchro_db=$synchro_dir/db
+synchro_users=$synchro_db/users
+username=
+fullname=
+groupname=
+check_out_file=
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+      ;;
+
+    -username)
+      if [ $# -le 1 ]; then
+        error "Username not specified!"
+        usage
+      fi
+      shift
+      username="$1"
+      ;;
+
+    -fullname)
+      if [ $# -le 1 ]; then
+        error "Full name not specified!"
+        usage
+      fi
+      shift
+      fullname="$1"
+      ;;
+    -groupname)
+      if [ $# -le 1 ]; then
+        error "Groupname not specified!"
+        usage
+      fi
+      shift
+      groupname="$1"
+      ;;
+
+    *)
+      error "Unknown parameter encounter: \"$1\""
+      usage
+      ;;
+  esac
+  shift
+done
+
+if [ "_$username" = "_" -o \
+ "_$fullname" = "_" -o \
+ "_$groupname"    = "_" ]; then
+  error "Missing parameter"
+  usage
+fi
+
+if $(user_exists); then
+  error "$username already exists in the Synchronize database"
+elif [ ! -f $synchro_db/GroupTemplates/$groupname ]; then
+  error "Unknown Synchronize group $groupname"
+else
+  add_to_synchronize
+  if [ $? -eq 0 ]; then
+    info "$fullname has been added as a Synchronize user"
+  else
+    error "Problems encountered trying to create Synchronize user for
+$fullname"
+  fi
+  add_to_synchronize_group
+  if [ $? -eq 0 ]; then
+    info "$fullname has been successfully added to $groupname"
+  else
+    error "Problems encountered trying to add $fullname to $groupname"
+  fi
+fi

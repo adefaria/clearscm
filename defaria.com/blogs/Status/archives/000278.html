@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: PPC Builds</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000277.html" title="PPC Toolchain build" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000279.html" title="Disk space problems &amp; int_tools checkout" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000277.html">&laquo; PPC Toolchain build</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000279.html">Disk space problems & int_tools checkout &raquo;</a>
+                     </p>
+
+                     <a id="a000278"></a>
+                     <div class="entry" id="entry-278">
+                        <h3 class="entry-header">PPC Builds</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Built PPC Toolchain with 120604-A</li>
+
+  <li>Attempting to build 120604-B with this new toolchain</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Adam helped me figure out that the reason that the toolchain was failing to build was because the ppc/lib directory in 120604-B didn't have the proper libraries. I proceeded to build the tookchain using 120604-A.</p>
+
+<p>After successfully building the toolchain in 120604-A I proceeded to attempt to build LynxOS in 120604-B utilizing int_tools. The first problem that I had was that it attempts to install a compiler from DIR_PATH(compilers), which was set to 3.2.2-120604. But the toolchain I built for PPC was not there. Note that there was also a 3.2.2-122804 directory. I decided to use 3.2.2-122804 instead of 3.2.2-120604 and I scp'ed the toolchain I built over to that directory. The 3.2.2-122804 already had some toolchains in there but didn't have PPC toolchains.</p>
+
+<p>After performing a make package for the toolchain I wound up with a toolchain-i686-pc-linux-gnu-powerpc.tar.gz. So I copied that over to 3.2.2-122804. But int_tools was looking for a toolchain-i-686-pc-linux-gnu-ppc.tar.gz. I solved this problem by symlinking. I also needed a toolchain-powerpc-lynx-lynxos-ppc.tar.gz or int_tools complained.</p>
+
+<p>After fixing those problem I managed to build LynxOS but there were a few errors:</p>
+
+<div class="code"><pre>
+LOGS/makeall.log:make[5]: *** [/usr/lynx/5.0.0/ppc/sys/family.ppc/lib/libdrivers.a(flopdrvr.o)] Error 1
+LOGS/makeall.log:make[4]: *** [/usr/lynx/5.0.0/ppc/sys/family.ppc/lib/libdrivers.mpc8260_vads.a(flash_mtd_vads.o)] Error 1
+LOGS/makeall.log:make[3]: *** [common_all] Error 1
+LOGS/makeall.log:make[4]: *** [/usr/lynx/5.0.0/ppc/sys/family.ppc/lib/libdrivers.rpxl823.a(flopdrvr.o)] Error 1
+LOGS/makeall.log:make[4]: *** [/usr/lynx/5.0.0/ppc/sys/family.ppc/lib/libdrivers.vmpc.a(flopdrvr.o)] Error 1
+LOGS/makeall.log:make[4]: *** [/usr/lynx/5.0.0/ppc/sys/family.ppc/lib/libdrivers.vmpc.a(if_dec21040.o)] Error 1
+</pre></div>
+
+<p>There are also some errors in demo.log.</p>
+
+<p>Are these reasonable errors? Should I go one to attempt to build the PPC toolchain again using this LynxOS?</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on January 12, 2005  3:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000278.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

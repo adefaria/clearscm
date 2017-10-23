@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+  xmlns:admin="http://webns.net/mvcb/"
+  xmlns:cc="http://web.resource.org/cc/"
+  xmlns="http://purl.org/rss/1.0/">
+
+<channel rdf:about="http://defaria.com/blogs/Personal/">
+<title>Personal</title>
+<link>http://defaria.com/blogs/Personal/</link>
+<description>Entries of a personal nature</description>
+<dc:language>en-us</dc:language>
+<dc:creator></dc:creator>
+<dc:date>2007-03-06T22:44:25-06:00</dc:date>
+<admin:generatorAgent rdf:resource="http://www.movabletype.org/?v=3.2" />
+
+
+<items>
+<rdf:Seq><rdf:li rdf:resource="http://defaria.com/blogs/Personal/archives/000620.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Personal/archives/000619.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Personal/archives/000617.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Personal/archives/000614.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Personal/archives/000567.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Personal/archives/000176.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Personal/archives/000123.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Personal/archives/000125.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Personal/archives/000126.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Personal/archives/000127.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Personal/archives/000128.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/Personal/archives/000122.html" />
+</rdf:Seq>
+</items>
+
+</channel>
+
+<item rdf:about="http://defaria.com/blogs/Personal/archives/000620.html">
+<title>Graceland</title>
+<link>http://defaria.com/blogs/Personal/archives/000620.html</link>
+<description>Graceland was interesting. It&apos;s not as big or majestic of a house as I would have expected. Additionally one must remember the 70&apos;s styling. Some places had shag carpet on the walls and floor. Shortly after entering my camera, of...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2007-03-06T22:44:25-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Personal/archives/000619.html">
+<title>Surgeon and Cardiac Rehab</title>
+<link>http://defaria.com/blogs/Personal/archives/000619.html</link>
+<description>Nelson, Bill wrote: Andrew, Been a few days and I thought I would drop you a line. How are things going? Are you enjoying the weather? I have been down with a cold - still coming into to work but...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2007-02-22T19:18:15-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Personal/archives/000617.html">
+<title>Continued recovery</title>
+<link>http://defaria.com/blogs/Personal/archives/000617.html</link>
+<description>Home Recovery Continues Cindy arrived and as usual the girls started to gab more and more. Meantime I continue to recover. It&apos;s great to have good home cooking and people to take care of me. But I concentrate on getting...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2007-02-08T22:15:21-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Personal/archives/000614.html">
+<title>Heart Problems</title>
+<link>http://defaria.com/blogs/Personal/archives/000614.html</link>
+<description>EKG and Stress Echo After feeling winded or out of breath for a while I finally got into the doctor to have it checked out. First I had what they call a resting EKG on January 17, 2007 and then...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2007-02-01T21:11:21-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Personal/archives/000567.html">
+<title>Why people steal software...</title>
+<link>http://defaria.com/blogs/Personal/archives/000567.html</link>
+<description>Some do because they are cheap... Some because of the thrill of it. But occasionally some people do out of sheer frustration. Case in point... Recently I got a PPC-6700 phone from Sprint. Along with the Pocket PC phone came...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2006-09-19T18:52:14-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Personal/archives/000176.html">
+<title>Ameriquest</title>
+<link>http://defaria.com/blogs/Personal/archives/000176.html</link>
+<description>Well I have been blogging my status over on my status blog but I think it&apos;s time for a few entries over here. I&apos;ve been growing increasingly disheartened by Ameriquest. Yeah I know it&apos;s a typical &quot;business&quot; environment but usually...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2004-05-08T18:59:04-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Personal/archives/000123.html">
+<title>Case Management Conference</title>
+<link>http://defaria.com/blogs/Personal/archives/000123.html</link>
+<description>Today was the Case Management Conference but before that Stan asked me to stop by his office. When I got there he was eating lunch. As is apparently Stan&apos;s nature he was chewing on a granola bar and pondering something....</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2003-10-23T17:55:04-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Personal/archives/000125.html">
+<title>Ditz</title>
+<link>http://defaria.com/blogs/Personal/archives/000125.html</link>
+<description>Spoke to my attorneys secretary/receptionist today... This receptionist is really a ditz! Apparently the CMC is at 1:30 Pm. Anyways, I mentioned that I had not heard from Stan even though the fax that she sent me had a letter...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2003-10-23T10:33:02-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Personal/archives/000126.html">
+<title>Lawyers Suck</title>
+<link>http://defaria.com/blogs/Personal/archives/000126.html</link>
+<description>Lawyers suck! I have two of them and while I can say that they are incompetent, I can say they are rarely responsive. If I worked like they did I&apos;d be fired! Now I realize a lot of people hate...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2003-10-21T10:33:39-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Personal/archives/000127.html">
+<title>Legal Paperwork</title>
+<link>http://defaria.com/blogs/Personal/archives/000127.html</link>
+<description>Divorce Spent all of today gathering and arranging legal paperwork, which was really my mission for this weekend. Located and scanned in everything so that it&apos;s available to me via my web site. This should keep the bitch from burnning...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2003-10-19T08:21:46-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Personal/archives/000128.html">
+<title>Legal Stuff</title>
+<link>http://defaria.com/blogs/Personal/archives/000128.html</link>
+<description>Spent last night trying to get my legal paperwork together for the upcomming battle with the s2bx. Didn&apos;t get very far. This is like the 3rd time I&apos;ve had to do this. Argh!...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2003-10-19T08:12:11-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/Personal/archives/000122.html">
+<title>IBM</title>
+<link>http://defaria.com/blogs/Personal/archives/000122.html</link>
+<description>I had a phone interview with IBM today. The job is over at the Research Center, which is pretty cool because it would be like working at HP Labs and the commute would be wornderfull. Unfortunately it&apos;s a Windows position...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2003-10-03T09:09:19-06:00</dc:date>
+</item>
+
+
+</rdf:RDF>

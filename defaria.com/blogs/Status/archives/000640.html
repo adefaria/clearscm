@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: LDAP changes/Synonyms and Grants/Reports</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000639.html" title="GPDB/LDAP/Org/SBE" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000641.html" title="GPDB Enhancements" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000640.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/28"
+    dc:title="LDAP changes/Synonyms and Grants/Reports"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000640.html"
+    dc:subject="GPDB"
+    dc:description=" Change primitives::login and ldap_authenticate to return a user record of user information if we can find it in LDAP, even if we could not authenticate the password, and pass back proper status Straightened out new views WRT Synonyms and..."
+    dc:creator=""
+    dc:date="2007-05-04T14:35:52-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000639.html">&laquo; GPDB/LDAP/Org/SBE</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000641.html">GPDB Enhancements &raquo;</a>
+                     </p>
+
+                     <a id="a000640"></a>
+                     <div class="entry" id="entry-640">
+                        <h3 class="entry-header">LDAP changes/Synonyms and Grants/Reports</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Change primitives::login and ldap_authenticate to return a user record of user information if we can find it in LDAP, even if we could not authenticate the password, and pass back proper status</li>
+
+  <li>Straightened out new views WRT Synonyms and Grants</li>
+
+  <li>Implemented Users, Clearcase and DesignSync reports</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Synonyms and Grants</h2>
+
+<p>When one creates a table or view in Oracle it appears to be "private" to the user who has created it. Others can get to the table but they need to specify a more qualified name. Additionally the need to have been granted access to it (at least select access).</p>
+
+<p>So if we create a view, say foo, we also need to grant select access to those tables to the other users who might be using it. Additionally, in GPDB we have 3 DB level usernames: cm_gpdb, cm_gpdb_readonly and cm_gpdb_update. So if we create the view foo while logged in as cm_gpdb then login as say cm_gpdb_readonly, this new session will not be able to see foo.</p>
+
+<p>So then the sequence is:</p>
+
+<ol>
+  <li>Create the table or view</li>
+
+<div class=code><pre>
+create or replace view foo ...
+</pre></div>
+
+  <li>Grant select privileges to the table or view:</li>
+
+<div class=code><pre>
+grant select to foo on cm_gpdb.foo for cm_gpdb_readonly
+</pre></div>
+
+  <li>Log into Oracle database as other user and create synonym:</li>
+
+<div class=code><pre>
+create or replace synonym foo for cm_gpdb.foo
+</pre></div>
+</ol>
+
+<h4>Notes</h4>
+
+<ol>
+  <li>The database's schema name for GPDB is cm_gpdb above</li>
+
+  <li>Grants need to be done whenever the table or view is recreated. Synonyms, being pointers, need to be created only when a new pointer is needed</li>
+</ol>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on May  4, 2007  2:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000640.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/28</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

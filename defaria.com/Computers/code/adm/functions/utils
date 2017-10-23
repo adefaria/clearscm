@@ -1,0 +1,34 @@
+#!/bin/ksh
+################################################################################
+#
+# File:         utils
+# Description:  Miscellanous utility functions for Korn Shell Scripts
+# Author:       Andrew@DeFaria.com
+# Created:      Tue Apr 15 14:20:02 PDT 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+if [ -x /usr/xpg4/bin/id ]; then
+  ID=/usr/xpg4/bin/id
+else
+  ID=/usr/bin/id
+fi
+
+function is_root {
+  if [ $($ID -u) -eq 0 ]; then
+    return 0
+  else
+    return 1
+  fi
+} # is_root
+
+function is_not_root {
+  if [ $($ID -u) -eq 0 ]; then
+    return 1
+  else
+    return 0
+  fi
+} # is_not_root

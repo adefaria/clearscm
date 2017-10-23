@@ -1,0 +1,67 @@
+#!/bin/bash
+################################################################################
+#
+# File:         unlockbug
+# Description:	Lock a bug ID (Must be run by $ccadmin)
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Jun  2 11:19:46 PDT 2003
+# Language:     bash
+#
+# (c) Copyright 2001-2003, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Admin users
+ccadmin="ccadmin"
+
+if [[ $USER != $ccadmin ]]; then
+  error "This command must be executed by $ccadmin" 1
+fi
+
+# Must be in a view/vob context
+cd $SITE_SNAPSHOT_VIEW_PATH/$SITE_OFFICIAL_VIEW/salira
+
+for bug in $@; do
+  # Check for bug IDs supplied as numbers only. Prepend "BUGS2" and 
+  # number of required zeros to make bug ID. IOW you can specify "7"
+  # or BUGS200000007 but not "07" nor "BUGS07", etc
+  if [ ${#bug} -lt 13 ]; then
+    declare -i len=13-${#bug}
+    if [ $len -lt 5 ]; then
+      # Can't even prepent "BUGS2"!
+      echo "Invalid bug id \"$bug\" encounterd - skipping..."
+      continue
+    else
+      bugid="BUGS2"
+      declare -i zeros=len-5
+      while [ $zeros -gt 0 ]; do
+        bugid="${bugid}0"
+	let zeros=zeros-1
+      done
+      bugid=$bugid$bug
+    fi
+  else
+    bugid=$bug
+  fi
+  
+  # Unlock the bug
+  cleartool unlock lbtype:$bugid
+done

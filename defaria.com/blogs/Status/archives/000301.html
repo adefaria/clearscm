@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: ECRC and ECRD</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000298.html" title="More int_tools changes" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000300.html" title="ECRC.php" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000298.html">&laquo; More int_tools changes</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000300.html">ECRC.php &raquo;</a>
+                     </p>
+
+                     <a id="a000301"></a>
+                     <div class="entry" id="entry-301">
+                        <h3 class="entry-header">ECRC and ECRD</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Initial implementation of ecrc/ecrd, a client/server application to return information about ECRS</li>
+
+  <li>Started initial implmenetation of ecrc.php</li>
+
+  <li>Reported another problem with toolchain build</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>ECRC and ECRD</h3>
+
+<p>Taking code from cqd/cqc that I implemented over at Salira, I decided to adapt these to ECRs. The concept is essentially the same - you have data on a server in a database and wish to get to it either through a command line or a web page. At Salira I had Clearquest and it's backend database of SQL Anywhere. I was also limited to using cqperl which was based off of ActiveState Perl which has problems going into daemon mode and handling signals. Here I have an Informix SQL database and do not face the same limitation of ActiveState. Perl's DBI interface makes handling this database pretty easy. Of course the data fields are different and I took advantage of <i>real</i> Linux so as to make the daemon mode actually work well now. Multithreading remains a problem in that the child process hangs on the SQL prepare statement and if I try to reopen the database (not efficient) I get an error. Eventually I can work out these problems...</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on February 15, 2005  3:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000301.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

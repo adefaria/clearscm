@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: import.pl/uncoall/qt</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000671.html" title="UCMWB 1.2.3" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000673.html" title="Building Qt/UCMWB officially" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000672.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/59"
+    dc:title="import.pl/uncoall/qt"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000672.html"
+    dc:subject="General Dynamics"
+    dc:description=" Created a script to do the importation of the documents for the Documentation Visibility tickets Found out that there&apos;s no easy way to unco all checkouts. Created uncoall Issue: Need to get Qt licensed..."
+    dc:creator=""
+    dc:date="2007-09-06T17:41:23-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000671.html">&laquo; UCMWB 1.2.3</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000673.html">Building Qt/UCMWB officially &raquo;</a>
+                     </p>
+
+                     <a id="a000672"></a>
+                     <div class="entry" id="entry-672">
+                        <h3 class="entry-header">import.pl/uncoall/qt</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created a script to do the importation of the documents for the Documentation Visibility tickets</li>
+
+  <li>Found out that there's no easy way to unco all checkouts. Created uncoall</li>
+
+  <li>Issue: Need to get Qt licensed</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>import.pl</h3>
+
+<p>Created a Perl script to handle the odd findmerge like "bring documents into visibility" help desk tickets. It's like a findmerge however we don't want to merge any elements - just merge in the previously unseen elements. A rough outline of the algorithm is as follows:</p>
+
+<div class=code><pre>
+  foreach my $from_element (@elements_from_the_from_view) {
+    next if -e $from_element
+
+    &lt;merge parent directory&gt;
+
+    next if -d $from_element;
+
+    copy $from_element -> $to_element
+  }
+</pre></div>
+
+<p>It's also been discussed that the group has not decided exactly what documents should be imported in from the original set. Importing from build 1 -> build 2 doesn't make much sense. IOW we should start from the beginning.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September  6, 2007  5:41 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000672.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/59</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

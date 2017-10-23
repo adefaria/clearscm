@@ -1,0 +1,39 @@
+
+################################################################################
+#
+# File:         printer_definitions
+# Description:  This file describes the printer definitions for the lab. The
+#               format is simply <printer name> <server name>.
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Sep  6 16:59:16 PDT 2000
+# Language:     None (data file)
+#
+# (c) Copyright 2000, Andrew@DeFaria.com, all rights reserved.
+#
+# bernie 3/22/01
+# JRUBY01 serves as the print server for 2 printers on the ruby
+# subnet. Some of our lab now sits on this side of the floor so
+# I made this system (only one we have on ruby) the printer server.
+
+################################################################################
+clj1            cllprint
+clj2            cllprint
+ljmx3           cllprint
+ljmx5           cllprint
+adlclj1         cllprint
+asclj1          adlprt01
+aslj1           adlprt01
+taglp           adlprt01
+quicklj         adlprt01
+clj85e7         jprint
+ljmx2           jprint
+ljmx1           jprint
+ljmx4           jprint
+lj5s2uc9        jprint
+clj52uc9        jprint
+colorlj2        jprint
+colorlj1        jprint
+lj1             jprint
+iecolor         hpcllqs
+lj42g6          jruby01
+lj42g9          jruby01

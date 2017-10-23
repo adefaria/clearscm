@@ -1,0 +1,56 @@
+PATH=".:/usr/local/bin:/usr/bin:$PATH"
+
+# Check for /etc/site_parms and if found use the tools path there
+# Set site_parms (if present)
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+  PATH="$PATH:$SITE_TOOLS_PATH/bin"
+else
+  # Otherwise warn user and use the old tools path
+  echo "WARNING: Count not find /etc/site_parms!"
+  PATH="$PATH://sonscentral/Corporate/Software/bin"
+fi
+
+# Get the proper values for HOME and SHELL
+USER="`id -un`"
+HOME=`grep ^$USER: /etc/passwd | cut -f6 -d:`
+SHELL=`grep ^$USER: /etc/passwd | cut -f7 -d:`
+
+# Set up USER's home directory
+if [ -z "$HOME" ]; then
+  echo "WARNING: HOME not set! Defaulting to /tmp"
+  HOME="/tmp"
+fi
+
+# Check to see if USER's home directory exists
+if [ ! -d "$HOME" ]; then
+  echo "WARNING: HOME directory did not exist! Logging in with HOME = /tmp"
+  HOME="/tmp"
+fi
+
+export HOME USER SHELL
+
+# Set CYGWIN to ntsec. No longer needed as of Cygwin 1.3.20 however
+# we will have users with old versions of Cygwin
+# Added smbntsec
+CYGWIN="ntsec smbntsec"
+export CYGWIN
+
+# Execute other system startup scripts
+for i in /etc/profile.d/*.sh ; do
+  if [ -f $i ]; then
+    . $i
+  fi
+done
+
+# Set MAKE_MODE for Unix and set a default PS1 string
+export MAKE_MODE=unix
+export PS1='\[\033]0;\w\007
+\033[32m\]\u@\h \[\033[33m\w\033[0m\]
+$ '
+
+# Go to user's home directory
+cd "$HOME"
+
+# Execute users .bashrc, if it exists
+test -f "$HOME/.bashrc" && . "$HOME/.bashrc"

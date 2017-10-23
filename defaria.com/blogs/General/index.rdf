@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+  xmlns:admin="http://webns.net/mvcb/"
+  xmlns:cc="http://web.resource.org/cc/"
+  xmlns="http://purl.org/rss/1.0/">
+
+<channel rdf:about="http://defaria.com/blogs/General/">
+<title>General</title>
+<link>http://defaria.com/blogs/General/</link>
+<description></description>
+<dc:language>en-us</dc:language>
+<dc:creator></dc:creator>
+<dc:date>2014-01-22T10:46:13-06:00</dc:date>
+<admin:generatorAgent rdf:resource="http://www.movabletype.org/?v=3.2" />
+
+
+<items>
+<rdf:Seq><rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000759.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000746.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000745.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000744.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000739.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000736.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000734.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000729.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000728.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000723.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000722.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000721.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000719.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000718.html" />
+<rdf:li rdf:resource="http://defaria.com/blogs/General/archives/000717.html" />
+</rdf:Seq>
+</items>
+
+</channel>
+
+<item rdf:about="http://defaria.com/blogs/General/archives/000759.html">
+<title>W2 vs. C2C</title>
+<link>http://defaria.com/blogs/General/archives/000759.html</link>
+<description>I&apos;m a consultant and have been for quite some time now. In April of 2007 I finally incorporated and I have been successfully paying myself a paycheck ever since. There are many benefits to me to be in business including...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2014-01-22T10:46:13-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000746.html">
+<title>California</title>
+<link>http://defaria.com/blogs/General/archives/000746.html</link>
+<description>OK, so I&apos;m back in California. I must say it&apos;s good to be back. I find California to be much more laid back than Virgina, where I came from. The job (at Tellabs) is good - so much better than...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2011-03-10T02:09:44-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000745.html">
+<title>Point people more directly</title>
+<link>http://defaria.com/blogs/General/archives/000745.html</link>
+<description>Why do people write stuff like: For more information, sign on to your Bill Pay service, click Help at the top of any Bill Pay screen, click the &quot;How Do I...&quot; tab and select &quot;How do I change the payment...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-11-01T11:55:34-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000744.html">
+<title>Comcast speed</title>
+<link>http://defaria.com/blogs/General/archives/000744.html</link>
+<description> I mean wow! Remember speed kills! Now if I can just get my static IP assigned....</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-10-20T07:26:51-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000739.html">
+<title>More Playon Fun</title>
+<link>http://defaria.com/blogs/General/archives/000739.html</link>
+<description>On 06/17/2010 11:25 PM, PlayOn Support (Michael) wrote: Andrew, Your PS3 can&apos;t communicate with your router the way you want it to. That can neither be caused by nor solved by PlayOn. It is a completely independent problem between two...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-06-18T02:08:17-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000736.html">
+<title>How not to run a company</title>
+<link>http://defaria.com/blogs/General/archives/000736.html</link>
+<description>I&apos;m a guy who believes in giving credit where credit is due and the flip side of giving blame where blame is due. I like MediaMall and their product - Playon. In general I think they have a good idea....</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-06-18T01:51:54-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000734.html">
+<title>How to get your mic working on Ubuntu 9.10</title>
+<link>http://defaria.com/blogs/General/archives/000734.html</link>
+<description>I&apos;ve been having a hell of a time trying to get my mic to work on my Ubuntu 9.10 machines. Part of the solution I believe is to get the latest ALSA libs, utils and driver and build it. The...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-04-02T23:37:37-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000729.html">
+<title>Cell phones - Not up to snuff!</title>
+<link>http://defaria.com/blogs/General/archives/000729.html</link>
+<description>What is it with cell phones anyway. It&apos;s primary function, while I admit is not a function I do that frequently compared to other things, it can&apos;t do all that well. I mean calls but I don&apos;t mean hard to...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-03-06T19:24:39-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000728.html">
+<title>Stupid is as stupid does</title>
+<link>http://defaria.com/blogs/General/archives/000728.html</link>
+<description>OK so I&apos;ve moved up to Seattle and need to get my business and personal bank accounts all settled in. So I stopped into my local Wells Fargo branch to introduce myself. He said he could save me some money...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-03-06T19:05:38-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000723.html">
+<title>Priority Queues...</title>
+<link>http://defaria.com/blogs/General/archives/000723.html</link>
+<description>Many IT departments run long running and intensive processes on the various PCs throughout their organizations. For example, virus scanners (are evil but that&apos;s another rant), defragmentation and disk cleanup stuff. Is it really too much to ask for them...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-03-01T13:35:55-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000722.html">
+<title>Broken DNS</title>
+<link>http://defaria.com/blogs/General/archives/000722.html</link>
+<description>This seems to be the trend now a days in Corporate IT. Is it just Windows related? I don&apos;t know. It used to be that you could rely on DNS. Now you can&apos;t. Case in point - people hear talk...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-03-01T11:48:16-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000721.html">
+<title>Making it way harder than it needs to be</title>
+<link>http://defaria.com/blogs/General/archives/000721.html</link>
+<description>Why do people do the following: A user is having difficulty performing a task so they submit a ticket. Attached there&apos;s a zip file that contains a Word document of 5 pages, 4 of which are entire desktop screen shots...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-02-26T15:36:29-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000719.html">
+<title>More support crap</title>
+<link>http://defaria.com/blogs/General/archives/000719.html</link>
+<description>Do people think at all how they come off to other people? Case in point - I want to set my Unix password but for some reason they&apos;ve disabled the passwd(1) command. Off to the help desk it is for...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-02-24T16:43:11-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000718.html">
+<title>Insisting on breaking links</title>
+<link>http://defaria.com/blogs/General/archives/000718.html</link>
+<description>The reluctance to use HTML in email (and news groups for that matter) is astonishing! Instead people insist on using plain text and inevitably paste long links that break due to stupid clients badly wrapping the URL. For example: http://gisclarifyweb.somewhere.com/eSupport/eSupportjsp/MenuSystem/CaseViewMS.j^M...</description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-02-24T13:59:36-06:00</dc:date>
+</item>
+<item rdf:about="http://defaria.com/blogs/General/archives/000717.html">
+<title>Names should not be hard</title>
+<link>http://defaria.com/blogs/General/archives/000717.html</link>
+<description><![CDATA[Another in a series of rants about things I see and how backward they are... Why is it that organizations use Outlook at all? And then when they do they have their address books set up for &lt;lastname>, &lt;firstname>? That's...]]></description>
+<dc:subject></dc:subject>
+<dc:creator>Andrew DeFaria</dc:creator>
+<dc:date>2010-02-24T13:22:15-06:00</dc:date>
+</item>
+
+
+</rdf:RDF>

@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: February  1, 2004 - February  7, 2004 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2004_01_25.html" title="January 25, 2004 - January 31, 2004" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2004_02_08.html" title="February  8, 2004 - February 14, 2004" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2004_01_25.html">&laquo; January 25, 2004 - January 31, 2004</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2004_02_08.html">February  8, 2004 - February 14, 2004 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">February  6, 2004</h2>
+                     <a id="a000119"></a>
+                     <div class="entry" id="entry-119">
+                        <h3 class="entry-header">CI Trigger Bug</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Fixed bug in CheckInPost.pl. This bug was caused by an element having a space character in it (e.g. a directory named "source code"). The checkin trigger had the following line:</p>
+
+<pre>
+$result = system ("cleartool mklabel -replace $bugid $pname");
+</pre>
+
+<p>This line assumes that $pname does not contain a space character. The fix was:</p>
+
+<pre>
+$result = system ("cleartool mklabel -replace $bugid \"$pname\"");
+</pre>
+
+<p>The \"'s surround $pname and thus protect it.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:13 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000119.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February  5, 2004</h2>
+                     <a id="a000118"></a>
+                     <div class="entry" id="entry-118">
+                        <h3 class="entry-header">2.3 KDDI release</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Built 2.3.0.2</li>
+
+<li>Created 2.2.2.1</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:06 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000118.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February  4, 2004</h2>
+                     <a id="a000117"></a>
+                     <div class="entry" id="entry-117">
+                        <h3 class="entry-header">2.3 merging/New 2340 branch</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Worked on 2.3 merge problems. NeoPON.ccp came in merged but the auto merged failed due to a link problem with onu2330. Zhiyi is working on this for 2.3.0.2</li>
+
+<li>Worked with Hong Bin to get FPGA files visible</li>
+
+<li>Changed includeable config specs to handle new files created by other site</li>
+
+<li>Setup us_2340/china_2340 branches, views and ctmerge jobs.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:13 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000117.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February  2, 2004</h2>
+                     <a id="a000116"></a>
+                     <div class="entry" id="entry-116">
+                        <h3 class="entry-header">2.3 merge issues</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Resolved 2.3 merge issues</li>
+<li>More WebSAM testing...</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:18 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000116.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

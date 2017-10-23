@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: GPDB Login</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000625.html" title="GPDB Web Update/Oracle testing" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000627.html" title="mkview_linked/GPDB Login" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000626.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/15"
+    dc:title="GPDB Login"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000626.html"
+    dc:subject="GPDB"
+    dc:description=" Started implementing a login facility for GPDB..."
+    dc:creator=""
+    dc:date="2007-03-26T16:57:06-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000625.html">&laquo; GPDB Web Update/Oracle testing</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000627.html">mkview_linked/GPDB Login &raquo;</a>
+                     </p>
+
+                     <a id="a000626"></a>
+                     <div class="entry" id="entry-626">
+                        <h3 class="entry-header">GPDB Login</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Started implementing a login facility for GPDB</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Just about the time we were getting the <em>Single Signon</em> working I realized that we also have command line or a script based API in which we allow others to call GPDB functionality. Part of that functionality is logging in with gpdb_login. Well since we didn't come through Single Signon nro a web page how do we get the authorization to log into the database? Answer is we don't. Single Signon is only good for web apps where the <b>only</b> way into the application is through the web.</p>
+
+<p>The security guys did mention something about a command line alternative but it didn't seem like it would fit the bill. I believe that it only allows you to authenticate as your currently logged in user. What if, for example, user A wished to connect to GPDB as user B and knows user B's username and password? What when a script wished to login as an admin on behalf of all users. These questions need to be answered.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on March 26, 2007  4:57 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000626.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/15</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

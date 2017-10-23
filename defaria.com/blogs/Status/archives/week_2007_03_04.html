@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: March  4, 2007 - March 10, 2007 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2007_01_14.html" title="January 14, 2007 - January 20, 2007" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2007_03_11.html" title="March 11, 2007 - March 17, 2007" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2007_01_14.html">&laquo; January 14, 2007 - January 20, 2007</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2007_03_11.html">March 11, 2007 - March 17, 2007 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_03_04.html#entry-000622"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/11"
+    dc:title="Clearcase License Graphs"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_03_04.html#entry-000622"
+    dc:subject="Texas Instruments"
+    dc:description=" Worked on Clearcase License Graphs web page..."
+    dc:creator=""
+    dc:date="2007-03-08T18:52:25-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March  8, 2007</h2>
+                     <a id="a000622"></a>
+                     <div class="entry" id="entry-622">
+                        <h3 class="entry-header">Clearcase License Graphs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked on Clearcase License Graphs web page</lI>
+</ul>
+                              
+                              <p>Seems this set of scripts didn't like the additional of the Make licensing because Make licensing often had 0 usage. The 0 was being carried forward and used as a denominator for some divisions causing divide by zero errors. I fixed up these errors which then caused it to loop indefinitely. Seems a for loop didn't properly anticipate having a usage of 0. Fixed</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:52 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000622.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000622.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_03_04.html#entry-000621"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/10"
+    dc:title="Building DBD::MySQL"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_03_04.html#entry-000621"
+    dc:subject="Texas Instruments"
+    dc:description=" Built DBD::MySQL for Solaris Having problems building DBD::MySQL for Linux..."
+    dc:creator=""
+    dc:date="2007-03-07T17:44:17-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March  7, 2007</h2>
+                     <a id="a000621"></a>
+                     <div class="entry" id="entry-621">
+                        <h3 class="entry-header">Building DBD::MySQL</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Built DBD::MySQL for Solaris</li>
+
+  <li>Having problems building DBD::MySQL for Linux</li>
+</ul>
+
+                              
+                              <h2>How to build DBD::MySQL</h2>
+
+<p>After downloading DBD::mysql from
+<a href="http://search.cpan.org/~capttofu/DBD-mysql-4.003/lib/DBD/mysql.pm">http://search.cpan.org/~capttofu/DBD-mysql-4.003/lib/DBD/mysql.pm</a> I encountered some problems. First one needs to use the appropriate perl, one that has a compatible DBI module already. I found this in /app/cmpackages/perl/bin/perl. The more standard perl, /apps/perl/5.8.3/bin/perl seems to have a newer DBI module that is not compatible with the DBD::mysql that I downloaded.</p>
+
+<p>Then one needs to give the proper parameters to generate the Makefile:</p>
+
+<div class=code><pre>
+$ export PATH=$PATH:/apps/mysql/4.0.16/bin
+$ /apps/cmpackages/perl/bin/perl Makefile.PL \
+&gt;    --libs="-L/apps/mysql/4.0.16/lib/mysql -lmysqlclient -lz" \
+&gt;    --cflags=-I/apps/mysql/4.0.16/include/mysql \
+&gt;    --testhost=mysql01.dal.design.ti.com \&nbsp;&nbsp; <font
+ color="#ff0000"><i>These will not always be the same</i></font>
+&gt;    --testuser=ccprojects \&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#ff0000"><i>This will change</i></font>
+&gt;    --testpassword=ccpr0jects &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#ff0000"><i>This will change (note the 0 not O)</i></font>
+</pre></div>
+
+<p>Note that we explicitly use /apps/cmpackages/perl/bin/perl here. I would rather use /apps/perl/5.8.3/bin/perl but it's DBI appears to be too new for this version of DBD::mysql (!).</p>
+
+<p>This will produce a Makefile which you then do:</p>
+
+<div class=code><pre>
+$ make
+$ make test
+</pre></div>
+
+<p>Alas, normally one would do a make install but that would attempt to install into /usr/local/perl, not something we wish to do. And there doesn't appear to be a way to pack into Makefile.PL where you want to eventually install this module when make install is run, so we need to actually modify the Makefile itself.</p>
+
+<p>Turns out that perl Makefile.PL &lt;<i>options</i>&gt; specifies which perl to use thus the following appears in the generated Makefile:</p>
+
+<div class=code><pre>
+INSTALLPRIVLIB = /apps/cmpackages/perl/lib/5.8.0
+INSTALLSITELIB = /apps/cmpackages/perl/lib/site_perl/5.8.0
+INSTALLVENDORLIB = 
+INSTALLARCHLIB = /apps/cmpackages/perl/lib/5.8.0/sun4-solaris-thread-multi
+INSTALLSITEARCH = /apps/cmpackages/perl/lib/site_perl/5.8.0/sun4-solaris-thread-multi
+INSTALLVENDORARCH = 
+INSTALLBIN = /apps/cmpackages/perl/bin
+INSTALLSITEBIN = /apps/cmpackages/perl/bin
+INSTALLVENDORBIN = 
+INSTALLSCRIPT = /apps/cmpackages/perl/bin
+</pre></div>
+
+<p>Thus this means a make install will install the module into whichever Perl installation we specified in the perl Makefile.PL &lt;<i>options</i>&gt;! Alas we cannot write to those areas yet...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:44 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000621.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000621.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en-us" itemscope itemtype="http://schema.org/Article">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content=" Worked to build 3.0.0 from 3.4.3...">
+    <meta name="generator" content="Movable Type 5.2.3">
+    <title>The Quest to build 3.0.0 from 3.4.3 - Status</title>
+    <link rel="alternate" type="application/atom+xml" title="Recent Entries" href="http://defaria.com/blogs/Status/atom.xml">
+    <link rel="canonical" href="http://defaria.com/blogs/Status/2005/06/the-quest-to-bu.html">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles.css">
+    <!--[if lt IE 9]>
+    <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles_ie.css">
+    <script src="/mt/mt-static/support/theme_static/rainier/js/html5shiv.js"></script>
+    <![endif]-->
+    
+    <link rel="start" href="http://defaria.com/blogs/Status/">
+
+    <link rel="prev" href="http://defaria.com/blogs/Status/2005/06/rebuild-210gdb.html" title="Rebuild 2.1.0/GDB 6.0">
+    <link rel="next" href="http://defaria.com/blogs/Status/2005/06/210-gdb-build.html" title="2.1.0 GDB Build">
+    <!-- Open Graph Protocol -->
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en-us">
+    <meta property="og:title" content="The Quest to build 3.0.0 from 3.4.3">
+    <meta property="og:url" content="http://defaria.com/blogs/Status/2005/06/the-quest-to-bu.html">
+    <meta property="og:description" content=" Worked to build 3.0.0 from 3.4.3...">
+    <meta property="og:site_name" content="Status">
+    <meta property="og:image" content="/mt/mt-static/support/theme_static/rainier/img/siteicon-sample.png">
+    <!-- Metadata -->
+    <meta itemprop="description" content=" Worked to build 3.0.0 from 3.4.3...">
+    <link itemprop="url" href="http://defaria.com/blogs/Status/2005/06/the-quest-to-bu.html">
+    <link itemprop="image" href="/mt/mt-static/support/theme_static/rainier/img/siteicon-sample.png">
+    
+  </head>
+  <body>
+    <div id="container">
+      <div id="container-inner">
+        <header id="header" role="banner">
+          <div id="header-inner">
+            <div id="header-content">
+              <h1>
+                <a href="http://defaria.com/blogs/Status/">
+
+                  Status
+
+                </a>
+              </h1>
+              
+            </div>
+
+            <nav role="navigation">
+          <ul>
+            <li><a href="http://defaria.com/blogs/Status/">Home</a></li>
+
+
+          </ul>
+        </nav>
+
+          </div>
+        </header>
+        <div id="content">
+          <div id="content-inner">
+            <ul class="breadcrumb breadcrumb-list">
+              <li class="breadcrumb-list-item"><a href="http://defaria.com/blogs/Status/">Home</a></li>
+              <li class="breadcrumb-list-item">The Quest to build 3.0.0 from 3.4.3</li>
+            </ul>
+            <div id="individual-main" class="main" role="main">
+              <article id="entry-1646" class="entry entry-asset asset hentry">
+                <div class="asset-header">
+                  <h2 itemprop="name" class="asset-name entry-title">The Quest to build 3.0.0 from 3.4.3</h2>
+                  <footer class="asset-meta">
+                    <ul class="asset-meta-list">
+                      <li class="asset-meta-list-item">Posted on <time datetime="2005-06-16T16:17:56-08:00" itemprop="datePublished">June 16, 2005</time></li>
+                      <li class="asset-meta-list-item">by <span class="author entry-author vcard"></span></li>
+
+  
+                      <li class="asset-meta-list-item">in <a itemprop="articleSection" rel="tag" href="http://defaria.com/blogs/Status/lynuxworks/">LynuxWorks</a></li>
+  
+
+                   </ul>
+                </footer>
+                </div>
+                <div class="entry-content asset-content" itemprop="articleBody">
+                  <ul>
+  <li>Worked to build 3.0.0 from 3.4.3</li>
+</ul>
+                  Andrew DeFaria wrote:
+
+<blockquote type=cite>
+<p>Performed the following actions:</p>
+
+<h3>Change packaging by hand:</h3>
+
+<ol>
+  <li>cd /build/toolchain/install-powerpc178/cdk/linux-elf-ppc</li>
+
+  <li>mkdir bin</li>
+
+  <li>cd bin</li>
+
+  <li>Created symlinks for the following: ar, as, byacc, c++, cc, cmp, diff, diff3, expect, flex, gcc, ld, make, nm, ranlib, size, strip to link to ../usr/bin (exception: cc -> ../usr/bin/gcc). <b>Note:</b> byacc, c++, cmp, diff, diff3 and expect do not exist in ../usr/bin! Removed symlinks</li>
+
+  <li>cd ../..</li>
+
+  <li>mkdir lib</li>
+
+  <li>Copied cdk/linux-elf-ppc/usr/lib/gcc/powerpc-lynx-lynxos178/3.4.3/libgcc.a -> lib <b>Note:</b> Unable to find any libstdc++.a's!</li>
+
+  <li>Created linux-elf-ppc.tar.gz with tar -zcvf ../linux-elf-ppc.tar.gz .</li>
+</ol>
+
+<h3>Removing libgcc from LOS178:</h3>
+
+<ol>
+  <li>cd /build/los178/src/lib/libgcc</li>
+
+  <li>rm Makefile</li>
+
+  <li>cvs delete Makefile</li>
+
+  <li>cd ..</li>
+
+  <li>Editted Makefile to remove libgcc from SUBCOMPONENTS</li>
+
+  <li>cd /build/los178/src/cdk/common/bison-1.19</li>
+
+  <li>rm Makefile</li>
+
+  <li>cvs delete Makefile (<b>Note:</b> there are many other files here. Should they be likewise removed?)</li>
+
+  <li>cd ../links</li>
+
+  <li>rm Makefile</li>
+
+  <li>cvs delete Makefile</li>
+
+  <li>cd /build/los178/src/cdk</li>
+
+  <li>Editted Makefile to remove references to bison-1.19 and links</li>
+
+  <li>Editted Makefile to add -0.9.6 to "openssl".</li>
+</ol>
+
+<p>The following is the result of building src/cdk:</p>
+
+<ul>
+  <li>coffcorrupt - for test <font color="green">PASSED</font></li>
+
+  <li>cofflook - for inspecting coff object <font color="green">PASSED</font></li>
+
+  <li>config - needed <font color="green">PASSED</font></li>
+
+  <li>crc - append script uses this <font color="green">PASSED</font></li>
+
+  <li>elflook - for inspecting elf object <font color="red">FAILED</font></li>
+
+  <li>install - use for installation <font color="green">PASSED</font></li>
+
+  <li>m4-1.4 - needed for config.tbl <font color="red">Didn't find anything about this!</font></li>
+
+  <li>man2html - html man page utility <font color="red">Didn't find anything about this!</font></li>
+
+  <li>mkbootprep - use by vmpc <font color="green">PASSED</font></li>
+
+  <li>mkimage - maybe need to be update to support elf kernel? <font color="green">PASSED</font></li>
+
+  <li>mktimestamp - needed for kernel timestamp <font color="green">PASSED</font></li>
+
+  <li>prepend-crc - mkboot178 uses this <font color="green">PASSED</font></li>
+
+  <li>gzip-1.2.4 - only for solaris host <font color="green">PASSED</font></li>
+
+  <li>tar-1.11.2 - only for solaris host <font color="red">FAILED</font></li>
+
+  <li>vctchk - use for checking vct <font color="red">FAILED</font></li>
+
+  <li>openssl <font color="red">(Failed to build saying it couldn't find /build/los178/cdk/linux-elf-ppc/bin/make)</font></li>
+</ul>
+
+<p>I will try to pick this up from home but I have been having some connectivity issues lately...</p>
+</blockquote>
+
+<p>Picking up...</p>
+
+<h3>Building LOS178 after sections I & II above completed:</h3>
+
+<ol>
+  <li>Logged in as int</li>
+
+  <li>Exported toolchain source -> /build/toolchain.src (via tag DEV_LOS178_3p0p0_ppc_20050607)</li>
+
+  <li>Instructions say to package source yet Makefile's package target does not include fixup.sh so performed this by hand.</li>
+
+  <li>Stored previously successfully built toolchain -> t3:/export/dev_archive/los178/3p0p0/toolchain/20050607</li>
+
+  <li>Checked that europa:/build/los178 had TOT. Only differences were the changes to the Makefile(s) describe above and the cvs deletes that I did.</li>
+
+  <li>rm sys/miscgcc/*.o</li>
+
+  <li>tar -zxvf /build/bin-image/ppc.cdksol.tar.gz sys/miscgcc</li>
+
+  <li>tar -zxpf/build/1033-00.cdklinux.tar.gz</li>
+
+  <li>Sourced SETUP.bash</li>
+
+  <li>make DEVELOPMENT=yes install > install.log 2>&1</li>
+
+  <li>make failed due to lack of crc (and a syntax error I introduced in the src/lib/Makefile - missed a "\"!). The crc was missing because I skipped a step, the make install in src/cdk. Turns out I skipped this step because I thought we had performed this yesterday - and we did - but we had some problems there and Vinnie helped me to get that to work. Unfortunately we were using make all during that time and failed to to the make install portion).</li>
+
+  <li>make failed with the following:<p>
+
+<div class="code"><pre>
+      europa:check -t -v install.log
+      ERRORS:
+      make[3]: *** No rule to make target `_udivdi3.o', needed by `archive_step'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      /build/los178/cdk/linux-xcoff-ppc/bin/ld: cannot open -lmiscgcc: No such file or directory
+      make[4]: *** [common_all] Error 1
+      make[3]: *** [re_all] Error 2
+      /build/los178/cdk/linux-xcoff-ppc/bin/ld: cannot open -lmiscgcc: No such file or directory
+      make[4]: *** [a.out] Error 1
+      make[3]: *** [re_all] Error 2
+      make[2]: *** [real] Error 2
+      make[1]: *** [install] Error 2
+      make[3]: *** [gunzip] Error 1
+      make[3]: *** [nohup] Error 1
+      make[3]: *** [install_common] Error 1
+      make[3]: *** [install] Error 1
+      make[2]: *** [real] Error 2
+      make[1]: *** [install] Error 2
+      File: install.log Errors: 20 Warnings: 2545
+</pre></div>
+  <p>The issues here boil down to the _udivd3.o problem mostly (the No rule to make target `install' are the csp.x86, ibm440ep stuff and there are few permissions problems with chmod since this build was done as int this time). The _udivd3.o problem results from a new .o file introduced by Gilbert and CR #542 and a corresponding change to the Makefile. The miscgcc .o files are gotten from ppc.cdksol.tar.gz but there is no _udivd3.o in ppc.cdksol.tar.gz.</p>
+
+  <p>After discussing this with Vinnie we determined that Gilbert had checked in these .o files when what really needs to be done is for us to include this new .o file into the ppc.cdk[sol|linux].tar.gz images in bin-image.</p>
+
+  <li>After building the following errors remain:</p>
+
+  <ol>
+    <li>5 "No rule to make target `install`" remains for devices.ibm440ep, drivers.ibm440ep, csp.440, csp.x86 and bsp.ibm440ep. These are known problems.</li>
+
+    <li>Various permissions problems dealing with the fact that I had initially built things as adefaria and switched to building as int.</li>
+  </ol>
+</ol>
+                </div>
+                <nav class="page-navigation entry-navigation pagination content-nav">
+                  <ul class="page-navigation-list">
+
+                    <li class="page-navigation-list-item page-navigation-prev"><a rel="prev" href="http://defaria.com/blogs/Status/2005/06/rebuild-210gdb.html" title="Rebuild 2.1.0/GDB 6.0">Previous entry</a></li>
+
+
+                    <li class="page-navigation-list-item page-navigation-next"><a rel="next" href="http://defaria.com/blogs/Status/2005/06/210-gdb-build.html" title="2.1.0 GDB Build">Next entry</a></li>
+
+                  </ul>
+                </nav>
+                <!--
+<aside id="zenback" class="zenback feedback">
+  Please paste Zenback script code here.
+</aside>
+-->
+                
+                
+              </article>
+            </div>
+            <aside class="widgets related" role="complementary">
+              <nav class="widget-search widget">
+  <div class="widget-content">
+    <form method="get" id="search" action="http://defaria.com/mt/mt-search.cgi">
+      <div>
+        <input type="text" name="search" value="" placeholder="Search...">
+
+        <input type="hidden" name="IncludeBlogs" value="8">
+
+        <input type="hidden" name="limit" value="20">
+        <button type="submit" name="button">
+          <img alt="Search" src="/mt/mt-static/support/theme_static/rainier/img/search-icon.png">
+        </button>
+      </div>
+    </form>
+  </div>
+</nav>
+<nav class="widget-archive-category widget">
+  <h3 class="widget-header">Categories</h3>
+  <div class="widget-content">
+    
+      
+    <ul class="widget-list">
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/ameriquest/">Ameriquest (99)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/audience/">Audience (3)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/broadcom/">Broadcom (76)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/gpdb/">GPDB (35)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/general-dynamics/">General Dynamics (61)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/general-electric/">General Electric (13)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/hewlett-packard/">Hewlett Packard (13)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/lynuxworks/">LynuxWorks (162)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/pqa/">PQA (35)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/salira/">Salira (79)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/tellabs/">Tellabs (2)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/texas-instruments/">Texas Instruments (31)</a>
+      
+      
+      </li>
+      
+    </ul>
+      
+    
+  </div>
+</nav>
+  
+
+<nav class="widget-archive-dropdown widget">
+  <h3 class="widget-header">Archives</h3>
+  <div class="widget-content">
+    <select>
+      <option>Select a Month...</option>
+    
+      <option value="http://defaria.com/blogs/Status/2016/02/">February 2016</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/09/">September 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/04/">April 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/03/">March 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2013/02/">February 2013</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/09/">September 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/08/">August 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/05/">May 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/04/">April 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/02/">February 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/01/">January 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2011/10/">October 2011</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2011/07/">July 2011</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/09/">September 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/08/">August 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/04/">April 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/03/">March 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/02/">February 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2009/05/">May 2009</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2009/04/">April 2009</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/07/">July 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/05/">May 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/04/">April 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/03/">March 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/02/">February 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/01/">January 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/12/">December 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/11/">November 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/10/">October 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/09/">September 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/08/">August 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/07/">July 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/06/">June 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/05/">May 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/04/">April 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/03/">March 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/01/">January 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/12/">December 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/11/">November 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/10/">October 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/09/">September 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/07/">July 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/06/">June 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/05/">May 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/04/">April 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/03/">March 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/02/">February 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/01/">January 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/12/">December 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/11/">November 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/10/">October 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/09/">September 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/08/">August 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/07/">July 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/06/">June 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/05/">May 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/04/">April 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/03/">March 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/02/">February 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/01/">January 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/12/">December 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/09/">September 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/08/">August 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/07/">July 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/06/">June 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/05/">May 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/04/">April 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/03/">March 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/02/">February 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/01/">January 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2003/12/">December 2003</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2003/11/">November 2003</option>
+    
+    </select>
+  </div>
+</nav>
+    
+  
+
+<div class="widget-syndication widget section">
+  <div class="widget-content">
+    <p><img src="http://defaria.com/mt/mt-static/images/status_icons/feed.gif" alt="Subscribe to feed" width="9" height="9" /> <a href="http://defaria.com/blogs/Status/atom.xml">Subscribe to this blog's feed</a></p>
+
+  </div>
+</div>
+
+            </aside>
+          </div>
+        </div>
+        <footer id="footer" role="contentinfo">
+          <div id="footer-inner">
+            <div id="footer-content">
+  <nav role="navigation">
+          <ul>
+            <li><a href="http://defaria.com/blogs/Status/">Home</a></li>
+
+
+          </ul>
+        </nav>
+
+  <p class="license">&copy; Copyright 2016.</p>
+  <p class="poweredby">Powered by <a href="http://www.movabletype.org/">Movable Type</a></p>
+</div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <script src="http://defaria.com/mt/mt-static/jquery/jquery.min.js"></script>
+    <script src="http://defaria.com/blogs/Status/mt-theme-scale2.js"></script>
+  </body>
+</html>

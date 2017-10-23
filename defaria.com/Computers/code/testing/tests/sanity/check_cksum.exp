@@ -1,0 +1,129 @@
+#!/usr/bin/expect --
+################################################################################
+#
+# File:         check_cksum.exp
+# Description:  Tests checksums of super files
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Jun  6 15:37:15 PDT 2003
+# Language:     Expect
+# Test Class:	Sanity
+#
+# (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+set test_base "/dview/defaria_default/Tools/testing"
+source "$test_base/bin/TestPkg.tcl"
+
+catch {namespace import Test::*}
+
+proc Setup {} {
+  Start "check_cksum"
+
+  # Log into vxWorks...
+  LoginVxWorks
+
+  # Go to T drive, sanity folder
+  send "cd \"t:/sanity\"\r"
+
+  expect {
+    -gl "-> " {
+      return 0
+    }
+    timeout {
+      set Test::result 1
+      set Test::reason "Timedout trying to ct to \"t:/sanity\"!"
+      return 1
+    }
+      
+    default {
+      set Test::result 1
+      set Test::reason "Unable to cd to \"t:/sanity\"!"
+      return 1
+    }
+  }
+}
+
+proc Run {} {
+  set Test::result 0
+
+  # Get the names of the superfiles
+  set card_index 0
+
+  send "ls\r"
+
+  expect {
+    -gl "-> " {
+    }
+    timeout {
+      set Test::result 1
+      set Test::reason "Timedout executing ls!"
+      return 1
+    }
+    default {
+      set Test::result 1
+      set Test::reason "Unable to find images!"
+      return 1
+    }
+  }
+
+  set buf $expect_out(buffer)
+
+  # Extract superfile names
+  set index 2
+  set card [lindex $buf $index]
+
+  # Verifying checksums can take a while. Default timeout is 10 seconds.
+  # Unfortunately scc.sf takes longer than that. We will up the timeout
+  # to 25 seconds.
+  set timeout 25
+
+  while {$card != "value"} {
+    send "check_cksum \"$card\"\r"
+
+    expect {
+      -gl "-> " {
+      }
+      timeout {
+	set Test::result 1
+        set Test::reason "Timed out when executing check_cksum \"$card\""
+        break
+      }
+      default {
+	set Test::result 2
+        set Test:reason "check_cksum failed for card $card"
+	break
+      }
+    }
+    set index [expr $index+1]
+    set card [lindex $buf $index]
+  }
+  
+  # Restore default timeout
+  set timeout 10
+
+  return $Test::result
+}
+
+proc CleanUp {} {
+  # Logout of vxWorks
+  send "logout\r"
+
+  expect {
+    "Connection closed." {
+    }
+    default {
+      Warning "Unable to logout of vxWorks"
+    }
+  }
+
+  End
+}
+
+# Main
+set setup_ok [Setup]
+
+if {$setup_ok == 0} {
+  Run
+}
+
+CleanUp

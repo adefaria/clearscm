@@ -1,0 +1,36 @@
+#!/bin/bash
+################################################################################
+#
+# File:         root
+# Description:  A script to go into "wizard" mode
+# Author:       Andrew@DeFaria.com
+# Created:      Mon May 17 07:35:59 PDT 1999
+# Language:     Korn shell
+#
+# (c) Copyright 1999, Andrew DeFaria, all rights reserved.
+#
+################################################################################
+me=$(basename $0)
+sudo=~v801310/adm/sudo/bin/sudo
+
+if [ ! -x "$sudo" ]; then
+  print -u2 "$me: Warning: Unable to find sudo!"
+  exit 1
+fi
+
+if [ $# -gt 0 ]; then
+  # Execute the commands
+  $sudo $@ 
+else
+  # Become a "wizard"!
+  $sudo
+
+  if [ -x ~/.rc/functions ]; then
+    # Source in ksh functions (needed for set_title and set_prompt)
+    . ~/.rc/functions
+    # Reset title and prompt (if you can)
+    alias ct=/usr/atria/bin/cleartool
+    set_title
+    set_prompt
+  fi
+fi

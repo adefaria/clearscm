@@ -1,0 +1,59 @@
+#!/bin/bash
+################################################################################
+#
+# File:         testmach
+# Description:  A script to execute a command on all test class machines
+# Author:       Andrew@DeFaria.com
+# Created:      Thu May 11 11:08:24 PDT 2000
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Set machines
+machines=${machines:-$adm_base/data/machines}
+
+if [ "$1" = "-f" ]; then
+  shift
+  machines="$1"
+  shift
+fi
+
+PATH=/adm/bin:$PATH
+
+if [ "$1" = "-r" ]; then
+  root=yes
+  shift
+fi
+
+for test_machine in $(grep -ve ^# $machines | grep :Test: | cut -d: -f1); do
+  # Execute command. Note if no command is given then the effect is to
+  # rlogin to each machine.
+  print "$test_machine:$@"
+  if [ $# -gt 0 ]; then
+    if [ -z "$root" ]; then
+      remsh $test_machine -n "$@"
+    else
+      root remsh $test_machine -n "$@"
+    fi
+  else
+    if [ -z "$root" ]; then
+      remsh $test_machine
+    else
+      root remsh $test_machine
+    fi
+  fi
+done

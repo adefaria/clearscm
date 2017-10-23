@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: sons-sc-cc crontab and checking in files</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000551.html" title="Clearquest Migrated" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000553.html" title="More woes with 2003 Server and sshd" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000551.html">&laquo; Clearquest Migrated</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000553.html">More woes with 2003 Server and sshd &raquo;</a>
+                     </p>
+
+                     <a id="a000552"></a>
+                     <div class="entry" id="entry-552">
+                        <h3 class="entry-header">sons-sc-cc crontab and checking in files</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <h3>Regarding sons-sc-cc's crontab</h3>
+
+<p>I copied (and modified) the crontab for ccadmin@sons-clearcase -&gt; ccadmin@sons-sc-cc changing sons-clearcase -&gt; sons-sc-cc where appropriate. I had also commented out the ctmerge lines. We don't want to be doing ctmerges on sons-sc-cc just yet as sons-sc-cc doesn't yet master the branches that sons-clearcase does. If we did we'd have to establish a whole new branching structure like sc_1.0, etc. That would be doable but since sons-clearcase will be decommissioned I think it's cleaner to simple transfer mastership of everything over to sons-sc-cc. However before we can do that we need to get all the users off of sons-clearcase and using sons-sc-cc.</p>
+
+<p>The only thing currently left in ccadmin's crontab on sons-sc-cc are:</p>
+
+<div class=code><pre>
+00 02 * * * //sons-sc-cc/Views/official/Tools/bin/update_view -q official
+
+00 00 * * * /usr/bin/find /tmp -type f -ctime +3 -exec rm -f {} \;
+
+01 03 * * Sat //sons-sc-cc/Views/official/Tools/adm/bin/dum -s /dev/d/Views/* &gt; /tmp/viewspace.log
+</pre></div>
+
+<p>These three things are mostly administrative, updating the view official, cleaning out old files in /tmp and doing a report of the size of the snapshot views -&gt; /tmp/viewspace.log. Sons-clearcase also does that. The report has the disk usage of all of the folders in the Views share sorted by the biggest users.</p>
+
+<h3>Regarding checking in files/directories and cleaning views</h3>
+
+<p>As we move off of sons-clearcase and onto sons-sc-cc you should instruct the engineers in Santa Clara to do the following:</p>
+
+<ol>
+  <li>Check in all files and directories in your views</li>
+
+  <li>Check for any view private files you may wish to keep and save them somewhere</li>
+
+  <li>For each view you own and that you have cleaned out with #1 and #2 above, remove it. If you have problems then see the Clearcase Administrator</li>
+</ol>
+
+<p>This goes for both snapshot views on the server (//sons-clearcase/Views) and local snapshot views on your desktop as well as any dynamic views you may have. It is not required that you remove local snapshot views however by removing the snapshot views on the server (//sons-clearcase/Views) we get a better picture of what views remain.</p>
+
+<p>When all of your elements have been successfully checked in, all your view private files saved and all of your views removed you can switch to the new server by executing
+/view/official/Tools/bin/switch-sons-sc-cc at a Cygwin prompt. Close any of your Clearcase tools (e.g. Clearcase Explorer) first. Then start Clearcase Explorere and create new views and proceed with your work. If you saved view private files and wish to restore them then copy them from the saved locations into a newly created view.</p>
+
+<h3>What are view private files and why are they possibly important?</h3>
+
+<p>We all know what file/directory elements are and what a checked out file/directory is. View private files are files in your view that have not been added to source control. These can be the result of a compile (e.g. foo.o AKA a derived object because they have been derived and can be re-derived if necessary) or they can be simply a file that you
+created (e.g. file.txt). Sometimes you may create a view private file that you want to keep, possibly wanting to add it to source control at some later time. You generally don't need to worry about derived objects (IOW you can regenerate foo.o provided foo.c is in source control). But if you say created some new files that you use in the build but have not yet added them to source control, but intend to, then you obviously want to keep them. Perhaps it's time to add them to source control...</p>
+
+<p>To list view private files use:</p>
+
+<div class=code><pre>
+$ ct lsco
+</pre></div>
+
+<p>In your view.</p>
+
+<h3>Checking what's still checked out</h3>
+
+<p>Most people know how to Find Checkout. But to find all checkouts easily
+from a command line you can do:</p>
+
+<div class=code><pre>
+$ ct lsco -avobs
+</pre></div>
+
+<p>Again this needs to be done in a view context (cd /view/official for example). This way you can see what's left to check in for everybody. We're aiming for 0!
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on May  8, 2006  9:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000552.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

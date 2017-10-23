@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: May 22, 2005 - May 28, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_05_15.html" title="May 15, 2005 - May 21, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_05_29.html" title="May 29, 2005 - June  4, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_05_15.html">&laquo; May 15, 2005 - May 21, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_05_29.html">May 29, 2005 - June  4, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">May 26, 2005</h2>
+                     <a id="a000364"></a>
+                     <div class="entry" id="entry-364">
+                        <h3 class="entry-header">Build notes LW/GD and tst</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Caught up on build notes for 20050425, 20050519 and 20050525 for LW LOS178</li>
+
+  <li>Resolved CR 41</li>
+
+  <li>Tagged tst's for LW LOS178</li>
+
+  <li>Assisted Adisak with lists for CRs 536 and 584</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:09 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000364.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">May 25, 2005</h2>
+                     <a id="a000363"></a>
+                     <div class="entry" id="entry-363">
+                        <h3 class="entry-header">LW & GD builds</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Incorporated CR 598 which fixes the production build</li>
+
+  <li>Tagged LW LOS178 20050525, rebuilt, released</li>
+
+  <li>Ported CR 598 to GD</li>
+
+  <li>Tagged GD LOS178 20050525, rebuilt, released</li>
+
+  <li>Created build_notes for GD 20050428</li>
+
+  <li>Associated updating of related CRs</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:38 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000363.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000362"></a>
+                     <div class="entry" id="entry-362">
+                        <h3 class="entry-header">PPC Pdn build Failure/CVS Report bug</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Was unable to build ppd_pdn due to a bug</li>
+
+  <li>Found a bug in cvs_report regarding new directories</li>
+</ul>
+                              
+                              <h3>cvs_report bug</h3>
+
+<p>The cvs_report script determines what has changed by using cvs update, just like the old one. But it uses -n to not actually update the area. If it did actually update it then it would have to downdate it (for lack of a better term) for the next night's run. But there is a side effect to not doing the actual update: If there is a new directory the -n will prevent cvs update from looking into what's in the new directory! I did not know this.</p>
+
+<p>This effects CR #570 and possibly others. CR #570 adds a new directory under src/lib/libm called complex with 52 new files. These files did not get included in the list of files to port over.</p> 
+
+<p>Additionally cvs_report had an error in a regex such that it was not identifying these new files properly. This has also been fixed.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:30 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000362.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">May 23, 2005</h2>
+                     <a id="a000361"></a>
+                     <div class="entry" id="entry-361">
+                        <h3 class="entry-header">files4cr</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Both files4ecr and files4cr will suffer this same problem. Let's say we had an E/CR with 10 files modified.  If at some later time one of these 10 files is changed, or another file modified with this same E/CR number it will show up in the CVS Report as only that one file modified since the CVS Report goes from some base tag to some other tag (e.g. head). The difference between those tags is only that one file - rightfully so.</p>
+
+<p>However both files4ecr and files4cr work off of the E/CR number identifying <b>all</b> files associated with that E/CR number, irrespective of any other tags that they might have. So the files4cr in the above scenario would pick up all 11 files!</p>
+
+<p>Now according to CVS a commit command should not commit files that have not been modified. The question is what does CVS use to determine that a file has been modified? Contents modified or just say date/timestamp modified? It appears that it's content modified</p>
+
+<p>Still this makes files4[e]cr not very efficient. For example, CR #542 consists of ~3200 files that were modified. Since the last dev build 17 more files were modified. But files4cr picks up ~3200 files! If we are to transfer these over to GD then commit that seems like a large waste of effort</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:10 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000361.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: 3.0.0 build, GD build</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000411.html" title="Linux ABI build failure/GDB Build failure" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000414.html" title="portgd, NetSNMP" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000411.html">&laquo; Linux ABI build failure/GDB Build failure</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000414.html">portgd, NetSNMP &raquo;</a>
+                     </p>
+
+                     <a id="a000413"></a>
+                     <div class="entry" id="entry-413">
+                        <h3 class="entry-header">3.0.0 build, GD build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Performed a TOT 3.0.0 build. More stuff coming in...</li>
+
+  <li>Struggling with 2.0 GD build. Turns out I was missing some CRs. Finally building!</li>
+
+  <li>GDB Server build on Solaris is OK now but it fails on Linux. I suspect a packaging problem</li>
+
+  <li>The portgd script has issues</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Portgd Challenges</h3>
+
+<p>One of the problems with portgd is that the from CVS repository really needs to be set to HEAD because you want the latest but you're gonna pull the CRs by number and individual file revisions. This may cause problems sometimes (think ordering of CR numbers where pulling one CR overwrites a previous one in the wrong way. BTW This is why branching is good!)</p>
+
+<p>Additionally portgd has a problem where the CR introduces new elements (Clearcase term - think new files and/or directories). When portgd attempts to cp the file to the to CVS repository it may fail because the parent directory did not previously exist and is not in the to CVS repository.</p>
+
+<p>The portgd script can be updated to check to insure that each directory in the path of the file revision to be "ported" exists and if not then to create it and add it to CVS. It should also check to see if the file is new and again copy it but also add it to CVS.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on August 24, 2005 11:32 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000413.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

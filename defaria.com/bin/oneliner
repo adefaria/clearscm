@@ -1,0 +1,49 @@
+#!/usr/bin/perl -w
+use strict;
+use CGI qw/:standard :netscape/;
+
+my $mode = param ("mode");
+my $list = param ("list");
+
+$mode = "html" if ! defined $mode;
+$list = "no"   if ! defined $list;
+
+srand;
+
+$mode = "html" if $mode eq "";
+
+print "Content-Type: text/html; charset=ISO-8859-1\n\n" if $mode eq "html";
+
+my $home = $ENV{HOME};
+
+if (! defined $home) {
+  # Fudge
+  $home = "/home/andrew";
+}
+
+my $sigs = $home . "/.signatures";
+
+open SIGS, "$sigs" or die "Unable to open $sigs - $!\n";
+
+my @sigs = <SIGS>;
+
+if ($list eq "yes") {
+  print "<ol>\n" if $mode eq "html";
+
+  my $i=0;
+
+  foreach my $sig (@sigs) {
+    $i++;
+    if ($mode eq "html") {
+      print li ($sig) .  "\n";
+    } else {
+      print $i, ") ", $sig, "\n\n";
+    } # if
+  } # foreach
+
+  print "</ol>\n" if $mode eq "html";
+} else {
+  print splice (@sigs, int (rand (@sigs)), 1) . "\n";
+} # if
+
+exit;

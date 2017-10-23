@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Port CR542 -> GD</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000343.html" title="LOS178 build with CR 542" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000345.html" title="GD LOS178" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000343.html">&laquo; LOS178 build with CR 542</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000345.html">GD LOS178 &raquo;</a>
+                     </p>
+
+                     <a id="a000344"></a>
+                     <div class="entry" id="entry-344">
+                        <h3 class="entry-header">Port CR542 -> GD</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked on porting CR542 over to GD</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>CR542 port to GD</h3>
+
+<p>There were a few problems with this port:</p>
+
+<ol>
+  <li>Symlink used for the <a href="/blogs/Status/archives/000324.html">bison.simple fix</a> was not a good fix. If ~adefaria/ppc_dev ever disappeared (and it did/does when I clean up things), then bison.simple is simply not available any more. Had Jeff fix this by putting a copy of bison.simple into the /usr/lynx/3.1.0 area. This defect should be fixed...</p>
+
+  <li>Implemented new src/bin/Makefile for some fixes that Thu requested</li>
+
+  <li>Top level Makefile needed to put src/net before src/bin so that openssl would be build before ping6 requires it</li>
+</ol>
+
+<p>An outstanding issue is that if /usr/local/ssl exists on the build machine, openssl attempts to build itself. It should be using $ENV_PREFIX but it isn't. This problem was not detected in LOS178 because nothing in openssl was being used (and, again, if /usr/local/ssl is not there the the build process doesn't even attempt to build openssl).</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 27, 2005  5:59 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000344.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,310 @@
+#!/bin/bash
+################################################################################
+#
+# File:         inventory
+# Description:  Displays information about a machine including hardware and
+#		software inventories
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Jun 15 15:26:27 PDT 2001
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew DeFaria, all rights reserved.
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+tmpprefix=${TMPDIR:-/tmp}/$me.$$
+tmpfile=$tmpprefix
+tmpfile=~v801310/adm/data/$(hostname).sysinfo
+. $adm_fpath/tmpfiles
+
+function usage {
+  print -u2 "Usage: $me -[h|ardware] -[s|oftware] -[da|emon]"
+  exit 1
+} # usage
+
+function display_inventory {
+  # This function displays the "inventory" for this machine. Currently 
+  # "inventory" consists of hardware, software and daemons.
+  display_hardware_inventory
+  display_software_inventory
+  display_daemon_inventory
+} # display_inventory
+
+function display_hardware_inventory {
+  # This function displays the hardware inventory. Only "important" hardware
+  # values are displayed. 
+  #
+  # This function may be enhanced in the future.
+  debug "ENTER: $0"
+
+  # Hostname
+  host=$(grep ^HOSTNAME: $tmpfile | cut -c16-)
+
+  # OS
+  os=$(uname -r)
+
+  # Model
+  model=$(grep ^MODEL: $tmpfile | cut -c16-)
+
+  # CPU Speed
+  cpu_speed=$(grep "^CPU SPEED:" $tmpfile | cut -c16-)
+
+  # CPUs
+  cpus=$(grep ^CPUS: $tmpfile | awk '{print $2}')
+
+  # Main Memory
+  memory=$(grep MEMORY: $tmpfile | awk '{printf "%s %s", $2, $3}')
+
+  # Swap
+  if is_root; then
+    swap=$(swapinfo -m -t | tail -1 | awk '{print $2}')
+    swap="$swap Meg"
+  else
+    swap="(Not run as root)"
+  fi
+
+  # Number of disks
+  if is_root; then
+    verbose "Determining the number of disks"
+    nbr_disks=$(ioscan -C disk | grep -ve "^H/W" -e "^==" -e "CD-ROM" | wc -l)
+  else
+    nbr_disks="(Not run as root)"
+  fi
+
+  # Volume groups and logical volumes
+  integer nbr_vg=0
+  integer nbr_lv=0
+
+  verbose "Determining volume groups and logical volumes"
+  for vg in $(vgdisplay | grep "^VG Name" | awk '{print $NF}'); do
+    let nbr_vg=nbr_vg+1
+    for v in $(vgdisplay -v $vg | grep "   LV Name" | awk '{print $NF}'); do
+      let nbr_lv=nbr_lv+1
+    done
+  done                            
+
+  # Display information
+  display "Machine: $host"
+  display "OS: $os"
+  display "Model: $model"
+  display "CPUs: $cpus ($cpu_speed)"
+  display "Memory: $memory"
+  display "Swap: $swap"
+  display "Number of disks: $nbr_disks"
+  display "Volume Groups: $nbr_vg"
+  display "Logical Volumes: $nbr_lv"
+
+  # Print filesystems with percentage filled in descending order:
+  display
+  bdf -l | grep -ve "^Filesystem" -e "^AFS" | 
+    awk '{printf "%s\t%s\n", $(NF-1), $NF}' | sort -nr
+  debug "EXIT: $0"
+} # display_hardware_inventory
+
+function display_software_inventory {
+  # This function displays the software inventory. Only "important" software
+  # values are displayed. Currently these are:
+  #
+  #	. Certain "interesting" software registered in the SD-UX product
+  #	  database
+  #	. Certain "interesting" 3rd party software (typically not recorded
+  #	  properly in the SD-UX product database)
+  #
+  # This function may be enhanced in the future.
+  debug "ENTER: $0"
+
+  verbose "Checking for certain important software (SD-UX)"
+  display "\nInstalled software (SD-UX):\n"
+  for package in \
+    Apache \
+    DB2V7CAE \
+    DB2V7CONN \
+    DB2V7SDK \
+    DB2V7WGRP \
+    C-ANSI-C \
+    C-Plus-Plus \
+    CCASE-MVFS \
+    Glance \
+    Ignite-UX \
+    Java-PlugIn1-2 \
+    Java-Runtime1-1 \
+    Java2JDK_base \
+    Java2RTE_base \
+    gcc \
+    NscapeDir40Srv \
+    NscapeFastrakSrv \
+    NscapeNavGold \
+    NSEntrpr36Srv \
+    NSNavigator40 \
+  ; do
+    grep "$package" $tmpfile > /dev/null 2>&1 
+
+    if [ $? -eq 0 ]; then
+      if [ -n "$packages" ]; then
+        packages="$packages, $package"
+      else
+	packages="$package"
+      fi
+    fi
+  done
+  display "\t$packages"
+
+  display "\nNumber of patches: \c"
+  grep -c "^  PH" $tmpfile
+
+  display "\nContents of /usr/local/bin:\n\t\c"
+  l -F /usr/local/bin
+
+  display "\nOther software:\n"
+
+  for other_software_dir in \
+    /sybase \
+    /usr/local/flexlm \
+    /opt/perl \
+    /opt/perl5 \
+    /opt/tuxedo \
+    /opt/weblogic \
+  ; do
+    if [ -d $other_software_dir ]; then
+      if [ -n "$other_software_dirs" ]; then
+        other_software_dirs="$other_software_dirs, $other_software_dir"
+      else
+	other_software_dirs="$other_software_dir"
+      fi
+    fi
+  done
+
+  display "\t$other_software_dirs"
+
+  debug "EXIT: $0"
+} # display_software_inventory
+
+function display_daemon_inventory {
+  # This function displays the daemon inventory. Only "important" daemon
+  # values are displayed. 
+  #
+  # This function may be enhanced in the future.
+  debug "ENTER: $0"
+
+  display "\nRunning daemons on $(uname -n):\n"
+
+  # Check to see if Oracle is running
+  if [ $(who | cut -f1 -d' ' | sort -u | grep -c oracle) -eq 1 ]; then
+    daemons="Oracle"
+  fi
+
+  verbose "Checking for running daemons"
+  # Check other running daemons
+  for daemon in \
+    ns-httpd \
+    uxwdog \
+    /opt/perf/bin/midaemon \
+    /usr/afs/bin/bosserver \
+    /usr/afs/bin/busserver \
+    /usr/afs/bin/fileserver \
+    /usr/afs/bin/kasserver \
+    /usr/afs/bin/ptserver \
+    /usr/afs/bin/runntp \
+    /usr/afs/bin/vlserver \
+    /usr/afs/bin/volserver \
+    /usr/excalib/efsd \
+    /usr/sbin/inetd.afs \
+    /usr/vice/etc/afsd\
+  ; do
+    integer n=$(ps -ef | grep "$daemon" | grep -v "grep $daemon" | wc -l)
+
+    if [ $n -gt 0 ]; then
+      if [ -n "$daemons" ]; then
+        daemons="$daemons, $daemon"
+      else
+	daemons="$daemon"
+      fi
+    fi
+  done
+  display "\t$daemons"
+
+  debug "EXIT: $0"
+} # display_daemon_inventory
+
+# Get parms
+hardware=true
+softare=true
+daemon=true
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+      ;;
+    
+    -v|-verbose)
+      verbose=yes
+    ;;    
+
+    -d|-debug)
+      debug=yes
+    ;;    
+
+    -h|-hardware)
+      hardware=true
+      ;;
+    
+    -s|-software)
+      software=true
+      ;;
+    
+    -da|-daemon)
+      daemon=true
+      ;;
+    
+    *)
+      error "Unknown parameter encounter: \"$1\""
+      usage
+      ;;
+  esac
+  shift
+done
+
+# Find sysinfo
+
+# First check to see if we can access our own sysinfo
+sysinfo=/usr/contrib/bin/sysinfo
+
+if [ ! -x $sysinfo ]; then
+  # Next check to see if we can find sysinfo on PATH
+  sysinfo=$(whence sysinfo)
+  if [ "_$sysinfo" = "_" ]; then
+    error "Unable to find sysinfo!" 1
+  else
+    warning "Using nonstandard sysinfo: $sysinfo. Results may vary"
+  fi
+fi
+verbose "Using sysinfo: $sysinfo"
+
+# Hack alert! During testing I'm letting $tmpfile hang around. Therefore if it
+# exists already we'll simply use it assuming it contains valid output from 
+# a previous run. This speeds up things quite a bit
+if [ ! -f $tmpfile ]; then
+  # Check to see if user is running as root
+  if is_root; then
+    error "You must run this as root" 1
+  else
+    verbose "Gathering information...\c"
+    $sysinfo -a > $tmpfile
+    chown v801310:sfokt $tmpfile
+    chmod 666 $tmpfile
+    verbose " done"
+  fi
+fi
+
+display_inventory

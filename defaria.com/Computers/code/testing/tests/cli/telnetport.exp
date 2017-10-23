@@ -1,0 +1,80 @@
+#!/usr/bin/expect --
+################################################################################
+#
+# File:         telnetport.exp
+# Description:  Tests telnetport command
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Jun  6 15:37:15 PDT 2003
+# Language:     Expect
+# Test Class:	CLI
+#
+# (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+set test_base "/dview/defaria_default/Tools/testing"
+
+source "$test_base/bin/TestPkg.tcl"
+
+catch {namespace import Test::*}
+
+proc Setup {} {
+  Start "telnetport"
+
+  # Go to config prompt
+  send "config board 1\r"
+
+  expect {
+    $Test::success {
+    }
+    default {
+      Warning "Unable to get to board 1's prompt"
+    }
+  }
+}
+
+proc Run {} {
+  set Test::result 1
+
+  send "telnetport\r"
+
+  expect {
+    "succeeded" {
+      set Test::result 0
+    }
+    timeout {
+      set Test::reason "Timed out on telnetport!"
+    }
+    default {
+      set Test::reason "Defaulted on telnetport!"
+    }
+  }
+}
+
+proc CleanUp {} {
+  send "exit\r"
+
+  expect {
+    $Test::success {
+    }
+    default {
+      Warning "Unable to return to config prompt"
+    }
+  }
+
+  send "exit\r"
+
+  expect {
+    $Test::success {
+    }
+    default {
+      Warning "Unable to return to main prompt"
+    }
+  }
+
+  End
+}
+
+# Main
+Setup
+Run
+CleanUp

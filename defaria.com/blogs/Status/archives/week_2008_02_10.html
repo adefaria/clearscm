@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: February 10, 2008 - February 16, 2008 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2008_01_27.html" title="January 27, 2008 - February  2, 2008" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2008_02_17.html" title="February 17, 2008 - February 23, 2008" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2008_01_27.html">&laquo; January 27, 2008 - February  2, 2008</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2008_02_17.html">February 17, 2008 - February 23, 2008 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2008_02_10.html#entry-000696"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/83"
+    dc:title="Rexec"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2008_02_10.html#entry-000696"
+    dc:subject="General Dynamics"
+    dc:description="Rexec Complications Rexec is a Perl module written by me. There are several things that Rexec provides but at it&apos;s core it essentially provides an object oriented interface to a remote command line. Rexec attempts to provide functionality by handling..."
+    dc:creator=""
+    dc:date="2008-02-12T14:24:24-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">February 12, 2008</h2>
+                     <a id="a000696"></a>
+                     <div class="entry" id="entry-696">
+                        <h3 class="entry-header">Rexec</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <h2>Rexec Complications</h2>
+
+<p>Rexec is a Perl module written by me. There are several things that Rexec provides but at it's core it essentially provides an object oriented interface to a remote command line. Rexec attempts to provide functionality by handling the details in nominal cases however it's basic paradigm is that it expects to be able to execute a command on the remote system, for that command to block and for the command to finish and to properly set the exit status. Rexec accomplishes this by using Expect. When instantiated, Rexec attempts to log into the remote machine using a cascading fallback of ssh, rsh and telnet (unless the caller has explicitly requested a particular protocol). User name and password can be supplied or passwordless login must be configured for Rexec to succeed to connect to the remote system.</p>
+
+<p>Thereafter the caller calls the exec method to execute the remote command. Rexec wraps that command with two echo statements that mark the beginning and ending of the command's output as well as the status of the command. Rexec then gathers up the output lines and status, storing them in the object, and returning the output lines as an array (and the status obtainable using the status method). The caller can then proceed accordingly.</p>
+
+<p>But the above does assume that commands are of the nature that they block while operating and that they set the exit code properly. No effort is made to do any output redirection, nor are any assumptions made about the command being executed.</p>
+
+<p>The first problem arises when the caller has a need to "background" a task. Normally in Unix this means adding a "&" to the end of the line to indicate to put the command in the background. In such a case we run into two problems that the normal shell also has to deal with, that being how to handle asynchronous I/O and how to handle the exit status, which can come at any time. So far no functionality has been added to handle any asynchronous I/O - the answer here is <b>don't do that!!!</b>, at least, for now.</p>
+
+<p>Exit status is also not gracefully handled in that it is not attempted to be captured at all.</p>
+
+<p>What Rexec does normally is to add an <tt>echo &lt;<i>unique start string</i>&gt;</tt> to the front of the command and an <tt>echo &lt;<i>unique end string with status</i>&gt;</tt>. Then Rexec scans the output for the start and ending strings and knows that the strings inbetween must have resulted from the output from the command. Rexec also gathers the exit status from the later echo statement. Of course, this assume the command blocks and properly sets the exit status.</p>
+
+<p>Now, if Rexec finds a "&" at the end of the command it will treat it as nonblocking. It does not add the start nor the ending echoes and makes no attempt at gathering neither output nor exit status from this command. Another potential problem are commands which do not indicate their desire to be backgrounded (by specifying the trailing "&" character) but background themselves nonetheless.</p>
+
+<p>Another, odd problem was also discovered when the remote command ended up doing yet another ssh to another system. Such a command also does not return, or at least not right away. Worse yet, there is a good possibility that that 2nd remote ssh will result in a prompt that will be mistaken for the 1st session's prompt by Rexec! No easy way around this either!</p>
+
+<p>Finally, other commands will likewise have a problem when executed remotely. For example: "vi /tmp/foo". But then again, even Expect has problems with this. So we can't be all things to all people but that doesn't mean we cannot be helpful nonetheless.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:24 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000696.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000696.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

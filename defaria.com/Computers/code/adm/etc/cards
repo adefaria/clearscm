@@ -1,0 +1,24 @@
+#!/bin/bash
+################################################################################
+#
+# File:         cards
+# Description:  Simply defines the cards to build
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Aug  7 12:32:42 PDT 2003
+# Language:     bash
+#
+# (c) Copyright 2001-2003, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# Cards to build. Note that not all cards will always be present so check first
+cards="\
+  olc\
+  onu\
+  onu2310\
+  onu2330\
+  onu2360\
+  ptc\
+  scc\
+  stc\
+  tlc\
+"

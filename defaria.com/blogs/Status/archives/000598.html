@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: More GPDB fixes</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000594.html" title="More tables, fields and bug fixes" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000599.html" title="Perl Style" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000594.html">&laquo; More tables, fields and bug fixes</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000599.html">Perl Style &raquo;</a>
+                     </p>
+
+                     <a id="a000598"></a>
+                     <div class="entry" id="entry-598">
+                        <h3 class="entry-header">More GPDB fixes</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added CSS class for input fields</li>
+
+  <li>Changed Project names to be drill down links</li>
+
+  <li>Fixed some bugs in add project. Now checking that project name and owning group are not blank</li>
+
+  <li>Added Port Ranges to Sites. As implemented it's just a text field with no real enforcement. I think the plan is to eventually augment the DesignSync creation script to check the port ranges from the GPDB Site table</li>
+
+  <li>Augmented Create Site to accommodate newly added fields. Still need to implement the handling of multiple domains per site. Should a check be implemented to insure that a domain name is not duplicated at any other site?</li>
+
+  <li>Implemented checking of IP Ranges to insure they are valid IP addresses and that the lower range is lower than the upper range. Still need to check that these ranges do not overlap any other IP ranges.</li>
+
+  <li>Changed several drop downs to properly sort the items. For example, user names are not sorted by at least first name, sites are sorted by site name, etc.</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on November 28, 2006  8:44 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000598.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

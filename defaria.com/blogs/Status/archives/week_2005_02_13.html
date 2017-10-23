@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: February 13, 2005 - February 19, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_02_06.html" title="February  6, 2005 - February 12, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_02_20.html" title="February 20, 2005 - February 26, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_02_06.html">&laquo; February  6, 2005 - February 12, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_02_20.html">February 20, 2005 - February 26, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">February 17, 2005</h2>
+                     <a id="a000299"></a>
+                     <div class="entry" id="entry-299">
+                        <h3 class="entry-header">ECRC Improvement/Fix of cvs_report.pl bug and Toolchain builds!</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Implemented a few more improvements to ecrd</li>
+ 
+  <li>Implemented the translations of enums from Quintus for fields like defstatus, severity, priority and state to strings</li>
+
+  <li>Improved CVS report web pages to include descriptions of the above enums</li>
+
+  <li>Fixed cvs_reports.pl. Had a bug where more than a single blank appeared between "ECR Number:" and the ECR number itself. Changed regexs to handle this situation</li>
+
+  <li>Managed to build toolchain for x86! Proceeding to native toolchain build</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:10 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000299.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February 16, 2005</h2>
+                     <a id="a000300"></a>
+                     <div class="entry" id="entry-300">
+                        <h3 class="entry-header">ECRC.php</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Implemented ECRC.php which is the client library for ECRD written in PHP. PHP enables us to use this information easily in a web page.</li>
+
+  <li>Implemented <a href="http://saturn.lynx.com/ecr">ECR Info</a> as a way to get information about an ECR in the form of a web page. Adam really likes it!</li>
+
+  <li>Changed <a href="http://saturn.lynx.com/cvsr/">CVS Reports</a> web pages to obtain ECR summary description and make ECR numbers a link to ECR Info</li>
+
+  <li>Finished up ecrd, the deamon. Multithreading still has problems but I can address that later.</li>
+
+  <li>Worked on ecrc, the client command line tool that talks to ecrd.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:14 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000300.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February 15, 2005</h2>
+                     <a id="a000301"></a>
+                     <div class="entry" id="entry-301">
+                        <h3 class="entry-header">ECRC and ECRD</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Initial implementation of ecrc/ecrd, a client/server application to return information about ECRS</li>
+
+  <li>Started initial implmenetation of ecrc.php</li>
+
+  <li>Reported another problem with toolchain build</li>
+</ul>
+                              
+                              <h3>ECRC and ECRD</h3>
+
+<p>Taking code from cqd/cqc that I implemented over at Salira, I decided to adapt these to ECRs. The concept is essentially the same - you have data on a server in a database and wish to get to it either through a command line or a web page. At Salira I had Clearquest and it's backend database of SQL Anywhere. I was also limited to using cqperl which was based off of ActiveState Perl which has problems going into daemon mode and handling signals. Here I have an Informix SQL database and do not face the same limitation of ActiveState. Perl's DBI interface makes handling this database pretty easy. Of course the data fields are different and I took advantage of <i>real</i> Linux so as to make the daemon mode actually work well now. Multithreading remains a problem in that the child process hangs on the SQL prepare statement and if I try to reopen the database (not efficient) I get an error. Eventually I can work out these problems...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000301.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

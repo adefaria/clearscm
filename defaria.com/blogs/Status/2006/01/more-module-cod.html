@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en-us" itemscope itemtype="http://schema.org/Article">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content=" Standardized some modules a little bit Added much more functionality to Clearcase modules and tied that into stats and log_activity Changed the startup of many scripts to be more standard Implemented much more functionality in stats...">
+    <meta name="generator" content="Movable Type 5.2.3">
+    <title>More module coding - Status</title>
+    <link rel="alternate" type="application/atom+xml" title="Recent Entries" href="http://defaria.com/blogs/Status/atom.xml">
+    <link rel="canonical" href="http://defaria.com/blogs/Status/2006/01/more-module-cod.html">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles.css">
+    <!--[if lt IE 9]>
+    <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles_ie.css">
+    <script src="/mt/mt-static/support/theme_static/rainier/js/html5shiv.js"></script>
+    <![endif]-->
+    
+    <link rel="start" href="http://defaria.com/blogs/Status/">
+
+    <link rel="prev" href="http://defaria.com/blogs/Status/2006/01/more-clearcase.html" title="More Clearcase modules">
+    <link rel="next" href="http://defaria.com/blogs/Status/2006/01/mailpmcq-web.html" title="Mail.pm/CQ Web">
+    <!-- Open Graph Protocol -->
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en-us">
+    <meta property="og:title" content="More module coding">
+    <meta property="og:url" content="http://defaria.com/blogs/Status/2006/01/more-module-cod.html">
+    <meta property="og:description" content=" Standardized some modules a little bit Added much more functionality to Clearcase modules and tied that into stats and log_activity Changed the startup of many scripts to be more standard Implemented much more functionality in stats...">
+    <meta property="og:site_name" content="Status">
+    <meta property="og:image" content="/mt/mt-static/support/theme_static/rainier/img/siteicon-sample.png">
+    <!-- Metadata -->
+    <meta itemprop="description" content=" Standardized some modules a little bit Added much more functionality to Clearcase modules and tied that into stats and log_activity Changed the startup of many scripts to be more standard Implemented much more functionality in stats...">
+    <link itemprop="url" href="http://defaria.com/blogs/Status/2006/01/more-module-cod.html">
+    <link itemprop="image" href="/mt/mt-static/support/theme_static/rainier/img/siteicon-sample.png">
+    
+  </head>
+  <body>
+    <div id="container">
+      <div id="container-inner">
+        <header id="header" role="banner">
+          <div id="header-inner">
+            <div id="header-content">
+              <h1>
+                <a href="http://defaria.com/blogs/Status/">
+
+                  Status
+
+                </a>
+              </h1>
+              
+            </div>
+
+            <nav role="navigation">
+          <ul>
+            <li><a href="http://defaria.com/blogs/Status/">Home</a></li>
+
+
+          </ul>
+        </nav>
+
+          </div>
+        </header>
+        <div id="content">
+          <div id="content-inner">
+            <ul class="breadcrumb breadcrumb-list">
+              <li class="breadcrumb-list-item"><a href="http://defaria.com/blogs/Status/">Home</a></li>
+              <li class="breadcrumb-list-item">More module coding</li>
+            </ul>
+            <div id="individual-main" class="main" role="main">
+              <article id="entry-1773" class="entry entry-asset asset hentry">
+                <div class="asset-header">
+                  <h2 itemprop="name" class="asset-name entry-title">More module coding</h2>
+                  <footer class="asset-meta">
+                    <ul class="asset-meta-list">
+                      <li class="asset-meta-list-item">Posted on <time datetime="2006-01-04T18:19:15-08:00" itemprop="datePublished">January  4, 2006</time></li>
+                      <li class="asset-meta-list-item">by <span class="author entry-author vcard"></span></li>
+
+  
+                      <li class="asset-meta-list-item">in <a itemprop="articleSection" rel="tag" href="http://defaria.com/blogs/Status/broadcom/">Broadcom</a></li>
+  
+
+                   </ul>
+                </footer>
+                </div>
+                <div class="entry-content asset-content" itemprop="articleBody">
+                  <ul>
+  <li>Standardized some modules a little bit</li>
+
+  <li>Added much more functionality to Clearcase modules and tied that into stats and log_activity</li>
+
+  <li>Changed the startup of many scripts to be more standard</li>
+
+  <li>Implemented much more functionality in stats</li>
+</ul>
+                  <h2>Odd characters in view tags</h2>
+
+<p>I found this odd view tag in the <span>SanJoseNT</span> region: 
+
+<div class="code"><pre>
+ccase-sj1-1:ct lsview -long -region SanJoseNT helenay_PIRelease_12022002_7031RC\)
+Tag: helenay_PIRelease_12022002_7031RC)
+  Global path: \\Pc-1ubrv\Myview\helenay.v.vws
+  Server host: Pc-1ubrv
+  Region: SanJoseNT
+  Active: NO
+  View tag uuid:132d6e50.0eee11d7.a7a4.00:b0:d0:20:ba:8a
+View on host: Pc-1ubrv
+View server access path: F:\Myview\helenay.v.vws
+View uuid: 132d6e50.0eee11d7.a7a4.00:b0:d0:20:ba:8a
+View attributes: snapshot
+View owner: BROADCOM\helenay
+</pre></div>
+
+<p>Note the trailing ")" in the view tag. Alas this screws up Perl scripts when one may take a view tag and include it in a cleartool cmd:</p>
+
+<div class="code"><pre>
+`cleartool lsview -long -region SanJoseNT $view_tag 2&gt; /dev/null`
+</pre></div>
+
+<p>when $view_tag is the above results in:</p>
+
+<div class="code"><pre>
+sh: -c: line 1: syntax error near unexpected token `)'
+sh: -c: line 1: `cleartool lsview -long -region SanJoseNT helenay_PIRelease_12022002_7031RC) 2&gt; /dev/null'
+</pre></div>
+
+<p>I don't think I should write code to escape such characters but what else can I do? We could ask this user to rename their view but apparently  Clearcase does not disallow such strange characters in view tag names (and perhaps other objects...).</p>
+
+<h2>DNS Issues</h2>
+
+<p>Kerrynn De Roche wrote:</p>
+
+<blockquote type="cite">
+  <p>I just checked the etc/hosts and it seems we had last set the entries to 128.34 instead of 128.37. I changed them to 128.37 and it seems to be working now...</p>
+</blockquote>
+
+<p>10.136.128.37 has always been the IP address of ccase-rmna-4. If you
+had previously had 10.138.128.34 then that was what was wrong (with
+that workaround).</p>
+
+<blockquote type="cite">
+  <p>I would rather not have to worry about having to check the hosts file  whenever the IP address changes though.</p>
+</blockquote>
+
+<p>You see that's the difference between desktops and servers - server IP
+addresses never (or at least rarely) change. In fact in the administration business, keeping the servers IP address static is always a consideration - even if the machine is being swapped. We'll swap the IP addresses in DNS to the new machine to keep them the same precisely because of these issues. ccase-rmna-4's IP address will not change!</p>
+
+<blockquote type="cite">
+  <p>What is the method you use to not have to worry about hosts file?</p>
+</blockquote>
+
+<p>As I said, in my environment it works without /etc/hosts:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>cat /etc/hosts</u>
+# Copyright (c) 1993-1999 Microsoft Corp.
+#
+# This is a sample HOSTS file used by Microsoft TCP/IP for Windows.
+#
+# This file contains the mappings of IP addresses to host names. Each
+# entry should be kept on an individual line. The IP address should
+# be placed in the first column followed by the corresponding host name.
+# The IP address and the host name should be separated by at least one
+# space.
+#
+# Additionally, comments (such as these) may be inserted on individual
+# lines or following the machine name denoted by a '#' symbol.
+#
+# For example:
+#
+#      102.54.94.97     rhino.acme.com          # source server
+#       38.25.63.10     x.acme.com              # x client host
+127.0.0.1       localhost laptop
+#10.136.128.37  ccase-rmna-4
+</pre></div>
+
+<p>Note ccase-rmna-4's entry is commented out. Additionally I do not have
+ca.broadcom.com on the DNS Suffix Search List:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>ipconfig /all</u>
+
+Windows IP Configuration
+
+        Host Name . . . . . . . . . . . . : LTSJCA-ADEFARIA
+        Primary Dns Suffix  . . . . . . . : corp.ad.broadcom.com
+        Node Type . . . . . . . . . . . . : Hybrid
+        IP Routing Enabled. . . . . . . . : No
+        WINS Proxy Enabled. . . . . . . . : No
+        <font color="#ff0000"><b>DNS Suffix Search List. . . . . . : corp.ad.broadcom.com
+                                            broadcom.com</b></font>
+
+Ethernet adapter Wireless:
+
+        Media State . . . . . . . . . . . : Media disconnected
+        Description . . . . . . . . . . . : Broadcom 802.11g Network
+Adapter
+        Physical Address. . . . . . . . . : 00-10-18-90-1D-11
+
+Ethernet adapter Secondary:
+
+        Media State . . . . . . . . . . . : Media disconnected
+        Description . . . . . . . . . . . : 3Com 3C920 Integrated Fast Ethernet        Controller (3C905C-TX Compatible) #2
+        Physical Address. . . . . . . . . : 00-08-74-95-4A-24
+
+Ethernet adapter Primary:
+
+        Connection-specific DNS Suffix  . : broadcom.com
+        Description . . . . . . . . . . . : 3Com 3C920 Integrated Fast Ethernet        Controller (3C905C-TX Compatible)
+        Physical Address. . . . . . . . . : 00-B0-D0-0E-A2-71
+        Dhcp Enabled. . . . . . . . . . . : Yes
+        Autoconfiguration Enabled . . . . : Yes
+        IP Address. . . . . . . . . . . . : 10.16.65.219
+        Subnet Mask . . . . . . . . . . . : 255.255.240.0
+        Default Gateway . . . . . . . . . : 10.16.64.1
+        DHCP Server . . . . . . . . . . . : 10.16.192.15
+        DNS Servers . . . . . . . . . . . : 10.16.64.11
+                                            10.16.64.12
+                                            10.16.64.13
+        Primary WINS Server . . . . . . . : 10.16.192.15
+        Secondary WINS Server . . . . . . : 10.16.192.16
+        Lease Obtained. . . . . . . . . . : Tuesday, January 03, 2006 8:29:46 PM
+        Lease Expires . . . . . . . . . . : Friday, January 06, 2006 8:29:46 PM
+</pre></div>
+
+<p>So I don't have any kind of workaround any more. It just works. By that
+I mean the following command used to fail stating a  WINSOCK error trying to contact ccase-rman-4:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>ct lsstream -invob \\rmna_projects</u>
+</pre></div>
+
+<p>(Note ct is aliased to cleartool and since I'm using Cygwin "\\" collapses to a single "\"). Now this command works for me. Note that nslookup of a bare ccase-rmna-4 still fails for me:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>nslookup ccase-rmna-4</u>
+*** dns-sj1-1b.sj.broadcom.com can't find ccase-rmna-4: Non-existent domain
+Server:  dns-sj1-1b.sj.broadcom.com
+Address:  10.16.64.11
+</pre></div>
+
+<p>This is because ccase-rmna-4 (and  case-rmna-4.corp.ad.broadcom.com and ccase-rmna-4.broadcom.com from the DNS Suffix Search List) don't exist - it should be  case-rmna-4.ca.broadcom.com. But a FQDN works:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>nslookup ccase-rmna-4.ca.broadcom.com</u>
+Non-authoritative answer:
+Server:  dns-sj1-1b.sj.broadcom.com
+Address:  10.16.64.11
+
+Name:    ccase-rmna-4.ca.broadcom.com
+Address:  10.136.128.37
+</pre></div>
+
+<p>The way resolver(3) (DNS's name resolution) works is to look at files like /etc/hosts and/or apply DNS Suffix Search Lists. So if DNS found ccase-rmna-4 in /etc/hosts it would have it's IP address. Otherwise it'll take a bare hostname of ccase-rmna-4 and append the suffixes. So if you added ca.broadcom.com to the list that also should work.</p>
+
+<p>However the whole reason that Clearcase is using ccase-rmna-4 is
+because that's what <b>was</b> listed in the vob tag:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>llvob \\rmna_projects</u>
+Tag: \rmna_projects
+  Global path: \\cc-rmna-storage\ccstgloc-cabu\vobstore\rmna_projects.vbs
+  Server host: ccase-rmna-4.ca.broadcom.com
+  Access: public
+  Mount options: 
+  Region: rmnaNT
+  Active: NO
+  Vob tag replica uuid: 088b79e0.0b0c11d9.9204.00:01:80:c8:b5:2d
+  <font color="#ff0000"><b>Vob on host: ccase-rmna-4.ca.broadcom.com</b></font>
+Vob server access path: /projects/ccstgloc-<span>cabu</span>/vobstore/rmna_projects.vbs
+Vob family uuid:  09d0e19e.8b6611d5.b03b.00:01:80:c8:b5:2d
+Vob replica uuid: 088b79e0.0b0c11d9.9204.00:01:80:c8:b5:2d
+Vob registry attributes: ucmvob,replicated
+</pre></div>
+
+<p>but as you can see we fully qualified ccase-rmna-4 to ccase-rmna-4.ca.broadcom.com. This means that this <b>should</b> work
+without an /etc/host workaround or an "add to DNS Suffix Search List"
+workaround. Why that's not working remains a mystery.
+                </div>
+                <nav class="page-navigation entry-navigation pagination content-nav">
+                  <ul class="page-navigation-list">
+
+                    <li class="page-navigation-list-item page-navigation-prev"><a rel="prev" href="http://defaria.com/blogs/Status/2006/01/more-clearcase.html" title="More Clearcase modules">Previous entry</a></li>
+
+
+                    <li class="page-navigation-list-item page-navigation-next"><a rel="next" href="http://defaria.com/blogs/Status/2006/01/mailpmcq-web.html" title="Mail.pm/CQ Web">Next entry</a></li>
+
+                  </ul>
+                </nav>
+                <!--
+<aside id="zenback" class="zenback feedback">
+  Please paste Zenback script code here.
+</aside>
+-->
+                
+                
+              </article>
+            </div>
+            <aside class="widgets related" role="complementary">
+              <nav class="widget-search widget">
+  <div class="widget-content">
+    <form method="get" id="search" action="http://defaria.com/mt/mt-search.cgi">
+      <div>
+        <input type="text" name="search" value="" placeholder="Search...">
+
+        <input type="hidden" name="IncludeBlogs" value="8">
+
+        <input type="hidden" name="limit" value="20">
+        <button type="submit" name="button">
+          <img alt="Search" src="/mt/mt-static/support/theme_static/rainier/img/search-icon.png">
+        </button>
+      </div>
+    </form>
+  </div>
+</nav>
+<nav class="widget-archive-category widget">
+  <h3 class="widget-header">Categories</h3>
+  <div class="widget-content">
+    
+      
+    <ul class="widget-list">
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/ameriquest/">Ameriquest (99)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/audience/">Audience (3)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/broadcom/">Broadcom (76)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/gpdb/">GPDB (35)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/general-dynamics/">General Dynamics (61)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/general-electric/">General Electric (13)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/hewlett-packard/">Hewlett Packard (13)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/lynuxworks/">LynuxWorks (162)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/pqa/">PQA (35)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/salira/">Salira (79)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/tellabs/">Tellabs (2)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/texas-instruments/">Texas Instruments (31)</a>
+      
+      
+      </li>
+      
+    </ul>
+      
+    
+  </div>
+</nav>
+  
+
+<nav class="widget-archive-dropdown widget">
+  <h3 class="widget-header">Archives</h3>
+  <div class="widget-content">
+    <select>
+      <option>Select a Month...</option>
+    
+      <option value="http://defaria.com/blogs/Status/2016/02/">February 2016</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/09/">September 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/04/">April 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/03/">March 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2013/02/">February 2013</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/09/">September 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/08/">August 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/05/">May 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/04/">April 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/02/">February 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/01/">January 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2011/10/">October 2011</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2011/07/">July 2011</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/09/">September 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/08/">August 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/04/">April 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/03/">March 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/02/">February 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2009/05/">May 2009</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2009/04/">April 2009</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/07/">July 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/05/">May 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/04/">April 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/03/">March 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/02/">February 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/01/">January 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/12/">December 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/11/">November 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/10/">October 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/09/">September 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/08/">August 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/07/">July 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/06/">June 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/05/">May 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/04/">April 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/03/">March 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/01/">January 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/12/">December 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/11/">November 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/10/">October 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/09/">September 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/07/">July 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/06/">June 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/05/">May 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/04/">April 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/03/">March 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/02/">February 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/01/">January 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/12/">December 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/11/">November 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/10/">October 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/09/">September 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/08/">August 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/07/">July 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/06/">June 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/05/">May 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/04/">April 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/03/">March 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/02/">February 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/01/">January 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/12/">December 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/09/">September 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/08/">August 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/07/">July 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/06/">June 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/05/">May 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/04/">April 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/03/">March 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/02/">February 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/01/">January 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2003/12/">December 2003</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2003/11/">November 2003</option>
+    
+    </select>
+  </div>
+</nav>
+    
+  
+
+<div class="widget-syndication widget section">
+  <div class="widget-content">
+    <p><img src="http://defaria.com/mt/mt-static/images/status_icons/feed.gif" alt="Subscribe to feed" width="9" height="9" /> <a href="http://defaria.com/blogs/Status/atom.xml">Subscribe to this blog's feed</a></p>
+
+  </div>
+</div>
+
+            </aside>
+          </div>
+        </div>
+        <footer id="footer" role="contentinfo">
+          <div id="footer-inner">
+            <div id="footer-content">
+  <nav role="navigation">
+          <ul>
+            <li><a href="http://defaria.com/blogs/Status/">Home</a></li>
+
+
+          </ul>
+        </nav>
+
+  <p class="license">&copy; Copyright 2016.</p>
+  <p class="poweredby">Powered by <a href="http://www.movabletype.org/">Movable Type</a></p>
+</div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <script src="http://defaria.com/mt/mt-static/jquery/jquery.min.js"></script>
+    <script src="http://defaria.com/blogs/Status/mt-theme-scale2.js"></script>
+  </body>
+</html>

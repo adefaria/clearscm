@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+<title>Status for Andrew DeFaria: Merging 2.3 -> FX</title>
+
+<link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+<link rel="alternate" type="application/rss+xml" title="RSS" href="http://defaria.com/blogs/Status/index.rdf" />
+
+<link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+<link rel="prev" href="http://defaria.com/blogs/Status/archives/000106.html" title="Merging 2.3 -&gt; FX" />
+
+
+
+<script type="text/javascript" language="javascript">
+<!--
+
+function OpenTrackback (c) {
+    window.open(c,
+                    'trackback',
+                    'width=480,height=480,scrollbars=yes,status=yes');
+}
+
+var HOST = 'defaria.com';
+
+// Copyright (c) 1996-1997 Athenia Associates.
+// http://www.webreference.com/js/
+// License is granted if and only if this entire
+// copyright notice is included. By Tomer Shiran.
+
+function setCookie (name, value, expires, path, domain, secure) {
+    var curCookie = name + "=" + escape(value) + ((expires) ? "; expires=" + expires.toGMTString() : "") + ((path) ? "; path=" + path : "") + ((domain) ? "; domain=" + domain : "") + ((secure) ? "; secure" : "");
+    document.cookie = curCookie;
+}
+
+function getCookie (name) {
+    var prefix = name + '=';
+    var c = document.cookie;
+    var nullstring = '';
+    var cookieStartIndex = c.indexOf(prefix);
+    if (cookieStartIndex == -1)
+        return nullstring;
+    var cookieEndIndex = c.indexOf(";", cookieStartIndex + prefix.length);
+    if (cookieEndIndex == -1)
+        cookieEndIndex = c.length;
+    return unescape(c.substring(cookieStartIndex + prefix.length, cookieEndIndex));
+}
+
+function deleteCookie (name, path, domain) {
+    if (getCookie(name))
+        document.cookie = name + "=" + ((path) ? "; path=" + path : "") + ((domain) ? "; domain=" + domain : "") + "; expires=Thu, 01-Jan-70 00:00:01 GMT";
+}
+
+function fixDate (date) {
+    var base = new Date(0);
+    var skew = base.getTime();
+    if (skew > 0)
+        date.setTime(date.getTime() - skew);
+}
+
+function rememberMe (f) {
+    var now = new Date();
+    fixDate(now);
+    now.setTime(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+    setCookie('mtcmtauth', f.author.value, now, '', HOST, '');
+    setCookie('mtcmtmail', f.email.value, now, '', HOST, '');
+    setCookie('mtcmthome', f.url.value, now, '', HOST, '');
+}
+
+function forgetMe (f) {
+    deleteCookie('mtcmtmail', '', HOST);
+    deleteCookie('mtcmthome', '', HOST);
+    deleteCookie('mtcmtauth', '', HOST);
+    f.email.value = '';
+    f.author.value = '';
+    f.url.value = '';
+}
+
+//-->
+</script>
+
+
+
+
+
+</head>
+
+<body>
+
+<div id="banner">
+<h1><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+<span class="description"></span>
+</div>
+
+<div id="container">
+
+<div class="blog">
+
+<div id="menu">
+<a href="http://defaria.com/blogs/Status/archives/000106.html">&laquo; Merging 2.3 -> FX</a> |
+
+<a href="http://defaria.com/blogs/Status/">Main</a>
+
+</div>
+
+</div>
+
+
+<div class="blog">
+
+<h2 class="date">January 22, 2004</h2>
+
+<div class="blogbody">
+
+<h3 class="title">Merging 2.3 -> FX</h3>
+
+<p>Shirley/Ying approached me today asking to merge the us_fx branch into the rel_2.3 branch. As rel_2.3 has not be stablized yet (2.3.0.1 has not be officially built) I was hesitant and suggested instead ot merge the reL_2.3 branch into the us_fx. This caused a massive amount of merging (561 elements) probably due to the fact that lots of stuff changed in reL_2.3 that the FX engineers did not care about (other areas of the platform code as well as the web pages, SAM, etc). There were a few elements that require manual merging. Shirley is aware of these.</p>
+
+<a name="more"></a>
+
+
+<span class="posted">Posted by Andrew DeFaria at January 22, 2004 10:33 AM
+
+<br /></span>
+
+</div>
+
+
+</div>
+</div>
+</body>
+</html>

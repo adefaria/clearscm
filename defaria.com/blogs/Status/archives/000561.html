@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Clearcase Migration</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000560.html" title="Microsoft Software" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000562.html" title="Lost Packet" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000560.html">&laquo; Microsoft Software</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000562.html">Lost Packet &raquo;</a>
+                     </p>
+
+                     <a id="a000561"></a>
+                     <div class="entry" id="entry-561">
+                        <h3 class="entry-header">Clearcase Migration</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Installed and tested licenses from new server</li>
+
+  <li>Examined and transfered crontab entries from sons-clearcase -> sons-sc-cc</li>
+
+  <li>Performed chmaster from sons-clearcase -> sons-sc-cc</li>
+
+  <li>Reinstalled Cygwin and got rsh and smake working again</li>
+</ul>
+
+<p><b>Time spent:</b> 3 hours</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Licensing</h2>
+
+<p>I've installed the license strings into sons-sc-cc. They seem to work with no problem. Note that people will need to adjust their license server setting as follows:</p>
+
+<ol>
+  <li>Go to Control Panel: Clearcase</li>
+
+  <li>Click on Licensing tab</li>
+
+  <li>Change sons-clearcase -&gt; sons-sc-cc</li>
+</ol>
+
+<p><b>Note:</b> Shanghai users will also need to do this!</p>
+
+<h2>Crontab (ctmerge)</h2>
+
+<p>I've copied the ctmerge cronjobs from sons-clearcase -&gt; sons-sc-cc. Somebody will need to create the corresponding views on sons-sc-cc and uncomment out the ctmerge commands in crontab. The problem is that ctmerge requires a view to merge too and nobody created these views on the new machine. The entries look like:</p>
+
+<div class=code><pre>
+#00 07 * * * //sons-sc-cc/Views/official/Tools/bin/ctmerge -view /dview/3.2.ccadmin
+-branch china_3.2
+</pre></div>
+
+<p>As you can see it's commented out. As I said ctmerge requires a view to merge to. So somebody needs to create a 3.2.ccadmin view then do a ct startview to insure it's started, then crontab -e and uncomment the line. Repeat for other ctmerges you need to have running.</p>
+
+<h2>Chmaster</h2>
+
+<p>I performed the chmaster -all to change mastership of all objects over to sons-sc-cc. There were some errors due to the fact that some of the objects were locked. I'm cleaning that up... OK all mastership is now at sons-sc-cc so you should be able to use sons-sc-cc as if it was sons-clearcase. This means that the old config specs should work (i.e. things using branches like rel_3.2 should now work on sons-sc-cc).</p>
+
+<h2>Smake now working again!</h2>
+
+<p>I reinstalled Cygwin and got rsh sons-sc-cc &lt;cmd&gt; working. This means that smake should now work like it used to. I also changed site_parms.US to specify sons-sc-cc as the build server. This means that people using smake should see their builds happening on sons-sc-cc instead of sons-clearcase.</p>
+
+<h2>Last bits of wrap up</h2>
+
+<p>For now I've left sons-clearcase running. This will allow you to continue running as people switch their license serving over to sons-sc-cc. After you believe everybody's successfully using sons-sc-cc and no longer using sons-clearcase I suggest you RDP to sons-clearcase and simply stop Clearcase in the Clearcase control panel. Let that settle for about a week. Anybody who didn't migrate to sons-sc-cc will surely report the problem.</p>
+
+<p>After this period I suggest I get back in there and perform a few rmreplica commands to tell Multisite that the replicated vobs on sons-clearcase no longer exist. This will signal sons-sc-cc and sons-cc to no longer send packets to sons-clearcase to update it's replicas of the vobs.</p>
+
+<p>At that point sons-clearcase is essentially out of the loop and can be decommissioned.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on July 15, 2006  5:31 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000561.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

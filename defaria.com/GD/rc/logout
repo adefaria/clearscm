@@ -1,0 +1,17 @@
+#/usr/bin/env bash
+################################################################################
+#
+# File:         $RCSfile: logout,v $
+# Revision:	$Revision: 1.4 $
+# Description:  Script to run at logout
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Jun  6 08:31:57 PDT 1996
+# Modified:     $Date: 2006/07/24 05:37:40 $
+# Language:     bash
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+if [ -x "$(type -p fortune)" ]; then
+  fortune -sw
+fi

@@ -1,0 +1,72 @@
+#!/bin/bash
+################################################################################
+#
+# File:         whoison
+# RCS:          $Header: whoison,v 1.1 97/05/20 19:56:29 defaria Exp $
+# Description:  A script to show you who is on the system
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Wed May 14 00:40:02 PDT 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+tmpprefix=/tmp/whoison
+command="who | cut -f1 -d' ' | sort -u"
+
+function cleanup {
+  if [ ! -z $"tmpprefix" ]; then
+    rm -f ${tmpprefix}*
+  fi
+
+  exit
+} # cleanup
+
+trap cleanup INT EXIT
+
+if [ -z "$PAGER" ]; then
+  pager=more
+else
+  pager="$PAGER"
+fi
+
+function report_whoison {
+  machine="$1"
+
+  if [ "$machine" = "$(uname -n)" ]; then
+    eval $command > $tmpprefix.$$
+  else
+    remsh $machine -n "$command" > $tmpprefix.$$
+  fi
+
+  declare -i nbr_of_users=$(wc -l $tmpprefix.$$ | tr -s " " | cut -f1 -d' ')
+
+  if [ $nbr_of_users -eq 1 ]; then
+    print "$nbr_of_users user on $machine:\n"
+  else
+    print "$nbr_of_users users on $machine:\n"
+  fi
+
+  declare -i i=1
+
+  cat $tmpprefix.$$ | while read user; do
+    print "$i: $user"
+    let i=i+1
+  done
+
+  print
+
+  rm -f $tmpprefix.$$
+} # report_whoison
+
+if [ $# -eq 0 ]; then
+  report_whoison "$(uname -n)" | $pager
+else
+  for machine in "$@"; do
+    report_whoison "$machine"
+  done | $pager
+fi
+
+who | cut -f1 -d' ' | sort -u > $tmpprefix.$$
+

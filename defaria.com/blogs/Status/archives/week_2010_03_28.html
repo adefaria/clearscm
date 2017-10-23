@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: March 28, 2010 - April  3, 2010 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2010_03_21.html" title="March 21, 2010 - March 27, 2010" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2010_04_18.html" title="April 18, 2010 - April 24, 2010" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2010_03_21.html">&laquo; March 21, 2010 - March 27, 2010</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2010_04_18.html">April 18, 2010 - April 24, 2010 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2010_03_28.html#entry-000733"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/105"
+    dc:title="Dang Eclipse"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2010_03_28.html#entry-000733"
+    dc:subject="General Electric"
+    dc:description="Dang IDEs! They&apos;re often more trouble than they are worth!! Be wary! I&apos;m in Eclipse and I was trying to clean up my view a little bit. I selected a few view private files I wanted to delete with Control-Click...."
+    dc:creator=""
+    dc:date="2010-03-31T16:28:01-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 31, 2010</h2>
+                     <a id="a000733"></a>
+                     <div class="entry" id="entry-733">
+                        <h3 class="entry-header">Dang Eclipse</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Dang IDEs! They're often more trouble than they are worth!! Be wary!</p>
+
+<p>I'm in Eclipse and I was trying to clean up my view a little bit. I selected a few view private files I wanted to delete with Control-Click. Then I hit the delete key to delete them. Eclipse prompted me "Are you sure you want to delete these files?" and I responded yes. But then I noticed that one of the files that was selected was mktriggers.pl!!! I did not select mktriggers.pl explicitly - it was selected because that was the last file I was editing was mktriggers.pl. And, remember, I only expected this delete to be deleting the view private files I selected, not Clearcase elements. I did not expect any rmnames to be happening.</p>
+
+<p>No worries you say? This is in Clearcase you say? Yes it was. But it was also checked out and with my most recent modifications. "Ah", I hear you saying, "Clearcase shouldn't be doing any explicit destructive activities without asking you first" - well it just did! It rmnamed mktriggers.pl without confirmation. Sure it asked whether or not I wanted to remove files, and I did, the ones I explicitly selected - not the one it had selected simply because I was editing a file. "Well shouldn't there be an option on rmname that you have to specify in order for rmname to proceed?" Yes there is - it's -force and good old Eclipse must have called rmname with -force!</p>
+
+<p>"But surely there's a .keep file around or something that you can recover from". Well ah, no. Not in this case. My work has been lost!</p>
+
+<p>You have been warned!</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:28 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000733.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000733.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

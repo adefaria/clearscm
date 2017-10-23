@@ -1,0 +1,63 @@
+#!/bin/bash
+################################################################################
+#
+# File:         newpasswd
+# Description:  Change the root passwd entry in /etc/passwd
+# Author:       Kevin Lister kel@cup.hp.com
+# Language:     Korn Shell
+#
+# (c) Copyright 1999, Hewlett-Packard Company, all rights reserved.
+#
+################################################################################
+#
+##
+### Variables
+##
+#
+
+ADMIN=pdl-support@cup.hp.com
+PWFILE=/etc/passwd
+PWFILENEW=/etc/passwd-new
+PWFILEOLD=/etc/passwd-old
+SYSNAME=$(uname -n)
+BASE=${0##*/}
+WHOAMI=$(id -u)
+NULL=/dev/null
+
+#
+##
+### Functions
+##
+#
+
+# Functions
+function error {
+  print -u2 "$BASE: Error: $1"
+}
+
+#
+##
+### Main
+##
+#
+
+# Must be root to run this
+if [ $WHOAMI -ne 0 ]; then
+	error "Must be root to execute this command... Exiting."
+	exit 0
+fi
+
+# Create the new passwd file
+/bin/cat >> $PWFILENEW <<:NEWPW
+root:u4/rTgJX35zHg:0:1:Root@$SYSNAME:/:/sbin/sh
+:NEWPW
+/bin/grep -v "^root" $PWFILE >> $PWFILENEW
+
+# Save the old passwd file, install the new one
+/bin/mv $PWFILE $PWFILEOLD
+/bin/mv $PWFILENEW $PWFILE
+/bin/chmod 444 $PWFILE
+/bin/chown root:other $PWFILE
+
+# Email us that a machine was updated
+/usr/bin/mailx -s "$SYSNAME: Root passwd changed!" $ADMIN < $NULL

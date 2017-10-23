@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Server move (cont)</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000222.html" title="TTE/Server move to Cartwright" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000224.html" title="New Trigger" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000222.html">&laquo; TTE/Server move to Cartwright</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000224.html">New Trigger &raquo;</a>
+                     </p>
+
+                     <a id="a000223"></a>
+                     <div class="entry" id="entry-223">
+                        <h3 class="entry-header">Server move (cont)</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>OK, licenses are all OK now. BTW hostid is not a combination of IP address and MAC address - it's simply MAC address of the NIC card. Problem appears to be that during the server move the NIC card changed! I verified this with the Rational rep this morning. The current MAC address of the NIC card as shown by ipconfig /all (it's the Physical Address) is 00-0f-20-6d-09-97. I gave the old license strings to the rep and she determined our old MAC address of the NIC card was 00-0b-cd-9b-f4-27.</p>
+
+<p>Looking at the Device Manager on the servers I notice that we have two Network Adapters listed:</p>
+
+<ol>
+  <li>HP NC7781 Gigabit Server Adapter</li>
+  <li>HP NC7781 Gigabit Server Adapter #2</li>
+</ol>
+
+<p>Why we have 2 NIC cards I don't know (perhaps merely for the ability to be multihomed). Normally I see #1 being disabled and #2 being enabled. Rtnlprod01 is like this. Rtnlprod02 has #1 enabled and #2 disabled. For the vob and view servers this does not matter. Either card will work. For rtnlprod03 however, since licenses are tied to the NIC card's MAC address, switching from #1 -> #2 (or #2 -> #1 as I suspect has happened here) will invalidate all licenses. We need to insure that the network adapter for rtnlprod03 remains nailed at either #1 or #2.</p>
+
+<p>Since it appears that the network adapter has changed and since I have obtained a new set of licenses for this new network adapter and still have the old set, I have installed both sets so that in the event that the network adapter switches again we'll be covered. However, if we order additional licenses for say card #1 and somehow we get switched to card #2, those additional licenses will not be represented, hence the desire to nail the NIC card to either one or the other.</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on August  2, 2004  6:47 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000223.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

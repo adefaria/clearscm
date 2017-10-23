@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Clearquest License Server</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000563.html" title="Clearquest Install" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000565.html" title="enable_ldap" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000563.html">&laquo; Clearquest Install</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000565.html">enable_ldap &raquo;</a>
+                     </p>
+
+                     <a id="a000564"></a>
+                     <div class="entry" id="entry-564">
+                        <h3 class="entry-header">Clearquest License Server</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Investigated Clearquest License server</li>
+</ul>
+
+<p><b>Time Spent:</b> 3 Hours</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Dylan Ko wrote:</p>
+
+<blockquote type="cite">
+  <p>I have already turned on the sons-clearcase. As we are busy integrating on several projects now, we can not afford to have sons-clearcase down and thus cripple the ClearQuest and the sync between SC and SH office.</p>
+
+  <p>We’ll have to find some other appropriate time to turn off sons-clearcase and look into these issues further. Preferably that time that both sites are off – between 3AM to 9AM PST.</p>
+</blockquote>
+
+<p>OK, here's what I found out so far. Using adefaria as a test machine I first checked to see what FlexLM license server was being used on that machine by selecting <b>Start: All Programs: Rational Software: Rational License Key Administrator</b>. It was using just sons-clearcase. Next I attempting to talk to Clearquest by both the Clearquest GUI and cqc.  Then I stopped the FlexLM service on sons-clearcase. I then started the Clearquest GUI and it complained about no license server. Interestingly cqc continued to work. This may be because cqc/cqd opens the Clearquest database in a read only mode.</p>
+
+<p>Next I added sons-sc-cc as a FlexLM License server and retested. Both the Clearcase GUI and cqc were able to obtain a license from sons-sc-cc with no problems. I even shutdown Clearcase on sons-clearcase and I was still able to use Clearcase GUI and cqc from adefaria with no problems.</p>
+
+<p>I then restarted both FlexLM and Clearcase on sons-clearcase.</p>
+
+<p>Dylan, perhaps you want to test this on your workstation. Try adding sons-sc-cc as a FlexLM license server for your desktop. You can toggle off sons-clearcase as a license server and attempt to access Clearquest. You can then stop the FlexLM service on sons-clearcase and test Clearquest access from your machine again. Finally try shutting down Clearcase on sons-clearcase and retest Clearquest access from your machine.</p>
+
+<h3>Adding a FlexLM License Server to your Desktop</h3>
+
+<ul>
+  <li>Select <b>Start: All Programs: Rational Software: Rational
+License Key Administrator</b>:<br>
+    <br>
+    <img src="/blogs/Status/images/RLKA_sons-clearcase.jpg" alt=""></li>
+</ul>
+<ul>
+  <li>Select <b>License Keys: License Key Wizard<br>
+    <br>
+    </b><img src="/blogs/Status/images/LKA_Wizard.jpg" alt=""><br>
+  </li>
+</ul>
+<ul>
+  <li>Select <b>Next<br>
+    </b><br>
+    <img src="/blogs/Status/images/Server_Name_and_Port.jpg" alt=""><br>
+    <br>
+  </li>
+  <li>Select <b>Advanced Server Options:<br>
+    <br>
+    </b><img src="/blogs/Status/images/Client_Server_Configuration.jpg" alt=""><br>
+    <br>
+  </li>
+  <li>Select <b>Add Server:<br>
+    </b><br>
+    <img src="/blogs/Status/images/Client_Server_Configuration2.jpg" alt=""><br>
+    <br>
+  </li>
+  <li>Click on <b>Values</b> under the <b>Settings</b> on the right
+on the <font color="#ff0000">Server Name</font> column type sons-sc-cc
+and <b>Enter</b>. The server name should change from "New Server"
+-&gt; "sons-sc-cc":<br>
+    <br>
+    <img src="/blogs/Status/images/Client_Server_Configuration3.jpg" alt=""><br>
+    <br>
+At this point you can toggle on or off either sons-clearcase or
+sons-sc-cc as a license server provider.<br>
+    <br>
+  </li>
+  <li>Select <b>OK</b> to close this dialog box. You should see
+something like:<br>
+    <br>
+    <img src="/blogs/Status/images/RLKA_both.jpg" alt=""><br>
+    <br>
+Note that there are 3 lines, two serviced by sons-clearcase (Rational
+ClearCase LT and Rational ClearQuest) and one serviced by sons-sc-cc
+(Rational ClearQuest). Also note that if you stop FlexLM on
+sons-clearcase and refresh or return the Rational Key License
+Administrator then licenses served by sons-clearcase will not be listed
+(since the server cannot be contacted.<br>
+  </li>
+</ul>
+
+<p>Similarly, all desktops (or Clearquest GUI clients) will have to adjust
+their FlexLM License Key Server in a similar manner. Also note that you
+can, instead of adding a server, simply click on the sons-clearcase
+server then click on <b>Values</b> under the <b>Settings</b> on the
+right on the <font color="#ff0000">Server Name</font> column and
+replace sons-clearcase with sons-sc-cc.</p>
+
+<p>If the test is successful then I believe that sons-clearcase can be powered off. Again, I think we should still run about a week this way and if things are OK then I can rmreplica the US replicas leaving only the China (sons-cc) ones and the SantaClara (sons-sc-cc) ones.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 11, 2006  8:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000564.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

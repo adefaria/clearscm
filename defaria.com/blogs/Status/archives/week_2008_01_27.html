@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: January 27, 2008 - February  2, 2008 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2008_01_20.html" title="January 20, 2008 - January 26, 2008" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2008_02_10.html" title="February 10, 2008 - February 16, 2008" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2008_01_20.html">&laquo; January 20, 2008 - January 26, 2008</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2008_02_10.html">February 10, 2008 - February 16, 2008 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2008_01_27.html#entry-000695"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/82"
+    dc:title="easter: Indecision is the key to flexibility!"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2008_01_27.html#entry-000695"
+    dc:subject="General Dynamics"
+    dc:description="Easter Paged usage Added logfile analysis Added Timeout detection Added environment variable support Changed to use GetConfig for -file..."
+    dc:creator=""
+    dc:date="2008-01-30T17:55:37-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">January 30, 2008</h2>
+                     <a id="a000695"></a>
+                     <div class="entry" id="entry-695">
+                        <h3 class="entry-header">easter: Indecision is the key to flexibility!</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <h2>Easter</h2>
+
+<ul>
+  <li>Paged usage</li>
+
+  <li>Added logfile analysis</li>
+
+  <li>Added Timeout detection</li>
+
+  <li>Added environment variable support</li>
+
+  <li>Changed to use GetConfig for -file</li>
+</ul>
+                              
+                              <p>The following progress has been made on easter, the EAST Test Driver:</p>
+
+<ul>
+  <li>easter -usage has gotten bigger so it's now piped to $ENV{PAGER}</li>
+
+  <li>Added log file analysis: easter now examines the log file produced by the running of test cases. It does this by extracting the test case name, not to be confused with the test case <u>file</u> name, from the profile file and composing a (long) path to the log file that the running of East produces. Note that easter is running remotely from a workstation on the RAN and driving tests and processes on raneast and ceast&lt;n&gt;. As such it dynamically expands environment
+variables like $MNT_DIR and $EAST_REL in composing the path to the log file so that in the event of a change in either of these environment variables will be automatically sense and it will Just Work&reg;.<br>
+
+<br>An additional complexity is that part of the path to the logfile contains a timestamp down to the millisecond. It's difficult (read impossible) to determine the exact timestamp that will be issues and guessing has it's challenges too. Instead, easter takes the approach of using "ls -t | head -1" to determine the most recently modified directory (timestamp directory that is). This works reasonably well provided we don't have multiple tests or processes writing in that directory.<br>
+
+<br>Once the logfile is determined it is examined for "EXECUTION STATUS" and that is reported back to the user.</li>
+
+  <li>Implemented rudimentary detection of timeouts. In testing I noticed that TS_default.profile never exits. So instead it times out. This situation is detected and counted as a timeout (I'd still like an example test case that exits without indicating Success or Failure).<br>
+
+<blockquote>
+  <small><p><b>Note: </b>It's been observes that other timeouts have been happening. For example, sometimes the connection to raneast seems to just hang. This could be due to abnormal load on raneast, ceast&lt;n&gt; or other hardware. The easter script does not always handle such things that gracefully yet. In general easter allows for up to 30 seconds for each remote execution of a command, including tests. How long do tests take?</p></small>
+</blockquote>
+  </li>
+
+  <li>Added environment variables. The user can now set into the environment various parameters for easter so that they need not have to specify them on the command line. Generally this is used to set things that remain the same for the whole execution of easter like &lt;view&gt;, &lt;type&gt; and &lt;unit&gt;. There is a scheme for overriding that being environment, command line and config file. The environment variables are as follows:<br>
+
+<div class=code><pre>
+EASTER_VIEW  Analogous to -view&nbsp; (e.g. export EASTER_VIEW=p6258c_easter)
+EASTER_TYPE  Analogous to -type&nbsp; (e.g. export EASTER_TYPE=rbs)
+EASTER_CLASS Analogous to -class (e.g. export EASTER_CLASS=ts)
+EASTER_UNIT  Analogous to -unit&nbsp; (e.g. export EASTER_UNIT=5)
+EASTER_TEST  Analogous to -test&nbsp; (e.g. export EASTER_TEST=test1.profile)
+EASTER_FILE  Analogous to -file&nbsp; (e.g. export EASTER_FILE=testsuite.conf)
+</pre></div>
+
+<p><font color="#c0c0c0">(and I was real tempted to make an EASTER_EGG!)</font></p>
+
+<p>Any options specified on the command line override any options specified in the environment. So the user can do something like:</p>
+
+<div class=code><pre>
+$ export EASTER_FILE=testsuite.conf
+$ easter
+</pre></div>
+  </li>
+
+  <li>Expanded the syntax of the -file file. This now uses the GetConfig module. This is a more simplex form of config file, less complicated than say XML. It's more akin to X Resource files and allows for commenting. The config file now can contain configuration options embedded in the file as well as test executions. Comments are supported with the standard "#". Here's an example file:
+
+<div class=code><pre>
+##############################################################################
+#
+# Name:          testsuite1
+#
+# Description:  Test suite file to test easter
+#
+# Author:        <a class="moz-txt-link-abbreviated" href="mailto:Andrew@DeFaria.com">Andrew@DeFaria.com</a>
+#
+# (c) Copyright 2008, General Dynamics, all rights reserved
+#
+##############################################################################
+
+# Use the following view
+view:&nbsp;&nbsp; p63630_SIMCQ00000607_intview
+
+# Set type and unit to rbs 6
+type:   rbs
+unit:    6
+
+# Execute the following ts tests
+exec:    TS_b2_l3_auto_test.profile
+exec:    TS_success.profile
+exec:    TS_failure.profile
+exec:    TS_profile.profile
+exec:    TS_default.profile
+</pre></div>
+
+<p>We can see that we are using a specific view, type and unit, which holds for all tests. Each exec line is cumulative (passes in an array to the script) of test cases to run. We can easily execute this "testsuite" then by doing either of:</p>
+
+<div class=code><pre>
+$ easter -f testsuite.conf
+</pre></div>
+
+or
+
+<div class=code><pre>
+$ export EASTER_FILE=testsuite.conf
+$ easter
+</pre></div>
+
+<p>The resulting output is:</p>
+
+<table bgcolor="black" border="0" cellpadding="2" cellspacing="0" width="90%">
+  <tbody>
+    <tr>
+      <td valign="top"><font color="#ffffff"><tt><b><font color="yellow">Randws016:</font></b><font color="yellow"><font color="#ffffff">ct setview p6258c_RANCQ00023645_devview</font></font><b><font color="yellow"><br></font></b></tt></font><font color="#ffffff"><tt><b><font  color="yellow">Randws016:</font></b><font color="yellow"><font color="#ffffff">cd /vobs/rantest/tools/lib/Nethawk</font></font><br>
+</tt></font><font color="#ffffff"><tt><b><font color="yellow">Randws016:</font></b></tt></font><font  color="#ffffff"><tt>export EASTER_FILE=testsuite.conf</tt></font><br>
+          <font color="#ffffff"><tt><b><font color="yellow">Randws016:</font></b><font
+ color="#ffffff">easter</font></tt></font><br>
+          <font color="#ffffff"><tt>Please be patient while we set up
+the test environment... done<br>
+          <font color="cyan">ts</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="yellow">TS_b2_l3_auto_test_.profile</font>
+          <font color="green">Success</font><br>
+          </tt></font><font color="#ffffff"><tt><font color="cyan">
+ts</font></tt></font><font color="#ffffff"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font
+ color="yellow">TS_success.profile</font> <font color="green">Success</font><br>
+          </tt></font><font color="#ffffff"><tt><font color="cyan">
+ts</font></tt></font><font color="#ffffff"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font
+ color="yellow">TS_success.profile</font> <font color="red">Failure</font><br>
+          </tt></font><font color="#ffffff"><tt><font color="cyan">
+ts</font></tt></font><font color="#ffffff"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font
+ color="yellow">TS_success.profile</font> <font color="red">Failure</font><br>
+          </tt></font><font color="#ffffff"><tt><font color="cyan">
+ts</font></tt></font><font color="#ffffff"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font
+ color="yellow">TS_default.profile</font> <font color="cyan">Timed out<br>
+          <font color="#ffffff">easter summary</font><br>
+          <font color="yellow">5 tests run</font><br>
+          <font color="green">2 tests passed</font><br>
+          <font color="red">2 tests failed</font><br>
+1 test incomplete<br>
+          </font></tt></font></td>
+        </tr>
+      </tbody>
+    </table>
+    <tt></tt></li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000695.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000695.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

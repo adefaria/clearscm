@@ -1,0 +1,157 @@
+#!/bin/bash
+################################################################################
+#
+# File:         audit
+# Description:  Security audit
+# Author:       Andrew DeFaria (defaria@cup.hp.com)
+# Language:     Korn Shell
+# Modifications:Combined security checking scripts from Chip Chapin
+#		(chip@cup.hp.com) and Michael Coulter (coulter@cup.hp.com).
+#
+# (c) Copyright 1991, Hewlett-Packard Company, all rights reserved.
+#
+################################################################################
+# First source the appserver script
+if [ -x /app/appserver ]; then
+  . /app/appserver
+fi
+
+me=$(basename $0)
+
+case $OS in
+  09)	
+    crondir=/usr/spool/cron/crontabs
+    atdir=/usr/spool/cron/atjobs
+    ;;
+  10)
+    crondir=/var/spool/cron/crontabs
+    atdir=/var/spool/cron/atjobs
+    ;;
+  *)
+    print -u2 "$me: Error: Unknown OS version: $OS"
+    exit 1
+    ;;
+esac
+
+function local_user {
+  # Determines is $user has a home directory local to this machine
+  first_component=$(print $home | cut -f2 -d/)
+  machine_component=$(print $home | cut -f3 -d/)
+  this_machine=$(uname -n)
+
+  if [ "$first_component" = "nfs" -o "$first_component" = "net" ]; then
+    if [ $machine_component = $this_machine ]; then
+      return 1
+    else
+      return 0
+    fi
+  else
+    return 1
+  fi
+} # local_user
+  
+function starred_out_checks {
+  print "$me: Warning: Non standard user \"$user\" has \"*\" out password!\n"
+  print "If this user no longer works here you should assign ownership of their"
+  print "files to somebody else then have this user's password entry removed.\n"
+  # If the password is "*", there should not be a .rhosts or hosts.equiv
+  # in the home directory or .forward
+  if [ -d "$home" ]; then
+    if [ -f "$home/.rhosts" ]; then
+      print "$me: Warning: User: $user has a .rhosts file in $home\n"
+      print "You should remove this user's ~/.rhosts file.\n"
+    fi
+ 
+    if [ -f "$home/.forward" ]; then
+      print "$me: Warning: User: $user has a .forward file in $home\n"
+      print "You should remove this user's ~/.forward file.\n"
+    fi
+  fi # home directory exists
+ 
+  # There should not be a crontab or atjob for the user
+  if [ -f $crondir/$user ]; then
+    print "$me: Warning: User: $user has a crontab file in $crondir/$user\n"
+    print "You should remove this user's crontab file.\n"
+  fi
+   
+  if [ -f $atdir/$user ]; then
+    print "$me: Warning: User: $user has a at file in $atdir/$user\n"
+    print "You should remove this user's at file.\n"
+  fi
+} # starred_out_checks
+
+function check_users {
+  # This function checks users in the password file.
+
+  # Parse all the lines in /etc/passwd
+  IFS=":"
+  while read user password uid gid comment home shell rest; do
+    # Check if the user has a local home directory
+    local_user $user $home
+    local=$?
+
+    # Checks for users who shouldn't log-in, i.e. password is "*"
+    if [ $local -eq 1 ]; then # Only check local users
+      if [ "$password" = '*' ]; then
+	if [ "$user" = "adm"	-o \
+	     "$user" = "anon"	-o \
+	     "$user" = "bin"	-o \
+	     "$user" = "daemon"	-o \
+	     "$user" = "ftp"	-o \
+	     "$user" = "lp"	-o \
+	     "$user" = "nuucp"	-o \
+	     "$user" = "rje"	-o \
+	     "$user" = "root"	-o \
+	     "$user" = "sync"	-o \
+	     "$user" = "tftp"	-o \
+	     "$user" = "uucp"	-o \
+	     "$user" = "who" ]; then
+	  : # Skip some users who should be starred out
+	else
+	  starred_out_checks
+	fi
+      else
+        if [ "$password" = "" ]; then
+  	    print "$me: Warning: User: $user has a NULL password\n"
+	    print "You must assign a proper password to this user.\n"
+        fi
+  
+        # No wildcards in ~/.rhosts or /etc/host.equiv
+        if [ -f ~/.rhosts -a $local -eq 1 ]; then
+          LINES="$(sed -e '/^#/d' ~/.rhosts | grep -e '+' 2> /dev/null | wc -l)"
+          if [ "$LINES" -ne 0 ]; then
+  	    print "$me: Warning: User: $user has \"+\" in $home/.rhosts\n"
+	    print "This can be fixed by logging on as $user and running:"
+	    print "/app/admin/bin/fixrhosts\n"
+          fi
+        fi
+      fi
+    fi
+  done < /etc/passwd
+} # check_users
+
+function miscellaneous_checks {
+  # Check for execution by root
+
+  if [ "$(whoami)" != "root" ]; then
+    print -u2 "$me: Error: This script must be run by root".
+    exit 1
+  fi
+
+  # Checks that are only done once
+
+  # Check no wildcards in /etc/host.equiv
+  if [ -f /etc/hosts.equiv ]; then
+    lines="$(sed '/^#/d' /etc/hosts.equiv | grep -e '+' 2> /dev/null | wc -l)"
+    if [ "$lines" -ne 0 ]; then
+      print "$me: Warning: System has \"+\" in /etc/host.equiv\n" 
+      print "You should remove this \"+\" from /etc/host.equiv\n"
+    fi
+  fi
+} # miscellaneous_checks
+
+miscellaneous_checks
+check_users
+/usr/local/etc/admdaemon.dy -clear -secu -mailto root
+
+exit 0

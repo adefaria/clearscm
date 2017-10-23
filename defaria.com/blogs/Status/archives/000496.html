@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: cvsims</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000495.html" title="mktriggers/CVS" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000497.html" title="get_views_for_stream/create_dev_snapview.pl" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000495.html">&laquo; mktriggers/CVS</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000497.html">get_views_for_stream/create_dev_snapview.pl &raquo;</a>
+                     </p>
+
+                     <a id="a000496"></a>
+                     <div class="entry" id="entry-496">
+                        <h3 class="entry-header">cvsims</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Updated triggers on ccase-rmna-3 as some new vobs seem to lack them</li>
+
+  <li>Updated cvsims to parse input and handle both -pre and -post operations</li>
+
+  <li>Had problems with CVS admin files</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>CVSIMS</h2>
+
+<p>I have managed to learn how to update IMS and I'm at the point where I need to understand the input requirements better. I will describe what I envision happening and follow it with a few questions.</p>
+
+<p>In general the desire seems to be to update IMS when a commit happens in certain CVS repositories<a href="#q1"><sup>1</sup></a>. As such commit comment information will need to conform to a certain format. Commit comments need to have the following in them identifying the IMS Issue ID they are associated with:</p>
+
+<div class="code"><pre>
+IMSIssueID: &lt;issue ID&gt;
+</pre></div>
+
+<h3>Pre-commit checks (i.e. verifymsg)</h3>
+
+<p>The string "IMSIssueID: " must appear at the start of a line followed by the issue ID<a href="#q2"><sup>2</sup></a>. The IMSIssueID must exist in IMS<a href="#q3"><sup>3</sup></a>. If the issue ID is not in IMS then the commit will not be allowed. Commits lacking any IMSIssueID will be rejected<a href="#q4"><sup>4</sup></a>.</p>
+
+<h3>Post-commit operations (i.e. loginfo)</h3>
+
+<p>If the pre-commit checks pass the IMS issue will have it's change set field updated with the file names of the committed files. As change set is an append only field the following separator will be added first followed by the list of files<a href="#q5"><sup>5</sup></a>:</p>
+
+<div class="code"><pre>
+# &lt;USERNAME&gt; &lt;DATE_TIME&gt; committed:
+file1
+file2
+...
+</pre></div>
+
+<p>Again, as change set is an append only field there may be multiple updates like so:</p>
+
+<div class="code"><pre>
+# &lt;USERNAME&gt; &lt;DATE_TIME&gt; committed:
+file1
+file2
+...
+# &lt;USERNAME&gt; &lt;DATE_TIME&gt; committed:
+file10
+</pre></div>
+
+<h3>Questions</h3>
+<ol>
+  <li><a name="q1"></a>Which repositories does this apply?</li>
+
+  <li><a name="q2"></a>Are multiple IMSIssueIDs allowed? If so then are multiple lines such
+as the above acceptable or should the script search for perhaps a comma separated list of issue IDs?</li>
+
+  <li><a name="q3"></a>Should the script also check to insure that the issue ID is not in say a closed state?</li>
+
+  <li><a name="q4"></a>Is it true that all commits in a repository/module/directory <b>must</b> be associated to an IMS Issue?</li>
+
+  <li><a name="q5"></a>In addition to the file name should we include the revision checked in? Also should any other information be logged (e.g. repository)?</li>
+</ol>
+
+<h2>CVS Admin Files</h2>
+
+<p>I got myself into a pickle. Here's what I was doing...</p>
+
+<p>I wanted to modify <span>rcsinfo, verifymsg and loginfo
+in our CVS test area (:pserver:adefaria@cvsps-irva-1:/projects/ccase_irva/cvsmaster)
+so I checked out CVSROOT and modified those files. The idea was to have rcsinfo point to a template file so the user knows where to put the IMSIssueID, change verifymsg to call cvsism
+(the connector) to verify that it can find the IssueID and that the IssueID exists in IMS and change loginfo to call cvsism to update the change set after the commit. Unfortunately I modified the files in such a way that I cannot check in at all. I need help in fixing this because I believe what needs to be done needs to be done on the server and I don't have a login there let alone root access.</p>
+
+<p>The problem is that I don't understand what the cwd is when CVS fires off these triggers. For example, in rcsinfo I have the following line:</p>
+
+<div class="code"><pre>
+ALL /tmp/IMSIssueTemplate
+</pre></div>
+
+<p>"ALL" means for all files and /tmp/IMSIssueTemplate is the template file. But where is /tmp? Is it supposed to be on the server? Where's a good place to put these template files?</p>
+
+<p>In verifymsg I have:</p>
+
+<div class="code"><pre>
+DEFAULT SCM/cvsbin/cvsims -pre
+</pre></div>
+
+<p>I want to run cvsims (which is in my home directory under SCM/cvsbin) but this also fails.
+As a result of this I cannot use cvs commit to change verifymsg, hence I'm stuck!</p>
+
+<p>In <span>loginfo</span> I have:</p>
+
+<div class="code"><pre>
+DEFAULT SCM/cvsbin/cvsims -post %{s}
+</pre></div>
+
+<p>Again SCM/cvsbin/cvsims is not a valid path.</p>
+
+<p>How can I get this fixed? Where should I put these files?</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on December 13, 2005 12:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000496.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

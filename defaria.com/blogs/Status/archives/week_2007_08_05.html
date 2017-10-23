@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: August  5, 2007 - August 11, 2007 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2007_07_29.html" title="July 29, 2007 - August  4, 2007" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2007_08_12.html" title="August 12, 2007 - August 18, 2007" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2007_07_29.html">&laquo; July 29, 2007 - August  4, 2007</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2007_08_12.html">August 12, 2007 - August 18, 2007 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_08_05.html#entry-000661"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/48"
+    dc:title="ucmwb issues/Purify"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_08_05.html#entry-000661"
+    dc:subject="General Dynamics"
+    dc:description=" Working with Kevin and others to resolve Qt issues. Submitted PMR with IBM regarding usage of Purify and why it&apos;s taking so long to run..."
+    dc:creator=""
+    dc:date="2007-08-08T17:25:19-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  8, 2007</h2>
+                     <a id="a000661"></a>
+                     <div class="entry" id="entry-661">
+                        <h3 class="entry-header">ucmwb issues/Purify</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Working with Kevin and others to resolve Qt issues.</li>
+
+  <li>Submitted PMR with IBM regarding usage of Purify and why it's taking so long to run</li>
+</ul>
+                              
+                              <h2>ucmwb issues</h2>
+
+<p>There are a number of issues WRT ucmwb running on Linux:</p>
+
+  <ul>
+    <li>Whether to build 32-bit or 64-bit. 32-bit would be LCD yet I don't have a 32-bit Linux machine to build on</li>
+
+    <li>Differences in architectures (i.e. Intel vs. Opteron). I've seen differences WRT this...</li>
+
+    <li>Whether to build static or shared. Static would be better because then we wouldn't have to worry about getting the right shared libraries and the correct LD_LIBRARY_PATH setting</li>
+
+    <li>Connection to Oracle. In order for ucmwb to connect to Oracle directly it needs OCI. In order to have OCI one needs the commercial version of Qt. Got that. But also we need an Oracle Client (Development?) Installation in order to have the appropriate .h and .a files to build. With Oracle on Linux (which doesn't exist) we also need to address the appropriate 64 vs 32 bit'ness, Intel vs. Opteron, static vs. shared WRT Oracle itself...</li>
+  </ul>
+
+<h2>Purify</h2>
+
+<p>Only a little is known at this time but it seems some development group is concerned because running Purify on 7500 had not finished in 10 days of running. Opened IBM/Rational PMR on this. IBM/Rational tells me that using Purify can slow the process by 15-20 times! Makes sense since the instrumented code is doing so much additional work. Need to find out how long the tests would take sans Purify</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000661.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000661.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_08_05.html#entry-000660"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/47"
+    dc:title="QT"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_08_05.html#entry-000660"
+    dc:subject="General Dynamics"
+    dc:description=" Built ucmwb on Solaris Downloaded, built and installed Qt-4.2.2 for Linux Built ucmwb for Linux 64 bit! Doesn&apos;t connect to Clearquest properly yet..."
+    dc:creator=""
+    dc:date="2007-08-07T18:53:46-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  7, 2007</h2>
+                     <a id="a000660"></a>
+                     <div class="entry" id="entry-660">
+                        <h3 class="entry-header">QT</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Built ucmwb on Solaris</liI>
+
+  <li>Downloaded, built and installed Qt-4.2.2 for Linux</li>
+
+  <li>Built ucmwb for Linux 64 bit! Doesn't connect to Clearquest properly yet</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:53 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000660.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000660.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

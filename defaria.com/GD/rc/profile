@@ -1,0 +1,84 @@
+#!/bin/ksh
+################################################################################
+#
+# File:         $RCSfile: profile,v $
+# Revision:	$Revision: 1.3 $
+# Description:  ksh profile
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Jun  6 08:31:57 PDT 1996
+# Modified:     $Date: 2006/07/24 05:37:57 $
+# Language:     ksh
+#
+# (c) Copyright 2000-2004, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# Set ARCH, architecture of the machine
+
+KERNEL=$(uname -s)
+if [[ $KERNEL = CYGWIN* ]]; then
+  export ARCH=cygwin
+elif [ $KERNEL = "Linux" ]; then
+  export ARCH=linux
+elif [ $KERNEL = "SunOS" ]; then
+  export ARCH=sun
+elif [ $KERNEL = "FreeBSD" ]; then
+  export ARCH=$KERNEL
+else
+  echo "Warning: Unknown architecture ($KERNEL)"
+fi
+
+# Set colors
+if [ -f ~/.rc/set_colors ]; then
+   . ~/.rc/set_colors
+else
+  echo "Warning: ~/.rc/set_colors does not exist!"
+fi
+
+# Evil black magic for the ENV variable.  This was given to me by Ken Sumrall.
+# Currently it's mystery is not explained but it prevents problems.  It
+# basically determines if we are interactive or background and set up ENV
+# properly.
+export ENV='${START[(_$- = 1) + (_ = 0) - (_$- != _${-%%*i*}) ]}'
+export START=~/.rc/kshrc
+
+# Check to see if we're interactive
+if [[ $- = *i* ]]; then
+  export interactive=true
+else
+  export interactive=false
+fi
+
+if [ ! -f ~/.rc/kshrc ]; then
+  echo "Warning: ~/.rc/kshrc does not exist!"
+fi
+
+export HISTFILE=~/.bash_history
+export VISUAL=vi
+export EDITOR=edit
+unset EDITOR
+
+export SPEAKER=headphones
+
+# Miscellaneous variables:
+export ERRFILE=.vue/errorlog
+
+# Terminal settings:
+if [ "$TERM" = ""        -o \
+     "$TERM" = "unknown" -o \
+     "$TERM" = "dialup"  -o \
+     "$TERM" = "network" ]; then
+  if [ "$interactive" = "true" ]; then
+    eval $(ttytype -s -a -t ansi -t hp)
+  fi
+fi
+
+# System dependent variables.
+if [ -f ~/.rc/system ]; then
+   . ~/.rc/system
+else
+   echo "Warning ~/.rc/system does not exist!"
+   export SYSNAME="*Unknown Systemname*:"
+fi
+
+# Set my default printer
+export LPDEST=ljmx2

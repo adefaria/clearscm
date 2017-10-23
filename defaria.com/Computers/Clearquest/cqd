@@ -1,0 +1,335 @@
+#!C:/Progra~1/Rational/ClearQuest/CQPerl
+################################################################################
+#
+# File:		cqd: Clearquest daemon
+# Description:  This script implements a daemon that handles requests for
+#		queries to the Clearquest database. Opening up the Clearquest
+#		database takes a long time, therefore this daemon will run in
+#		the background and handle requests.
+# Author:       Andrew@DeFaria.com
+# Created:      Fri May 31 15:34:50  2002
+# Modified:
+# Language:     Perl
+#
+# (c) Copyright 2002, Salira Optical Network Systems, all rights reserved.
+#
+################################################################################
+use strict;
+use CQPerlExt;
+use IO::Socket;
+use Net::hostent;
+use POSIX qw(setsid);
+
+# Generic, harmless, user reporter
+my $cquser   = "reporter";
+my $cqpasswd = "news";
+my $cqdb     = "BUGS2";
+my $port     = 1500;
+
+my $session;
+my $verbose;
+my $daemon_mode;
+my $quiet_mode;
+my $multithreaded;
+my $pid = $$;
+
+my $me = `basename $0`;
+chomp $me;
+my $cqdversion = "2.0";
+
+my @all_fields = (
+  "cc",			"description",		"field_trial",
+  "fixed_date",		"fixed_in",		"found_in",
+  "headline",		"manager",		"module",
+  "must_fix",		"note_entry",		"notes_log",
+  "owner",		"pending_reason",	"priority",
+  "product",		"project",		"resolution",
+  "severity",		"state",		"submit_date",
+  "submitter",		"symptoms",		"verified_by",
+  "verified_date",	"resolution_statetype",	"keywords",
+  "fixed_by"
+);
+
+my %fields= ();
+
+sub log_message {
+  print "[$pid] @_\n" if defined ($verbose);
+} # log_message
+
+sub display_message {
+  print "[$pid] @_\n" if !defined ($quiet_mode);
+} # display_message
+
+sub log_error {
+  print STDERR "[$pid] ERROR: @_\n"
+} # log_error
+
+sub log_warning {
+  print STDERR "[$pid] WARNING: @_\n"
+} # log_error
+
+sub GetClientAck {
+  my $client = shift;
+  my $clientresp;
+
+  while (defined ($clientresp = <$client>)) {
+    chomp $clientresp;
+    if ($clientresp eq "ACK") {
+      return
+    } # if
+    log_warning "Received $clientresp from client - expected ACK";
+  } # while
+} # GetClientAck
+
+sub GetClientCmd {
+  my $client = shift;
+  my $clientresp;
+
+  while (defined ($clientresp = <$client>)) {
+    chomp $clientresp;
+    return $clientresp;
+  } # while
+} # GetClientResponse
+
+sub SendClientAck {
+  my $client = shift;
+
+  print $client "ACK\n";
+} # SendClientAck
+
+sub SendClientResponse {
+  my $client   = shift;
+  my $response = shift;
+
+  print $client "$response\n";
+} # SendClientResponse
+
+sub EnterDaemonMode {
+  my $logfile  = shift (@_);
+  my $errorlog = shift (@_);
+
+  log_message "Entering Daemon Mode (\"$logfile\", \"$errorlog\")";
+  if ($logfile eq '') {
+    $logfile = "/dev/null";
+  } # if
+
+  if ($errorlog eq '') {
+    $errorlog = "/dev/null";
+  } # if
+
+  # Change the current directory to /
+  chdir 'C:\\' or die "$me: Error: Can't chdir to C:\\ ($!)";
+
+  # Turn off umask
+  umask 0;
+
+  # Redirect STDIN to /dev/null
+  open STDIN, '/dev/null'
+    or die "$me: Error: Can't read /dev/null ($!)";
+
+  # Redirect STDOUT to logfile
+  open STDOUT, ">>$logfile"
+    or die "$me: Error: Can't write to $logfile ($!)";
+
+  # Redirect STDERR to errorlog
+  open STDERR, ">>$errorlog"
+    or die "$me: Error: Can't write to $errorlog ($!)";
+
+  # Now fork the daemon
+  defined (my $pid = fork)
+    or die "$me: Error: Can't create daemon ($!)";
+
+  # Now the parent exits
+  exit if $pid;
+
+  # Set process to be session leader
+  setsid
+    or die "$me: Error: Can't start a new session ($!)";
+  log_message "Entered Daemon Mode";
+} # EnterDaemonMode
+
+sub OpenDB {
+  log_message "Opening $cqdb database";
+  $session = CQPerlExt::CQSession_Build ();
+  $session->UserLogon ($cquser, $cqpasswd, $cqdb, "");
+  log_message "Opened $cqdb database";
+} # OpenDB
+
+sub CloseDB {
+  CQSession::Unbuild ($session);
+} # CloseDB
+
+sub Usage {
+  print "Usage: $me [ -d ] [ -v ] [ -m ] [ -q ]\n\n";
+  print "Where:\t-d\tEnter Daemon mode (currently not working)\n";
+  print "\t-v\tVerbose mode\n";
+  print "\t-m\tMultithreaded (currently not working)\n";
+  print "\t-q\tQuiet mode\n";
+  exit 1;
+} # Usage
+
+sub GetBugRecord {
+  my $bugid = shift;
+  %fields   = @_;
+
+  my $record;
+  my $value;
+
+  # Use eval because the bug ID passed in may not be found. If there is
+  # an error with this call we assume the bug ID is not valid.
+  eval {
+    $record = $session->GetEntity ("defect", $bugid);
+  } or log_error "Bug ID $bugid not found!", return 0;
+
+  foreach (@all_fields) {
+    # The field name specified may be undefined. It may also just be
+    # not filled in. We need to use eval to attempt to get the field and
+    # then determine which error it was: Undefined field or simply a field
+    # that was not filled in.
+    eval {
+      $value = $record->GetFieldValue ($_)->GetValue
+    };
+    if ($@ =~ m/object that does not exist/) {
+      $value = "<Undefined field>";
+    } elsif ($value eq "") {
+      $value = "<Unspecified>";
+    } # if
+    $value =~ tr/\n/ /s;
+    $fields {$_} = $value;
+  } # foreach
+
+  return 1;
+} # GetBugRecord
+
+sub ServiceClient {
+  my $cqclient = shift;
+
+  # Service this client
+  my $hostinfo = gethostbyaddr ($cqclient->peeraddr);
+  my $host = $hostinfo->name || $cqclient->peerhost;
+
+  display_message "Connect from $host";
+  log_message "Waiting for command from $host";
+  while () {
+    GetClientAck ($cqclient);
+    $_ = GetClientCmd ($cqclient);
+    next unless /\S/; # Skip blank requests
+    last if /quit|exit|shutdown/i;
+    log_message "$host requests information about bug ID $_";
+    SendClientAck ($cqclient);
+    if (GetBugRecord ($_, %fields)) {
+      SendClientResponse ($cqclient, "id: $_");
+      my $key;
+      my $value;
+      while (($key, $value) = each (%fields)) {
+	SendClientResponse ($cqclient, "$key: $value");
+      } # while
+    } else {
+      SendClientResponse ($cqclient, "Bug ID $_ was not found");
+    } # if
+    SendClientAck ($cqclient);
+  } # while
+
+  display_message "Closing connection from $host at client's request";
+  close $cqclient;
+} # ServiceClient
+
+sub Funeral {
+  my $childpid = wait;
+  $SIG{CHLD} = \&Funeral;
+  log_message "Child has died" . ($? ? " with status $?" : "");
+} # Funeral
+
+sub ProcessRequests {
+  # The subroutine handles processing of requests by using a socket to
+  # communicate with clients.
+  my $cqserver = IO::Socket::INET->new (
+    Proto     => 'tcp',
+    LocalPort => $port,
+    Listen    => SOMAXCONN,
+    Reuse     => 1
+  );
+
+  die "$me: Error: Could not create socket (%!)\n" unless $cqserver;
+
+  display_message "Clearquest DB Server (cqd V$cqdversion) accepting clients";
+
+  # Now wait for an incoming request
+  while (my $cqclient = $cqserver->accept ()) {
+    my $hostinfo = gethostbyaddr ($cqclient->peeraddr);
+    my $host = $hostinfo->name || $cqclient->peerhost;
+    log_message "$host is requesting service";
+    if (defined ($multithreaded)) {
+      my $childpid;
+
+      log_message "Spawning child to handle request";
+
+      die "$me: ERROR: Can't fork: %!" unless defined ($childpid = fork ());
+
+      if ($childpid) {
+	# In parent - set up for clean up of child process
+	log_message "In parent";
+	$childpid = -$childpid;
+	log_message "Parent produced child ($childpid)";
+	$SIG{CHLD} = \&Funeral;
+	log_message "Parent looking for another request to service";
+      } else {
+	# In child process - ServiceClient
+	log_message "In child";
+	$pid = -$$;
+	log_message "Child has been born";
+	ServiceClient ($cqclient);
+	log_message "Child finished servicing requests";
+	kill ("TERM", $$);
+	exit;
+      } # if
+    } else {
+      ServiceClient ($cqclient);
+    } # if
+  } # while
+
+  display_message "Shutting down server";
+  close ($cqserver);
+
+} # ProcessRequests
+		
+# Start main code
+# Reopen STDOUT. This is because cqperl screws around with STDOUT in some
+# weird fashion
+open STDOUT, ">-" or die "Unable to reopen STDOUT\n";
+# Set unbuffered output for the same reason (cqperl)
+$| = 1;
+
+while ($ARGV [0]) {
+  if ($ARGV [0] eq "-d") {
+    $daemon_mode = 1;
+  } elsif ($ARGV [0] eq "-v") {
+    $verbose = 1;
+    undef ($quiet_mode);
+  } elsif ($ARGV [0] eq "-m") {
+    $multithreaded = 1;
+  } elsif ($ARGV [0] eq "-q") {
+    $quiet_mode = 1;
+    undef ($verbose);
+  } else {
+    Usage;
+  } # if
+  shift (@ARGV);
+} # while
+
+my $tmp = $ENV {"TMP"};
+my $cqd_logfile = "$tmp\\$me.log";
+my $cqd_errfile = "$tmp\\$me.err";
+
+EnterDaemonMode ($cqd_logfile, $cqd_errfile) if defined ($daemon_mode);
+
+OpenDB;
+
+ProcessRequests;
+
+display_message "Shutting down";
+
+CloseDB;
+display_message "Closed $cqdb database";
+
+exit 0;

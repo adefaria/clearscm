@@ -1,0 +1,65 @@
+#!/bin/bash
+################################################################################
+#
+# File:         fixrhosts
+# Description:  Generates a new ~/.rhosts file
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Apr 30 14:13:56 PDT 1999
+# Modifications:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Source in tmpfiles function
+tmpprefix=${TMPDIR:-/tmp}/$me.$$
+. $adm_fpath/tmpfiles
+trap cleanup INT EXIT ERR
+
+# Check if root
+if is_root; then
+  error "You should not run the script as root!" 1
+fi
+
+rhosts=$HOME/.rhosts
+rhosts_loc=$HOME/.rhosts.loc
+
+# Generate new $rhosts
+
+if [ -f $rhosts_loc ]; then
+  cp $rhosts_loc $rhosts
+else
+  rm -f $rhosts
+fi
+
+# Add netgroup
+print "+@all-machines $LOGNAME" >> .rhosts
+
+# Insure proper permissions
+chmod 600 $rhosts
+
+# Tell user of this scripts demise
+display "\t\t\t*** NOTICE ***"
+display
+display "Since the lab now users NIS we are employing a different solution"
+display "to the issue of providing passwordless logins to sets of machines"
+display "via rlogin/remsh. This solution adds the following to $rhosts:"
+display
+display "\t+@all-machines $LOGNAME"
+display
+display "Thereafter running $me is unnecessary."
+display
+display "I'd like to take this opportunity to thank you for your support"
+display "of $me! :-) <Andrew@DeFaria.com>"

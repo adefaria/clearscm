@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: cvs_report updates/common build</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000293.html" title="CVSR/Toolchain" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000291.html" title="Finishing build note" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000293.html">&laquo; CVSR/Toolchain</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000291.html">Finishing build note &raquo;</a>
+                     </p>
+
+                     <a id="a000294"></a>
+                     <div class="entry" id="entry-294">
+                        <h3 class="entry-header">cvs_report updates/common build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed cvs_report.pl to better handle branches</li>
+
+  <li>Build common for 012405</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>cvs_report.pl changes</h3>
+
+<p>The changes to cvs_report.pl involved changing ProcessECRs to look for the start and stop revision numbers in the log. The CVS log has entries like the following:</p>
+
+<div class="code"><pre>
+$ cvs log Makefile | grep ^revision
+revision 1.9
+revision 1.8
+revision 1.7
+revision 1.6
+revision 1.5
+revision 1.4
+revision 1.3
+revision 1.2
+revision 1.1
+revision 1.1.2.4
+revision 1.1.2.3
+revision 1.1.2.2
+revision 1.1.2.1
+revision 1.3.4.1
+revision 1.3.2.2
+revision 1.3.2.1
+</pre></div>
+
+<p>Thus if the from tag is pointing to revision 1.1.2.1 and the to_tag is pointing to revision 1.1.2.4 cvs_report.pl now skips all versions until 1.1.2.4 then picks up ECR numbers from there.</p>
+
+<h3>Building common</h3>
+
+<p>First check out the top of trunk of ats:</p>
+
+<ol>
+  <li><tt>cd &lt;<i>build_area</i>&gt;/LYNXOS_500/work_area/tst</tt></li>
+  <li><tt>export CVSROOT=:pserver:int@t3.lynx.com:/cvs/tst-cvs</tt></li>
+  <li><tt>cvs login</tt> (Enter the password)</li>
+  <li>Check out the top of trunk of ats (<tt>cvs checkout ats</tt>)</li>
+  <li>Set a tag for ats (e.g. Lion_common_&lt;<i>mmddyy</i>&gt;).     sually we will tag the ATS as the same date as LynxOS build.</li>
+  <li>Change directory to your build tree - int_tools area and modify the <tt>__profile.exp</tt> to set the correcty ATS tag that just tagged if it is not the same as lynxos build as defined.</li>
+  <li>Modify the START for ATS process.
+<div class="code"><pre>
+steps_com=" 1 2    3";
+echo "=== Starting common ==="
+startit.exp common dummy     $steps_com  >> LOGS/common.log 2>&1 &
+</pre></div></li>
+  <li>Run the ./START</li>
+</ol>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on February  2, 2005  4:49 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000294.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

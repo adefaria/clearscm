@@ -1,0 +1,1123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: June 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2005_05.html" title="May 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2005_07.html" title="July 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2005_05.html">&laquo; May 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2005_07.html">July 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">June 30, 2005</h2>
+                     <a id="a000379"></a>
+                     <div class="entry" id="entry-379">
+                        <h3 class="entry-header">Building CDK on Windows</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Investigated bug on Windows nmake of CDK</li>
+
+  <li>Fixed build_los178 to properly build LOS178 2.1</li>
+</ul>
+                              
+                              <h3>Windows nmake bug for CDK build</h3>
+
+<p>There is still something wrong. Here's what I did:</p>
+
+<ul>
+  <li>Obtained the following tarballs from the 20050628 archive:
+    <ul>
+      <li>2000-00.los178_rsc_src.tar.gz</li>
+
+      <li>2001-00.los178_src.tar.gz</li>
+
+      <li>2013-00.los178_dev.tar.gz</li>
+
+      <li>2015-00.los178_rsc_dev.tar.gz</li>
+    </ul>
+  <li>Unpacked those tarballs + ppc.cdkwin32.tar.gz into /tmp/los178</li>
+
+  <li>Setup my environment properly (this includes VCVARS32.bat)</li>
+
+  <li>cd'ed to src/cdk and performed make install > install.log 2>&1</li>
+</ul>
+
+<p>I still have the error:</p>
+
+<div class="code"><pre>
+    Compiling coff.o
+    coff.c(87) : fatal error C1083: Cannot open include file: 'family/ppc/arch_mem.h': No such file or directory
+    NMAKE : fatal error U1077: 'cl.exe' : return code '0x2'
+    Stop.
+    make[1]: *** [WIN32_VS_UTIL] Error 2
+</pre></div>
+
+<p>It seems clear to me that the compiler cannot locate the include file family/ppc/arch_mem.h which does reside under $ENV_PREFIX/sys/include. Additionally it's clear that common/mkimage/Makefile was changed to append "-I$(ENV_PREFIX)/sys/include" to SPECIAL_CFLAGS to resolve this issue. However something on Windows (and Windows nmake) is causing this to remain a problem.</p>
+
+<p>It seems that nmake eventually issues the following command to compile coff.c -> coff.o:</p>
+
+<div class="code"><pre>
+    cl.exe /nologo /ML /W3 /GX /D "_WIN32_VS" /D "_CONSOLE" /D "WIN32" /D "_MBCS" /FD /c -c coff.c -D__powerpc__ /Fo"coff.o"
+</pre></div>
+
+<p>Which, of course, doesn't seem to mention $ENV_PREFIX/sys/include at all. IOW the above results in:</p>
+
+<div class="code"><pre>
+    cl.exe /nologo /ML /W3 /GX /D "_WIN32_VS" /D "_CONSOLE" /D "WIN32" /D "_MBCS" /FD /c -c coff.c -D__powerpc__ /Fo"coff.o"
+    coff.c
+    coff.c(87) : fatal error C1083: Cannot open include file: 'family/ppc/arch_mem.h': No such file or directory
+</pre></div>
+
+<p>While the following results in a successful compilation (with warnings):</p>
+
+<div class="code"><pre>
+    cl.exe /nologo /ML /W3 /GX /D "_WIN32_VS" /D "_CONSOLE" /D "WIN32" /D "_MBCS" /FD /c -c coff.c -D__powerpc__ /Fo"coff.o" /I$ENV_PREFIX/sys/include
+</pre></div>
+
+<p>The Makefile and Windows nmake are not arranging for SPECIAL_CFLAGS to be passed along to the compiler.</p>
+
+<h3>Fix to build_los178</h3>
+
+<p>The build_los178 script was having a problem building LOS178. It would fail in different ways than when done from the command line. I suspected the problem would be in the setup_bash function as it attempts to reproduce what a ". SETUP.bash" does inside the Perl environment. Turns out I was right. Changed that subroutine to properly set HOST_OS_REVISION (previously it had an extra carriage return from `uname -r`) and to add /usr/ucb to the PATH.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:21 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000379.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 28, 2005</h2>
+                     <a id="a000378"></a>
+                     <div class="entry" id="entry-378">
+                        <h3 class="entry-header">Built LOS178 2.1.0 TOB</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Completed the build of LOS178 2.1.0 TOB and released it to t3:/export/dev_archive/los178/2p1p0/20050628</li>
+
+  <li>Updated cvs_report to not report duplicate entries. This can occur when somebody say checks in foo.c thus creating revision 1.2 for CR 40 and then checks in foo.c again, thus creating revision 1.3. Before cvs_report would report foo.c twice. Now it just reports the highest revision (e.g. 1.3).</li>
+
+  <li>Updated cvs_report to take another parameter, -cvsr, for a cvs report area. cvs_report uses this area in order to determine what to report. Contained in this area is a .cvsr file which holds the baseline tag. However if you want to report on both the main trunk and a branch then you can't use the same area. In the past cvs_report was oriented to using the module name for the area. Now you can specify an alternate area.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:32 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000378.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 23, 2005</h2>
+                     <a id="a000377"></a>
+                     <div class="entry" id="entry-377">
+                        <h3 class="entry-header">Building CDK under Windows</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Build Windows version of the CDK</li>
+
+  <li>Submitted CR 659: cdk tool mkimage fails to build under Windows</li>
+</ul>
+                              
+                              <h3>Building Windows CDK</h3>
+
+<p>In order to build the CDK under Windows one must use an ancient version of Cygwin - B20 (it is assumed that that is already installed). Additionally one must perform certain actions in a certain order:</p>
+
+<ol>
+  <li>Obtain the latest versions of the following tar images from the archive area:
+    <ul>
+      <li>2000-00.los178_rsc_src.tar.gz</li>
+
+      <li>2001-00.los178_src.tar.gz</li>
+
+      <li>2013-00.los178_dev.tar.gz</li>
+
+      <li>2015-00.los178_rsc_dev.tar.gz</li>
+
+      <li>(From cvs bin-image) ppc.cdkwin32.tar.gz</li>
+    </ul>
+  </li>
+
+  <li>Create an area to do the build and extract the above into that area</li>
+
+  <li>Exit this bash shell</li>
+
+  <li>Start a cmd shell</li>
+
+  <li>Execute the VCVARS32.BAT file. This is normally found in C:\Program Files\Microsoft Visual Studio\VS98\Bin. Note that this implies that Visual Studio is also installed. Also, often people will copy this bat file to C:\ for easier execution. This bat file sets certain environment variables including PATH such that nmake can be found. Under Windows we lean on VS's nmake. Also, this must be done from a cmd shell before starting Cygwin so that the changes to the environment can be picked up. Why don't we just make a script or enhance SETUP.bash to take into account for this?</li>
+
+  <li>Start Cygwin using the appropriate cygnus.bat file. This was given to me by Moscow. Doesn't seem to do that much fancy stuff:
+
+<div class="code"><pre>
+@ECHO OFF
+SET TARGET_PATH=C:\LynuxWorks\2.0.0
+SET MAKE_MODE=UNIX
+SET TERM=cygwin
+SET HOME=/
+
+set PATH=%TARGET_PATH%\bin;%TARGET_PATH%\usr\bin:%PATH%
+
+echo "TARGET_PATH is %TARGET_PATH%
+
+if not exist %TARGET_PATH%\bin\sh.exe goto error_no_sh
+
+ver > %TARGET_PATH%\_tmp
+goto the_end
+
+:error_no_sh
+echo "Installation Error -- no %TARGET_PATH%\bin\sh.exe found"
+
+:the_end
+del %TARGET_PATH%\_tmp
+bash
+</pre></div>
+  </li>
+
+  <li>cd to the directory that you created to perform the build</li>
+
+  <li>Source SETUP.bash</li
+
+  <li>cd to src/cdk</li>
+
+  <li>make install > install.log 2>&1</li>
+
+  <li>Check install.log for errors</li>
+</ol>
+
+<h3>CR 659: cdk tool mkimage fails to build under Windows</h3>
+
+<p>Build of cdk tool mkimage files under Windows. This is a make install in src/cdk of LOS178. The specific error is:</p>
+
+<div class="code"><pre>
+Compiling coff.o
+coff.c
+coff.c(91) : fatal error C1083: Cannot open include file: 'family/ppc/arch_mem.h': No such file or directory
+NMAKE : fatal error U1077: 'cl.exe' : return code '0x2'
+Stop.
+make[1]: *** [WIN32_VS_UTIL] Error 2 
+</pre></div>
+
+<p>Problem seems to be that the fix for src/cdk/common/mkimage/Makefile in CR #539 of adding -I$(ENV_PREFIX)/sys/include does not work under Windows with nmake.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:35 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000377.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 22, 2005</h2>
+                     <a id="a000376"></a>
+                     <div class="entry" id="entry-376">
+                        <h3 class="entry-header">LOS178 2.1.0 build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>After two bugs in the GDB 6.0 build process on Solaris were fixed I was finally able to build GDB 6.0 on Solaris</li>
+
+  <li>Built LOS178 for both dev and pdn</li>
+
+  <li>Packaged up and released onto t3</li>
+
+  <li>Tagged release with DEV_LOS178_2p1p0_ppc_20050622</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:19 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000376.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 21, 2005</h2>
+                     <a id="a000375"></a>
+                     <div class="entry" id="entry-375">
+                        <h3 class="entry-header">LOS178 2.1.0 + GDB</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Managed to build los178 for dev and pdn. Pdn still has CONSOLE_DEVICE error on ibm44ep.</li>
+
+  <li>Working with Adam re: GDB build on Rock</li>
+</ul>
+                              
+                              <h3>Rock (Solaris) build</h3>
+
+<p>Building on Rock is building on Solaris. We have to rebuild parts of the cdk by cd'ing into src/cdk and doing make install. This puts stuff into the cdk/<host>-[xcoff|elf]-<target> area. Now on Linux everything builds OK and I believe we also did the Window portion too. But Solaris was yet undone.</p>
+
+<p>Turns out that not much builds successfully on Solaris but all that is required at this time is mkimage. With mkimage successfully built the process of building LOS178 on Solaria remains largely the same in that you checkout/export the sources and untar the ppc.cdksol.tar.gz. The difference is that you inject your newly built mkimage into the cdk area before building.</p>
+
+<h3>Packaging and Structuring</h3>
+
+<p>Vinnie attempted to describe the packaging structuring. I'm still not sure i have it all in my head yet but here goes:</p>
+
+<p>Note that we are only currently building for release on Rock or Solaris. Still cdk's for other targets need to be built and included. Also, we use the bin-image/ppc.cdk<host>.tar.gz prebuilt software for building things and we also package up cdk tarballs in the release area (e.g. 2011-01.cdksol.tar.gz).</p>
+
+<p>For GDB we must source SETUP.bash pointing to some LOS178 area and then we go to the toolchain and make install-gdb. The end result of this build are two executables, one of which we are concerned with - gdbserver. However there are also various things deposited in the cdk for gdb, the client and for insight and Tcl/Tk stuff.</p>
+
+<p>The gdbserver and it's client require packaging of Linux, Windows and Solaris cdk's that contain the necessary gdb parts. The current package.sh should automatically handle this because it packages up things based on directory names.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:57 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000375.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 20, 2005</h2>
+                     <a id="a000374"></a>
+                     <div class="entry" id="entry-374">
+                        <h3 class="entry-header">2.1.0 GDB Build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Built LOS178 2.1.0 on Rock including CR638. Was able to build dev but not pdn.</li>
+
+  <li>Having some problems with GDB build on Solaris</li>
+</ul>
+                              
+                              <p>I was able to build LOS178 2.1.0 dev build on rock but had errors in building the pdn portion:</p>
+
+<div class="code"><pre>
+    rock:check -t -v ../los178.pdn/install.log
+    ERRORS:
+    conf.c(98) : error: `CONSOLE_DEVICE' undeclared here (not in a function)
+    make[4]: *** [conf.o] Error 1
+    make[3]: *** [re_all] Error 2
+    make[4]: *** [common_all] Error 1
+    make[3]: *** [re_all] Error 2
+    make[4]: *** [a.out] Error 1
+    make[3]: *** [re_all] Error 2
+    make[2]: *** [real] Error 2
+    make[1]: *** [install] Error 2
+    File: ../los178.pdn/install.log Errors: 9 Warnings: 1140
+    rock:pwd
+    /export/home/adefaria/2.1.0/los178/los178.cvs
+</pre></div>
+
+<p>Also, I was only able to build mkimage for the cdk on Solaris. Vinnie says this is expected.</p>
+
+<p>I have not managed to build gdb on Solaris, I'm working with Adam about that problem.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  8:32 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000374.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 16, 2005</h2>
+                     <a id="a000373"></a>
+                     <div class="entry" id="entry-373">
+                        <h3 class="entry-header">The Quest to build 3.0.0 from 3.4.3</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked to build 3.0.0 from 3.4.3</li>
+</ul>
+                              
+                              Andrew DeFaria wrote:
+
+<blockquote type=cite>
+<p>Performed the following actions:</p>
+
+<h3>Change packaging by hand:</h3>
+
+<ol>
+  <li>cd /build/toolchain/install-powerpc178/cdk/linux-elf-ppc</li>
+
+  <li>mkdir bin</li>
+
+  <li>cd bin</li>
+
+  <li>Created symlinks for the following: ar, as, byacc, c++, cc, cmp, diff, diff3, expect, flex, gcc, ld, make, nm, ranlib, size, strip to link to ../usr/bin (exception: cc -> ../usr/bin/gcc). <b>Note:</b> byacc, c++, cmp, diff, diff3 and expect do not exist in ../usr/bin! Removed symlinks</li>
+
+  <li>cd ../..</li>
+
+  <li>mkdir lib</li>
+
+  <li>Copied cdk/linux-elf-ppc/usr/lib/gcc/powerpc-lynx-lynxos178/3.4.3/libgcc.a -> lib <b>Note:</b> Unable to find any libstdc++.a's!</li>
+
+  <li>Created linux-elf-ppc.tar.gz with tar -zcvf ../linux-elf-ppc.tar.gz .</li>
+</ol>
+
+<h3>Removing libgcc from LOS178:</h3>
+
+<ol>
+  <li>cd /build/los178/src/lib/libgcc</li>
+
+  <li>rm Makefile</li>
+
+  <li>cvs delete Makefile</li>
+
+  <li>cd ..</li>
+
+  <li>Editted Makefile to remove libgcc from SUBCOMPONENTS</li>
+
+  <li>cd /build/los178/src/cdk/common/bison-1.19</li>
+
+  <li>rm Makefile</li>
+
+  <li>cvs delete Makefile (<b>Note:</b> there are many other files here. Should they be likewise removed?)</li>
+
+  <li>cd ../links</li>
+
+  <li>rm Makefile</li>
+
+  <li>cvs delete Makefile</li>
+
+  <li>cd /build/los178/src/cdk</li>
+
+  <li>Editted Makefile to remove references to bison-1.19 and links</li>
+
+  <li>Editted Makefile to add -0.9.6 to "openssl".</li>
+</ol>
+
+<p>The following is the result of building src/cdk:</p>
+
+<ul>
+  <li>coffcorrupt - for test <font color="green">PASSED</font></li>
+
+  <li>cofflook - for inspecting coff object <font color="green">PASSED</font></li>
+
+  <li>config - needed <font color="green">PASSED</font></li>
+
+  <li>crc - append script uses this <font color="green">PASSED</font></li>
+
+  <li>elflook - for inspecting elf object <font color="red">FAILED</font></li>
+
+  <li>install - use for installation <font color="green">PASSED</font></li>
+
+  <li>m4-1.4 - needed for config.tbl <font color="red">Didn't find anything about this!</font></li>
+
+  <li>man2html - html man page utility <font color="red">Didn't find anything about this!</font></li>
+
+  <li>mkbootprep - use by vmpc <font color="green">PASSED</font></li>
+
+  <li>mkimage - maybe need to be update to support elf kernel? <font color="green">PASSED</font></li>
+
+  <li>mktimestamp - needed for kernel timestamp <font color="green">PASSED</font></li>
+
+  <li>prepend-crc - mkboot178 uses this <font color="green">PASSED</font></li>
+
+  <li>gzip-1.2.4 - only for solaris host <font color="green">PASSED</font></li>
+
+  <li>tar-1.11.2 - only for solaris host <font color="red">FAILED</font></li>
+
+  <li>vctchk - use for checking vct <font color="red">FAILED</font></li>
+
+  <li>openssl <font color="red">(Failed to build saying it couldn't find /build/los178/cdk/linux-elf-ppc/bin/make)</font></li>
+</ul>
+
+<p>I will try to pick this up from home but I have been having some connectivity issues lately...</p>
+</blockquote>
+
+<p>Picking up...</p>
+
+<h3>Building LOS178 after sections I & II above completed:</h3>
+
+<ol>
+  <li>Logged in as int</li>
+
+  <li>Exported toolchain source -> /build/toolchain.src (via tag DEV_LOS178_3p0p0_ppc_20050607)</li>
+
+  <li>Instructions say to package source yet Makefile's package target does not include fixup.sh so performed this by hand.</li>
+
+  <li>Stored previously successfully built toolchain -> t3:/export/dev_archive/los178/3p0p0/toolchain/20050607</li>
+
+  <li>Checked that europa:/build/los178 had TOT. Only differences were the changes to the Makefile(s) describe above and the cvs deletes that I did.</li>
+
+  <li>rm sys/miscgcc/*.o</li>
+
+  <li>tar -zxvf /build/bin-image/ppc.cdksol.tar.gz sys/miscgcc</li>
+
+  <li>tar -zxpf/build/1033-00.cdklinux.tar.gz</li>
+
+  <li>Sourced SETUP.bash</li>
+
+  <li>make DEVELOPMENT=yes install > install.log 2>&1</li>
+
+  <li>make failed due to lack of crc (and a syntax error I introduced in the src/lib/Makefile - missed a "\"!). The crc was missing because I skipped a step, the make install in src/cdk. Turns out I skipped this step because I thought we had performed this yesterday - and we did - but we had some problems there and Vinnie helped me to get that to work. Unfortunately we were using make all during that time and failed to to the make install portion).</li>
+
+  <li>make failed with the following:<p>
+
+<div class="code"><pre>
+      europa:check -t -v install.log
+      ERRORS:
+      make[3]: *** No rule to make target `_udivdi3.o', needed by `archive_step'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      /build/los178/cdk/linux-xcoff-ppc/bin/ld: cannot open -lmiscgcc: No such file or directory
+      make[4]: *** [common_all] Error 1
+      make[3]: *** [re_all] Error 2
+      /build/los178/cdk/linux-xcoff-ppc/bin/ld: cannot open -lmiscgcc: No such file or directory
+      make[4]: *** [a.out] Error 1
+      make[3]: *** [re_all] Error 2
+      make[2]: *** [real] Error 2
+      make[1]: *** [install] Error 2
+      make[3]: *** [gunzip] Error 1
+      make[3]: *** [nohup] Error 1
+      make[3]: *** [install_common] Error 1
+      make[3]: *** [install] Error 1
+      make[2]: *** [real] Error 2
+      make[1]: *** [install] Error 2
+      File: install.log Errors: 20 Warnings: 2545
+</pre></div>
+  <p>The issues here boil down to the _udivd3.o problem mostly (the No rule to make target `install' are the csp.x86, ibm440ep stuff and there are few permissions problems with chmod since this build was done as int this time). The _udivd3.o problem results from a new .o file introduced by Gilbert and CR #542 and a corresponding change to the Makefile. The miscgcc .o files are gotten from ppc.cdksol.tar.gz but there is no _udivd3.o in ppc.cdksol.tar.gz.</p>
+
+  <p>After discussing this with Vinnie we determined that Gilbert had checked in these .o files when what really needs to be done is for us to include this new .o file into the ppc.cdk[sol|linux].tar.gz images in bin-image.</p>
+
+  <li>After building the following errors remain:</p>
+
+  <ol>
+    <li>5 "No rule to make target `install`" remains for devices.ibm440ep, drivers.ibm440ep, csp.440, csp.x86 and bsp.ibm440ep. These are known problems.</li>
+
+    <li>Various permissions problems dealing with the fact that I had initially built things as adefaria and switched to building as int.</li>
+  </ol>
+</ol>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:17 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000373.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 15, 2005</h2>
+                     <a id="a000372"></a>
+                     <div class="entry" id="entry-372">
+                        <h3 class="entry-header">Rebuild 2.1.0/GDB 6.0</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Rebuilt/re-released 2.1.0 with additional CR #632</li>
+
+  <li>Built GDB 6.0 on Windows!</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:18 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000372.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 13, 2005</h2>
+                     <a id="a000371"></a>
+                     <div class="entry" id="entry-371">
+                        <h3 class="entry-header">3.4.3 toolchain build/LOS178 Makefile global clean/clobber</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added CR 636: LOS178 3.0.0 build fails with new 3.4.3 gcc</li>
+
+  <li>Reproduced make clobber problem</li>
+
+  <li>Added 637: 3.4.3 toolchain does not package properly</li>
+</ul>
+                              
+                              <h3>Make clobber problem</h3>
+
+<p>When a make clobber is performed in sys the make is propagated downward through the sub makes. However the sys level Makefile starts it's clobber target with: rm $(ENV_PREFIX)/sys/lib/* to remove all of the libraries in sys/lib.</p>
+
+<p>When the make clobber gets propagated down to drivers/arinc653 the following happens:</p>
+
+<div class="code"><pre>
+    make -f Makefile.real DRV_IS_DLDD=no clobber
+    make[1]: Entering directory `/build/los178/sys/drivers/arinc653'
+    /bin/rm -f arinc653drvr.lint
+    /build/los178/cdk/linux-elf-ppc/usr/bin/ar d /build/los178/sys/lib/libdrivers.a arinc653drvr.o
+    make[1]: Leaving directory `/build/los178/sys/drivers/arinc653'
+    make -f Makefile.real DRV_IS_DLDD=yes clobber
+    make[1]: Entering directory `/build/los178/sys/drivers/arinc653'
+    /bin/rm -f arinc653.*.o arinc653.*.bin arinc653.pre arinc653.import
+    /bin/rm -f arinc653.dldd arinc653.info
+    make[1]: Leaving directory `/build/los178/sys/drivers/arinc653'
+</pre></div>
+
+<p>At this point a small libdrivers.a is left in sys/lib:</p>
+
+<div class="code"><pre>
+    europa:ll ../../lib/libdrivers.a
+    -rw-rw-r--    1 adefaria staff         170 Jun 13 13:02 ../../lib/libdrivers.a
+</pre></div>
+
+<p>Similar things happen in:</p>
+
+<ul>
+  <li>sys/drivers/mem</li>
+
+  <li>sys/driverspmac_g5/is_sungem</li>
+
+  <li>sys/drivers.vmpc/rs232</li>
+
+  <li>sys/drivers.vmpc/bdlan</li>
+
+  <li>sys/drivers.vmpc/if_dec21040</li>
+</ul>
+
+<p>When we are done with a clobber we are left with:</p>
+
+<div class="code"><pre>
+    europa:ll ../../lib/
+    total 20
+    drwxrwxr-x    2 adefaria staff        4096 Jun 13 13:16 ./
+    drwxrwxr-x   26 adefaria staff        4096 Jun 13 13:16 ../
+    -rw-rw-r--    1 adefaria staff         170 Jun 13 13:16 libdrivers.a
+    -rw-rw-r--    1 adefaria staff           8 Jun 13 13:16 libdrivers_pmac_g5.a
+    -rw-rw-r--    1 adefaria staff           8 Jun 13 13:16 libdrivers_vmpc.a
+</pre></div>
+
+<p>This eventually screws up the build. Doing a make clobber followed by rm lib/* then a make install works OK...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  8:57 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000371.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 10, 2005</h2>
+                     <a id="a000370"></a>
+                     <div class="entry" id="entry-370">
+                        <h3 class="entry-header">Issues building LOS178 with 3.4.3 toolchain</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>I experienced the following issues when attempting to build LOS178 with the 3.4.3 toolchain:</p>
+
+<h3>Need to have xcoff cdk</h3>
+
+<p>In order to perform the build the xcoff version of the cdk needs to be untarred. This was obtained from 2.0.0 (98r2) tarball:</p>
+
+<div class="code"><pre>
+    $ tar -zxpf ../1033-00.cdklinux.tar.gz
+</pre></div>
+
+<br>
+
+<h3>Need to get files from ppc.cdksol.tar.gz from sys/miscgcc</h3>
+
+<p>In order to perform the build one needs to extract files from bin-image/ppc.cdksol.tar.gz, specifically the sys/miscgcc area:</p>
+
+<div class="code"><pre>
+    $ tar -zxpf ../bin-image/ppc.cdksol.tar.gz sys/miscgcc
+</pre></div>
+
+<br>
+
+<h3>Need to extract 3.4.3 toolchain</h3>
+
+<p>After successfully building 3.4.3 gcc, package it up and then use it to extract here:</p>
+
+<div class="code"><pre>
+$ tar -zxpf ../toolchain/toolchain-i686-pc-linux-gnu-powerpc178.tar.gz
+</pre></div>
+
+<br>
+
+<h3>Toolchain's cdk/linux-elf-ppc lacks a bin directory</h3>
+
+<p>Normally under cdk/linux-xcoff-ppc there is both a usr and a bin directory. Some entities are just a symlink back to their counterparts in ../usr/bin (e.g. ld -> ../usr/bin/ld). This bin directory structure is not present after untarring toolchain-i686-pc-linux-gnu-powerpc178.tar.gz. For building purposes the following was done:</p>
+
+<ol>
+  <li>Create a bin directory in cdk/linux-xcoff.ppc</li>
+
+  <li>Create symlinks to ../usr/bin:
+
+<div class="code"><pre>
+      $ for link in ar as byacc c++ cmp diff diff3 expect flex gcc ld \
+      > make nm ranlib size strip; do
+      > ln -s ../usr/bin/$link $link
+      > done
+</pre></div>
+
+      Note: Some of these are probably not necessary</li>
+
+  <li>Copy the following files from linux-xcoff-ppc/bin -> linux-elf-ppc/bin:
+
+<div class="code"><pre>
+      $ for file in bison bison.hairy bison.simple coffcorrupt cofflook \
+      > config crc elflook gnutar gunzip gzcat gzexe gzip install mkbootprep \
+      > mkimage mktimestamp prepend-crc vctchk yacc zcmp zdiff zforce zgrep \
+      > zmore znew; do
+      > cp ../../linux-xcoff-ppc/bin/$file $file
+      > done
+</pre></div>
+
+      Note: Some of these are probably not necessary</li>
+</ol>
+
+<h3>libgcc.a not present</h3>
+
+<p>The build failed because it was unable to find libgcc.a. The solution was to copy libgcc.a into the right place:</p>
+
+<div class="code"><pre>
+    $ mkdir lib
+    $ cp cdk/linux-elf-ppc/usr/lib/gcc/powerpc-lynx-lynxos178/3.4.3/libgcc.a lib
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:53 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000370.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June  9, 2005</h2>
+                     <a id="a000369"></a>
+                     <div class="entry" id="entry-369">
+                        <h3 class="entry-header">3.4.3 toolchain build/LOS178 Makefile global clean/clobber</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>As Moscow had checked in changes I was instructed to reattempt to build 3.4.3 toolchain again. Toolchain builds on both RH 8.0 and 9.0 but LOS178 fails to build</li>
+
+  <li>Made changes to LOS178 top level Makefile to support global clean and clobber targets. Need CR to check this in...</li>
+</ul>
+                              
+                              <h3>3.4.3 Toolchain builds</h3>
+Vinnie So wrote:
+
+<blockquote type=cite>
+<p>Andrew,</p>
+
+<p>On the other part I just wrote the high level instruction you know what to do.</p>
+
+<p>--Vinnie</p>
+
+<p>1. check out compiler TOT from t3:/cvs/gcc-cvs</p>
+
+<div class="code"><pre>
+# cvs co -P toolchain
+</pre></div>
+</blockquote>
+
+OK.
+
+<blockquote type=cite>
+<p>2. Apply tag DEV_LOS178_3p0p0_ppc_20050609</p>
+</blockquote>
+
+<p>To the toolchain?!?</p>
+
+<blockquote type=cite>
+<p>3. check out los178 & check out bin-image (TOT)</p>
+<div class="code"><pre>
+# cvs co -P bin-image
+# cvs co -P los178
+</pre></div>
+</blockquote>
+
+<p>OK.</p>
+
+<blockquote type=cite>
+<p>4. Apply tag DEV....... you know what this is</p>
+</blockquote>
+
+<p>I assume you mean to los178... (bin-image?)</p>
+
+<blockquote type=cite>
+<p>5. extract linux cdk (98r2) into the los178 build tree</p>
+
+<div class="code"><pre>
+t3:/export/dev_archive/los178/2p0p0/20050228/solaris/media/ppc/1033-00.cdklinux.tar.gz
+</pre></div>
+</blockquote>
+
+<p>OK</p>
+
+<blockquote type=cite>
+<p>6. extract sys/miscgcc from bin-image/ppc.cdksol.tar.gz into los178 build tree</p>
+
+<div class="code"><pre>
+# gnutar zxpf bin-image/ppc.cdksol.tar.gz sys/miscgcc
+</pre></div>
+
+<p>This is needed since kernel is still xcoff. Once kernel is elf you will need elf miscgcc object files.</p>
+</blockquote>
+
+<p>OK.</p>
+
+<blockquote type=cite>
+<p>7. In the los178 build tree source SETUP.bash</p>
+</blockquote>
+
+<p>OK.</p>
+
+<blockquote type=cite>
+<p>8. Change to the toolchain directory & do whatever setup is needed and build the compiler</p>
+</blockquote>
+
+<p>OK. Damn it worked! (RH 9.0 - still waiting for RH 8.0...)</p>
+
+<blockquote type=cite>
+<p>9. package the toolchain & extract into the los178 build tree</p>
+</blockquote>
+
+<p>OK</p>
+
+<blockquote type=cite>
+<p>10. build the los178</p>
+</blockquote>
+
+<p>Experienced problems. First problem is that cdk/linux-elf-ppc lacked a bin directory, therefore $ENV_PREFIX/cdk/linux-elf-ppc/bin/make did not exist. Looking at linux-xcoff-ppc/bin I see that some files are simply symlinks to ../usr/bin/<file> and others are actual files. Using the file(1) command I see that the files under linux-xcoff-ppc/bin that are not symlinks are ELF files! Odd.</p>
+
+<p>So recreating (symlinking symlinks and copying files) $ENV_PREFIX/cdk/linux-xcoff-ppc/bin -> $ENV_PREFIX/cdk/linux-elf-ppc/bin and attempting the build yielded errors. Discussing this with Vinnie we performed the following actions:</p>
+
+<ul>
+  <li>Copied cdk/linux-elf-ppc/usr/lib/gcc/powerpc-lynx-lynxos178/3.4.3/libgcc.a -> $ENV_PREFIX/lib</li>
+
+  <li>Created the /usr/los178/2.0.0/ppc_dev/cdk/linux-xcoff-ppc/bin directory and placed a copy of bison.simple from cdk/linux-xcoff-ppc/bin into that directory</li>
+
+  <li>Reperformed the build of LOS178</li>
+</ul>
+
+<p>Now, on Europa - a RH 8.0 machine - I have many errors all stating:</p>
+
+<div class="code"><pre>
+    /build/los178/cdk/linux-xcoff-ppc/bin/ar: /build/los178/sys/lib/libdrivers.a: File format is ambiguous
+    /build/los178/cdk/linux-xcoff-ppc/bin/ar: Matching formats: elf32-powerpc elf32-little elf32-big
+    make[5]: *** [/build/los178/sys/lib/libdrivers.a(rddrvr.o)] Error 1
+</pre></div>
+
+<p>The log file is on europa:/build/los178/install.log</p>
+
+<h3>Global clean and clobber targets</h3>
+
+<p>In order to support global clean and clobber targets on LOS178's top level Makefile the following changes need to be done:</p>
+
+<ul>
+  <li>Add clean and clobber to .PHONY</li>
+
+  <li>Change help target to describe new targets</li>
+
+  <li>Add clean and clobber targets that essentially loop through $(DIRS) and perform make [clean|clobber]</li>
+</ul>
+
+<p>Via cvs diff:</p>
+
+<div class="code"><pre>
+Index: Makefile
+===================================================================
+RCS file: /cvs/los178-cvs/los178/Makefile,v
+retrieving revision 1.7
+diff -r1.7 Makefile
+22c22
+< .PHONY: help all install setup asmstat asmstatclean
+---
+> .PHONY: help all install setup asmstat asmstatclean clean clobber
+24a25
+>       @echo "This Makefile is use to build the entire LOS178, for example:"
+26,27d26
+<       @echo "This Makefile is use to build the entire LOS178"
+<       @echo " for example:"
+31c30,33
+<
+---
+>       @echo "Additionally the following targets are supported"
+>       @echo ""
+>       @echo "     make clean"
+>       @echo "     make clobber"
+55a58,66
+>
+> # Global clean and clobber targets
+> clean:
+>       @for dir in $(DIRS); do \
+>               (cd $$dir && make clean); done
+>
+> clobber:
+>       @for dir in $(DIRS); do \
+>               (cd $$dir && make clobber); done
+
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:05 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000369.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June  8, 2005</h2>
+                     <a id="a000368"></a>
+                     <div class="entry" id="entry-368">
+                        <h3 class="entry-header">2.1.0 problem/3.4.3 gcc/GDB 6.0</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Rebuilding LOS178 2.1.0</li>
+
+  <li>Attempted to build 3.4.3 on RH 8.0. Didn't work. Reattempting on RH 9.0 machine, shrike</li>
+
+  <li>Setup coolcat Windows box to attempt to build GDB 6.0</li>
+
+  <li>Changed Logger.pm to set autoflush</li>
+
+  <li>Changed build_los178 to look for sendmail</li>
+
+  <li>Worked on improving rename.sh to handle multiple versions. More works need to be done.</li>
+</ul>
+                              
+                              <h3>LOS178 2.1.0</h3>
+
+<p>There was some sort of problem with the recent build of 2.1.0. In looking into it I found the following:</p>
+
+<p>I found a tagging problem. I used the tag DEV_LOS178_3p0p0_ppc_20050603. Note the 3p0p0. It should have been 2p1p0. I searched dev_archive on t3 and find no 20050603 directory for 3p0p0 but find it instead under 2p1p0. I believe that I should simply rename that tag to DEV_LOS178_2p1p0_20050603.</p>
+
+<p>The CRs involved in 1 gig support seem to be: 539 and 606. Additionally 620 appears to be picked. Here's the break down:</p>
+
+<div class="code"><pre>
+    rock:files4cr 539 # Add 1Gb support for LynxOS-178
+    ENVIRONMENT: 1.9.2.2 - Already up to date
+    src/bin/lynxos.boot/Makefile: 1.1.1.1.2.1 - Already up to date
+    src/cdk/common/mkimage/coff.c: 1.1.2.1 - Already up to date
+    sys/bsp.vmpc/bsp_env.c: 1.2.2.1 - Already up to date
+    sys/bsp.vmpc/lowInit.c: 1.3.2.1 - Already up to date
+    sys/bsp.vmpc/procinit.c: 1.3.2.1 - Already up to date
+    sys/csp.970/csp_init.c: 1.2.2.1 - Out of date
+    sys/csp.970/csp_mem_map.c: 1.4.2.1 - Out of date
+    sys/csp.ppc/csp_init.c: 1.2.2.1 - Already up to date
+    sys/csp.ppc/csp_mem_map.c: 1.3.2.1 - Already up to date
+    sys/include/bsps/pmac_g5/board.h: 1.5.2.1 - Out of date
+    sys/include/bsps/vmpc/board.h: 1.2.2.1 - Already up to date
+    sys/include/bsps/vmpc/pwb.h: 1.1.2.1 - Already up to date
+    sys/include/family/ppc/arch_mem.h: 1.1.1.1.2.1 - Already up to date
+
+    rock:files4cr 606 # Fix the 1GB problem on the Apple Power Mac G5 LynxOS-178 BSP
+    sys/bsp.pmac_g5/bsp_env.c: 1.2.2.1 - Already up to date
+    sys/bsp.pmac_g5/bsp_init.c: 1.3.2.2 - Already up to date
+    sys/bsp.pmac_g5/ofw.c: 1.5.2.1 - Already up to date
+    sys/bsp.pmac_g5/ofw.h: 1.3.2.1 - Already up to date
+    sys/bsp.pmac_g5/procinit.c: 1.5.2.1 - Already up to date
+    sys/csp.970/csp_init.c: 1.2.2.2 - Already up to date
+    sys/csp.970/csp_mem_map.c: 1.4.2.2 - Out of date
+    sys/include/bsps/pmac_g5/board.h: 1.5.2.2 - Already up to date
+    sys/kernel/getrusage.c: 1.1.1.1.2.1 - Already up to date
+
+    rock:files4cr 620 # Import G5 bug fixes/improvement from TOT into 2.1.0 branch
+    sys/bsp.pmac_g5/bsp_intr.c: 1.2.2.1 - Already up to date
+    sys/csp.970/csp_mem_map.c: 1.4.2.3 - Already up to date
+    sys/drivers/arinc653/Makefile.real: 1.1.2.1 - Already up to date
+</pre></div>
+
+<p>If you look carefully you'll notice that the "Out of date" items for 539 are covered with newer versions in 606 and 620. So it appears as if I was up to date with when I built.</p>
+
+<p>I am building again and will be rereleasing images using the correct numbering this time.</p>
+
+<h3>Building 3.4.3 gcc on shrike RH 9.0</h3>
+
+<p>I attempted to build 3.4.3 gcc on shrike, a RH 9.0 system but it failed with the following:</p>
+
+<div class="code"><pre>
+    make[2]: Entering directory `/home/adefaria/toolchain/build-powerpc/bison'
+    cd /home/adefaria/toolchain.orig/src/bison && autoheader
+    WARNING: Using auxiliary files such as `acconfig.h', `config.h.bot'
+    WARNING: and `config.h.top', to define templates for `config.h.in'
+    WARNING: is deprecated and discouraged.
+
+    WARNING: Using the third argument of `AC_DEFINE' and
+    WARNING: `AC_DEFINE_UNQUOTED' allows to define a template without
+    WARNING: `acconfig.h':
+
+    WARNING:   AC_DEFINE([NEED_MAIN], 1,
+    WARNING:             [Define if a function `main' is needed.])
+
+    WARNING: More sophisticated templates can also be produced, see the
+    WARNING: documentation.
+    touch /home/adefaria/toolchain.orig/src/bison/config.hin
+    cd . && /bin/sh ./config.status config.h
+    Usage: ./config.status [--recheck] [--version] [--help]
+    make[2]: *** [stamp-h1] Error 1
+    make[2]: Leaving directory `/home/adefaria/toolchain/build-powerpc/bison'
+    make[1]: *** [all-bison] Error 2
+    make[1]: Leaving directory `/home/adefaria/toolchain/build-powerpc'
+    make: *** [stamp-all-powerpc] Error 2
+</pre></div>
+
+<p>Here's what I did:</p>
+
+<ul>
+  <li>Checked out toolchain from my previous tag (DEV_LOS178_3p0p0_ppc_20050607)</li>
+
+  <li>Obtained and applied the patches as before</li>
+
+  <li>Obtained the LOS178 build environment as before</li>
+
+  <li>Performed make install</li>
+</ul>
+
+<p>This was done on shrike in my home directory.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000368.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June  7, 2005</h2>
+                     <a id="a000367"></a>
+                     <div class="entry" id="entry-367">
+                        <h3 class="entry-header">build_los178 enhancements/3.4.3 toolchain build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed build_los178 to log results using Logger and to report results by emailing them</li>
+
+  <li>Started on 3.4.3 toolchain build</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:29 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000367.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June  3, 2005</h2>
+                     <a id="a000366"></a>
+                     <div class="entry" id="entry-366">
+                        <h3 class="entry-header">LOS178 2.1.0 build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Built LOS178 2.1.0</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:33 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000366.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June  1, 2005</h2>
+                     <a id="a000365"></a>
+                     <div class="entry" id="entry-365">
+                        <h3 class="entry-header">LOS178 TOT Build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Built TOT for LOS178</li>
+
+  <li>Tagged and release resultant build</li>
+
+  <li>Worked some more on build_los178 script to do automatic building</li>
+</ul>
+                              
+                              <h3>Automatic building</h3>
+
+<p>In general this is going to be hard because each systems has it's own build mechanism and quirks. The intend was initially to create a script that normalized those quirks but it was later decided to create a build_los178 script that has particular knowledge of LOS178.</p>
+
+<p>So far the set up and initial build steps are done. It's not optimal, more like a mirroring of the steps that a builder would do - but it's a start. One problem is that through Perl one cannot expect to `. SETUP.bash` and expect environment variables to remain in force. This is because Perl execs a subshell to perform the command and after that subshell dies so does its environment. For now build_los178 has a subroutine coded that mimicks what SETUP.bash does. This is not good because if SETUP.bash changes then that would break this until it was likewised changed. I need to find a better way to do this...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:24 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000365.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

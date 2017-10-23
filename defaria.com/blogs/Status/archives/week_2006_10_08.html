@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: October  8, 2006 - October 14, 2006 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2006_10_01.html" title="October  1, 2006 - October  7, 2006" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2006_10_15.html" title="October 15, 2006 - October 21, 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2006_10_01.html">&laquo; October  1, 2006 - October  7, 2006</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2006_10_15.html">October 15, 2006 - October 21, 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">October 13, 2006</h2>
+                     <a id="a000581"></a>
+                     <div class="entry" id="entry-581">
+                        <h3 class="entry-header">gpdb_add_project.pl using gpdb user and Nice</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Attempted to integrate Rexec into gpdb_add_project.pl and have it talk to Nice</li>
+
+  <li>Looked into problem with Cygwin, Samba and ssh</li>
+</ul>
+                              
+                              <h3>Rexec, gpdb_add_project.pl and Nice</h3>
+
+<p>I've been making some slow but steady progress with gpdb_add_project.pl. I've:</p>
+
+<ul>
+  <li>Implemented an Rexec Perl module that allows better access to remote sites. It does this by attempting ssh then rsh and finally telnet in an attempt to contact the remote site. It's object oriented and allows you to repeatedly execute remote commands without having to repeatedly login. Finally it can take a different username than the person running the script.</li>
+
+  <li>David then got me set up with a generic gpdb user for the Dallas and Nice sites.</li>
+</ul>
+
+<p>In attempting to use the new generic gpdb user I encountered a few problems. The biggest difference isg pdb user is tcsh (and csh I think) oriented whereas the Rexec module assumes a Borne/Ksh/Bash orientation. This has caused a number of problems:</p>
+
+<ol>
+  <li>When logging onto the system the prompt is different (csh style shells use "%")</li>
+
+  <li>When logging onto the Nice site not only is the prompt different but it contains special characters. It uses embedded escape sequences that colorize the prompt. Rexec needs to find the prompt so it knows when it can send commands. Needless to say this si problematic forRexec. For now I set the prompt for gpdb@Nice to simply "% ", which  works.</li>
+
+  <li>Some of the commands that gpdb_add_project.pl issues are decidedly Borne shell oriented. For example, it uses 2&gt;&amp;1 to combine stdout and stderr. This syntax is not valid under csh style shells. Additionally, Rexec would wrap commands in an "echo start; &lt;cmd&gt;; echo errono=$?" in order to obtain the return status of the remotely executed command. The $? variable is not available in csh style shells. So I added a shellstyle parameter to Rexec to handle these differences (though that doesn't fix #2).</li>
+</ol>
+
+<p>One way around all of these problems is to require generic service
+level accounts such as gpdb to run the default Borne shell (/bin/sh).</p>
+
+<p>Next, and forgive me since my NIS is a bit rusty, but gpdb_add_project.pl would attempt to get certain NIS maps for remote sites that use NIS (it is also NIS+ aware/sensitive). In doing so it does an ls -1 /etc then looks for files such as auto_master. It then cat's auto_master and looks for lines that have "+auto" or "data" in them. It then uses that as a key file for ypcat as in ypcat -k auto_master.</p>
+
+<p>Now @Nice (svrscity01.tif.ti.com) it finds:</p>
+
+<div class=code><pre>
+% cat /etc/auto_master
+# Master map for automounter
+#
++auto_master
+/xfn -xfn
+/net -hosts      -intr,rw,grpid
+</pre></div>
+
+<p>So it then does ypcat -k auto_master which:</p>
+
+<div class=code><pre>
+% ypcat -k auto_master
+no such map in server's domain
+</pre></div>
+
+<p>The following does work though:</p>
+
+<div class=code><pre>
+% ypcat -k auto.master
+/clearcase auto.clearcase
+/home_drp auto.home_drp -intr,ro
+/apps_drp auto.apps_drp -intr,ro
+/db_drp auto.db_drp -intr,ro
+/user auto.user -intr,rw,grpid
+/tool auto.tool -intr,rw,grpid,noquota,noatime
+/home auto.home -intr,rw,grpid
+/apps auto.tool -intr,rw,grpid,noquota,noatime
+/xfn -xfn -noquota
+/sim auto.sim
+/net -hosts -intr,rw,grpid,noquota
+/db auto.db
+/u auto.tool -intr,rw,grpid,noquota
+</pre></div>
+
+<p>It appears to be trying to find the auto_data map, of which there are none, and then will look for "sync_custom" in there. As such I don't see how this ever worked at Nice.</p>
+
+<p>Thoughts? Pointers?</p>
+
+<h3>Cygwin, Samba and ssh</h3>
+
+<p>Here's the story. I use Cygwin on my XP desktop. I like having a home directory on Windows that is the same home directory on Unix/Linux machines. Often companies offer access to your Unix/Linux home directory via Samba. Also, often companies do not bother to set up a Samba server wish participates in a domain, so the Samba server is configured as being in a workgroup.</p>
+
+<p>Now for a long time I struggled with this. I would map //&lt;samba server&gt;/&lt;home share&gt; -&gt; my H drive then mount the H drive as /home and make sure my Cygwin /etc/password referred to my home directory of /home/$USER. All is great.</p>
+
+<p>But when dealing with Samba servers who are configured into workgroups innocuous activities in Cygwin would elicit permission denied messages. For example, touching a file in the home directory and indeed even vi'ing a file, etc. Creating a file within Windows Explorer or using
+other Windows oriented tools would work just fine. Files created on the Unix/Linux side would also work fine but when looked at from Cygwin on the PC would have odd (read "nobody") ownerships and permissions.</p>
+
+<p>Of course as Cygwin is often not supported by the typical company's IT department and because many people do not attempt to utilize Cygwin fully often requests for assistance and change fell on deaf ears...</p>
+
+<p>Eventually I figured out that my Windows SID in /etc/passwd is the SID of my domain user and since the Samba server was not in the domain my SID does not authenticate properly. Then I had a break through in that I realized that I was using SMBNTSEC as well as NTSEC in my Cygwin environment. I figured "Yeah I want to use the same Windows security for SMB mounted drives too". This is where my problem lies and it's because the Samba server configured by the client does not participate in the Windows domain from which I've logged in. </p>
+
+<p>Now I'm pretty sure that Samba could be configured properly into a Windows domain as Samba can be configured as a PDC or a BDC, but many clients don't bother to go that far. So why is Windows able to deal with this but not Cygwin?</p>
+
+<p>I believe that this is because within Samba a very basic approach is kept towards storing of user identification information. Indeed basic Samba just has an smbpasswd file which is much like your typical Unix/Linux /etc/passwd file and it is not designed to carry extra information about users and machine accounts as well as multiple groups and trust associations, etc. Even Samba documents talks about hooking Samba up to either LDAP or what they call a Trivial DataBase (TDB) in order to store such additional Windows only information.</p>
+
+<p>So I thought the simple solution was to remove SMBNTSEC from my Cygwin environment and all would be fine. And indeed it is! Well almost...</p>
+
+<p>Along comes ssh... So I like to use ssh to log into various Unix/Linux systems as I work. And again I share my home directory between Windows and Unix/Linux. Finally I like setting up passwordless public key ssh login as I'm not one of those who likes having to type in his password hundreds of times a day. But ssh's is picky about permissions of your ~/.ssh and ~/.ssh/id_&lt;type&gt; key files. When ssh'ing from Cygwin to a Unix/Linux box I am now receiving the following:</p>
+
+<div class=code><pre>
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Permissions 0644 for '/home/x0062320/.ssh/id_rsa' are too open.
+It is recommended that your private key files are NOT accessible by others.
+This private key will be ignored.
+bad permissions: ignore key: /home/x0062320/.ssh/id_rsa
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Permissions 0644 for '/home/x0062320/.ssh/id_dsa' are too open.
+It is recommended that your private key files are NOT accessible by others.
+This private key will be ignored.
+bad permissions: ignore key: /home/x0062320/.ssh/id_dsa
+x0062320@stashu's password:
+</pre></div>
+
+<p>And, of course, I need to type in my password again! What I believe is happening is that because my home directory is SMB mounted and SMBNTSEC is off then Cygwin reports that files like ~/.ssh/id_rsa are 0644 even if I change them on Unix/Linux to 0600. So, for example:</p>
+
+<div class=code><pre>
+&lt;unix box&gt;$ ls -l ~/.ssh/id_rsa
+-rw-------  1 x0062320 generic 887 Aug 31 16:43 /home/x0062320/.ssh/id_rsa
+</pre></div>
+
+<p>While:</p>
+
+<div class=code><pre>
+&lt;cygwin&gt;$ ls -l ~/.ssh/id_rsa
+-rw-r--r-- 1 x0062320 Domain Users 887 Aug 31 16:43 /home/x0062320/.ssh/id_rsa
+</pre></div>
+
+<p>Is there any way to work around this problem (short of reconfiguring the Samba server)?</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:31 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000581.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October 10, 2006</h2>
+                     <a id="a000579"></a>
+                     <div class="entry" id="entry-579">
+                        <h3 class="entry-header">Improved gpdp_add_project</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Checked in improved gpdb_add_project.pl script</li>
+
+  <li> Started investigating Dave Smith's <i>Monthly Matrix</i></li>
+</ul>
+                              
+                              <p>I've gotten Michael's copy of gpdb_add_project.pl, which he placed into the cmtools/src vob, working now. Here's some of the changes:</p>
+
+<ul>
+  <li>Resolved all problems so that "use strict" could be used</li>
+
+  <li>Fixed bugs with tests for right spaced filled tests for siteName (e.g. $siteName eq "Dallas&nbsp;&nbsp; ")</li>
+
+  <li>Changed code so that failure to contact a remote site simply reports a warning and moves on to the next site (previously it would die after the first failure).</li>
+
+  <li>Changed reading of gpdb_site_list.txt file so that it reads from the correct location.</li>
+
+  <li>Added Protocol, Username and Password columns to gpdb_site_list.txt (and reading of site file).</li>
+
+  <li>Changed all rsh calls to call an "Rexec" function that takes a hash of the site line in gpdb_site_list.txt. This is to allow alternate username/password per site<sup>1</sup></li>
+</ul>
+
+<p>Note that Rexec currently only supports the rsh protocol and the return code from this Rexec is the same as the return code for the rsh command itself, not the return code from the command that rsh is executing on the remote machine.</p>
+
+<p>The thought with the Protocol column in the site file is to support additional protocols, notably ssh and telnet, in the future.</p>
+
+<p>However, "rsh &lt;machine&gt; -l &lt;user&gt; command" doesn't prompt for password and you cannot supply password on the command line either<sup>1</sup> 
+ssh will prompt for a password. Telnet, of course, does not offer the ability to add a command. Finally specifying a password in a file is not very secure.</p>
+
+<p>I've spent a little time coming up with a Perl module (strangely named Rexec) to implement remote command execution. Currently it is an object oriented approach that uses telnet and Expect to open a channel to the remote machine and execute commands returning the remotely executed command's status and output. I plan on extending it to first try ssh then rlogin and finally telnet. For the first protocol, if passwordless access is set up then no password is required. If it can't connect that way then it can fall back to rlogin or telnet and use Expect to drive the login and command execution (or optionally fail if no password is given). In general I think this would be a useful module to have for
+all.</p>
+
+<p>Another benefit would be that the usage would be such that you establish a connection, execute potentially hundreds of commands, then destroy the connection - which would be a lot faster than say hundreds of ssh/rsh's which each need to login, do the command and logout.</p>
+
+<p>Another optimization I see for gpdb_add_project.pl would be to have the remote machine cut down the amount of data needed to be sent over the network connection. For example, gpdb_add_project.pl uses a remote connection to essentially niscat the auto_data automount map, returning hundreds of lines (6395 lines or 622559 bytes). Then it loops through that array looking for lines that say "sync_custom" (actually it first
+sorts them - for no particular reason!). I propose that it instead does something like "niscat auto_data.org_dir | grep sync_custom" returning only 2 lines or 126 bytes and remove the needless sort(s).</p>
+
+<p>Architecturally I think that what gpdb_add_project.pl does is interface between the outside world (in this case DesignSync) and GPDB. GPDB has a nice Perl module to allow consistent programmatic access to the output - GPDB (Thanks Michael). What would be nice is a Perl module that gathers all DesignSync info (which is what gpdb_add_project.pl does) allowing a consistent programmatic access to DesignSync info (and down the road - Clearcase). Then gpdb_add_project.pl could be greatly simplified to simply talk to these two architected interfaces.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:50 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000579.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October  9, 2006</h2>
+                     <a id="a000578"></a>
+                     <div class="entry" id="entry-578">
+                        <h3 class="entry-header">Rexec</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Finished recording gpdb_add_project to call a central rexec function so that remote execution can use a different username. However right now all it does is rsh, which can use another username but rsh needs to have remote passwordless login set up in order to work</li>
+
+  <li>Created Rexec.pm Perl object that has the ability to use Expect and telnet to log in remotely to a machine and execute commands, returning output and the status of the command executed remotely. Need to integrate this with gpdb_add_project...</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:32 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000578.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

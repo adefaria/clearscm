@@ -1,0 +1,28 @@
+#!/bin/bash
+################################################################################
+#
+# File:         lspatches
+# RCS:          $Header: lspatches,v 1.1 97/04/21 14:23:58 defaria Exp $
+# Description:  Lists patches for a 10.x machine
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Mon Nov 13 16:14:30 1995
+# Modified:     Mon Nov 13 16:16:56 1995 (Andrew DeFaria) defaria@spock
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# First source the appserver script
+if [ -x /app/appserver ]; then
+  . /app/appserver
+fi
+
+if [ $# -eq 0 ]; then
+  print -u2 "Patches for $(uname -n):"
+  /usr/sbin/swlist -l product | grep PH
+else
+  for machine in "$@"; do
+    print -u2 "Patches for $machine:"
+    remsh $machine -n /usr/sbin/swlist -l product | grep PH
+  done
+fi

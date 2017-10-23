@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: September 30, 2007 - October  6, 2007 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2007_09_23.html" title="September 23, 2007 - September 29, 2007" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2007_10_07.html" title="October  7, 2007 - October 13, 2007" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2007_09_23.html">&laquo; September 23, 2007 - September 29, 2007</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2007_10_07.html">October  7, 2007 - October 13, 2007 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_09_30.html#entry-000685"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/72"
+    dc:title="CreateWOR: Subclassing TextUndo"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_09_30.html#entry-000685"
+    dc:subject="General Dynamics"
+    dc:description=" Added onChange like callbacks to CreateWOR&apos;s text field and text widget. This required subclassing the TextUndo class and properly handling the call back...."
+    dc:creator=""
+    dc:date="2007-10-03T11:17:48-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">October  3, 2007</h2>
+                     <a id="a000685"></a>
+                     <div class="entry" id="entry-685">
+                        <h3 class="entry-header">CreateWOR: Subclassing TextUndo</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added onChange like callbacks to CreateWOR's text field and text widget. This required subclassing the TextUndo class and properly handling the call back.</li>
+</ul>
+                              
+                              <h3>Subclassing TextUndo</h3>
+
+<p>This is not working exactly as it should. I can't seem to store things like the onChange callback and a scalar representing the contents of the TextUndo widget in the new MyText object. I rely on overriding the methods InsertKeypress, insert, delete and replace in order to trap when modifications are made to the text, changing the $text member and to call the appropriate callback, but the object that's passed in is different than the object as it was in new and member variables for $text and $modified_CB are missing! So instead I use a package global but this means that only one, the same one, $modification_CB is used for all instantiations of MyText and the $text variable doesn't work at all. Instead one must call get_text in the &$modified_CB:</p>
+
+<div class=code><pre>
+# Subclass TextUndo widget to trap and call subroutine when text changes
+package Tk::MyText;
+  use Tk::TextUndo;
+
+  use base qw/Tk::TextUndo/;
+
+  Construct Tk::Widget "MyText";
+
+  my $modified_CB;
+
+  sub new {
+    my $class	= shift;
+    my $self	= shift;
+    my %parms	= @_;
+
+    $modified_CB	= delete $parms{-modified}	if $parms{-modified};
+    $self->{text}	= delete $parms{-text}		if $parms{-text};
+
+    $class->SUPER::new ($self, %parms);
+  } # new
+
+  sub get_text {
+    my $self = shift;
+
+    return $self->{text};
+  } # get_text
+
+  sub InsertKeypress {
+    my $self = shift;
+
+    $self->SUPER::InsertKeypress (@_);
+    $self->{text} = $self->get ("1.0", "end");
+    &$modified_CB ($self) if $modified_CB;
+  } # InsertKeypress
+
+  sub insert {
+    my $self = shift;
+
+    $self->SUPER::insert (@_);
+    $self->{text} = $self->get ("1.0", "end");
+  } # insert
+
+  sub delete {
+    my $self = shift;
+
+    $self->SUPER::delete (@_);
+    $self->{text} = $self->get ("1.0", "end");
+    &$modified_CB ($self) if $modified_CB;
+  } # delete
+
+  sub replace {
+    my $self = shift;
+
+    $self->SUPER::replace (@_);
+    $self->{text} = $self->get ("1.0", "end");
+    &$modified_CB ($self) if $modified_CB;
+  } # replace
+
+</pre></div> 
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:17 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000685.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000685.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_09_30.html#entry-000684"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/71"
+    dc:title="CreateWOR"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_09_30.html#entry-000684"
+    dc:subject="General Dynamics"
+    dc:description=" Created CreateWOR Perl/Tk application. This will be used by UCMWB Checked in and symlinked the switch config area in /prj/muosran. Investigating other symlinks such that our /prj/muosran area is using what&apos;s checked into Clearcase...."
+    dc:creator=""
+    dc:date="2007-10-02T11:15:22-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">October  2, 2007</h2>
+                     <a id="a000684"></a>
+                     <div class="entry" id="entry-684">
+                        <h3 class="entry-header">CreateWOR</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created CreateWOR Perl/Tk application. This will be used by UCMWB</li>
+
+  <li>Checked in and symlinked the switch config area in /prj/muosran.</li>
+
+  <li>Investigating other symlinks such that our /prj/muosran area is using what's checked into Clearcase.</li>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:15 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000684.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000684.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

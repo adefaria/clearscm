@@ -1,0 +1,50 @@
+#!/bin/ksh
+################################################################################
+#
+# File:         tmpfiles
+# Description:  Routines for handling temp files
+# Author:       Andrew@DeFaria.com
+# Created:      Tue Apr 15 14:20:02 PDT 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# This function will cleanup all temporary files used by the calling script
+# providing that they are all prefixed with tmpprefix.
+function cleanup {
+  debug "ENTER $0"
+  status=$?
+  if [ ! -z "$tmpprefix" -a $status -eq 0 ]; then
+    verbose "Cleaning up temp files..."
+    rm -f ${tmpprefix}*
+  else
+    debug "tmpprefix not set or status was not equal to 0 - no temporary
+files cleaned!"
+  fi
+
+  debug "EXIT $0"
+  exit $status
+} # cleanup
+
+function arm_trap {
+  debug "ENTER $0"
+  if [ -z "$tmpprefix" ]; then
+    warning "The environment variable tmpprefix has not neen set up!\n\
+Temporary files will not be cleaned up automatically!"
+  else
+    trap 'trap cleanup EXIT TERM' EXIT
+    debug "Cleanup will be called on EXIT or TERM signals"
+  fi
+
+  debug "EXIT $0"
+} # arm_trap
+
+function disarm_trap {
+  debug "ENTER $0"
+
+  trap 'trap - EXIT TERM' EXIT
+  debug "Cleanup will not be called on EXIT or TERM signals"
+  debug "EXIT $0"
+} # disarm_trap

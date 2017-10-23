@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Building Oracle 10.x for Linux</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000669.html" title="Installing... err... I mean building Oracle" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000671.html" title="UCMWB 1.2.3" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000670.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/57"
+    dc:title="Building Oracle 10.x for Linux"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000670.html"
+    dc:subject="General Dynamics"
+    dc:description=" Managed to get a 10.2 sqlplus client to talk to our 9.2 database server from Solaris. Regular expressions, however, do not work. Since there is no 9.2 Oracle 64 bit client for Linux I decided to attempt to get..."
+    dc:creator=""
+    dc:date="2007-08-30T14:35:08-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000669.html">&laquo; Installing... err... I mean building Oracle</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000671.html">UCMWB 1.2.3 &raquo;</a>
+                     </p>
+
+                     <a id="a000670"></a>
+                     <div class="entry" id="entry-670">
+                        <h3 class="entry-header">Building Oracle 10.x for Linux</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Managed to get a 10.2 sqlplus client to talk to our 9.2 database server from Solaris. Regular expressions, however, do not work.</li>
+
+  <li>Since there is no 9.2 Oracle 64 bit client for Linux I decided to attempt to get the 10.2 Oracle 64 bit client installed. Managed to get a 10.2 sqlplus client to talk to our 9.2 database server from Linux! Went to build the Qt OCI portion and failed.</li>
+</ol>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Building Qt OCI</h2>
+
+<p>Pat, I managed to install the Oracle Client 10.x for Linux - Will
+had gotten a 64 bit version. I even managed to use sqlplus to connect
+to RANCQ_RANDBS from Linux!</p>
+
+<p>Now it's time to build Qt's OCI interface so that I can ultimately
+build the Linux version of ucmwb.</p>
+
+<p>Trolltech, makers of Qt, state:</p>
+
+<blockquote>
+  <h3>How to Build the OCI Plugin on Unix and Mac OS X</h3>
+
+  </p>For Oracle 10g, all you need is the "Instant Client Package -
+  Basic" and "Instant Client Package - SDK". For Oracle prior to 10g,
+  you require the standard Oracle client and the SDK packages.</p>
+
+  <p>Oracle library files required to build the driver:</p>
+
+  <ul>
+    <li>libclntsh.so (all versions)</li>
+
+    <li>libwtc9.so (only Oracle 9)</li>
+  </ul>
+
+  <p>Tell qmake where to find the Oracle header files and shared
+  libraries and run make:</p>
+
+  <h3>For Oracle version 9:</h3>
+
+  <pre>
+cd $QTDIR/src/plugins/sqldrivers/oci
+qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh -lwtc9" oci.pro
+make
+  </pre>
+
+  <p>For Oracle version 10, we assume that you installed the RPM
+  packages of the Instant Client Package SDK (you need to adjust the
+  version number accordingly):</p>
+
+  <pre>
+cd $QTDIR/plugins/src/sqldrivers/oci
+qmake -o Makefile "INCLUDEPATH+=/usr/include/oracle/10.1.0.3/client/" "LIBS+=-L/usr/lib/oracle/10.1.0.3/client/lib" oci.pro
+make
+  </pre>
+</blockquote>
+
+<p>Unfortunately, after installing the Oracle client I didn't have a
+/usr/include/oracle... And I didn't have a /usr/lib/oracle either. Nor
+did I see an include directory under where I installed the Oracle
+client (/opt/oracle). Before I ask Trolltech support what the
+appropriate paths should be I thought I'd ask you. Perhaps I have not
+properly installed a portion of Oracle...</p>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on August 30, 2007  2:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000670.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/57</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: December 2003 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2003_11.html" title="November 2003" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2004_01.html" title="January 2004" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2003_11.html">&laquo; November 2003</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2004_01.html">January 2004 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">December 23, 2003</h2>
+                     <a id="a000063"></a>
+                     <div class="entry" id="entry-63">
+                        <h3 class="entry-header">More sons-clearcase Network Problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>I decided to check sons-clearcase after Ron implemented his fix for our router problems. Turns out I can't access it again. Not sure if it's the router, the fix or something else. I can VPN into my desktop. I can ping servers such as sonscentral and sonsservices but not sons-clearcase. I tried pinging the gateway and it still dropping packets.
+
+<p>Then when I was attempting to ping sons-clearcase I got the following:
+
+<pre>
+$ ping sons-clearcase
+
+Pinging sons-clearcase.SALIRA.COM [192.168.0.99] with 32 bytes of data:
+
+Request timed out.
+Request timed out.
+Request timed out.
+Reply from 192.168.1.1: Destination host unreachable.
+
+Ping statistics for 192.168.0.99:
+    Packets: Sent = 4, Received = 1, Lost = 3 (75% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 0ms, Average = 0ms
+</pre>
+
+<p>Not sure what this means. Guess I'm gonna have to drive into work again...
+
+<p>Checked sons-clearcase from home and couldn't get to it. Drove in and analyzed the situation. Saw things in the Event Viewer possibly indicating that the network card was bad. Rebooted machine. Couldn't get it up on the network. Ran network trouble shooter and it suggested replacing the network cable. Didn't want to do that. It also suggested to try to plug the network cable into another spot on the hub. Tried that and it worked! Not sure if that was the fix or if sons-clearcase's network card is flaking out. Rebooted once again to come up clean.
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  9:23 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000063.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000062"></a>
+                     <div class="entry" id="entry-62">
+                        <h3 class="entry-header">Clearquest Network problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              Still having problems with network router. Ron is implementing a bandaide solution. Meantime each time the router goes down so does Clearquest and I need to restart the SQL/Anywhere server as well as the Clearquest Daemon.
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:49 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000062.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 22, 2003</h2>
+                     <a id="a000061"></a>
+                     <div class="entry" id="entry-61">
+                        <h3 class="entry-header">2.2.1.6/Vob Backups</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ol>
+<li>Built 2.2.1.6</li>
+<li>Configured VOB backups to work</li>
+</ol>
+                              
+                              <p>Seems that there is no way to run the pre/post command remotely under our current setup. Instead I opened up ccadmin by removing the "*" in /etc/passwd. This allows rsh to work then changed the pre/post commands to:</p>
+
+<pre>
+C:\Cygwin\bin\rsh.exe sons-clearcase -lccadmin cleartool [un]lock vob:\\salira
+</pre>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:57 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000061.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 21, 2003</h2>
+                     <a id="a000060"></a>
+                     <div class="entry" id="entry-60">
+                        <h3 class="entry-header">Sons-clearcase Network Problems II</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Went in around 3 PM. Rebooted sons-clearcase. It's back up and running. Noticed that our backups are not really working well (never have been actually). Performed backup by hand.</p>
+
+<p>BackupExec doesn't seem to want to properly do the pre and post commands necessary to backup the vobs. It seems to say that it can execute the cleartool lock command on the remote machine but always fails with an error stating that the pre command failed.</p>
+
+<p>What was really confusing about this is that the Tools vob backup appears to work. Well then I found out that the Tools vob backup was configured to run the pre command but accept non 0 as an OK status whereas the Salira vob was not accepting non 0 as an OK status.</p>
+
+<p>In any event ct lock vob:\<vob> should return 0. In the Tools vob case the lock was not really happening. </p>
+
+<p>Need to speak to Veritas regarding this on Monday and get this finally working correctly.</p>
+
+<p>Meantime at least we have one good backup!</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:14 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000060.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000059"></a>
+                     <div class="entry" id="entry-59">
+                        <h3 class="entry-header">Sons-clearcase Network Problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>I saw some email saying that there was some possible problems with some Clearcase stuff and decided to investigate. I had talked with Ron on Friday and he is aware of our network problems. But today I could not contact sons-clearcase at all. I can seem to ping and otherwise contact other machines such as sonscentral, sonsservices and engineer's desktops such as dko and gtsang. I can even ping sons-cc in Shanghai! I fear there might be something wrong with sons-clearcase itself - perhaps the network card. Why can I contact other machines but not sons-clearcase?</p>
+
+<p>Not sure if I should go in to reboot sons-clearcase and see if she comes up OK. I guess I oughta...</p>
+
+<p>Hmmm... I can't ssh adefaria@adefaria either. Doesn't accept my password. ssh ccadmin@adefaria doesn't work either. Could this be an Active Directory problem too?</p>
+
+<p>Was able to remote desktop to sonscentral. Doesn't seem like my account is locked. Neither is ccadmin. Can't tell if this network issue is just sons-clearcase or a larger problem.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:01 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000059.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 19, 2003</h2>
+                     <a id="a000058"></a>
+                     <div class="entry" id="entry-58">
+                        <h3 class="entry-header">Clearquest problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Still have Clearquest problems, almost daily, where I come in and people cannot access Clearquest. Worked on the phone for a while with Rational. Came down to a theory that this is caused by networking problems. Checked with Ron, yes indeed we are experiencing network problems.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:42 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000058.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 18, 2003</h2>
+                     <a id="a000057"></a>
+                     <div class="entry" id="entry-57">
+                        <h3 class="entry-header">fx/sonlinux</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ol>
+<li>Checked out the fx branches to make sure everything was set up properly.</li>
+<li>Continued to attempt to get XDMCP, Samba, etc, working on sonslinux</li>
+</ol>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:40 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000057.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 17, 2003</h2>
+                     <a id="a000056"></a>
+                     <div class="entry" id="entry-56">
+                        <h3 class="entry-header">2.3.0.1/SQL Anywhere</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ol>
+<li>Resolved issue with last night's merge</li>
+<li>Kick started SQL Anywhere - again!</li>
+<li>Got sonslinux up on the net again - working on Samba, XDMCP, etc</li>
+<li>Set up us_fx/china_fx branch for Shirley</li>
+</ol>
+                              
+                              <p>Another day, another failure, another message:</p>
+
+<blockquote><pre>Unable to logon to the SQL_ANYWHERE database "\\Sons-clearcase\ClearQuest\schema.db".
+<br>The vendor error message was:<br>
+SQLDriverConnect: RETCODE=-1, State=S1000, Native Error=-305
+[Sybase][ODBC Driver]General error: I/O error ??? -- transaction rolled back</pre></blockquote>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:03 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000056.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 16, 2003</h2>
+                     <a id="a000055"></a>
+                     <div class="entry" id="entry-55">
+                        <h3 class="entry-header">2.3.0.1/SQL Anywhere</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ol>
+<li>Downloaded new version of e2fsck for sonslinux - now on SuSE 8.2</li>
+<li>Created 2.3.0.1 buglist</li>
+<li>Assisted James to install Cygwin on his desktop</li>
+<li>While sonslinux is up on SuSE 8.2 it's networking is not all that configured</li>
+<li>Kick started SQL Anywhere</li>
+</ol>
+                              
+                              SQL Anywhere got  stuck with:
+<blockquote><pre>
+Unable to logon to the SQL_ANYWHERE database "\\Sons-clearcase\ClearQuest\schema.db".
+<br>The vendor error message was:<br>
+SQLDriverConnect: RETCODE=-1, State=S1000, Native Error=-301
+[Sybase][ODBC Driver]General error: internal database error ??? -- transaction rolled back
+</pre></blockquote>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:14 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000055.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 15, 2003</h2>
+                     <a id="a000054"></a>
+                     <div class="entry" id="entry-54">
+                        <h3 class="entry-header">2.2.1.5 Built</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>After receiving a file from MTeng I had built and released 2.2.1.5. As MTeng has not yet checked in this file, and there is another bug on the 2.2.1.5 list, I do not consider 2.2.1.5 done yet. I have built and put a label down but this is sort of an unofficial build.</p>
+
+<p>Also worked ag getting XDMCP running on sonlinux again. Still not working right.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:50 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000054.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 12, 2003</h2>
+                     <a id="a000053"></a>
+                     <div class="entry" id="entry-53">
+                        <h3 class="entry-header">Upgrade sonslinux</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Upgraded sonslinux to SuSE 8.2</p>
+                              
+                              <p>I was interested in how to install Linux and yet keep an old file system. In particular I had my music files on sonslinux and wished to keep them. While installing SuSE I attempted to save the /home file system. Unfortunately when SuSE boots I get:</p>
+
+<pre>
+sonslinux:~ # fsck /home
+fsck 1.28 (31-Aug-2002)
+e2fsck 1.28 (31-Aug-2002)
+fsck.ext3: E2fsck not compiled with HTREE support,
+        but filesystem /dev/hda6 has HTREE directories.
+
+<p>e2fsck: Get a newer version of e2fsck!<br />
+fsck.ext3 /dev/hda6 failed (status 0x8). Run manually!<br />
+</pre></p>
+
+<p>Apparenlty Mandrake used some HTREE structures on that file system. While this FS will not fsck it does mount and appears to be accessible.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:57 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000053.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 11, 2003</h2>
+                     <a id="a000052"></a>
+                     <div class="entry" id="entry-52">
+                        <h3 class="entry-header">Slow day</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Helped Yan with Clearcase problems. Investigating installing SuSE on sonslinux. SuSE appears to be more of a market leader.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:30 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000052.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 10, 2003</h2>
+                     <a id="a000051"></a>
+                     <div class="entry" id="entry-51">
+                        <h3 class="entry-header">WebSAM in browsers</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Initial reports seem to indicate that Web SAM works on:</p>
+
+<table border=1 colspacing=0>
+<tr>
+<th><small>Operating System</small></th>
+<th><small>Internet Explorer 6.0</small></th>
+<th><small>Netscape 7.1</small></th>
+<th><small>Firebird</small></th>
+<th><small>Konqueror 3.1.0</small></th>
+</tr>
+<tr>
+<td><small>Windows</small></td>
+<td align="center"><font color="green"><small>Yes</small></font></td>
+<td align="center"><font color="green"><small>Yes</small></font></td>
+<td align="center"><font color="green"><small>Yes</small></font></td>
+<td align="center"><font color="grey"><small>N/A</small></font></td>
+</tr>
+<tr>
+<td><small>Linux (Mandrake 9.1)</small></td>
+<td align="center"><font color="grey"><small>N/A</small></font></td>
+<td align="center"><font color="green"><small>Yes</small></font></td>
+<td align="center"><font color="green"><small>Yes</small></font></td>
+<td align="center"><font color="red"><small>No</small></font></td>
+</tr>
+<tr>
+<td><small>Solaris 7.0</td>
+<td align="center"><font color="grey"><small>N/A</small></font></td>
+<td align="center"><font color="green"><small>Yes</small></font></td>
+<td align="center"><font color="grey"><small>N/A</small></font></td>
+<td align="center"><font color="grey"><small>N/A</small></font></td>
+</tr>
+</table>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000051.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December  8, 2003</h2>
+                     <a id="a000050"></a>
+                     <div class="entry" id="entry-50">
+                        <h3 class="entry-header">Clearquest bug</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Fixed long standing Clearquest bug for Yan</p>
+                              
+                              <p>For a long time now it was such that Clearquest would not initially start for me. First I would get a login failed dialog and then I could select OK and login like normal. But Yan asked me to get his Clearquest working as he just got a new system. Here I didn't even get a failed login dialog but instead a dialog about establishing the connection template. I could not get this to work.</p>
+
+<p>I went back to my desk and attempted to select "Set up Clearquest repository" instead of OK'ing past the initial login failed dialog and alas I could not get that to work either. So I called Rational Support.</p>
+
+<p>Eventually the pointed me to <a href="http://www-1.ibm.com/support/docview.wss?rs=203&context=SSBR5D&context=SSBR7N&context=SSMMQY&context=SSSGSH&context=SSSGV8&context=SSSGW8&context=SSSGX3&context=SSSGXW&context=SSMMS4&context=SSSGYQ&context=SSSH27&context=SSNJU5&context=SSBQNN&context=SSBQS8&context=SSUL78&context=SSBR9L&context=SSSH32&context=SSSH3S&context=SSSH4K&context=SSBRB9&context=SSSH5A&context=SSNJQS&context=SSUTY2&context=SSJMXE&context=SSBQTS&context=SSMMM5&context=SSBQW4&context=SSBQXM&context=SSSH6V&context=SSSH89&context=SSSH8W&context=SSSH9N&context=SSSHAD&context=SSSHAZ&context=SSSHBU&context=SSSHCT&context=SSSHDX&context=SSSHHF&context=SSJPA5&context=SSSHEM&context=SSSHFC&context=SSSHG2&context=SSSHGQ&context=SSSHJ8&context=SSSHJY&context=SSSHKL&context=SSJPCD&context=SSSHL7&context=SSMML4&context=SSMMHM&context=SSBRGQ&context=SSSHLQ&context=SSSHQR&context=SSSHMK&context=SSSHN6&context=SSSHNT&context=SSSHPH&context=SSMMF4&context=SSSHRJ&context=SSSHSK&context=SSSHT4&context=SSSHTR&context=SSBQZT&context=SSSHUF&context=SSSHVH&context=SSSHVY&context=SSSHWL&context=SSSHXB&context=SSBR3M&context=SSSHXU&context=SSSHYJ&context=SSSJ2Z&context=SSSJ2D&context=SSSHZT&context=SSSHZ9&context=SSBRDT&q1=18808&uid=swg21124805&loc=en_US&cs=utf-8&lang=en+en">here</a> which solved both my problem and Yan's. Hopefully there will be less problems for all.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:07 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000050.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December  5, 2003</h2>
+                     <a id="a000049"></a>
+                     <div class="entry" id="entry-49">
+                        <h3 class="entry-header">IPTV</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Helped Ying get the contents of the IPTV  CD onto our anonymous ftp area. This required getting anonymous ftp to work again.</p>
+                              
+                              <p>Had to add Everyone to //sonscentral/users/ftp for read and execute access. I still have a problem with a simple ls from anonymous ftp. Asked at cygwin.com.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:48 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000049.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December  4, 2003</h2>
+                     <a id="a000048"></a>
+                     <div class="entry" id="entry-48">
+                        <h3 class="entry-header">Sun will rise again</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Got it, although I had to get it through a patch cluster, which finally worked! The above patch required other patches, which, of course, required other patches and was a nightmare. Not that installing the patch cluster was that easy either. In any event I eventually managed to get SAM for Solaris up and running!<br />
+</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:32 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000048.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December  3, 2003</h2>
+                     <a id="a000047"></a>
+                     <div class="entry" id="entry-47">
+                        <h3 class="entry-header">SAM 4 Sun needs patch</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Haven't been able to get SAM running on Solaris:</p>
+
+<p>Downloaded and installed SAM 4 Sun. Unfortunately it didn't run. The error message I get when attempting to start the server is:</p>
+
+<blockquote><pre>Warning! The libthread.so on your system is an older version than<br>the one this VM was tested with. Please read the install<br>documentation for<br>patch installation instructions.<br>Could not create the Java virtual machine.</pre></blockquote>
+
+<p>Leonal says there's a patch...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:29 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000047.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December  2, 2003</h2>
+                     <a id="a000046"></a>
+                     <div class="entry" id="entry-46">
+                        <h3 class="entry-header">SAMSUN Not working</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ol>
+<li>Installed Solaris 7.0</li>
+<li>Installed SAM for Sun</li>
+<li>Downloaded Netscape and other patches for Sun</li>
+</ol>
+                              
+                              Installation of Solaris 7.0 did result in man pages and other things being installed. Still the Sun seems like it's missing lots of stuff like make, gcc, bash, etc. 
+
+<p>Created some users and attempted to get remote XDMCP sessions going. Not working.
+
+<p>SAM installed but isn't working properly yet.
+
+<p>Can't install Netscape until we install patches. Having difficulty installing patches.
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:43 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000046.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December  1, 2003</h2>
+                     <a id="a000045"></a>
+                     <div class="entry" id="entry-45">
+                        <h3 class="entry-header">The sun shines again</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Received a CD from Shirely with Solaris 7.0 on it and managed to get sonssun installed and on the network again. Still more to do like install a decent browser and get its XDMCP working but at least it's up.</p>
+
+<p>Spent a lot of time still trying to get Samba on sonslinux to function properly</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:07 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000045.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

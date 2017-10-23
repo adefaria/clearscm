@@ -1,0 +1,508 @@
+#!/bin/bash
+################################################################################
+#
+# File:         ctmerge
+# Description:  Merges from one branch to another. If the merge is successful
+#		then a build is performed. If that is also successful then the
+#		merged elements are checked in and optionally labeled. A cleanup
+#		of .contrib files is also performed (only if the merge and build
+#		succeed). After this email is set to SITE_ADMIN_EMAIL (default).
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Jun 11 13:22:11 PDT 2003
+# Language:     Bash Shell
+# Modifications:
+#
+# (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Commands used
+ssmtp=/usr/sbin/ssmtp
+
+# Set a logfile for the merge
+logfile=/tmp/$me.$$.log
+
+# File for merge commands
+merge_cmd=/tmp/$me.$$.cmd
+
+# File for exclusions
+exclusions=/tmp/$me.$$.exclude
+
+# How many elements merged
+declare -i nbr_merges=0
+
+# How many exclusions were found
+declare -i nbr_exclusions=0
+
+# Element exclusion list
+excluded_elements="\
+"
+
+# Result of merging, building, etc. Codes are:
+#
+# 0:	Success! Everything worked.
+# 1:	Errors occured during merging
+# 2:	Not all merges could be performed automatically
+# 3:	No merging required
+# 4:	Build failed
+# 5:	Unable to checkin elements
+# 6:	Problems applying label
+declare -i result_code=0
+
+function usage {
+  if [ ! -z "$1" ]; then
+    error "$1\n"
+  fi
+  display "Usage: $me: -view <view path> -b|ranch <from_branch>"
+  display "\t\t[-to <email_address>] [-cc <email_address>]"
+  display "\t\t[-nocheckin] [-l|abel <label>] [-nocleanup]"
+  display "\t\t[-v|erbose] [-d|ebug] [-u|sage]"
+  display
+  display "Where:"
+  display "\t-view:\t\tPath to view to perform the merge to (Required)"
+  display "\t-branch:\tName of branch to merge the LATEST from (Required)"
+  display "\t-to:\t\tEmail address where to mail the build log"
+  display "\t\t\t(default $SITE_ADMIN_EMAIL)"
+  display "\t-cc:\t\tEmail address where to cc the build log"
+  display "\t\t\t(default NONE)"
+  display "\t-nocheckin:\tDo not check in merged elements after"
+  display "\t\t\tsuccessful merge  and build (default check in)"
+  display "\t-label:\t\tLabel to apply after successful build. Note that"
+  display "\t\t\tthe current date (format _DD_MM_YYYY) will be appended"
+  display "\t\t\tto this label (default no label applied)"
+  display "\t-nocleanup:\tDo not clean up contrib files after successful"
+  display "\t\t\tbuild (default cleanup)"
+  display "\t-verbose:\tTurn on verbose mode"
+  display "\t-debug:\t\tTurn on debug mode"
+  display "\t-usage:\t\tDisplay usage"
+  exit 1
+} # usage
+
+function log {
+  msg="$1"
+
+  display "$1" >> $logfile
+  verbose "$1"
+} # log
+
+function merge_directories {
+  # First merge directories
+  log "Finding directories that need merging..."
+
+  # Convert $merge_cmd to Window path for cleartool
+  cmd=$(cygpath -w $merge_cmd)
+
+  cleartool findmerge						\
+    .								\
+    -type d							\
+    -reserved							\
+    -comment "BUGS200003035: Merge from $branch -> $viewtag"	\
+    -fversion .../$branch/LATEST				\
+    -log $cmd							\
+    -print							>> $logfile 2>&1
+
+  # The merging of directories could, in theory, unearth directories
+  # inside those directories thus causing further directory merging.
+  # Here we keep merging directories until there are no more to merge.
+  while [ -f $merge_cmd -a -s $merge_cmd ]; do
+    # Remove any comments from the merge command. Comments are inserted
+    # as warnings is directory merges were needed and not performed.
+    grep -ve ^# $merge_cmd > $merge_cmd.2
+    mv $merge_cmd.2 $merge_cmd
+
+    # Restore execute permissions to $merge_cmd
+    chmod +x $merge_cmd
+
+    log "Performing directory merges..."
+    let nbr_merges=nbr_merges+$(wc -l $merge_cmd | awk '{print $1}')
+    $merge_cmd							>> $logfile 2>&1
+    rm -f $merge_cmd
+
+    # Check for errors. If there was a reserved checkout on a directory and
+    # we do not detect this error we will loop here because the merge will
+    # not be performed yet it needs to be merged
+    check_error
+
+    if [ $result_code -ne 0 ]; then
+      rm -f $merge_cmd
+      return
+    fi
+
+    log "Looking for further directory merges..."		>> $logfile
+
+    cleartool findmerge						\
+      .								\
+      -type d							\
+      -reserved							\
+      -comment "BUGS200003035: Merge from $branch -> $viewtag"	\
+      -fversion .../$branch/LATEST				\
+      -log $cmd							\
+      -print							>> $logfile 2>&1 
+  done
+
+  # Clean up
+  rm -f $merge_cmd
+} # merge_directories
+
+function merge_elements {
+  log "Performing element merges..."
+
+  # Convert $merge_cmd to Window path for cleartool
+  cmd=$(cygpath -w $merge_cmd)
+
+  cleartool findmerge						\
+    neopon							\
+    Hardware							\
+    EMS								\
+    -type f							\
+    -reserved							\
+    -comment "BUGS200003035: Merge from $branch -> $viewtag"	\
+    -fversion .../$branch/LATEST				\
+    -abort							\
+    -log $cmd							\
+    -print							>> $logfile 2>&1 
+
+  # Exclude certain elements...
+  rm -f $exclusions
+  touch $exclusions
+  for element in $excluded_elements; do 
+    grep -q $element $merge_cmd
+
+    if [ $? -eq 0 ]; then
+      log "Excluded element $element found - removing element from merge list..."
+      grep $element $merge_cmd >> $exclusions
+      grep -v $element $merge_cmd > $merge_cmd.2
+      mv $merge_cmd.2 $merge_cmd
+    fi
+  done
+
+  let nbr_merges=nbr_merges+$(wc -l $merge_cmd | awk '{print $1}')
+  let nbr_exclusions=$(wc -l $exclusions | awk '{print $1}')
+
+  if [ -f $merge_cmd -a -s $merge_cmd ]; then
+    # Restore execute permissions to merge.cmd
+    chmod +x $merge_cmd
+    $merge_cmd						>> $logfile 2>&1
+  fi
+
+  # Clean up
+  rm -f $exclusions
+  rm -f $merge_cmd
+} # merge_elements
+
+function send_email {
+  to="$1"
+  cc="$2"
+  subject="$3"
+
+  # Compose message
+  if [ -z "$cc" ]; then
+    display "From: ccadmin\nTo: $to\nSubject: $subject\n" > /tmp/msg.$$
+  else
+    display "From: ccadmin\nTo: $to\ncc: $cc\nSubject: $subject\n" > /tmp/msg.$$
+  fi
+
+  # Mail it
+  cat /tmp/msg.$$ $logfile | $ssmtp -t
+
+  if [ $? -eq 0 ]; then
+    rm -f /tmp/msg.$$
+  fi
+} # send_email
+
+function check_error {
+  # Check for cleartool errors
+  errors=$(grep -c "cleartool: Error" $logfile)
+
+  if [ $errors -ne 0 ]; then
+    result_code=1
+    log "Errors occurred during merging"
+  fi
+
+  # Check how many merges failed:
+  errors=$(grep -c -e "*** Aborting..." $logfile)
+
+  if [ $errors -ne 0 ]; then
+    result_code=2
+    log "\nUnable to merge all elements automatically. $errors merges failed"
+    log "The following element(s) require manual merge:\n\n"
+
+    declare -i i=0
+
+    # Report individual files that could not be automatically merged
+    grep -e "Needs Merge" -e "\*\*\* Aborting\.\.\." $logfile | 
+      tr '\\' '/' | while read line; do 
+      if [[ $line != *Aborting\.\.\. ]]; then
+        file=$(echo $line | cut -f2 -d\")
+      else
+        ((i++))
+        log "$i) $file"
+      fi
+    done
+  else
+    if [ $nbr_exclusions -ne 0 ]; then
+      if [ $nbr_exclusions -eq 1 ]; then
+        log "$nbr_exclusions element excluded merge"
+      else
+        log "$nbr_exclusions elements excluded from merge"
+      fi
+    fi
+    if [ $nbr_merges -eq 0 ]; then
+      log "No merging required"
+      result_code=3
+    elif [ $nbr_merges -eq 1 ]; then
+      log "$nbr_merges element merged succesfully"
+    else    
+      log "$nbr_merges elements merged succesfully"
+    fi
+  fi
+} # check_error
+
+function report_results {
+  log "\nEnd of merge of Branch: $branch -> View: $viewtag @ $(date)"
+  log "Logfile: $(hostname):$logfile"
+
+  # Parse result_code
+  case $result_code in
+    0)
+      subject="Successful merge"
+    ;;
+
+    1)
+      subject="Errors merging"
+    ;;
+
+    2)
+      subject="Unable to automatically merge"
+    ;;
+
+    3)
+      subject="No elements required merging"
+    ;;
+
+    4)
+      subject="Build failed after successfully merging"
+    ;;
+
+    5)
+      subject="Unable to checkin element after merging"
+    ;;
+
+    6)
+      subject="Unable to apply label to elements after merge"
+    ;;
+
+    *)
+      subject="Unknown result code while merging"
+    ;;
+  esac
+
+  subject="$subject from Branch: $branch -> View: $viewtag"
+  send_email $to "$cc" "$subject"
+
+  exit $result_code
+} # report_results
+
+# Get parameters
+checkin="yes"
+label=""
+cleanup="yes"
+while [ $# -ge 1 ]; do                                                          
+  case "$1" in                                                                  
+      -u|-usage)
+        usage
+      ;;
+
+      -v|-verbose)
+        verbose=yes
+      ;;
+
+      -view)
+        if [ $# -le 1 ]; then
+	  usage "View path is mmissing"
+	else
+	  shift
+          view="$1"
+	fi
+      ;;
+
+      -d|-debug)
+        debug=yes
+      ;;                                                                        
+
+      -b|-branch)
+        if [ $# -le 1 ]; then
+	  usage "Branch missing"
+	else
+	  shift
+          branch="$1"
+	fi
+      ;;
+
+      -to)
+        if [ $# -le 1 ]; then
+	  usage "To address missing"
+	else
+	  shift
+          to="$1"
+	fi
+      ;;
+
+      -cc)
+        if [ $# -le 1 ]; then
+	  usage "CC address missing"
+	else
+          shift;
+          cc="$1"
+        fi
+      ;;
+
+      -nocheckin)
+        checkin="no"
+      ;;
+
+      -l|-label)
+	if [ $# -le 1 ]; then
+	  usage "Label missing"
+        else
+	  shift
+	  label="$(echo $1 | tr [:lower:] [:upper:])_$(date +%d_%m_%Y)"
+        fi
+      ;;
+
+      -nocleanup)
+        cleanup="no"
+	;;
+
+      *)
+        usage "Unknown option encountered: \"$1\"!"
+      ;;
+  esac
+  shift
+done
+
+# Default to to $SITE_ADMIN_EMAIL
+to=${to:-$SITE_ADMIN_EMAIL}
+
+# Check for required parameters
+if [ "$view" = "" ]; then
+  usage "View not specified"
+elif [ "$branch" = "" ]; then
+  usage "Branch name not specified"
+fi
+
+# Go to the view/vob
+if [ ! -d "$view" ]; then
+  # View path doesn't seem to exist. If this is a dynamic view then perhaps
+  # it's not started. Attempt to start it and see if it comes into existance
+  cleartool startview $(basename "$view") > /dev/null 2>&1
+
+  if [ $? -ne 0 ]; then
+    usage "View specified, $(basename $view), does not appear to be a valid view"
+  fi
+
+  if [ ! -d "$view" ]; then
+    usage "View path specified, $view, does not exist"
+  fi
+fi
+
+cd $view/salira
+viewtag=$(cleartool pwv -short)
+
+# Clear the logfile
+rm -f $logfile
+
+# Start merging
+log "Start merge of Branch: $branch -> View: $viewtag @ $(date)"
+merge_directories
+
+if [ $result_code -ne 0 ]; then
+  log "Unable to merge directories"
+  log "Further merging halted"
+  exit $result_code
+fi
+
+merge_elements
+check_error
+
+if [ $result_code -ne 0 ]; then 
+  if [ $result_code -eq 3 ]; then
+    log "Build not performed"
+  else
+    log "Merging failed - build not performed"
+  fi
+  report_results
+else
+  log "Merge successful - building..."
+fi
+
+# Now build the view
+$SITE_TOOLS_PATH/bin/build_view $viewtag
+
+if [ $? -ne 0 ]; then
+  result_code=4
+  log "Build failed!"
+  report_results
+fi
+    
+log "Build successful"
+
+# Perform checkins
+if [ $checkin = "yes" ]; then
+  # Check in merges, if any
+  log "Checking in merges..."
+  cleartool lscheckout -cview -me -all -short | tr '\\' '/' | while read element; do
+    log "Checking in element $element"
+    cleartool checkin -nc $element >> $logfile 2>&1
+    status=$?
+
+    if [ $status -ne 0 ]; then
+      result_code=5
+      log "Unable to checkin $element (Status: $status)"
+      report_results
+    fi
+  done
+  log "All merges checked in"
+fi
+
+# Apply dated label
+if [ ! -z "$label" ]; then
+  log "Applying locked, dated label $label..."
+  $SITE_TOOLS_PATH/bin/label -label $label -dated -lock \
+    . -recurse salira/neopon -recurse salira/EMS -recurse salira/Hardware
+    
+  if [ $? -eq 0 ]; then
+    log "Applied labels successfully"
+  else
+    result_code=6
+    log "Problems applying label"
+  fi
+fi
+
+# Cleanup contrib files
+if [ $cleanup = "yes" ]; then
+  # Cleanup contrib files...
+  log "Cleaning up contrib files..."
+  find . -name "*.contrib*" -exec rm -f {} \;
+  log "Cleaned up contrib files"
+fi
+
+report_results

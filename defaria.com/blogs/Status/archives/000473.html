@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Removing DBs from a Schema/Email link concerns</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000472.html" title="Web Server Configuration and documentation" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000474.html" title="Finding the missing 261,285,366 bytes" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000472.html">&laquo; Web Server Configuration and documentation</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000474.html">Finding the missing 261,285,366 bytes &raquo;</a>
+                     </p>
+
+                     <a id="a000473"></a>
+                     <div class="entry" id="entry-473">
+                        <h3 class="entry-header">Removing DBs from a Schema/Email link concerns</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Investigated how to remove databases from a CQ Schema</li>
+
+  <li>Created template files for Clearquest Web Login page to swap in for Phase I and Phase II onto the production web server (under C:\Temp\PQA)</li>
+
+  <li>Discussed the email link problem with Rational. While they can't say definitively what is supported they have stated that the old email link URL will not work in the new schema</li>
+<ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Databases contained in a Clearquest Schema Database</h2>
+
+<p>A Clearquest connection profile connects to a Clearquest schema database. This schema database defines many things, one of which is which user databases this schema database covers. So with the old 2001 schema all of Prod, TO and NAS is defined in there. The Clearquest Designer has Delete Database and Undelete Database to remove and re-add databases to the schema. This is a misnomer. The schema database has a table, master_dbs, which lists all the user databases that this schema database knows about. What is really happening when you Delete Database is simply that Clearquest Designer is toggling the is_deleted field in master_dbs for this database to 1 meaning it's "deleted". Undelete database merely toggles it back to 0. Being marked deleted means that it will no longer show up as a database to select for Clearquest Windows Clients and the web server. The web server, however, needs to be restarted to notice the change.</p>
+
+<h2>Another Email URL link issue</h2>
+
+<p>With the concept of having multiple Schema repositories and database you are right to be concern about the user being confused when clicking on an email link. Normally the email link is of the format:</p>
+
+<blockquote>
+http://<<em>server</em>>/cqweb/url/default.asp?id=<<em>id</em>>
+</blockquote>
+
+<p>If the user is logged into CQ Web then they will go directly to the detail defect. If not they will make a brief stop at the login screen. With multiple Schema repositories the user will have to select the proper schema repository and database during login. However you can add on additional parameters to set the default schema repository and database like so:</p>
+
+<blockquote>
+http://<<em>server</em>>/cqweb/url/default.asp?id=<<em>id</em>>&dbset=<<em>dbset</em>>&db=<<em>db</em>>
+</blockquote>
+
+<p>For example:</p>
+
+<blockquote>
+ http://pcsjca-ccrmt03/cqweb/url/default.asp?id=Cont00009460&dbset=2005.02.00&db=Cont
+</blockquote>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on November  9, 2005  3:52 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000473.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

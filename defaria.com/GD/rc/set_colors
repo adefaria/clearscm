@@ -1,0 +1,66 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: set_colors,v $
+# Revision:	$Revision: 1.2 $
+# Description:  Set color variables
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Jun  6 08:31:57 PDT 1996
+# Modified:     $Date: 2005/12/30 08:36:46 $
+# Language:     bash
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+export esc=$(echo "\033")
+
+if [ "$TERM" = "vt100" -o \
+     "$TERM" = "vt220" ]; then
+  export NORMAL="$esc[0m"
+  export BOLD="$esc[1m"
+  export UNDERLINE="$esc[4m"
+  export BLINK="$esc[5m"
+  export INVERSE="$esc[7m"
+elif [ "$TERM" = "dtterm" -o "$TERM" = "vt100" -o -z DTTERM ]; then
+  export NORMAL="$esc[39m"
+  export RED="$esc[31m"
+  export B_RED=$RED
+  export GREEN="$esc[32m"
+  export B_GREEN=$GREEN
+  export YELLOW="$esc[33m"
+  export B_YELLOW=$YELLOW
+  export BLUE="$esc[34m"
+  export B_BLUE=$BLUE
+  export MAGENTA="$esc[35m"
+  export B_MAGENTA=$MAGENTA
+  export AQUA="$esc[36m"
+  export B_AQUA=$AQUA
+  export WHITE="$esc[36m"
+  export B_WHITE=$WHITE
+elif [ "$TERM" = "hp" -o "$TERM" = "hpterm" ]; then
+  export NORMAL="$esc&d@$esc&v0S"
+  export RED="$esc&v1S"
+  export GREEN="$esc&v2S"
+  export YELLOW="$esc&v3S"
+  export BLUE="$esc&v4S"
+  export PURPLE="$esc&v5S"
+  export AQUA="$esc&v6S"
+  export HB_NORMAL="$esc&v0S$esc&dK"
+  export B_NORMAL="$esc&v0S$esc&dB"
+  export HB_RED="$esc&v1S$esc&dK"
+  export B_RED="$esc&v1S$esc&dB"
+  export HB_GREEN="$esc&v2S$esc&dK"
+  export B_GREEN="$esc&v2S$esc&dB"
+  export HB_YELLOW="$esc&v3S$esc&dK"
+  export B_YELLOW="$esc&v3S$esc&dB"
+  export HB_BLUE="$esc&v4S$esc&dK"
+  export B_BLUE="$esc&v4S$esc&dB"
+  export PURPLE="$esc&v5S"
+  export HB_PURPLE="$esc&v5S$esc&dK"
+  export B_PURPLE="$esc&v5S$esc&dB"
+  export HB_AQUA="$esc&v6S$esc&dK"
+  export B_AQUA="$esc&v6S$esc&dB"
+  export INVERSE="$esc&v7S"
+  export HB_INVERSE="$esc&v7S$esc&dK"
+  export B_INVERSE="$esc&v7S$esc&dB"
+fi

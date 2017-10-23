@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Code Page/create_dev_snapview.pl</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000487.html" title="Stgloc/Code Page" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000489.html" title="Cleardiffmrg/bin_merge problems" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000487.html">&laquo; Stgloc/Code Page</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000489.html">Cleardiffmrg/bin_merge problems &raquo;</a>
+                     </p>
+
+                     <a id="a000488"></a>
+                     <div class="entry" id="entry-488">
+                        <h3 class="entry-header">Code Page/create_dev_snapview.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Researched further code page issues</li>
+
+  <li>Added Everest (Isreal0 team members to PQA</li>
+
+  <li>Added -reuse_stream parm to create_dev_snapview.pl</li>
+
+  <li>Handed a preliminary copy of bin_merge to Jennifer</li>
+
+  <li>Submitted defect to IBM/Rational regarding CharacterSetValidation and Code Pages</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>CharacterSetValidation Package is not that good</h2>
+
+<p>We have a remaining issue where a user will attempt to update a defect and receive an error from the CharacterSetValidation package. I re-engineered CheckCodePage.pl to check through the Controller database but it didn't find anything. Investigated the CharacterSetValidation package a little more in depth - how does it validate characters? How does it do it differently than me?</p>
+
+<p>Turns out that it merely does:</p>
+
+<div class="code"><pre>
+  if ($line =~ /[^\t\n\r -\177]/) {
+    <i>error</i>
+  }
+</pre></div>
+
+<p>This odd regex seems to be merely checking to see if the characters are printable or not. I don't see how this would, for example, prevent a non US ASCII character like é from slipping through!</p>
+
+<p>Narrowing it down a bit with my CheckCodePage.pl (which merely checks that characters are in the range of ordinal 0 - 127 (AKA the US ASCII character set) I figured out that the above regex was failing on characters such as ordinal 7 (Bell) and others. IOW characters that are technically in the US ASCII character set but that are not printable. Not sure how to resolve this problem yet...</p>
+
+<h2>Submitted defect to IBM/Rational regarding CharacterSetValidation and CodePages</h2>
+
+<p>Recently we upgraded our Clearquest database using 2003.06.15. With this version of Clearquest comes the usage of Code Pages. We choose to set our Code Page to US-ASCII. In upgrading our database we checked to ensure that all character data was within the US-ASCII character set (characters in the range of 0-127). Additionally we installed the CharacterSetValidation package as the Clearquest Administration Guide says:</p>
+
+<blockquote>
+  <p>The CharacterSetValidation package prevents clients running earlier versions of ClearQuest from entering data in a user record from a code page other than the data code page value of that database. If you do not apply the CharacterSetValidation package to your schemas, it is possible for users to enter unsupported data from the client and for data to be corrupted when modified on certain clients.</p>
+</blockquote>
+
+<p>However it doesn't appear that the CharacterSetValidation package properly prevents unsupported data from being entered. Additionally it actually is causing us problems because characters that are valid US-ASCII are being flagged by the CharacterSetValidation package as unsupported.</p>
+
+<p>US-ASCII is, according to <a href="http://en.wikipedia.org/wiki/ASCII:">http://en.wikipedia.org/wiki/ASCII</a>:</p>
+
+<blockquote>
+  <p>ASCII is, strictly, a seven-<a href="http://en.wikipedia.org/wiki/Bit" title="Bit">bit</a> code, meaning that it uses the bit patterns representable with seven binary digits (a range of 0 to 127 decimal) to represent character information.</p>
+</blockquote>
+
+<p>Ergo US-ASCII is the characters whose ordinal values lie in the range of 0-127.</p>
+
+<p>The CharacterSetValidation package installs a few Perl subroutines into the CQ schema that are supposed to check that the character data matches the code page of the database. However there doesn't seem to be any Perl code to check the difference between say a code page of US-ASCII or say Latin-1.</p>
+
+<p>What it all comes down to eventual, as far as I can see, is a call to check_for_control_chars_in_line. The operative Perl code is:</p>
+
+<div class="code"><pre>
+if ($line =~ /[^\t\n\r -\177]/) {
+  return (" contains unsupported character(s):");
+}
+</pre></div>
+
+<p>The above regex seems to be saying if the string $line is <b>not</b> a tab (\t), a linefeed (\n), a carriage return (\r) or in the range of space through \177 then an unsupported character has occurred. This does not include the entire US-ASCII range of 0-127. So if a client generated a yen character (¥) the above would not flag it as an unsupported character and yet (¥ - <span>ord</span> 165) is not a US-ASCII character.</p>
+
+<p>Finally, since we only screened for US-ASCII in the 0-127 range, we have data that contains things like the US-ASCII Bel (ord 7) and the like that CharacterSetValidation is flagging as invalid.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on December  1, 2005  4:58 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000488.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

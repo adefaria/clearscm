@@ -1,0 +1,93 @@
+#! /bin/ksh
+USAGE='USAGE:	check_security
+
+	This script checks for some security problems.  It does
+	not fix anything.  It only prints messages about possible
+	problems.
+
+   Author: Michael Coulter
+'
+
+# Set parameters
+
+   PASSWD_FILE=/etc/passwd
+
+# Check for execution by root
+
+   WHOAMI=$(whoami)
+   if [ "$WHOAMI" != "root" ]
+   then
+      echo "It is recommended that you run this script as root"
+   fi
+
+# Parse all the lines in $PASSWD_FILE
+
+   OLD_IFS="$IFS"
+   IFS=":"
+   cat "$PASSWD_FILE" | while read USER PASSWORD UID GID COMMENT HOME SHELL REST
+   do
+      # Checks for users who shouldn't log-in, i.e. PASSWORD is "*"
+
+      if [ "$PASSWORD" = '*' ]
+      then
+	 # If the PASSWORD is "*", there should not be a .rhosts or hosts.equiv
+	 # in the home directory or .forward
+	 if [ -f "${HOME}/.rhosts" ]
+	 then
+	    echo "$USER has a .rhosts file in $HOME"
+	 fi
+	 if [ -f "${HOME}/.forward" ]
+	 then
+	    echo "$USER has a .forward file in $HOME"
+	 fi
+
+
+
+	 # There should not be a crontab or atjob for the user
+
+	 if [ -f "/usr/spool/cron/crontabs/${USER}" ]
+	 then
+	    echo "$USER has a crontab file in /usr/spool/cron/crontabs"
+	 fi
+	 if [ -f "/usr/spool/cron/atjobs/${USER}" ]
+	 then
+	    echo "$USER has a crontab file in /usr/spool/cron/atjobs"
+	 fi
+
+      fi # End of * password checks
+
+      if [ "$PASSWORD" = "" ]
+      then
+	 echo "$USER has a NULL password."
+      fi
+
+      # No wildcards in $HOME/.rhosts or /etc/host.equiv
+      LINES="$(sed -e "/^#/d"  $HOME/.rhosts | grep "+" 2> /dev/null | wc -l)"
+      if [ "$LINES" -ne 0 ]
+      then
+	 echo "$USER has + in $HOME/.rhosts"
+      fi
+      
+   done
+   #  read USER PASSWORD UID GID COMMENT HOME SHELL REST
+
+# Checks that are only done once
+
+# Check no wildcards in /etc/host.equiv
+
+   LINES="$(grep -- "+" /etc/host.equiv 2> /dev/null | wc -l)"
+   if [ "$LINES" -ne 0 ]
+   then
+      echo "System has + in /etc/host.equiv" 
+   fi
+
+   if [ ! -f "/usr/adm/inetd.sec" ]
+   then
+      echo "No /usr/adm/inetd.sec file. "
+   fi
+
+   if [ -f "/etc/hosts.equiv" ]
+   then
+      echo "System has a /etc/hosts.equiv file"
+   fi
+

@@ -1,0 +1,193 @@
+#!/bin/bash
+################################################################################
+#
+# File:         label
+# Description:  Applies a label to the vob, creating the lbtype if needed.
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Jun 11 13:22:11 PDT 2003
+# Language:     Bash Shell
+# Modifications:
+#
+# (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Commands used
+ssmtp=/usr/sbin/ssmtp
+
+# Set a logfile for the merge
+logfile=/tmp/$me.$$.log
+
+function usage {
+  if [ ! -z "$1" ]; then
+    error "$1\n"
+  fi
+  display "Usage: $me: -l|abel <label> [-da|ted] [-lo|ck] [-m|ove]"
+  display "\t      [-v|erbose] [-d|ebug] [-u|sage]"
+  display "\t      [-r|ecurse] <path> [[-r|ecurse] <path>]"
+  display
+  display "Where:"
+  display "\t-label:\t\tLabel to apply"
+  display "\t-dated:\t\tAppend date (format _MM_DD_YYYY) to label"
+  display "\t-lock:\t\tLock label (-nusers \$USER)"
+  display "\t-move:\t\tMove labels"
+  display "\t-verbose:\tTurn on verbose mode"
+  display "\t-debug:\t\tTurn on debug mode"
+  display "\t-usage:\t\tDisplay usage"
+  display "\t-recurse:\tRecursively apply label from <path>"
+  display "\t<path>:\t\tPathname in vob to start labeling process"
+  display
+  display "NOTE: Multiple path names can be supplied either with or without the"
+  display "      -recurse option."
+  exit 1
+} # usage
+
+function log {
+  msg="$1"
+
+  display "$1" >> $logfile
+  verbose "$1"
+} # log
+
+# Get parameters
+label=""
+dated="no"
+lock="no"
+move=""
+recurse="no"
+paths=""
+declare -i i=0
+while [ $# -ge 1 ]; do                                                          
+  case "$1" in                                                                  
+      -u|-usage)
+        usage
+      ;;
+
+      -v|-verbose)
+        verbose=yes
+      ;;
+
+      -d|-debug)
+        debug=yes
+      ;;                                                                        
+
+      -l|-label)
+	if [ $# -le 1 ]; then
+	  usage "Label missing"
+        else
+	  shift
+	  label="$(echo $1 | tr [:lower:] [:upper:])"
+        fi
+      ;;
+
+      -da|-dated)
+        dated="yes"
+      ;;
+
+      -lo|-lock)
+        lock="yes"
+      ;;
+
+      -m|-move)
+        move="-replace"
+      ;;
+
+      -r|-recurse)
+        if [ $# -le 1 ]; then
+	  usage "Recurse must be associated with a path"
+	else
+	  shift
+	  recurse[$i]="yes"
+	  paths[$i]="$1"
+	  ((i++))
+	fi
+      ;;
+
+      *)
+        # Assume a path name with no valid recurse before it
+        recurse[$i]="no"
+	paths[$i]="$1"
+	((i++))
+      ;;
+  esac
+  shift
+done
+
+if [ $dated = "yes" ]; then
+  label="${label}_$(date +%d_%m_%Y)"
+fi
+
+# Clear logfile
+cat /dev/null > $logfile
+
+# Check if label type already exists
+cleartool lstype lbtype:$label > /dev/null 2>&1
+
+if [ $? -ne 0 ]; then 
+  # Create label type
+  log "Creating new label $label"
+  cleartool mklbtype -nc $label >> $logfile 2>&1
+
+  if [ $? -ne 0 ]; then
+    log "Unable to create label type $label"
+    error "Unable to create label type $label" 1
+  fi
+fi
+
+# Lock label?
+if [ $lock = "yes" ]; then
+  log "Locking label $label"
+  cleartool lock -nc -replace -nusers $USER lbtype:$label >> $logfile 2>&1
+
+  if [ $? -ne 0 ]; then
+    log "Unable to lock label $label"
+    error "Unable to lock label $label" 2
+  fi
+fi
+
+# Apply label(s)
+i=0
+
+while [[ ! -z ${recurse[$i]} ]]; do
+  if [ ${recurse[$i]} = "yes" ]; then
+    if [[ -z $move ]]; then
+      log "Applying label $label to ${paths[$i]} (recursively)"
+    else
+      log "Replacing label $label to ${paths[$i]} (recursively)"
+    fi
+    cleartool mklabel $move -nc -recurse lbtype:$label ${paths[$i]} >> $logfile 2>&1
+  else 
+    if [[ -z $move ]]; then
+      log "Applying label $label to ${paths[$i]} (non-recursively)"
+    else
+      log "Replacing label $label to ${paths[$i]} (non-recursively)"
+    fi
+    cleartool mklabel $move -nc lbtype:$label ${paths[$i]} >> $logfile 2>&1
+  fi
+
+  # Check for errors
+  if [ $? -ne 0 ]; then
+    error "Unable to apply label: $label" 3
+  fi
+
+  ((i++))
+done
+

@@ -1,0 +1,76 @@
+################################################################################
+#
+# File:         site_parms.shanghai
+# Description:  This file describes unique properties of a site. It is intended
+#		that /etc/profile source this file so as to set the environment
+#		variables here.
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Jul 25 14:01:35 PDT 2003
+#
+# (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+## General Section
+# Name of site
+export SITE_NAME="CN"
+export SITE_NAME_LONG="Shanghai"
+
+# Who is the responsible administrator
+export SITE_ADMIN="Zhaoyang Ran"
+
+# What is his email address
+export SITE_ADMIN_EMAIL="ZRan@Salira.com"
+
+## Windows Section
+# Where's the $HOME server
+export SITE_HOME_SERVER="sons-shanghai"
+
+# What's the name of the share where $HOME directories are
+export SITE_HOME_SHARENAME="users"
+
+# What machine hosts anonymous FTP
+export SITE_ANON_FTP_SERVER="sons-cc"
+
+# Where are releases stored
+export SITE_RELEASE_SERVER="sons-shanghai"
+
+# What's the path to the release area
+export SITE_RELEASE_PATH="users/ftp/Release"
+
+# Where's the build server
+export SITE_BUILD_SERVER="sons-cc"
+
+## Clearcase Section
+# Where's the region
+export SITE_REGION="China"
+
+# Where's the vob server
+export SITE_VOB_SERVER="sons-cc"
+
+# Where's the view server
+export SITE_VIEW_SERVER="sons-cc"
+
+# What's the name of the share where views are kept
+export SITE_VIEW_SHARENAME="Views"
+
+# Where's the view storage area
+export SITE_VIEW_STORAGE="//$SITE_VIEW_SERVER/$SITE_VIEW_SHARENAME"
+
+# What's the path to snapshot views
+export SITE_SNAPSHOT_VIEW_PATH="/view"
+
+# What's the path to dyanmic views
+export SITE_DYNAMIC_VIEW_PATH="/dview"
+
+# What's the official view
+export SITE_OFFICIAL_VIEW="official"
+
+## Tools
+# In house tools are now in the Tools vob. As such they need to be accessed
+# through Clearcase, through a view
+export SITE_TOOLS_VOB="Tools"
+export SITE_TOOLS_VIEW="$SITE_OFFICIAL_VIEW"
+
+# Where the in hosue tools are located
+export SITE_TOOLS_PATH="$SITE_SNAPSHOT_VIEW_PATH/$SITE_TOOLS_VIEW/$SITE_TOOLS_VOB"
+

@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Redoing PPC build</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000284.html" title="Building Native PPC Toolchain" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000286.html" title="Building &amp; tagging TOT/X86" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000284.html">&laquo; Building Native PPC Toolchain</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000286.html">Building & tagging TOT/X86 &raquo;</a>
+                     </p>
+
+                     <a id="a000285"></a>
+                     <div class="entry" id="entry-285">
+                        <h3 class="entry-header">Redoing PPC build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Recreated LynxOS on PPC machine from scratch</li>
+
+  <li>Rebuilding toolchain</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>The LynxOS I put on t-mcpn765-1 was suspect as I had untarred a couple of different X/Motifs onto the root file system and the toolchain build was failing anyway. This was a good opportunity to redo this and make sure my documentation was correct.</p>
+
+<p><b>Note:</b> For this building of the toolchain I used the 20210.xfree.tar.gz for the first time</p>
+
+<p>To build the toolchain I did the following (note that I had already got a copy of the toolchain src and unpacked it onto the k partition):</p>
+
+<div class="code"><pre>
+# . SETUP.bash
+
+  Setup : ENV_PREFIX is an environment variable that points to
+        : the root of the build/release directory.  The ENVIRONMENT
+        : file is found as $ENV_PREFIX/ENVIRONMENT.
+        : Set ENV_PREFIX to /?  [y]
+
+  Target : Please specify the target
+          (ppc, x86, arm or mips) : ppc
+
+  Setup : Complete!
+
+# ulimit -s 1000000 -d 1000000
+# mount /dev/sdncr.0k /mnt
+# cd /mnt/toolchain/3.2.2/010405/
+# ls
+Makefile                fixup.sh*               src/
+build-powerpc/          install.log             stamp-configure-powerpc
+# make clobber
+rm -rf {build,install,stamp-*}-powerpc
+# ./fixup.sh
++ cd src
++ touch texinfo/intl/plural.c
++ touch libgui/library/tclIndex
++ find . -name aclocal.m4 -exec touch '{}' ';'
++ find . '(' -name config.in -o -name config.h.in ')' -exec touch '{}' ';'
++ find . '(' -name Makefile.in -o -name stamp-h.in ')' -exec touch '{}' ';'
++ find . -name configure -exec touch '{}' ';'
+# make install > install.log 2>&1 &
+</pre></div>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on January 21, 2005 10:14 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000285.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

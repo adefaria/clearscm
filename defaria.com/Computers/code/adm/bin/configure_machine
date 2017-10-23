@@ -1,0 +1,325 @@
+#!/bin/bash
+################################################################################
+#
+# File:         configure_machine
+# Description:  A script to set up the "admin" environment
+# Author:       Andrew@DeFaria.com
+# Created:      Tue Apr 15 14:20:02 PDT 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+if [ ! -d /adm ]; then
+  if [ ! -d "$adm_base" ]; then
+    print -u2 "$me: Error: Unable to find \"adm\" path! - Exiting"
+    exit 1
+  fi
+fi
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Source in tmpfiles function
+tmpprefix=${TMPDIR:-/tmp}/configure_machine.$$
+. $adm_fpath/tmpfiles
+arm_trap
+
+verbose=
+debug=
+mode=check
+
+function usage {
+  info "$ME [-v|verbose] [-d|debug] [-usage]"
+  info "        -v|verbose:     Turns on verbose mode"
+  info "        -d|debug:       Turns on debug mode"
+  info "        -f|ix:          Turns on fix mode"
+  info "        -c|heck:        Turns on check mode (default)"
+  info "        -usage:         Print this usage message\n"
+
+  error "$1" 1
+} # usage
+
+function symlink {
+  debug "ENTER symlink"
+  from="$1"
+  to="$2"
+
+  if [ ! -h "$from" ]; then
+    if [ $mode = "fix" ]; then
+      verbose "Setting up symlink from $from -> $to"
+      ln -s "$to" "$from"
+    else
+      warning "$from link is not setup properly" 0
+    fi
+  else
+    verbose "$from link is OK"
+  fi
+
+  debug "EXIT symlink"
+} # symlink
+
+function setup_symlinks {
+  debug "ENTER setup_symlinks"
+
+  symlinks="\
+/adm            $adm_base\
+"
+  print $symlinks | while read from to; do
+    symlink $from $to
+  done
+
+  debug "EXIT setup_symlinks"
+} # setup_symlinks
+
+function check_and_replace_file {
+  debug "ENTER check_and_replace_file"
+  master_file="$1"
+  check_file="$2"
+  permissions="$3"
+  owner_group="$4"
+
+  if ! cmp -s $master_file $check_file; then
+    if [ $mode = "fix" ]; then
+      verbose "Fixing $check_file"
+      cp $master_file $check_file
+      chmod $permissions $check_file
+      chown $owner_group $check_file
+    else
+      warning "$check_file is not setup properly" 0
+    fi
+  else
+    verbose "$check_file is OK"
+  fi
+
+  debug "EXIT check_and_replace_file"
+} # check_and_replace_file
+
+function check_nsswitch_conf {
+  debug "ENTER check_nsswitch_conf"
+
+  sed 's/automount:     files nis/automount:    nis files/' \
+    /etc/nsswitch.conf > $tmpprefix.nsswitch.conf
+
+  check_and_replace_file $tmpprefix.nsswitch.conf /etc/nsswitch.conf 444
+root:adm
+
+  debug "EXIT check_nsswitch_conf"
+} # check_nsswitch_conf
+
+function check_automount_maps {
+  debug "ENTER check_automount_maps"
+
+  for map in master home direct indirect; do
+    check_and_replace_file /adm/etc/auto_$map /etc/auto_$map 444 root:adm
+  done
+
+  debug "EXIT check_automount_maps"
+} # check_automount_maps
+
+function setup_rcfiles {
+  debug "ENTER setup_rcfiles"
+  local_src=$ADM_PATH/etc/init.d/local
+  local_dest=/etc/init.d/local
+  local_symlink=/etc/rc3.d/S99local
+
+  if [ ! -x $local_dest ]; then
+    if [ $mode = "fix" ]; then
+      verbose "Creating $local_dest"
+      cp "$local_src" $local_dest
+      chown root:adm $local_dest
+      chmod 555 $local_dest
+    else
+      warning "$local_dest does not exist!" 0
+    fi
+  else
+    verbose "$local_dest is OK"
+  fi
+
+  if [ ! -h $local_symlink ]; then
+    if [ $mode = "fix" ]; then
+      verbose "Setting up $local_symlink"
+      ln -s $local_dest $local_symlink
+    else
+      warning "$local_symlink does not exist!" 0
+    fi
+  else
+    verbose "$local_symlink is OK"
+  fi
+
+  if [ ! -d /etc/Startup ]; then
+    if [ $mode = "fix" ]; then
+      verbose "Creating /etc/Startup directory"
+      mkdir /etc/Startup
+      chown root:adm /etc/Startup
+      # Note: Security would be better if this was 775...
+      chmod 777 /etc/Startup
+    else
+      warning "/etc/Startup does not exist!" 0
+    fi
+  else
+    verbose "/etc/Startup is OK"
+  fi
+
+  start_views_src=$ADM_PATH/clearcase/start_views
+  start_views_dest=/etc/Startup/start_views
+
+  if [ ! -x $start_views_dest ]; then
+    if [ $mode = "fix" ]; then
+      verbose "Creating $start_views_dest"
+      cp "$start_views_src" $start_views_dest
+      chown root:adm $start_views_dest
+      chmod 555 $start_views_dest
+    else
+      warning "$start_views_dest does not exist!" 0
+    fi
+  else
+    verbose "$start_views_dest is OK"
+  fi
+
+  views_to_start_src=$ADM_PATH/clearcase/views_to_start
+  views_to_start_dest=/etc/views_to_start
+
+  if [ ! -f $views_to_start_dest ]; then
+    if [ $mode = "fix" ]; then
+      verbose "Creating $views_to_start_dest"
+      cp "$views_to_start_src" $views_to_start_dest
+      chown root:adm $views_to_start_dest
+      chmod 555 $views_to_start_dest
+    else
+      warning "$views_to_start_dest does not exist!" 0
+    fi
+  else
+    verbose "$views_to_start_dest is OK"
+  fi
+
+  debug "EXIT setup_rcfiles"
+} # setup_rcfiles
+
+function setup_root_rhosts {
+  debug "ENTER setup_root_rhosts"
+  root_rhosts_src="$ADM_PATH/etc/root_rhosts"
+  root_rhosts_dest="/.rhosts"
+
+  if [ ! -f $root_rhosts_dest ]; then
+    if [ $mode = "fix" ]; then
+      verbose "Creating $root_rhosts_dest"
+      cp "$root_rhosts_src" $root_rhosts_dest
+      chown root:adm $root_rhosts_dest
+      chmod 400 $root_rhosts_dest
+    else
+      warning "$root_rhosts_dest does not exist!" 0
+    fi
+  else
+    if is_root; then
+      if ! cmp -s $root_rhosts_src $root_rhosts_dest; then
+        if [ $mode = "fix" ]; then
+          verbose "Updating $root_rhosts_dest"
+          cp "$root_rhosts_src" $root_rhosts_dest
+          chown root:adm $root_rhosts_dest
+          chmod 400 $root_rhosts_dest
+        else
+          warning "Contents of $root_rhosts_dest is non standard!" 0
+        fi
+      fi
+    else
+      verbose "$root_rhosts_dest is present"
+      verbose "Contents not check since you're not running as root"
+    fi
+  fi
+
+  debug "EXIT setup_root_rhosts"
+} # setup_root_rhosts
+
+function setup_root_profile {
+  debug "ENTER setup_root_profile"
+  if [ "$VENDOR" = "HP" ]; then
+    debug "RETURN setup_root_profile (Skip HP machines)"
+    return
+  fi
+  root_profile_src="$ADM_PATH/etc/root_profile"
+  root_profile_dest="/.profile"
+
+  if [ ! -f $root_profile_dest ]; then
+    if [ $mode = "fix" ]; then
+      verbose "Creating $root_profile_dest"
+      cp "$root_profile_src" $root_profile_dest
+      chown root:adm $root_profile_dest
+      chmod 444 $root_profile_dest
+    else
+      warning "$root_profile_dest does not exist!" 0
+    fi
+  else
+    if is_root; then
+      if ! cmp -s $root_profile_src $root_profile_dest; then
+        if [ $mode = "fix" ]; then
+          verbose "Updating $root_profile_dest"
+          cp "$root_profile_src" $root_profile_dest
+          chown root:adm $root_profile_dest
+          chmod 400 $root_profile_dest
+        else
+          warning "Contents of $root_profile_dest is non standard!" 0
+        fi
+      fi
+    else
+      verbose "$root_profile_dest is present"
+      verbose "Contents not check since you're not running as root"
+    fi
+  fi
+
+  debug "EXIT setup_root_profile"
+} # setup_root_rhosts
+
+# Get parameters
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+    ;;
+
+    -v|-verbose)
+      verbose=yes
+    ;;
+
+    -d|-debug)
+      debug=yes
+    ;;
+
+    -f|-fix)
+      mode=fix
+    ;;
+
+    -c|-check)
+      mode=check
+    ;;
+
+    *)
+      usage "Unrecognized parameter $1"
+    ;;
+  esac
+  shift
+done
+
+if [ "$mode" = "fix" ]; then
+  if ! is_root; then
+    error "Must be root to execute this command in fix mode!" 2
+  fi
+fi
+
+verbose "Starting $me..."
+setup_symlinks
+check_nsswitch_conf
+check_automount_maps
+setup_rcfiles
+setup_root_rhosts
+setup_root_profile
+verbose "$me completed"

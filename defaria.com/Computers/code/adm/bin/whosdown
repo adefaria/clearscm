@@ -1,0 +1,200 @@
+#!/bin/bash
+################################################################################
+#
+# File:         whosdown
+# Description:  Pings machines listed in machines database and produces a report
+#               about which machines are down
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Oct  5 09:32:21 PDT 2000
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Set machines
+machines=${machines:-$adm_base/data/machines}
+
+function usage {
+  if [ "_$1" != "_" ]; then
+    display "$1"
+    display
+  fi
+  display "Usage: $me [-[c|ount] n | -[u|p] [-nocolor]"
+  display
+  display "Where:"
+  display "\t-c|ount:\tNumber of pings to attempt"
+  display "\t-u|p:\t\tReport machines that are up too"
+  display "\t-nocolor\tDo not produce color output"
+  exit 1
+} # usage
+
+function print_totals {
+  # Print totals
+  display_stderr
+  display_stderr ------------------------
+
+  if [ "$up" = "true" ]; then
+    display_stderr "Total machines:\t$total_machines"
+    display_stderr "Total up:\t$total_up"
+  fi
+  if [ $total_down -ne 0 ]; then
+    display_stderr "Total down:\t$total_down"
+  fi
+  if [ $total_weak -ne 0 ]; then
+    display_stderr "Total weak:\t$total_week"
+  fi
+
+  exit
+} # print_totals
+
+# Totals
+declare -i total_machines=0
+declare -i total_up=0
+declare -i total_down=0
+declare -i total_weak=0
+
+# Get parameters
+declare -i count=2
+up=false
+color_output=true
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+    ;;
+
+    -v|-verbose)
+      verbose=yes
+    ;;
+
+    -d|-debug)
+      debug=yes
+    ;;
+
+    -c|-count)
+      if [[ $# -lt 2 ]]; then
+        error "Count not specified" 1
+      else
+        shift
+        count=$1
+      fi
+    ;;
+
+    -u|-up)
+      up=true
+    ;;
+
+    -nocolor)
+      color_output=false
+    ;;
+
+    *)
+      usage "Unrecognized parameter $1"
+    ;;
+  esac
+  shift
+done
+
+if [ "$color_output" = "true" ]; then
+  # Define some colors
+  esc=$(echo "\033")
+
+  if [ "$TERM" = "vt100" -o "$TERM" = "vt220" ]; then
+    normal="$esc[0m"
+    up_color="$esc[1m"
+    limping_color="$esc[4m"
+    down_color="$esc[5m"
+  elif [ "$TERM" = "dtterm" -o -z DTTERM ]; then
+    normal="$esc[39m"
+    up_color="$esc[32m"
+    limping_color="$esc[35m"
+    down_color="$esc[31m"
+  elif [ "$TERM" = "hp" -o "$TERM" = "hpterm" ]; then
+    normal="$esc&d@$esc&v0S"
+    down_color="$esc&v1S"
+    limping_color="$esc&v5S"
+    up_color="$esc&v2S"
+  elif [ "$TERM" = "cygwin" ]; then
+    normal="$esc[0m"
+    up_color="$esc[32m"
+    limping_color="$esc[33m"
+    down_color="$esc[31m"
+  fi
+fi
+
+# Print heading
+display "Machine\t\tState"
+display --------\\t--------
+
+trap print_totals INT
+
+# Check each known machine
+for machine in $(grep -v ^# $machines | cut -f1 -d:); do
+  let total_machines=total_machines+1
+
+  if [ "$up" = "true" ]; then
+    # If we are displaying up machine then print the machine name first
+    display "$machine\t\c"
+    if [ ${#machine} -lt 8 ]; then
+      display "\t\c"
+    fi
+  fi
+
+  # ping the machine
+  ping_result=$(ping $machine -n $count | tail -3 | head -1 | cut -f2 -d'(' | cut -f1 -d')')
+  declare -i state=0
+
+  # Translate the return string to states
+  case "$ping_result" in
+    "100% loss") # Total packet loss - machine is downes
+      state=1
+      ;;
+
+    "0% loss") # No packet loss - machine is fine
+      state=0
+      ;;
+
+    *) # Some other percentage of packet loss - machine is limping
+      state=2
+      ;;
+  esac
+
+  debug "Pinged $machine; result = $ping_result; state = $state"
+
+  # Output based on state
+  if [ $state -eq 0 ]; then
+    if [ "$up" = "true" ]; then
+      let total_up=total_up+1
+      display "${up_color}Up${normal}"
+    fi
+  else
+    if [ "$up" = "false" ]; then
+      display "$machine\t\c"
+      if [ ${#machine} -lt 8 ]; then
+        display "\t\c"
+      fi
+    fi
+    if [ $state -eq 1 ]; then
+      let total_down=total_down+1
+      display "${down_color}Down${normal}"
+    else
+      let total_weak=total_weak+1
+      display "${limping_color}Weak response${normal}"
+    fi
+  fi
+done
+
+print_totals

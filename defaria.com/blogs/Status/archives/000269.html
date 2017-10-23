@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: TOT Build Failure</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000268.html" title="files4ecr.pl/Building TOT as per instructions" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000270.html" title="Building Native Toolchain for PPC" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000268.html">&laquo; files4ecr.pl/Building TOT as per instructions</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000270.html">Building Native Toolchain for PPC &raquo;</a>
+                     </p>
+
+                     <a id="a000269"></a>
+                     <div class="entry" id="entry-269">
+                        <h3 class="entry-header">TOT Build Failure</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Unable to build TOT due to error in definition of atoi</li>
+
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Is there a known problem with TOT build? Cause I'm getting an error saying essentially that "atoi is undefined".</p>
+
+<div class="code">
+<pre>
+gcc -g -O2 -o named aclconf.o client.o config.o control.o controlconf.o interfac
+emgr.o listenlist.o log.o logconf.o main.o notify.o query.o server.o sortlist.o
+tkeyconf.o tsigconf.o update.o xfrout.o zoneconf.o lwaddr.o lwresd.o lwdclient.o
+lwderror.o lwdgabn.o lwdgnba.o lwdgrbn.o lwdnoop.o lwsearch.o  unix/os.o ../../
+lib/lwres/liblwres.a ../../lib/dns/libdns.a   ../../lib/isccfg/libisccfg.a ../..
+/lib/isccc/libisccc.a ../../lib/isc/libisc.a  -lnsl
+/export/build1/LYNXOS_500/build/lynxos/120604-C/x86/lib/libnsl.a(getgrent.as.o):
+In function `getgrent':
+getgrent.as.o(.text+0xb4): undefined reference to `atoi'
+/export/build1/LYNXOS_500/build/lynxos/120604-C/x86/lib/libnsl.a(getgrent.as.o):
+In function `fgetgrent':
+getgrent.as.o(.text+0x2b8): undefined reference to `atoi'
+/export/build1/LYNXOS_500/build/lynxos/120604-C/x86/lib/libnsl.a(getpwent.as.o):
+In function `getpwent':
+getpwent.as.o(.text+0xb4): undefined reference to `atoi'
+getpwent.as.o(.text+0xce): undefined reference to `atoi'
+/export/build1/LYNXOS_500/build/lynxos/120604-C/x86/lib/libnsl.a(getpwent.as.o):
+In function `getpw':
+getpwent.as.o(.text+0x29e): undefined reference to `atoi'
+/export/build1/LYNXOS_500/build/lynxos/120604-C/x86/lib/libnsl.a(getpwent.as.o)(
+.text+0x34c): more undefined references to `atoi' follow
+collect2: ld returned 1 exit status
+make[4]: *** [named] Error 1
+<pre>
+</div>
+
+<p>It seems that the problem is in strtol.c version 10.2, which says that the definition was moved to stdlib.h, and stdlib.h appears to have it, yet the build fails anyway...</p>
+
+<p>Looking at the compilation line for strtol.c I see it produces strtol.as.o, which in a previous successful build yeilds:</p>
+
+<div class="code">
+<pre>
+$ nm strtol.as.o
+        U __ctype
+        U __divdi3
+        U __moddi3
+        U _errno
+00000208 T atoi
+000001f4 T atol
+00000000 T strtol
+</pre>
+</div>
+
+<p>But in this build yeilds:</p>
+
+<div class="code">
+<pre>
+$ nm strtol.as.o
+        U __ctype
+        U __divdi3
+        U __moddi3
+        U _errno
+00000208 T atoi
+000001f4 T atol
+00000000 T strtol
+</pre>
+</div>
+
+<p>So how do we fix this error?</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on January  4, 2005 11:03 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000269.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

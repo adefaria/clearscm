@@ -1,0 +1,403 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: September  9, 2007 - September 15, 2007 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2007_09_02.html" title="September  2, 2007 - September  8, 2007" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2007_09_16.html" title="September 16, 2007 - September 22, 2007" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2007_09_02.html">&laquo; September  2, 2007 - September  8, 2007</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2007_09_16.html">September 16, 2007 - September 22, 2007 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_09_09.html#entry-000677"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/64"
+    dc:title="ucmwb 1.2.3 release/Perl&apos;isms"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_09_09.html#entry-000677"
+    dc:subject="General Dynamics"
+    dc:description=" Released ucmwb 1.2.3..."
+    dc:creator=""
+    dc:date="2007-09-14T12:51:03-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 14, 2007</h2>
+                     <a id="a000677"></a>
+                     <div class="entry" id="entry-677">
+                        <h3 class="entry-header">ucmwb 1.2.3 release/Perl'isms</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Released ucmwb 1.2.3</li>
+</ul>
+                              
+                              <h3>FindBin, Getopt::Long and Display.pm</h3>
+
+<p>Here's how I typically use <a
+ href="http://search.cpan.org/%7Enwclark/perl-5.8.8/lib/FindBin.pm">FindBin</a>:</p>
+
+<div class=code><pre>
+use FindBin;
+...
+use lib "$FindBin::Bin/../lib";
+...
+sub Usage ($) {
+  my ($msg) = @_;
+
+  display "ERROR: $msg\n" if defined $msg;
+  display &lt;&lt;END;
+Usage: $FindBin::Script [-usage] [-verbose] [-debug] [-exec]
+		-from_view &lt;view&gt; -label &lt;label_name&gt;
+...
+END
+</pre></div>
+
+<p>Also I tend to use Getopt::Long. It is extremely flexible. Options can be specified in the GNU long method as in --debug or just -debug. Additionally you can abbreviate as in -d IFF there is no other option that starts with "d". Options can have parameters (-file myfile.txt or -file=myfile.txt), set boolean (-verbose can set say $verbose), automatic negation (-verbose or -noverbose), even call subroutines directly!k Here's an example.</p>
+
+<div class=code><pre>
+use GetOpt::Long;
+...
+my $execute	= 0;
+my $from_view;	# e.g. p6258c_RAN_FDD_Doc_Bld1_int
+my $branch;	# e.g. ran_fdd_release_build2_integration
+my $label;	# e.g. RAN_FDD_RELEASE_BUILD1
+
+GetOptions (
+  "usage"	=&gt; sub { Usage "" },
+  "verbose"	=&gt; sub { set_verbose },
+  "debug"	=&gt; sub { set_debug },
+  "exec!"	=&gt; \$execute,
+  "from_view=s"	=&gt; \$from_view,
+  "branch=s"	=&gt; \$branch,
+  "label=s"	=&gt; \$label,
+) || Usage "Unknown parameter";
+</pre></div>
+
+<p>Some notes about the above:</p>
+
+<ul>
+  <li>Usage is a subroutine (most people have one) that takes one parameter for an extra message to display first.</li>
+
+  <li>Eat your own dog food! I use my <a href="http://clearscm.com/php/cvs_man.php?file=lib/Display.pm">Display</a> module which has display routines for verbose and debug, etc. It also has $verbose and $debug variables and exports the set_verbose and set_debug methods.</li>
+
+  <li>The "exec!" is a negation. So -exec and -noexec apply and set $execute accordingly</li>
+
+  <li>All of "from_view", "branch" and "label" are simple name/value type parameters so -branch &lt;branchname&gt; sets $branch to &lt;branchname&gt;.</li>
+</ul>
+
+<p>A word on Display.pm:</p>
+
+<p>I find that often people do the following:</p>
+
+
+<div class=code><pre>
+print "In myspecial_subroutine: File = $file\n" if $debug;
+</pre></div>
+
+<p>for debugging. To me it's always been a hassle to have to remember to include the "\b" and the "if $debug", etc. Granted that's not a lot. But how can I make it better?</p>
+
+<p>My thought was to name the procedure debug and include the "\n" by default. People oughta quickly discern that:</p>
+
+<div class=code><pre>
+debug "In myspecial_subroutine: File = $file";
+</pre></div>
+
+<p>probably only happens when debugging.</p>
+
+<p>Additionally I support routines like verbose, debug, error, warning
+(from Display.pm).</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:51 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000677.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000677.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_09_09.html#entry-000676"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/63"
+    dc:title="UCMWB su bug"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_09_09.html#entry-000676"
+    dc:subject="General Dynamics"
+    dc:description=" Fixed an issue with ucmwb running after su&apos;ed to another user Addressed some issues about PC running CC in the RAN network..."
+    dc:creator=""
+    dc:date="2007-09-13T11:28:07-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 13, 2007</h2>
+                     <a id="a000676"></a>
+                     <div class="entry" id="entry-676">
+                        <h3 class="entry-header">UCMWB su bug</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed an issue with ucmwb running after su'ed to another user</li>
+
+  <li>Addressed some issues about PC running CC in the RAN network</li>
+</ul>
+                              
+                              <h3>Stupid coding</h3>
+
+<p>It never ceases to amaze me what some programmers do that when I look at it seem to be just foolish things. Here's today's example:</p>
+
+<p>In ucmwb a bug was discovered when a user first su's to some other user then runs ucmwb (in this case the user is su'ing to ccadm). The while the main window dutifully displays the list of WORs for the su'ed user, the view browser does not. Instead it displays the list of views for the original user. Turns out that there was specific code for Solaris to call cuserid instead of getenv("USER"). So Linux was working but Solaris failed. Why the difference?</p>
+
+<p>But along with that I noticed the following code:</p>
+
+<div class=code><pre>
+    QSting homePath = QDir::homePath();
+
+    if (homePath.isEmpty()) {
+      qDebug() << "homePath is empty!";
+      // Note the following is a Unix'ism and non portable!
+      homePath = QString("/home/") + appUsername;
+    }
+
+    qDebug() << "homePath = " << homePath;
+    QString settingsFilename = QDir::homePath() + QString("/.ucmwbrc");
+    QString settingsDirname  = QDir::homePath() + QString("/.ucmwb.d");
+    QString filterFilename   = settingsDirname + QString("/filters");
+</pre></div>
+
+<p>OK so first ask yourself what do you see wrong here.....?</p>
+
+<p>Pencils down!</p>
+
+<p>Here's my questions:</p>
+
+<ol>
+  <li>Why go through the effort of getting the user's homePath, check to see if it's empty and then compose one with "/home" + appUsername only then to totally ignore all that work and get it again for settingsFilename?</li>
+
+  <li>Why then do this operation of obtaining homePath yet again to set settingsDirname?</li>
+
+  <li>If homePath were determined to be empty, aren't you ignoring what you set it to?</li>
+</ol>
+
+<p>Naturally I fixed this to be:</p>
+
+<div class=code><pre>
+    QSting homePath = QDir::homePath();
+
+    if (homePath.isEmpty()) {
+      // Note the following is a Unix'ism and non portable!
+      homePath = QString("/home/") + appUsername;
+    }
+
+    QString settingsFilename = homePath + QString("/.ucmwbrc");
+    QString settingsDirname  = homePath + QString("/.ucmwb.d");
+    QString filterFilename   = settingsDirname + QString("/filters");
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:28 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000676.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000676.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_09_09.html#entry-000675"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/62"
+    dc:title="UCMWB/Document Visibility"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_09_09.html#entry-000675"
+    dc:subject="General Dynamics"
+    dc:description=" Fixed a few problems with UCMWB&apos;s help facility. Previously help didn&apos;t work at all on Linux. Now it works and About identifies the proper version numbers and which architecture. Created baselines for the documentation visibility WORs..."
+    dc:creator=""
+    dc:date="2007-09-12T18:07:32-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 12, 2007</h2>
+                     <a id="a000675"></a>
+                     <div class="entry" id="entry-675">
+                        <h3 class="entry-header">UCMWB/Document Visibility</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed a few problems with UCMWB's help facility. Previously help didn't work at all on Linux. Now it works and About identifies the proper version numbers and which architecture.</li>
+
+  <li>Created baselines for the documentation visibility WORs</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:07 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000675.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000675.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_09_09.html#entry-000674"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/61"
+    dc:title="Import.pl"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_09_09.html#entry-000674"
+    dc:subject="General Dynamics"
+    dc:description=" Performed merge for build 1-&gt; build 2 and build 2 -&gt; build 3 Resolved RoseRT issue Code reviewed Tom&apos;s changes to createView.pl..."
+    dc:creator=""
+    dc:date="2007-09-11T12:25:55-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 11, 2007</h2>
+                     <a id="a000674"></a>
+                     <div class="entry" id="entry-674">
+                        <h3 class="entry-header">Import.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Performed merge for build 1-> build 2 and build 2 -> build 3</li>
+
+  <li>Resolved RoseRT issue</li>
+
+  <li>Code reviewed Tom's changes to createView.pl</li>
+</ul>
+                              
+                              <h3>RANCQ00013181: MUOS document Project Views Are not Showing All Needed Documents</h3>
+
+<p>Process was written to perform this importation. The process takes 3 parameters: a from_view, a branch and a label. The process is designed to run in the to_view context. It proceeds to search the from_view for elements that do not exist in the to_view and upon finding them it merges the parent directory and then the element in question is "imported".</p>
+
+<p>Both a branch and a label is used because the merge procedure used on directory elements first tries to merge with the LATEST on the specified branch. If the branch does not exist (because the element was never branched) then the label is used to locate the source directory for the merge.</p>
+
+<p>File elements aren't merged - they are imported (i.e. copied from the from_view to the to_view)</p>
+
+<p>There are a few errors and/or warnings that can result in such a process that this script cannot hueristically determine the correct action to take. The problems arise from the renaming or removing of elements in the to_view. It is not possible for this script to determine what the user intended. An example will better explain this.</p>
+
+<p>For build 1 there was a directory named:</p>
+
+<div class=code><pre>
+/vobs/gdrandocs/development/proj/ran/fdd/RNC_Initialization_Configuration
+</pre></div>
+
+<p>This was on the ran_fdd_doc_bld1_integration branch version 2 which was labled RAN_FDD_RELEASE_BUILD1. At version 17 RNC_Intitialization_Configuration was renamed to RBS_RNC_Intitialization_Configuration. By version 28 the RAN_FDD_RELEASE_BUILD2 label was applied.</p>
+
+<p>Since this directory was renamed there is no way to guess what it was renamed to. Sure it's easy for a human to look at it and make a loose association based on the fact that most of the directory name is the same, this sort of AI is very difficult to program. The script marks these as an error. It's an error because somebody should verify if a directory was simply renamed or if it was removed (rmname'd). Also it's not known what to do at this point. Shall we assume that the newly named directory contains all it needs? Or does further merging/importing need to take place?</p>
+
+<p>Additionally, since a directory is renamed, the elements contained in the directory went along with it. So in the script, the from_view keeps producing paths with RNC_Intitialization_Configuration in them not RBS_RNC_Intitialization_Configuration. Such elements then appear to have disappeared and the script issues a warning for these. At this point we really cannot tell if the file element was simply removed (where we would assume that the act was deliberate and that we should not be importing the element back in) or if it's a result of a directory renaming of the parent directory (or some parent of the parent) thus falling into the error described in the preceeding paragraph.</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000674.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000674.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_09_09.html#entry-000673"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/60"
+    dc:title="Building Qt/UCMWB officially"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_09_09.html#entry-000673"
+    dc:subject="General Dynamics"
+    dc:description=" Got the license key for Qt, 4.2.3 this time, so I&apos;m building it again, officially Rebuilding ucmwb with debug turned off Fixed problem with backspace not working in vim..."
+    dc:creator=""
+    dc:date="2007-09-10T14:44:10-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 10, 2007</h2>
+                     <a id="a000673"></a>
+                     <div class="entry" id="entry-673">
+                        <h3 class="entry-header">Building Qt/UCMWB officially</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Got the license key for Qt, 4.2.3 this time, so I'm building it again, officially</li>
+
+  <li>Rebuilding ucmwb with debug turned off</li>
+
+  <li>Fixed problem with backspace not working in vim</li>
+</ul>
+
+                              
+                              <h3>Backspace and vim</h3>
+
+<p>Annoyingly backspace continues to be a problem, especially with Sun. Here's the fix for vim (put in ~/.vimrc):</p>
+
+<div class=code><pre>
+set t_kb=^h
+fixdel
+</pre></div>
+
+<p><b>Note:</b> That's a Control-V [backspace] to produce ^h.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:44 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000673.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000673.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

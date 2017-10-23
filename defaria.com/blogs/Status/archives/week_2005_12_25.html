@@ -1,0 +1,376 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: December 25, 2005 - December 31, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_12_18.html" title="December 18, 2005 - December 24, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2006_01_01.html" title="January  1, 2006 - January  7, 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_12_18.html">&laquo; December 18, 2005 - December 24, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2006_01_01.html">January  1, 2006 - January  7, 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">December 30, 2005</h2>
+                     <a id="a000507"></a>
+                     <div class="entry" id="entry-507">
+                        <h3 class="entry-header">pulse</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added some functionality to Clearcase::Vob and Clearcase::View</li>
+
+  <li>Coded a pulse script which performs a pulse checking by checking out and in a file 10 times. If the pulse takes more than 60 seconds then an error is reported</li>
+</ul>
+                              
+                              <h2>Pulse</h2>
+
+<p>I decided to make the pulse script part of a larger project so I created a perf subdirectory under cc. The idea here is that pulse is a sort of performance test - a "sanity performance test" if you will. In general the script does the following:</p>
+
+<ul>
+  <li>Creates a logfile (pulse.log)</li>
+
+  <li>Creates a new view (default) if required</li>
+
+  <li>Sets context to that view</li>
+
+  <li>Changes directory to the view to the vob (/vobs/adm by default)</li>
+
+  <li>Performs 10 checkouts and checkins of a relatively large file (a copy of firefox.exe which is ~7 Meg)</li>
+
+  <li>Compares the time that those checkouts and checkins took against a threshold (default 60) and reports an error if it took too long</li>
+</ul>
+
+<p>Here is a usage:</p>
+
+<div class="code"><pre>
+ccase-rmna-3:export SITE_PERL_LIBPATH=~/SCM/lib
+ccase-rmna-3:pulse -u
+Usage:  pulse (v1.0) [-u] [-v] [-d] [-view <viewtag>] [-vob <vobtag>]
+        [-element <element>] [-t <n>] [-i <n>]
+
+Where:
+
+  -u:       Display usage
+  -v:       Turn on verbose mode
+  -d:       Turn on debug mode
+  -view:    View tag to create/use (Default: default)
+  -vob:     Vob tag to use (Default /vobs/adm)
+  -element: Vob relative path to element to checkout/in (Default: firefox.exe)
+  -t <n>:   Threshold of what is "too long" (Default 60 seconds)
+  -i <n>:   Number of iterations (default 10)
+</pre></div>
+
+<p>Here's an example of the log file produced:</p>
+
+<div class="code"><pre>
+pulse: 12/30/2005 @ 12:27: Performing 10 checkout/ins in view default vob /vobs/adm of element firefox.exe
+pulse: 12/30/2005 @ 12:28: Finished in 36 seconds
+pulse: 12/30/2005 @ 12:28: Performing 10 checkout/ins in view default vob /vobs/adm of element firefox.exe
+pulse: 12/30/2005 @ 12:29: Finished in 35 seconds
+</pre></div>
+<p>Several issues came up when attempting to code this script. For example:</p>
+
+<ul>
+  <li>Which view should this operate in?</li>
+
+  <li>Which vob should this operate in?</li>
+
+  <li>How will we assure that this vob exists at any site that we want to run pulse? Perhaps we should make a vob for performance testing only (e.g. /vobs/perf).</li>
+
+  <li>Checking out and in a single element creates many versions on the version tree. If this pulse script was run every hour then 240 versions would be created in only one day. It would be better to more properly "setup" and "teardown" the whole environment but this would be considerably more complex and time consuming. For example, pulse could create the view, create the vob, formulate some elements and do mkelems on them, do the checkouts and checkins, do rmelems and remove the vob and view, etc. That's a lot! Alternately it could simply do the mkelems, the checkouts and checkins, then do rmelems but that brings up the issue of where does the source come for the mkelems? Also, typically there's a trigger to prevent rmelem...</li>
+
+  <li>Currently the script is pretty Unix centric. For example, it uses cleartool lsview -stgloc -auto. This works on Unix but for some reason -stgloc doesn't work on Windows. I also suspect that at the various sites usage of -stgloc might not be that reliable.</li>
+
+  <li>Also the view used is a dynamic view. Should a snapshot version be coded?</li>
+
+  <li>Current the script uses /vobs/<vobname> for a vob tag. In fact it uses /vobs/adm. This is not a Windows vob tag so the script will not work on Windows</li>
+
+  <li>The script does sport paramaters to change things such as the view used, the vob used and the element to checkout and in. The defaults are great but then again we don't have a performance testing environment setup and replicated yet</li>
+
+  <li>Currently the script logs it's activity to a log file but it's not in a great format for analysis. The TimeUtils module I'm using only as 1 second resolution. I'm not sure how much analysis of this logfile is desired</li>
+
+  <li>There is no facility for emailing alerts when the script determines that things are taking too long</li>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:57 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000507.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 29, 2005</h2>
+                     <a id="a000506"></a>
+                     <div class="entry" id="entry-506">
+                        <h3 class="entry-header">Clearcase Modules/log_activity</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked on creating several Clearcase modules: Clearcase::Vobs, Clearcase:Vob and Clearcase::View</li>
+
+  <li>Updated log_activity to use new Clearcase modules</li>
+</ul>
+                              
+                              <h2>Clearcase Modules</h2>
+
+<p>It occurs to me that lots of repeatative Perl coding goes on with many people implementing functions for the same old commonly performed actions. For example, sending an email message, reading a file into an array and performing many Clearcase operations such as creating a view, checking to see if a view exists, mounting vobs, etc. I thought it's about time to have some Perl modules to offer these common tasks in a useful way. In particular, when writing log_activity I had to check to see if a particular view exists and create it if it doesn't, mount all the vobs, etc. Seems to me a set of Clearcase Perl modules would be useful to me, Broadcom and indeed others so I started coding them.</p>
+
+<p>The idea here is to provide Perl objects for Clearcase objects that can be used and manipulated in a Perl manner. So a vob object would contain much of the registry information, in case you need it, as well as provide some common "actions" such a mount the vob represented by this object. The Vobs object would contain information about all vobs and things like itterrators and the like. A mount on a Vobs object would mean mount all vobs, etc. Similarly with a View object one could imagine methods such as exists which tells you if the view exists, create to create a view, remove to remove a view and so on.</p>
+
+<p>Now these are not the only Clearcase oriented "objects" that need to be made into Perl objects nor do the current objects cover all of the access to the various functionality that they could - Clearcase is a huge system! But one must start somewhere...</p>
+
+<p>Similarly I plan on making more modules for other things, like Utils.pm for things like reading in a whole file and returning an array or perhaps a string (wantarray would be useful here). The general idea is to start making more userful modules that are Perl like so that one can more quickly develop code and not slow themselves down reinventing the Perl wheel all the time. Combining this with hosting this code using CVS and my server should prove useful. The Clearcase object(s) may even be something that can be packaged up and perhaps put on CPAN (though I need to learn a lot more about things like POD and other things to make this comply better with any CPAN requirements), but all of this will be a "work in progress" for quite some time though. Remember though - "Every journey begins with the first step"...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:48 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000506.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 28, 2005</h2>
+                     <a id="a000505"></a>
+                     <div class="entry" id="entry-505">
+                        <h3 class="entry-header">log_activity/create_dev_snapview.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked on log_activity Perl script</li>
+
+  <li>Investigated issue with R/O components for create_dev_snapview.pl</li>
+</ul>
+                              
+                              <h2>log_activity</h2>
+
+<p>Ray Tran wrote:</p>
+
+<blockquote type=cite>
+  <p>To summarize the three logging projects. The primary log directory is /projects/scm_tools_logs in San Jose. Please let me know if you have any input or suggestions</p>
+</blockquote>
+
+<p><b>We need a global area that's truly global!</b></p>
+
+<p>Turns out that /projects/scm_tools_logs doesn't exist. I assume you meant /projects/IT_SCM/logs. However /projects/IT_SCM doesn't exist on either ccase-rmna-3 nor ccase-sj1-1... So running a script that requires Clearcase such as this I cannot access the directory where I need to deposit the log files! Additionally I cannot access /projects/IT_SCM/SCM/lib for my libraries nor /projects/IT_SCM/SCM/cc where the script would be residing...</p>
+
+<blockquote type=cite>
+<dl>
+  <dt>Activity logs</dt>
+    <dd><p>This is a log of who checked things out and into ClearCase and from what view. I think we can do this hourly and append to the log file so it doesn't take too long to run.</p></dd>
+</dl>
+</blockquote>
+
+<p>Turns out lshistory is pretty flexible and efficient. One does not need to do a cleartool find on all elements and then call lshistory on individual elements, etc. The lshistory command supports a -recursive parameter. But we really want to report things across vobs. The lshistory command also supports a -avobs parameter. Two limitations here... First lshistory needs to work the context of a view. Secondly, -avobs only works on vobs that are mounted.</p>
+
+<p>I've coded up a script called log_checkins which will create a view (named default &lt;- I can change this) if necessary and also mounts all vobs prior to calling lshistory. It also supports a -n parameter for number of days - thus -n 7 will produce a weeks worth of log files. Logfiles are named checkin.&lt;<i>date</i>&gt;.log where &lt;<i>date</i>&gt; is the date in YYYYMMDD format. So -n 1 (or not specifying -n) will produce a log file for the previous day (e.g. checkin.20051227.log) encompassing all activity on that day, while specifying -n 7 will produce 7 logfiles, one for each of the last 7 days properly dated.</p>
+
+<p>The fields in the logfile (separated with ";") are:</p>
+
+<ol>
+  <li>&lt;<i>date</i>&gt;.&lt;<i>time</i>&gt; (&lt;<i>date</i>&gt; is YYYYMMDD
+and &lt;<i>time</i>&gt; is HHMMSS 24 hour format). This format makes the logfile easily sortable by date and time with sort(1).</li>
+
+  <li>&lt;<i>username</i>&gt; (Not sure where lshistory gets the username, normally is the same as the next field but sometimes it's different - e.g. "Clear Case Administrator")</li>
+
+  <li>&lt;<i>user</i>&gt;@&lt;<i>host</i>&gt; The user login name (e.g. adefaria) @ host (e.g. ltsjca-adefaria)</li>
+
+  <li>&lt;<i>event</i>&gt; The Clearcase event</li>
+
+  <li>&lt;<i>element</i>&gt; View extended path name</li>
+</ol>
+
+<h3>Clearcase Events</h3>
+
+<p>I ran log_checkins for the last 30 days and examined the log files. No filtering for only "check in" events were done. The range of Clearcase events are:</p>
+
+<ul>
+  <li>checkout directory version</li>
+
+  <li>checkout version</li>
+
+  <li>create activity</li>
+
+  <li>create baseline</li>
+
+  <li>create branch</li>
+
+  <li>create branch type</li>
+
+  <li>create directory element</li>
+
+  <li>create directory version</li>
+
+  <li>create file element</li>
+
+  <li>create hyperlink</li>
+
+  <li>create label type</li>
+
+  <li>create trigger type</li>
+
+  <li>create version</li>
+
+  <li>destroy activity in versioned object base</li>
+
+  <li>destroy checkpoint "&lt;<i>checkpoint</i>&gt;" in versioned object base</li>
+
+  <li>destroy element in versioned object base</li>
+
+  <li>destroy hyperlink "&lt;<i>hyperlink</i>&gt; in versioned object base</li>
+
+  <li>destroy sub-branch "&lt;<i>sub-branch</i>&gt;" of branch</li>
+
+  <li>destroy type in versioned object base</li>
+
+  <li>destroy version on branch</li>
+
+  <li>import file element</li>
+
+  <li>import hyperlink</li>
+
+  <li>lock activity</li>
+
+  <li>lock branch</li>
+
+  <li>lock branch type</li>
+
+  <li>lock trigger type</li>
+
+  <li>lock versioned object base</li>
+
+  <li>unlock activity</li>
+
+  <li>unlock versioned object base</li>
+</ul>
+
+<p>There are probably other event types. Also, in most cases the &lt;<i>element</i>&gt;
+field contains additional information that can be extracted. For example:</p>
+
+<div class="code"><pre>
+20051201.151257;drambo;drambo@PCRMNA-DRAMBO;create
+version;/vobs/OnePhone/pub/Makefile@@/main/OnePhone_mainline_Intr/OnePhone_3.2_Intr_new/10
+</pre></div>
+
+<p>one can see that this was a creation of a version in the OnePhone
+vob of pub/Makefile. The part after the @@ is the branch information
+(/main/OnePhone_mainline_Intr/OnePhone_3.2_Intr_new) and version 10.</p>
+
+<p>Although you asked for checked out things, checked in things are more interesting. In fact I'd say that all of the above Clearcase events are interesting and that we should just log all of it (and I'll change log_checkins -&gt; log_activity and change checkin.&lt;<i>date</i>&gt;.log
+-&gt; activity.&lt;<i>date</i>&gt;.log</p>
+
+<blockquote type=cite>
+  <dt>Pulse check log</dt>
+    <dd><p>This is a script that should run a quick checkout and time the process. This should run at least every 15 minutes. I'm not sure if we need to set this up for each VOB or if we can just create a IT_SCM VOB and checkout from there. We then control how much data gets moved. For example in Perforce, I've created some file that are 100MB in size. I total the files and check this out. I now have control over the data.</p></dd>
+ 
+  <dt>Statistic logs</dt>
+    <dd><p>This is a script that would create two logs - one general data for each site, one for each VOB of each site.</p>
+ 
+    <p>The general data should have at the least - date_time;site;number of VOBs; number of total VOB size; number of snapshot views; number of dynamic views; number of file elements; number of directory element;...</p>
+ 
+    <p>The VOB specific data - date_time;site;VOB_name;size of database;size of source pool; size of devired object; size of cleartext; size of admin data</p></dd>
+</dl>
+ 
+    <p>The directory structure that I envisioned is as such</p>
+ 
+<div class="code"><pre>
+/projects/scm_tools_logs
+ 
+ - cc
+      - 2005
+          - 12
+             - 01
+ </pre></div>
+</blockquote>
+
+<p>I see little benefit in constructing such a directory structure, especially programmatically. Instead I place the YYYYMMDD in the file name of the log file in a format described above. This format is easily parseable, sortable and grepable and it also compresses nicely. A directory structure such as above could easily be created at a later time or sets of logfiles could be easily gzipped and tar'ed (e.g. mkdir 2005; tar -zcf 2005/activity.logs.gz activity.2005*; rm activity.2005*).</p>
+
+<h2>R/O Components & create_dev_snapview.pl</h2>
+
+<p>After speaking at length with Shivdutt about this and learning more about UCM, projects, streams and the like I see a problem here. Let me explain it based on how I see this...</p>
+
+<p>With UCM you have projects which contain components which can be R/W or R/O. Projects also have streams, one integration stream (and an associated integration view) and one or more development streams (and their associated development views).</p>
+
+<p>When a development view is created in a development stream it is populated with all of the components in the project based on baselines. The difference here is that you can use different baselines for the various R/W components but you cannot use different baselines for the R/O components. The baseline information for R/O components is kept "globally" at the project level and is not modifiable in the development streams. Since, theoretically, R/O components are not modifiable they considered shared for all development streams.</p>
+
+<p>While R/O components can have their baselines changed (usually advanced) at the project level, the act of doing so affects all development streams (dynamic development streams will be affected immediately while snapshot development views at next update time).</p>
+
+<p>So if we had create_dev_snapview.pl alter the baselines of the R/O components by retarding (or advancing) them, then the side effect would affect other developers. We don't want that!</p>
+
+<p>The only way to handle this would be to create a new project where the R/O components could be set to a previous set. This would be much more intensive and could easily be come unwieldy. For example, if you wanted 3 days worth of "history" we would need to create 3 projects to contain them.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:59 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000505.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 27, 2005</h2>
+                     <a id="a000504"></a>
+                     <div class="entry" id="entry-504">
+                        <h3 class="entry-header">log_checkins</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Started investigating a log_checkins procedure</li>
+
+  <lI>Worked on Andrew's create_dev_snapview.pl</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000504.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,245 @@
+#!/bin/bash
+###############################################################################
+#
+# File:         $RCSfile: functions,v $
+# Revision:     $Revision: 1.10 $
+# Description:  Common bash functions
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Jun  6 08:31:57 PDT 1996
+# Modified:     $Date: 2006/07/30 16:12:35 $
+# Language:     bash
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+############################################################################### 
+ESC=$(echo "\033")
+view_name=
+
+# Function to set the title bar. Works on the terminal emulators listed.
+function title_bar {
+  prefix="$@"
+  # Change $HOME -> ~
+  if [ "${PWD#$HOME*}" != "$PWD" ]; then
+    current_dir="~${PWD#$HOME*}"
+  elif [ "$PWD" = "$HOME" ]; then
+    current_dir=~
+  else
+    current_dir="$PWD"
+  fi
+
+  # Remove view name
+  current_dir="${current_dir#/view/$view_name*}"
+  current_dir="${current_dir#/sview/$view_name*}"
+
+  # Add CVS/Root if there is one
+  if [ -f "CVS/Root" ]; then
+    current_dir="$current_dir ($(cat CVS/Root))"
+  fi
+
+  if [ "$TERM" = "hpterm" -o \
+       "$TERM" = "hp"     -o \
+       "$TERM" = "2392A" ]; then
+    string=$(echo "${SYSNAME##*:}:$@")
+    echo -n "${ESC}&f0k${#string}D$string"
+  elif [ "$TERM" = "dtterm" -o \
+	 "$TERM" = "vt221" ]; then
+    string=$(echo "${SYSNAME##*:}:$@")
+    echo -n "${ESC}]2;$string\007"
+  elif [ "$TERM" = "cygwin" -o "$TERM" = "vt100" ]; then
+    PS1="\[\e]0;$prefix$current_dir\a\e[01;33m\]$SYSNAME:\[\e[0m\]"
+  fi
+} # title_bar
+
+# Function to set the icon name. Works on the terminal emulators listed.
+function icon_name {
+  if [ "$TERM" = "hpterm" -o \
+       "$TERM" = "hp"     -o \
+       "$TERM" = "2392A" ]; then
+    string=$(echo "$1")
+    echo -n "${ESC}&f-1k${#string}D$string"
+  elif [ "$TERM" = "dtterm" -o \
+	 "$TERM" = "vt100"  -a "$DTTERM" = "True" ]; then
+    # Note setting icon_name on vt100 overrights the title bar so skip it
+    echo -n "${ESC}]1;$@\007"
+  fi
+} # icon_name
+
+# Sets both the title bar and the icon name. 
+function title {
+  title_bar "$@"
+  icon_name "${SYSNAME##*:}"
+} # title
+
+# Sets title bar to machine name and path. Will include a view name if in a 
+# view and a string to indicate that you are root.
+function set_title {
+  uid=$(id | cut -f2 -d= | cut -f1 -d\()
+  if [ $uid -eq 0 ]; then
+    ROOT="Wizard "
+  else
+    ROOT=
+  fi
+
+  view_name=$(ct pwv -short 2> /dev/null | tr -d );
+
+  if [ $? -ne 0 ]; then
+    view_name='*NONE*'
+  fi
+
+  if [[ $view_name = *NONE* ]]; then
+    view_name=""
+    title_bar "$ROOT"
+  else
+    title_bar "${ROOT}View: $view_name: "
+  fi
+  icon_name "${SYSNAME##*:}"
+} # set_title
+
+# Sets prompt on terminals listed.
+function set_prompt {
+  uid=$(id | cut -f2 -d= | cut -f1 -d\()
+  if [ $uid -eq 0 ]; then
+    if [ "$TERM"   = "hpterm" -o \
+         "$TERM"   = "hp"     -o \
+         "$TERM"   = "2392A"  -o \
+         "$TERM"   = "dtterm" -o \
+         ! -z "$DTTERM" ]; then
+      ROOT="${RED}Wizard$NORMAL "
+    elif [ "$TERM" = "vt100" -o \
+	   "$TERM" = "vt220" ]; then
+      ROOT="${BOLD}${BLINK}Wizard$NORMAL "
+    fi
+  else
+    ROOT=""
+  fi
+  if [ "$TERM" = "vt100" -o \
+       "$TERM" = "vt220" ]; then
+    PS1="$ROOT$BOLD$SYSNAME:$NORMAL"
+  else
+    PS1="$ROOT$SYSNAME:"
+  fi
+  set_title
+} # set_prompt
+
+# Function to override the normal cd command, setting title and prompt.
+function _cd {
+  if [ -z "$1" ]; then
+    \cd ~
+  else
+    \cd "$1"
+  fi
+
+  if [ $? = 0 ]; then
+    set_title
+    set_prompt
+  fi
+} # _cd
+
+# Functions to override the normal push/popd commands, setting title and prompt.
+function _pushd {
+  if [ -z "$1" ]; then
+    \pushd
+  else
+    \pushd "$1"
+  fi
+  set_title
+  set_prompt
+} # _pushd
+
+function _popd {
+  if [ -z "$1" ]; then
+    \popd
+  else
+    \popd "$1"
+  fi
+  set_title
+  set_prompt
+} # _popd
+
+# Function to override rlogin. Note that it fixes up the title and prompt 
+# upon return.
+function rlogin {
+  /usr/bin/rlogin "$@"
+  set_title
+  set_prompt
+} # rlogin
+
+# Function to override rsh. Note that it fixes up the title and prompt 
+# upon return.
+function rsh {
+  /usr/bin/rsh "$@"
+  set_title
+  set_prompt
+} # rsh
+
+# Function to override ssh. Note that it fixes up the title and prompt 
+# upon return.
+function ssh {
+  /usr/bin/ssh "$@"
+  set_title
+  set_prompt
+} # ssh
+
+function sj {
+  if [ $ARCH = "FreeBSD" ]; then
+    psopts="-aux"
+  else
+    psopts="-ef"
+  fi
+
+  if [ $# = 0 ]; then
+    ps $psopts | $PAGER
+  else
+    for str; do
+      ps $psopts | grep "$str" | grep -v "grep $str" | grep -v "grep -d skip"
+    done
+  fi
+} # sj
+
+function start_imap {
+  # Starts an ssh tunnel for IMAP
+  ssh -C -L 143:defaria.com:143 andrew@defaria.com
+} # start_imap
+
+function cmdline {
+  # Displays the command line from the /proc filesystem (if present)
+
+  me=$0;
+
+  if [ $# -ne 1 ]; then
+    error "Usage: cmdline <pid>"
+    return 1
+  fi
+
+  pid=$1;
+
+  if [ ! -d "/proc" ]; then
+    error "This OS has no /proc filesystem"
+    return 1
+  fi
+
+  if [ ! -d "/proc/$pid" ]; then
+    error "PID $pid does not exist"
+    return 1
+  fi
+
+  if [ ! -f "/proc/$pid/cmdline" ]; then
+    error "PID $pid has no cmdline!"
+    return 1
+  fi
+
+  cat /proc/$pid/cmdline | tr -c [:print:] " "
+  display
+} # cmdline
+
+function list () {
+  if [ $# -eq 0 ]; then
+    ypcat passwd | $PAGER
+  else
+    if [ $# -eq 1 ]; then
+      for str in $@; do
+        ypcat passwd | grep -i $str
+      done
+    fi
+  fi
+} # list

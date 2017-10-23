@@ -1,0 +1,49 @@
+#!/bin/bash
+################################################################################
+#
+# File:         make_resolv_conf
+# Description:  A script to create a valid /etc/resolv.conf
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Wed Jan 15 16:52:22 PST 1997
+# Modified:     Wed Jan 15 16:52:22 PST 1997 (Andrew DeFaria) defaria@cup.hp.com
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+
+function usage {
+  print -u2 "$me: [ <primary dns> ] [ <secondary dns> ]"
+  exit 1
+} # usage
+
+# Get parameters
+primary_dns="15.28.98.95                # smildon"
+secondary_dns="15.0.96.86               # masher"
+trierary_dns="15.13.168.80              # hparch4"
+
+if [ $# -eq 2 ]; then
+  primary_dns="$1"
+  secondary_dns="$2"
+elif [ $# -eq 1 ]; then
+  primary_dns="$1"
+fi
+
+resolv_conf_file=/etc/resolv.conf
+
+# Don't copy this time...
+#cp $resolv_conf_file $resolv_conf_file.old
+
+print "domain cup.hp.com"                         >  $resolv_conf_file
+print "search cup.hp.com hp.com ch.apollo.hp.com" >> $resolv_conf_file
+print "nameserver $primary_dns"                   >> $resolv_conf_file
+print "nameserver $secondary_dns"                 >> $resolv_conf_file
+print "nameserver $trierary_dns"                  >> $resolv_conf_file
+
+# If machine runs cupmail (see root crontab) then we need to make a .local
+# file.
+cp $resolv_conf_file $resolv_conf_file.local
+
+print "$me: Created new $resolv_conf_file"
+#print "$me: Saved old $resolv_conf_file in $resolv_conf_file.old"

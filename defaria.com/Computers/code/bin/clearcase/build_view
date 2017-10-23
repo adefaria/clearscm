@@ -1,0 +1,199 @@
+#!/bin/bash
+################################################################################
+#
+# File:         build_view
+# Description:  Builds in a view
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Jun 11 13:22:11 PDT 2003
+# Language:     Bash Shell
+# Modifications:06/17/2003 AD: Changed 2310_onu -> onu2310 as the card directory
+#		has changed. Also added -to and -cc options.
+#
+# (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+function usage {
+  if [ ! -z "$1" ]; then
+    error "$1\n"
+  fi
+  display "Usage: $me: [-to <email_address>] [-cc <email_address>]"
+  display "\t\t   [-q|uiet ] [-v|erbose] [-d|ebug] [-usage]"
+  display "\t\t   [-noupdate] <viewtag> [ <viewtag>... ]"
+  display
+  display "Where:"
+  display "\t-to:\t\tEmail address where to mail the build log"
+  display "\t-cc:\t\tEmail address where to cc the build log"
+  display "\t-quiet:\t\tBe quiet"
+  display "\t-verbose:\tTurn on verbose mode"
+  display "\t-debug:\t\tTurn on debug mode"
+  display "\t-usage:\t\tDisplay usage"
+  display "\t-noupdate:\tSkip updating of snapshot views"
+  display "\t\t\t(default: Snapshot views are updated)"
+  display "\t<viewtag>\tView tag(s) to build"
+  exit 1
+} # usage
+
+# Commands used
+ssmtp=/usr/sbin/ssmtp
+
+# Get cards definition
+. $SITE_TOOLS_PATH/adm/etc/cards
+
+declare -i build_status=0
+
+function send_message {
+  msg="$1"
+
+  # Perform accounting
+  accounting
+
+  # Compose message
+  if [ -z "$cc" ]; then
+    display "From: ccadmin\nTo: $to\nSubject: Build of $view_to_build $msg" > /tmp/msg.$$
+  else
+    display "From: ccadmin\nTo: $to\ncc: $cc\nSubject: Build of $view_to_build $msg" > /tmp/msg.$$
+  fi
+
+  # Mail it
+  cat /tmp/msg.$$ $logfile.acct $logfile | $ssmtp -t
+
+  # Clean up accounting file
+  rm -f $logfile.acct
+
+  if [ $? -eq 0 ]; then
+    rm -f /tmp/msg.$$
+  fi
+} # send_message
+
+function accounting {
+  # Cheap accounting...
+  display "\n\tCard Summary"             >> $logfile.acct
+  display "****************************" >> $logfile.acct
+  for card in $cards; do
+    if [ -f "$card.build.log" ]; then
+      warnings=$(grep -i warning $card.build.log | grep -vc "Warnings: 0")
+      errors=$(grep -i error $card.build.log | grep -v "Errors: 0" | grep -vc "cli_errors.c")
+      display "$card:\tWarnings: $warnings\tErrors: $errors" >> $logfile.acct
+    fi
+  done
+} # accounting
+
+# Get parameters                                                                
+update_view="yes"
+while [ $# -ge 1 ]; do                                                          
+  case "$1" in                                                                  
+      -u|-usage)
+        usage
+      ;;
+
+      -v|-verbose)
+        verbose=yes
+      ;;                                                                        
+
+      -d|-debug)
+        debug=yes
+      ;;                                                                        
+
+      -q|-quiet)
+        quiet=yes
+      ;;
+
+      -to)
+	shift
+        to="$1"
+      ;;
+
+      -cc)
+        shift;
+        cc="$1"
+      ;;
+
+      -noupdate)
+        update_view="no"
+      ;;
+
+      *)
+        views_to_build="$views_to_build $1"
+      ;;
+  esac
+  shift
+done
+
+# Who to notify
+if [ -z "$to" ]; then
+  to="$SITE_ADMIN_EMAIL"
+fi
+
+for view_to_build in $views_to_build; do
+  # First check to see if there is a snapshot view
+  if [ -d "$SITE_SNAPSHOT_VIEW_PATH/$view_to_build" ]; then
+    view_path="$SITE_SNAPSHOT_VIEW_PATH"
+
+    if [ $update_view = "yes" ]; then
+      verbose "Updating view $view_to_build..."
+      $SITE_TOOLS_PATH/bin/update_view -q $view_to_build
+
+      if [ $? -ne 0 ]; then
+	error "Failed to update view $view_to_build" 1
+      else
+        verbose "Updated view $view_to_build"
+      fi
+    fi
+  else # Now check ot see if it's a dynamic view
+    view_path="$SITE_DYNAMIC_VIEW_PATH"
+    if [ ! -d $view_path/$view_to_build ]; then
+      # View not started - start it
+      verbose "Starting view $view_to_build..."
+      cleartool startview $view_to_build > /dev/null 2>&1
+
+      if [ $? -ne 0 ]; then
+        error "Unable to start view $view_to_build" 2
+      fi
+    fi
+  fi
+
+  if [ -d "$view_path/$view_to_build" ]; then
+    logfile=/tmp/$view_to_build.build.log
+    verbose "Start build of $view_to_build @ $(date)"
+    echo "Start build of $view_to_build @ $(date)" > $logfile
+
+    # Perform build
+    cd $view_path/$view_to_build/salira/neopon/build
+    $SITE_TOOLS_PATH/bin/build -nomonitor -sequential -clean -quiet -tee $logfile
+
+    build_status=$?
+
+    if [ $build_status -eq 0 ]; then
+      msg="succeeded"
+    else 
+      msg="failed"
+    fi
+   
+    display "\nEnd build of $view_to_build $msg @ $(date)"       >> $logfile
+    display "Logfile: $(hostname):/tmp/$view_to_build.build.log" >> $logfile
+
+    send_message $msg
+
+    # Check for errors and notify the right people
+    if [ "$quiet" = "yes" ]; then
+      # If quiet then do not notify
+      :
+    else
+      $SITE_TOOLS_PATH/bin/notify_err
+    fi
+  else
+    warning "Cannot find view $view_path/$view_to_build"
+  fi
+done

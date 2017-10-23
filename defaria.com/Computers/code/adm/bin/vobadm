@@ -1,0 +1,37 @@
+#!/bin/bash
+################################################################################
+#
+# File:         vobadm
+# Description:  A script run something as vobadm
+# Author:       Andrew@DeFaria.com
+# Created:      Mon May 17 07:35:59 PDT 1999
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+
+sudo=${sudo:-/app/sudo}
+
+if [ ! -x $sudo ]; then
+  print -u2 "$me: Error: Unable to find sudo!"
+  exit 1;
+fi
+
+if [ $# -gt 0 ]; then
+  # Execute the commands
+  $sudo -u vobadm "$@"
+else
+  # Become vobadm
+  $sudo -u vobadm -s
+
+  if [ -x ~/.rc/functions ]; then
+    # Source in ksh functions (needed for set_title and set_prompt)
+    . ~/.rc/functions
+    # Reset title and prompt (if you can)
+    alias ct=/usr/atria/bin/cleartool
+    set_title
+    set_prompt
+  fi
+fi

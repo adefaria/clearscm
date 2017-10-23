@@ -1,0 +1,1200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: September 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2005_08.html" title="August 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2005_10.html" title="October 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2005_08.html">&laquo; August 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2005_10.html">October 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">September 30, 2005</h2>
+                     <a id="a000438"></a>
+                     <div class="entry" id="entry-438">
+                        <h3 class="entry-header">More study of Rebase project to parent & Deliver between projects</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Studied Rebase project to parent in depth</li>
+
+  <li>Studied Deliver between projects in depth</li>
+
+  <li>Discussed SJ vob move with Jennifer and Chini</li>
+
+  <li>Met with Phil regarding merge problem - turns out to be no problem</li>
+</ul>
+                              
+                              <h3>Rebase Project to Parent</h3>
+
+<p>The procedure calls rebase_project which essentially calls ct rebase...</p>
+
+<ul>
+  <li>Given a pvob and project rebase_project calls get_integration_stream to get the intergation stream</li>
+
+  <li>It then gets a list of the foundation baselines</li>
+
+  <li>For each foundation baseline it calls get_stream_for_baseline to get the stream for the foundation baseline.</li>
+
+  <li>Using that it calls get_project_for_stream to obtain the project name for this baseline.</li>
+
+  <li>Next it gets all of the recommended baselines for the project</li>
+</ul>
+
+<h3>Deliver Between Projects</h3>
+
+<p>This procedure calls inter_project_deliver. UCM doesn't support the concept of delivering between projects so this procedure implement interproject delivery by using ct merge.</p>
+
+
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:07 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000438.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 29, 2005</h2>
+                     <a id="a000437"></a>
+                     <div class="entry" id="entry-437">
+                        <h3 class="entry-header">Trigger config/Web config</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Went to Salira to help Shuqing to set up a rel_3.1 branch.</p>
+
+<ul>
+  <li>Changed trigger to recogonize rel_3.1/china_3.1 as a valid branches.</li>
+
+  <li>Cleaned up web area on sonsweb</li>
+
+  <li>Added link for old 2.3 releases</li>
+
+  <li>Created 3.1.1.8.bugs file</li>
+
+  <li>Explained to Shuqing how the whole set up worked</li>
+
+  <li>Created china_3.1.lst file for Shanghai. Changes to CheckInPreop.pl will replicate to Shanghai and should become effective tomorrow.</li>
+
+  <li>Investigated changing <b>Found In</b> and <b>Fixed In</b> dropped downs to be sorted in reverse order since they are working on the latest, therefore highest numbered releases first. Turns out this will require more work with a possible change to the Clearquest schema. Jeff has schema checked out so I couldn't do anything. Basically those fields tie into a stateless record which contains a <b>Release ID</b> and a <b>Description</b>. I'm not sure how to tell Clearquest to sort that drop down.</li>
+</ul>
+
+<p>Total time: 2 hours</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:18 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000437.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000436"></a>
+                     <div class="entry" id="entry-436">
+                        <h3 class="entry-header">UCM: Rebase project to parent & Deliver between projects</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created UCM environment where I can rebase and deliver</li>
+
+  <li>Reproduced binary merge problem in both rebase and deliver mode</li>
+
+  <li>Studied UCMCustom for <i>Rebase project to parent</i> & <i>Deliver between projects</i> functions. The former uses cleartool rebase while the later does not use deliver in the classic UCM sense</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:41 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000436.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 28, 2005</h2>
+                     <a id="a000435"></a>
+                     <div class="entry" id="entry-435">
+                        <h3 class="entry-header">Clearcase Deliver problem</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Helped Darren Edamura with a Clearcase problem</li>
+
+  <li>Started looking into Binary Merge problem</li>
+
+  <li>Added FixChar subroutine to CheckCodePage</li>
+</ul>
+                              
+                              <h3>Clearcase Deliver Failiure Leaves Corrupted Version</h3>
+
+<p>Worked with Darren Edamura on a problem he had during delivery. He says that he was working in a snapshot view and had inadvertantly had 2 hijaked files. When he wanted to deliver he had to do a rebase operation. Rebase noted the hijaked files and offered to check them in. He said he had checked them out. At this point he was left with a file version that had no activity associated with it. Right clicking that version in the version tree and selecting properties yielded:</p>
+
+<img src="cc_corruption.jpg">
+
+<p>Darren continued onward by checking out version 4 and checking in identical to create version 6 then delievered that.</p>
+
+<p>In attempting to clean up version 5 we decided to remove that version. However doing so yielded:</p>
+
+<img src="rmver_failure.jpg">
+
+<p>Refreshing the version tree after that error revealed the activity on version 5 and now it all seems to be OK. I guess the rmver action cleared up the problem!</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000435.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 27, 2005</h2>
+                     <a id="a000432"></a>
+                     <div class="entry" id="entry-432">
+                        <h3 class="entry-header">Code Page/rgy_switchover</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked more on detecting and report invalid ASCII characters in PQA databases</li>
+
+  <li>Working with IBM Rational Support regarding rgy_switchover</li>
+</ul>
+                              
+                              <h3>Code Page</h3>
+
+<p>Managed to get the non ASCII characters in the databases down to a handful of cases and implement a "fix_char" routine. The basic mapping turns out to be:</p.
+
+<div class="code"><pre>
+# Translate from special char -> ASCII
+my %char_mapping = (
+  "ffffff85"	=> "_",
+  "ffffff91"	=> "\'",
+  "ffffff92"	=> "\'",
+  "ffffff93"	=> "\"",
+  "ffffff94"	=> "\"",
+  "ffffff96"	=> "-",
+#  "ffffffa2"	=>
+#  "ffffffae"	=>
+  "ffffffb7"	=> "\."
+#  "ffffffbd"	=> "1/2",
+#  "ffffffe7"	=> ???
+);
+</pre></div>
+
+<p>The commented out lines represent characters I have not be able to determine the ASCII equivalents, except the 1/2 which is a 1/2 in one character. In order to translate the one character 1/2 to the 3 character 1/2 I would need to expand the array. I have not done this yet.</p>
+
+<h3>PMR#59845,999,000 backup rgy switchover not working on Windows clients</h3>
+
+<p>Steven Chaves wrote:</p>
+
+<blockquote><p>Andrew,</p>
+
+<p>During the tech session, other TSEs did say that rgy_switchover does not always work. For DNS resolution, running:  ipconfig /release and then afterwards ipconfig /renew usually works, but this would have to be done on each client. Can you give the servers fixed IP addresses.</p></blockquote>
+
+<p>There still seems to be some confusion here. I will attempt to be explicit here.</p>
+
+<p>I realize that rgy_switchover will not always work 100%. Client machines may be down, etc. However what I'm seeing is that rgy_switchover never works - or at least never works with any of the Windows client  machines who has their IP address assigned via DHCP and who's Windows machine name (WINS name) != Unix DNS CNAME.</p>
+
+<p>Here's the situation. There are two Unix Solaris boxes: ccase-sj1-3 (10.16.191.241) and ccase-sj1-4 (10.16.191.243). Both are servers and have statically assigned IP addresses.</p>
+
+<p>There are just a few Windows clients in this test scenario, mostly laptops. All fail. All have DHCP assigned IP addresses and Windows computer names that are not the same as DNS. Let's use my laptop as an example: ltsjca-adefaria (10.16.191.243) is it's name. It's a Windows XP box, is a laptop yet remains docked at my desk.</p>
+
+<p>When the rgy_switchover command was run from ccase-sj1-3 to switch over to ccase-sj1-4 both ccase-sj1-3 and ccase-sj1-4 became aware of the change and switched over. None (i.e. 0) of the other clients (all DHCP assigned Windows boxes) failed, including my laptop (who's IP address, BTW, had not changed).</p>
+
+<p>Investigating I find that I can nslookup and ping ccase-sj1-3 and ccase-sj1-4 from my laptop, ltsjca-adefaria</p>
+
+<div class="code"><pre>
+    <font color="blue"><b>Local:</b></font><u>nslookup ccase-sj1-3</u>
+    Server:  dns-sj1-1b.sj.broadcom.com
+    Address:  10.16.64.11
+
+    Name:    ccase-sj1-3.sj.broadcom.com
+    Address:  10.16.191.241
+    Aliases:  ccase-sj1-3.broadcom.com
+
+    <font color="blue"><b>Local:</b></font><u>nslookup ccase-sj1-4</u>
+    Server:  dns-sj1-1b.sj.broadcom.com
+    Address:  10.16.64.11
+
+    Name:    ccase-sj1-4.sj.broadcom.com
+    Address:  10.16.191.243
+    Aliases:  ccase-sj1-4.broadcom.com
+    <font color="blue"><b>Local:</b></font><u>ping ccase-sj1-3</u>
+    Pinging ccase-sj1-3.sj.broadcom.com [10.16.191.241] with 32 bytes of data:
+
+    Reply from 10.16.191.241: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.241: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.241: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.241: bytes=32 time<1ms TTL=254
+
+    Ping statistics for 10.16.191.241:
+        Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+        Minimum = 0ms, Maximum = 0ms, Average = 0ms
+    <font color="blue"><b>Local:</b></font><u>ping ccase-sj1-4</u>
+    Pinging ccase-sj1-4.sj.broadcom.com [10.16.191.243] with 32 bytes of data:
+
+    Reply from 10.16.191.243: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.243: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.243: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.243: bytes=32 time<1ms TTL=254
+
+    Ping statistics for 10.16.191.243:
+        Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+        Minimum = 0ms, Maximum = 0ms, Average = 0ms
+</pre></div>
+
+<p>I can ping my laptop by name but I cannot nslookup it:</p>
+
+<div class="code"><pre>
+    <font color="blue"><b>Local:</b></font><u>ping ltsjca-adefaria</u>
+    Pinging LTSJCA-ADEFARIA.corp.ad.broadcom.com [10.16.65.94] with 32 bytes of data:
+
+    Reply from 10.16.65.94: bytes=32 time<1ms TTL=64
+    Reply from 10.16.65.94: bytes=32 time<1ms TTL=64
+    Reply from 10.16.65.94: bytes=32 time<1ms TTL=64
+    Reply from 10.16.65.94: bytes=32 time<1ms TTL=64
+
+    Ping statistics for 10.16.65.94:
+        Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+        Minimum = 0ms, Maximum = 0ms, Average = 0ms
+    <font color="blue"><b>Local:</b></font><u>nslookup ltsjca-adefaria</u>
+    *** dns-sj1-1b.sj.broadcom.com can't find ltsjca-adefaria: Non-existent domain
+    Server:  dns-sj1-1b.sj.broadcom.com
+    Address:  10.16.64.11
+</pre></div>
+
+<p>From the Solaris boxes (either ccase-sj1-3 or ccase-sj1-4) I cannot nslookup nor ping ltsjca-adefaria by name:</p>
+
+<div class="code"><pre>
+    <font color="red"><b>ccase-sj1-3:</b></font><u>nslookup ltsjca-adefaria</u>
+    Server:  dns-sj1-1c.sj.broadcom.com
+    Address:  10.16.128.11
+
+    *** dns-sj1-1c.sj.broadcom.com can't find ltsjca-adefaria: Non-existent host/domain
+    ccase-sj1-3:ping ltsjca-adefaria
+    ping: unknown host ltsjca-adefaria
+    ccase-sj1-3:
+</pre></div>
+
+<p>I can ping by IP address:</p>
+
+<div class="code"><pre>
+    <font color="red"><b>ccase-sj1-3:</b></font><u>ping 10.16.65.94</u>
+    10.16.65.94 is alive
+</pre></div>
+
+<p>However the Solaris boxes (nor the laptop it seems) can resolve the name ltsjca-adefaria to an IP address:</p>
+
+<div class="code"><pre>
+    <font color="red"><b>ccase-sj1-3:</b></font><u>nslookup ltsjca-adefaria</u>
+    Server:  dns-sj1-1c.sj.broadcom.com
+    Address:  10.16.128.11
+
+    *** dns-sj1-1c.sj.broadcom.com can't find ltsjca-adefaria: Non-existent host/domain
+</pre></div>
+
+<p>Finally a nslookup by IP address yields the following:</p>
+
+<div class="code"><pre>
+    <font color="red"><b>ccase-sj1-3:</b></font><u>nslookup 10.16.65.94</u>
+    Server:  dns-sj1-1c.sj.broadcom.com
+    Address:  10.16.128.11
+
+    Name:    dhcpe1-sj1-094.sj.broadcom.com
+    Address:  10.16.65.94
+</pre></div>
+
+<p>Thus showing that the DNS CNAME for 10.16.65.94 is dhcpe1-sj1-094.sj.broadcom.com not ltsjca-adefaria.</p>
+
+<p>If I cannot translate ltsjca-adefaria to an IP address for ping then how is rgy_switchover gonna do it?</p>
+
+<p>Now assuming that it's prevalent or common here at my client's site to have Windows clients with DHCP assigned addresses who's Windows machine names do not resolve in DNS and assuming that if the client name does not resolve in DNS then rgy_switchover fails, can it be said that rgy_switchover is relatively useless given this enviornment?</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:08 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000432.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 26, 2005</h2>
+                     <a id="a000431"></a>
+                     <div class="entry" id="entry-431">
+                        <h3 class="entry-header">Clearquest Code Pages</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Clearquest 2003.06.15 now uses Code Pages to insure that data entered into Clearquest databases are correct. When incorrect data is encountered there is a problem. The question is, which code page should we use?</p>
+
+                              
+                              <p>Chris had went through this decision when he migrated Clearquest data to San Diego. We are faced with this decision now by moving to 2003.06.15.</p>
+
+<blockquote>If you have ClearQuest databases that were created with previous versions of ClearQuest, they may contain data from a variety of code pages. When you set the ClearQuest data code page, the data in your databases is not converted to characters in the selected code page. If your database contains characters that do not map to the newcode page characters, data corruption will occur.
+</blockquote>
+
+<p>There seems to be 4 choices for code pages:</p>
+
+<ol>
+  <li>ASCII</li>
+
+  <li>Latin-1</li>
+
+  <li>Chinese - Simplified</li>
+
+  <li>Japanese</li>
+</ol>
+
+<p>I'm going to assume 3 and 4 are non issues. This leaves 1 and 2. Chris went with #1 and I think that's a good choice because ASCII is a base code set. However going with #1 means we need to clean up data now as we already have non ASCII characters in the databases.</p>
+
+</p>There is also a <strong>NOCHECKING</strong> option which essentially turns off checking and allows any character in. Using <strong>NOCHECKING</strong> would mean that Clearquest Multisite will not be an option in the future as it does not support <strong>NOCHECKING</strong></p>.
+
+<p>I believe if we went with #2 our non ASCII characters would not be a problem. However:</p>
+
+<blockquote>All Windows clients must run the same operating system code page, and that code page must match the ClearQuest data code page. If you have mixed-platform environments (both Windows and UNIX clients), or clients using different operating system code pages, you must set the ClearQuest data code page to 20217 (ASCII), which is the common character set of all code pages. An alternate usage model is to set the ClearQuest data code page to a non-ASCII value and require that all users with UNIX systems interact with ClearQuest only with the Webclient.</blockquote>
+
+<p>And</p>
+
+<ul>
+  <li>If you set the ClearQuest data code page to a non-ASCII value, users can only modify data in that database from a Windows client running the same operating system code page. If the code pages do not match, the database is opened in read-only mode.</li>
+
+  <li>If you set the ClearQuest data code page to a non-ASCII value, UNIX clients will have read-only access to the databases. (UNIX users can choose to use the only the Web client, which prevents data corruption if a non-ASCII data code page value is selected.)</li>
+
+  <li>If you set the ClearQuest data code page to a non-ASCII value, invalid characters can still potentially enter the database without being detected by ClearQuest. For example, ClearQuest cannot validate text that you cut from an e-mail or Web page and paste into a database record. If the e-mail or Web page text contains characters outside of the ClearQuest data code page, the characters are corrupted during display and may show up as invalid characters (for example, a question mark (?) character).</li>
+</ul>
+
+<p>Bottom line appears to be use ASCII and bite the bullet now by cleaning up data or use Latin-1 and avoid data cleanup now with potentially a larger clean up later.</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:32 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000431.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000430"></a>
+                     <div class="entry" id="entry-430">
+                        <h3 class="entry-header">Clearquest Franchise/PQA Invalid ASCII characters</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Discussed SJ/Irvine migration</li>
+
+  <li>Drew up Clearquest Franchise plan</li>
+
+  <li>Modifed CheckCodePage.pl to show the invalid characters in a word context</li>
+
+  <li>Investigating Clearquest Data Code Pages</li>
+</ul>
+                              
+                              <h3>Clearquest Data Code Pages</h3>
+
+<p>It seems, in an effort to better support international charactersets, Clearquest is tighening its enforcement of data code pages. In practice here this means that the default character set of US-ASCII will not longer due. I've been scanning the data for invalid characters and we've got 'em. Oddly it's stuff like the apostrophe in worlds like "shouldn't" and the hyphen in phrases such as "this - or that". Now when I go in and replace them with typed versions it works OK. I can only think that this might be a result of copy and pasting from Microsoft Word, which tends to use such odd versions of such simple characters.</p>
+
+<h3>Audit_Log</h3>
+
+<p>Another problem raises its head in an odd way. After changing the odd apostrophe to a simple apostrophe and saving the record from the Clearquest client, I again get errors, this time in the Audit_Log. Seems that we have a hook script that basically captures the <em>old</em> and <em>new</em> strings of what had changed and logs them. Problem is, the <em>old</em> string has the old <strong>bad</strong> characters! Plus Audit_Log is not editable! So now we're stuck! Perhaps when we programmatically convert the database we will not hit a problem however I suspect that in order to add a record we need to validate it and the creation of Audit_Log is a function of Validate. If so we might be able to temporarily turn off the Create_Audit_Log function.
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:48 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000430.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 25, 2005</h2>
+                     <a id="a000427"></a>
+                     <div class="entry" id="entry-427">
+                        <h3 class="entry-header">Triggers</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked on mktriggers script to mktriggers for all regions, all vobs</li>
+</ul>
+                              
+                              <h2>Trigger Standardization</h2>
+
+<p>I have been trying to centralize and standardize triggers. The idea here is to be able to add all the triggers to all of the necessary vobs quickly and easily and to insure that triggers - implementors of policy - are consistently applied. As triggers are not replicated by Multisite it is essential that you can add triggers to a replicate if needed. For example, we need it to add triggers to the new replicas of the San Jose and Irvine vobs. Also new triggers and new vobs come into being and you usually want to make sure that all vobs have the appropriate triggers in force.</p>
+
+<blockquote><strong>Note:</strong> For example, the vob /vobs/CommEngine is replicated from Irvine <-> San Jose. Irvine has a set of triggers applied to their replica and we have a different set.
+</blockquote>
+
+<p>Within Broadcom there are various vobs in various regions. This makes automation a little more difficult but not impossible. Some standardization of what triggers go where and how Clearcase gains access to the trigger code is necessary. One way I've seen companies accomplish this in the past was to create an administration vob and place trigger code in that vob. This vob would be replicated to all sites and trigger code made available through the use of a snapshot view in a well known location. Other administrative scripts can be shared in a similar fashion. Additionally we need to address differences between Windows and Unix.</p>
+
+<h2>Inconsistent paths</h2>
+
+<p>As it stands now triggers seem to be in a few places and I don't think that this places are kept in sync. As such I see inconsistencies that are confusing me. For example there are the following paths to triggers mentioned in /home/vobadm/scripts/mktrtype.sh:</p>
+
+<div class="code"><pre>
+       ccase-atla-1)
+          NTPATH="\\\cc-atla-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-blr-1)
+          NTPATH="\\\cc-blr-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-brsa-1)
+          NTPATH="\\\cc-brsa-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-irva-2)
+          NTPATH="\\\Fs-irva-37\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-irva-4)
+          NTPATH="\\\Fs-irva-37\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-irva-tst)
+          NTPATH="\\\Fs-irva-37\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-mhtb-1)
+          NTPATH="\\\cc-mhtb-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-peka-1)
+          NTPATH="\\\cc-peka-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-rmna-3)
+          NTPATH="\\\cc-rmna-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-sdoa-1|ccase-sdoa-2)
+          NTPATH="\\\Fs-irva-37\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-sj1-1)
+          NTPATH="\\\cc-sj-storage\ccase\bse\script\trigger"
+          UNIXPATH="/projects/ccase/bse/script/trigger"
+          ;;
+
+       ccase-tlva-1|ccase-tlva-1.il.broadcom.com)
+          NTPATH="\\\cc-tlva-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+</pre></div>
+
+<p>As you can see the NTPATH varies where the UNIXPATH is largely the same (ccase-sj1-1 puts scripts under bse). Also, with ccase-rmna-3 it says /projects/ccase/script/trigger yet is currently using /projects/cc4/triggers and the differences between those two directories are many. Which one is correct? Why the bse directory for San Jose?</p>
+
+<p>I assume that the reasons for the different NTPATH names is to avoid going over the WAN to get trigger script code. I also assume that this is mitigated on Unix by use of the automounter and yet we cannot say that UNIXPATH is always the same due to the difference in San Jose. I wonder if DFS could be used to provide a consistent, globally well known path to trigger code under Windows...</p>
+
+<p>In any event the question that rises is how are these various repositories of code kept in sync if at all?</p>
+
+<h2>Inconsistent Application of Triggers</h2>
+
+<p>Normally there are a certain set of triggers that are implementing policy that are consistently applied to all vobs (or at least all vobs in a region). For example, usually empty branches are considered bad and to be avoided. Thus there is normally a trigger script applied to all vobs to avoid this. Or if an organization determines that rmelem should not be performed then it is enforced with a trigger on all vobs. Yet there doesn't seem to be any triggers consistently applied to all vobs. In fact many vobs have no triggers at all!</p>
+
+<p>I see, for example, 3 different triggers for preop checkins: GIpreci, preci and test_preci. Triggers could be written that can be applied to any vob and then they act only if the conditions are such that they should do something. IOW for situations where they don't apply they simple exit.</p>
+
+<p>There are also triggers that do nothing but allow people to proceed or not based on whether the user is on an "approved" list. They carry with them a long list of -nusers. I would think that that would be more difficult to maintain than for a trigger to be written that opens up a file of approved users and validates the user based on that. Then to add/change/delete users one merely needs to update the data file, not re-create a trigger in a vob and then have to worry about what other vobs need their triggers updated. Of course the trigger would need to deal with the issue of what is the global file pathname to that data file.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:04 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000427.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 23, 2005</h2>
+                     <a id="a000426"></a>
+                     <div class="entry" id="entry-426">
+                        <h3 class="entry-header">PQA Code Page/SJ Vob move</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Attended meeting regarding SJ/Irvine Vob move. Shivdutt is investigating doing vob moves instead of replication. Briefly discussed Disaster Recover options.</li>
+
+  <li>Got Chris' scripts that check for invalid characters in string data for the ASCII character set to work on our test PQA database. Found invalid characters.</li>
+</ul>
+                              
+                              <h3>Invalid ASCII Characters in Clearquest databases</h3>
+
+<p>With Clearquest 2003.06.15 there is more support for internationalization. This means that Clearquest now implements a <i>Code Page</i> which essentially defines the valid character set for data. If it encounters invalid characters the user must correct them.</p>
+
+<p>Question is do we have invalid characters in the current database. Chris Rump had found such invalid characters when performing his Clearquest migration from Irvine -> San Diego. I've quickly adapted his scripts to check a few fields in the TO database and found some. So far all I've found are non ASCII characters for the apostrophe. We think this happens when a user copies and pastes text from Microsoft Word into Clearquest (Thanks Microsoft! :-()</p>
+
+<p>In any event I still need to update the script to check all string oriented fields. If only a few isolated cases can be identified (e.g. Apostrophes, perhaps soft carriage returns, etc.) then perhaps this could be made into a function that will check for invalid ASCII characters and fix them</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:16 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000426.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 22, 2005</h2>
+                     <a id="a000424"></a>
+                     <div class="entry" id="entry-424">
+                        <h3 class="entry-header">PQA CQ Setup</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Set up CQ Web Server on p4test. Web client has been updated. Seems a little sluggish</li>
+
+  <li>Investigated CQ Web Performance tweaking</li>
+
+  <li>Looked into Chris's scripts for handling CQ code page problems</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:26 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000424.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 21, 2005</h2>
+                     <a id="a000425"></a>
+                     <div class="entry" id="entry-425">
+                        <h3 class="entry-header">SJ/Irvine Triggers/Sync lock problem/rgy_backup</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Tried to help Arun in Bangalore to be able to create views</li>
+
+  <li>Investigated trigger set up for SJ/Irvine</li>
+
+  <li>Investigated relocate sync_locked problem</li>
+</ul>
+                              
+                              <h3>rgy_backup</h3>
+
+<p>There's bad news then worse news WRT rgy_backup.</p>
+
+<p>First the bad news:</p>
+
+<blockquote><p>It was hoped that when rgy_backup was run on each of the clients - i.e. any machine that is not designated as a backup registry server - it would contact the primary registry server and ask "Who's the backup registry server?" then check to verify that the client was proper configured. If not, that it would update the client's notion of who is the designated backup registry server. Turns out this is  not the case! So we would have an issue of how do we properly configure all the clients.</p></blockquote>
+
+<p>Now the worse news (AKA Why that CC Doctor warning about running Clearcase on a machine that uses DCHP is important):</p>
+
+<blockquote><p>When I tested rgy_switchover I was surprised that it was unable to switch over any Windows desktop! Here's the output:</p>
+
+    <div class="code"><pre>
+    Wizard ccase-sj1-3:rgy_switchover ccase-sj1-4 ccase-sj1-3
+    Registry switchover started at 20-Sep-05.16:56:33
+    ccase-sj1-3: OK
+    ccase-sj1-4: OK
+    rgy_switchover: Error: Switchover for client LTSJCA-ADEFARIA failed
+    rgy_switchover: Warning: LTSJCA-ADEFARIA: Unable to reconfigure - rgy_switchover: Warning: could not find host, please check hostname
+    rgy_switchover: Error: Unknown host 'LTSJCA-ADEFARIA': Host not found
+    rgy_switchover: Error: Switchover for client LTSJCA-ADEFARIA failed
+    LTSJCA-ADEFARIA: FAILED
+    rgy_switchover: Error: Switchover for client PCSJCA-SHIVJHA failed
+    rgy_switchover: Warning: PCSJCA-SHIVJHA: Unable to reconfigure - rgy_switchover: Warning: could not find host, please check hostname
+    rgy_switchover: Error: Unknown host 'PCSJCA-SHIVJHA': Host not found
+    rgy_switchover: Error: Switchover for client PCSJCA-SHIVJHA failed
+    PCSJCA-SHIVJHA: FAILED
+    rgy_switchover: Error: Switchover for client lbsjca-nnalluri failed
+    rgy_switchover: Warning: lbsjca-nnalluri: Unable to reconfigure - rgy_switchover: Warning: could not find host, please check hostname
+    rgy_switchover: Error: Unknown host 'lbsjca-nnalluri': Host not found
+    rgy_switchover: Error: Switchover for client lbsjca-nnalluri failed
+    lbsjca-nnalluri: FAILED
+    Registry switchover finished at 20-Sep-05.16:56:34
+    </pre></div>
+
+    <p>I suspect that the problem is that the Windows machine name does not resolve to an IP address:</p>
+
+    <div class="code"><pre>
+    Local:ping ltsjca-adefaria 64 2
+    PING LTSJCA-ADEFARIA.corp.ad.broadcom.com (10.16.65.94): 64 data bytes
+    72 bytes from 10.16.65.94: icmp_seq=0 ttl=64 time=2 ms
+    72 bytes from 10.16.65.94: icmp_seq=1 ttl=64 time=0 ms
+
+    ----LTSJCA-ADEFARIA.corp.ad.broadcom.com PING Statistics----
+    2 packets transmitted, 2 packets received, 0.0% packet loss
+    round-trip (ms)  min/avg/max/med = 0/1/2/1
+    </pre></div>
+
+    <p>However:</p>
+
+    <div class="code"><pre>
+    Local:nslookup 10.16.65.94
+    Server:  dns-sj1-1b.sj.broadcom.com
+    Address:  10.16.64.11
+
+    Name:    dhcpe1-sj1-094.sj.broadcom.com
+    Address:  10.16.65.94</blockquote>
+    </pre></div>
+
+<p>So then, even if we managed to configure all the clients, if switch over time came, most of them would fail.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:29 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000425.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 16, 2005</h2>
+                     <a id="a000423"></a>
+                     <div class="entry" id="entry-423">
+                        <h3 class="entry-header">Evil Twin/Performance</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Implemented Evil Twin trigger. Have not yet tested nor installed trigger yet</li>
+
+  <li>Meeting with Naga Re:
+    <ul>
+      <li>Binary Merge problem</li>
+
+      <li>RM_EMPTY_BRANCH/EVIL_TWIN triggers</li>
+
+     <li>Lock project problem</li>
+  </ul>
+
+  <li>Reviewing both Philip and Chin's performance testing</li>
+
+  <li>Struggling with Cisco VPN client at home!</li>
+</ul>
+                              
+                              <h3>Evil Twin Trigger</h3>
+
+<p>Evil twins are a well known phenomena in Clearcase circles. It is not recommended that you try to stop them by convention rather by Clearcase trigger. I have a trigger that does just that. The code uses cleartool ls so that it works for both dynamic views and snapshot views. The trigger also respects case sensitivity. This means that creating an element named "foo" and another element named "Foo" is allowed.</p>
+
+<p>Evil twins should not be allowed in any vob because, as you rightly point out, it causes merging problems.</p>
+
+<p>Shall I add this trigger to all vobs?</p>
+
+<h3>Performance Scripts</h3>
+
+<p>Both Philip and Chin have their own Clearcase performance testing scripts. In general performance of Clearcase is a huge topic. These scripts a relatively simple, just timing some basic Clearcase operations. Still this is a good metric from a user's perspective.</p>
+
+<p>We should consolidate these tests and make them more flexible by having them self contained (both creating and tearing down the environment that they need) and generalize them so that new Clearcase operations can be easily added and timed.</p>
+
+<p>These scripts should produce a data file that can be later consumed by say a PHP script to present the results in a readable manner on a web page somewhere.</p>
+
+<p>Also, these scripts need to set up various different environments such as using local/remote snapshot views, dynamic views. These scripts can be used to measure performance of the old (ccase-rmna-1) environment as well as newer environements (ccase-rmna-3 and/or the new Linux server).</p>
+
+<p>Finally it should be made such at adding new tests, i.e. make new baseline, can easily be incorporated into the test suite.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:04 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000423.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 15, 2005</h2>
+                     <a id="a000422"></a>
+                     <div class="entry" id="entry-422">
+                        <h3 class="entry-header">Binary Merge/CVS/Clearquest Web</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Inveistigated binary merge problem</li>
+
+  <li>Worked with Mukund regarding CVS access</li>
+
+  <li>Helped Shivdutt with a Clearquest Web problem. User reports that Clearquest Web not working in IE! Suspect the problem is due to configuration issues, specifically JRE. Did some research and sent URLs to user</li>
+</ul>
+                              
+                              <h3>Binary Merge</h3>
+
+<p>Clearcase's diffmerge utility has understandable problems attempting to merge files that are binary (Clearcase searches for NUL characters \000 in the file to determine if it is binary). Sometimes Clearcase can merge such files, if it determines that the merge merely entails a wholesale replace of one version with another. But in non trival merges this is not possible.</p>
+
+<p>Developers and managers here use a series of Perl scripts to help automate common trasks, one of which is to merge to and from different branches. The problem is when delivering a large set of changes there is a chance that some of the files will be binary and that it will not be possible to automatically merge them. Often a developer will start a merge and let it run over night. Sometimes, somewhere in the middle, the merge will prompt with a dialog box saying that it cannot merge this binary file. The result is that the merge is 1/2 done!</p>
+
+<p>The Perl script uses cleartool findmerge to find and merge both directories and files. It also uses the -merge option to say "automatically merge things". Unfortunately when it hits a non trival binary file merge it cannot continue.</p>
+
+<p>We propose to modify the Perl script to call findmerge without the -merge option then obtain the list of files that needs merging and itterate through the list calling cleartool merge for each file with a -abort. This tells merge to automatically merge things if it can, otherwise not to merge and return a status code that that merge was not possible in an automatic mode.</p>
+
+<p>The script would then collect the names of all the files that could not be automatically merged and store that in a file somewhere.<p>
+
+<p>We believe there are 3 possible ways to merge a non trival merge of a binary file (this assumes a simple merge between two different versions of a binary file. A merge with multiple contributors would obviously present N+1 possibilities...):
+
+<ol type="A">
+  <li>Result of merge is a copy of the first contributor</li>
+
+  <li>Result of merge is a copy of the second contributor</li>
+
+  <li>Binary file needs to be rebuilt combining both A and B</li>
+</ol>
+
+<p>A process could be written to read the saved file of non automatic binary merges and present the user with the choices listed above. The user then selects which choice is appropriate. The process then performs the necessary actions to accomplish what the user requested (i.e. if they select A then a merge arrow is drawn from B -> the checked out copy of A. If they select B then a merge arrow is drawn from A to the checked out copy of B). If any C options are choosen then the file remains unmerged.</p>
+
+<p>In this way when the user performs his normal merge, upon completion, if merge conflicts exist in binary files the user is presented, <b>at the end of merging everything else</b> a dialog box allowing them to resolve the binary merge problems right now. The benefit here is that all of the other merging has already been completed and they are only dealing with the <i>problem</i> merges now. If they do not wish to correct these now they can always correct them later (issues about where this saved file will reside and how to restart the binary merge resolver are still open).</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:31 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000422.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 14, 2005</h2>
+                     <a id="a000421"></a>
+                     <div class="entry" id="entry-421">
+                        <h3 class="entry-header">CQ/Triggers/Binary merge/CVS</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Met with Chris Rumf regarding Clearquest and int impending upgrade/merge of DBs. Chris told us of his trials and tribulations with a 3 month project to merge CQ databases and move them to San Diego.</li>
+
+  <li>Fixed mktriggers to properly specify the path for the trigger script in both Windows and Unix implementations.</li>
+
+  <li>Worked with Shivdutt to try to reproduce the problems with merging binary files.</li>
+
+  <li>I was assigned a ticket to give a user CVS repository access. I still do not have proper login access to Irvine nor do I have permissions to perform this task</li>
+</ul>
+                              
+                              <h3>Clearquest issues</h3>
+
+<p>In all likelihood we will be faced with a merging of DBs and probable writing of Perl scripts to massage and otherwise transform the database. This will take time. Additionally Vinh is leaving Broadcom.</p>
+
+<p>Chris warned that he faced a situation where the new version of Clearquest brings in the concept of internationalization by use of a code page and that he had many problems with users copying and pasting things from MS Word which ended up outside of the normal character set.</p>
+
+<p>Also, Irvine seems to have Clearquest 2001 version which has the old, ASP based Clearquest Web which is decidedly inferior to the new 2003 Apache/RWP/Java based Clearquest Web. He also pointed us to some valuable information about performance tuning the various Clearquest Web pieces. This will be useful if we are to support a large number of users from Isreal.</p>
+
+<h3>Triggers</h3>
+
+<p>Looked over most of the currently implemented triggers. I can probably add them to my mktriggers.pl script. One problem is that the ADD_EXECUTE trigger is merely a cleartool protect command to add execute permissions to newly created elements. I'm not sure why one would want to do this to every element as most elements are not executable (even though some OSes seem to think so). The mktriggers.pl script is oriented to only adding Perl based triggers. This could be solved by making it a simple Perl script. Also ADD_EXECUTE is added to all vobs except the \Docs vobs. It we can add it to all vobs it would be easier.</p>
+
+<p>Current triggers use -exec and specify a Windows UNC path. This means that if we have any Unix clients they will not be able to execute any of these triggers! Fixed mktriggers.pl to add -execwin and -execunix options with proper pathnames.</p>
+
+<h3>CVS</h3>
+
+<p>Depending on the CVS situation, Broadcom might be interested in a Web application I had made that manages CVS users. From a web page a user can manage his user (able to change his password, add an email address/phone number, etc). If the user is in a cvsadm group they can add/change/delete other CVS users. With such a web app the help desk could resolve such CVS requests on the spot.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:00 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000421.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 13, 2005</h2>
+                     <a id="a000420"></a>
+                     <div class="entry" id="entry-420">
+                        <h3 class="entry-header">Remedy/Irvine Access/P4 ticket</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Finally got Remedy access. Turns out I had it all along just my username was ADEFARIA instead of adefaria!</li>
+
+  <li>Looked into P4 ticket. I am unable to perform the action because I don't have a login to Irvine. P4 stuff gets performed in Irvine and I don't have an account there. Actually I have an account but didn't know the password. Actually I figured out the password - it was my initial password when I came to Broadcom and was never set. The Help desk had me set my password in the beginning but that was in the San Jose domain. I've now set it for Irvine too. There are two problems with my Linux login:
+
+  <ol>
+    <li>In Irvine I have no home directory! As a result I cannot create ~/public_html and write web pages as well as I cannot set up my startup scripts, etc. I put in a ticket for this. Hopefully they will set up Irvine like San Jose in that my home directory will be share amoungst all three areas.</li>
+
+    <li>My default shell is (yuck) csh! I asked for that to be changed to bash.</lI
+  </ol>
+  </li>
+
+  <li>Worked with Shivdutt on disk space problem on ccase-rmna-3</li>
+
+  <li>Added RM_EMPTY_BRANCH trigger to vobs on ccase-rmna-3</li>
+
+  <li>Investigating other triggers to include them in mktriggers.pl</li>
+</ul>
+                              
+                              <h3>San Jose/Irvine Domains</h3>
+
+<p>Here in Broadcom there are multiple NIS domains here including sanjose and irvine. For example, ssh'ing into xserver.sj works for me and puts me in /home/adefaria. Insterestingly /home/adefaria corresponds with my Windows home directory. IOW if I touch file on Linux I can see file in my home directory in Windows. Cool. The world is as it should be!</p>
+
+<p>However in Irvine I have no home directory at all. It seems that home directories are automounted from the NIS auto_home map and that San Jose home directories come from fs-sj1-* while Irivine home direcrtories come from fs-irva-*. Ugh!</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:50 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000420.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 12, 2005</h2>
+                     <a id="a000418"></a>
+                     <div class="entry" id="entry-418">
+                        <h3 class="entry-header">Backup Registry Server/Triggers</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Investigated how to setup, configure and failover Clearcase backup registry</li>
+
+  <li>Working with Shivdutt to set up new Clearquest server software</li>
+
+  <li>Ported mktriggers.pl and RemoveEmptyBranch.pl. Added RM_EMPTY_BRANCH to vobs on ccase-rmna-1</li>
+</ul>
+                              
+                              <h2>Clearcase Backup Registry</h2>
+
+<p>I've looked into how to setup a Clearcase Backup Registry as well as how it is supposed to function when a failure occurs and a switchover is necessary.</p>
+
+<h3>Introduction</h3>
+
+<p>Clearcase provides a mechanism to set up a backup registry server in the event that the primary registry server fails. If done properly switching over to the backup registry server is quick and easy. It is not, however, without it's potential problems<sup>1</sup>.</p>
+
+<h3>Setup</h3>
+
+<p>To setup a Clearcase Backup Registry Server you must first define which servers will be the primary and secondary register servers<sup>2</sup>. Let's assume rgy1 is the primary and rgy2 is the backup. Next you configure rgy1 to tell it that the backup registry server is rgy2 by adding a line to /var/adm/rational/clearcase/rgy/rgy_hosts.conf.</p>
+
+<h3>Normal Operation</h3>
+
+<p>In normal operation Clearcase runs a scheduled job called Daily Registry Backup on all hosts. On all hosts except the designated backup registry server this job does little if anything.</p>
+
+<blockquote>
+  <p><font class="dim">I have a note that when run on a Windows client it will ask what the backup registry server is and if found and if different, will store that value in the Windows registry, thus Windows clients are self configuring. This should be tested however.</font></p>
+</blockquote>
+
+<p>On the backup registry host the job will obtain a snapshot of the registry from the primary registry server. By default 3 days worth of copies are kept.
+
+<h3>Switchover</h3>
+
+<p>If the primary registry server fails all that needs to be done is to run rgy_switchover which will promote the backup registry server to be a primary registry server. It will also inform all clients of the change. When the primary comes back it is configured as a backup of the new primary and optionally rgy_switchover'd to be a primary again</p>
+
+<h3>Notes</h3>
+  <ol>
+    <li>There is no guarantee that rgy_switchover will be able to successfully switch over all clients. Clients may not be available on the network, for example. It will report which clients were not switched over and they can be fixed manually.</li>
+
+    <li>What are our registry servers? The Clearcase Admin Console shows me the following:<br>
+    <blockquote>
+      <ol>
+        <li>ccase-atla-1</li>
+        <li>ccase-gera-1</li>
+        <li>ccase-irva-2</li>
+        <li>ccase-rmna-3</li>
+        <li>ccase-sdoa-1</li>
+        <li>ccase-sj1-1</li>
+        <li>ccase-sj1-3</li>
+        <li>ccase-sj1-4</li>
+        <li>ccase-sj1-5</li>
+        <li>ccase-sj1-7</li>
+        <li>ccase-sj1-8</li>
+        <li>ldt-sdoa-013</li>
+      </ol>
+   </blockquote>
+
+    <p>It seems as if multiple registry servers were used instead of using one global registry and dividing things up by Clearcase regions. In any event, which of these primary registry servers need to be backed up and to where?</p>
+
+    <p>Also, it is not a good practice to put your registry on the same box as your other Clearcase objects (i.e. views or vobs). Say, for example, ccase-rmna-3 blows a disk drive and will be down for quite some time. Sure ccase-rmna-2 might be it's backup registry server and we could switch over the clients, etc. However what good would that do if the vob data they wish to get to is on ccase-rmna-3! Answer: No good at all. That machine is down - period.</p>
+
+    <p>I would recommend that we have one global registry server and a backup server. The backup server can be a vob machine or some other machine which houses important Clearcase data. The theory here is that, as a backup server, it's service time is limited - IOW it's only going to be functioning as a primary registry server for the time that the primary is out. While slightly risky it's only used for a limited time and when there's an emergency.</p>
+  </ol>
+
+<h3>Mktriggers.pl & RemoveEmptyBranch.pl</li>
+
+<p>Shivdutt and I feel that the problem that check_full_baseline is hitting is initially caused by having elements that have a 0 element on a branch. This is a common problem as I've explained before - a user checks out a file, it is branched and a 0 element is created as well as a checked out element:</p>
+
+<img src="/Images/CheckedOut.jpg">
+
+<p>If the user then cancels the checkout then we are left with:</p>
+
+<img src="/Images/AfterCancellingCheckout.jpg">
+
+<p>There is no difference between /main/1 and /main/andys_branch/0. Both /main/andys_branch/0 and /main/andys_branch can be safely removed. I believe that check_full_baseline corrects this situation by creating yet another identical version /main/andys_branch/1 and checking in yet another identical version.</p>
+
+<p>The RemoveEmptyBranch.pl trigger corrects this condition at uncheckout (rmver and rmbranch) time by detecting this situation and removing both /main/andys_branch/0 and /main/andys_branch. It will only do so if the 0 element is the only thing there. If there are labels attached to the 0 element it will not remove it.</p>
+
+<p>In order to implement this trigger I had to get the code working here at Broadcom. The RemoveEmptyBranch.pl trigger runs right out of the box, however things must be placed the proper places here at Broadcom. Additionally this trigger should be added to all vobs. Suffice to say, as a Clearcase Admin, I've hit this problem before.</p>
+
+<p>My solution is a mktriggers.pl script which adds (or replaces) triggers on all public vobs in a region based on data in a data file which describes triggers. Mktriggers.pl is smart to skips private vobs and UCM project vobs.</p>
+
+<p>Finally, mktriggers.pl uses a module of mine called Display.pm, which provides a consistent way of displaying messages.</p>
+
+<p>To this regard I have created/ported the following files in //fs-rmna-01/Projects-V0/cc4:</p>
+
+<blockquote><p>
+  <b>bin/mktriggers.pl:</b> Script to make/replace triggers in all vobs based on triggers.dat<br>
+  <b>etc/triggers.dat:</b> Data file describing triggers (currently only describing RM_EMPTY_BRANCH)<br>
+  <b>triggers/RemoveEmptyBranch.pl:</b> The RM_EMPTY_BRANCH trigger<br>
+  <b>lib/Display.pm:</b> Perl module for displaying messages, errors, warnings consistently<br>
+  <b>lib/Logger.pm:</b> Perl Object for handling creating and manipulating log files (Not used yet)<br>
+</p></blockquote>
+
+<p>Here's a usage for mktriggers.pl:</p>
+<div class="code"><pre>
+    $ mktriggers.pl -u
+    Usage mktriggers.pl: [-u] [-n] [-a] [-r] [-v] [ -vobs <vob tag list> ]
+    Where:
+            -u      Displays this usage
+            -n      No execute mode - just echo out what would have been done
+            -r      Perform only replacements of triggers
+            -a      Perform only adds of triggers that are missing
+            -v      Verbose
+            -d      Debug
+            -vobs   List of vob tags to apply triggers to (default all vobs)
+</pre></div>
+
+<p>As you can see there is a no execute mode which just shows what would have been done. Add -v for verbose and it will also echo out the commands that would have been performed. You can also limit mktriggers.pl to only doing additions (-a) or replacements (-r).</p>
+
+<p>Mktrigger.pl's data files is in etc/triggers.dat. It's format is relatively simple:</p>
+<div class="code"><pre>
+    # Triggers
+    #################################################################################
+    #
+    # File:         triggers.dat
+    # Description:  Describes the triggers to be implemented.
+    # Author:       Andrew@DeFaria.com
+    # Created:      Mon Mar 15 08:48:24 PST 2004
+    # Language:     None
+    #
+    # (c) Copyright 2004, Andrew@DeFaria.com, all rights reserved.
+    #
+    ################################################################################
+    #
+    # Only the following keywords are currently recognized:
+    #
+    #       Trigger:        Introduces the trigger and gives it its name
+    #       Description:    Used for the trigger type's comment
+    #       Type:           Type of trigger (so far they're all -element -all)
+    #       Opkinds:        Operation kinds that will cause the trigger to fire
+    #       ScriptEngine:   Currently only supporting ccperl (C:\Program
+    #                       Files\Rational\ClearCase\bin\ccperl)
+    #       Script:         Script to run (under triggers)
+    #       Vobs:           Can be either base, ucm, all or a list of vob tags.
+    #                       If base is specified then the trigger is applied to
+    #                       all base Clearcase vobs. If ucm is specified then the
+    #                       trigger is applied to all ucm vobs. If all is
+    #                       specified (or if Vobs is not present) then the trigger
+    #                       is applied to all vobs (base and ucm). Otherwise the
+    #                       value is considered a space separated list of vob tags
+    #                       (without the leading "\") and the trigger is applied
+    #                       only to those vobs.
+    #       EndTrigger      Ends this trigger definition.
+    #
+    ################################################################################
+    Trigger:        RM_EMPTY_BRANCH
+    Description:    Remove empty branches after uncheckout, rmver or rmbranch
+    Type:           -element -all
+    Opkinds:        -postop rmbranch,rmver,uncheckout
+    ScriptEngine:   Perl
+    Script:         RemoveEmptyBranch.pl
+    EndTrigger
+</pre></div>
+
+<p>Next I applied the triggers to ccase-rnma-1 since this is our replicated backup of production and here's the output:</p>
+
+<div class="code"><pre>
+    bash-2.05b$ bin/mktriggers.pl -v
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/A1... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/CommEngine... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/NewTest... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/OnePhone... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/SpiceBoxSW... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/TrainCommEngine... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/alpha_video... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/bfc_systems... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/cablex... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/cablex_tools... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/docs... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/ldx_apps... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/ldx_dev... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/ldx_hausware... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/ldx_tools... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/lucentexcel... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/netro_apps... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/phonex... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/prot_callctrl... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/prot_h248... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/prot_mgcp... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/prot_openssl... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/prot_tools... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/rmna_projects... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/sec_uHSMnCipher... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/telecan... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/test_comp1... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/test_docs... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/test_pvob... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/test_trp_vob... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/voice_res_gw... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/widcomm_bluetooth... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_common... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_drivers... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_qa... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_qa_cbx... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_qa_ipp... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_qa_ldx... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_qa_op... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xchg_qa_xme... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xme... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/xme_sa... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_Nucleus... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_TCL... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_VxWorks... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_cygwin... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_eCos... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_gnu_mips_elf... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_misc... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_psos... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_ti54x... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_vc... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_x86... done
+    Adding trigger RM_EMPTY_BRANCH to vob /vobs/zOEMtools_zsp... done
+</pre></div>
+
+<p>When neither add (-a) or replace (-r) is specified mktriggers.pl both adds and/or replaces triggers. If run again with only -a (meaning only add missing triggers) no additional triggers are added. This is a good way to check that no new vobs have been created that are missing triggers or to only add triggers to a vob you just created. You could also specify something like mktriggers.pl -a -vobs /vobs/newvob. Combined with no execute mode and you can easily check if there are any missing triggers without adding them (i.e. mktriggers.pl -n -a).</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:54 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000418.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September  9, 2005</h2>
+                     <a id="a000417"></a>
+                     <div class="entry" id="entry-417">
+                        <h3 class="entry-header">Clearcase Support/New Clearquest setup</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Investigating check_full_baseline routine and why it is necessary</li>
+
+  <li>Got access to Clearcase storage areas</li>
+
+  <li>Attempting to set up environment to reproduce check_full_baseline problem</li>
+
+  <li>Attended Clearcase World Wide Support meeting</li>
+
+  <li>Attended Plan for ClearQuest meeting</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:26 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000417.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September  7, 2005</h2>
+                     <a id="a000416"></a>
+                     <div class="entry" id="entry-416">
+                        <h3 class="entry-header">CC/CQ and other setup issues</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Installed Clearcase and Clearquest on my system. CC Doctor complains that CQ is old</li>
+
+  <li>Worked with Shivdutt creating new component and the proper parent/child relationships</li>
+
+  <li>Mainly setting up my environment today</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:00 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000416.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

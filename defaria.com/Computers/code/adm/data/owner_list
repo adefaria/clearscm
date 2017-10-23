@@ -1,0 +1,42 @@
+# Owner list. This file lists the components and their owners. Format is:
+# component <US Owner> <Shanghai Owner>. Note that "owner" should be the user ID
+# such that <owner>@salira.com is a valid email address. "Owner" can also be
+# and email list (e.g. software for the psuedo component link)
+#
+# Component	US Owner	Shanghai Owner
+bootld		yxui		yzhang
+bsp		yxiu		yzhang
+cli		dko		ychai
+ddlsal		gtsang		rshen
+ddlx		gtsang		cliu
+evm		hlau		hhuang
+exchdlr		yxiu		yzhang
+flm		yxiu		hhuang
+fpd		gtsang		hwang
+fpga		ytan		yzhang
+gdb		dko		ryang
+icc		szhu		ryang
+ifm		dko		zran
+link		software	software
+logtrc		jchen		ryang
+np3400		xtu		rshen
+npinit		xtu		rshen
+pdb		xtu		rshen
+pmgmt		jchen		hwang
+pmm		hlau		ryang
+raw		jchen		hwang
+rh		szhu		ryang
+sal		zlou		rshen
+salutils	zlou		rshen
+scm		szhu		ryang
+smm		szhu		hhuang
+snmp		szhu		ryang
+srm		szhu		zran
+stp		yliu		rshen
+sysutils	yxiu		hhuang
+tdmdrv		tquach		dcu
+tsal		sjian		dcu
+tst		jchen		rshen
+vdsl		dko		zran
+vlm		xtu		zran
+xsm		yliu		cliu

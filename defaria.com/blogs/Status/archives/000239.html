@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Informatica/CLEARCASE_PRIMARY_GROUP</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000237.html" title="Permissions problems" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000242.html" title="CLEARCASE_PRIMARY_GROUP" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000237.html">&laquo; Permissions problems</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000242.html">CLEARCASE_PRIMARY_GROUP &raquo;</a>
+                     </p>
+
+                     <a id="a000239"></a>
+                     <div class="entry" id="entry-239">
+                        <h3 class="entry-header">Informatica/CLEARCASE_PRIMARY_GROUP</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Rearranged Informatica script code to be more oriented to what Don needs</li>
+
+<li>Helped William Dean with issues regarding Clearcase. I think we are all OK now so I closed the Paragrine ticket for this. This has, however, opened up the issue that CLEARCASE_PRIMARY_GROUP needs to be set in some cases</li>
+
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>In order to make the pushing of Rational Tools more automatic it's important to either eliminate all user specific settings or to come up with a way to determine the setting for the user at login time. As such I have been researching if the CLEARCASE_PRIMARY_GROUP needs to be set at all. In most cases it doesn't need to be. (It was thought that mkelem would make the element and that the protect trigger would -chgrp &lt;<i>vob group owner</i>&gt; of the element. But if the user does not have CLEARCASE_PRIMARY_GROUP set then they are often considered part of <i>Domain Users</i> which isn't usually on the vob's group list). However today I found out a case where it needs to be. <a href="http://www.ibm.com/support/docview.wss?rs=0&q1=CLEARCASE_PRIMARY_GROUP&uid=swg21135509&loc=en_US&cs=utf-8&cc=us&lang=en">According to What is the CLEARCASE_PRIMARY_GROUP variable used for?</a></p>
+
+<blockquote>
+  <p>If the vob is owned by <b>more than one group</b> and a user is a 
+  member of <b>more than one</b> of those groups and the user's group list 
+  does <b>not</b> exceed 32,  they need the CLEARCASE_PRIMARY_GROUP 
+  variable set in order to create elements in that vob.</p>
+
+  <p>If the vob is owned by <b>more than one</b> group and a user is a 
+  member of <b>more than one</b> of those groups and the user's group list 
+  <b>does</b> exceed 32, they need the CLEARCASE_PRIMARY_GROUP & 
+  CLEARCASE_GROUPS variable set in order to create elements in that vob. 
+  </p>
+</blockquote>
+
+<p>Unfortunately this is the situation that we have. In particular Core_automation is owned by more than one group and users are members of more than one of those groups. Thus CLEARCASE_PRIMARY_GROUP needs to be set.</p>
+
+<p>Also, we tend to have many groups and if we have more than 32 groups we can run into problems. Setting CLEARCASE_GROUPS helps narrow the problem down but a user can only be a member of at the maximum 33 Clearcase oriented groups or else they will need to be shifting around CLEARCASE_GROUPS in order to operate.</p>
+
+<p>So what I'm proposing is that the Clearquest Tools database functionality be expanded yet again to provide for associating a userid to the appropriate CLEARCASE_PRIMARY_GROUP and appropriate CLEARCASE_GROUPS. Some of this functionality is already present in the Tools database. What it lacks is the ability to designate which of the groups is the users primary group.</p>
+
+<p>There's also the issue of backfilling the Tools database and filling out the necessarily information for the users currently entered into the Tools database as well as filling the Tools database from that Access database...</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on August 30, 2004  6:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000239.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

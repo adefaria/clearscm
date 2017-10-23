@@ -1,0 +1,59 @@
+#!/bin/bash
+#
+# $Header: cleantmps,v 1.14 97/07/24 12:17:34 root Exp $
+#
+#
+# This is a shell script to clean up files that clutter the tmp directories
+# and garbage files that take up a lot of space (e.g., core files).
+#
+#
+# Clean up specific garbage files, old log files
+#
+find /tmp       -mountstop -mtime +1 -name "sh[1-9]*.[1-9]*"    -exec rm {} \;
+find /tmp       -mountstop -mtime +3 -name "*~"                 -exec rm {} \;
+find /tmp       -mountstop -mtime +3 -name "eXT*"               -exec rm {} \;
+find /tmp       -mountstop -mtime +3 -name "clr*"               -exec rm {} \;
+find /var/tmp   -mountstop -mtime +3 -name "*~"                 -exec rm {} \;
+find /tmp       -mountstop -mtime +7 -name "crout*"             -exec rm {} \;
+find /var/tmp   -mountstop -mtime +7 -name "cscope[0-9]*"       -exec rm {} \;
+
+#
+# Delete crash core dumps and kernel backups (leave behind INDEX (log) file)
+#
+find /var/adm/crash -type f -name "core.*"  -exec rm {} \;
+find /var/adm/crash -type f -name "vmunix*" -exec rm {} \;
+
+#
+# General aging of everything in /tmp
+#
+
+# Preserve sockets and certain files which I don't want to age away
+find /tmp -mountstop -depth -mtime +7 ! -type d ! -type s ! -type p |
+        egrep -v "\.log$|\.X11-unix" | xargs -n25 rm
+
+# Try to remove directories -- only empty ones will actually get removed.
+find /tmp -mountstop -depth -type d ! -name lost+found -print   |
+        xargs -i -n25 rmdir -f {} 2>/dev/null
+
+#
+# Search entire filesystem for files which are automatically cleaned up.
+#
+# Remove #* and core files.  Exclude *.flc (emacs font-lock (fast-lock)
+# files, which can start with '#').
+#
+find / \( -fsonly hfs -o -fsonly vxfs \) -mtime +3 -type f      \
+\( -name "#*" -o -name "core" \) ! -name "*.flc" | xargs rm -f
+
+# PJJ NOTE ON THE ABOVE COMMAND:
+#
+# By including only hfs and vxfs filesystems, we avoid descending NFS or
+MVFS
+# (ClearCase) mount points.  We don't use "! -fstype nfs" -- that would
+still
+# descend NFS mounts, looking for HFS/VxFS mounted underneath.  One could
+# argue that it's preferable to do something like
+#
+#    find / \( -fstype nfs -o -fstype mvfs \) -prune -o -mtime +3 ...
+#
+# (i.e., only list filesystem types to exclude), but the mention of mvfs
+# would cause the command to fail on hosts which don't have ClearCase.

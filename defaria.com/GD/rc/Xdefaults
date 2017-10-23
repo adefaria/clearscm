@@ -1,0 +1,70 @@
+! Rxvt defaults
+
+! Global
+Rxvt*font:			"Lucida Console-*-16"
+Rxvt*font1:			"Lucida Console-*-18"
+Rxvt*font2:			"Lucida Console-*-20"
+Rxvt*font3:
+Rxvt*font4:
+Rxvt*saveLines:			5000
+Rxvt*termName:			cygwin
+Rxvt*scrollBar_right:		True
+Rxvt*geometry:			80x24
+Rxvt*loginShell:		True
+
+! Default
+Rxvt.background:		SteelBlue
+Rxvt.foreground:		White
+Rxvt.colorBD:			Blue
+Rxvt.colorUL:			Red
+Rxvt.cursorColor:		Yellow
+
+! Muosbldforge2
+Muosbldforge2.background:	MidNightBlue
+Muosbldforge2.foreground:	White
+Muosbldforge2.colorBD:		Yellow
+Muosbldforge2.colorUL:		Green
+Muosbldforge2.cursorColor:	Yellow
+
+! x47264
+x47264.background:		MediumVioletRed
+x47264.foreground:		White
+x47264.colorBD:			Yellow
+x47264.colorUL:			Red
+x47264.cursorColor:		Yellow
+
+! Carlsbad
+Carlsbad.background:		Black
+Carlsbad.foreground:		Magenta
+Carlsbad.colorBD:		Yellow
+Carlsbad.colorUL:		Red
+Carlsbad.cursorColor:		Yellow
+CarlsbadXload*background:	Black
+CarlsbadXload*foreground:	Magenta
+CarlsbadXload*highlight:	Yellow
+CarlsbadXload*Label*Justify:	Center
+CarlsbadXload*Label:		Carlsbad
+
+Pacifica.background:		ForestGreen
+Pacifica.foreground:		White
+Pacifica.colorBD:		Yellow
+Pacifica.colorUL:		Red
+Pacifica.cursorColor:		Yellow
+
+plebld01.background:		Black
+plebld01.foreground:		Yellow
+plebld01.colorBD:		Yellow
+plebld01.colorUL:		Red
+plebld01.cursorColor:		Yellow
+
+ccase-sj1-4.background:		Black
+ccase-sj1-4.foreground:		Green
+ccase-sj1-4.colorBD:		Green
+ccase-sj1-4.colorUL:		Red
+ccase-sj1-4.cursorColor:	Yellow
+
+XServer.background:		Black
+XServer.foreground:		Green
+XServer.colorBD:		Yellow
+XServer.colorUL:		Red
+XServer.cursorColor:		Yellow

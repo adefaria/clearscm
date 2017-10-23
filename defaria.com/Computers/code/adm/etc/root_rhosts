@@ -1,0 +1,18 @@
+################################################################################
+#
+# File:         /roothome/.rhosts
+# Description:  Standard .rhosts file for root
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Feb 23 10:29:34 PST 2000
+# Modified:
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Global entries (for support and admins)
+hpda            root    # Mail support
+dns             root    # Network support
+perseus         root    # Site-UX support
+pdladm          root    # For eJL admins
+
+# Local entries specific to this machine

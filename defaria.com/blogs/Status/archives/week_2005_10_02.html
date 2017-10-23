@@ -1,0 +1,604 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: October  2, 2005 - October  8, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_09_25.html" title="September 25, 2005 - October  1, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_10_09.html" title="October  9, 2005 - October 15, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_09_25.html">&laquo; September 25, 2005 - October  1, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_10_09.html">October  9, 2005 - October 15, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">October  8, 2005</h2>
+                     <a id="a000445"></a>
+                     <div class="entry" id="entry-445">
+                        <h3 class="entry-header">SJ VOB Move</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>The VOB move for San Jose went fairly well. Without the normal user load on the servers the dumping and loading process was much quicker. I've attached Jennifer's spread sheet and updated it to reflect which vobs we've moved and how long it took as well as what sort of reduction we got in the DB sizes. All moved vobs are tagged on ccase-sj1-7 and Clearcase is still off on ccase-sj1-1 - for now. We will turn that on before Jennifer and Chin start with their testing. Yet left to do is the Multisite chreplica and re instituting of the cronjobs, etc. - nothing that would imped users Monday morning as well as clean up of backup areas assuming we reach a go on the go/no go tomorrow afternoon.</p>
+
+<p>I've also attached a tar image of the log files that we managed to capture for the dump and load process.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:13 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000445.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October  7, 2005</h2>
+                     <a id="a000444"></a>
+                     <div class="entry" id="entry-444">
+                        <h3 class="entry-header">ctmerge</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Started incorporating ctmerge and other old Clearcase/Clearquest oriented scripts in to adm vob</li>
+
+  <lI>Investigated some Multisite issues WRT this SJ VOB move</li>
+
+  <li>Working with Shivdutt on copying VOB storage over to /projects/cc-test</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:01 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000444.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October  6, 2005</h2>
+                     <a id="a000443"></a>
+                     <div class="entry" id="entry-443">
+                        <h3 class="entry-header">PQA.pm/adm VOB</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Converted Code Page routines into a PQA.pm Perl Module</li>
+
+  <li>Changed routines to check all fields. Clearquest returns character data for fields such as DATE_TIME fields. These record definitions are now complete and will be useful when it comes time to perform the conversion</li>
+
+  <li>Waiting for new schema to start coding/testing conversion process. Contacted David Shaw who had helped us last time to get the databases onto our test server</li>
+
+  <li>Finally get adm VOB working and am starting to add my stuff into this VOB in a controlled fashion. This is not just a place to dump all of our scripts rather it's a place to start centralizing our code in a manner consistent with proper software engineering principals (Structured coding, code reuse, generalization, object oriented design principals, etc.)</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:28 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000443.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October  5, 2005</h2>
+                     <a id="a000441"></a>
+                     <div class="entry" id="entry-441">
+                        <h3 class="entry-header">HTML Characters/VOB Distribution</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed CheckCodePage to use HTML character equivalents</li>
+
+  <li>Derived a plan of redistributing VOBs between VOB servers based on VOB database size</li>
+</ul>
+                              
+                              <h3>HTML Characters</h3>
+
+<p>Decided to translate non US ASCII characters into their HTML equivalents. Therefore &copy; changes to "&amp;copy;" For characters that have no handy name equivalent used the form of &amp;#<i>n</i>; where <i>n</i> is the decimal number for the character.</p>
+
+<h3>VOB Distribution</h3>
+
+<p>Based on Jennifer's email and adjusting for size of DB here is how I'd split the vobs between ccase-sj1-1 and ccase-sj1-7. This distribution balances the vob database size between the two machines.</p>
+
+<table  align="center" border="1" cellpadding="2" cellspacing="0" height="100%"  width="95%" bgcolor="white">
+  <tbody>
+    <tr>
+      <th colspan="3" bgcolor="teal" align="center"><font color="white">Proposed split of vobs</font></th>
+    </tr>
+    <tr bgcolor="#33ccff">
+      <th>Vob</th>
+      <th>ccase-sj1-1</th>
+      <th>ccase-sj1-7</th>
+    </tr>
+    <tr>
+      <td>\UCM-Projects</td>
+      <td>436.8</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\SetTop</td>
+      <td>&nbsp;</td>
+      <td>4545.9</td>
+    </tr>
+    <tr>
+      <td>\magnum</td>
+      <td>442.7</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\BSEAV</td>
+      <td>&nbsp;</td>
+      <td>452.1</td>
+    </tr>
+    <tr>
+      <td>\rockford</td>
+      <td>97.4</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\TestTools</td>
+      <td>&nbsp;</td>
+      <td>15.4</td>
+    </tr>
+    <tr>
+      <td>\DVTSJ</td>
+      <td>17.5</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\TiVo</td>
+      <td>&nbsp;</td>
+      <td>49.4</td>
+    </tr>
+    <tr>
+      <td>\LinuxSupport</td>
+      <td>&nbsp;</td>
+      <td>18.8</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\SetTopGI</td>
+      <td>377.9</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\SetTopMot</td>
+      <td>288.8</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\Ref_Linux_Kernel</td>
+      <td>&nbsp;</td>
+      <td>1647.2</td>
+    </tr>
+    <tr>
+      <td>\BSE_MS</td>
+      <td>482.5</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\tmmsky</td>
+      <td>&nbsp;</td>
+      <td>14.7</td>
+    </tr>
+    <tr>
+      <td>\nds</td>
+      <td>14.5</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\Mot_P3_TCMTC</td>
+      <td>&nbsp;</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>\CommEngine</td>
+      <td>1506.7</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\BSSS</td>
+      <td>&nbsp;</td>
+      <td>28.9</td>
+    </tr>
+    <tr>
+      <td>\softmodem</td>
+      <td>11.7</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\applications</td>
+      <td>&nbsp;</td>
+      <td>8.4</td>
+    </tr>
+    <tr>
+      <td>\bsp</td>
+      <td>2.4</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\CP64_TC</td>
+      <td>&nbsp;</td>
+      <td>21.2</td>
+    </tr>
+    <tr>
+      <td>\Mot_P3_TvMon</td>
+      <td>68.6</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\DSR207</td>
+      <td>&nbsp;</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>\dsr207_tvmon</td>
+      <td>5.2</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\BcmLib_Dsr530</td>
+      <td>&nbsp;</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>\BcmLib_Dsr550</td>
+      <td>11.1</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\DSR550P3_BSP</td>
+      <td>&nbsp;</td>
+      <td>3.5</td>
+    </tr>
+    <tr>
+      <td>\Documentation</td>
+      <td>&nbsp;</td>
+      <td>30.6</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\SQA</td>
+      <td>317.9</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\Web</td>
+      <td>112.7</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\Test</td>
+      <td>30.3</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\Firmware</td>
+      <td>&nbsp;</td>
+      <td>95</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\echostarUK</td>
+      <td>483.9</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\kylin</td>
+      <td>53.9</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\CFE</td>
+      <td>&nbsp;</td>
+      <td>25.2</td>
+    </tr>
+    <tr>
+      <td>\brcm_wince</td>
+      <td>1.1</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\Tools</td>
+      <td>&nbsp;</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>\Motorola_lib</td>
+      <td>6.3</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\MOT_97320</td>
+      <td>&nbsp;</td>
+      <td>10.5</td>
+    </tr>
+    <tr>
+      <td>\BcmLib_Dsr580</td>
+      <td>3.3</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\BcmLib_Dsr580_Venom2_P2</td>
+      <td>&nbsp;</td>
+      <td>4.7</td>
+    </tr>
+    <tr>
+      <td>\BcmLib_Dsr500</td>
+      <td>&nbsp;</td>
+      <td>11.1</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\BCM_HAL</td>
+      <td>24.4</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\DVI3K</td>
+      <td>15.1</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\DViTV</td>
+      <td>&nbsp;</td>
+      <td>3.1</td>
+    </tr>
+    <tr>
+      <td >\DSR550P3</td>
+      <td>&nbsp;</td>
+      <td>21.6</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\ArchiveSetTop</td>
+      <td>189.8</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\Dvtsw</td>
+      <td>296</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\TestPriv</td>
+      <td>&nbsp;</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>\bxUCM_support_7315sc</td>
+      <td>4</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\HAL_test</td>
+      <td>&nbsp;</td>
+      <td>1.8</td>
+    </tr>
+    <tr>
+      <td>\BCM_test</td>
+      <td>10.2</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\UCM-CQTest</td>
+      <td>&nbsp;</td>
+      <td>31.1</td>
+    </tr>
+    <tr>
+      <td>\delivertest</td>
+      <td>0.5</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\UCMrmcomp</td>
+      <td>&nbsp;</td>
+      <td>0.4</td>
+    </tr>
+    <tr>
+      <td>\UCM-Test</td>
+      <td>3.6</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\BSE-SYS</td>
+      <td>&nbsp;</td>
+      <td>8.8</td>
+    </tr>
+    <tr>
+      <td>\A1</td>
+      <td>0.3</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\echostar</td>
+      <td>600.6</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\bknittel_web_pvob</td>
+      <td>0</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\bknittel_web</td>
+      <td>&nbsp;</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>\ss-test</td>
+      <td>1145.7</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\last</td>
+      <td>&nbsp;</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>\bxUCM_proj</td>
+      <td>3.4</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\bxUCM_support</td>
+      <td>&nbsp;</td>
+      <td>11.3</td>
+    </tr>
+    <tr>
+      <td>\bxUCM_system</td>
+      <td>0.8</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#33ccff">
+      <td><b>Total</b></td>
+      <td><b>7067.6</b></td>
+      <td><b>7080.9</b></td>
+    </tr>
+  </tbody>
+</table>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:29 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000441.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October  4, 2005</h2>
+                     <a id="a000440"></a>
+                     <div class="entry" id="entry-440">
+                        <h3 class="entry-header">rgy_swtichover/Triggers</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Responded to IBM Rational Support regarding rgy_switchover</li>
+
+  <li>Added prohibit_operation to trigger list</li>
+
+  <li>Instituted the <i>evil twin</i> trigger</li>
+
+  <li>Obtained Chris' CQ merge scripts and started looking in to that</li>
+
+  <li>Went back to analyzing the PQA CQ data for invalid characters</li>
+</ul>
+                              
+                              <h3>rgy_switchover</h3>
+
+<p>IBM Rational responded</p>
+
+<blockquote>
+  <p>Steven Chaves wrote:</p>
+
+  <p>Andrew,</p>
+
+  <p>Even though there is no documentation saying that about DHCP, UNIX, and Clearcase environment, I would agree with you that rgy_switchover is useless in your situation. It seems to have no problem if you have no Interop environment. I believe that documents show say that works for one platform not Interop environments.</p>
+</blockquote>
+
+<p>My response to this was:</p>
+
+<blockquote>
+  <p>Where in the documents does it state that rgy_switchover is only supported in non interop environments?</p>
+
+  <p>I would think that it would be fairly common to have a Clearcase shop in which there are some Unix servers and many Windows clients - even Unix/Linux clients. You are saying that in such environments rgy_switchover is essentially broken in that it doesn't accomplish what it was intended to do.</p>
+
+  <p>I feel, but have not managed to proof yet, that if the Windows machine name resolved through DNS then rgy_switchover would work fine. Can you test this scenario? Create an environment where you have two Unix servers, one being the primary registry server and the other the backup registry server. Have 4 clients, 2 Unix and 2 Windows with DHCP assigned IP addresses. Configure 1 Windows machine with a machine name that resolves in DNS via nslookup to it's IP address. The other Windows client's machine name should not resolve in DNS. Same thing with the Unix machine, one resolves, one doesn't.</p>
+
+  <p>Then do rgy_switchover. I think you will find that all machines whose names resolve to IP addresses through DNS will switchover and all machines whose names don't resolve in DNS will fail to switchover.</p>
+
+  <p>If that's the case then the documentation should clearly indicate that rgy_switchover will fail on any machine whose name does not resolve to it's IP address in DNS.</p>
+
+  <p>Ray, why don't Windows machine names (e.g. my machine - ltsjca-adefaria) resolve in DNS using nslookup? I think it is possible to set it up so that Windows machine names resolve in DNS and are still DHCP assigned.</p>
+</blockquote>
+
+<h3>Prohibit Operation</h3>
+
+<p>Many companies add a trigger such that any new element created is immediately changed to be owned by vobadm. This way individuals do not own the element - vobadm does - which is closer to say "these aren't your elements - they are the company's". It also has the nice side effect of automatically disallowing certain potentially dangerous operations like rmelem from being done by non-owners. So then only vobadm can rmelems.</p>
+
+<p>Here at Broadcom they take a different approach: Rather than changing ownership to vobadm they put a trigger on rmelem and rmver with an -nuser vobadm. I'm not sure I agree with not allowing users to rmver.</p>
+
+<p>Luckily I was able to add -nusers vobadm to the "Type" line in triggers.dat and it was just passed along. We really should implement an "Options" line for additional options.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:30 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000440.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October  3, 2005</h2>
+                     <a id="a000439"></a>
+                     <div class="entry" id="entry-439">
+                        <h3 class="entry-header">SJ Vob move/Triggers</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Discussed how to best handle the upcomming SJ vob move</li>
+
+  <li>Added handling for UCMOBJECT triggers and the few additional triggers on the docs vob</li>
+</ul>
+                              
+                              <h3>SJ Vob Move</h3>
+
+<p>I got to thinking over the weekend more about this vob move and trying to tie it to why we are moving the vobs. If we are trying to gain performance then how do we know that this move will accomplish that? It occurred to me that we have not adequately identified the performance problem we are trying to solve. If performance is the issue then just changing architectures is not likely to solve that problem.</p>
+
+<p>Lacking any real description of the performance problem the users are experiencing the best we can do is optimize performance for vob service. In general, Rational recommends that you do not over load a server with too many vobs. More specifically you need to be concerned about the total size of your vob databases. What you are trying to do is insure that you have enough memory to fit the databases of the most commonly used vobs.</p>
+
+<p>The old Solaris machine has 1 CPU and 4 gig of memory. The new Linux box also has 4 gig of memory but 2 CPUs. Observation reveals that the Solaris machine is not CPU bound - increasing CPU horsepower or number of CPUs will not increase performance.</p>
+
+<p>I feel the best course of action at this point would be to identify the commonly used vobs and separate them between the Solaris and Linux machines thus decreasing the load on both servers, increasing the overall amount of memory (8 gig - 4 on one and 4 on the other) and allow for parallelization. Additionally, only 1/2 of the data need move. Need to sell this to Jennifer and Chin.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:50 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000439.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

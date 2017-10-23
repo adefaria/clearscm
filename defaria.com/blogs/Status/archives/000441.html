@@ -1,0 +1,436 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: HTML Characters/VOB Distribution</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000440.html" title="rgy_swtichover/Triggers" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000443.html" title="PQA.pm/adm VOB" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000440.html">&laquo; rgy_swtichover/Triggers</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000443.html">PQA.pm/adm VOB &raquo;</a>
+                     </p>
+
+                     <a id="a000441"></a>
+                     <div class="entry" id="entry-441">
+                        <h3 class="entry-header">HTML Characters/VOB Distribution</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed CheckCodePage to use HTML character equivalents</li>
+
+  <li>Derived a plan of redistributing VOBs between VOB servers based on VOB database size</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>HTML Characters</h3>
+
+<p>Decided to translate non US ASCII characters into their HTML equivalents. Therefore &copy; changes to "&amp;copy;" For characters that have no handy name equivalent used the form of &amp;#<i>n</i>; where <i>n</i> is the decimal number for the character.</p>
+
+<h3>VOB Distribution</h3>
+
+<p>Based on Jennifer's email and adjusting for size of DB here is how I'd split the vobs between ccase-sj1-1 and ccase-sj1-7. This distribution balances the vob database size between the two machines.</p>
+
+<table  align="center" border="1" cellpadding="2" cellspacing="0" height="100%"  width="95%" bgcolor="white">
+  <tbody>
+    <tr>
+      <th colspan="3" bgcolor="teal" align="center"><font color="white">Proposed split of vobs</font></th>
+    </tr>
+    <tr bgcolor="#33ccff">
+      <th>Vob</th>
+      <th>ccase-sj1-1</th>
+      <th>ccase-sj1-7</th>
+    </tr>
+    <tr>
+      <td>\UCM-Projects</td>
+      <td>436.8</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\SetTop</td>
+      <td>&nbsp;</td>
+      <td>4545.9</td>
+    </tr>
+    <tr>
+      <td>\magnum</td>
+      <td>442.7</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\BSEAV</td>
+      <td>&nbsp;</td>
+      <td>452.1</td>
+    </tr>
+    <tr>
+      <td>\rockford</td>
+      <td>97.4</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\TestTools</td>
+      <td>&nbsp;</td>
+      <td>15.4</td>
+    </tr>
+    <tr>
+      <td>\DVTSJ</td>
+      <td>17.5</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\TiVo</td>
+      <td>&nbsp;</td>
+      <td>49.4</td>
+    </tr>
+    <tr>
+      <td>\LinuxSupport</td>
+      <td>&nbsp;</td>
+      <td>18.8</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\SetTopGI</td>
+      <td>377.9</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\SetTopMot</td>
+      <td>288.8</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\Ref_Linux_Kernel</td>
+      <td>&nbsp;</td>
+      <td>1647.2</td>
+    </tr>
+    <tr>
+      <td>\BSE_MS</td>
+      <td>482.5</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\tmmsky</td>
+      <td>&nbsp;</td>
+      <td>14.7</td>
+    </tr>
+    <tr>
+      <td>\nds</td>
+      <td>14.5</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\Mot_P3_TCMTC</td>
+      <td>&nbsp;</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>\CommEngine</td>
+      <td>1506.7</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\BSSS</td>
+      <td>&nbsp;</td>
+      <td>28.9</td>
+    </tr>
+    <tr>
+      <td>\softmodem</td>
+      <td>11.7</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\applications</td>
+      <td>&nbsp;</td>
+      <td>8.4</td>
+    </tr>
+    <tr>
+      <td>\bsp</td>
+      <td>2.4</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\CP64_TC</td>
+      <td>&nbsp;</td>
+      <td>21.2</td>
+    </tr>
+    <tr>
+      <td>\Mot_P3_TvMon</td>
+      <td>68.6</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\DSR207</td>
+      <td>&nbsp;</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>\dsr207_tvmon</td>
+      <td>5.2</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\BcmLib_Dsr530</td>
+      <td>&nbsp;</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>\BcmLib_Dsr550</td>
+      <td>11.1</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\DSR550P3_BSP</td>
+      <td>&nbsp;</td>
+      <td>3.5</td>
+    </tr>
+    <tr>
+      <td>\Documentation</td>
+      <td>&nbsp;</td>
+      <td>30.6</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\SQA</td>
+      <td>317.9</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\Web</td>
+      <td>112.7</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\Test</td>
+      <td>30.3</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\Firmware</td>
+      <td>&nbsp;</td>
+      <td>95</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\echostarUK</td>
+      <td>483.9</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\kylin</td>
+      <td>53.9</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\CFE</td>
+      <td>&nbsp;</td>
+      <td>25.2</td>
+    </tr>
+    <tr>
+      <td>\brcm_wince</td>
+      <td>1.1</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\Tools</td>
+      <td>&nbsp;</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>\Motorola_lib</td>
+      <td>6.3</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\MOT_97320</td>
+      <td>&nbsp;</td>
+      <td>10.5</td>
+    </tr>
+    <tr>
+      <td>\BcmLib_Dsr580</td>
+      <td>3.3</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\BcmLib_Dsr580_Venom2_P2</td>
+      <td>&nbsp;</td>
+      <td>4.7</td>
+    </tr>
+    <tr>
+      <td>\BcmLib_Dsr500</td>
+      <td>&nbsp;</td>
+      <td>11.1</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\BCM_HAL</td>
+      <td>24.4</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\DVI3K</td>
+      <td>15.1</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\DViTV</td>
+      <td>&nbsp;</td>
+      <td>3.1</td>
+    </tr>
+    <tr>
+      <td >\DSR550P3</td>
+      <td>&nbsp;</td>
+      <td>21.6</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\ArchiveSetTop</td>
+      <td>189.8</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\Dvtsw</td>
+      <td>296</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\TestPriv</td>
+      <td>&nbsp;</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>\bxUCM_support_7315sc</td>
+      <td>4</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\HAL_test</td>
+      <td>&nbsp;</td>
+      <td>1.8</td>
+    </tr>
+    <tr>
+      <td>\BCM_test</td>
+      <td>10.2</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\UCM-CQTest</td>
+      <td>&nbsp;</td>
+      <td>31.1</td>
+    </tr>
+    <tr>
+      <td>\delivertest</td>
+      <td>0.5</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\UCMrmcomp</td>
+      <td>&nbsp;</td>
+      <td>0.4</td>
+    </tr>
+    <tr>
+      <td>\UCM-Test</td>
+      <td>3.6</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\BSE-SYS</td>
+      <td>&nbsp;</td>
+      <td>8.8</td>
+    </tr>
+    <tr>
+      <td>\A1</td>
+      <td>0.3</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\echostar</td>
+      <td>600.6</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td>\bknittel_web_pvob</td>
+      <td>0</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\bknittel_web</td>
+      <td>&nbsp;</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>\ss-test</td>
+      <td>1145.7</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\last</td>
+      <td>&nbsp;</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>\bxUCM_proj</td>
+      <td>3.4</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#ddd">
+      <td>\bxUCM_support</td>
+      <td>&nbsp;</td>
+      <td>11.3</td>
+    </tr>
+    <tr>
+      <td>\bxUCM_system</td>
+      <td>0.8</td>
+      <td>&nbsp;</td>
+    </tr>
+    <tr bgcolor="#33ccff">
+      <td><b>Total</b></td>
+      <td><b>7067.6</b></td>
+      <td><b>7080.9</b></td>
+    </tr>
+  </tbody>
+</table>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on October  5, 2005  4:29 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000441.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

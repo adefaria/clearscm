@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="1.1">
+  <head>
+    <title>BeyondPod Feeds</title>
+    <dateCreated>Thu, 15 Jun 2017 11:33:11 PDT</dateCreated>
+    <dateModified>Thu, 15 Jun 2017 11:33:11 PDT</dateModified>
+  </head>
+  <body>
+    <outline text="Uncategorized" />
+    <outline text="Misc">
+      <outline text="Real Time with Bill Maher" xmlUrl="http://www.hbo.com/podcasts/billmaher/podcast.xml" type="rss" />
+    </outline>
+    <outline text="Science &amp; Technology">
+      <outline text="TWiT Live Specials MP3" xmlUrl="http://leo.am/podcasts/ces" type="rss" />
+      <outline text="FLOSS Weekly" xmlUrl="http://leoville.tv/podcasts/floss.xml" type="rss" />
+      <outline text="Security Now!" xmlUrl="http://leoville.tv/podcasts/sn.xml" type="rss" />
+      <outline text="All About Android" xmlUrl="http://leoville.tv/podcasts/aaa" type="rss" />
+      <outline text="This Week in Google (MP3)" xmlUrl="http://leoville.tv/podcasts/twig.xml" type="rss" />
+      <outline text="StarTalk Radio" xmlUrl="http://feeds.soundcloud.com/users/soundcloud:users:38128127/sounds.rss" type="rss" />
+      <outline text="This Week in Tech (MP3)" xmlUrl="http://feeds.twit.tv/twit.xml" type="rss" />
+      <outline text="Triangulation (MP3)" xmlUrl="http://feeds.twit.tv/tri.xml" type="rss" />
+      <outline text="The Internet of Things podcast" xmlUrl="http://iotpodcast.com/feed/podcast/" type="rss" />
+    </outline>
+    <outline text="Business &amp; Finance">
+      <outline text="Money, Markets &amp; More" xmlUrl="http://feeds.marketwatch.com/marketwatch/podcasts/moneymarketsmore" type="rss" />
+      <outline text="APM: Marketplace Morning Report – First Cast" xmlUrl="http://marketplace.publicradio.org/podcast/podcast_mmr_first.php" type="rss" />
+      <outline text="Freakonomics Radio" xmlUrl="http://feeds.feedburner.com/freakonomicsradio" type="rss" />
+      <outline text="The Art of Charm | Confidence | Relationship &amp; Dating Advice | Biohacking | Productivity" xmlUrl="http://theartofcharmpodcast.theartofcharm.libsynpro.com/rss" type="rss" />
+    </outline>
+    <outline text="Skeptism">
+      <outline text="Skeptoid: Critical Analysis of Pop Phenomena" xmlUrl="http://skeptoid.com/podcast.xml" type="rss" />
+      <outline text="The Skeptics' Guide to th..." xmlUrl="http://www.theskepticsguide.org/feed/rss.aspx?feed=SGU" type="rss" />
+      <outline text="NPR: Intelligence Squared..." xmlUrl="http://www.npr.org/rss/podcast.php?id=510184" type="rss" />
+      <outline text="Penn’s Sunday School" xmlUrl="http://feeds.feedburner.com/PennSundaySchool" type="rss" />
+      <outline text="The Atheist Experience" xmlUrl="http://www.atheist-experience.com/podcast.php" type="rss" />
+      <outline text="The Non Prophets" xmlUrl="http://www.nonprophetsradio.com/nonprophets.xml" type="rss" />
+      <outline text="Tell Me Something I Don't Know" xmlUrl="http://feeds.podtrac.com/5EZzzED0uv_k" type="rss" />
+    </outline>
+    <outline text="Religion">
+      <outline text="TheThinkingAtheist | Blog Talk Radio Feed" xmlUrl="http://www.blogtalkradio.com/thethinkingatheist.rss" type="rss" />
+    </outline>
+    <outline text="Music">
+      <outline text="No Guitar Is Safe" xmlUrl="http://feeds.soundcloud.com/users/soundcloud:users:162332893/sounds.rss" type="rss" />
+      <outline text="Modern Fingerstyle Guitar" xmlUrl="http://www.modernfingerstyleguitar.com/?feed=podcast" type="rss" />
+      <outline text="Guitar Speak Podcast" xmlUrl="http://guitarspeakpodcast.libsyn.com/rss" type="rss" />
+    </outline>
+  </body>
+</opml>

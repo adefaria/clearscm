@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Ant Rant</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000541.html" title="Production User Database Migrated" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000544.html" title="gethostbyaddr fails" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000541.html">&laquo; Production User Database Migrated</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000544.html">gethostbyaddr fails &raquo;</a>
+                     </p>
+
+                     <a id="a000543"></a>
+                     <div class="entry" id="entry-543">
+                        <h3 class="entry-header">Ant Rant</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Studying Ant</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Recently I started looking into Ant more seriously. Seems like it'd be a good thing to do for my career. But I must tell you, I'm not quite convinced that Ant's a solution to anything except to say that it's probably a more comfortable make for people who think in terms of Java only.</p>
+
+<p>Here's some quotes from the main <a href="http://ant.apache.org/">Ant page</a>:</p>
+
+<blockquote>
+  Apache Ant is a Java-based build tool. In theory, it is kind of like Make, but without Make's wrinkles.
+</blockquote>
+
+<p>Make wrinkles?!? What wrinkles? Wrinkles are the sign of age and wisedom. Just because you don't understand it do not play it off as if it's bad.</p>
+
+<blockquote>
+  Why another build tool when there is already make, gnumake, nmake, jam, and others? Because all those tools have limitations that Ant's original author couldn't live with when developing software across multiple platforms. Make-like tools are inherently shell-based -- they evaluate a set of dependencies, then execute commands not unlike what you would issue in a shell. This means that you can easily extend these tools by using or writing any program for the OS that you are working on. However, this also means that you limit yourself to the OS, or at least the OS type such as Unix, that you are working on.
+</blockquote>
+
+<p>That's true. But no more true than the fact that if you want to run make on any other system you also need to have make available on that other system! I take the above to mean that you have a tendency to extend your build to what is natural on the OS in question and thus you start using Unix shell commands and the like. OK. However where, in the scheme of things, can one not run Unix shell commands now a days? Surely Unix and Linux have that covered, and Mac OS/X is basically Unix under the hood too. What  you mean Windows? Well <a href="http://cygwin.com">Cygwin</a> also has that pretty much covered. So then, why avoid a well known, well understood and time test utilitiy such as make?
+
+<blockquote>
+  Makefiles are inherently evil as well. Anybody who has worked on them for any time has run into the dreaded tab problem. "Is my command not executing because I have a space in front of my tab!!!" said the original author of Ant way too many times. Tools like Jam took care of this to a great degree, but still have yet another format to use and remember.
+</blockquote>
+
+Ah so now we see the real motivation that the original author had for discarding make! He couldn't remember to start his lines with a tab character!
+
+<blockquote>
+  Ant is different. Instead of a model where it is extended with shell-based commands, Ant is extended using Java classes. Instead of writing shell commands, the configuration files are XML-based, calling out a target tree where various tasks get executed. Each task is run by an object that implements a particular Task interface.
+</blockquote>
+
+<p>Which I guess would be find if you are better at writing Java classes instead of shell commands or other scripts. And why is it that all new, improved, better things must incorporate whatever is in vogue at the time? Do we really need XML files instead of just straightforward ASCII text? And must everything be an object?</p>
+
+<blockquote>
+  Granted, this removes some of the expressive power that is inherent by being able to construct a shell command such as `find . -name foo -exec rm {}`, but it gives you the ability to be cross platform -- to work anywhere and everywhere. And hey, if you really need to execute a shell command, Ant has an <exec> task that allows different commands to be executed based on the OS that it is executing on. 
+</blockquote>
+
+<p>Ant is only as cross platform as the platforms that ant has been ported to! With things like Cygwin there no need to throw the baby out with the bath water over a few misplaced tabs. Still I guess ant has it's place and I'm sure it's comfortable for Java developers. Sure having an object oriented design probably isn't bad but now people need to learn yet another language - Java - even if they are not developing in Java. And they need to learn XML, etc. And you don't only lose the power and expressiveness of the shell but it seems to me you just lost support for just about all the other langauges as well. AFAICT I see no built in support for Ada, FORTRAN, Pascal, etc.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 17, 2006  5:06 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000543.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

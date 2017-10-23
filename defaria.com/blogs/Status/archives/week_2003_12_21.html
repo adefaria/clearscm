@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: December 21, 2003 - December 27, 2003 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2003_12_14.html" title="December 14, 2003 - December 20, 2003" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2004_01_04.html" title="January  4, 2004 - January 10, 2004" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2003_12_14.html">&laquo; December 14, 2003 - December 20, 2003</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2004_01_04.html">January  4, 2004 - January 10, 2004 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">December 23, 2003</h2>
+                     <a id="a000063"></a>
+                     <div class="entry" id="entry-63">
+                        <h3 class="entry-header">More sons-clearcase Network Problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>I decided to check sons-clearcase after Ron implemented his fix for our router problems. Turns out I can't access it again. Not sure if it's the router, the fix or something else. I can VPN into my desktop. I can ping servers such as sonscentral and sonsservices but not sons-clearcase. I tried pinging the gateway and it still dropping packets.
+
+<p>Then when I was attempting to ping sons-clearcase I got the following:
+
+<pre>
+$ ping sons-clearcase
+
+Pinging sons-clearcase.SALIRA.COM [192.168.0.99] with 32 bytes of data:
+
+Request timed out.
+Request timed out.
+Request timed out.
+Reply from 192.168.1.1: Destination host unreachable.
+
+Ping statistics for 192.168.0.99:
+    Packets: Sent = 4, Received = 1, Lost = 3 (75% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 0ms, Average = 0ms
+</pre>
+
+<p>Not sure what this means. Guess I'm gonna have to drive into work again...
+
+<p>Checked sons-clearcase from home and couldn't get to it. Drove in and analyzed the situation. Saw things in the Event Viewer possibly indicating that the network card was bad. Rebooted machine. Couldn't get it up on the network. Ran network trouble shooter and it suggested replacing the network cable. Didn't want to do that. It also suggested to try to plug the network cable into another spot on the hub. Tried that and it worked! Not sure if that was the fix or if sons-clearcase's network card is flaking out. Rebooted once again to come up clean.
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  9:23 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000063.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000062"></a>
+                     <div class="entry" id="entry-62">
+                        <h3 class="entry-header">Clearquest Network problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              Still having problems with network router. Ron is implementing a bandaide solution. Meantime each time the router goes down so does Clearquest and I need to restart the SQL/Anywhere server as well as the Clearquest Daemon.
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:49 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000062.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 22, 2003</h2>
+                     <a id="a000061"></a>
+                     <div class="entry" id="entry-61">
+                        <h3 class="entry-header">2.2.1.6/Vob Backups</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ol>
+<li>Built 2.2.1.6</li>
+<li>Configured VOB backups to work</li>
+</ol>
+                              
+                              <p>Seems that there is no way to run the pre/post command remotely under our current setup. Instead I opened up ccadmin by removing the "*" in /etc/passwd. This allows rsh to work then changed the pre/post commands to:</p>
+
+<pre>
+C:\Cygwin\bin\rsh.exe sons-clearcase -lccadmin cleartool [un]lock vob:\\salira
+</pre>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:57 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000061.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 21, 2003</h2>
+                     <a id="a000060"></a>
+                     <div class="entry" id="entry-60">
+                        <h3 class="entry-header">Sons-clearcase Network Problems II</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Went in around 3 PM. Rebooted sons-clearcase. It's back up and running. Noticed that our backups are not really working well (never have been actually). Performed backup by hand.</p>
+
+<p>BackupExec doesn't seem to want to properly do the pre and post commands necessary to backup the vobs. It seems to say that it can execute the cleartool lock command on the remote machine but always fails with an error stating that the pre command failed.</p>
+
+<p>What was really confusing about this is that the Tools vob backup appears to work. Well then I found out that the Tools vob backup was configured to run the pre command but accept non 0 as an OK status whereas the Salira vob was not accepting non 0 as an OK status.</p>
+
+<p>In any event ct lock vob:\<vob> should return 0. In the Tools vob case the lock was not really happening. </p>
+
+<p>Need to speak to Veritas regarding this on Monday and get this finally working correctly.</p>
+
+<p>Meantime at least we have one good backup!</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:14 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000060.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000059"></a>
+                     <div class="entry" id="entry-59">
+                        <h3 class="entry-header">Sons-clearcase Network Problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>I saw some email saying that there was some possible problems with some Clearcase stuff and decided to investigate. I had talked with Ron on Friday and he is aware of our network problems. But today I could not contact sons-clearcase at all. I can seem to ping and otherwise contact other machines such as sonscentral, sonsservices and engineer's desktops such as dko and gtsang. I can even ping sons-cc in Shanghai! I fear there might be something wrong with sons-clearcase itself - perhaps the network card. Why can I contact other machines but not sons-clearcase?</p>
+
+<p>Not sure if I should go in to reboot sons-clearcase and see if she comes up OK. I guess I oughta...</p>
+
+<p>Hmmm... I can't ssh adefaria@adefaria either. Doesn't accept my password. ssh ccadmin@adefaria doesn't work either. Could this be an Active Directory problem too?</p>
+
+<p>Was able to remote desktop to sonscentral. Doesn't seem like my account is locked. Neither is ccadmin. Can't tell if this network issue is just sons-clearcase or a larger problem.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:01 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000059.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

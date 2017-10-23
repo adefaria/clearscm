@@ -1,0 +1,537 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Movable Type 5.2.3" />
+<link rel="stylesheet" href="http://defaria.com/blogs/General/styles.css" type="text/css" />
+<link rel="start" href="http://defaria.com/blogs/General/" title="Home" />
+<link rel="alternate" type="application/atom+xml" title="Recent Entries" href="http://defaria.com/blogs/General/atom.xml" />
+<script type="text/javascript" src="http://defaria.com/blogs/General/mt.js"></script>
+
+
+    <title>General: February 2004 Archives</title>
+
+
+    <link rel="prev" href="http://defaria.com/blogs/General/archives/2004/01/" title="January 2004" />
+    <link rel="next" href="http://defaria.com/blogs/General/archives/2005/03/" title="March 2005" />
+
+</head>
+<body id="classic-blog" class="mt-archive-listing mt-datebased-monthly-archive layout-wtt">
+    <div id="container">
+        <div id="container-inner">
+
+
+            <div id="header">
+    <div id="header-inner">
+        <div id="header-content">
+
+
+            <div id="header-name"><a href="http://defaria.com/blogs/General/" accesskey="1">General</a></div>
+            <div id="header-description"></div>
+
+        </div>
+    </div>
+</div>
+
+
+
+            <div id="content">
+                <div id="content-inner">
+
+
+                    <div id="alpha">
+                        <div id="alpha-inner">
+
+
+                            <h1 id="page-title" class="archive-title">February 2004 Archives</h1>
+
+
+
+
+
+                            
+                            <div id="entry-146" class="entry-asset asset hentry">
+    <div class="asset-header">
+        <h2 class="asset-name entry-title"><a href="http://defaria.com/blogs/General/archives/2004/02/adding-home-lin.html" rel="bookmark">Adding [home] link to Gallery</a></h2>
+        <div class="asset-meta">
+            <span class="byline">
+    
+                <abbr class="published" title="2004-02-27T23:43:43-08:00">February 27, 2004 11:43 PM</abbr>
+    
+            </span>
+
+            
+            
+
+        </div>
+    </div>
+    <div class="asset-content entry-content">
+
+        <div class="asset-body">
+            <p>Ron Van Scherpe pointed me to <a href="http://gallery.menalto.com/index.php?name=PNphpBB2&file=viewtopic&t=10945&highlight=breadcrumb&sid=bb3e0d3e2a05657f625c346df7b404cb">how to add a [home] link to gallery</a>. I think they call these <i>bread crumbs</i> probalby because they leave a trail of bread crumbs as in the old <i>Hansel and Grettle</i> story. Basically one needs to add:</p>
+
+<pre>
+/* home breadcrumb start */
+if (strcmp($pAlbum->fields["returnto"], "no")) {
+   $breadtext[$breadCount] ="&lt;a href=\"/\"&gt;[Home]&lt;/a&gt;";
+   $breadCount++;
+}
+/* home breadcrumb end */
+</pre>
+
+<p>to view_album.php in your Gallery directory approximately at:</p>
+
+<pre>
+} while ($pAlbumName);
+/* INSERT IT HERE */
+//-- we built the array backwards, so reverse it now ---
+</pre>
+
+<p>This added a link to all albums however the main page lacks the link. Then I found <a href="http://www.eclecticpixels.com/tutorials/gallerytips/index.php">this</a> and decided to go that way. It took a little bit of time to realize I could include my site-functions.php and use my copyright function for the footer. Still don't like the bland Home link at the top but will work on this later.</p>
+        </div>
+
+
+
+    </div>
+    <div class="asset-footer"></div>
+</div>
+
+
+                            
+                            <div id="entry-142" class="entry-asset asset hentry">
+    <div class="asset-header">
+        <h2 class="asset-name entry-title"><a href="http://defaria.com/blogs/General/archives/2004/02/post.html" rel="bookmark"></a></h2>
+        <div class="asset-meta">
+            <span class="byline">
+    
+                <abbr class="published" title="2004-02-19T14:27:18-08:00">February 19, 2004  2:27 PM</abbr>
+    
+            </span>
+
+            
+            
+
+        </div>
+    </div>
+    <div class="asset-content entry-content">
+
+        <div class="asset-body">
+            <p><a title="How to display your web site logo on the address bar and in the favorites list" href="http://www.chami.com/tips/internet/110599I.html">How to display your web site logo on the address bar and in the favorites list</a></p>
+
+<p>Finally implemented a web site icon for my web site. <a href="http://defaria.com">Check it out!</a> Note sure if I want to keep this one though.</p>
+
+<p><b>Note<b> that this apparently does not work correctly in IE.</p>
+
+        </div>
+
+
+
+    </div>
+    <div class="asset-footer"></div>
+</div>
+
+
+                            
+                            <div id="entry-134" class="entry-asset asset hentry">
+    <div class="asset-header">
+        <h2 class="asset-name entry-title"><a href="http://defaria.com/blogs/General/archives/2004/02/the-phonebotcom.html" rel="bookmark">The PhoneBOT.com</a></h2>
+        <div class="asset-meta">
+            <span class="byline">
+    
+                <abbr class="published" title="2004-02-13T11:10:47-08:00">February 13, 2004 11:10 AM</abbr>
+    
+            </span>
+
+            
+            
+
+        </div>
+    </div>
+    <div class="asset-content entry-content">
+
+        <div class="asset-body">
+            <p>Been trying out a new telephony product from <a href="http://thephonebot.com">ThePhoneBOT.com</a>. It's pretty cool in that it has a plugin for Trillian such that when I get a message at home it IM's me! It also has a <a href="http://defaria.com:8080">webserver component </a>so I can view my voicemail anywhere with a browser! There are still some problems and challenges however and I'm trying to work these out first before purchasing the product.</p>
+        </div>
+
+
+
+    </div>
+    <div class="asset-footer"></div>
+</div>
+
+
+                            
+                            <div id="entry-133" class="entry-asset asset hentry">
+    <div class="asset-header">
+        <h2 class="asset-name entry-title"><a href="http://defaria.com/blogs/General/archives/2004/02/palm.html" rel="bookmark">Palm</a></h2>
+        <div class="asset-meta">
+            <span class="byline">
+    
+                <abbr class="published" title="2004-02-13T11:05:19-08:00">February 13, 2004 11:05 AM</abbr>
+    
+            </span>
+
+            
+            
+
+        </div>
+    </div>
+    <div class="asset-content entry-content">
+
+        <div class="asset-body">
+            <p>Got a Palm Pilot M130 from Stuart the other day and have been trying to get the new PalmSync from Thunderbird's addressbook to the Palm working. Still not working correctly though.</p>
+        </div>
+
+
+
+    </div>
+    <div class="asset-footer"></div>
+</div>
+
+
+                            
+                            <div id="entry-132" class="entry-asset asset hentry">
+    <div class="asset-header">
+        <h2 class="asset-name entry-title"><a href="http://defaria.com/blogs/General/archives/2004/02/webdav-1.html" rel="bookmark">WebDAV</a></h2>
+        <div class="asset-meta">
+            <span class="byline">
+    
+                <abbr class="published" title="2004-02-13T11:03:17-08:00">February 13, 2004 11:03 AM</abbr>
+    
+            </span>
+
+            
+            
+
+        </div>
+    </div>
+    <div class="asset-content entry-content">
+
+        <div class="asset-body">
+            <p>Finally got WebDAV running on my box. I tried a urmpi mod_webdav and it attempted to download what was necessary and install it but it had problems installing it. So I downloaded it manually and used rpm to install it. Worked. Needed to do some config of it. Got it working! Then got Mozilla Calendar finally working with remote calendars!</p>
+        </div>
+
+
+
+    </div>
+    <div class="asset-footer"></div>
+</div>
+
+
+                            
+                            <div id="entry-115" class="entry-asset asset hentry">
+    <div class="asset-header">
+        <h2 class="asset-name entry-title"><a href="http://defaria.com/blogs/General/archives/2004/02/psychic-flash-m.html" rel="bookmark">Psychic Flash Movie and other goodies</a></h2>
+        <div class="asset-meta">
+            <span class="byline">
+    
+                <abbr class="published" title="2004-02-02T16:48:48-08:00">February  2, 2004  4:48 PM</abbr>
+    
+            </span>
+
+            
+            
+
+        </div>
+    </div>
+    <div class="asset-content entry-content">
+
+        <div class="asset-body">
+            <p>Here's some internet goodies. The first one tricks people into believing that the flash movie can read their mind. The second one takes a picture of the person using their computer monitor!</p>
+
+<ul>
+
+<p><li><a title="The Psychic Flash Movie" href="http://www.flashpsychic.com/">The Psychic Flash Movie</a></li><br />
+<li><a title="Monitor Camera" href="http://www.monitorcamera.com">Monitor Camera</a></li></p>
+
+</ul>
+        </div>
+
+
+
+    </div>
+    <div class="asset-footer"></div>
+</div>
+
+
+
+
+                            <div class="content-nav">
+                                <a href="http://defaria.com/blogs/General/archives/2004/01/">&laquo; January 2004</a> |
+                                <a href="http://defaria.com/blogs/General/">Main Index</a> |
+                                <a href="http://defaria.com/blogs/General/archives.html">Archives</a>
+                                | <a href="http://defaria.com/blogs/General/archives/2005/03/">March 2005 &raquo;</a>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+                    <div id="beta">
+    <div id="beta-inner">
+
+
+    
+    <div class="widget-archive widget-archive-category widget">
+    <h3 class="widget-header">Categories</h3>
+    <div class="widget-content">
+    
+    </div>
+</div>
+
+
+
+
+    <div class="widget-archive-monthly widget-archive widget">
+    <h3 class="widget-header">Monthly <a href="http://defaria.com/blogs/General/archives.html">Archives</a></h3>
+    <div class="widget-content">
+        <ul>
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2017/07/">July 2017 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2017/04/">April 2017 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2016/11/">November 2016 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2016/05/">May 2016 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2016/03/">March 2016 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2015/10/">October 2015 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2015/01/">January 2015 (2)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2014/11/">November 2014 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2014/02/">February 2014 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2014/01/">January 2014 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2011/03/">March 2011 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2010/11/">November 2010 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2010/10/">October 2010 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2010/06/">June 2010 (4)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2010/04/">April 2010 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2010/03/">March 2010 (4)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2010/02/">February 2010 (7)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2009/05/">May 2009 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2009/04/">April 2009 (2)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2009/01/">January 2009 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2007/04/">April 2007 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2006/11/">November 2006 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2006/09/">September 2006 (2)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2005/12/">December 2005 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2005/10/">October 2005 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2005/09/">September 2005 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2005/08/">August 2005 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2005/03/">March 2005 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2004/02/">February 2004 (6)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2004/01/">January 2004 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2003/11/">November 2003 (2)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2003/10/">October 2003 (5)</a></li>
+        
+        </ul>
+    </div>
+</div>
+        
+    
+
+
+
+<div class="widget-pages widget">
+    <h3 class="widget-header">Pages</h3>
+    <div class="widget-content">
+        <ul>
+    
+    
+            <li class="folder folder-38"><strong>about</strong>
+        
+            </li>
+        
+    
+        </ul>
+    </div>
+</div>
+
+<div class="widget-syndication widget">
+    <div class="widget-content">
+        <ul>
+            <li><img src="http://defaria.com/mt/mt-static/images/status_icons/feed.gif" alt="Subscribe to feed" width="9" height="9" /> <a href="http://defaria.com/blogs/General/atom.xml">Subscribe to this blog's feed</a></li>
+
+        </ul>
+    </div>
+</div>
+<div class="widget-powered widget">
+    <div class="widget-content">
+        <a href="http://www.movabletype.com/"><img src="http://defaria.com/mt/mt-static/images/bug-pbmt-white.png" alt="Powered by Movable Type 5.2.3" width="120" height="75" /></a>
+    </div>
+</div>
+
+
+
+    </div>
+</div>
+
+
+
+    
+<div id="gamma">
+    <div id="gamma-inner">
+    <div class="widget-search widget">
+    <h3 class="widget-header">Search</h3>
+    <div class="widget-content">
+        <form method="get" action="http://defaria.com/mt/mt-search.cgi">
+            <input type="text" id="search" class="ti" name="search" value="" />
+
+            <input type="hidden" name="IncludeBlogs" value="1" />
+
+            <input type="hidden" name="limit" value="20" />
+            <input type="submit" accesskey="4" value="Search" />
+        </form>
+    </div>
+</div>
+
+<div class="widget-about-this-page widget">
+    <h3 class="widget-header">
+
+    
+        About this Archive
+    
+
+
+    </h3>
+    <div class="widget-content">
+
+
+
+
+
+        <p class="first">This page is an archive of entries from <strong>February 2004</strong> listed from newest to oldest.</p>
+    
+        <p><a href="http://defaria.com/blogs/General/archives/2004/01/">January 2004</a> is the previous archive.</p>
+    
+    
+        <p><a href="http://defaria.com/blogs/General/archives/2005/03/">March 2005</a> is the next archive.</p>
+    
+
+
+        <p>Find recent content on the <a href="http://defaria.com/blogs/General/">main index</a> or look in the <a href="http://defaria.com/blogs/General/archives.html">archives</a> to find all content.</p>
+
+    </div>
+</div>
+
+
+    </div>
+</div>
+
+
+
+
+                </div>
+            </div>
+
+
+            <div id="footer">
+    <div id="footer-inner">
+        <div id="footer-content">
+            <div class="widget-powered widget">
+                <div class="widget-content">
+                    Powered by <a href="http://www.movabletype.org/">Movable Type</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+        </div>
+    </div>
+</body>
+</html>

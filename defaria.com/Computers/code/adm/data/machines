@@ -1,0 +1,104 @@
+# This file contains a list of all machines in the lab. The format of the
+# columns are as follows:
+#
+# Column 1 Machine name
+# Column 2 IP Address
+# Column 3 Model
+# Column 4 OS Version
+# Column 5 ClearCase Version (if applicable)
+# Column 6 Owner (if known)
+# Column 7 Phone (if known)
+# Column 8 Usage (if known)
+# Column 9 Class (Currently unused)
+# Column 9 Location
+#
+adefaria:192.168.1.121:i686:NT-5.1:Full 2002.05.00:Unknown:Unknown:Unknown:Unknown:Unknown:
+administrator1
+adrianak
+akhan1:192.168.1.122:i686:NT-5.0:Lite 2001.03.00 :Asad Khan <akhan@Salira.com>:(408)-325-8700xUnknown:Desktop:Unknown:Asad Khan's cube:
+alawson
+czhang
+dchen
+democlient
+dko:192.168.1.38:i686:NT-5.0:Full 2002.05.00:Unknown:Unknown:Unknown:Unknown:Unknown:
+dlok
+fpga
+frodo
+gchen
+gtsang
+hlau
+hmartin
+hsu
+hwang:192.168.1.40:i686:NT-5.0:Lite 2002.05.00 :hwang <hwang@Salira.com>:(408)-325-8700x105:telnet:Unknown:sj:
+hwlabpc2
+hwlabpc3
+hyu
+jchen_desktop
+jfung
+jkling
+jli
+jliu
+jwang
+jzhang:192.168.1.62:i686:NT-5.0:Lite 2001.03.00 :Jack Zhang <JZhang@Salira.com>:(408)-325-8700xUnknown:Desktop:Unknown:Jack Zhang's office:
+lab2000:10.1.254.244
+172.16.1.10:i686:NT-5.0:Lite 2001.03.00 :Hongbin Wang <hwang@Salira.com>:(408)-325-8700x105:s/w r&d:Unknown:s/w lab:
+labqapc01:172.16.1.87:i686:NT-5.0:Lite 2001.03.00 :Unknown:Unknown:Unknown:Unknown:Unknown:
+lt-acarney
+lzheng
+m-teng:192.168.1.95:i686:NT-5.0:Lite 2001.03.00 :Unknown:Unknown:Unknown:Unknown:Unknown:
+marketing-term
+meriadoc
+mgomez
+mojo
+mpeterson
+mstrohmaier
+pchau
+peregrin
+rchen
+rclayden
+rli
+rshen:192.168.1.29:i686:NT-5.0:Lite 2001.03.00 :Unknown:Unknown:Unknown:Unknown:Unknown:
+ryang
+salira-9817
+salira-lab02
+samwise
+siyengar:172.16.1.46:i686:NT-5.0:Lite 2001.03.00 :Sujatha Iyengar <siyengar@Salira.com>:(408)-325-8700x170:Quality:Unknown:Sujatha Iyengar's cube:
+sjiang
+sons-clearcase clearcase server
+sons-dhe2
+sons-exch02
+sons-hardware12
+sons-hw030
+sons-it001
+sons-mrp
+sons-prodmgr
+sons-secure
+sons-selich
+sons-shou1
+sons-sw033
+sons-swlab33:172.16.1.40
+0.0.0.0
+0.0.0.0:i686:NT-4.0:Lite 2002.05.00 :Unknown <labuser@Salira.com>:(408)-325-8700x.:test:Unknown:swlab:
+sonsbld1
+sonscentral
+sonsservices
+spartin
+swang
+swlab-ftpserver
+swlabpc04
+swlabpc11
+swlabpc12
+swlabpc20
+swlabpc3
+swlabpc4
+swlabpc9
+szhu:192.168.1.80:i686:NT-4.0:Lite 2002.05.00 :Unknown:Unknown:Unknown:Unknown:Unknown:
+t-quach:192.168.1.42:i686:NT-5.0:Lite 2002.05.00 :Unknown:Unknown:Unknown:Unknown:Unknown:
+w-yang
+xiaodan:192.168.1.99:i686:NT-5.0:Lite 2002.05.00 :Unknown:Unknown:Unknown:Unknown:Unknown:
+xlin
+y-liu
+yhe:192.168.1.31:i686:NT-4.0:Lite 2001.03.00 :Unknown:Unknown:Unknown:Unknown:Unknown:
+ywu
+yxiu
+z-lou:192.168.1.30:i686:NT-5.0:Lite 2001.03.00 :Unknown:Unknown:Unknown:Unknown:Unknown:

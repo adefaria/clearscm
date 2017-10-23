@@ -1,0 +1,15 @@
+#!/bin/bash
+################################################################################
+#
+# File:         dum
+# RCS:          $Header: dum,v 1.1 96/08/06 14:54:11 defaria Exp $
+# Description:  Outputs disk usage in Megabytes (what a concept! :-)
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Nov 13 16:14:30 1995
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+du "$@"                          |
+  awk '{printf "%.3f%s%s\n", $1/2048, "\t", $2}' |
+  sort -nr

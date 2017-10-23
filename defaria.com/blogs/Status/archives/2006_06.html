@@ -1,0 +1,355 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: June 2006 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2006_05.html" title="May 2006" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2006_07.html" title="July 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2006_05.html">&laquo; May 2006</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2006_07.html">July 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">June 27, 2006</h2>
+                     <a id="a000557"></a>
+                     <div class="entry" id="entry-557">
+                        <h3 class="entry-header">Salira Vob Corruption</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Cleaned up Multisite Packets</li>
+
+  <li>Cleaned up sons-sc-cc:/Windows/temp and sons-clearcase salira vob cleartext pools due to disk space crunch</li>
+
+  <li>Ran dbcheck on salira vob to fix corruption</li>
+
+  <li>Tested changing mastership of a test branch</li>
+</ul>
+
+<p><b>Time spend:</b> 7 hours</p>
+                              
+                              <h3>Cleaning up Multisite Packets</h3>
+
+<p>First order of business was to attempt to clean up multisite packets that reside in the shipping bays for both sons-clearcase and sons-sc-cc as much as possible. As per my prior work there seems to be huge sync packets to sync, which takes time. I wanted to attempt a chmaster on an older branch to see how that changes from sons-clearcase -&gt; sons-sc.cc.  Part of the chmaster involves informing the other replica of the change. This happens through the normal multisite syncreplica. If the bays are full of huge packets then I need to process them first. One problem I hit was running out of space on sons-sc-cc. Normally this is not a problem as there is enough space on the C drive where the vobs reside. But with these huge packets going back and forth I was running out of space. Cleaned up some space and attempt to import all packets on sons-sc-cc. I also attempted to scrub the cleartext pool on sons-clearcase, which has grown to 4 gig! The cleartext pool is a caching mechanism thus since Clearcase can reconstruct the cleartext pool at any time (cleartext is mutable) I figured I could save 4 gig.</p>
+
+<h3>Testing chmaster</h3>
+
+<p>Tested out that I cannot check out, and back in, and element on the rel_1.0 branch from a view on sons-sc-cc. I then attempted to transfer mastership of the rel_1.0 branch -&gt;  sons-sc-cc but received the following error:<br>
+
+<div class=code><pre>
+<b>[ccadmin] sons-clearcase:</b><u>ct chmaster SantaClara brtype:rel_1.0@\\salira</u>
+cleartool: Error: Branch type "rel_1.0" has branches (with default mastership) that have outstanding checkouts.
+</pre></div>
+
+<p>Actually there are still checkout on the rel_1.0 branch in, for example, the view YXiu_view_desktop (e.g. salira/neopon/build/makefile).</p>
+
+<h3>Ran dbcheck on salira vob to fix corruption</h3>
+
+<p><b>10:40 Pm:</b> Decided to give up on the testing of chmaster and get the vob fixed. Locked salira vob. Started copy of db</p>
+
+<p><b>:10:43 Pm:</b> Dtarted keybuild procedure. Keybuild failed with:</p>
+
+<div class=code><pre>
+db_VISTA Version 3.20
+Key File Build Utility
+Copyright (C) 1985-1990 Raima Corporation, All Rights Reserved
+
+initializing key file: vob_db.k01
+initializing key file: vob_db.k02
+initializing key file: vob_db.k03
+initializing key file: vob_db.k04
+processing data file: vob_db.d01, total records = 3555277
+ record:       9000
+ record:      19000
+ record:      29000
+ record:      39000
+ record:      49000
+ record:      59000
+ record:      69000
+ record:      79000
+ record:      89000
+ record:      99000
+ record:     109000
+ record:     119000
+ record:     129000
+ record:     139000
+ record:     149000
+ record:     159000
+</pre></div>
+ 
+<p>keybuild failed with an exit code of 58. Ran keybuild again... This seems to be going better... Did d01 file. Proceeded to work on the d02 file then (11:07 Pm):</p>
+
+<div class=code><pre>
+record:   863000<br>
+*** db_VISTA database error -901 - system error
+
+Bad read  863475
+    863474processing data file vob_db.d02, total records = 1
+
+ record:       1
+
+key file rebuild completed
+</pre></div>
+
+<p>Hmmm... Doesn't seem like the key file rebuild was really completed. I wonder... Should I try again? Trying again...</p>
+
+<p>Third times a charm they say! keybuild ran to completion but for a while it was touch and go as sons-clearcase was not responding. Now, however, I can import the packets that were stuck... Well most of them:</p>
+
+<div class=code><pre>
+Applied sync. packet sync_SantaClara_26-Jun-06.02.00.01_5308 to VOB \\sons-clearcase\VOBs\salira.vbs
+Multitool.exe: Error: Database identifier (dbid) not found in database: "\salira".
+Multitool.exe: Error: Could not get oplog entry with order:2886884 from replica:
+China with oplog_id:376595: reference to non-existent ClearCase object.
+Multitool.exe: Error: Could not check oplog entry for divergence: reference to non-existent ClearCase object.
+Multitool.exe: Error: Cannot apply sync. packet sync_China_26-Jun-06.16.32.42_3292_1 to VOB replica \\sons-clearcase\VOBs\salira.vbs: reference to non-existent ClearCase object
+</pre></div>
+
+<p>Damn. Ran syncreplica -import again and everything got processed. I'm glad it's processed but I can't help but wonder why I hit these errors...</p>
+
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:18 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000557.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 26, 2006</h2>
+                     <a id="a000556"></a>
+                     <div class="entry" id="entry-556">
+                        <h3 class="entry-header">dbcheck</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Ran dbcheck on salira vob</li>
+</ul>
+
+<p><b>Time spent:</b> 2 hours</p>
+                              
+                              Frank W O'Keefe wrote:<br>
+<blockquote type="cite">
+<p>Hello Andrew,</p>
+
+<p>For the error: 06/23/06 07:48:04 db_server(10104): Error: db_server.exe(10104): Error: Database identifier 427883 not foundin "../db__obj.c" line 731.</p>
+
+<p>This could possibly mean there is an issue with the VOBs database. Unfortunately I cannot determine which VOB this is for? I would need you to run a "dbcheck" on the VOB that is reporting this error. Unfortunately I was seeing this error many times in the logs so I cannot tell for which VOB it is reporting this on.</p>
+
+<p>(10104) in the error is the process id that is/was running. This may help in finding the VOB. </p>
+</blockquote>
+
+<p>I'm pretty sure I know the vob in question - their main vob (\salira).</p>
+
+<blockquote type="cite">
+<p>The following URL is to the instructions on running dbcheck. <a href="http://www-1.ibm.com/support/docview.wss?uid=swg21122748">http://www-1.ibm.com/support/docview.wss?uid=swg21122748</a></p>
+</blockquote>
+
+<p>I tried following that by using the method of lock vob, copy the vob database files, unlock vob, dbcheck the copy. Everytime I got a -4 error so I went back to do lock vob, dbcheck, unlock vob.</p>
+
+<p>I was surprised to see some stuff come out on stderr:</p>
+
+<div class=code><pre>
+<b><font color=blue>[ccadmin] sons-clearcase:</font></b><u>/apps/Rational/ClearCase/etc/utils/dbcheck -r1 -a -k -p8192 vob_db &gt; C:\\cygwin\\tmp\\dbcheck.txt</u>
+
+Processing delete chain:  75 nodes on delete chain.
+Processing nodes:
++++....
+</pre></div>
+
+<p>Eventually it finished stating:</p>
+
+<div class=code><pre>
+Database consistency check completed
+
+169 errors were encountered in 167 records/nodes
+</pre></div>
+
+<blockquote type="cite">
+<p>Also, I am going to send you a URL to a technote about this PC's heap size. I see messages indicating that you may need to adjust the heap settings for this host.</p>
+
+<a href="http://www-1.ibm.com/support/docview.wss?uid=swg21142584">http://www-1.ibm.com/support/docview.wss?uid=swg21142584</a></p>
+
+<p>Depending on the dbcheck output, we may need to get a copy of the VOB's db directory but I rather hold off on that request until we see what the dbcheck reports.<p>
+
+<p>I"ve attached the dbcheck output.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:17 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000556.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 22, 2006</h2>
+                     <a id="a000555"></a>
+                     <div class="entry" id="entry-555">
+                        <h3 class="entry-header">Vob corruption/Email/Chmaster</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed problem with email from Multisite jobs</li>
+
+  <li>Investigated vob corruption</li>
+
+  <li>Looked into chmaster</li>
+</ul>
+
+<p><b>Total time:</b> 5 hours</b></p>
+                              
+                              <h3>Email server for Multisite messages</h3>
+
+<p>Multisite needs to send email if there is a problem with synchronization. The setting for which SMTP server to use is in the Clearcase Control Panel under Advanced. Somehow that got set to sons-exch02 which is no longer a valid SMTP server. Changed this to sons-exch01.</p>
+
+<h3>Database identifier not found when doing syncreplica import</h3>
+
+<p>Dear IBM/Rational Tech Support: My name is Andrew DeFaria and I perform
+Clearcase/Clearquest consultant services. One of my clients, Salira Optical Network Systems (a former employer of mine), has been experiencing a problem, described below, and has asked me to look into it for them. They are also in the process of migrating to newer server hardware and migrating up to the latest version of Clearcase/Clearquest. I've been performing this migration. So far we have the new server up and have Multisite replicating things between 3 "sites" - a remote one in Shanghai (sons-cc) and two in Santa Clara: the old server (sons-clearcase) and the new server (sons-sc-cc).</p>
+
+<p>I had been working on this problem for a while last night. I was seeing what you guys were seeing - the db_server process will be running wildly and taking up 50% of the CPU. This seems to happen whenever the scheduled syncreplica -import runs on sons-clearcase. As a result sons-clearcase is not being synced. As far as I can tell this syncreplica -import never finishes and the db_server process consumes 50% of the CPU until killed.</p>
+
+<p>I've also seen several of the following error in the db_server log:</p>
+
+<div class=code><pre>
+Database identifer &lt;x&gt; not found in "..db__obj.c" line 731
+</pre></div>
+
+<p>While the line number remains the same the id's I've seen are 427883, 427919, 427922.</p>
+
+<p>Thinking that this was some sort of vob database corruption I ran checkvob and it reported some minor missing references to source containers. I then ran it in fix mode which cleared up the missing source containers but the missing db identifiers remain.</p>
+
+<p>Next I tried running recoverpacket hoping to set the epoch numbers back a few days and thinking maybe the syncreplica would repair itself. On sons-sc-cc (SantaClara replica) I issued the following command:</p>
+
+<div class=code><pre>
+[ccadmin] sons-sc-cc:mt recoverpacket -since 20-Jun-05 SantaClara@\salira
+Using epoch information from Monday, June 19, 2006 11:00:03 Pm
+Epoch row for replica "US" successfully reset
+</pre></div>
+
+<p>Then back on sons-clearcase (US replica) I issued:</p>
+
+<div class=code><pre>
+[ccadmin] sons-clearcase:mt syncreplica -export -fship SantaClara@\salira
+</pre></div>
+
+<p>This went on to create a huge packet (growing over 1 gig!) before the scheduled syncreplica -import starts and ties up the db_server process.</p>
+
+<p>Searching IBM/Rational support the closest thing I see is <a href="http://www-1.ibm.com/support/docview.wss?rs=100&amp;q1=database+identifier+not+found&amp;uid=swg21238768&amp;loc=en_US&amp;cs=utf-8&amp;lang=en">multitool syncreplica -export fails with Database identifier 0 not found in "../db__ver.c" line 505</a>. I know this speaks of syncreplica -export and references db__ver.c not db__obj.c it is the closest problem report that I could find. And it has the onerous note of:</p>
+
+<blockquote>
+<b>Note: </b>This defect may also occur in <a href="http://www-1.ibm.com/support/docview.wss?rs=984&amp;uid=swg21137780"
+ target="_blank">ClearCase MultiSite 2002.05 (5.0)</a>, however, the fix will not be back patched, you either need to back out of the patch that introduced this, or upgrade to a later version of ClearCase MultiSite to recover.
+</blockquote>
+
+<p>The clearcase version on sons-clearcase is:</p>
+
+<div class=code><pre>
+[ccadmin] sons-clearcase:ct -ver
+ClearCase version 2002.05.00 (Tue Oct 30 08:27:59 2001)
+clearcase patch p2002.05.00 NT-8 (Mon Jun 10 14:44:04 2002)
+clearcase patch p2002.05.00 NT-12 (Thu Sep 12 11:15:10 2002)
+@(#) MVFS version 2002.05.00+ (May 25 2002 03:14:49)
+cleartool                         2002.05.00 (Fri Oct 26 20:24:09  2001)
+db_server                         2002.05.00+ (Fri Aug 30 11:48:28 2002)
+</pre></div>
+
+<p>As I said, we are in the process of migrating to 2003.06 and we are already halfway there - however, at this point people have not yet fully migrated their views over to the new server and the old server still serves Clearcase licenses.</p>
+
+<p>Finally, as I am only a part time consultant at Salira you may wish to contact Jeff Stribling (408-845-5200) directly to gather more info and possibly try some solutions. My contact information is at <a href="http://defaria.com/contact.php">http://defaria.com/contact.php</a> but realize that during the day I'm at another client.</p>
+
+<h3>Chmaster</h3>
+
+<p>There are a few Clearcase objects that can have mastership. These are:</p>
+
+<ol>
+  <li>Label types</li>
+
+  <li>Branch types</li>
+
+  <li>Trigger types</li>
+
+  <li>Hyperlink types</li>
+
+  <li>Attribute types</li>
+
+  <li>Element types</li>
+</ol>
+
+<p>1 &amp; 2 above are the ones that concern me and that need to eventually get transfered. #3 has already been done by my mktriggers script with added the triggers to the vobs over on sons-sc-cc long ago.#4, 5 and 6 Salira doesn't really use anyway (there are only the predefined types for 4, 5 and 6 anyway).</p>
+
+<p>It might be good for you, or perhaps Vijay, to experiment a bit on changing the mastership of a branch type, a branch that is not heavily used. I would:</p>
+
+<ul>
+  <li>Set up a new view on sons-sc-cc oriented to working on this test branch that is mastered by sons-clearcase</li>
+
+  <li>Verify that there is a problem and how it manifests itself attempting to use this view on sons-sc-cc. IOW, while working on this new view on sons-sc-cc verify that you cannot checkout to this test branch because it's mastered at  sons-clearcase</li>
+
+  <li>Transfer mastership of this test branch over to sons-sc-cc</li>
+
+  <li>Test that the problem has gone away</li>
+</ul>
+
+<p>Of course I realize that the overriding problem is the current vob database problem on sons-clearcase described in my earlier email. Assuming that that's fixed and multisiting is working...</p>
+
+<p>You can see these types by right clicking on the vob in the Clearcase Explorer on sons-clearcase and selected Explore Types. You can double click on branch type and find your test branch. Right click on it and select properties. Go to the Mastership tab and click on Change. Select SantaClara (that's sons-sc-cc). You might need to also perform a syncreplica (run the scheduled job for sync export on sons-clearcase and the sync import on sons-sc-cc.</p>
+
+<p>There are about 30 branch types that are mastered on sons-clearcase. There are far more label types that are mastered on sons-clearcase. IOW while I might change mastership by hand for the 30 or so branch types, I wouldn't want to  change mastership for all those labels.</p>
+
+<p>What I have not verified is what happens if one was working on sons-sc-cc, checks in a bug and the trigger attempts to move that pre existing label (this was an update to an old bug) to point to the new version about to be checked in. Since that label is mastered by sons-clearcase will that be a problem?</p>
+
+<p>If your test above regarding changing the mastership of a test branch type is successful you may wish to move a more used branch type's mastership in the same manner then instructed the engineers involved in that branch to move to the new server. Then the next branch type, etc.
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:59 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000555.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

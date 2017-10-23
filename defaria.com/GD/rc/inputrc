@@ -1,0 +1,56 @@
+# .inputrc is used by GNU's readline routine 
+#
+# This tells filename completion to be case insensitive
+set completion-ignore-case on
+
+# Home
+"\e[7~": beginning-of-line
+"\e[h~": beginning-of-line
+
+# End
+"\e[8~": end-of-line
+
+# Delete
+"\e[3~": delete-char
+
+# Insert
+"\e[2~": paste-from-clipboard
+
+# Control left
+"\eOd": backward-word
+"\e[1;5D": backward-word
+
+# Control right
+"\eOc": forward-word
+"\e[1;5C": forward-word
+
+# Function keys (From Randhuall R Schulz <rrschulz@cris.com>)
+# F1 - F5 (Console)
+"\M-[[A" "F1"
+"\M-[[B" "F2"
+"\M-[[C" "2>&1 &"
+"\M-[[D" "F4"
+"\M-[[E" "F5"
+
+# F1 - F3 (RXVT)
+"\M-[11~" "F1"
+"\M-[12~" "F2"
+"\M-[13~" "2>&1 &"
+"\M-[14~" "F4"
+"\M-[15~" "F5"
+
+# Both Console and RXVT
+"\M-[17~" "F6"
+"\M-[18~" "F7"
+"\M-[19~" "exit\C-M"
+"\M-[20~" "F9"
+"\M-[21~" "F10"
+"\M-[23~" "F11"
+"\M-[24~" "F12"
+
+# Horizontal scroll...
+#set horizontal-scroll-mode on
+
+# The following tells bash to show all filenames if ambiguous instead of 
+# beeping first
+#set show-all-if-ambiguous on

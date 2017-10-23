@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>MAPS</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/" />
+    <link rel="self" type="application/atom+xml" href="http://defaria.com/blogs/MAPS/atom.xml" />
+    <id>tag:defaria.com,2014-02-17:/blogs/MAPS//3</id>
+    <updated>2007-07-13T22:38:35Z</updated>
+    
+    <generator uri="http://www.sixapart.com/movabletype/">Movable Type 5.2.3</generator>
+
+<entry>
+    <title>Hit Count and Last Hit</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2007/07/hit-count-and-l.html" />
+    <id>tag:defaria.com,2007:/blogs/MAPS//3.651</id>
+
+    <published>2007-07-13T22:26:08Z</published>
+    <updated>2007-07-13T22:38:35Z</updated>
+
+    <summary>After having left MAPS pretty much alone for a long time, though I did implement &quot;nuke&quot; which helps nuke whole domains, I finally have implemented new functionality for MAPS. You see over this last year or so I&apos;ve been getting...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p>After having left MAPS pretty much alone for a long time, though I did implement "nuke" which helps nuke whole domains, I finally have implemented new functionality for MAPS. You see over this last year or so I've been getting a lot of spam mostly oriented in which the domain name was wildly varying. So lots of mail loops were happening. Whacking whole domains became a favorite past time of mine and hence the "nuke" script (not an official part of MAPS mind you). Still it seemed like a losing battle.</p>
+
+<p>Then I got to thinking - something I've been thinking for a while - how effective are all of my null list entries, now numbering in the 17K area! I thought that I could easily add some fields to the list table, namely a hit_count and a last_hit field, and then during scrubbing time see if these null list entries were at all effective, and if not then to automatically remove them.</p>
+
+<p>So I added the fields and changed MAPS such that it records the hits and when the last hit happened. Then in mapsscrub check to see if last_hit is older than the number of days the user is keeping history. If it's 0 then simply remove that entry. Note this happens only for the null list. White list and black list are to be managed by the user. You purposely add somebody to the white or black list for a reason. Do we want to auto age these off? Probably not.</p>
+
+<p>If the hit count is not 0 then how do we age off these apparently no longer effective null list entries? Well the though was to age them by subtracting 1 from the hit count. Thus if we had a null list entry that was fairly active for a little while and say accumulated a hit_count of 10 but then was largely un-hit, the hit_count would go 9, 8, 7, 6, 5... down to 0 and then the entry would be removed. I might want to change this as some null list entries are getting hit_counts in the thousands now! Assuming the user has a 30 day history then perhaps after 30 days of inactivity I should age any null list entry off the list in 7 days? Note that any activity in those 30 days would immediately reset the clock for at least the next 30 days (assuming a history of 30 days).</p>
+
+<p>With this in place I decided to change the mail loop procedure to auto add the sender to the null list. Previously I was whacking off the whole domain - here we are just auto adding the individual sending address. But it's automatically added, automatically tracked for effectiveness and automatically aged off. Beside I still have the option of perusing the top returning domains and can whack whole domains still. Now any hits on any users in the domain will continue to insure that that domain null list entry will remain and not automatically age away...</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title><![CDATA[No more &lt;anything&gt;@defaria.com]]></title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2006/04/no-more-defaria.html" />
+    <id>tag:defaria.com,2006:/blogs/MAPS//3.542</id>
+
+    <published>2006-04-16T03:58:40Z</published>
+    <updated>2006-04-16T04:04:43Z</updated>
+
+    <summary><![CDATA[Due to an influx of spam getting through MAPS with a format of &lt;something&gt;@defaria.com I finally decided to fix MAPS to handle that better. Now if the from is from defaria.com (or the current domain) then the user name is...]]></summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p>Due to an influx of spam getting through MAPS with a format of &lt;something&gt;@defaria.com I finally decided to fix MAPS to handle that better. Now if the from is from defaria.com (or the current domain) then the user name is looked up in /etc/passwd using getpwent and if there is no user of that name it is simply nulllisted. This is an obvious attempt by spammers to forge from email addresses.</p>
+
+<p>Also removed logging of when the message is obviously garbled or not conforming to standards. Plus I no longer log if the user uses andrew@defaria.com but fails to have a name such as "Andrew DeFaria &lt;andrew@defaria.com&gt;". The former turns out to be mostly Nigerian spam anyway.</p>
+
+<p>FInally, replaced /usr/local/amps with a direct checkout form CVS!</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>MAPS Scrubber</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2005/11/maps-scrubber.html" />
+    <id>tag:defaria.com,2005:/blogs/MAPS//3.469</id>
+
+    <published>2005-11-06T16:17:58Z</published>
+    <updated>2005-11-06T16:18:47Z</updated>
+
+    <summary>Updated mapsscrub to also report total number of user emails in the database. Also fixed header....</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p>Updated mapsscrub to also report total number of user emails in the database. Also fixed header.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Added page drop down</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2005/11/added-page-drop.html" />
+    <id>tag:defaria.com,2005:/blogs/MAPS//3.468</id>
+
+    <published>2005-11-05T16:44:37Z</published>
+    <updated>2005-11-05T16:45:37Z</updated>
+
+    <summary>Added a page drop down to list.php. This is useful when one wants to say go to the last page....</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p>Added a page drop down to list.php. This is useful when one wants to say <i>go to the last page</i>.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Move list entry bug</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2004/03/move-list-entry.html" />
+    <id>tag:defaria.com,2004:/blogs/MAPS//3.150</id>
+
+    <published>2004-03-08T15:17:23Z</published>
+    <updated>2005-09-22T06:52:53Z</updated>
+
+    <summary>Found a bug today. While adding to the blacklist an entry was on the white list, MAPS correctly adds the entry to the black list and deletes the entry on the white list. However it fails to resequence the white...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p>Found a bug today. While adding to the blacklist an entry was on the white list, MAPS correctly adds the entry to the black list and deletes the entry on the white list. However it fails to resequence the white list causing problems down the line.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Login bug</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2004/02/login-bug.html" />
+    <id>tag:defaria.com,2004:/blogs/MAPS//3.139</id>
+
+    <published>2004-02-18T05:25:05Z</published>
+    <updated>2005-09-22T05:54:22Z</updated>
+
+    <summary>Squashed a nasty bug, well actually a lack of implementation. After converting some of the web pages to PHP I neglected to implement Login in PHP! Now implemented....</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p>Squashed a nasty bug, well actually a lack of implementation. After converting some of the web pages to PHP I neglected to implement Login in PHP! Now implemented.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Space</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2004/02/space.html" />
+    <id>tag:defaria.com,2004:/blogs/MAPS//3.138</id>
+
+    <published>2004-02-17T05:12:26Z</published>
+    <updated>2005-09-22T05:54:22Z</updated>
+
+    <summary>Added new &quot;Space Usage&quot; report. Not sure if I like this because 1) it&apos;s too slow and 2) the resulting report is not very impressive - it&apos;s just a line saying &quot;User is using X bytes in the databsase&quot;. Might...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p>Added new "Space Usage" report. Not sure if I like this because 1) it's too slow and 2) the resulting report is not very impressive - it's just a line saying "User is using X bytes in the databsase". Might wish to implement a space counter in the user table. This would require that all procedures updating the database update the space counter. The intent for this space counter is to judge how much space a user is using in the database for the purposes of quotas or perhaps to charge people if they want more space.</p>
+
+<p>Also, currently this space report is only counting space used in the email table. Might wish to add in the log table, which can add up, and the user and useropts tables. The latter two are minimal but including them would make the report more accurate.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Delete bug</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2004/02/delete-bug.html" />
+    <id>tag:defaria.com,2004:/blogs/MAPS//3.137</id>
+
+    <published>2004-02-16T06:24:20Z</published>
+    <updated>2005-09-22T05:54:22Z</updated>
+
+    <summary>Many, many improvements have happened to MAPS. I have not been keeping this blog up to date. I will try to do better. Here are some of the things that have been implemented or improved: Went live 12/10/2003! We are...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p>Many, many improvements have happened to MAPS. I have not been keeping this blog up to date. I will try to do better. Here are some of the things that have been implemented or improved:</p>
+
+<ol>
+
+<li>Went live 12/10/2003! We are now using MAPS from the Linux system and using the MySQL backend.</li>
+
+<li>Many improvements and implemented a lot of the pages</li>
+
+<li>Started re-writing things in PHP. PHP is pretty cool and now that I have mod PHP running it's also quick. I suspect that if I managed to get mod Perl installed that that would solve some of the sluggishness of the Perl pages, however PHP is more "web friendly" and it's nice not having to write a whole web page just because part of it will be dynamic</li>
+
+<li>Implemented most of the "list" processing. You can now add/change and delete entries in the various lists.</li>
+
+<li>Details.cgi needs some work but otherwise is functional. You can even select entries and say Add to Null list, etc.</li>
+
+<li>Implemented Returned Messages by Domain report (in PHP)</li>
+
+<li>Updated the look of the register and blacklist return messages</li>
+
+<li>Implemented the Forgot Your Password link</li>
+
+<li>Making pages have refresh option so that Quickstats updates itself. Added time to Quickstats</li>
+
+<li>Implemented search facility to search sender and subject in returned email. While this is helpful it's not finished yet. Also takes a long time on a large message base...</li>
+
+<li>Changed MAPS to only send return message once instead of up to 5 times</li>
+
+<li>Changed MAPS to use envelope address if From address is blank</li>
+
+</ol>
+
+<p>That said here's a bug:</p>
+
+<p>When an entry is added to a list the system now searches the other lists and if a matching entry appears in another list it is deleted. This effectively "moves" the entry. Problem is that the delete does not resequence the list that it deleted the entry from.</p>
+
+<p>We should also consider decoupling the sequence # concept. I don't think it is necessary anymore. MAPS applies filtering based on lists - order doesn't seem to be important.</p>
+
+<p>We might also consider not basing the stats and detail pages off of the log entries but directly off of the email in the email table.</p>
+
+<p>Might wish to implement a "super white list". Super white list would be bascially the users address book. The "other" white list would be entries added by registration. User should be able to promote from white list -> super white list. The difference is that the super white list would be applied before other lists. Currently MAPS processes lists in the following order:</p>
+
+<ul>
+
+<li>Check null list. If found send message to /dev/null</li>
+
+<li>Check black list. If found send blacklist.html to the sender and discard message</li>
+
+<li>Check white list. If found deliver message</li>
+
+<li>Otherwise return message (if we have not already returned a message for this sender)</li>
+
+</ul>
+
+<p>This way the user can apply special privilege for some users. For example, I'd really like to null list all of the *.br$ spam I get but if I did I could not get email from my dad in Brasil. If I had a super white list I could add his address to it and then nulllist everybody else.</p>
+
+<p>We also need to figure out how to handle spam I get when the spammer sets From to be me (or anybody else on my white list). I was thinking about an X-MAPS header that I could set for myself. This would not solve the problem of a spammer sending me spam from somebody else on my white list though I've yet to see that - it would be rare. Except for domain whitelisting such as *@defaria.com. Not sure how to address that</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Rounded Tables</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2003/11/rounded-tables.html" />
+    <id>tag:defaria.com,2003:/blogs/MAPS//3.30</id>
+
+    <published>2003-11-11T21:35:23Z</published>
+    <updated>2005-09-22T05:54:21Z</updated>
+
+    <summary>The Trick to Rounded Corner Tables Might use this on MAPS......</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p><a title="The Trick to Rounded Corner Tables" href="http://www.sitepoint.com/article/392">The Trick to Rounded Corner Tables</a></p>
+
+<p>Might use this on MAPS...</p>
+]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>CSS Site</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2003/11/css-site.html" />
+    <id>tag:defaria.com,2003:/blogs/MAPS//3.29</id>
+
+    <published>2003-11-03T19:32:19Z</published>
+    <updated>2005-09-22T05:54:21Z</updated>
+
+    <summary>MaKo 4 CSS: Frequently asked Questions - Seems to be a good site on CSS issues. Should be able to help me solve my current problems with CSS in MAPS....</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p><a title="MaKo 4 CSS: Frequently asked Questions -" href="http://www.mako4css.com/CSSFAQ.htm">MaKo 4 CSS: Frequently asked Questions -</a></p>
+
+<p>Seems to be a good site on CSS issues. Should be able to help me solve my current problems with CSS in MAPS.</p>
+]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>CSS and Cookies</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2003/11/css-and-cookies.html" />
+    <id>tag:defaria.com,2003:/blogs/MAPS//3.28</id>
+
+    <published>2003-11-03T17:14:36Z</published>
+    <updated>2005-09-22T05:54:21Z</updated>
+
+    <summary>Did a lot of work this weekend on CSS. It&apos;s a bitch that things render differently between Netscape and IE. Anyways, developed a new &quot;main&quot; page and implemented cookies properly so that there is no login involved. Still the user...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p>Did a lot of work this weekend on CSS. It's a bitch that things render differently between Netscape and IE. Anyways, developed a new "main" page and implemented cookies properly so that there is no login involved. Still the user can "logout", thus deleting the cookie, if they like.</p>
+
+<p>Worked hard on <i>Quick Stats</i> which appears on the main page and gives the user a quick rundown of today's activity. Also implmented <b>Check Address</b> as a input field on the main page. Basically it allows the user to type in an address to see what MAPS would do with it. Pops up a window to display the message. Pretty cool.</p>
+
+<p>Added pages for Reports, Manage Lists, etc. So far they go nowhere really. Need to fill these out.</p>
+
+<p>Also, the "menu" box needs to be displayed consistently across pages. Need to get rid of the JavaScript menu bar thing I had. Ah page layout can be a bitch, especially when you code it. Need to move the page layout duties to CSS!</p>
+
+<p>Finally, why doesn't IE pay attention to the Footer.js/copyright thing?<br />
+</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Cookies</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2003/10/cookies.html" />
+    <id>tag:defaria.com,2003:/blogs/MAPS//3.27</id>
+
+    <published>2003-10-29T17:07:26Z</published>
+    <updated>2005-09-22T05:54:21Z</updated>
+
+    <summary>I consulted with Scott and he suggested that I just use a cookie to store the userid and the base things off of that. Seems to work fairly well. Spent some time implementing this and things are looking goodl...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p>I consulted with Scott and he suggested that I just use a cookie to store the userid and the base things off of that. Seems to work fairly well. Spent some time implementing this and things are looking goodl</p>
+]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Todos</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2003/10/todos.html" />
+    <id>tag:defaria.com,2003:/blogs/MAPS//3.26</id>
+
+    <published>2003-10-28T17:07:21Z</published>
+    <updated>2005-09-22T05:54:21Z</updated>
+
+    <summary>MAPS Registration Apparently the JavaScript regex for valid email addresses is not bulletproof yet. Email addresses of tthe form &quot;Joe@Schmoe&quot; pass through the regex OK. Javascript should check to make sure username doesn&apos;t have a space in it username should...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p><a title="MAPS Registration" href="http://defaria.com:8080/maps/bin/register.cgi">MAPS Registration</a></p>
+
+<ol><li><strike>Apparently the JavaScript regex for valid email addresses is not bulletproof yet. Email addresses of tthe form "Joe@Schmoe" pass through the regex OK.</strike></li>
+
+<p><li><strike>Javascript should check to make sure username doesn't have a space in it</strike></li></p>
+
+<p><li>username should be case insensitive</li></p>
+
+<p><li>registerform.cgi should not allow a username that is not a valid MAPS user.</li></p>
+
+<p></ol></p>
+]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Apache Session</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2003/10/apache-session.html" />
+    <id>tag:defaria.com,2003:/blogs/MAPS//3.25</id>
+
+    <published>2003-10-27T23:19:18Z</published>
+    <updated>2005-09-22T05:54:21Z</updated>
+
+    <summary>search.cpan.org: Jeffrey Baker / Apache-Session It may be possible to use Apache Session to record that somebody has logged into MAPS and provide a persistent state while they are logged in. Question is what happens if people do not log...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p><a title="search.cpan.org: Jeffrey Baker / Apache-Session" href="http://search.cpan.org/~jbaker/Apache-Session/">search.cpan.org: Jeffrey Baker / Apache-Session</a></p>
+
+<p>It may be possible to use Apache Session to record that somebody has logged into MAPS and provide a persistent state while they are logged in. Question is what happens if people do not log out? How is this to be handled.</p>
+]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Mod Perl</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/MAPS/archives/2003/10/mod-perl.html" />
+    <id>tag:defaria.com,2003:/blogs/MAPS//3.24</id>
+
+    <published>2003-10-27T22:14:39Z</published>
+    <updated>2005-09-22T05:54:21Z</updated>
+
+    <summary>mod_perl: What is mod_perl? Seems like this is homebase for mod_perl. Still not sure if this can help out with my problems of maintaining the state of what user is currently logged into my MAPS web pages....</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/MAPS/">
+        <![CDATA[<p><a title="mod_perl: What is mod_perl?" href="http://perl.apache.org/start/index.html">mod_perl: What is mod_perl?</a></p>
+
+<p>Seems like this is homebase for mod_perl. Still not sure if this can help out with my problems of maintaining the state of what user is currently logged into my MAPS web pages.</p>
+]]>
+        
+    </content>
+</entry>
+
+</feed>

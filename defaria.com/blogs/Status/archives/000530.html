@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Resuming</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000529.html" title="CIT Building" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000531.html" title="Remove Empty Branch Trigger" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000529.html">&laquo; CIT Building</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000531.html">Remove Empty Branch Trigger &raquo;</a>
+                     </p>
+
+                     <a id="a000530"></a>
+                     <div class="entry" id="entry-530">
+                        <h3 class="entry-header">Resuming</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>I haven't been keeping this up lately but I've decided to resume my status even if I don't use this as my actual status report.</p>
+
+<p>First I'll try to catch up by summarizing what I've been working on lately. Mostly I've been working on this CIT (Continuous Integration and Test) Perl script. CIT is basically an controlling script that calls other build scripts in use here. The idea was to have this script continually build the software, if it needs to build. A primative form of build avoidance is implemented in that a cleartool update is done and if no files are updated in a particular component then that component will not be built.</p>
+
+<p>Some of its characteristics include:</p>
+
+<ul>
+  <li>Can run in one time mode as well as in -cit mode (continuous mode)</li>
+
+  <li>Works off of a config, which specifics defaults for the various parameters which can be overriden on the command line</li>
+
+  <li>If -cit is specified, the script goes into <i>daemon mode</i>.
+
+  <li>Script checks to see if you are in the necessary chrooted environment for building (a requirement)</li>
+
+  <li>Added code in cit mode to eliminate the logfiles created if nothing was built</li>
+
+  <li>At key points in a build a build_status.log file is updated so status can be displayed on a web page</li>
+
+  <li>After a successful build a series of tests are run. Continuous build is not too continuous if the testing hangs! And tests have been known to hang! So the script now forks the tests then sets an overall alarm (default 2 hours) for tests to complete. If they don't then a QUIT signal is sent so that the JREs can try to dump their stacks. After a small wait for that a TERM signal is send to all children fo the tests and again we wait. Finally a KILL signal is sent and an appropriate email is then sent out saying that the tests have timed out</li>
+
+  <li>Corresponding PHP script was written to show the status of the cit</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on March 27, 2006  5:42 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000530.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

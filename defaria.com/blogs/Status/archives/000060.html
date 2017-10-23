@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Sons-clearcase Network Problems II</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000059.html" title="Sons-clearcase Network Problems" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000061.html" title="2.2.1.6/Vob Backups" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000059.html">&laquo; Sons-clearcase Network Problems</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000061.html">2.2.1.6/Vob Backups &raquo;</a>
+                     </p>
+
+                     <a id="a000060"></a>
+                     <div class="entry" id="entry-60">
+                        <h3 class="entry-header">Sons-clearcase Network Problems II</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Went in around 3 PM. Rebooted sons-clearcase. It's back up and running. Noticed that our backups are not really working well (never have been actually). Performed backup by hand.</p>
+
+<p>BackupExec doesn't seem to want to properly do the pre and post commands necessary to backup the vobs. It seems to say that it can execute the cleartool lock command on the remote machine but always fails with an error stating that the pre command failed.</p>
+
+<p>What was really confusing about this is that the Tools vob backup appears to work. Well then I found out that the Tools vob backup was configured to run the pre command but accept non 0 as an OK status whereas the Salira vob was not accepting non 0 as an OK status.</p>
+
+<p>In any event ct lock vob:\<vob> should return 0. In the Tools vob case the lock was not really happening. </p>
+
+<p>Need to speak to Veritas regarding this on Monday and get this finally working correctly.</p>
+
+<p>Meantime at least we have one good backup!</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on December 21, 2003  5:14 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000060.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

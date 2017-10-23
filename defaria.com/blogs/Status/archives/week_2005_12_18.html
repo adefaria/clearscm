@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: December 18, 2005 - December 24, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_12_11.html" title="December 11, 2005 - December 17, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_12_25.html" title="December 25, 2005 - December 31, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_12_11.html">&laquo; December 11, 2005 - December 17, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_12_25.html">December 25, 2005 - December 31, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">December 23, 2005</h2>
+                     <a id="a000503"></a>
+                     <div class="entry" id="entry-503">
+                        <h3 class="entry-header">Clearquest Demo/CVSIMS</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Gave demonstration of Clearquest to Jene Fan and her group. Went pretty well</li>
+
+  <li>Investigating issue where cvsims seems to be called when one cvs adds a directory</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:39 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000503.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 22, 2005</h2>
+                     <a id="a000502"></a>
+                     <div class="entry" id="entry-502">
+                        <h3 class="entry-header">Clearquest Demo/p4test/cvsims</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Set up a test bugs database for a demo</li>
+
+  <li>Set up p4test as a temp server for PQA on production data</li>
+
+  <li>Further coding of cvsims and integration into CVS</li>
+</ul>
+                              
+                              <h2>CVSIMS Issues</h2>
+
+<p>There are still some issues WRT cvsims:</p>
+
+<ul>
+  <li>When you cvs add a directory it seems that cvsims is called. There is no issue IDs and thus thsi is a problem</li>
+
+  <li>Currently the path to the file being committed is not being passed. There is a %p that can be added to the command line in loginfo but it merely says "path relative to repository". What does that mean when you are checking in foo/foo.h, foo/foo.c and bar/bar.h?</li>
+</ul>
+
+<p>Turns out that cvs will make calls per path. IOW if you are checking in foo/foo.h, foo/foo.c and bar/bar.h cvs would call the loginfo trigger with path = foo for foo.h and foo.c then call the loginfo trigger again with path = bar for bar.h. Unfortuantely this would leave us with the more ugly:</p>
+
+<div class="code"><pre>
+### adefaria Thu Dec 22 19:14:09 2005 ###
+1.6 /projects/ccase_irva/cvsmaster/ims/foo/foo.h
+1.7 /projects/ccase_irva/cvsmaster/ims/foo/foo.c
+
+### adefaria Thu Dec 22 19:14:10 2005 ###
+1.4 /projects/ccase_irva/cvsmaster/ims/bar/bar.h
+</pre></div>
+
+<p>As you can see above I added both a -path and -repository options so I can compose the full path to each file.</p>
+
+<p>One thing that is still not handled is the concept of branches. I'm not sure if that is required...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000502.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 21, 2005</h2>
+                     <a id="a000501"></a>
+                     <div class="entry" id="entry-501">
+                        <h3 class="entry-header">Bugs/Integrating cvsims/PQA problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created test bugs database for Clearquest evaluation</li>
+
+  <li>Worked on integrating cvsims into CVS</li>
+
+  <li>PQA web problems are surfacing. Need to set up newer web server</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:43 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000501.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 20, 2005</h2>
+                     <a id="a000500"></a>
+                     <div class="entry" id="entry-500">
+                        <h3 class="entry-header">cvsims/SCM global area/ccase-rmna-4 issues</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed cvsims to use new global area</li>
+
+  <li>Created document for <a href="http://intranet.broadcom.com/~adefaria/CVS/IMS.php">CVS/IMS Connector</a></li>
+
+  <li>Created new global area</li>
+
+  <lI>Working on another users problems with accessing ccase-rmna-4</li>
+</ul>
+                              
+                              <h2>Global File System Area - SCM</h2>
+
+<p>I'm just trying to understand a little bit better about global paths, replication and DFS here at Broadcom. I ask because I see that this new SCM directory that I created over in Irvine is not at other sites as I would have expected it. For example:</p>
+
+<div class="code"><pre>
+ccase-rmna-3:ls -d /projects/ccase/SCM
+ls: /projects/ccase/SCM: No such file or directory
+ccase-rmna-3:ls /projects/ccase | wc -l
+     17
+</pre></div>
+
+<p>and</p>
+
+<div class="code"><pre>
+ccase-sj1-1:ls -d /projects/ccase/SCM
+ls: /projects/ccase/SCM: No such file or directory
+ccase-sj1-1:ls /projects/ccase | wc -l
+     16
+</pre></div>
+
+<p>However</p>
+
+<div class="code"><pre>
+x-irva-01:ls -d /projects/ccase/SCM                                           
+/projects/ccase/SCM/
+x-irva-01:ls /projects/ccase | wc -l                                          
+      24
+</pre></div>
+
+<p>So then the SCM directory exists in Irvine but not in SJ nor Richmond. I suspect that it's merely that something needs to replicate it and maybe I just need to wait until that happens. Still such a delay in replication is a side effect we must bear in mind when we are pushing out changes... Also, notice the different directory counts at the three sites above...</p>
+
+<p>WRT Windows and DFS, my Z drive is mapped to \\brcm-sj\dfs and I therefore do not have a Z:\projects\ccase\SCM directory there either:</p>
+
+<div class="code"><pre>
+Local:ls -d /dev/z/projects/ccase/SCM
+ls: /dev/z/projects/ccase/SCM: No such file or directory
+Local:ls /dev/z/projects/ccase | wc -l
+16
+</pre></div>
+
+<p>I suspect this correlates to ccase-sj1-1:/projects/ccase/SCM and whenever that directory gets populated so will my Z drive.</p>
+
+<p>Again, it might be that replication will eventually happen or that it need to be set up. But we must understand that pushing something to some "global" place in Irvine, SJ or Richmond has a built in prorogation delay.</p>
+
+<p>Finally, it seems to me that the intent of the projects automount map is to provide a well known path to global file space that exists on filers at the various sites and that replication between the filers happens on some known schedule. Scripts or other processes should "reach out" to the filer storage area they they know (e.g. \\brcm-irv\dfs\projects\ccase...) rather they should use the automount map (i.e. /projects/ccase) so as to avoid having to go out on the WAN to get stuff. For Unix this is pretty simplified in that the automounter and the projects automount map normalizes this to just /projects/<project>/<etc>. But can it be said that the same is true under Windows for the Z drive and DFS? By that I mean can I rely on Z:\projects\ccase\SCM to be the right place? If so then I will change my Perl code to set $lib_path = "Z:\\projects\\ccase\\SCM\\lib".</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:27 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000500.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">December 19, 2005</h2>
+                     <a id="a000499"></a>
+                     <div class="entry" id="entry-499">
+                        <h3 class="entry-header">BinRebase/ccase-rmna-4 problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>BinRebase may need to use findmerge instead of rebase</li>
+
+  <li>Worked with Shivdutt re: satellite San Jose/Richmond user</li>
+</ul>
+                              
+                              <h2>BinRebase may need to use findmerge</h2>
+
+<p>Rebasing is different than delivering. With Inter Project Deliver developers are "delivering" from one project to the next. This is not a real delivery as in delivering to the integration stream, rather it's a delivery from one project to another. What we have here is a hierarchy outside of the normal heirarchy supported by UCM.</p>
+
+<p>Delivery between projects therefore is merely a findmerge and indeed the deliver command is not used. Rebasing, called <i>Rebase to parent</i>, however still uses the rebase command. This presents a problem in that rebase -preview -long does not operate the same way as findmerge -print. For one it does not do recursive directory merging like findmerge does (with findmerge we can capture and control the merging by using -print and handling the merging by ourselves). IBM/Rational designed deliver and rebase to be as automatic as possible. I suspect therefore that rebase automatically handles recursive directory merging thus not allowing you to do the recursive directory merging yourself.</p>
+
+<p>"So fine" you say, "Just let rebase handle all of the directory merging". Well there is no way to do just directory merging and remember we want to capture and handle the file element merging ourselves so we can capture those instances where merge conflicts and binary merges exist, delaying them to the very end and handling the binary merge (or rebase) ourselves. With rebase we don't seem to have the same options as with findmerge and thus this may not be doable.</p>
+
+<p>"OK, fine" you say again, "Skip the rebasing and just use findmerge". While that may be doable we will not have the "rebase in progress" behavior that they are currently accustomed to. That plus rebase opperates off of baselines and even recommendated baselines. We would need to figure out how that translates to labels that findmerge can use - and they'd need to be labels of possibly multiple components and the like. For now we are shelfing this BinRebase until we obtain more input...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:09 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000499.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Core_automation</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000169.html" title="rgy_backup and server upgrade" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000171.html" title="Core_automation and web pages" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000169.html">&laquo; rgy_backup and server upgrade</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000171.html">Core_automation and web pages &raquo;</a>
+                     </p>
+
+                     <a id="a000170"></a>
+                     <div class="entry" id="entry-170">
+                        <h3 class="entry-header">Core_automation</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Helped Bruce Durbin create a dynamic view</li>
+
+<li>Worked with Loren Gifford on a problem he was having comparing elements</li>
+
+<li>Eventually needed to create new vob and import Core_automation to it</li>
+
+<li>Went to get cell phone.</li>
+
+<li>Wrote findview to search for views in all regions</li>
+
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Bruce et. al. seem to be against using dynamic views. Apparently they want all there views to be centered at C:\QA. Also, test machine doesn't have Clearcase so they use snapshot views for that. Suggested they install Clearcase on the test machine and make their test automation work from a base.</p>
+
+<p>Re-created a snapshot view for him but was still unable to perform compares. Things are odd in that if I <b>Compare to another version</b> then I can compare the checked out version with it's predessor but if I did <b>Compare to previous</b> it fails with an error message of "Error while doing compare". Ended up asking Timmie to reinstall Clearcase. Not sure if this fixed his problem</p>
+
+<p>Users still reported problems with things like comparing versions. Mike determined through checkvob that there were still permissions problems on storage containers so we decided to create a new vob and clearexport_ccase/clearimport things. Unfortunately vobadm is not included in the CC-TTE group (nor the CC-EDA group) so I temporarily switched group ownership of this vob to CC-PMO, which vobadm is a member of, to do the import, then cleartool protectvob -chgrp back to CC-TTE</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on May  3, 2004  3:09 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000170.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

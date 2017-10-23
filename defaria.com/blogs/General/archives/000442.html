@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> <html
+   xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard"> <head>
+   <meta http-equiv="Content-Type" content="text/html;
+   charset=utf-8" />
+   <meta name="generator" content="Movable Type 3.2" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/General/styles-site.css"
+   type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom"
+   href="http://defaria.com/blogs/General/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0"
+   href="http://defaria.com/blogs/General/index.xml" />
+
+   <title>General: Jinzora: Getting lame to work</title>
+
+   <link rel="start" href="http://defaria.com/blogs/General/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/General/archives/000434.html"
+   title="Comment Spam blocking" />
+   <link rel="next" href="http://defaria.com/blogs/General/archives/000490.html"
+   title="Podcatching in Jinzora" />
+
+   
+
+   
+
+   <script type="text/javascript"
+   src="http://defaria.com/blogs/General/mt-site.js"></script> </head> <body
+   class="layout-two-column-right"
+   onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/General/"
+               accesskey="1">General</a></h1>
+               <h2 id="banner-description"></h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a
+                        href="http://defaria.com/blogs/General/archives/000434.html">&laquo;
+                        Comment Spam blocking</a> |
+                        <a href="http://defaria.com/blogs/General/">Main</a>
+                        | <a
+                        href="http://defaria.com/blogs/General/archives/000490.html">Podcatching in Jinzora
+                        &raquo;</a>
+                     </p>
+
+                     <a id="a000442"></a>
+                     <div class="entry" id="entry-442">
+                        <h3 class="entry-header">Jinzora: Getting lame to work</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <h2>Getting Guest Users to use FSMP3 with Resampling to 32-bit</h2>
+
+<p>I wanted to have my Jinzora set up to allow streaming to <em>Guest Users</em> but at a reduced rate. Now that I have a new server with some horsepower such resampling does not cause lame to consume the entire machine.</p>
+
+<h3>Jinzora settings don't seem to always take hold</h3>
+
+<p>Jinzora still has problems with not showing the correct settings all the time. For example, when you selection <b>User Manager: Edit default class</b> it will say <em>Adminstrators</em> everytime even though it was really set to <em>Guest User</em>! Suffice to say it's hard to trust that Jinzora is showing you the correct current setting.</p>
+
+<p>I've also seen that sometimes it doesn't seem as if Jinzora takes a setting. Here's what I was doing: I was going to <b>User Manager: Modify User Class: Edit a class:</b> select <em>Guest Users</em> from the drop down then <b>Go</b>. Here I would change the settings such as toggling on or off <b>Stream</b> and then <b>Update User Class</b> and <b>Close</b>. However that change didn't always seem to register. I found that if I then go into <b>Edit default class</b> and reset the drop down back to <em>Guest Users</em> then the changes seem to take hold.</p>
+
+<h3>Double Speed FSMP3 Problem</h3>
+
+<p>After getting <em>Guest Users</em> to be streaming, resampled to 32-bit working I noticed that FSMP3 was playing songs at double speed! Queried the Jinzora forum and got the following advice from Wim:</p>
+<blockquote>
+Goto \services\services\resample\resample.php
+Search for this line:
+<div class="code"><pre>$lame_cmd = $path_to_lame. ' -S --silent --quiet -m j -b ' . $resample . ' -f -';</pre></div>
+Change it in:
+<div class="code"><pre>$lame_cmd = $path_to_lame. ' -S --silent --quiet --lowpass 12.0 --resample 22.05 -m j -b ' . $resample . ' -f -'; </pre></div>
+Search for this line:
+<div class="code"><pre>$command = $path_to_lame. " --mp3input -S --silent --quiet -m j -b ". $resample. ' - < "'. $file. '" -';</pre></div>
+Change it in:
+<div class="code"><pre>$command = $path_to_lame. " --mp3input -S --silent --quiet --lowpass 12.0 --resample 22.05 -m j -b ". $resample. ' - < "'. $file. '" -';</pre></div>
+You don't have to restart the webserver.
+Please let us know if it works,
+Wim.
+</blockquote>
+
+<p>I found that I don't have the first line but did have the second line (actually there is one for mp3 and one for wav files - I have no wav files), made the change and all is well now. However, this tweak would need to be reapplied if I reinstall Jinzora.</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by
+                           Andrew DeFaria on
+                           October  6, 2005 08:28 AM</span> <span
+                           class="separator">|</span> <a
+                           class="permalink"
+                           href="http://defaria.com/blogs/General/archives/000442.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+               <div id="beta">
+                  <div id="beta-inner" class="pkg">
+                     <div class="module-search module">
+                        <h2 class="module-header">Search</h2>
+                        <div class="module-content">
+                           <form method="get"
+                           action="http://defaria.com/mt/mt-search.cgi">
+                              <input type="hidden" name="IncludeBlogs"
+                              value="1" />
+                              <label for="search" accesskey="4">Search
+                              this blog:</label><br />
+                              <input id="search" name="search"
+                              size="20" />
+                              <input type="submit" value="Search" />
+                           </form>
+                        </div>
+                     </div>
+                     
+                     
+                     
+                                          <div class="module-archives module">
+                        <h2 class="module-header"><a
+                        href="http://defaria.com/blogs/General/archives.html">Archives</a></h2>
+                        <div class="module-content">
+                                                   <ul
+                           class="module-list">
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2011_03.html">March 2011</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2010_11.html">November 2010</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2010_10.html">October 2010</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2010_06.html">June 2010</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2010_04.html">April 2010</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2010_03.html">March 2010</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2010_02.html">February 2010</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2009_05.html">May 2009</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2009_04.html">April 2009</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2009_01.html">January 2009</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2007_04.html">April 2007</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2006_11.html">November 2006</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2006_09.html">September 2006</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2005_12.html">December 2005</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2005_10.html">October 2005</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2005_09.html">September 2005</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2005_08.html">August 2005</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2005_03.html">March 2005</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2004_02.html">February 2004</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2004_01.html">January 2004</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2003_11.html">November 2003</a></li>
+                           
+                                                   
+                              <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/2003_10.html">October 2003</a></li>
+                           </ul>
+                        
+                        </div>
+                     </div>
+                     
+                     
+                     <div class="module-archives module">
+                        <h2 class="module-header">Recent Posts</h2>
+                        <div class="module-content">
+                           <ul class="module-list">
+                                                         <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/000746.html">California</a></li>
+                                                         <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/000745.html">Point people more directly</a></li>
+                                                         <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/000744.html">Comcast speed</a></li>
+                                                         <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/000739.html">More Playon Fun</a></li>
+                                                         <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/000736.html">How not to run a company</a></li>
+                                                         <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/000734.html">How to get your mic working on Ubuntu 9.10</a></li>
+                                                         <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/000729.html">Cell phones - Not up to snuff!</a></li>
+                                                         <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/000728.html">Stupid is as stupid does</a></li>
+                                                         <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/000723.html">Priority Queues...</a></li>
+                                                         <li class="module-list-item"><a
+                              href="http://defaria.com/blogs/General/archives/000722.html">Broken DNS</a></li>
+                           
+                           </ul>
+                        </div>
+                     </div>
+                     
+                     <div class="module-syndicate module">
+                        <div class="module-content">
+                           <a href="http://defaria.com/blogs/General/atom.xml">Subscribe
+                           to this blog's feed</a><br />
+                           [<a
+                           href="http://www.sixapart.com/about/feeds">What
+                           is this?</a>]
+                        </div>
+                     </div>
+                     
+                     
+                     
+                     <div class="module-powered module">
+                        <div class="module-content">
+                           Powered by<br /><a
+                           href="http://www.sixapart.com/movabletype/">Movable
+                           Type 3.2</a>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+ </body>
+</html>

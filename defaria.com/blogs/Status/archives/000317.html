@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: BC Step 3 build failure</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000316.html" title="NetSNMP/Bluecat build/Build Machine" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000320.html" title="Bluecat Build" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000316.html">&laquo; NetSNMP/Bluecat build/Build Machine</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000320.html">Bluecat Build &raquo;</a>
+                     </p>
+
+                     <a id="a000317"></a>
+                     <div class="entry" id="entry-317">
+                        <h3 class="entry-header">BC Step 3 build failure</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Attempting to rebuild BC with new tag.</li>
+
+  <li>Installed RH 8.0 on new machine</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Bluecat build failure in step 3</h3>
+
+<p>I was asked to rebuild Bluecat using R_5_2_1_ppc_20050314 as a tag. I tried doing this but it is failing. I made it to step 4 when it was failing with something about unable to find /arch/ppc/Makefile or something like that. I decided to instead go back to the beginning and make the GNU Tools (step 0) just to be sure. Now I get stuck at step 3. It fails in an odd way too. In /usr/lynx/loc_archive under LOGS I have the following at the tail of the step3 log:</p>
+
+<div class="code"><pre>
+Building glibc package step 3.3 at 14:14:07
+Done
+Installing glibc package
+Done
+Building glib package step 3.4 at 17:06:12
+parse_file: build_package failed for glib_cdt.spec
+---- Step 3 finished successfully at Tue Mar 15 17:07:47 PST 2005 ----
++++ Exit .... +++
+</pre></div>
+
+<p>However in archive/20050314/ppc/logs/step3 for build_glib.log I have:</p>
+
+<div class="code"><pre>
+testglib.c:915: warning: const qualifier ignored on asm
+.libs/libglib.so: undefined reference to `__ctype_b'
+.libs/libglib.so: undefined reference to `__ctype_toupper'
+.libs/libglib.so: undefined reference to `__ctype_tolower'
+collect2: ld returned 1 exit status
+make[2]: *** [testglib] Error 1
+make[1]: *** [all-recursive] Error 1
+make: *** [all-recursive-am] Error 2
+error: Bad exit status from /usr/lynx/loc_archive/build/20050314/var/tmp/rpm-tmp.95118 (%build)
+   Bad exit status from /usr/lynx/loc_archive/build/20050314/var/tmp/rpm-tmp.95118 (%build)
+</pre></div>
+
+<p>Do you know what is going wrong?</p>
+<hr>
+<h4>Later I wrote:</h4>
+
+<p>Well rebuilding didn't help (I didn't think it would). Things seem to be failing in the rpm-tmp.<num> script. This script seems to be dynamically created. It sets some variables and basically does a configure and make in build/20050314/cdt/src/bluecat/BUILD/glib-1.2.10. This eventually boils down to the following gcc command:</p>
+
+<div class="code"><pre>
+[int@jaguar glib-1.2.10]$ gcc -O2 -g -march=i386 -Wall -D_REENTRANT -o .libs/testglib testglib.o .libs/libglib.so -Wl,--rpath -Wl,/cdt/lib
+.libs/libglib.so: undefined reference to `va_copy'
+collect2: ld returned 1 exit status
+</pre></div>
+
+<p>Oh, BTW, the old machine (penguin) has been renamed to jaguar but is otherwise the same.</p>
+
+<p>I'm attempting to run step 3 again but I fear it'll just have the same error.</p>
+
+<p>Note I will be monitoring email and this build from home so if you have any ideas send them right away.</p>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on March 15, 2005  3:41 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000317.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

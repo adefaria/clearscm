@@ -1,0 +1,93 @@
+#!/bin/bash
+################################################################################
+#
+# File:         files4lab
+# Description:  Lists the clearcase files that relate to label(s)
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Dec 13 19:11:15  2001
+# Language:     Bash Shell
+# Modifications:
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+function usage {
+  display "$me: [ -view <viewtag> ] <label> [<label>]"
+  display
+  display "Where:"
+  display
+  display "-view\tViewpath to use (default $SITE_OFFICIAL_VIEW)"
+  display "<label>\tLabel(s) to search for"
+ 
+  exit 1
+} # usage
+
+# Get parameters                                                                
+
+if [ "$1" = "-v" -o "$1" = "-view" ]; then
+  shift
+  vob="$1/salira"
+  shift
+else
+  vob="$SITE_SNAPSHOT_VIEW_PATH/$SITE_OFFICIAL_VIEW/salira"
+fi
+
+if [ ! -d "$vob" ]; then
+  echo "$me: Error: Unable to cd to vob $vob"
+  exit 1
+fi 
+
+cd $vob
+
+if [ $# -lt 1 ]; then
+  usage
+fi
+
+view_name=$(cleartool pwv -short)
+
+for label in $@; do
+  echo "Files labeled $label:"
+  cleartool find -all -version "lbtype($label)" -print | tr "\\\\" "/" >/tmp/$me.$$
+
+  declare -i i=0
+
+  while read element_version; do
+    let i=i+1
+    # Chop off leading view path
+    element_version=$(echo ${element_version##*$view_name})
+    # Extract element portion
+    element=$(echo $element_version | cut -f1 -d@)
+    # Extract version portion
+    version=$(echo $element_version | cut -f3 -d@)
+    echo -e "\t$element\t$version"
+  done < /tmp/$me.$$
+
+  if [ $i -eq 0 ]; then
+    echo "No files labeled $label"
+  elif [ $i -eq 1 ]; then
+    echo "1 file labeled $label"
+  else
+    echo "$i files labeled $label"
+  fi
+
+  rm -f /tmp/$me.$$
+done 

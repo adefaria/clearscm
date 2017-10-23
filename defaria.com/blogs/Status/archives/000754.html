@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Creating Development Schema Repositories</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000753.html" title="Eliminating Perl Syntactic Sugar" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000755.html" title="Creating a Development Schema" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000754.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/118"
+    dc:title="Creating Development Schema Repositories"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000754.html"
+    dc:subject="Broadcom"
+    dc:description=" When you have multiple Clearquest Designers you quickly realize that you cannot easily do parallel development of the schema. The best way to do this is to work through a development schema repository and to create development schemas for..."
+    dc:creator=""
+    dc:date="2012-08-28T14:41:42-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000753.html">&laquo; Eliminating Perl Syntactic Sugar</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000755.html">Creating a Development Schema &raquo;</a>
+                     </p>
+
+                     <a id="a000754"></a>
+                     <div class="entry" id="entry-754">
+                        <h3 class="entry-header">Creating Development Schema Repositories</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                                          <p>When you have multiple Clearquest Designers you quickly realize that you cannot easily do parallel development of the schema. The best way to do this is to work through a development schema repository and to create development schemas for each schema designer. To create a development schema repository you should first create an empty database for Clearquest to work in. You can create an empty database by following the instructions for&nbsp;<span class="nobr"><a href="http://confluence.broadcom.com/display/MWGMPSSCM/Creating+a+Development+Schema#CreatingaDevelopmentSchema-CreatingaTestDatbase" class="external-link" rel="nofollow">Creating a Test Database</a>. Next you must use the Clearquest Maintenance Tool to create a new Schema Repository:</p>
+
+<ul>
+  <li>Start the Clearquest Maintenance Tool</li>
+  <li>Select <b>Schema Respository: Create</b></li>
+  <li>The Maintenance Tool then asks you to fill out information regarding the location of your schema database. Fill in information about the database server and Administrator Name and password. Do not create a sample database at this time. The Clearquest Maintenance tool will take some time to set up the new schema repository.</li>
+</ul>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-ExportingaCQProfile.iniforthisnewDevelopmentSchemaRepository"></a>Exporting a CQProfile.ini for this new Development Schema Repository</h3>
+
+<p>In order to see this new development schema repository you should export the schema repository from the Clearquest&nbsp;Maintenance&nbsp;Tool. This exported cqprofile.ini can be shared with out Schema Developers who would import the .ini file into their environment using the Clearquest Maintenance Tool. You export the cqprofile.ini by selecting&nbsp;<b>File: Export Profile</b>. You need only select the new repository you created.</p>
+
+<p><img src="images/Export cqprofile.png"></p>
+
+<p>Click on the "..." button to select where to store the .ini file and what it's name will be - I used C:\Cygwin\tmp\MPSDev.ini and click&nbsp;<b>Finish</b>. This file can be passed to your fellow Schema Developers.</p>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-ImportingUsers"></a>Importing Users</h3>
+
+<p>Your new development schema repo has no users in it except a default set of users including the "admin" user (with no password). Run the User Administration tool on production (MCBU) and export all of the users. Run the User Administration tool again on the new development schema repo (e.g. MPSDev) and import the users.</p>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-CleanupUnnecessarySchemas"></a>Clean up Unnecessary Schemas</h3>
+
+<p>Now's a good time to remove additional default schemas in your development schema repo like Common, DefectTracking, Enterprise, etc. You cannot delete the Blank schema.</p>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-SeedingtheDevelopmentSchemaRepowiththeLatestVersionfromProduction"></a>Seeding the Development Schema Repo with the Latest Version from Production</h3>
+
+<p>One trick to seed your new development schema repo with a recent version of the production schema is to create a new development schema in the production schema repo based off of the latest version of the production schema. Then export that whole schema of the <b>new</b> development schema and import it into the new development schema repo. You will only have the history of the latest version of the schema but that's OK for development purpose. Make sure you specify an appropriate Schema Name and Comment when you export the schema from production:</p>
+
+<p><img src="images/New Schema.png"></p>
+
+<p><b>Note:</b>&nbsp;We are giving this schema the name MPSDev because that's what we want it to be called in the new development schema repo. Also, the comment is appropriate when we will be looking at it in the MPSDev development schema repo.</p>
+
+<p>Do not associate a database with this schema, there's no reason. We don't care as we are only using this to exportschema from production &#45;&gt; development schema repo. We'll create databases there. We don't need to check out this schema either.</p>
+
+<h4><a name="CreatingDevelopmentSchemaRepositories-ExportingtheSchemafromProduction"></a>Exporting the Schema from Production</h4>
+
+<p>We assume you have created a new development schema in the production schema repo based off of the tip of the production database. You need to export that with:</p>
+
+<div class="code" >$ cqload exportschema -dbset MCBU admin &lt;password&gt; &lt;schemaname&gt; &lt;path to &lt;schemaname&gt;.full.schema&gt;]]>
+</div>
+
+<p>Where &lt;schemaname&gt; is the name of the development schema name you created in the production schema repo</p>
+
+<h4><a name="CreatingDevelopmentSchemaRepositories-ImportingtheSchemaintotheDevelopmentSchemaRepo"></a>Importing the Schema into the Development Schema Repo</h4>
+
+<p>Next we import this full.schema of only the tip of production to seed a development schema in the development schema repo.</p>
+
+<p><div class="code">$ cqload importschema -dbset MPSDev admin &lt;password&gt; &lt;path to &lt;schemaname&gt;.full.schema&gt;
+*********************************************************
+Starting importschema
+*********************************************************
+
+CRMMD1264E The import file ".\MPSDev.full.schema" is invalid:
+CRMMD1422E The schema requires the following package(s), which is(are) not currently installed in the database...
+    revision '2.1' of package 'EmailPlus'
+    revision '1.2' of package 'Resolution'
+    revision '2.1' of package 'Attachments'.
+
+*********************************************************
+ERROR: importschema FAILED!
+*********************************************************
+</div>
+
+<p>Oops! We need to import these packages into our new schema. Right click on your new development schema repo in Clearquest Designer and select <b>Install Package</b>. Expand the EmailPlus and select 2.1 to install that. Repeat this for Resolution and Attachments. Repeat the cqload importschema.</p>
+
+<h4><a name="CreatingDevelopmentSchemaRepositories-RemoveOldSchemainProductionRepo"></a>Remove Old Schema in Production Repo</h4>
+
+<p>You can remove the schema you created above in the Production repo as it is no longer needed.</p>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-CreateDevSchemas"></a>Create Dev Schemas</h3>
+
+<p>You are now free to create development schemas in the new development schema repo as described&nbsp;<a href="/display/MWGMPSSCM/Creating+a+Development+Schema" title="Creating a Development Schema">Creating a Development Schema</a>&nbsp;as well as test databases and <a href="/display/MWGMPSSCM/Seeding+a+Test+Database" title="Seeding a Test Database">seeding them</a>.</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on August 28, 2012  2:41 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000754.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/118</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: ucmwb 1.2.3 release/Perl'isms</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000676.html" title="UCMWB su bug" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000678.html" title="comptree/libs" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000677.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/64"
+    dc:title="ucmwb 1.2.3 release/Perl&apos;isms"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000677.html"
+    dc:subject="General Dynamics"
+    dc:description=" Released ucmwb 1.2.3..."
+    dc:creator=""
+    dc:date="2007-09-14T12:51:03-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000676.html">&laquo; UCMWB su bug</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000678.html">comptree/libs &raquo;</a>
+                     </p>
+
+                     <a id="a000677"></a>
+                     <div class="entry" id="entry-677">
+                        <h3 class="entry-header">ucmwb 1.2.3 release/Perl'isms</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Released ucmwb 1.2.3</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>FindBin, Getopt::Long and Display.pm</h3>
+
+<p>Here's how I typically use <a
+ href="http://search.cpan.org/%7Enwclark/perl-5.8.8/lib/FindBin.pm">FindBin</a>:</p>
+
+<div class=code><pre>
+use FindBin;
+...
+use lib "$FindBin::Bin/../lib";
+...
+sub Usage ($) {
+  my ($msg) = @_;
+
+  display "ERROR: $msg\n" if defined $msg;
+  display &lt;&lt;END;
+Usage: $FindBin::Script [-usage] [-verbose] [-debug] [-exec]
+		-from_view &lt;view&gt; -label &lt;label_name&gt;
+...
+END
+</pre></div>
+
+<p>Also I tend to use Getopt::Long. It is extremely flexible. Options can be specified in the GNU long method as in --debug or just -debug. Additionally you can abbreviate as in -d IFF there is no other option that starts with "d". Options can have parameters (-file myfile.txt or -file=myfile.txt), set boolean (-verbose can set say $verbose), automatic negation (-verbose or -noverbose), even call subroutines directly!k Here's an example.</p>
+
+<div class=code><pre>
+use GetOpt::Long;
+...
+my $execute	= 0;
+my $from_view;	# e.g. p6258c_RAN_FDD_Doc_Bld1_int
+my $branch;	# e.g. ran_fdd_release_build2_integration
+my $label;	# e.g. RAN_FDD_RELEASE_BUILD1
+
+GetOptions (
+  "usage"	=&gt; sub { Usage "" },
+  "verbose"	=&gt; sub { set_verbose },
+  "debug"	=&gt; sub { set_debug },
+  "exec!"	=&gt; \$execute,
+  "from_view=s"	=&gt; \$from_view,
+  "branch=s"	=&gt; \$branch,
+  "label=s"	=&gt; \$label,
+) || Usage "Unknown parameter";
+</pre></div>
+
+<p>Some notes about the above:</p>
+
+<ul>
+  <li>Usage is a subroutine (most people have one) that takes one parameter for an extra message to display first.</li>
+
+  <li>Eat your own dog food! I use my <a href="http://clearscm.com/php/cvs_man.php?file=lib/Display.pm">Display</a> module which has display routines for verbose and debug, etc. It also has $verbose and $debug variables and exports the set_verbose and set_debug methods.</li>
+
+  <li>The "exec!" is a negation. So -exec and -noexec apply and set $execute accordingly</li>
+
+  <li>All of "from_view", "branch" and "label" are simple name/value type parameters so -branch &lt;branchname&gt; sets $branch to &lt;branchname&gt;.</li>
+</ul>
+
+<p>A word on Display.pm:</p>
+
+<p>I find that often people do the following:</p>
+
+
+<div class=code><pre>
+print "In myspecial_subroutine: File = $file\n" if $debug;
+</pre></div>
+
+<p>for debugging. To me it's always been a hassle to have to remember to include the "\b" and the "if $debug", etc. Granted that's not a lot. But how can I make it better?</p>
+
+<p>My thought was to name the procedure debug and include the "\n" by default. People oughta quickly discern that:</p>
+
+<div class=code><pre>
+debug "In myspecial_subroutine: File = $file";
+</pre></div>
+
+<p>probably only happens when debugging.</p>
+
+<p>Additionally I support routines like verbose, debug, error, warning
+(from Display.pm).</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 14, 2007 12:51 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000677.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/64</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

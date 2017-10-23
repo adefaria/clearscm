@@ -1,0 +1,130 @@
+#!/bin/bash
+################################################################################
+#
+# File:         update_machine_info
+# Description:  Updates machine info file ($adm_base/data/machines)
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Apr 30 14:13:56 PDT 1999
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Set machines
+machines=${machines:-$adm_base/data/machines}
+
+tmp_file=/tmp/machines.$$
+machine=$(uname -n | tr [:upper:] [:lower:])
+ip=$(ipconfig | grep "IP Address" | awk '{ print $NF }')
+mod=$(uname -m)
+osversion=$(uname -s | sed 's/CYGWIN_//')
+
+verbose=false
+
+while getopts vd OPT; do
+  case $OPT in
+    v) verbose=true
+    ;;
+
+    d) debug=true
+    ;;
+  esac
+done
+
+cleartool=$(type -p cleartool)
+debug "cleartool = $cleartool"
+
+if [ ! -z "$cleartool" ]; then
+  ccversion=$("$cleartool" -version | head -1)
+else
+  ccversion="Non ClearCase Machine"
+fi
+
+debug "ccversion = $ccversion"
+if [[ $ccversion = *ClearCase\ LT* ]]; then
+  debug "Found Clearcase LT"
+  ccversion="Lite $(echo $ccversion | cut -c30-40)"
+elif [[ $ccversion = *ClearCase\ version* ]]; then
+  debug "Found Clearcase version"
+  ccversion="Full $(echo $ccversion | cut -f3 -d' ')"
+fi
+
+debug "ccversion = $ccversion"
+# Unix doesn't really have a way to store such information such as owner,
+# usage and location. Attempt to ascertain this info from /etc/motd.
+if [ -f /etc/motd ]; then
+  owner=$(grep "^Owner:" /etc/motd | tr -s " " | cut -f2- -d" ")
+  usage=$(grep "^Usage:" /etc/motd | tr -s " " | cut -f2- -d" ")
+  phone=$(grep "^Phone:  " /etc/motd | tr -s " " | cut -f2- -d" ")
+  class=$(grep "^Class:" /etc/motd | tr -s " " | cut -f2- -d" ")
+  location=$(grep "^Location:" /etc/motd | tr -s " " | cut -f2- -d" ")
+fi
+
+if [ -z "$owner" ]; then
+  owner="Unknown"
+fi
+
+if [ -z "$usage" ]; then
+  usage="Unknown"
+fi
+
+if [ -z "$phone" ]; then
+  phone="Unknown"
+fi
+
+if [ -z "$class" ]; then
+  class="Unknown"
+fi
+
+if [ -z "$location" ]; then
+  location="Unknown"
+fi
+
+rm -f $tmp_file
+
+if [ $verbose = "true" ]; then
+  echo "Machine: $machine"
+  echo "IP Address: $ip"
+  echo "Model: $mod"
+  echo "OS Version: $osversion"
+  echo "ClearCase Version: $ccversion"
+  echo "Owner: $owner"
+  echo "Phone: $phone"
+  echo "Usage: $usage"
+  echo "Class: $class"
+  echo -e "Location: $location\n"
+  echo -e "Updating machine list...\c"
+fi
+
+# Add machine if not already present
+grep -i "^$machine" $machines > /dev/null 2>&1
+
+if [ $? -ne 0 ]; then
+  echo "$machine" >> $machines
+fi
+
+while read line; do
+  if [ "$(echo $line | cut -f1 -d:)" = $machine ]; then
+    echo "$machine:$ip:$mod:$osversion:$ccversion:$owner:$phone:$usage:$class:$location:" >> $tmp_file
+  else
+    echo $line >> $tmp_file
+  fi
+done < $machines
+
+mv $tmp_file $machines
+
+if [ $verbose = "true" ]; then
+  echo "done"
+fi

@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: November 12, 2006 - November 18, 2006 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2006_11_05.html" title="November  5, 2006 - November 11, 2006" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2006_11_19.html" title="November 19, 2006 - November 25, 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2006_11_05.html">&laquo; November  5, 2006 - November 11, 2006</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2006_11_19.html">November 19, 2006 - November 25, 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">November 16, 2006</h2>
+                     <a id="a000593"></a>
+                     <div class="entry" id="entry-593">
+                        <h3 class="entry-header">Sites again/Cron problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Met with Bill and Michael regarding changes to GPDB database. Michael believes we should stick with site codes and change convertdb to do the translation from UK site names to site codes</li>
+
+  <li>Spoke with Larry regarding site codes and he brought up the point that this would not work with the Embassy model and other external partnerships. As such we are back to site names...</li>
+
+  <li>Found that cron has a very limited PATH causing gpdb_add_project.pl to fail under cron</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  8:58 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000593.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">November 14, 2006</h2>
+                     <a id="a000592"></a>
+                     <div class="entry" id="entry-592">
+                        <h3 class="entry-header">gpdb_add_project cronned</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Looked into sites, site codes and differences between UK projects/domains and the current implementation of GPDB</li>
+
+  <li>Cronned gpdb_add_project</li>
+</ul>
+                              
+                              <h2>Cronned gpdb_add_project</h2>
+
+<p>Donna Ducharme wrote:</p>
+
+<blockquote type="cite">
+  <p>GPDB is not current. This project CC2630_DS is in the dallas site registry but is not in GPDB. Have we missed something here?</p>
+</blockquote>
+
+<h3>Short answer (AKA Executive Summary)</h3>
+
+<p>It's there now. gpdb_add_project.pl wasn't regularly run. Now it is</p>
+
+<h3>Long answer (AKA Engineering Notes)</h3>
+
+<p>gpdb_add_project.pl, the script that attempts to add any new DesignSync projects to GPDB, is not run on a regular basis. Why is this? Well because in the past this was simply cron'ed into somebody's crontab. Then the guy left and this broke. The right way to do this is to eliminate dependencies to any employee or, as the case was here, contractor. We've been working on that.</p>
+
+<p>First step was to get gpdb_add_project.pl functioning again. Being as it attempts to do all sites and that it used to do this by using rsh, this broke when the guy left. Why? Well because he was rsh'ing as himself and his account naturally, and rightfully, got disabled when he left. So David Kitch set about to create a generic user, gpdb, and get passwordless rsh login rights to all of the appropriate servers at the sites. Recently that was completed.</p>
+
+<p>Meantime I was busy recoding gpdb_add_project.pl as was put into Clearcase and use strict and use warnings were strapped on but the code as checked in would not even compile! First task was to resolve the problems use strict and use warnings introduced.</p>
+
+<p>Next was to resolve the incorrect utilization of rsh that gpdb_add_project.pl was doing It would do an rsh command and check the return status thinking that it was the return states of the command that rsh remotely executed. That is not the case! Rsh returns the status code of the rsh command itself, not the command remotely executed. Additionally it's pretty inefficient to constantly establish communications with another system via rsh, do one single command then tear down the whole remote channel only to do yet another rsh command shortly. Additionally we wish to move to the more secure and better ssh method in the future.</p>
+
+<p>So I wrote Rexec.pm, a Perl module that creates an object and a connection to a remote system<sup>1</sup>. It has additional functionality to allow not only rsh access, but ssh and even telnet. It can access another username/password to attempt access with. While passwordless login is preferred and passwords are also handled. Expect is utilized to drive this. Also this gracefully degrades in that if a specific protocol is not specified then ssh is first tried, followed by rsh then finally telnet. Also, the connection is held in the object so that multiple command execution is quick and efficient. Finally it reliably returns the output from the remote command as well as it's status. Handles different shell styles (basically csh style shells and sh style shells) but must be informed ahead of time of which shell to expect. Downside, only handles "standard" prompts (generic users should always be configured with a standard/default  prompt).</p>
+
+<ol>
+  <li><small>Why didn't I use a CPAN module for this? Many reasons: It offered nothing above what gpdb_add_project.pl already did - i.e. it returned the status of rsh not the command rsh did. Also it didn't support being instantiated and remaining active for multiple commands. Finally it didn't support any other protocol than rsh so there was no preference for ssh and graceful degradation.</small></li>
+</ol>
+
+<p>With Rexec.pm in place I set out to make gpdb_add_project.pl aware of it and to utilize it. Meantime David was hard at work getting gpdb passwordless login available at all sites. About a week or two ago gpdb_add_project.pl successfully interrogated the final site, Manchester, and updated GPDB of all known DesignSync projects at that time.</p>
+
+<p>And just today I worked with Michael Tisdel to gain access to a gpdb login to Cashew, the system which will house gpdb's crontab and execute such scripts from there. So, IOW, I just got the ability to automate this and have done so.</p>
+
+<p>Still we have no official release mechanism for this gpdb_add_project.pl yet so I just copied it to cashew:~gpdb and it's running from there. I had to additionally copy the Rexec.pm module there as well as the gpdb_site_list.txt which drives which sites to explore. This needs to change when we official release gpdb_add_project.pl.</p>
+
+<p>There is much more work to do with gpdb_add_project.pl. Reporting is poor (it creates logs in ~gpdb/gpdb_add_project_logs), it does not properly handle nor alert people when a server found in DesignSync is not reachable (We have a GPDB CQ request for that one) and from what I can tell it's checking of IP ranges is not correct.</p>
+
+<p>I've added the following to gpdb's crontab on cashew:</p>
+
+<div class=code><pre>
+# <a href="mailto:Andrew@DeFaria.com:">Andrew@DeFaria.com:</a> Run gpdb_add_project.pl. This will add any new projects
+# from DesignSync to GPDB. Note that this runs from right here (~gpdb).This
+# is wrong and should be changed to run it from the "standard place".Problem
+# is - there is no "standard place" (yet).
+#
+# Also note that this script logs to ~/gpdb_add_project_logs. I'm not sure
+# who will read this or clean this up...
+00 00 * * * gpdb_add_project.pl -s gpdb_site_list.txt
+</pre></div>
+
+<p>Again, there's lots of new stuff, enhancements and changes that gpdb_add_project.pl will have to support as we update GPDB to better support Clearcase and the changes to the database that that requires.</p>
+
+<p><font color="#c0c0c0">End of "everything you wanted to know about gpdb_add_project.pl but were afraid to ask"....</font></p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:58 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000592.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: CVS Adm Web App Prototype</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000388.html" title="CVS Adm Web App - per repository" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000390.html" title="CVS Adm Web App Conf" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000388.html">&laquo; CVS Adm Web App - per repository</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000390.html">CVS Adm Web App Conf &raquo;</a>
+                     </p>
+
+                     <a id="a000389"></a>
+                     <div class="entry" id="entry-389">
+                        <h3 class="entry-header">CVS Adm Web App Prototype</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Finished up on a CVS Adm Web App prototype. Still need to adapt this to real CVS repositories on web server</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Vinnie So wrote:</p>
+
+<blockquote type=cite>
+Andrew,
+
+I just cook up the information on what we need to get the cvs user administration project requirement going. Please review and add/modify what you think is necessary. Also, add the information you need.
+
+--Vinnie
+
+<hr>
+<ul>
+  <li>CVS Passwd file format:
+
+  <div class="code"><pre>
+CVS User Name:Encrypted Password:System User:User Real Name:User Email:Groups</pre></div>
+<p>Example of passwd file:</p>
+  <div class="code"><pre>
+adefaria:88ZHm.yYFgFyI:lynxuser:Andrew DeFaria:adefaria@lnxw.com:int,cvsadmin
+jdoe:78WHm.yYFgFyI:toolsuser:John Doe:jdoe@lnxw.com:tools
+hyow:78WHm.yYFgFyI::Harry Yow:hyow@lnxw.com:test</pre></div></li>
+
+  <li>Writers file format: This file contains CVS User Name listing who has write only permission access to the CVS repository. One CVS User Name per line.
+
+<br>Example of writers file:
+
+  <div class="code"><pre>
+adefaria
+vso</pre></div></li>
+
+  <li>Readers file format: This file contains CVS User Name listing who has read only permission access to the CVS repository . One CVS User Name per line.
+
+<br>Example of readers file:
+
+  <div class="code"><pre>
+int
+anoncvs</pre></div>
+</ul>
+</blockquote>
+
+<p>Readers/Writers file formats and their interaction is not that clearly defined in the CVS manual. I've attempted to document that <a href="000384.html#more">here</a>. Worse yet, it's even harder to ascertain after the fact from a web application. For example, if the web application is told that user john has only read access to repository X, which of the 5 cases (#2, #5, #7, #8 or #9) should the backend update the readers and writers files to look like?</p>
+
+<p>Here's my simplification:</p>
+
+<div class="code"><pre>
+      # CVS readers and writers files are a little weird. We will attempt
+      # to simplify here. If a user has read only access to a repository
+      # then we will explicitly list them in the readers file and make
+      # sure they are not in the writers file. If they have write access
+      # (thus implying read access) then we will arrange for them to be in
+      # the writers file and absent from the readers file as CVS treats
+      # users who are in both files as read only.
+      my $user    = $user_record {userid};
+      my $access  = $user_record {$repository};
+
+      if ($access eq "r") {
+        Remove $cvs_server, $repository, "writers", $user;
+        Add    $cvs_server, $repository, "readers", $user;
+      } elsif ($access eq "rw") {
+        Remove $cvs_server, $repository, "readers", $user;
+        Add    $cvs_server, $repository, "writers", $user;
+      } else {
+        Remove $cvs_server, $repository, "readers", $user;
+        Remove $cvs_server, $repository, "writers", $user;
+      } # if
+</pre></div>
+
+<blockquote type=cite>
+<p># The GUI Interface requirement:</p>
+
+<p>CVS User cvsroot can to the following once authentication passed:</p>
+
+<ul>
+  <li>Administer the GUI interface</li>
+</ul>
+</blockquote>
+
+<p>I don't know what that means.</p>
+
+<blockquote type=cite>
+<ul>
+  <li>Add/delete attributes list
+  <p>For example:</p>
+  <div class="code"><pre>
+group - int, csadmin, ce, engr, tools
+system users - lynxuser, gduser, toolsuser</pre></div></li>
+</ul>
+
+<p>CVS User belonging to group "cvsadmin" shall be able to do the following once authentication passed:</p>
+
+<ul>
+  <li>Add user</li>
+
+  <li>Delete user</li>
+
+  <li>Modify user's attributes</li>
+
+  <li>Change user's permission to the cvs repository by modifying writer or readers files.</li>
+</ul>
+
+<p>CVS User not belonging to group "cvsadmin" shall be able to do the following once authentication passed:</p>
+
+<ul>
+  <li>Change its own password</li>
+</ul>
+</blockquote>
+
+<p>Well a prototype is up and running at http://saturn/cvsadm. First select a server then a repository. All files (passwd, groups, sysusers, readers, writers) are kept at the repository level and world write access is current required to the files. Locally I have set the cvsroot password to cvsroot123 (that is the CVS user's password not the system cvsroot user's password) so you can login as cvsroot then use Admin to edit other users, etc. Users who are members of the group cvsadm are considered no different than cvsroot themselves as they can add/change/delete users, groups and sysusers (the group cvsadm and the sysuser cvsroot cannot be deleted). Play around with it and let me know what you think.</p>
+
+<p>Note, if a cvsroot user deletes a group the web app is smart enough to go back through the passwd file and remove the removed group from the users lists. So, for example, if vso is a member of int,badgroup,tools those groups will be listed in his passwd entry. If the cvsroot user deletes badgroup then vso's passwd entry will be adjusted to just int,tools. Also, if the cvsroot user edits tools to change it to toolchain then vso's passwd entry will then read int,toolchain.</p>
+
+<p>With sysusers it's a little different. Technically sysusers should equate to bona fide Unix usernames. Yet there is no easy way to insure this. For one, how would the web server gain access to /etc/passwd on a remote machine? Also, sysusers are stored in a file in the repository's CVSROOT directory and can easily become out of date WRT that server's /etc/passwd file. So no checks are made to insure that a sysuser is indeed a Unix userid.</p>
+
+<p>Finally, while if cvsroot edits say the sysuser lynxuser -> lynuxosuser, the passwd file will be modified by also changing all lynxuser's -> lynxosuser's. However if cvsroot deletes sysuser lynxuser the passwd file is not changed to remove the sysuser from the passwd lines. Doing so changes the meaning of the user entirely.</p>
+
+<p>The backend, however, will need to change to properly handle the security of the various files as well as to properly use CVS to maintain a history (i.e. check out admin files, change them and check them in). The current thought is to set up the apache user as having login rights for cvsroot from the web server only.</p>
+
+<p>In order for this to work we need to:</p>
+
+<ul>
+  <li>Create groups and sysusers files for each &lt;host&gt;:&lt;repository&gt;</li>
+
+  <li>Add groups and sysusers files to checkoutlist so that CVS considers them part of the administrative files set.</li>
+
+  <li>Have cvsroot perform a cvs -d :pserver:cvsroot@&lt;host&gt;:&lt;repository&gt; login for each and every host:repository combination as whatever the apache user will be on the web server</li>
+</ul>
+
+<p>Then the web app has to change to use a file store created by issuing a cvs co CVSROOT for the host/repository it is working on (and/or possibly a cvs update). Finally the web app needs to change to perform the necessary commit after a file (groups, sysusers, readers or writers - passwd will be handled differently - see <a href="http://www.network-theory.co.uk/docs/cvsmanual/cvs_30.html">http://www.network-theory.co.uk/docs/cvsmanual/cvs_30.html</a> - bottom of the page) has been changed with an appropriate checkin comment. Still at issue is how to handle the passwd file.</p>
+
+<p>This should be done (setup) on the web server instead of my desktop. We should, perhaps, create a dummy repository for testing.</p>
+
+<p>Let me know when this is available so I can start testing there.</p>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on July 19, 2005  4:54 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000389.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

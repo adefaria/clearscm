@@ -1,0 +1,66 @@
+#!/bin/bash
+################################################################################
+#
+# File:         arcservenv
+# Description:  Set environment variables for Arc Serve
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Jul  2 14:49:22 PDT 1999
+# Modified:     
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Set machines
+machines=${machines:-$adm_base/data/machines}
+
+if [[ "$me" = "-ksh" ]]; then
+  : #This script was sourced (I think, the man page is sketchy on this)
+else
+  error "You need to invoke this script with a leading. (e.g. . $me)" 1
+fi
+
+me=$(basename $2)
+
+if [ "$VENDOR" = "Sun" ]; then
+  export ARC_HOME=${ARC_HOME:-/opt/ARCserve}
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/openwin/lib:$ARC_HOME:/usr/dt/lib
+elif [ "$VENDOR" = "HP" ]; then
+  export ARC_HOME=${ARC_HOME:-/usr/ARCserve}
+  export SHLIB_PATH=$SHLIB_PATH:$ARC_HOME:/usr/dt/lib
+else
+  export ARC_HOME=${ARC_HOME:-Unknown}
+fi
+
+if [ ! -d "$ARC_HOME" ]; then
+  warning "$ARC_HOME does not exist!"
+fi
+
+export PATH=$PATH:$ARC_HOME
+export XFILESEARCHPATH=/usr/openwin/lib/locale/%L/%T/%N/%S:/usr/openwin/lib/%T/%N/%S
+export HHHOME=$ARC_HOME
+export MANPATH=$MANPATH:$ARC_HOME/man
+
+display "ARC Serve Environment Settings"
+display - -------------------------------------------------------------------------------
+display "ARC_HOME:        $ARC_HOME"
+display "PATH:            $PATH"
+if [ "$VENDOR" = "Sun" ]; then
+  display "XFILESEARCHPATH: $XFILESEARCHPATH"
+  display "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+else
+  display "SHLIB_PATH:      $SHLIB_PATH"
+fi
+display "HHHOME:          $HHHOME"
+display "MANPATH:         $MANPATH"

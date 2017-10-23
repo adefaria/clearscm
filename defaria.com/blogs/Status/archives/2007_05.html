@@ -1,0 +1,622 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: May 2007 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2007_04.html" title="April 2007" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2007_06.html" title="June 2007" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2007_04.html">&laquo; April 2007</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2007_06.html">June 2007 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000643"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/31"
+    dc:title="GPDB 2.0"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000643"
+    dc:subject="GPDB"
+    dc:description=" Sent email to Donna describing how to work with GPDB 2.0 Implemented Aliases Changed project search to go off of new view for project aliases Fixed bug in displaying of DesignSync information for projects..."
+    dc:creator=""
+    dc:date="2007-05-22T15:52:32-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">May 22, 2007</h2>
+                     <a id="a000643"></a>
+                     <div class="entry" id="entry-643">
+                        <h3 class="entry-header">GPDB 2.0</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Sent email to Donna describing how to work with GPDB 2.0</li>
+
+  <li>Implemented Aliases</li>
+
+  <li>Changed project search to go off of new view for project aliases</li>
+
+  <li>Fixed bug in displaying of DesignSync information for projects</li>
+</ul>
+                              
+                              <p>This email is to describe to you how to use the new GPDB API. For the most part, for the functions you had been calling, the interface should be identical. Sometimes you'll need to change the hash that you pass in as the Perl module uses Perl hash's name/value pairs as a direct relationship to the field names and values in the database. So if you use a hash key that doesn't correspond to a database field name then it won't work.</p>
+
+<p>Also (attached) is your syncGPDBAddDSProj.pl script ported to use GPDB 2.0.</p>
+
+<h3>Alternate Database</h3>
+
+<p>Note that until GPDB 2.0 is released we have GPDB 1.0 in production. The GPDB API has been augmented to allow you to specify an alternate database. The gpdb_login call supports an additional parameter to specify which database to open:</p>
+
+<blockquote>
+  <p><i>gpdb_login (username, password, db)</i></p>
+
+  <p>The gpdb_login() method takes a username and non-encrypted password as parameters and returns a user authentication string. Additionally an optional db parameter can be passed in. Default is "Oracle" and represents the production database. Use "OracleDevelopment" to access the test database. The authentication string make look like "::browse" or "readonly::browse" if (1) the username is not found in the gpdb user table or (2) the password does not match the user's enterprise password. This could be the desired effect as often the tool may be run by individuals that only need "browse" access for reference.</p>
+</blockquote>
+
+<p>While gpdb_login supports this extra parameter I don't think you'll often use it. Instead you can specify which database to use in an environment variable GPDB_ACTIVE_DB:</p>
+
+<div class=code><pre>
+$ export GPDB_ACTIVE_DB=OracleDevelopment
+$ ./myscript.pl
+</pre></div>
+
+<h3>Where to pick up the GPDB API</h3>
+
+<p>Again, because we have GPDB 1.0 in production we cannot push out the GPDB 2.0 API (Perl Modules) to the same locations as GPDB 1.0 API. As such you will need to temporarily point to them at an alternate location. Here's a full set of Perl use statements needed:</p>
+
+<div class=code><pre>
+# Standard CDOE modules (Modules of the month!)
+use lib "/apps/perl/modules-0609/lib";
+
+# Perl/Oracle libraries
+use lib "/apps/oracle/perl/10.2.0.1.0/lib";
+
+#use lib "/apps/cmpackages/perl/lib/site_perl/5.8.0";
+use lib "/web/gpdb/cgi-bin";
+
+use GPDB::gpdb;
+</pre></div>
+
+<p>When the GPDB API 2.0 gets released we can use the /apps/cmpackages/perl/lib/site_perl/5.8.0 and remove the /web/gpdb/cgi-bin use statement.</p>
+
+<h3>GPDB now authenticates to the enterprise LDAP</h3>
+
+<p>GPDB logins now use your AXID and your enterprise password! If this is incorrect then you will only be granted read access. If you specify a proper AXID and enterprise password you will authenticate. GPDB then checks with its users table to see if you have been granted administrative, thus read/write, access. There is also a GPDB administrative user that can be used for long running, cron like scripts.</p>
+
+<h3>Did somebody ask for aliases?</h3>
+
+<p>I've implemented a rudimentary form of aliases since you were so interested in them. Aliases are global (and alias of "foo" related to a project "bar" at all sites). You can add or delete aliases on the Update Project screen (e.g. <a href="http://gpdb.design.ti.com/cgi-bin/gpdb-devel.pl?db=OracleDevelopment&amp;operation=showProject&amp;projectName=faraday&amp;siteName=Dallas">faraday
+Project</a>). Additionally the Project: Search screen will search for projects based on name and alias.</p>
+
+<h3>Oracle/Linux issues</h3>
+
+<p>We are still kinda of working out how to access Oracle on Linux through Perl.</p>
+
+<h3>syncGPDBAddDSProj.pl script</h3>
+
+<p>I've ported this script (attached) to GPDB 2.0. Note the comments in the code about changed required for GPDB 2.0. Here is a command line execution:</p>
+
+<div class=code><pre>
+$ ./syncGPDBAddDSProj.pl -f Dallas -p 10000 -a &lt;userid&gt; -w &lt;password&gt; \
+&gt; -n andrew_defaria -g ASIC -c /tmp -s drteeth.dal.design.ti.com
+</pre></div>
+
+<p>And you can see the project added <a href="http://gpdb.design.ti.com/cgi-bin/gpdb-devel.pl?db=OracleDevelopment&amp;operation=showProject&amp;projectName=andrew_defaria&amp;siteName=Dallas">here</a>.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:52 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000643.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000643.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000642"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/30"
+    dc:title="CC Defaults report"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000642"
+    dc:subject="GPDB"
+    dc:description=" Added CC Defaults Report Changed export to export as per the tableName Changed export to export some files not listed on the web page..."
+    dc:creator=""
+    dc:date="2007-05-10T17:29:56-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">May 10, 2007</h2>
+                     <a id="a000642"></a>
+                     <div class="entry" id="entry-642">
+                        <h3 class="entry-header">CC Defaults report</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added CC Defaults Report</li>
+
+  <li>Changed export to export as per the tableName</li>
+
+  <li>Changed export to export some files not listed on the web page</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:29 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000642.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000642.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000641"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/29"
+    dc:title="GPDB Enhancements"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000641"
+    dc:subject="GPDB"
+    dc:description=" Added export to CSV file to reports Made DesignSync servers links to the server:port Added links to Project names Site names on reports Added edit link to screen after you update a Project or Site..."
+    dc:creator=""
+    dc:date="2007-05-08T15:27:42-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">May  8, 2007</h2>
+                     <a id="a000641"></a>
+                     <div class="entry" id="entry-641">
+                        <h3 class="entry-header">GPDB Enhancements</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added export to CSV file to reports</li>
+
+  <li>Made DesignSync servers links to the server:port</li>
+
+  <li>Added links to Project names Site names on reports</li>
+
+  <li>Added edit link to screen after you update a Project or Site</li>
+</ul>
+                              
+                              Nelson, Bill wrote:
+<blockquote type="cite">
+<p>I took a look at GPDB - looking better each day.  Looks like you have some links done in the reports</p>
+</blockquote>
+
+<p>Yes I have...</p>
+
+<blockquote type="cite">
+<p>still need a .CSV dump button.</p>
+</blockquote>
+
+<p>Done!</p>
+
+<blockquote type="cite">
+<p>When you display a page like the project@site one, I like the edit link up next to the Logout link but after I change something on the page and select Update, the link goes away.  Can you have it so that after the page is re-displayed, the Edit link remains?</p>
+</blockquote>
+
+<p>Done.</p>
+
+<blockquote type="cite">
+<p> For the list of Users, when you select the user ID you go to the Directory Services look up but we also wanted to have a single User Display where you saw the ORG-SBE, Sites, and Projects the user was associated with.</p>
+</blockquote>
+
+<p>I need to make the users display screen. All that's in the Users record is pretty much what you see on the user list (BTW: The user list needs to be paged too as it's growing lengthy). So, IOW, I need to make a display that displays the info in the Users table as well as bring in
+the Org/SBE mapping table. Of course I also need to do the Org/SBE stuff too. Since I have nowhere to link to yet I have not made this link/association.</p>
+
+<blockquote type="cite">
+<p>Maybe we could do this link off of the user’s name.</p>
+</blockquote>
+
+<p>I'm not sure that that will not be confusing, at least at first, to users. When the see the user list they only see that both AXID and User Name are linked. They would not immediately think "Oh one links to one place and the other links to another place". How best to present this is, of course, the question...</p>
+
+<blockquote type="cite">
+<p>When we display the DesignSync info, we were going to link the Server name to go to the ProjectSync address using the following format -&gt;http://&lt;server&gt;:&lt;DS Port&gt; so for the following we would have a link on Server of http://sync9136.design.ti.com:9136</p>
+  <table class="MsoNormalTable" style="width: 592.5pt;" border="0"
+ cellpadding="0" cellspacing="0" width="790">
+    <tbody>
+      <tr>
+        <td colspan="7"
+ style="border: 1pt solid black; padding: 2.25pt; background: rgb(0, 64, 128) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: center;" align="center"><b><span
+ style="font-family: Arial; color: white;">DesignSync Vault<o:p></o:p></span></b></p>
+        </td>
+      </tr>
+      <tr>
+        <td
+ style="border: 1pt solid black; padding: 2.25pt; background: rgb(32, 136, 221) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: right;" align="right"><b><span
+ style="font-size: 10.5pt; font-family: Arial; color: white;">Site:<o:p></o:p></span></b></p>
+        </td>
+        <td
+ style="border: 1pt solid rgb(153, 153, 153); padding: 2.25pt; background: rgb(255, 254, 238) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: center;" align="center"><span
+ style="font-size: 9pt; font-family: Arial; color: black;"><a
+ moz-do-not-send="true"
+ href="http://gpdb.design.ti.com/cgi-bin/gpdb-devel.pl?db=OracleDevelopment&amp;operation=showSite&amp;siteName=Bangalore"><span
+ style="font-family: &quot;Times New Roman&quot;;">Bangalore</span></a><o:p></o:p></span></p>
+        </td>
+        <td
+ style="border: 1pt solid black; padding: 2.25pt; background: rgb(32, 136, 221) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: center;" align="center"><b><span
+ style="font-size: 10.5pt; font-family: Arial; color: white;">DS<o:p></o:p></span></b></p>
+        </td>
+        <td
+ style="border: 1pt solid black; padding: 2.25pt; background: rgb(32, 136, 221) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: center;" align="center"><b><span
+ style="font-size: 10.5pt; font-family: Arial; color: white;">PGS<o:p></o:p></span></b></p>
+        </td>
+        <td
+ style="border: 1pt solid black; padding: 2.25pt; background: rgb(32, 136, 221) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: center;" align="center"><b><span
+ style="font-size: 10.5pt; font-family: Arial; color: white;">Secure<o:p></o:p></span></b></p>
+        </td>
+        <td
+ style="border: 1pt solid black; padding: 2.25pt; background: rgb(32, 136, 221) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: right;" align="right"><b><span
+ style="font-size: 10.5pt; font-family: Arial; color: white;">HCM:<o:p></o:p></span></b></p>
+        </td>
+        <td
+ style="border: 1pt solid black; padding: 2.25pt; background: rgb(32, 136, 221) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: right;" align="right"><b><span
+ style="font-size: 10.5pt; font-family: Arial; color: white;">Status:<o:p></o:p></span></b></p>
+        </td>
+      </tr>
+      <tr>
+        <td
+ style="border: 1pt solid black; padding: 2.25pt; background: rgb(32, 136, 221) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: right;" align="right"><b><span
+ style="font-size: 10.5pt; font-family: Arial; color: white;">Server:<o:p></o:p></span></b></p>
+        </td>
+        <td
+ style="border: 1pt solid rgb(153, 153, 153); padding: 2.25pt; background: rgb(255, 254, 238) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal"><span
+ style="font-size: 9pt; font-family: Arial; color: black;"><a
+ moz-do-not-send="true" href="http://sync9136.design.ti.com:9136/">sync9136.design.ti.com</a><o:p></o:p></span></p>
+        </td>
+        <td
+ style="border: 1pt solid rgb(153, 153, 153); padding: 2.25pt; background: rgb(255, 254, 238) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: center;" align="center"><span
+ style="font-size: 9pt; font-family: Arial; color: black;">9136<o:p></o:p></span></p>
+        </td>
+        <td
+ style="border: 1pt solid rgb(153, 153, 153); padding: 2.25pt; background: rgb(255, 254, 238) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: center;" align="center"><span
+ style="font-size: 9pt; font-family: Arial; color: black;">9137<o:p></o:p></span></p>
+        </td>
+        <td
+ style="border: 1pt solid rgb(153, 153, 153); padding: 2.25pt; background: rgb(255, 254, 238) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: center;" align="center"><span
+ style="font-size: 9pt; font-family: Arial; color: black;">9138<o:p></o:p></span></p>
+        </td>
+        <td
+ style="border: 1pt solid rgb(153, 153, 153); padding: 2.25pt; background: rgb(255, 254, 238) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: center;" align="center"><span
+ style="font-size: 9pt; font-family: Arial; color: black;">N<o:p></o:p></span></p>
+        </td>
+        <td
+ style="border: 1pt solid rgb(153, 153, 153); padding: 2.25pt; background: rgb(255, 254, 238) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: center;" align="center"><span
+ style="font-size: 9pt; font-family: Arial; color: black;">Active<o:p></o:p></span></p>
+        </td>
+      </tr>
+      <tr>
+        <td
+ style="border: 1pt solid black; padding: 2.25pt; background: rgb(32, 136, 221) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: right;" align="right"><b><span
+ style="font-size: 10.5pt; font-family: Arial; color: white;">Path:<o:p></o:p></span></b></p>
+        </td>
+        <td colspan="6"
+ style="border: 1pt solid rgb(153, 153, 153); padding: 2.25pt; background: rgb(255, 254, 238) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal"><b><span
+ style="font-size: 9pt; font-family: Arial; color: black;">/data/sitd_vault/sync9136.design.ti.com/9136/server_vault</span></b><span
+ style="font-size: 9pt; font-family: Arial; color: black;"><o:p></o:p></span></p>
+        </td>
+      </tr>
+      <tr>
+        <td
+ style="border: 1pt solid black; padding: 2.25pt; background: rgb(32, 136, 221) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal" style="text-align: right;" align="right"><b><span
+ style="font-size: 10.5pt; font-family: Arial; color: white;">Cache:<o:p></o:p></span></b></p>
+        </td>
+        <td colspan="6"
+ style="border: 1pt solid rgb(153, 153, 153); padding: 2.25pt; background: rgb(255, 254, 238) none repeat scroll 0%; -moz-background-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-background-inline-policy: -moz-initial;">
+        <p class="MsoNormal"><span
+ style="font-size: 9pt; font-family: Arial; color: black;">/data/sitd_cache/sync9136.design.ti.com/9136/server_cache<o:p></o:p></span></p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</blockquote>
+
+<p>Done, although I don't know how to log into such sites. I'm asked for my username and password. I use my normal username and enterprise password and I get access denied for this "projectsync" login. Now normally I'd ask one of the DesignSync guys around here but they all
+appear to be missing! <span class="moz-smiley-s3"><span> ;-) </span></span></p>
+
+<p>Oh, BTW, I added this link to the <a href="http://gpdb.design.ti.com/cgi-bin/gpdb-devel.pl?db=OracleDevelopment&amp;operation=reportDesignSync">DesignSync
+Report</a>, though many of them seem to not be set up or responding.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:27 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000641.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000641.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000640"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/28"
+    dc:title="LDAP changes/Synonyms and Grants/Reports"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000640"
+    dc:subject="GPDB"
+    dc:description=" Change primitives::login and ldap_authenticate to return a user record of user information if we can find it in LDAP, even if we could not authenticate the password, and pass back proper status Straightened out new views WRT Synonyms and..."
+    dc:creator=""
+    dc:date="2007-05-04T14:35:52-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">May  4, 2007</h2>
+                     <a id="a000640"></a>
+                     <div class="entry" id="entry-640">
+                        <h3 class="entry-header">LDAP changes/Synonyms and Grants/Reports</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Change primitives::login and ldap_authenticate to return a user record of user information if we can find it in LDAP, even if we could not authenticate the password, and pass back proper status</li>
+
+  <li>Straightened out new views WRT Synonyms and Grants</li>
+
+  <li>Implemented Users, Clearcase and DesignSync reports</li>
+</ul>
+                              
+                              <h2>Synonyms and Grants</h2>
+
+<p>When one creates a table or view in Oracle it appears to be "private" to the user who has created it. Others can get to the table but they need to specify a more qualified name. Additionally the need to have been granted access to it (at least select access).</p>
+
+<p>So if we create a view, say foo, we also need to grant select access to those tables to the other users who might be using it. Additionally, in GPDB we have 3 DB level usernames: cm_gpdb, cm_gpdb_readonly and cm_gpdb_update. So if we create the view foo while logged in as cm_gpdb then login as say cm_gpdb_readonly, this new session will not be able to see foo.</p>
+
+<p>So then the sequence is:</p>
+
+<ol>
+  <li>Create the table or view</li>
+
+<div class=code><pre>
+create or replace view foo ...
+</pre></div>
+
+  <li>Grant select privileges to the table or view:</li>
+
+<div class=code><pre>
+grant select to foo on cm_gpdb.foo for cm_gpdb_readonly
+</pre></div>
+
+  <li>Log into Oracle database as other user and create synonym:</li>
+
+<div class=code><pre>
+create or replace synonym foo for cm_gpdb.foo
+</pre></div>
+</ol>
+
+<h4>Notes</h4>
+
+<ol>
+  <li>The database's schema name for GPDB is cm_gpdb above</li>
+
+  <li>Grants need to be done whenever the table or view is recreated. Synonyms, being pointers, need to be created only when a new pointer is needed</li>
+</ol>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000640.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000640.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000639"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/27"
+    dc:title="GPDB/LDAP/Org/SBE"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000639"
+    dc:subject="GPDB"
+    dc:description=" Added Org/SBE drop down to edit Project Integrated LDAP! Changed primitive.pm to authenticate with LDAP! Added description to Org/SBE and removed password Added edit links to showProject and showSite..."
+    dc:creator=""
+    dc:date="2007-05-03T18:45:32-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">May  3, 2007</h2>
+                     <a id="a000639"></a>
+                     <div class="entry" id="entry-639">
+                        <h3 class="entry-header">GPDB/LDAP/Org/SBE</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added Org/SBE drop down to edit Project</li>
+
+  <li>Integrated LDAP!</li>
+
+  <li>Changed primitive.pm to authenticate with LDAP!</p>
+
+  <li>Added description to Org/SBE and removed password</li>
+
+  <li>Added edit links to showProject and showSite</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:45 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000639.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000639.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000638"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/26"
+    dc:title="GPDB (Org/SBE and others)"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000638"
+    dc:subject="GPDB"
+    dc:description=" Changed org_sbe.name to link up with parent_project Created org_sbe.sql to add org_sbe entries Added gpdb_getOrgSBE and gpdb_putOrgSBE to gpdb.pm Added Org/SBE menu Changed various new tables to to be uniform in width Fixed a few bugs regarding adding of..."
+    dc:creator=""
+    dc:date="2007-05-03T09:46:24-06:00" />
+</rdf:RDF>
+-->
+
+
+                     
+                     <a id="a000638"></a>
+                     <div class="entry" id="entry-638">
+                        <h3 class="entry-header">GPDB (Org/SBE and others)</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed org_sbe.name to link up with parent_project</li>
+
+  <li>Created org_sbe.sql to add org_sbe entries</li>
+
+  <li>Added gpdb_getOrgSBE and gpdb_putOrgSBE to gpdb.pm</li>
+
+  <li>Added Org/SBE menu</li>
+
+  <li>Changed various new tables to to be uniform in width</li>
+
+  <li>Fixed a few bugs regarding adding of sites where no site domains are added</li>
+
+  <li>Added much of Update Project</li>
+
+  <li>Fixed bug with update CCDefaults for Projects</li>
+
+  <li>Added screen for adding CCDefaults when adding a project</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  9:46 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000638.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000638.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000637"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/25"
+    dc:title="GPDB Enhancements/Fixes"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_05.html#entry-000637"
+    dc:subject="GPDB"
+    dc:description="GPDB Login Moved to the top. Changed wording to be more friendly Login with unknown username puts up a warning but grants read only access Login with known username but wrong password is properly denoted Other changes In Project display,..."
+    dc:creator=""
+    dc:date="2007-05-01T19:25:50-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">May  1, 2007</h2>
+                     <a id="a000637"></a>
+                     <div class="entry" id="entry-637">
+                        <h3 class="entry-header">GPDB Enhancements/Fixes</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <h3>GPDB Login</h3>
+
+<ul>
+  <li>Moved to the top.</li>
+  <li>Changed wording to be more friendly</li>
+  <li>Login with unknown username puts up a warning but grants read
+only access</li>
+  <li>Login with known username but wrong password is properly denoted</li>
+</ul>
+
+<h3>Other changes</h3>
+
+<ul>
+  <li>In Project display, site defaults are not listed on top of the
+Project defaults.</li>
+
+  <li>Change width of tables to line up with the menus across the top.</li>
+
+  <li>Updating of project CC defaults still not working correctly</li>
+
+  <li>Added Add Project</li>
+</ul>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000637.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000637.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+################################################################################
+#
+# File:         $RCSfile: $
+# Revision:	$Revision: $
+# Description:  Perltidy defaults
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Jan 23 11:08:55 MST 2009
+# Modified:     $Date: $
+# Language:     perltidy
+#
+# (c) Copyright 2000-2009, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+--indent-columns=2
+--output-line-ending=unix
+--noline-up-parentheses
+--nooutdent-labels
+--paren-tightness=2
+--square-bracket-tightness=2
+--brace-tightness=2
+--block-brace-tightness=2
+--nospace-for-semicolon
+--space-keyword-paren
+--space-function-paren
+--closing-side-comments
+--cuddled-else
+--opening-token-right
+--stack-opening-tokens

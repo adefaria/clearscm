@@ -1,0 +1,123 @@
+#!/bin/bash
+################################################################################
+#
+# File:         mkpasswd
+# Description:  Create password file for cygwin
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Oct  4 10:21:05  2001
+# Language:     Bash Shell
+# Modifications:
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set up PATH
+PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+
+# Set me to command name
+me=$(basename $0)
+
+# Set commonarea
+commonarea="//sonscentral/Corporate/Software"
+
+# Set adm_base
+adm_base=${adm_base:-$commonarea/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Global variables
+tmpfile="/tmp/$me"
+master_passwd="$commonarea/etc/passwd"
+master_group="$commonarea/etc/group"
+
+function usage {
+  display "Usage: $me -[v|erbose] -[d|ebug] -[u|sage]"
+} # usage
+
+# Process options
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+    ;;
+
+    -v|-verbose)
+      verbose=yes
+    ;;
+
+    -d|-debug)
+      debug=yes
+    ;;
+  esac
+  shift
+done
+
+# First create passwd file
+verbose "Creating master passwd file"
+/bin/mkpasswd -d -o 0 > $tmpfile
+
+# Now modify output
+# Change home directories
+verbose "Fixing US home directories"
+sed 's/\/\/sonscentral/\/us/' $tmpfile > $tmpfile.2
+mv $tmpfile.2 $tmpfile
+verbose "Fixing China home directories"
+sed 's/\/\/sons-shanghai/\/china/' $tmpfile > $tmpfile.2
+
+# Remove unnecessary $'s
+verbose "Removing extra $'s"
+sed 's/\$//' $tmpfile.2 > $tmpfile
+
+# Now determine the real users from the psuedo users. We determine this by
+# verifying that there home directory exists.
+verbose "Determining real users"
+
+rm -f $tmpfile.2
+
+IFS=:
+
+sed 's/\\/\\\\/' $tmpfile | while read user pass uid gid geos home shell; do
+  # sonscenter is an old machine that no longer exists. It's now sonscentral.
+  if [[ $home = \/\/sonscenter* ]]; then
+    warning "Skipping user $user because $home does not exist"
+  elif [ -z "$home" ]; then
+    verbose "Puesdo user $user found (home directory is blank)"
+    echo "$user::$uid:$gid:$geos:$home:$shell" >> $tmpfile.2
+  elif [ -d "$home" ]; then
+    # Shell substitutions
+    if [ "$user" = "ftp" ]; then
+      verbose "Substituting /bin/false for ftp's shell"
+      shell="/bin/false"
+    fi
+    if [ "$user" = "gchharbra" ]; then
+      verbose "Substituting /bin/tcsh for $user's shell"
+    fi
+    echo "$user::$uid:$gid:$geos:$home:$shell" >> $tmpfile.2
+  else
+    warning "Skipping user $user because $home does not exist"
+  fi
+done 
+
+# Save last master password file
+if [ -f $master_passwd ]; then
+  cp $master_passwd $master_passwd.save
+fi
+
+# Move in new master password file
+mv $tmpfile.2 $master_passwd
+
+# Save last master group file
+if [ -f $master_group ]; then
+  cp $master_group $master_group.save
+fi
+
+# Make group file
+verbose "Creating master group file"
+/bin/mkgroup -d -o 0 > $master_group
+
+# Cleanup files
+rm $tmpfile

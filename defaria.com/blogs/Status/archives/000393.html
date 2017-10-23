@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: CVS Adm Web App Prototype</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000392.html" title="Porting Perl -&gt; LOS178" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000394.html" title="complogs" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000392.html">&laquo; Porting Perl -> LOS178</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000394.html">complogs &raquo;</a>
+                     </p>
+
+                     <a id="a000393"></a>
+                     <div class="entry" id="entry-393">
+                        <h3 class="entry-header">CVS Adm Web App Prototype</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added CVSCommit to CVSAdm.pm and changed it so that CVS commits are now happening when changes happen to the file</li>
+
+  <li>Finished up CVS Adm Web App Prototype</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>CVS Adm Web App Tutorial</h3>
+
+<p>To access this web app go to http://saturn.lynx.com and select CVS Adm from the menu on the left.</p>
+
+<p>Notice that there are several servers in the drop down list (controlled by a cvsadm.conf file). Select penguin and click on <b>Select</b>. Note you could select other servers and see other repositories but any attempts to modify files will result in CVS commit failures. We have not set up CVS access for these other repositories yet.</p>
+
+<p>The next screen will show you the repositories available for that server. Penguin has only one - andrew-cvs - which is a test cvs repository. Click on <b>Select</b>.</p>
+
+<p>At this point you're at the <i>Login</i> screen for this server, this repository. For now let's be cvsroot and test some of it's capabilities. The cvsroot user password for this test repository is "cvsroot123". Enter cvsroot user and cvsroot123 for the password and click <b>Login</b>.</p>
+
+<p>You are now at the <i>Edit User</i> screen. Since you are cvsroot you will see an <b>Admin</b> button. Also as an admin you are presented with a drop down for <b>System User</b> that allows you to modify the system user for a CVS user. Admins are also presented with only a <b>New Password</b> field. This is so that an admin can re/set the password for another user.</p>
+
+<p><b>Fullname</b> and <b>Email</b> are required fields. Many user entries do not have these fields filled in yet but will be required to enter them when/if they edit their entry. Additionally we've added the concept of groups which are listed below <b>Email</b>.</p>
+
+<p>Next the repository and read/write access is listed. Finally you have a <b>Submit</b> and a <b>Logout</b> button.</p>
+
+<p>To edit another user or perform any of the other administrative task select the <b>Admin</b> button. You are now at the <i>Maintenance Menu</i>. This screen presents users, groups and sysusers as drop downs and corresponding Edit/Delete/Create buttons. Let's add a new user - <i>testuser</i>. Select <b>Create User</b>. The <i>Add New User</i> screen is presented. Here you can create a new <b>Username</b> (<i>testuser</i>), assign him to a <b>System User</b>, <b>Password</b>, <b>Fullname</b>, <b>Email</b> as well as assign him to specific groups and set the read/write access to this repository for the user. Then Select <b>Add User</b>.</p>
+
+<p>After adding <i>testuser</i> click <b>OK</b> and you will be back at the <i>Add New User</i> screen. If you are done adding users select <b>Admin</b> to return to the <i>Maintenance Menu</i>. Notice that <i>testuser</i> is now in the users drop down menu. Select testuser and then select <b>Edit User</b> to edit <i>testuser</i>'s fields.</p>
+
+<p>Return to the <i>Maintenance Menu</i> and select <i>testuser</i> in the users drop down menu then <b>Delete User</b> to delete this user.</p>
+
+<p>Try creating a new group <i>men</i> and another new group <i>women</i>. Use <b>Edit User</b> to edit pre-existing users. Notice the new groups of <i>men</i> and <i>women</i> are now listed (but unchecked). Find some men and assign them to be in the <i>men</i> group then click on the <b>Submit</b> button to update their records. Similarly find some women and mark them as such.</p>
+
+<p>Now return to the <i>Maintenance Menu</i> and select the <i>men</i> group and delete it. CVSAdm will not only remove the <i>men</i> group but it will clear off the group <i>men</i> from the individual entries in the passwd file.</p>
+
+<p>Now select the <i>women</i> group and then <b>Edit Group</b> and change <i>women</i> -> <i>wonderwomen</i>. CVSAdm will update the groups file as well as the passwd file changing <i>women</i> -> <i>wonderwomen</i>.</p>
+
+<p>Try adding a system user of say <i>superuser</i>. It now becomes available under the <b>System User</b> drop down.</p>
+
+<p>Edit a user who's password you do not know as cvsroot to a known password. Now <b>Logout</b> and login as that user using the newly assigned password. Unless you had assign this user to the special group cvsadm you will notice that you are not able to change groups or read/write access to the repository as a normal user.</p>
+
+<p>The group cvsadm is a special group. It's used to allow another user to be cvsroot-like. Users in the cvsadm group for the server/repository are able to edit/delete/create other users on the <i>Maintenance Menu</i>. They are not allowed to edit/delete/create groups or system users but they are allows to assign other users to groups and/or system users. Only cvsroot can edit/delete/create groups and system users.</p>
+
+<p>The group <i>cvsadm</i> and the system user <i>cvsroot</i> are protected from being deleted.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on July 26, 2005 12:23 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000393.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

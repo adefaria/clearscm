@@ -1,0 +1,16 @@
+#!/bin/bash
+################################################################################
+#
+# File:         title
+# Description:  Sets the titlebar of a window to an arbitrary string for the
+#		Cygwin/Bash environment
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Mar 25 18:34:12  2002
+# Language:     Bash Shell
+# Modifications:
+#
+# (c) Copyright 2002, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Add to the PS1 string the passed in string.
+export PS1="\e]0;$@\a$PS1"

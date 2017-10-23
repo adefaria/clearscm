@@ -1,0 +1,41 @@
+#!/bin/sh
+################################################################################
+#
+# File:         startx
+# Description:  A script start Cygwin XFree86 and use XDMCP to connect to 
+#		an XDM server
+# Author:       Andrew@DeFaria.com
+# Created:      Tue Apr  1 15:00:36 PST 2003
+# Language:     Bash
+#
+# (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# First set DISPLAY and update PATH
+export DISPLAY=127.0.0.1:0.0
+PATH=/usr/X11R6/bin:$PATH
+
+# Cleanup from last run
+rm -rf /tmp/.X11-unix
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -s|-server)
+      shift
+      xdmcp_server=$1
+    ;;
+
+  esac
+  shift
+done
+
+# Set xdmcp_server
+xdmcp_server=${xdmcp_server:-sonslinux}
+
+# Start the X Server.
+XWin				\
+ -screen 0 1600 1200		\
+ -fullscreen			\
+ -once				\
+ -query $xdmcp_server		\
+ $@ &

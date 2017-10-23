@@ -1,0 +1,42 @@
+#!/bin/ksh
+################################################################################
+#
+# File:         common
+# Description:  Common functions for Korn Shell Scripts
+# Author:       Andrew@DeFaria.com
+# Created:      Tue Apr 15 14:20:02 PDT 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+case "$(uname -s)" in
+  HP-UX)
+    export VENDOR=HP
+    ;;
+
+  Sun*)
+    export VENDOR=Sun
+    ;;
+
+  *)
+    export VENDOR=Unknown
+    ;;
+esac
+
+modules="\
+ display\
+ utils\
+ "
+
+for module in $modules; do
+  if [ -f "$adm_fpath/$module" ]; then
+    . $adm_fpath/$module
+  else
+    print -u2 "Internal Error: Function Module $adm_path/$module not found!"
+    exit 1
+  fi
+done

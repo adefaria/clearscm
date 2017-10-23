@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: May 21, 2006 - May 27, 2006 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2006_05_07.html" title="May  7, 2006 - May 13, 2006" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2006_05_28.html" title="May 28, 2006 - June  3, 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2006_05_07.html">&laquo; May  7, 2006 - May 13, 2006</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2006_05_28.html">May 28, 2006 - June  3, 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">May 22, 2006</h2>
+                     <a id="a000553"></a>
+                     <div class="entry" id="entry-553">
+                        <h3 class="entry-header">More woes with 2003 Server and sshd</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>I don't see how my tinkering with things could have messed up IPSEC. I did mess with the Local Computer Polices and Default Domain Policies attempting to add rights to the local user sons-sc-cc\sshd_server. I'm not sure how this effects IPSEC. This user is used by the sshd and inetd Cygwin services. Since these services need to "switch user" to the user ssh'ing or rsh'ing they need some elevated rights. Prior to 2003 Server the Local System Account (known as SYSTEM in Cygwin) had enough rights to do this. But with 2003 Server Microsoft lessened the rights that the Local System Account has. Cygwin's answer to this is to create a new user ID, sshd_server, and assign it the necessary rights to be able to switch user. Then this user would only be used for Cygwin services. In fact they have a script /bin/ssh-host-config which creates a local sshd_server user for you (as well as sets up the hosts ssh key and adds a service for sshd). However even after running that script ssh was not working.</p>
+
+<p>The inetd service, which is the <i>super server</i>, provides services like rsh, telnet, ftp, etc. that also needs to switch user. Similarly with cron. You see the service is running as an executable under some users credentials (normally the SYSTEM user) and needs to become the requesting user. So I was trying to run these services by using the local sshd_server user that ssh-host-config creates and adds the necessary rights to switch user.</p>
+
+<p>Since I was having troubles I was removing the locally created sshd_server user and having the ssh-host-config script recreate it. At one time I decided to run mmc and add the Group Policy snap in then go under Local Computer Policy: Computer Configuration: Windows Settings: Local Policies: User Rights Assignment and make that the local sshd_server user had the following rights:</p>
+
+<ol>
+  <li>Create a token object</li>
+
+  <li>Logon as a service</li>
+
+  <li>Replace a process level token</li>
+
+  <li>Increase Quota</li>
+</ol>
+
+<p>One time, when adding the Group Policy Object Editor I decided to click
+on the Browse button and saw a Default Domain Policy and thought perhaps there was something in there overriding the Local Computer Policy. So I added that and again I made sure that sons-sc-cc\sshd_server had the above rights. I have put a copy of this mmc polices thing under C:\Polcies.msc in case Ron wants to look at it. I notice a number of SIDs in there, probably from my past creations and recreations of  sons-sc-cc\sshd_server.</p>
+
+<p>As I don't know what Ron did to get sons-sc-cc running again and as I
+see the local sshd_server as having only deny network login right I don't want to mess with anything. Right now rsh is still broken as inetd cannot switch user since it's using the sshd_server user and that user doesn't have enough rights.</p>
+
+<p>Here's an exert from /usr/share/doc/Cygwin/openssh.README:</p>
+
+<blockquote>
+  <h3>Important note for Windows 2003 Server users:</h3>
+
+  <p>2003 Server has a funny new feature. When starting services under SYSTEM account, these services have nearly all user rights which SYSTEM holds... except for the "Create a token object" right, which is needed to allow public key authentication :-(</p>
+
+  <p>There's no way around this, except for creating a substitute account which has the appropriate privileges.  Basically, this account should be member of the administrators group, plus it should have the following user rights:</p>
+
+  <ol>
+    <li>Create a token object</li>
+
+    <li>Logon as a service</li>
+
+    <li>Replace a process level token</li>
+
+    <li>Increase Quota</li>
+  </ol>
+
+  <p>The ssh-host-config script asks you, if it should create such an account, called "sshd_server".  If you say "no" here, you're on your own.  Please follow the instruction in ssh-host-config exactly if possible.  Note that ssh-user-config sets the permissions on 2003 Server machines dependent
+of whether a sshd_server account exists or not.</p>
+</blockquote>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:28 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000553.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

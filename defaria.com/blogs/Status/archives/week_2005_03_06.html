@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: March  6, 2005 - March 12, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_02_27.html" title="February 27, 2005 - March  5, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_03_13.html" title="March 13, 2005 - March 19, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_02_27.html">&laquo; February 27, 2005 - March  5, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_03_13.html">March 13, 2005 - March 19, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">March 11, 2005</h2>
+                     <a id="a000315"></a>
+                     <div class="entry" id="entry-315">
+                        <h3 class="entry-header">NetSNMP</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Rebuilt NetSNMP.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:59 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000315.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">March 10, 2005</h2>
+                     <a id="a000314"></a>
+                     <div class="entry" id="entry-314">
+                        <h3 class="entry-header">Native x86 toolchain/Bluecat Installation/ECRD timeouts</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Discovered problems with Native x86 toolchain.</li>
+
+  <li>Attempting Bluecat installation from CDs - taking a long time!</li>
+
+  <li>Implemented timeouts correctly in ecrd, which was having client deadlocks every night</li>
+</ul>
+                              
+                              <h3>Native X86 Toolchain Build Problem</h3>
+
+<p>When building the toolchain on x86 natively I kept getting different failures. It was frustrating to say the least. Conferred with Adam and he remembered a problem with the kernel changing timestamps on files due to an nmap problem (ECR <a href="http://saturn/ecr/ecr.php?ecr=22905">22905</a>) which still seems to be a problem. Emailed Vlad about this...</p>
+
+<h3>Bluecat installation from CDs</h3>
+
+<p>Bluecat installation was takng a long time due to timeouts in NFS for a stale file handle for some remotely mounted CDROM. Still have an issue with one RPM that has int:staff ownership:</p>
+
+<div class="code><pre>
+    Installing BlueCat_ppc/cdt/RPMS/libgcc_cdt-3.2.2-1.i386.rpm
+    error: failed to stat /mnt/qa: Stale NFS file handle
+    warning: user int does not exist - using root
+    warning: group staff does not exist - using root                              
+    warning: user int does not exist - using root
+    warning: group staff does not exist - using root
+    warning: user int does not exist - using root
+    warning: group staff does not exist - using root
+    warning: user int does not exist - using root
+    warning: group staff does not exist - using root
+    warning: user int does not exist - using root
+    warning: group staff does not exist - using root
+    warning: user int does not exist - using root
+    warning: group staff does not exist - using root
+</pre></div>
+
+<p>Note that this is the only package that this occurred on. It seems to verify Sasha's assertion that if the rpm's are not packaged by a native user then such warnings will occur. Still it seems odd that these "ppc" rpm's have "i386" in them...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:21 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000314.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">March  9, 2005</h2>
+                     <a id="a000313"></a>
+                     <div class="entry" id="entry-313">
+                        <h3 class="entry-header">PPC Toolchain finally builds!</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Finally managed to build Native PPC Toolchain after many interruptions due to machine moves</li>
+
+  <li>Revisiting build of Native X86 Toolchain which is failing.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000313.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">March  8, 2005</h2>
+                     <a id="a000311"></a>
+                     <div class="entry" id="entry-311">
+                        <h3 class="entry-header">netsnmp/t3 mount/PPC Toolchain</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Build NetSNMP 5.1.1</li>
+
+  <li>Had Jeff export t3:/usr/lynx/archive/ecr so that ECRDig can gain access to auxilary files that people store there. Currently cat.php doesn't work with all the file types it can hit there.</li>
+
+  <li>Figured out that the tar images were not being recreated due to int_tools getting stuck in the demos. Recreated PPC tar image and unpacked it onto target machine.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:03 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000311.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">March  7, 2005</h2>
+                     <a id="a000310"></a>
+                     <div class="entry" id="entry-310">
+                        <h3 class="entry-header">Bluecat CDs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Burned 4 CDs for Bluecat</ii>
+
+  <li>Continuing to hunt down problem with PPC Toolchain build. Missed a file. After including it libc.a does have atoi but it doesn't seem to be being packaged into the product image!</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:12 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000310.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

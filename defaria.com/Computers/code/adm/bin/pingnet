@@ -1,0 +1,118 @@
+#!/bin/bash
+################################################################################
+#
+# File:         pingnet
+# RCS:          $Header: pingnet,v 1.3 98/03/04 00:42:49 defaria Exp $
+# Description:  A script to ping all machines and report status. This script
+#               uses /etc/hosts and selects only machines in the IP range of
+#               15.0.96.x to 15.0.99.x.
+# Author:       Andrew DeFaria <Andrew@DeFaria.com>
+# Created:      Sat Oct 26 10:04:28 PDT 1996
+# Modified:     Sat Oct 26 12:05:26 PDT 1996 Andrew DeFaria <defaria@cup.hp.com>
+# Parameters:   count (default 2): number of times to ping a machine before
+#               considering it not responding.
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+
+function usage {
+  echo -e "$me: Usage: $me { count }"
+  echo -e "\twhere count = number of times to ping a machine before
+considering"
+  echo -e "\tthe machine to be not responding (default count = 2)."
+  exit 1
+} # usage
+
+os=
+
+function get_os {
+  #for now skip get_os
+  os=Unknown
+  return
+  machine=$1
+  # Attempt to determine the OS. First attempt to remsh to the machine and
+  # do a uname(1). This assumes Unix. We are unable to remsh then we'll
+  # assume that it's a PC (it could also be a line printer or any other of
+  # a number of network pingable devices!)
+  os=$(rsh $machine -n uname 2>&1)
+
+  # We're gonna make some guesses here...
+  if [[ "$os" = "HP-UX" ||
+        "$os" = "Linux" ]]; then
+    : Do nothing!
+  elif [[ "$os" = *Lost\ connection ]]; then
+    os="Linux? (Lost connection)"
+  elif [[ "$os" = *Permission\ denied. ]]; then
+    os="Linux? (Permission denied)"
+  elif [[ "$os" = *Login\ incorrect ]]; then
+    os="HP-UX? (Login incorrect)"
+  elif [[ "$os" = *Connection\ refused ]]; then
+    os="NT? (Connection refused)"
+  else
+    os="Unknown"
+  fi
+} # get_os
+
+declare -i count=2
+
+if [ $# -eq 1 ]; then
+  count=$1
+elif [ $# -gt 1 ]; then
+  usage
+fi
+
+esc=$(echo "\033")
+
+if [ "$TERM" = "dtterm" -o -z DTTERM ]; then
+  export normal="$esc[39m"
+  export red="$esc[31m"
+  export green="$esc[32m"
+elif [ "$TERM" = "hp" -o "$TERM" = "hpterm" ]; then
+  export normal="$esc&d@$esc&v0S"
+  export red="$esc&v1S"
+  export green="$esc&v2S"
+fi
+
+# Print heading
+echo -e "       Machine\t\t      IP\tState\t  OS"
+echo -e "-----------------------\t-------------\t-----\t-------"
+
+subnet=${subnet:-192.168}
+declare -i starting_subnet_octect=${starting_subnet_octect:-0}
+declare -i ending_subnet_octect=${ending_subnet_octect:-0}
+declare -i subnet_octect=starting_subnet_octect
+declare -i starting_octect=${starting_octect:-0}
+declare -i ending_octect=${ending_octect:-255}
+declare -i octect=$starting_octect
+
+while [ $subnet_octect -le $ending_subnet_octect ]; do
+  while [ $octect -le $ending_octect ]; do
+    ip=$subnet.$subnet_octect.$octect
+    machine=$ip
+    nslookup $ip 2>&1 | grep Non-exist > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+      machine=$(nslookup $ip | grep Name: | awk '{print $2}' | cut -f1 -d.)
+    fi
+    echo -e "$machine\t\c"
+    if [ ${#machine} -lt 8 ]; then
+      echo -e "\t\t\c"
+    elif [ ${#machine} -lt 16 ]; then
+      echo -e "\t\c"
+    fi
+    echo -e "$ip\t\c"
+    ping_result=$(ping $ip -n $count | tail -1 | grep "100% loss")
+    if [ -z "$ping_result" ]; then
+      echo -e "${green}UP${normal}\t\c"
+      get_os $machine
+      echo -e "$os"
+    else
+      echo -e "${red}DOWN${normal}\tUnknown"
+    fi
+    let octect=octect+1
+  done
+  let subnet_octect=subnet_octect+1
+  let octect=starting_octect
+done

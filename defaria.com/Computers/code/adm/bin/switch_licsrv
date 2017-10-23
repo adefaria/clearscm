@@ -1,0 +1,48 @@
+#!/bin/bash
+################################################################################
+#
+# File:         switch_licsrv
+# Description:  A script to switch the ClearCase License Server from one 
+#		machine to another.
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Wed Jan 15 16:52:22 PST 1997
+# Modified:     Wed Jan 15 16:52:22 PST 1997 (Andrew DeFaria) defaria@cup.hp.com
+# Language:     Korn Shell
+#
+# (c) Copyright 1997, Hewlett-Packard Company, all rights reserved.
+#
+################################################################################
+me=$(basename $0)
+
+function usage {
+  print "Usage: $me: <new ClearCase License Server>"
+  exit 1
+} # usage
+
+if [ $(id -u) -ne 0 ]; then
+  print -u2 "$me: Error: Must be root to execute this command!"
+  usage
+fi
+
+# Get parameters
+if [ $# -ne 1 ]; then
+  usage;
+else
+  new_license_server="$1"
+fi
+
+license_server_file=/usr/adm/atria/config/license_host
+
+if [ -f $license_server_file ]; then
+  old_license_server=$(cat $license_server_file)
+  if [ "$old_license_server" = "$new_license_server" ]; then
+    print -u2 "$me: The license server is already $new_license_server"
+    print -u2 "$me: Nothing changed!"
+    exit
+  fi
+  cp $license_server_file $license_server_file.old
+  print $new_license_server > $license_server_file
+  print "$me: Switched license server from $old_license_server \c"
+  print "to $new_license_server."
+  print "$me: Saved old license server setting in $license_server_file.old"
+fi

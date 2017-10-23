@@ -1,0 +1,123 @@
+#!/bin/bash
+################################################################################
+#
+# File:         update_view
+# Description:  Updates a snapshot view
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Dec 13 19:11:15  2001
+# Language:     Bash Shell
+# Modifications:
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+function usage {
+  if [ ! -z "$1" ]; then
+    error "$1\n"
+  fi
+  display "$me: [-q|uiet ] [-v|erbose] [-d|ebug] [-usage] <view_tag>"
+  display "\t     [ <view_tag>... ]"
+  display
+  display "Where:"
+  display "\t-quiet:\t\tBe quiet"
+  display "\t-verbose:\tTurn on verbose mode"
+  display "\t-debug:\t\tTurn on debug mode"
+  display "\t-usage:\t\tDisplay usage"
+  display "\t<viewtag>\tView tag(s) to update"
+  exit 1
+} # usage
+
+# Get parameters
+quiet="no"
+while [ $# -ge 1 ]; do                                                          
+  case "$1" in                                                                  
+      -u|-usage)
+        usage
+      ;;
+
+      -v|-verbose)
+        verbose=yes
+      ;;                                                                        
+
+      -d|-debug)
+        debug=yes
+      ;;                                                                        
+
+      -q|-quiet)
+        quiet="yes"
+      ;;
+
+      *)
+        views_tags_to_update="$views_tags_to_update $1"
+      ;;
+
+  esac
+  shift
+done
+
+for viewtag in $views_tags_to_update; do
+  # First check to see if there is a snapshot view
+  viewpath="$SITE_SNAPSHOT_VIEW_PATH/$viewtag"
+  if [ -d "$viewpath" ]; then
+    verbose "Updating view $viewtag..."
+    cd $viewpath
+
+    if [ $quiet = "yes" ]; then
+      # If quiet then the logfile is discarded as well as the output from
+      # cleartool update.
+      logfile=/dev/null
+      cleartool update -force -log $logfile . > /dev/null 2>&1
+    else
+      # If not quiet then we let cleartool update place the .updt file 
+      # normally (i.e. in the view root directory) and capture the output
+      # of cleartool update so we can extract that pathname later
+      logfile=/tmp/$viewtag.update.log
+      cleartool update -force . > $logfile 2>&1
+    fi
+
+    if [ $? -eq 0 ]; then
+      verbose "Successfully updated $viewtag"
+      if [ -f $logfile ]; then
+        # Note that [ -f /dev/null ] fails (i.e. there is no real /dev/null
+	# file) so we skip the following, which is what we want to do here.
+        update_logfile_name=$(tail -1 $logfile | cut -f2 -d'"' | tr '\\\\' '/')
+	rm -f $logfile
+        # Cheap email:
+	cat <<EOF
+The view $viewtag was successfully updated. Check logfile for results. 
+
+Logfile: $update_logfile_name
+
+You can double click on a view update logfile from the Windows Explorer to 
+view the results in Clearcase.
+
+WARNING: Remember view update logfiles will accumulate unless you remove them! 
+EOF
+      fi
+    else
+      warning "Update of $viewtag failed"
+      display "See $logfile for more information"
+    fi
+  else
+    warning "View tag does not exist for the snapshot view: $viewtag"
+  fi
+done

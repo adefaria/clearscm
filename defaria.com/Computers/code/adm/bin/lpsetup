@@ -1,0 +1,156 @@
+#!/usr/bin/ksh
+################################################################################
+#
+# File:         lpsetup
+# Description:  Script to recreate printer definitions
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Sep  6 16:38:14 PDT 2000
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Global variables
+printer_definitions=${printer_definitions:-$adm_base/etc/printer.defs}
+local_printers=
+
+# Commands used
+accept=/usr/sbin/accept
+enable=/usr/bin/enable
+lpadmin=/usr/sbin/lpadmin
+lpshut=/usr/sbin/lpshut
+lpsched=/usr/sbin/lpsched
+
+function usage {
+  if [ "_$1" != "_" ]; then
+    display "$1"
+    display
+  fi
+  display "Usage: $me"
+  exit 1
+} # usage
+
+function remove_all_printers {
+  debug "ENTER: $0"
+
+  verbose "Removing all printers"
+
+  # First list all known printers
+  all_printers=$(lpstat -s | grep device | cut -f3 -d' ' | cut -f1 -d:)
+
+  # Now determine if the printer is local. If it's local then we do not delete
+  # it.
+  for printer in $all_printers; do
+    if [ $(lpstat -v$printer | wc -l) -gt 1 ]; then
+      verbose "Removing $printer"
+      $lpadmin -x$printer
+    else
+      local_printers="$local_printers $printer"
+      verbose "$printer is local to this machine. Will not automatically remove it"
+    fi
+  done
+  verbose "Removed all printers"
+  debug "EXIT: $0"
+} # remove_all_printers
+
+# Check for execution by root
+if is_not_root; then
+  error "This script must be run as root" 1
+fi
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+    ;;
+
+    -v|-verbose)
+      verbose=yes
+    ;;
+
+    -d|-debug)
+      debug=yes
+    ;;
+
+    *)
+      usage "Unrecognized parameter $1"
+    ;;
+  esac
+  shift
+done
+
+if [ ! -r $printer_definitions ]; then
+  error "Unable to find printer definitions ($printer_definitions)" 2
+fi
+
+if [ $(uname -r) = "B.11.11" ]; then
+  verbose "Prereleased OS (B.11.11) detected. No processing done"
+  exit 0
+fi
+
+# You must shutdown the spooler before making any changes
+$lpshut > /dev/null 2>&1
+
+if [ $? -ne 0 ]; then
+  error "Unable to stop LP Scheduler!" 3
+fi
+
+# First remove all printer definitions
+remove_all_printers
+
+# Now add them back
+verbose "Adding all printers"
+grep -v "^#" $printer_definitions | grep -v "^$" | while read printer server; do
+  is_a_local_printer=false
+  for local_printer in $local_printers; do
+    if [ "$printer" = "$local_printer" ]; then
+      is_a_local_printer=true
+      break
+    fi
+  done
+
+  if [ "$is_a_local_printer" = "false" ]; then
+    verbose "Adding $printer:$server... \c"
+    server=$server.cup.hp.com
+    $lpadmin            \
+          -p$printer    \
+          -orm$server   \
+          -orp$printer  \
+          -mrmodel      \
+          -v/dev/null   \
+          -ocmrcmodel   \
+          -osmrsmodel
+
+    verbose "accepting... \c"
+    $accept $printer > /dev/null 2>&1
+
+    verbose "enabling... \c"
+    $enable $printer > /dev/null 2>&1
+
+    verbose "done"
+  else
+    verbose "Skipping local printer $printer..."
+  fi
+done
+
+verbose "Added all printers"
+
+# Start up the print spooler
+verbose "Restarting the print spooler"
+$lpsched -v > /dev/null 2>&1
+
+if [ $? -ne 0 ]; then
+  error "Unable to start LP Scheduler!" 6
+fi

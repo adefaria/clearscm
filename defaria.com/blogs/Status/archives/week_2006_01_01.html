@@ -1,0 +1,485 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: January  1, 2006 - January  7, 2006 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_12_25.html" title="December 25, 2005 - December 31, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2006_01_08.html" title="January  8, 2006 - January 14, 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_12_25.html">&laquo; December 25, 2005 - December 31, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2006_01_08.html">January  8, 2006 - January 14, 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">January  6, 2006</h2>
+                     <a id="a000512"></a>
+                     <div class="entry" id="entry-512">
+                        <h3 class="entry-header">Mail.pm/ccase-rman-3 crisis</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Further developed Mail.pm. Added code to send HTML mail. HTML mail not completely working yet</li>
+
+  <li>Worked on problems with ccase-rmna-3</li>
+
+  <li>Assisted Ray in some Perl coding issues</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:48 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000512.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January  5, 2006</h2>
+                     <a id="a000511"></a>
+                     <div class="entry" id="entry-511">
+                        <h3 class="entry-header">Mail.pm/CQ Web</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Developed Mail.pm module</li>
+
+  <li>Working with Rational about CQ Web hang problem</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000511.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January  4, 2006</h2>
+                     <a id="a000510"></a>
+                     <div class="entry" id="entry-510">
+                        <h3 class="entry-header">More module coding</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Standardized some modules a little bit</li>
+
+  <li>Added much more functionality to Clearcase modules and tied that into stats and log_activity</li>
+
+  <li>Changed the startup of many scripts to be more standard</li>
+
+  <li>Implemented much more functionality in stats</li>
+</ul>
+                              
+                              <h2>Odd characters in view tags</h2>
+
+<p>I found this odd view tag in the <span>SanJoseNT</span> region: 
+
+<div class="code"><pre>
+ccase-sj1-1:ct lsview -long -region SanJoseNT helenay_PIRelease_12022002_7031RC\)
+Tag: helenay_PIRelease_12022002_7031RC)
+  Global path: \\Pc-1ubrv\Myview\helenay.v.vws
+  Server host: Pc-1ubrv
+  Region: SanJoseNT
+  Active: NO
+  View tag uuid:132d6e50.0eee11d7.a7a4.00:b0:d0:20:ba:8a
+View on host: Pc-1ubrv
+View server access path: F:\Myview\helenay.v.vws
+View uuid: 132d6e50.0eee11d7.a7a4.00:b0:d0:20:ba:8a
+View attributes: snapshot
+View owner: BROADCOM\helenay
+</pre></div>
+
+<p>Note the trailing ")" in the view tag. Alas this screws up Perl scripts when one may take a view tag and include it in a cleartool cmd:</p>
+
+<div class="code"><pre>
+`cleartool lsview -long -region SanJoseNT $view_tag 2&gt; /dev/null`
+</pre></div>
+
+<p>when $view_tag is the above results in:</p>
+
+<div class="code"><pre>
+sh: -c: line 1: syntax error near unexpected token `)'
+sh: -c: line 1: `cleartool lsview -long -region SanJoseNT helenay_PIRelease_12022002_7031RC) 2&gt; /dev/null'
+</pre></div>
+
+<p>I don't think I should write code to escape such characters but what else can I do? We could ask this user to rename their view but apparently  Clearcase does not disallow such strange characters in view tag names (and perhaps other objects...).</p>
+
+<h2>DNS Issues</h2>
+
+<p>Kerrynn De Roche wrote:</p>
+
+<blockquote type="cite">
+  <p>I just checked the etc/hosts and it seems we had last set the entries to 128.34 instead of 128.37. I changed them to 128.37 and it seems to be working now...</p>
+</blockquote>
+
+<p>10.136.128.37 has always been the IP address of ccase-rmna-4. If you
+had previously had 10.138.128.34 then that was what was wrong (with
+that workaround).</p>
+
+<blockquote type="cite">
+  <p>I would rather not have to worry about having to check the hosts file  whenever the IP address changes though.</p>
+</blockquote>
+
+<p>You see that's the difference between desktops and servers - server IP
+addresses never (or at least rarely) change. In fact in the administration business, keeping the servers IP address static is always a consideration - even if the machine is being swapped. We'll swap the IP addresses in DNS to the new machine to keep them the same precisely because of these issues. ccase-rmna-4's IP address will not change!</p>
+
+<blockquote type="cite">
+  <p>What is the method you use to not have to worry about hosts file?</p>
+</blockquote>
+
+<p>As I said, in my environment it works without /etc/hosts:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>cat /etc/hosts</u>
+# Copyright (c) 1993-1999 Microsoft Corp.
+#
+# This is a sample HOSTS file used by Microsoft TCP/IP for Windows.
+#
+# This file contains the mappings of IP addresses to host names. Each
+# entry should be kept on an individual line. The IP address should
+# be placed in the first column followed by the corresponding host name.
+# The IP address and the host name should be separated by at least one
+# space.
+#
+# Additionally, comments (such as these) may be inserted on individual
+# lines or following the machine name denoted by a '#' symbol.
+#
+# For example:
+#
+#      102.54.94.97     rhino.acme.com          # source server
+#       38.25.63.10     x.acme.com              # x client host
+127.0.0.1       localhost laptop
+#10.136.128.37  ccase-rmna-4
+</pre></div>
+
+<p>Note ccase-rmna-4's entry is commented out. Additionally I do not have
+ca.broadcom.com on the DNS Suffix Search List:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>ipconfig /all</u>
+
+Windows IP Configuration
+
+        Host Name . . . . . . . . . . . . : LTSJCA-ADEFARIA
+        Primary Dns Suffix  . . . . . . . : corp.ad.broadcom.com
+        Node Type . . . . . . . . . . . . : Hybrid
+        IP Routing Enabled. . . . . . . . : No
+        WINS Proxy Enabled. . . . . . . . : No
+        <font color="#ff0000"><b>DNS Suffix Search List. . . . . . : corp.ad.broadcom.com
+                                            broadcom.com</b></font>
+
+Ethernet adapter Wireless:
+
+        Media State . . . . . . . . . . . : Media disconnected
+        Description . . . . . . . . . . . : Broadcom 802.11g Network
+Adapter
+        Physical Address. . . . . . . . . : 00-10-18-90-1D-11
+
+Ethernet adapter Secondary:
+
+        Media State . . . . . . . . . . . : Media disconnected
+        Description . . . . . . . . . . . : 3Com 3C920 Integrated Fast Ethernet        Controller (3C905C-TX Compatible) #2
+        Physical Address. . . . . . . . . : 00-08-74-95-4A-24
+
+Ethernet adapter Primary:
+
+        Connection-specific DNS Suffix  . : broadcom.com
+        Description . . . . . . . . . . . : 3Com 3C920 Integrated Fast Ethernet        Controller (3C905C-TX Compatible)
+        Physical Address. . . . . . . . . : 00-B0-D0-0E-A2-71
+        Dhcp Enabled. . . . . . . . . . . : Yes
+        Autoconfiguration Enabled . . . . : Yes
+        IP Address. . . . . . . . . . . . : 10.16.65.219
+        Subnet Mask . . . . . . . . . . . : 255.255.240.0
+        Default Gateway . . . . . . . . . : 10.16.64.1
+        DHCP Server . . . . . . . . . . . : 10.16.192.15
+        DNS Servers . . . . . . . . . . . : 10.16.64.11
+                                            10.16.64.12
+                                            10.16.64.13
+        Primary WINS Server . . . . . . . : 10.16.192.15
+        Secondary WINS Server . . . . . . : 10.16.192.16
+        Lease Obtained. . . . . . . . . . : Tuesday, January 03, 2006 8:29:46 PM
+        Lease Expires . . . . . . . . . . : Friday, January 06, 2006 8:29:46 PM
+</pre></div>
+
+<p>So I don't have any kind of workaround any more. It just works. By that
+I mean the following command used to fail stating a  WINSOCK error trying to contact ccase-rman-4:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>ct lsstream -invob \\rmna_projects</u>
+</pre></div>
+
+<p>(Note ct is aliased to cleartool and since I'm using Cygwin "\\" collapses to a single "\"). Now this command works for me. Note that nslookup of a bare ccase-rmna-4 still fails for me:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>nslookup ccase-rmna-4</u>
+*** dns-sj1-1b.sj.broadcom.com can't find ccase-rmna-4: Non-existent domain
+Server:  dns-sj1-1b.sj.broadcom.com
+Address:  10.16.64.11
+</pre></div>
+
+<p>This is because ccase-rmna-4 (and  case-rmna-4.corp.ad.broadcom.com and ccase-rmna-4.broadcom.com from the DNS Suffix Search List) don't exist - it should be  case-rmna-4.ca.broadcom.com. But a FQDN works:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>nslookup ccase-rmna-4.ca.broadcom.com</u>
+Non-authoritative answer:
+Server:  dns-sj1-1b.sj.broadcom.com
+Address:  10.16.64.11
+
+Name:    ccase-rmna-4.ca.broadcom.com
+Address:  10.136.128.37
+</pre></div>
+
+<p>The way resolver(3) (DNS's name resolution) works is to look at files like /etc/hosts and/or apply DNS Suffix Search Lists. So if DNS found ccase-rmna-4 in /etc/hosts it would have it's IP address. Otherwise it'll take a bare hostname of ccase-rmna-4 and append the suffixes. So if you added ca.broadcom.com to the list that also should work.</p>
+
+<p>However the whole reason that Clearcase is using ccase-rmna-4 is
+because that's what <b>was</b> listed in the vob tag:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>llvob \\rmna_projects</u>
+Tag: \rmna_projects
+  Global path: \\cc-rmna-storage\ccstgloc-cabu\vobstore\rmna_projects.vbs
+  Server host: ccase-rmna-4.ca.broadcom.com
+  Access: public
+  Mount options: 
+  Region: rmnaNT
+  Active: NO
+  Vob tag replica uuid: 088b79e0.0b0c11d9.9204.00:01:80:c8:b5:2d
+  <font color="#ff0000"><b>Vob on host: ccase-rmna-4.ca.broadcom.com</b></font>
+Vob server access path: /projects/ccstgloc-<span>cabu</span>/vobstore/rmna_projects.vbs
+Vob family uuid:  09d0e19e.8b6611d5.b03b.00:01:80:c8:b5:2d
+Vob replica uuid: 088b79e0.0b0c11d9.9204.00:01:80:c8:b5:2d
+Vob registry attributes: ucmvob,replicated
+</pre></div>
+
+<p>but as you can see we fully qualified ccase-rmna-4 to ccase-rmna-4.ca.broadcom.com. This means that this <b>should</b> work
+without an /etc/host workaround or an "add to DNS Suffix Search List"
+workaround. Why that's not working remains a mystery.
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:19 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000510.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January  3, 2006</h2>
+                     <a id="a000509"></a>
+                     <div class="entry" id="entry-509">
+                        <h3 class="entry-header">More Clearcase modules</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Started creating a Clearcase.pm module to hold site specific Clearcase information</li>
+
+  <li>Created OSDep.pm</li>
+
+  <li>Worked with the Help Desk to attempt to fix problem with Windows Update</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:09 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000509.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January  2, 2006</h2>
+                     <a id="a000508"></a>
+                     <div class="entry" id="entry-508">
+                        <h3 class="entry-header">cvsims/Vobs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Documented set up of <a href="http://intranet.broadcom.com/~adefaria/CVS/">CVS SCP connector</a></li>
+
+  <li>Added more functionality to Clearcase::Vob</li>
+
+  <li>Coded up a preliminary stats script</li>
+</ul>
+                              
+                              <h2>CVS CSP Connector</h2>
+
+<p>I've updated <a href="http://intranet.broadcom.com/~adefaria/CVS/">CVS CSP Connector</a> documentation to add a description of the CVS administrative files that need to be changed. You'll note at the bottom that the only issues that remain are where to apply this <i>CVS CSP C<span>onnector</span></i> to. I believe we were waiting for David to respond as to the design.</p>
+
+<p>The other issue that I noted was about how to handle branches. IOW do we need to include the branch name in the change set that we append. With the <i>Clearcase CSP Connector</i> the view extended pathname is what is put into the change set. As you know,  Clearcase's view extended pathname will include branch names. In CVS such branch names are not included. Instead CVS relies on extending the revision number with extra digits. So a revision number of 1.1 would represent something on the main branch while 1.1.2.1 would be on some branch. There is no branch name information in there - one must do a cvs status or log command to find a branch name such as:</p>
+
+<div class="code"><pre>
+Sticky Tag:          andrew-branch (branch: 1.1.2)
+</pre></div>
+
+<p>then make the association between all 1.1.2.x revisions and andrew-branch above.</p>
+
+<p>If David is OK with a 4, 6, 8, etc. revision number being enough to denote that this file's revision is branched and doesn't need the branch name then cvsims is effectively functionally complete. We just need to perform the CVS Setup described at <a href="http://intranet.broadcom.com/~adefaria/CVS/">CVS CSP Connector</a> on the repositories and directories under those repositories that David or others want to enforce the CVS CSP Connector on.</p>
+
+<h2>stats</h2>
+
+<p>Ray Tran wrote:</p>
+ 
+<blockquote type="cite">
+  <p>Statistic logs - This is a script that would create two logs - one general data for each site, one for each VOB of each site.</p>
+
+  <p>The general data should have at the least - date_time;site;number of VOBs; number of total VOB size; number of snapshot views; number of dynamic views; number of file elements; number of directory element;...</p>
+</blockquote>
+
+<p>I need a little clarification about some of the above...</p>
+
+<ul>
+  <li>How do you define "site"? I take it that in general we have Clearcase region of &lt;site&gt;NT and &lt;site&gt;UNIX. Is that always the case?</li>
+
+  <li>As for #vobs - skip private vobs?</li>
+
+  <li>As for #vobs, #snapshot views and #dynamic views: Which region is that for? As you know most of our stuff is actually in the NT region not the Unix region. Yet I expect that this script will run from the Unix region. I could -region however often that doesn't work. For example, if I'm on Unix and I do the following to interrogate the NT region it fails:<br>
+    <br>
+    <div class="code"><pre>
+<font color="#3333ff"><b>ccase-rmna-3:</b></font><u>ct lsview -region rmnaNT adefaria_dynamic</u>
+  adefaria_dynamic     \\<span>ltsjca</span>-adefaria\Views\adefaria_dynamic.vws
+<font color="#3333ff"><b>ccase-rmna-3:</b></font><u>ct lsview -full -properties -region rmnaNT 
+adefaria_dynamic</u>
+  adefaria_dynamic     \\ltsjca-adefaria\Views\adefaria_dynamic.vws
+cleartool: Error: Unknown host 'ltsjca-adefaria': Host not found
+cleartool: Error: Unable to get view handle: error detected by ClearCase subsystem.
+  </pre></div>
+
+    <p>This is our familar "it fails because ltsjca-adefaria does not resolve in DNS" problem. But I need to do this with -full and -properties to determine if the view is a snapshot or dynamic (and/or a ucmview)!</p>
+
+    <p>Normally this would be the result of an lsview with -full and -properties:</p>
+
+    <div class="code"><pre>
+    <font color="#3333ff"><b>ccase-rmna-3:</b></font><u>ct lsview -full -properties phonex_3.0</u>
+  phonex_3.0           /projects/ccstgloc-cabu/viewstore/nnalluri/phonex_3.0.vws
+Created 29-Dec-04.16:48:19 by nnalluri.clearusers@ccase-rmna-3
+Last modified 29-Dec-04.16:48:20 by nnalluri.clearusers@ccase-rmna-3
+Last accessed 29-Dec-04.16:48:20 by nnalluri.clearusers@ccase-rmna-3
+Last config spec update 29-Dec-04.16:48:20 by nnalluri.clearusers@ccase-rmna-3
+Text mode: unix
+Properties: dynamic ucmview readwrite shareable_dos
+Owner: richmond/nnalluri : rwx (all)
+Group: richmond/clearusers : r-x (read)
+Other:                  : r-x (read)
+Additional groups: richmond/brcm richmond/users
+richmond/ccadmin richmond/clearcase richmond/cc_ecan richmond/rmna180qa
+    </pre></div>
+    
+    <p>Also should I do attempt to somehow combine the NT and Unix regions? If so then I'd need to figure out any vobs/views that are tagged in both regions. Or should I only consider the NT region?</p></li>
+
+  <li>As for #element, how does one determine this? I mean it is possible for somebody to create a new vob, check out the vob root directory to a specific branch, do a clearfsimport of
+thousands of elements and check in the root directory. From the perspective of a default view (just CHECKEDOUT and main/LATEST) I would not see nor be able to tabulate those thousands of elements... That's an extreme however the point is, with directories being  versioned it is really quite difficult to be able to get an accurate count of #elements.</li>
+
+  <li>BTW: It seems the majority of views are hosted on the individuals desktop or laptop and most of the time getting information about such views is near impossible. Often I get a winsock error saying it can't connect to the machine or an "unable to contact albd_server on host...".</li>
+</ul>
+
+<blockquote type="cite">
+  <p>The VOB specific data - date_time;site;VOB_name;size of database;size of source pool; size of devired object; size of cleartext; size of admin data.</p>
+
+  <p>The directory structure that I envisioned is as such</p> 
+
+  <p>/projects/scm_tools_logs</p>
+
+  <blockquote>-cc
+    <blockquote>- 2005
+      <blockquote>- 12
+        <blockquote>- 01
+        </blockquote>
+      </blockquote>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>I have a preliminary version of this working (Need to code up something to get the current site) at SCM/cc/stats. Output for rmna site looks like:</p>
+
+<div class="code"><pre>
+################################################################################<br>
+#
+# File:         vob.log
+# Description:  This file contains a list of all vobs at rmna along with some
+#               statistical information.
+# Format:       The format of this file is:
+#
+# date/time;site;VOB name;db size;src size;do size;<span>clrtxt</span>
+size;adm size
+#
+################################################################################<br>
+20060102@18:23;rmna;A1;0.3;0.0;0.00.0;0.1;0.4
+20060102@18:23;rmna;<span>CommEngine</span>;1569.3;2920.2;0.064.3;0.1;4553.8
+20060102@18:23;rmna;<span>NewTest</span>;0.2;0.0;0.00.0;0.1;0.2
+20060102@18:23;rmna;<span>OnePhone</span>;1226.7;3007.9;0.0321.0;0.1;4555.7
+20060102@18:23;rmna;<span>SpiceBoxSW</span>;114.3;169.3;0.00.0;0.1;283.7
+20060102@18:23;rmna;<span>TrainCommEngine</span>;1.6;10.7;0.00.0;0.1;12.4
+20060102@18:23;rmna;adm;0.6;277.8;0.0547.0;0.1;825.5
+20060102@18:23;rmna;alpha_video;115.9;205.9;0.00.0;0.1;321.8
+</pre></div>
+
+<p>and</p>
+
+<div class="code"><pre>
+#################################################################################<br>
+# File:         rmna.log
+# Description:  This file contains statistical information about the vobs/views
+#               at this site.
+# Format:       The format of this file is:
+#
+# date/time;site;nbr vobs;total vob size;nbr snapshot;nbr dynamic;nbr ucm;nbr file elements;nbr dir elements
+#
+################################################################################<br>
+20060102@19:58;rmna;57;54222.1;0;10;5;&lt;To be determined&gt;;&lt;To be determined&gt;
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000508.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

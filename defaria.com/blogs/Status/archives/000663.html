@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Shared Stream View Creation</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000662.html" title="ucmwb/Qt and other issues" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000664.html" title="ucmwb/Purify" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000663.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/50"
+    dc:title="Shared Stream View Creation"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000663.html"
+    dc:subject="General Dynamics"
+    dc:description=" Investigated problem with Shared Stream View Creation Investigated problems with Purify. Seems we&apos;re getting a little versionist......"
+    dc:creator=""
+    dc:date="2007-08-15T18:25:48-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000662.html">&laquo; ucmwb/Qt and other issues</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000664.html">ucmwb/Purify &raquo;</a>
+                     </p>
+
+                     <a id="a000663"></a>
+                     <div class="entry" id="entry-663">
+                        <h3 class="entry-header">Shared Stream View Creation</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Investigated problem with Shared Stream View Creation<li>
+
+  <li>Investigated problems with Purify. Seems we're getting a little versionist...</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Shared Stream View Creation</h3>
+
+<p>Here in GD the process is very driven off of WOR (Work Order Request). There are <i>Collector</i> WORs and <i>Worker</i> WORs (basically parent and child records). Additionally any one of the Worker WORs can be designated as the common development WOR. This means that while views can be made for any Worker WORs, only the common development WOR will have a stream and all Worker WORs will share that stream, hence the "shared stream" portion of Shared Stream View Creation.</p>
+
+<p>Now this is all handled by the createView.pl script that creates views and Clearquest, having a Create View action, calls createView.pl properly when there is a hierarchy of WORs. But <b>ucmwb</b> does not sense this and thus, while it calls createView.pl for view creation, it fails to specify the "Target WOR" (AKA common development WOR).</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on August 15, 2007  6:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000663.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/50</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

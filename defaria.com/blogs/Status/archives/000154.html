@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Lock Vobs jobs</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000153.html" title="Ah comfort!" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000155.html" title="Lockvobs" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000153.html">&laquo; Ah comfort!</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000155.html">Lockvobs &raquo;</a>
+                     </p>
+
+                     <a id="a000154"></a>
+                     <div class="entry" id="entry-154">
+                        <h3 class="entry-header">Lock Vobs jobs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Came in today and noticed that Notes was complaining that a network operation had failed. Also saw a couple of messages that Clearcase was having problems so I started investigating. Apparently the albd_server was not running on rtnlprod01. Scanning the logs I found:</p>
+
+<blockquote><tt>albd_log: Error: Unable to connect to SMTP server "172.16.101.56[6400]": Bad file descriptor.</tt></blockquote>
+
+<p>Well 172.16.101.56 happens to be notesadmin01:</p>
+
+<pre>
+C09-272-A:nslookup 172.16.101.56
+Server:  dhcp01.ameriquest.net
+Address:  172.16.101.100
+
+Name:    notesadmin01.ameriquest.net
+Address:  172.16.101.56
+</pre>
+
+<p>Why are we trying to email through notesadmin01 instead of notesmail01?</p>
+
+<p>Meantime I unlocked the vobs...</p>
+
+<p>Looking at the SMTP setting in Control Panel: Clearcase: Options I find the SMTP Host set to appsmtp.ameriquest.net which is an alias to notestadmin01.ameriquest.net:</p>
+<pre>
+C09-272-A:nslookup appsmtp
+Server:  dhcp01.ameriquest.net
+Address:  172.16.101.100
+
+Name:    notesadmin01.ameriquest.net
+Address:  172.16.101.56
+Aliases:  appsmtp.ameriquest.net
+</pre>
+<p>I guess the questions are:</p>
+
+<ul>
+
+  <li>What is the official SMTP host that we can rely on?</li>
+  <li>Why does the [un]lock vobs job have problems and eventually kill the albd_server process simply because it cannot contact the SMTP host?</li>
+
+</ul>
+
+<p>Further investigation yields the following: The lock and unlock vobs scripts apparently appear in .../Rational/Clearcase/var/scheduler/tasks. There are 4 files involved:</p>
+
+<ul>
+
+  <li>ccase_lock_vobs.bat: Simple bat file that fires off Perl on...</li>
+  <li>lock_vobs.pl: This locks the vobs and sends email</li>
+  <li>ccase_unlock_vobs.bat: Simple bat file that fires off Perl on...</li>
+  <li>unlock_vobs.pl: This unlocks the vob and sends email</li>
+
+</ul>
+
+<p>Additionally these Perl scripts use C:/Winnt/System32/blat.exe to send mail.</p>
+
+<p>Finally the task_registry file was modified to add these custom jobs.</li>
+
+<p>I believe that this was done by perhaps Paul and/or Brian and it is fine work and does the job. However, seeing as we are about to reburn this system to Windows 2003 Server such work would be lost! And who would remember where this blat came from and that it needed to be reinstalled?</p>
+
+<h3>Suggestions:</h3>
+
+<p>I think we should use the Rational supplied tool, notify, instead of blat. This way we would not need to remember to find and reinstall this blat thing. I think Brian had problems getting notify to work and instead fell back on something he knew, blat, to get this working. Additionally IMHO blat should not be in the Windows directory! If we must use blat then perhaps we should install it into CM_TOOLS/bin.</p>
+
+<p>Additionally I suggest that we relocate the .bat files and Perl scripts to CM_TOOLS/bin also and task_registry file should be pointed to CM_TOOLS/bin.</p>
+
+<p>Finally I think there should be a script set up to reproduce/reinstall this environment.</p>
+
+<p>IOW our stuff should also be version controlled and scripts written to automate it's installation and workings.</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April  5, 2004  6:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000154.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

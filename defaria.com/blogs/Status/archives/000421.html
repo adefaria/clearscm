@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: CQ/Triggers/Binary merge/CVS</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000420.html" title="Remedy/Irvine Access/P4 ticket" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000422.html" title="Binary Merge/CVS/Clearquest Web" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000420.html">&laquo; Remedy/Irvine Access/P4 ticket</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000422.html">Binary Merge/CVS/Clearquest Web &raquo;</a>
+                     </p>
+
+                     <a id="a000421"></a>
+                     <div class="entry" id="entry-421">
+                        <h3 class="entry-header">CQ/Triggers/Binary merge/CVS</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Met with Chris Rumf regarding Clearquest and int impending upgrade/merge of DBs. Chris told us of his trials and tribulations with a 3 month project to merge CQ databases and move them to San Diego.</li>
+
+  <li>Fixed mktriggers to properly specify the path for the trigger script in both Windows and Unix implementations.</li>
+
+  <li>Worked with Shivdutt to try to reproduce the problems with merging binary files.</li>
+
+  <li>I was assigned a ticket to give a user CVS repository access. I still do not have proper login access to Irvine nor do I have permissions to perform this task</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Clearquest issues</h3>
+
+<p>In all likelihood we will be faced with a merging of DBs and probable writing of Perl scripts to massage and otherwise transform the database. This will take time. Additionally Vinh is leaving Broadcom.</p>
+
+<p>Chris warned that he faced a situation where the new version of Clearquest brings in the concept of internationalization by use of a code page and that he had many problems with users copying and pasting things from MS Word which ended up outside of the normal character set.</p>
+
+<p>Also, Irvine seems to have Clearquest 2001 version which has the old, ASP based Clearquest Web which is decidedly inferior to the new 2003 Apache/RWP/Java based Clearquest Web. He also pointed us to some valuable information about performance tuning the various Clearquest Web pieces. This will be useful if we are to support a large number of users from Isreal.</p>
+
+<h3>Triggers</h3>
+
+<p>Looked over most of the currently implemented triggers. I can probably add them to my mktriggers.pl script. One problem is that the ADD_EXECUTE trigger is merely a cleartool protect command to add execute permissions to newly created elements. I'm not sure why one would want to do this to every element as most elements are not executable (even though some OSes seem to think so). The mktriggers.pl script is oriented to only adding Perl based triggers. This could be solved by making it a simple Perl script. Also ADD_EXECUTE is added to all vobs except the \Docs vobs. It we can add it to all vobs it would be easier.</p>
+
+<p>Current triggers use -exec and specify a Windows UNC path. This means that if we have any Unix clients they will not be able to execute any of these triggers! Fixed mktriggers.pl to add -execwin and -execunix options with proper pathnames.</p>
+
+<h3>CVS</h3>
+
+<p>Depending on the CVS situation, Broadcom might be interested in a Web application I had made that manages CVS users. From a web page a user can manage his user (able to change his password, add an email address/phone number, etc). If the user is in a cvsadm group they can add/change/delete other CVS users. With such a web app the help desk could resolve such CVS requests on the spot.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 14, 2005  6:00 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000421.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: More module coding</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000509.html" title="More Clearcase modules" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000511.html" title="Mail.pm/CQ Web" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000509.html">&laquo; More Clearcase modules</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000511.html">Mail.pm/CQ Web &raquo;</a>
+                     </p>
+
+                     <a id="a000510"></a>
+                     <div class="entry" id="entry-510">
+                        <h3 class="entry-header">More module coding</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Standardized some modules a little bit</li>
+
+  <li>Added much more functionality to Clearcase modules and tied that into stats and log_activity</li>
+
+  <li>Changed the startup of many scripts to be more standard</li>
+
+  <li>Implemented much more functionality in stats</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Odd characters in view tags</h2>
+
+<p>I found this odd view tag in the <span>SanJoseNT</span> region: 
+
+<div class="code"><pre>
+ccase-sj1-1:ct lsview -long -region SanJoseNT helenay_PIRelease_12022002_7031RC\)
+Tag: helenay_PIRelease_12022002_7031RC)
+  Global path: \\Pc-1ubrv\Myview\helenay.v.vws
+  Server host: Pc-1ubrv
+  Region: SanJoseNT
+  Active: NO
+  View tag uuid:132d6e50.0eee11d7.a7a4.00:b0:d0:20:ba:8a
+View on host: Pc-1ubrv
+View server access path: F:\Myview\helenay.v.vws
+View uuid: 132d6e50.0eee11d7.a7a4.00:b0:d0:20:ba:8a
+View attributes: snapshot
+View owner: BROADCOM\helenay
+</pre></div>
+
+<p>Note the trailing ")" in the view tag. Alas this screws up Perl scripts when one may take a view tag and include it in a cleartool cmd:</p>
+
+<div class="code"><pre>
+`cleartool lsview -long -region SanJoseNT $view_tag 2&gt; /dev/null`
+</pre></div>
+
+<p>when $view_tag is the above results in:</p>
+
+<div class="code"><pre>
+sh: -c: line 1: syntax error near unexpected token `)'
+sh: -c: line 1: `cleartool lsview -long -region SanJoseNT helenay_PIRelease_12022002_7031RC) 2&gt; /dev/null'
+</pre></div>
+
+<p>I don't think I should write code to escape such characters but what else can I do? We could ask this user to rename their view but apparently  Clearcase does not disallow such strange characters in view tag names (and perhaps other objects...).</p>
+
+<h2>DNS Issues</h2>
+
+<p>Kerrynn De Roche wrote:</p>
+
+<blockquote type="cite">
+  <p>I just checked the etc/hosts and it seems we had last set the entries to 128.34 instead of 128.37. I changed them to 128.37 and it seems to be working now...</p>
+</blockquote>
+
+<p>10.136.128.37 has always been the IP address of ccase-rmna-4. If you
+had previously had 10.138.128.34 then that was what was wrong (with
+that workaround).</p>
+
+<blockquote type="cite">
+  <p>I would rather not have to worry about having to check the hosts file  whenever the IP address changes though.</p>
+</blockquote>
+
+<p>You see that's the difference between desktops and servers - server IP
+addresses never (or at least rarely) change. In fact in the administration business, keeping the servers IP address static is always a consideration - even if the machine is being swapped. We'll swap the IP addresses in DNS to the new machine to keep them the same precisely because of these issues. ccase-rmna-4's IP address will not change!</p>
+
+<blockquote type="cite">
+  <p>What is the method you use to not have to worry about hosts file?</p>
+</blockquote>
+
+<p>As I said, in my environment it works without /etc/hosts:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>cat /etc/hosts</u>
+# Copyright (c) 1993-1999 Microsoft Corp.
+#
+# This is a sample HOSTS file used by Microsoft TCP/IP for Windows.
+#
+# This file contains the mappings of IP addresses to host names. Each
+# entry should be kept on an individual line. The IP address should
+# be placed in the first column followed by the corresponding host name.
+# The IP address and the host name should be separated by at least one
+# space.
+#
+# Additionally, comments (such as these) may be inserted on individual
+# lines or following the machine name denoted by a '#' symbol.
+#
+# For example:
+#
+#      102.54.94.97     rhino.acme.com          # source server
+#       38.25.63.10     x.acme.com              # x client host
+127.0.0.1       localhost laptop
+#10.136.128.37  ccase-rmna-4
+</pre></div>
+
+<p>Note ccase-rmna-4's entry is commented out. Additionally I do not have
+ca.broadcom.com on the DNS Suffix Search List:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>ipconfig /all</u>
+
+Windows IP Configuration
+
+        Host Name . . . . . . . . . . . . : LTSJCA-ADEFARIA
+        Primary Dns Suffix  . . . . . . . : corp.ad.broadcom.com
+        Node Type . . . . . . . . . . . . : Hybrid
+        IP Routing Enabled. . . . . . . . : No
+        WINS Proxy Enabled. . . . . . . . : No
+        <font color="#ff0000"><b>DNS Suffix Search List. . . . . . : corp.ad.broadcom.com
+                                            broadcom.com</b></font>
+
+Ethernet adapter Wireless:
+
+        Media State . . . . . . . . . . . : Media disconnected
+        Description . . . . . . . . . . . : Broadcom 802.11g Network
+Adapter
+        Physical Address. . . . . . . . . : 00-10-18-90-1D-11
+
+Ethernet adapter Secondary:
+
+        Media State . . . . . . . . . . . : Media disconnected
+        Description . . . . . . . . . . . : 3Com 3C920 Integrated Fast Ethernet        Controller (3C905C-TX Compatible) #2
+        Physical Address. . . . . . . . . : 00-08-74-95-4A-24
+
+Ethernet adapter Primary:
+
+        Connection-specific DNS Suffix  . : broadcom.com
+        Description . . . . . . . . . . . : 3Com 3C920 Integrated Fast Ethernet        Controller (3C905C-TX Compatible)
+        Physical Address. . . . . . . . . : 00-B0-D0-0E-A2-71
+        Dhcp Enabled. . . . . . . . . . . : Yes
+        Autoconfiguration Enabled . . . . : Yes
+        IP Address. . . . . . . . . . . . : 10.16.65.219
+        Subnet Mask . . . . . . . . . . . : 255.255.240.0
+        Default Gateway . . . . . . . . . : 10.16.64.1
+        DHCP Server . . . . . . . . . . . : 10.16.192.15
+        DNS Servers . . . . . . . . . . . : 10.16.64.11
+                                            10.16.64.12
+                                            10.16.64.13
+        Primary WINS Server . . . . . . . : 10.16.192.15
+        Secondary WINS Server . . . . . . : 10.16.192.16
+        Lease Obtained. . . . . . . . . . : Tuesday, January 03, 2006 8:29:46 PM
+        Lease Expires . . . . . . . . . . : Friday, January 06, 2006 8:29:46 PM
+</pre></div>
+
+<p>So I don't have any kind of workaround any more. It just works. By that
+I mean the following command used to fail stating a  WINSOCK error trying to contact ccase-rman-4:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>ct lsstream -invob \\rmna_projects</u>
+</pre></div>
+
+<p>(Note ct is aliased to cleartool and since I'm using Cygwin "\\" collapses to a single "\"). Now this command works for me. Note that nslookup of a bare ccase-rmna-4 still fails for me:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>nslookup ccase-rmna-4</u>
+*** dns-sj1-1b.sj.broadcom.com can't find ccase-rmna-4: Non-existent domain
+Server:  dns-sj1-1b.sj.broadcom.com
+Address:  10.16.64.11
+</pre></div>
+
+<p>This is because ccase-rmna-4 (and  case-rmna-4.corp.ad.broadcom.com and ccase-rmna-4.broadcom.com from the DNS Suffix Search List) don't exist - it should be  case-rmna-4.ca.broadcom.com. But a FQDN works:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>nslookup ccase-rmna-4.ca.broadcom.com</u>
+Non-authoritative answer:
+Server:  dns-sj1-1b.sj.broadcom.com
+Address:  10.16.64.11
+
+Name:    ccase-rmna-4.ca.broadcom.com
+Address:  10.136.128.37
+</pre></div>
+
+<p>The way resolver(3) (DNS's name resolution) works is to look at files like /etc/hosts and/or apply DNS Suffix Search Lists. So if DNS found ccase-rmna-4 in /etc/hosts it would have it's IP address. Otherwise it'll take a bare hostname of ccase-rmna-4 and append the suffixes. So if you added ca.broadcom.com to the list that also should work.</p>
+
+<p>However the whole reason that Clearcase is using ccase-rmna-4 is
+because that's what <b>was</b> listed in the vob tag:</p>
+
+<div class="code"><pre>
+<font color="#3333ff"><b>Local:</b></font><u>llvob \\rmna_projects</u>
+Tag: \rmna_projects
+  Global path: \\cc-rmna-storage\ccstgloc-cabu\vobstore\rmna_projects.vbs
+  Server host: ccase-rmna-4.ca.broadcom.com
+  Access: public
+  Mount options: 
+  Region: rmnaNT
+  Active: NO
+  Vob tag replica uuid: 088b79e0.0b0c11d9.9204.00:01:80:c8:b5:2d
+  <font color="#ff0000"><b>Vob on host: ccase-rmna-4.ca.broadcom.com</b></font>
+Vob server access path: /projects/ccstgloc-<span>cabu</span>/vobstore/rmna_projects.vbs
+Vob family uuid:  09d0e19e.8b6611d5.b03b.00:01:80:c8:b5:2d
+Vob replica uuid: 088b79e0.0b0c11d9.9204.00:01:80:c8:b5:2d
+Vob registry attributes: ucmvob,replicated
+</pre></div>
+
+<p>but as you can see we fully qualified ccase-rmna-4 to ccase-rmna-4.ca.broadcom.com. This means that this <b>should</b> work
+without an /etc/host workaround or an "add to DNS Suffix Search List"
+workaround. Why that's not working remains a mystery.
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on January  4, 2006  6:19 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000510.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

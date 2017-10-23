@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Porting Perl -> LOS178</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000391.html" title="Ants and Docs" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000393.html" title="CVS Adm Web App Prototype" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000391.html">&laquo; Ants and Docs</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000393.html">CVS Adm Web App Prototype &raquo;</a>
+                     </p>
+
+                     <a id="a000392"></a>
+                     <div class="entry" id="entry-392">
+                        <h3 class="entry-header">Porting Perl -> LOS178</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Started implementing a CVS Checkout/Update in CVSAdm</li>
+
+  <li>Jas asked me to look into porting Perl -> LOS178 3.0.0</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Porting Perl -> LOS178 3.0.0</h3>
+
+<p>I was asked to attempt to port Perl (latest version - 5.8.7) to LOS178 (latest version - 3.0.0 20050719). Here's what I attempted:</p>
+
+<ul>
+  <li>Downloaded perl-5.8.7 from perl.com (http://www.perl.com/download.csp#stable)</li>
+
+  <li>Extracted to europa:/build/perl-5.8.7</li>
+
+  <li>Extracted from 20050719:
+
+  <ul>
+    <li>3000-04.los178_rsc_src.tar.gz</li>
+
+    <li>3001-05.los178_src.tar.gz</li>
+
+    <li>3013-05.los178_dev.tar.gz</li>
+
+    <li>3015-04.los178_rsc_dev.tar.gz</li>
+  </ul>
+
+  to /build/3.0.0/los178</li>
+
+  <li>Extracted ppc.cdklinux.tar.gz from bin-image (DEV_LOS178_3p0p0_ppc_20050719)</li>
+
+  <li>Sourced SETUP.bash</li>
+</ul>
+
+<p>Next I went to /build/perl-5.8.7 and ran Configure. I was supprised to see that it had a selection for lynxos! Unfortunately this is not the way to go.</p>
+
+<p>Spoke with Ed Mooring, who happens to be a Perl porter and who had previously ported Perl 5.6 to LynxOS 4.0. He suggested I attempt to run Configure natively on a LynxOS 4.0 machine to get config.sh to be generated. I could then use that in conjunction with reading about the <i>Perl Patch Pumpkin</i> (Apparently a guide about patching and porting) in an attempt to figure out what needs to be done to that config.sh to get a cross build to LOS178 3.0.0. (Note that I used a LynxOS 5.0 machine not a LynxOS 4.0 machine)</p>
+
+<p>After going through the long Configure process and hopefully answering questions properly Ed said I should attempt a native build anyway. Build failed with:</p>
+<div class="code"><pre>
+    `sh  cflags "optimize='-O'" mg.o`  mg.c
+              CCCMD =  gcc -DPERL_CORE -c -DEXTRA_F_IN_SEMUN_BUF -D__NO_INCLUDE_WARN__ -fno-strict-aliasing -pipe -I/usr/local/include -O  -Wall
+    mg.c:74: conflicting types for `setegid'
+    /usr/include/unistd.h:410: previous declaration of `setegid'
+    /usr/include/netinet/in.h:512: warning: `ntohs' declared `static' but never defined
+    /usr/include/netinet/in.h:514: warning: `ntohl' declared `static' but never defined
+    make: *** [mg.o] Error 1
+</pre></div>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on July 22, 2005  5:03 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000392.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

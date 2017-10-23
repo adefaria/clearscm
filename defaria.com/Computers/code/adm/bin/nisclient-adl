@@ -1,0 +1,166 @@
+#!/bin/bash
+###############################################################################
+# This script sets a machine up to be an NIS client.
+# Kevin Lister 10.28.98
+###############################################################################
+# Variables
+logfile=/nisclient.log
+me=${0##*/}
+
+admin=adl-support@cup.hp.com
+nisdomain=adl
+domainname=
+namesvrs=/etc/rc.config.d/namesvrs
+nsswitch=/etc/nsswitch.conf
+pwfile=/etc/passwd
+lclpwfile=/etc/passwd.loc
+nispwfile=/etc/passwd-nis
+grpfile=/etc/group
+nisgrpfile=/etc/group-nis
+crontab=/var/spool/cron/crontabs/root
+newcrontab=/tmp/root-crontab
+null=/dev/null
+ypdir=/var/yp
+
+# Functions
+function error {
+  print -u2 "$me: Error: $1"
+  /usr/bin/mailx -s "$(uname -n): NIS setup error: $1" $admin < $null
+  exit 255;
+} # error
+
+function warning {
+  print -u2 "$me: Warning: $1"
+} # warning
+
+function display {
+  print "$1"
+} # display
+
+function info {
+  display "$me: Info: $1"
+} # info
+
+##
+########## Main
+##
+
+##
+########## Check the status of the system before proceeding
+##
+
+# Must be root to run this
+if [ $(id -u) -ne 0 ]; then
+        error "Must be root to execute this command... Exiting."
+fi
+
+# Check to see if this script has already been ran
+if [ -a $logfile ]; then
+        error "$me has already been ran on $(uname -n)... Exiting"
+fi
+
+# Check to see if domainname has been set
+domainname=`/bin/domainname`
+if [ "_$domainname" != "_" ]; then
+        error "NIS Domain name is already set to -> $domainname... Exiting."
+fi
+
+# Are we already running NIS?
+/usr/bin/ypwhich >> $logfile 2>&1
+if [ $? -eq 0 ]; then
+        error "This system is already running NIS... Exiting."
+fi
+
+# Check to see if there is a name service switch config file
+if [ -a $nsswitch ]; then
+        error "This system has a name service switch config file...
+Exiting."
+fi
+
+# Check to see if /var/yp exists
+if [ ! -a $ypdir ]; then
+        error "Directory /var/yp does not exist... Exiting"
+fi
+
+##
+########## System checks out. Set up the files and start NIS.
+##
+
+# Set the NIS domain name - This is probably not needed
+/bin/domainname $nisdomain >> $logfile 2>&1
+if [ $? -ne 0 ]; then
+        error "Could not set NIS domain name... Exiting."
+fi
+
+# Setup the /etc/rc.config.d/namesvrs file
+/usr/sbin/ch_rc -ap NIS_CLIENT=1 \
+       -p NIS_DOMAIN=adl \
+       -p WAIT_FOR_NIS_SERVER=FALSE
+
+# Email us if there are local passwd entries other than root
+if [ $( /bin/wc -l $lclpwfile | /bin/cut -d " " -f 1) != "1"  ]; then
+        /usr/bin/mailx -s "$(uname -n): passwd.loc has more than 1 line"
+$admin < $lclpwfile
+fi
+
+# Create NIS passwd file
+if [ -a $lclpwfile ]; then
+        /bin/grep "^root" $lclpwfile > $nispwfile
+else
+        /bin/grep "^root" $pwfile > $nispwfile
+fi
+
+/bin/cat >> $nispwfile <<:END
+adm:*:4:4::/usr/adm:/usr/bin/sh
+anon:*:21:5:placeholder for future:/:/usr/bin/sync
+bin:*:2:2::/usr/bin:/bin/sh
+daemon:*:1:5::/:/usr/bin/sh
+ftp:*:500:10:anonymous ftp:/home/ftp:/usr/bin/false
+lp:*:9:7:[Line Printer]:/usr/spool/lp:/usr/bin/sh
+nuucp:*:6:1:0000-uucp(0000):/usr/spool/uucppublic:/usr/lib/uucp/uucico
+sync:*:20:1::/:/usr/bin/sync
+tftp:*:510:1:Trivial FTP user:/usr/tftpdir:/usr/bin/false
+uucp:*:5:3::/usr/spool/uucppublic:/usr/lib/uucp/uucico
+who:*:90:1::/:/usr/bin/who
+:END
+
+/bin/grep -v "^root" $lclpwfile >> $nispwfile
+
+/bin/cat >> $nispwfile <<:END2
+-@dangerous-users
++@sysadmin
++@site-ux
++:
+:END2
+
+mv $pwfile $pwfile.preNIS
+mv $nispwfile $pwfile
+chmod 444 $pwfile
+chown root:other $pwfile
+
+/bin/cat >> $nisgrpfile <<:GRPEND
+root:*:0:root
+other:*:1:root,hpdb
+bin:*:2:root,bin
+sys:*:3:root,uucp
+adm:*:4:root,adm
+daemon:*:5:root,daemon
+mail:*:6:root
+lp::7:root,lp
+nogroup:*:-2:
++:
+:GRPEND
+
+mv $grpfile $grpfile-preNIS
+mv $nisgrpfile $grpfile
+chmod 444 $grpfile
+chown bin:bin $grpfile
+
+# Start the NIS Client daemons
+/sbin/init.d/nis.client start >> $logfile 2>&1
+if [ $? -ne 0 ]; then
+        error "Problem starting the NIS client daemons... Exiting."
+fi
+
+# Email us that a machine was updated
+/usr/bin/mailx -s "$(uname -n): NIS setup complete" $admin < $null

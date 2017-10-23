@@ -1,0 +1,43 @@
+#!/bin/bash
+################################################################################
+#
+# File:         fixntp
+# Description:  This script will fix /etc/rc.config.d/netdaemons to set 
+#		NTPDATE_SERVER to cupertino.ntp.hp.com
+# Author:       Andrew DeFaria (defaria@cup.hp.com)
+# Language:	Korn Shell
+# Modified:
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# First source /app/appserver
+if [ -x /app/appserver ]; then
+  . /app/appserver
+fi
+
+if [ $(id -u) -ne 0 ]; then
+  print -u2 "Error: You must be root to execute this command!"
+  exit 1
+fi
+
+if [ "$OS" = "09" ]; then
+  print -u2 "Error: $(basename $0) does not run on 9.x!"
+  exit 1
+fi
+
+netdaemons=/etc/rc.config.d/netdaemons
+netdaemons_new=/etc/rc.config.d/netdaemons.$$
+
+sed 's/NTPDATE_SERVER=$/NTPDATE_SERVER=cupertino.ntp.hp.com/' \
+  $netdaemons > $netdaemons_new
+
+if cmp -s $netdaemons $netdaemons_new; then
+  rm -f $netdaemons_new
+  print "NTPDATE_SERVER already set properly - No fix needed!"
+else
+  mv $netdaemons_new $netdaemons
+  chmod 555 $netdaemons
+  chown bin:bin $netdaemons
+  print "Changed NTPDATE_SERVER to be set properly"
+fi

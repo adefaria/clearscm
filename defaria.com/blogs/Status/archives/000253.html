@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Building 5.0.0 TOT toolchain</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000252.html" title="Building LynxOS with gcc 3.2.2" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000254.html" title="Booting 5.0.0 LynxOS" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000252.html">&laquo; Building LynxOS with gcc 3.2.2</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000254.html">Booting 5.0.0 LynxOS &raquo;</a>
+                     </p>
+
+                     <a id="a000253"></a>
+                     <div class="entry" id="entry-253">
+                        <h3 class="entry-header">Building 5.0.0 TOT toolchain</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Built 3.2.2 toolchain natively on Lynxos 5.0.0</li>
+
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Came in to find that the native build of the 5.0 toolchain went nowhere. Seems, as I expected, that I need to unpack 18010.x11r6.tar.gz and 18011.pd.tar.gz too. Unpacked that and restarted build.<p>
+
+<p>Build failed again, this time <i>Memory Exhausted</i>. I had to do <tt>ulimit -s -d 1000000</tt> and restart build</p>
+
+<p>Build finally succeeded. Did make package then copied to t3 area (to be precise <tt>t3:/export/dev_archive/lynxos/tools-5.0.0/3.2.2-120604</tt>). Only needed to copy over the <tt>toolchain-i386-lynx-lynxos-i386.tar.gz</tt> as this package is the 5.0.0 toolchain built natively</p>
+
+<p>Created a new build area on dopey @ <tt>/export/build1/LYNXOS_500/build/lynxos/120604-C</tt>. Needed to copy over int_tools and modify <tt>int_tools/__profile.exp</tt> to:
+
+<ol>
+
+<li>Change <tt>DIR_PATH(archive)</tt> back to dopey (it was at t3 for 120604-B) </li>
+
+<li>Change <tt>int_tools/EXP_LIB/steps.exp</tt> to use gnuaout instead of gnu in the name of the package. There is a little debate of which way this should go</li>
+
+</ol>
+
+<p><b>Note:</b> I find all of these different machines with different long pathnames confusing. For example, I would think using the principal of separation of code and data that the <i>int_tools</i> code should be globally accessible and that one should not be modifying variable contents before running scripts. That's data and should either have to be supplied or kept in a data file perhaps separate for each build run. IOW <i>int_tools</i> should be globally visable (perhaps in one's PATH) and execuable as code and not modified per run. Also, as such it should in CVS and perhaps grabbed from CVS with an official TAG.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on December  7, 2004  6:54 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000253.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

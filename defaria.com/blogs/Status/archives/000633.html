@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Turning on HTML for Exchange/IMAP</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000632.html" title="Oracle limit clause" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000634.html" title="Why MS Word is a bad HTML editor" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000633.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/22"
+    dc:title="Turning on HTML for Exchange/IMAP"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000633.html"
+    dc:subject="Texas Instruments"
+    dc:description=" Described how to configure Exchange&apos;s IMAP server to server out HTML..."
+    dc:creator=""
+    dc:date="2007-04-21T20:38:56-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000632.html">&laquo; Oracle limit clause</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000634.html">Why MS Word is a bad HTML editor &raquo;</a>
+                     </p>
+
+                     <a id="a000633"></a>
+                     <div class="entry" id="entry-633">
+                        <h3 class="entry-header">Turning on HTML for Exchange/IMAP</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Described how to configure Exchange's IMAP server to server out HTML</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>I had worked on this before but I just want to document it here. I use Thunderbird and connect to Exchange servers via IMAP. Here at TI I was only getting plain text from the IMAP server. I was speaking to a friend of mine who managed an Exchange at a prior company we worked together at. I used TB and IMAP back then too and did not have problems with HTML'ized email from Outlook users:</p>
+
+<b><font color="#204a87">Andrew DeFaria:</font></b> In any event I'm nore interested if you have an answer to my question regarding Exchange/IMAP.<br>
+<b><font color="#204a87">Andrew DeFaria:</font></b> How do you configure Exchange to sent HTML email to IMAP?<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> as far as imap goes,<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> we don't use it here.<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> but lemme check  something<br>
+<b><font color="#204a87">Andrew DeFaria:</font></b> I could have sworn that while at Salira I used TB and IMAP to your exchange server and when Outlook users sent HTML'ized email I saw it in TB as HTML'ized.<br>
+<b><font color="#204a87">Andrew DeFaria:</font></b> Here at TI all I get from the IMAP port is just plain text. Seems to me that this might be an Exchange setting....<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> yes..it's a server setting.<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> they must have it set for plain text only because you have 3 options..<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> plain text, HTML or both.<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> we have it set to both here<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> and we did at Salira.<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> they're taking an MS approach<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> they don't want HTML rendered hacks<br>
+<b><font color="#204a87">Andrew DeFaria:</font></b> HTML rendered hacks will happen more often in Outlook than TB is my guess.<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> login in to the Exchange server<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> open up ESM<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> expand the server so that you see the Protocols...<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> right click on the iMap virtual server and select properities<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> click on the message format tab and select rendering type<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> you'll have to restart the imap server<br>
+<b><font color="#204a87">Andrew DeFaria:</font></b> Great! And thanks! I'll send this along...<br>
+<b><font color="#204a87">Andrew DeFaria:</font></b> I owe you a beer (that is if they agree to it and implement it...)<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> $50<br>
+<b><font color="#204a87">Andrew DeFaria:</font></b> OK a case!<br>
+<b><font color="#cc0000">Ron Van Scherpe:</font></b> heh</p>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 21, 2007  8:38 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000633.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/22</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

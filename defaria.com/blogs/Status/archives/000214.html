@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Permissions Trigger</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000213.html" title="TTE/BUCS" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000215.html" title="Permissions Trigger" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000213.html">&laquo; TTE/BUCS</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000215.html">Permissions Trigger &raquo;</a>
+                     </p>
+
+                     <a id="a000214"></a>
+                     <div class="entry" id="entry-214">
+                        <h3 class="entry-header">Permissions Trigger</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>I've given the "permissions trigger" some thought and would like to formalize the requirements a bit. The new trigger will have the following characteristics:</p>
+
+<ul>
+
+<li>Since multiple groups will be allowed write access to the vob they will need to be added as additional groups on the vob group list. </li>
+
+<li>Determination of what users get additional write capability will be on Active Directory groups. IOW you can grant write access to say the CC-PMO group but not specifically to Mike Hrenko who is a member of the CC-PMO group. Additionally CC-PMO would need to appear on the vob group list in this example.</li>
+ 
+<li>The trigger will use CLEARCASE_PRIMARY_GROUP to determine what group the user is. This avoids having to do LDAP lookups and it's the way that Clearcase does it anyway. CLEARCASE_PRIMARY_GROUP will not be used verbatim - if it were then anybody would "fake" out the trigger by merely setting CLEARCASE_PRIMARY_GROUP. Instead "creds" will be called to ascertain the effective primary group.</li>
+
+<li>A permissions element will be created that will contain a list of groups, one per line, that are allowed write access from this folder downward. The vob's initial or primary group owner (CC-TTE in the case of Core_automation) will always have write permission. Furthermore the permissions element should be secured such that only vob's primary group owner can modify it. Otherwise other groups could easily modify the permissions element thus granting write permissions to arbitrary groups.</li>
+
+</ul>
+
+<p>Let's see an example of how this will work and how the trigger will respond. Let's assume the following directory structure:</p>
+
+<blockquote>
+  Core_automation 
+  <blockquote>
+    Empower <font color="#eeeeee">CC-EAG-AS, CC-EAG-ESB</font>
+    <blockquote>
+      Functions <font color="#eeeeee">CC-EAG-VIP</font><br>
+      Results <font color="#eeeeee">CC-EAG-VMS</font><br>
+      Common
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>Further let's assume that the permissions element is at the Empower level and contains the groups CC-EAG-AS and CC-EAG-ESB. This says that those two groups (as well as CC-TTE as primary group owners of the vob) have write permission (the ability to checkout) elements from Core_automation/Empower downward. Additionally let's say that we have a permissions element at Empower/Functions that lists CC-EAG-VIP and Empower/Results has a permissions element that lists CC-EAG-VMS. The following can be said:</p>
+
+<ul>
+
+<li>Members of CC-EAG-AS and CC-EAG-ESB have write permissions to Empower, Empower/Functions, Empower/Results and Empower/Common. Further, if new folders are created under Empower, CC-EAG-AS and CC-EAG-ESB will have write permissions to those new folders as well (IOW the write permissions are inherited by new folders that are created)</li>
+
+<li>Members of CC-EAG-VIP have write permissions to Empower/Functions and any new folders created under Functions, but they do not have write permissions to Empower/Results nor Empower/Common. Similarly CC-EAG-VMS has write permissions to Empower/Results but not to Empower/Functions nor Empower/Common</li>
+
+</ul>
+
+<p>The pseudo code for the trigger is roughly as follows. Note that the trigger gets fired during checkout of an element only (it is assumed if the user successfully checked out the element then, at the time, he had write permissions and should be allowed to check in the element):</p>
+
+<div class="code">
+<pre>
+$vob_group_owner = GetGroupOwner (vob) 
+$current_group   = GetCurrentGroup (CLEARCASE_PRIMARY_GROUP as per "creds") 
+
+if (permissions element exists in the current folder) { 
+  if (IsAMember (Parse ($permissions_element), $current_group) {
+    &lt;<i>allow checkout</i>&gt;
+  } else { 
+    &lt;<i>recurse to check parent folder stopping at vob root</i>&gt; 
+    &lt;<i>disallow checkout</i>&gt;
+  } 
+}
+</pre>
+</div>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on July 19, 2004  3:07 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000214.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

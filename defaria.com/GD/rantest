@@ -1,0 +1,1374 @@
+#!/usr/bin/perl
+##############################################################################
+#
+# Name:		rantest
+#
+# Description:	This script is a test driver script capable of running tests
+#		individually or from a file. There are many facilities for
+#		specifying input and options to this program - see the usage
+#		and help subroutines for clues. Basically you can run rantest
+#		by itself and it will interactively prompt you for what to do
+#		and what information or options it needs. Additionally you can
+#		set options in the environment such as RANTEST_VIEW or
+#		RANTEST_UNIT to serve as defaults. Or you can use -view or
+#		-type, for example, at the command line to supply such parms.
+#		If rantest still doesn't have all it needs it will prompts.
+#
+#		Note that options and/or test cases can be specified in config
+#		files specified by RANTEST_FILE or -file. Embedded in the
+#		config file can be additional options in the form of:
+#
+#		b2_l3_rnc_irt_001.test:
+#		----------------------
+#		view:	p6258c_SIMCQ00000100_intview
+#		type:   rnc
+#		unit:   4
+#		exec: tc CN_SIM/TC_CN_Simulation_RANAP_Setup.profile -timeout 60
+#		exec: tc CN_SIM/TC_CN_Simulation.profile -timeout -1 -pause 5
+#		exec: tc RBS_SIM/TC_RBS_Sim_Cell_Setup.profile -timeout 180
+#		exec: tc l3_rnc/irt/TC_b2_l3_rnc_irt_001.profile -timeout 180
+#
+#		Above we've set view, type and unit for the test run
+#		and defined test steps of tc
+#		CN_SIM/TC_CN_Simulation_RANAP_Setup.profile,
+#		CN_SIM/TC_CN_Simulation.profile,
+#		RBS_SIM/TC_RBS_Sim_Cell_Setup.profile and
+#		l3_rnc/irt/TC_b2_l3_rnc_irt_001.profile
+#
+#		Note that you can specify optional additional
+#		parameters after the test name like -timeout and a
+#		bunch of other parameters as described in the "Command
+#		Line in East" document.
+#
+#		This would be run as so:
+#
+#		$ rantest -file b2_l3_rnc_irt_001.test
+#
+#		Suite files, those ending in .suite, are different
+#		from .test files in that they merely contain a list of
+#		.test files (relative to <view>/vobs/simdev/test) to
+#		execute for this suite. Note that parameters can be
+#		added after the suite file name:
+#
+#		nightly.suite:
+#		--------------
+#		# RNC IRT tests
+#		b2_l3_rnc_irt_007.test -unit 4
+#		b2_l3_rnc_irt_014.test
+#
+#		# RNC SCH tests
+#		b2_l3_rnc_sch_001.test -view official_view
+#		b2_l3_rnc_sch_003a.test
+#
+# Author:	Andrew@ClearSCM.com
+#
+# Copyright (c) 2008, 2009 General Dynamics
+#
+# All rights reserved except as subject to DFARS 252.227-7014 of contract
+# number CP02H8901N issued under prime contract N00039-04-C-2009.
+#
+# Warning: This document contains technical data whose export is restricted
+# by the Arms Export Control Act (Title 22, U.S.C., Sec 2751, et seq.) or the
+# Export Administration Act of 1979, as amended, Title, 50, U.S.C., App. 2401
+# et seq. Violations of these export laws are subject to severe criminal
+# penalties. Disseminate in accordance with provisions of DoD Directive
+# 5230.25.
+#
+##############################################################################
+use strict;
+use warnings;
+
+use File::Basename;
+use File::Glob ':glob';
+use File::Path;
+use FindBin;
+use Getopt::Long;
+use Net::Domain qw (hostname);
+use Term::ANSIColor qw (:constants);
+use Term::ReadLine;
+use Term::ReadLine::Gnu;
+
+# Use the SDE Tools libraries. Sorry for this long path. I didn't come
+# up with it!
+use lib "/cleartrig/ent/SNSD/muos/ccadm_tools/vobs/ranccadm/scripts/lib";
+
+use DateUtils;
+use Display;
+use Utils;
+use GetConfig;
+use Logger;
+
+error "$FindBin::Script only runs on seast1", 1
+  unless hostname eq "seast1";
+
+use lib "$FindBin::Bin/../lib";
+
+use GD::RantestDB;
+use GD::Nethawk::East;
+
+use constant VERSION_NBR=> "1.2.5";
+use constant VERSION	=> BOLD GREEN   VERSION_NBR;
+use constant PROMPT	=> BOLD YELLOW  "$FindBin::Script>";
+use constant DESC	=> BOLD RED	"$FindBin::Script",
+			   RESET      	"Version", VERSION
+                         . RESET 	": "
+                         . BOLD CYAN	"RAN T"
+                         . RESET	"ool for "
+                         . BOLD CYAN	"E"
+  			 . RESET	"xecution of "
+			 . BOLD CYAN	"S"
+			 . RESET	"ystem "
+			 . BOLD CYAN	"T"
+			 . RESET	"ests";
+
+use constant HISTORY_FILE => "$ENV{HOME}/.rantest_hist";
+use constant LOGBASE	  => "$ENV{MNT_DIR}/testlogs";
+
+############################################################################
+# Globals
+############################################################################
+my $_east;
+my $_connected		= 0;
+my $_debugging;
+my $_log;
+my $_term;
+my $_rantestdb;
+my $_testNbr		= 0;
+my $_validationNbr	= 0;
+
+my %_stats;
+
+my %_executionResults;
+
+my (%_opts, %_cmdline_opts);
+
+# Seed opts from the environment.
+$_opts{eastview}	= $ENV{RANTEST_EASTVIEW}	if $ENV{RANTEST_EASTVIEW};
+$_opts{eastview}	= $ENV{RANTEST_VIEW}		if $ENV{RANTEST_VIEW} && !$_opts{eastview};
+$_opts{tm500view}	= $ENV{RANTEST_TM500VIEW}	if $ENV{RANTEST_TM500VIEW};
+$_opts{nmsview}		= $ENV{RANTEST_NMSVIEW}		if $ENV{RANTEST_NMSVIEW};
+$_opts{type}		= $ENV{RANTEST_TYPE}		if $ENV{RANTEST_TYPE};
+$_opts{class}		= $ENV{RANTEST_CLASS}		if $ENV{RANTEST_CLASS};
+$_opts{unit}		= $ENV{RANTEST_UNIT}		if $ENV{RANTEST_UNIT};
+$_opts{test}		= $ENV{RANTEST_TEST}		if $ENV{RANTEST_TEST};
+$_opts{file}		= $ENV{RANTEST_FILE}		if $ENV{RANTEST_FILE};
+$_opts{rfr}		= $ENV{RANTEST_RFR}		if $ENV{RANTEST_RFR};
+$_opts{checkin_on_error}= $ENV{CHECKIN_ON_ERROR}        if $ENV{CHECKIN_ON_ERROR};
+$_opts{feature}		= $ENV{RANTEST_FEATURE}		if $ENV{RANTEST_FEATURE};
+$_opts{regression}	= $ENV{RANTEST_REGRESSION}	if $ENV{RANTEST_REGRESSION};
+$_opts{secure}		= $ENV{RANTEST_SECURE}		if $ENV{RANTEST_SECURE};
+
+# Explicitly default secure to either $ENV{RANTEST_SECURE}, if defined, otherwise 1
+$_opts{secure} = $ENV{RANTEST_SECURE} ? $ENV{RANTEST_SECURE} : 1;
+
+sub usage (;$) {
+  my ($msg) = @_;
+
+  my $usage = "ERROR: $msg\n\n" if $msg;
+
+  $usage .= <<END;
+Usage: $FindBin::Script\t[-us|age] [-v|erbose] [-d|ebug]
+  [-view|-eastview <view>] [-tm500view <view>] [-nmsview <view>]
+  [-type <type>] [-class <class>] [-rfr <testcase ID>] [-checkin_on_error]
+  [-unit <unit #>] [-test <test>] [-file <file>] [-feature <feature>]
+  [-[no]s|ecure]
+
+Where:
+
+  -us|age:	     Display usage
+  -ve|rbose:	     Turn on verbose mode
+  -d|ebug:	     Turn on debug mode
+  -[ea|st]view <tag> View tag to run test(s) under
+  -tm|500view <tag>  TM 500 view to set into the environment for
+		     test
+  -nm|sview <tag>    NMS view to set into the environment for
+		     test
+  -ty|pe <type>      Type of unit to test (i.e. rbs | rnc)
+  -c|lass <class>    Class of test (i.e. one of the following):
+
+      Load	     LoadTCRunner
+      Pool	     RegressionLoadRunner
+      TC	     RegressionRunner
+      TS	     RegressionTSRunner
+      Manual	     Manual test
+
+  -un|it <unit #>    Unit number to test on
+  -te|st <test>      Name of test (Optional: If not specific you will
+                     be prompted for test case names)
+  -f|ile <file>      File containing a list of tests to execute (Optional:
+                     Contains a file of test classes and names to test)
+  -rfr <testcase ID> Run for record: ID is the test case ID to store
+		     results under
+  -checkin_on_error  Checks in rfr log files even if a test(s) fails
+  -regression	     Run regression tests. These tests will log there
+		     results.
+  -feature <feature> If specified then FEATURE will be set into the
+		     environment on the blade before calling
+		     start_east_auto.
+  -[no]s|ecure	     Indicates whether or not to secure the node before
+		     attempting to connect to it. (Default: secure).
+
+NOTE: Set ANSI_COLORS_DISABLED to turn off colors
+
+If you specify -file you cannot specify -test nor -class. -class'es are
+read from -file.
+
+Additionally, options above can be specified in the environment by
+preceeding the environment variable with \"RANTEST_\". For example,
+
+  \$ export RANTEST_TYPE=rbs
+  \$ export RANTEST_UNIT=2
+  \$ rantest
+
+Also such options can be specified in the -file:
+
+  unit: 5
+  executionlevel: 2
+  ts ts1.profile -timeout -1 -pause 5
+  ts ts2.profile -displaylevel 3
+  ts ts3.profile -activecalls 10
+
+Options after test profile name are passed directory to EAST's command
+line. The exceptions are -timeout and -pause:
+
+  -timeout <n>		Specifies the timeout for this test's execution.
+			If negative the test will be placed in the
+			background. No result is recovered from
+			background tests nor are any logfiles analysed
+			or stored. If positive then this sets the
+			timeout period for this test in seconds.
+
+  -pause <n>		Used in conjunction with -timeout. If test is
+			backgrounded then $FindBin::Script will wait
+			pause seconds before returning control from
+			this test. This allows the backgrounded test
+			time to start.
+
+  -name <name>		Names a test. Used in conditional execution.
+
+  -if (<name> <status>)	Run this test if the named test returned <status>
+			where <status> is one of
+
+			  . Success
+			  . Failure
+			  . In Progress
+			  . Timed out
+			  . Failed to execute
+			  . Rendezvous
+			  . Failed to rendezvous
+
+Note: Required options not supplied will be prompted for.
+END
+
+  my $pager = $ENV{PAGER} ? $ENV{PAGER} : "more";
+
+  system "echo \"$usage\" | $pager";
+
+  exit 1 if $msg;
+} # usage
+
+sub help () {
+  display DESC . RESET;
+  display <<END;
+
+Valid commands are:
+
+help:			This display
+usage:			Displays command line usage
+version:		Displays version of $FindBin::Script
+exit|quit:		Exits $FindBin::Script
+source <file>		Execute the contents of <file>
+set <option>=<value>	Set <option> to <value>
+get <option>		Displays <option> (if set)
+elock <pattern>		Display elock status (default all units)
+
+Running tests:
+
+load <test profile> <options> Run a test case by profile (LoadTCRunner)
+pool <test profile> <options> Run a regression load (RegressionLoadRunner)
+tc   <test profile> <options> Run a regression (RegressionRunner)
+ts   <test profile> <options> Run a regression test suite (RegressionTSRunner)
+manual
+
+Note: ReadLine is supported thus you can edit previous commands.
+Try the up arrow!
+END
+} # Help
+
+sub getParm ($) {
+  my ($prompt) = @_;
+
+  my $value;
+
+  while (!$value or $value eq "") {
+    display_nolf BOLD YELLOW . "$FindBin::Script needs the following parameter - $prompt" . RESET;
+
+    $value = <STDIN>;
+
+    chomp $value;
+  } # while
+
+  return $value;
+} # getParm
+
+sub eLock (;$) {
+  my ($unit) = @_;
+
+  my ($status, @locks) = Execute "ls $ENV{MNT_DIR}/$ENV{EAST_REL}/DUT/*/desktop.lock 2> /dev/null";
+
+  $status >>= 8;
+
+  foreach (@locks) {
+    my $unit_found;
+
+    if (/.*DUT\/(\w+)\/desktop/) {
+      $unit_found = $1;
+
+      next if $unit && $unit_found !~ /$unit/i;
+    } # if
+
+    my @fields	= split /\//, $_;
+    my $uid	= (stat $_)[4];
+    my $mtime	= (stat $_)[9];
+    my $userid	= (getpwuid ($uid))[0];
+    my $name	= (getpwuid ($uid))[6];
+
+    display BOLD CYAN	"$fields[5]\t"
+          . RESET	"locked since "
+          . BOLD YELLOW	localtime ((stat $_)[9])
+          . RESET	" by "
+          . MAGENTA	$name
+          . RESET	" ("
+          . GREEN	$userid
+	  . RESET	")";
+  } # foreach
+} # eLock
+
+sub displaySummary () {
+  my $msg = "Summary:";
+
+  foreach (sort keys %_stats) {
+    $msg .= " $_stats{$_} $_";
+  } # foreach
+
+  $_log->msg ($msg) if $_log;
+} # displaySummary
+
+sub announceTestrun ($) {
+  my ($testname) = @_;
+
+  my $user = $ENV{USER}		? $ENV{USER}
+           : $ENV{LOGNAME}	? $ENV{LOGNAME}
+	   : "Unknown";
+  my $timestamp = YMDHMS;
+
+  $_testNbr++;
+
+  verbose BOLD YELLOW	"Test #" . $_testNbr . "\t"
+        . RESET CYAN	$testname
+        . RESET		" run on $timestamp by "
+        . YELLOW	$user
+        . RESET		" on "
+        . MAGENTA	$_opts{type}
+        . RESET		" unit "
+        . CYAN		$_opts{unit}
+        . RESET;
+
+  $_log->log ("Test #$_testNbr $testname run on: $timestamp by $user on $_opts{type} unit $_opts{unit}");
+} # announceTestrun
+
+sub saveHistory {
+  $_term->WriteHistory (HISTORY_FILE) if $_term;
+} # saveHistory
+
+sub executeTestStep () {
+  if (!$_connected) {
+    # Get required parameters if not specified in the command line or environment
+    $_opts{eastview}	= getParm "View:"  unless $_opts{eastview};
+    $_opts{type}	= getParm "Type:"  unless $_opts{type};
+    $_opts{class}	= getParm "Class:" unless $_opts{class};
+    $_opts{unit}	= getParm "Unit:"  unless $_opts{unit};
+
+    # Connect to it
+    my $msg = $_east->connect (
+      $_opts{eastview},
+      $_opts{type},
+      $_opts{unit},
+      $_opts{tm500view},
+      $_opts{nmsview},
+      $_opts{feature},
+      $_opts{secure}
+    );
+
+    if ($msg) {
+      $_log->err ("Unable to connect to EAST\n$msg");
+      verbose RED "Skipping renaming test steps" . RESET;
+      $_stats{Failed}++;
+      return -1;
+    } else {
+      $_connected = 1;
+    } # if
+  } # if
+
+  my ($status, $msg) = Nethawk::East::validTestType ($_opts{class});
+
+  if ($status != 0) {
+    $_log->err ($msg);
+    return $status;
+  } # if
+
+  if (!$_opts{test}) {
+    # Manual tests only have classes
+    unless ($_opts{class} eq 'manual') {
+      $_log->err ("No test specified");
+      return 1;
+    } # unless
+  } # if
+
+  $_east->setCollectLogFiles (1);
+
+  verbose_nolf $_stats{Run} . ": " . CYAN "$_opts{class}\t" . BOLD YELLOW $_opts{test} . RESET;
+
+  my $testStepResult;
+
+  my $startTime	= time;
+  my $stepName	= "Unknown";
+
+  if ($_opts{test} =~ /(.*)\.profile/) {
+    $stepName = $1;
+  } elsif ($_opts{class} eq "manual") {
+    $stepName = "Manual";
+  } elsif ($_opts{class} eq "shell") {
+    $stepName = $_opts{test};
+  } elsif ($_opts{test} =~ /^rantvl/) {
+    $stepName = $_opts{test};
+
+    $_east->setRantvlStartTime (time);
+  } # if
+
+  my ($stepID, $errMsg) = $_rantestdb->startSteprun ($stepName);
+
+  ($status, $testStepResult) = $_east->exec (\%_opts, \%_executionResults);
+
+  # Collect any extended logs
+  if ((!defined $_opts{timeout} or $_opts{timeout} > 0) and
+      ($_east->{class} eq "load" or
+       $_east->{class} eq "tc"   or
+       $_east->{class} eq "ts"   or
+       $_east->{class} eq "pool")) {
+    $_east->collectExtendedLogFiles;
+  } # if
+
+  my $endTime = time;
+
+  if ($status == 0) {
+    if ($testStepResult eq "Success") {
+      verbose GREEN " $testStepResult" . RESET;
+      $_stats{Passed}++;
+    } elsif ($testStepResult eq "In progress" or
+ 	     $testStepResult eq "Logging started") {
+      verbose MAGENTA " $testStepResult" . RESET;
+      $_stats{Concurrent}++;
+    } elsif ($testStepResult eq "Rendezvous") {
+      verbose BOLD . " $testStepResult" . RESET;
+      $_stats{Rendezvous}++;
+    } else {
+      verbose RED " $testStepResult" . RESET;
+      $status = 1;
+      $_stats{Failed}++;
+    } # if
+  } else {
+    if ($testStepResult eq "Skipped") {
+      verbose BOLD . " $testStepResult" . RESET;
+      $_stats{Skipped}++;
+    } elsif ($testStepResult eq "Timed out") {
+      verbose CYAN " $testStepResult" . RESET;
+      $status = 1;
+      $_stats{Timedout}++;
+    } else {
+      verbose RED " $testStepResult" . RESET;
+      $status = 1;
+      $_stats{Failed}++;
+    } # if
+  } # if
+
+  # Log test step result
+  $_log->log ("$_stats{Run}: $_opts{class}\t$_opts{test} $testStepResult");
+
+  my ($dbErrNbr, $dbErrMsg) = $_rantestdb->endSteprun (
+    runID	=> $_east->{runID},
+    stepID	=> $stepID,
+    start	=> UnixDatetime2SQLDatetime (scalar (localtime ($startTime))),
+    end		=> UnixDatetime2SQLDatetime (scalar (localtime ($endTime))),
+    result	=> $testStepResult,
+  );
+
+  error $dbErrMsg if $dbErrNbr != 0;
+
+  return $status;
+} # executeTestStep
+
+sub testTimeout {
+  error "Test timed out ($_opts{testtimeout}) seconds passed)";
+
+  $_east->disconnect;
+
+  # Collect logfiles
+  $_east->collectLogFiles;
+} # testTimeout
+
+sub interrupted {
+  use Term::ReadKey;
+
+  display BLUE "\nInterrupted" . RESET;
+
+  displaySummary;
+
+  display_nolf
+    CYAN	. BOLD "C" . RESET CYAN		"ontinue" 	. RESET . " or " .
+    MAGENTA	. BOLD "A" . RESET MAGENTA	"bort run"  	. RESET . " (" .
+    CYAN	. BOLD "C" . RESET "/" .
+    MAGENTA	. BOLD "a" . RESET ")?";
+
+  ReadMode ("cbreak");
+  my $answer = ReadKey (0);
+  ReadMode ("normal");
+
+  if ($answer eq "\n") {
+    display "c";
+  } else {
+    display $answer;
+  } # if
+
+  $answer = lc $answer;
+
+  if ($answer eq "c") {
+    display "Continuing...";
+  } elsif ($answer eq "a") {
+    display RED "Aborting run" . RESET;
+    $_east->setCollectLogFiles (0);
+    saveHistory;
+    exit;
+  } # if
+} # interrupted
+
+sub interpolate ($) {
+  my ($str) = @_;
+
+  # Perform psuedo variable interpolation. The following psuedo
+  # variables are supported:
+  #
+  # view:	  Absolute path to your view
+  my $view	= "$ENV{MNT_DIR}/snapshot_views/$_east->{userdir}/$_east->{view}";
+  my $simdev	= "$view/vobs/simdev";
+
+  # msgdefs:	  Absolute path to msgdefs
+  my $msgdefs	= "$simdev/msgdefs";
+
+  # validation:  Absolute path to validation
+  my $validation	= "$simdev/validation";
+
+  # logpath:	  Absolute path into the "testlogs" area where
+  #		  logfiles are written
+  my $logpath	= LOGBASE . "/" . $_east->getSaveTo;
+
+  while ($str =~ /\$/) {
+    my ($var, $slice);
+
+    if ($str =~ /\$(\w+)/) {	
+      # Regular $var
+      $var	= $1;
+    } elsif ($str =~ /\$(\[.+?\])\[(.+?)\]/) {
+      # A $[fileset][slice] reference
+      $var	= $1;
+      $slice	= $2;
+    } elsif ($str =~ /\$(\[.+?\])/) {	
+      # A $[fileset] reference
+      $var	= $1;
+    } # if
+
+    if ($var eq "logpath") {
+      $str =~ s/\$$var/$logpath/;
+    } elsif ($var eq "msgdefs") {
+      $str =~ s/\$$var/$msgdefs/;
+    } elsif ($var eq "validation") {
+      $str =~ s/\$$var/$validation/;
+    } elsif ($var eq "view") {
+      $str =~ s/\$$var/$view/;
+    } elsif ($var =~ /\[(.+)\]/) {
+      my $fileset = $1;
+
+      my @fileset = glob $fileset;
+      my $list;
+
+      if (defined $slice) {
+	$fileset = quotemeta $fileset;
+
+	# Here we handle a slice, but if the slice is of the form x..y
+	# then we need to handled it differently
+	if ($slice =~ /(\d+)\.\.(\d+)/) {
+	  # Need to turn off warnings for this next construct of
+	  # @array[$1..$2]. Otherwise it complains. If we use
+	  # $array[$1..$2] then it doesn't work! Also take on the
+	  # base fileset defined above.
+	  #
+	  # Adjust bounds
+	  $2 = $#fileset if $2 > $#fileset;
+
+	  no warnings;
+	  $list = join ",", @fileset[$1..$2];
+	  use warnings;
+	} else {
+	  # Not a slice really but an array reference
+	  $list = "$fileset[$slice]";
+	} # if
+
+	$str =~ s/\$\[$fileset\]\[$slice\]/$list/;
+      } else {
+	$list = join ",", @fileset;
+	$str =~ s/\$\[$fileset\]/$list/;
+      } # if
+
+      if (defined $slice) {
+	$str =~ s/\$\[$fileset\]\[$slice\]//;
+      } else {
+	$str =~ s/\$\[$fileset\]//;
+      } # if
+    } else {
+      error "Unknown variable ($var) encountered in val line:\n$str", 1;
+    } # if
+  } # while
+
+  return $str;
+} # interpolate
+
+sub runValidation ($$) {
+  my ($cmd, $logfile) = @_;
+
+  my $origCmd = $cmd;
+
+  my ($stepID, $errMsg);
+
+  ($stepID, $errMsg) = $_rantestdb->startSteprun ($origCmd);
+
+  if ($stepID == 0) {
+    error "Unable to startSteprun\n$errMsg";
+    return 1;
+  } # if
+
+  my $startTime = time;
+
+  $cmd = interpolate ($cmd);
+
+  my ($status, @lines) = Execute ("$cmd >> $logfile 2>&1");
+
+  $status >>= 8;
+
+  my $endTime = time;
+
+  my ($dbErrNbr, $dbErrMsg) = $_rantestdb->endSteprun (
+    runID	=> $_east->{runID},
+    stepID	=> $stepID,
+    start	=> UnixDatetime2SQLDatetime (scalar (localtime ($startTime))),
+    end		=> UnixDatetime2SQLDatetime (scalar (localtime ($endTime))),
+    result	=> $status ? "Failure" : "Success",
+  );
+
+  error $dbErrMsg if $dbErrNbr != 0;
+
+  # Output lines to stdout
+  if (-e $logfile) {
+    verbose "$_\n" foreach (ReadFile $logfile);
+  } else {
+    verbose "Unable to read $logfile";
+    $status++;
+  } # if
+
+  $_validationNbr++;
+
+  verbose BOLD YELLOW . "Test #$_testNbr validation #$_validationNbr \t" . RESET CYAN $origCmd
+    . (($status == 0) ? GREEN " Success" : RED " Failure") . RESET;
+
+  $_log->log ("Test #$_testNbr validation #$_validationNbr\t$origCmd " . (($status == 0) ? "Success" : "Failure"));
+
+  return $status;
+} # runValidation
+
+sub runValidations (@) {
+  my @validations = @_;
+
+  my $validationErrs = 0;
+
+  # Make Validation log directory
+  my $validationDir = LOGBASE . "/" . $_east->getSaveTo . "/Validations";
+
+  eval { mkpath $validationDir };
+
+  error "Unable to create Validation directory - $validationDir\n$@", 1 if $@;
+
+  chmod 0775, $validationDir;
+
+  my $viewPath	= "$ENV{MNT_DIR}/snapshot_views/$_east->{userdir}/$_east->{view}";
+  my $vobPath	= "vobs/simdev";
+
+  foreach (@validations) {
+    my @tokens	= split;
+    my $outfile	= $tokens[0] . ".log";
+
+    $validationErrs += runValidation $_, "$validationDir/$outfile";
+  } # foreach
+
+  $_stats{Failed} += $validationErrs;
+
+  return $validationErrs;
+} # runValidations
+
+sub runTestFile ($) {
+  my ($file) = @_;
+
+  my $testName = fileparse $file, ".test";
+
+  my $testID = $_rantestdb->startTest ($testName);
+
+  my %fileopts = GetConfig ($file);
+
+  # GetConfig leaves keys %fileopts as case sensitive but we want them
+  # case insentive so fix that here.
+  foreach (keys (%fileopts)) {
+    my $key = lc $_;
+
+    # Make "view" an alias for "eastview" but only if there is no
+    # eastview already defined
+    if ($key eq "view") {
+      if (!$fileopts{eastview}) {
+	$fileopts{eastview} = delete $fileopts{view};
+	$_ = $key = "eastview";
+      } # if
+    } # if
+
+    # Set into %_opts only if that key doesn't exist already. This
+    # allows command line options to override options specified in the
+    # file. The exception to this is the exec array. This gets
+    # replaced in suite runs.
+    if ($key eq "exec" || !$_opts{$key}) {
+      $_opts{$key} = $fileopts{$_};
+    } # if
+  } # foreach
+
+  my $testStartTime = time;
+
+  $_east->setSaveTo ("$testName/$_opts{type}$_opts{unit}/" . YMDHMS ($testStartTime));
+
+  eval { mkpath LOGBASE . "/" . $_east->getSaveTo };
+
+  error "Unable to create log directory\n$@", 1 if $@;
+
+  chmod 0775, LOGBASE . "/" . $_east->getSaveTo;
+
+  unless ($_log) {
+    $_log = new Logger (
+      name	=> $testName,
+      path	=> LOGBASE . "/" . $_east->getSaveTo,
+      append	=> "yes",
+    );
+
+    $_log->log ("$FindBin::Script Version " . VERSION_NBR . "\nUsing view: $_opts{eastview}");
+  } # unless
+
+  verbose BOLD CYAN "Using view: " . RESET $_opts{eastview};
+
+  announceTestrun $testName;
+
+  my @tokens;
+
+  my $testFailures	= 0;
+  my $result		= 0;
+  my $errMsg;
+
+  # Set testTimer if specified
+  if ($_opts{testtimeout}) {
+    $SIG{ALRM} = \&testTimeout;
+    alarm $_opts{testtimeout};
+  } # if
+
+  ($_east->{runID}, $errMsg) = $_rantestdb->startTestrun (UnixDatetime2SQLDatetime localtime $testStartTime);
+
+  return ($_east->{runID}, $errMsg) if $_east->{runID} == 0;
+
+  $_validationNbr = 0;
+
+  if (ref $_opts{exec} eq "ARRAY") {
+    foreach (@{$_opts{exec}}) {
+      @tokens = split;
+
+      $_opts{class} = shift @tokens;
+      $_opts{test}  = join " ", @tokens;
+
+      $_stats{Run}++;
+
+      $result = executeTestStep;
+
+      if ($result == -1) {
+	$testFailures++;
+	last;
+      } else {
+	$testFailures += $result;
+      } # if
+    } # foreach
+  } else {
+    if ($_opts{exec}) {
+      @tokens = split /\s+/, $_opts{exec};
+
+      $_opts{class} = shift @tokens;
+      $_opts{test}  = join " ", @tokens;
+
+      $_stats{Run}++;
+
+      $result = executeTestStep;
+
+      if ($result == -1) {
+	$testFailures++;
+      } else {
+	$testFailures += $result;
+      } # if
+    } # if
+  } # if
+
+  my $execType = $_opts{rfr}		? "Run for Record"
+               : $_opts{regression}	? "Regression" : "Normal";
+
+  return 1 if $result == -1;
+
+  # Disconnect from EAST
+  $_east->disconnect;
+
+  # Assign 'Failed' and 'Timedout' 0 if they are not initialized
+  $_stats{Failed}   ||= 0;
+  $_stats{Timedout} ||= 0;
+
+  my $testErrors = $_stats{Failed} + $_stats{Timedout};
+
+  # Collect log files and check them in based on checkin_on_error option
+  $_east->collectLogFiles($testErrors, $_opts{checkin_on_error});
+
+  if ($testFailures == 0 and $_opts{val}) {
+    my @validations = ref $_opts{val} eq "ARRAY"
+                    ? @{$_opts{val}}
+	  	    : ($_opts{val});
+
+    $testFailures += runValidations @validations;
+  } # if
+
+  # Log test results
+  verbose BOLD YELLOW . "Test #$_testNbr\t" . RESET CYAN $testName
+    . (($testFailures == 0) ? GREEN " Success" : RED " Failure") . RESET;
+
+  $_log->log ("Test #$_testNbr\t$testName " . (($testFailures == 0) ? "Success" : "Failure"));
+
+  my ($_runID, $dbErrMsg) = $_rantestdb->endTestrun (
+    runID		=> $_east->{runID},
+    suiteID		=> $_east->{suiteID} ? $_east->{suiteID} : 0,
+    name		=> fileparse ($file, ".test"),
+    execType		=> $execType,
+    start		=> UnixDatetime2SQLDatetime (scalar (localtime ($testStartTime))),
+    result		=> $testFailures == 0 ? "Success" : "Failure",
+    unit		=> "$_east->{unitType}$_east->{unitNbr}",
+    rantest_version	=> VERSION_NBR,
+    east_version	=> $ENV{EAST_REL},
+    ran_version		=> $_east->{ran_version},
+    tm500_version	=> $_east->{tm500_version},
+    nms_version		=> $_east->{nms_version},
+    eastlogs		=> LOGBASE . "/" . $_east->getSaveTo,
+  );
+
+  error $dbErrMsg if $_runID == 0;
+
+  return $testFailures;
+} # runTestFile
+
+sub setPath ($) {
+  my ($view) = @_;
+
+  return if $ENV{PATH} =~ /$view/;
+
+  my $userdir;
+
+  if ($view =~ /(\S+)_SIM/) {
+    $userdir = $1;
+  } else {
+    error "Unable to find userdir", 1;
+  } # if
+
+  my @paths = (
+    "$ENV{MNT_DIR}/snapshot_views/$userdir/$view/vobs/simdev/sbin",
+    "$ENV{MNT_DIR}/snapshot_views/$userdir/$view/vobs/simdev/bin",
+    "$ENV{MNT_DIR}/snapshot_views/$userdir/$view/vobs/gdtools/rantest_auto/bin",
+  );
+
+  $ENV{PATH} = join (":", @paths) . ":" . $ENV{PATH};
+} # setPath
+
+sub runSuiteFile ($) {
+  my ($file) = @_;
+
+  error "View must be specified when running in suite mode", 1 unless $_opts{eastview};
+
+  setPath $_opts{eastview};
+
+  my $userdir;
+
+  if ($_opts{eastview} =~ /(\S+)_SIM/) {
+    $userdir = $1;
+  } else {
+    error "Unable to find userdir", 1;
+  } # if
+
+  unless (open FILE, $file) {
+    error "Unable to open file $file - $!";
+    return 1
+  } # unless
+
+  my @lines = <FILE>;
+
+  chomp @lines;
+
+  close FILE;
+
+  my $i			= 0;
+  my $suiteStartTime	= time;
+  my $suiteFailures	= 0;
+  my $suiteName		= fileparse ($file, ".suite");
+
+  $_log = new Logger (
+    name	=> $suiteName,
+    path	=> LOGBASE,
+    append	=> "yes",
+  );
+
+  $_log->log ("$FindBin::Script Version " . VERSION_NBR);
+
+  ($_east->{suiteID}) = $_rantestdb->startSuiterun ($suiteName);
+
+  verbose BOLD MAGENTA "Suite\t" . RESET GREEN $suiteName . RESET;
+
+  $_log->log ("Suite\t$suiteName");
+
+  foreach (@lines) {
+    $i++;
+    next if /(^#|^$)/;
+
+    my @components = split;
+
+
+    my $viewPath = "$ENV{MNT_DIR}/snapshot_views/$userdir/$_opts{eastview}/vobs/simdev/test/";
+    my $testFile = "$viewPath/" . shift @components;
+
+    unless (-e $testFile) {
+      error "Unable to find test file $testFile (Line: $i)";
+      next;
+    } # unless
+
+    unless (/\.test/) {
+      error "Not a .test file: $testFile (Line: $i)";
+      next;
+    } # unless
+
+    # Get test options. It seems GetOptions doesn't support taking
+    # input from anything but @ARGV so we'll have to save a copy and
+    # restore it.
+    my @savedOptions = @ARGV;
+
+    @ARGV = split;
+
+    my %suiteOptions;
+
+    my $status = GetOptions (
+      \%suiteOptions,
+      "eastview=s",
+      "tm500view=s",
+      "nmsview=s",
+      "type=s",
+      "class=s",
+      "unit=s",
+      "test=s",
+      "file=s",
+      "rfr=s",
+      "regression",
+    ) || usage "Invalid parameter";
+
+    # Restore @ARGV
+    @ARGV = @savedOptions;
+
+    # Restore the original command line options:
+    %_opts = %_cmdline_opts;
+
+    # Merge in %suiteOptions: Set into %_opts only if that key doesn't
+    # exist already. This allows command line options to override
+    # options specified on the .test line in the .suite file
+    foreach (keys %suiteOptions) {
+      $_opts{$_} = $suiteOptions{$_} unless $_opts{$_};
+    } # foreach
+
+    $suiteFailures += runTestFile $testFile;
+
+    # Need to disconnect $_east to shut down the previous run
+    my $savedSuiteID = $_east->{suiteID};
+
+    $_east->disconnect;
+
+    # Collect logfiles
+    $_east->collectLogFiles;
+
+    if ($suiteFailures == 0 and $_opts{val}) {
+      my @validations = ref $_opts{val} eq "ARRAY"
+	              ? @{$_opts{val}}
+ 		      : ($_opts{val});
+
+      $suiteFailures += runValidations @validations;
+    } # if
+
+    $_east = new Nethawk::East;
+
+    $_east->{suiteID} = $savedSuiteID;
+
+    $_connected = 0;
+  } # foreach
+
+  # Log suite results
+  verbose BOLD MAGENTA "Suite\t" . RESET GREEN $suiteName
+    . (($suiteFailures == 0) ? GREEN " Success" : RED " Failure") . RESET;
+
+  $_log->log ("Suite\t$suiteName" . ($suiteFailures == 0) ? "Success" : "Failure");
+
+  my $errMsg;
+
+  ($_east->{suiteID}, $errMsg) = $_rantestdb->endSuiterun (
+    name	=> fileparse ($file, ".suite"),
+    start	=> UnixDatetime2SQLDatetime (scalar (localtime ($suiteStartTime))),
+    result	=> $suiteFailures ? "Failure" : "Success",
+  );
+
+  error $errMsg if $_east->{suiteID} != 0;
+
+  return $suiteFailures;
+} # runSuiteFile
+
+sub runFile ($) {
+  my ($file) = @_;
+
+  unless (-e $file) {
+    error "File $file does not exist";
+    return;
+  } # if
+
+  $_term->AddHistory ("source $file")
+    unless $_debugging or !-t STDIN;
+
+  $SIG{INT} = \&interrupted;
+
+  # Determine file type
+  if ($file =~ /\.test$/) {
+    runTestFile $file;
+  } elsif ($file =~ /\.suite$/) {
+    return runSuiteFile $file
+  } else {
+    error "File $file is not a .suite or .test file", 1;
+  } # if
+} # runFile
+
+$SIG{TERM}	=
+$SIG{QUIT}	= \&saveHistory;
+
+# Set a more friendly umask
+umask 002;
+
+GetOptions (
+  \%_opts,
+  verbose	=> sub { set_verbose },
+  debug		=> sub { set_debug },
+  usage		=> sub { usage; exit 0 },
+  "eastview:s",
+  "view:s",
+  "tm500view:s",
+  "nmsview:s",
+  "type:s",
+  "class:s",
+  "unit:s",
+  "test:s",
+  "file:s",
+  "rfr:s",
+  "checkin_on_error",
+  "feature:s",
+  "secure!",
+  "regression",
+) || usage "Invalid parameter";
+
+# Special case elock command
+if (scalar @ARGV > 0 and $ARGV[0] =~ /elock/i) {
+  eLock ($ARGV[1]);
+  exit;
+} # if
+
+usage "Extraneous parameters: " . join " ", @ARGV if scalar @ARGV > 0;
+
+# Check for mutually exclusive options
+if ($_opts{file}) {
+  my $suffix = $ENV{RANTEST_FILE} ? "\nNote: The environment variable RANTEST_FILE is set" : "";
+
+  if ($_opts{test}) {
+    $suffix .= $ENV{RANTEST_TEST} ? "\nNote: The environment variable RANTEST_TEST is set" : "";
+  } elsif ($_opts{class}) {
+    $suffix .= $ENV{RANTEST_CLASS} ? "\nNote: The environment variable RANTEST_CLASS is set" : "";
+  } # if
+
+  usage "<test> and <file> are mutually exclusive$suffix"  if $_opts{test};
+  usage "<class> and <file> are mutually exclusive$suffix" if $_opts{class};
+} # if
+
+if ($_opts{eastview}) {
+  my $suffix = $ENV{RANTEST_VIEW} ? "\nNote: The environment variable RANTEST_VIEW is set" : "";
+  $suffix .= $ENV{RANTEST_EASTVIEW} ? "\nNote: The environment variable RANTEST_EASTVIEW is set" : "";
+
+  usage "<eastview> and <view> are mutually exclusive$suffix" if $_opts{view};
+} # if
+
+usage "-rfr and -regression are mutually exclusive" if $_opts{rfr} && $_opts{regression};
+
+# Make "view" an alias for "eastview" but only if there is no eastview
+# already defined
+$_opts{eastview} = delete $_opts{view} if $_opts{view} && !$_opts{eastview};
+
+# Check for required parameters
+usage "-view or -eastview specified but no view given"
+  if defined $_opts{view} and $_opts{view} eq "";
+usage "-tm500view specified but no view given"
+  if defined $_opts{tm500view} and $_opts{tm500view} eq "";
+usage "-nmsview specified but no view given"
+  if defined $_opts{nmsview} and $_opts{nmsview} eq "";
+usage "-type specified but no type given"
+  if defined $_opts{type} and $_opts{type} eq "";
+usage "-class specified but no class given"
+  if defined $_opts{class} and $_opts{class} eq "";
+usage "-unit specified but no unit # given"
+  if defined $_opts{unit} and $_opts{unit} eq "";
+usage "-test specified but no test given"
+  if defined $_opts{test} and $_opts{test} eq "";
+usage "-file specified but no file given"
+  if defined $_opts{file} and $_opts{file} eq "";
+usage "-rfr specified but no testcase ID given"
+  if defined $_opts{rfr} and $_opts{rfr} eq "";
+
+# Save these original command line options. If we are in suite mode
+# then we must allow the individual .test options override these
+# original command line options.  If -rfr is on then we are by default
+# verbose
+%_cmdline_opts = %_opts;
+
+set_verbose if $_opts{rfr};
+
+# Instantiate a new East object
+$_east = new Nethawk::East;
+
+# Set testcase ID into East object
+$_east->setTestCaseID ($_opts{rfr});
+
+$_debugging = get_debug;
+
+# If we are debugging (and thus STDIN gets confused between the debugger's
+# STDIN and rantest's STDIN) or if we don't have a tty (-t - we would not 
+# have a tty if run from say cron(1m), then do not perform these actions
+# on $_term.
+unless ($_debugging or !-t STDIN) {
+  $_term = new Term::ReadLine $FindBin::Script;
+
+  $_term->{AUTORESET} = 1;
+
+  # Restore previous history, if any
+  $_term->ReadHistory (HISTORY_FILE);
+} # unless
+
+# Announce ourselves
+verbose DESC . RESET;
+
+# Open Rantest Database
+$_rantestdb = new RantestDB ("pswit", "!qaz2w3e");
+
+if ($_opts{test}) {
+  $SIG{INT} = \&interrupted;
+
+  $_stats{Run}++;
+
+  # Separate off options
+  my $testName = $_opts{test};
+
+  if ($_opts{test} =~ /(\S+)\s+\-.*$/) {
+    $testName = $1;
+ } # if
+
+  $testName = fileparse ($testName, "\.profile");
+
+  $_east->setSaveTo ("$testName/$_opts{type}$_opts{unit}/" . YMDHMS);
+
+  eval { mkpath LOGBASE . "/" . $_east->getSaveTo };
+
+  return (1, $@) if $@;
+
+  chmod 0775, LOGBASE . "/" . $_east->getSaveTo;
+
+  $_log = new Logger (
+    name	=> $testName,
+    path	=> LOGBASE . "/" . $_east->getSaveTo,
+    append	=> "yes",
+  );
+
+  $_log->log ("$FindBin::Script Version " . VERSION_NBR . "\nUsing view: $_opts{eastview}");
+
+  executeTestStep;
+
+  $_term->AddHistory ("$_opts{class} $_opts{test}") unless $_debugging && -t STDIN;
+
+  # Disconnect from EAST
+  $_east->disconnect;
+
+  # Collect logfiles
+  $_east->collectLogFiles;
+} elsif ($_opts{file}) {
+  runFile $_opts{file};
+} else {
+  $_east->setSaveTo ("rantest/" . YMDHMS);
+
+  eval { mkpath LOGBASE . "/" . $_east->getSaveTo };
+
+  return (1, $@) if $@;
+
+  chmod 0777, LOGBASE . "/" . $_east->getSaveTo;
+
+  $_log = new Logger (
+    path	=> LOGBASE . "/" . $_east->getSaveTo,
+    append	=> "yes"
+  );
+
+  display DESC if !get_verbose;
+
+  if ($_opts{eastview}) {
+    $_log->log ("$FindBin::Script Version " . VERSION_NBR . "\nUsing view: $_opts{eastview}");
+  } else {
+    $_log->log ("$FindBin::Script Version " . VERSION_NBR);
+  } # if
+
+  set_verbose;
+
+  while () {
+    my $cmd;
+
+    unless ($_debugging) {
+      $cmd = $_term->readline (PROMPT . RESET);
+    } else {
+      display_nolf PROMPT . RESET;
+
+      $cmd = <STDIN>;
+    } # if
+
+    # Handle Control-d
+    unless (defined $cmd) {
+      display "";
+      saveHistory;
+      exit 0;
+    } # if
+
+    chomp $cmd;
+
+    next if $cmd eq "";
+
+    if ($cmd =~ /exit|quit/i) {
+      $_term->remove_history ($_term->where_history);
+      saveHistory;
+      exit 0;
+    } # if
+
+    if ($cmd =~ /^elock/i) {
+      if ($cmd =~ /^elock\s+(\w+)/i) {
+	eLock $1;
+      } else {
+	eLock;
+      } # if
+
+      next;
+    } # if
+
+    my @tokens = split /\s+/, $cmd;
+
+    $_opts{class}	= shift @tokens;
+    $_opts{test}	= join " ", @tokens;
+
+    $cmd = lc $_opts{class};
+
+    if ($cmd eq "help") {
+      help;
+      $_term->remove_history ($_term->where_history) unless $_debugging;
+      next;
+    } elsif ($cmd eq "usage") {
+      usage;
+      $_term->remove_history ($_term->where_history) unless $_debugging;
+      next;
+    } elsif ($cmd eq "version") {
+      display DESC;
+      $_term->remove_history ($_term->where_history) unless $_debugging;
+      next;
+    } elsif ($cmd eq "source") {
+      runFile $tokens[0];
+    } elsif ($cmd eq "set") {
+      if ($_opts{test} =~ /\s*(\w+)\s*=\s*(.+)/) {
+	my $optionName	= $1;
+	my $value	= $2;
+
+	# Remove quotes, if any. Note no check for balancing.
+	$value =~ s/[\"\']//g;
+
+	# Set option
+	$_opts{$optionName} = $value;
+      } # if
+    } elsif ($cmd eq "get") {
+      if ($_opts{$tokens[0]}) {
+	display "$tokens[0] = $_opts{$tokens[0]}";
+      } else {
+	display "$tokens[0] is not set";
+      } # if
+    } else {
+      $_stats{Run}++;
+      $_opts{class} = lc $_opts{class};
+
+      if ( $_opts{class} eq "manual" ) {
+        $_opts{test} = " ";
+      } # if
+
+      executeTestStep;
+    } # if
+  } # while
+
+  # Disconnect from EAST
+  $_east->disconnect;
+
+  # Assign 'Failed' and 'Timedout' 0 if they are not initialized
+  $_stats{Failed}   ||= 0;
+  $_stats{Timedout} ||= 0;
+
+  my $testErrors = $_stats{Failed} + $_stats{Timedout};
+
+  # Collect log files and check them in based on checkin_on_error option
+  $_east->collectLogFiles($testErrors, $_opts{checkin_on_error});
+
+} # if
+
+saveHistory;
+displaySummary;
+
+# The combination of Failed and Timedout represents our exit
+# status. If either or both of them is defined then they will be
+# non-zero and thus we exit with a non-zero status. Only if both are
+# undefined, and thus set to 0 by the code below, will we exit 0.
+$_stats{Failed}		= 0 unless $_stats{Failed};
+$_stats{Timedout}	= 0 unless $_stats{Timedout};
+
+# Now exit with the correct status
+exit ($_stats{Failed} + $_stats{Timedout});

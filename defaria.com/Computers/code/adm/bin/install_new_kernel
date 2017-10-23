@@ -1,0 +1,65 @@
+#!/bin/bash
+#
+# Move a new kernel, previously generated, into place
+#
+me=$(basename $0)
+
+if [ $(id -u) -ne 0 ]; then
+  print -u2 "$me: Error: Must be root to execute this command!"
+  exit 1
+fi
+
+OS=$(/bin/uname -r | /usr/bin/cut -f2 -d.)
+
+kernel_1_source=
+kernel_2_source=
+kernel_1_destination=
+kernel_2_destination=
+
+case "$OS" in
+  10)
+    kernel_1_source=/stand/build/vmunix_test
+    kernel_2_source=/stand/build/system.SAM
+    kernel_1_destination=/stand/vmunix
+    kernel_2_destination=/stand/system
+    ;;
+  09)
+    kernel_1_source=/etc/conf/hp-ux
+    kernel_2_source=/etc/conf/dfile.SAM
+    kernel_1_destination=/hp-ux
+    kernel_2_destination=/etc/conf/dfile
+    ;;
+  *)
+    print -u2 "$me: Error: Unable to determine OS level: $OS"
+    exit 1
+    ;;
+esac
+
+if [ -f $kernel_1_source -a -f $kernel_2_source ]; then
+  answer=y
+  print "New kernel found, move into place (Y/n)?\c"
+  read answer
+  if [ "$answer" = "y" -o "$answer" = "Y" ]; then
+    print -u2 "Moving kernel into place..."
+    mv $kernel_1_source $kernel_1_destination
+    mv $kernel_2_source $kernel_2_destination
+  else
+    print "WARNING: kernel not moved into place!"
+  fi
+
+  answer=y
+  print "Restart system (Y/n)?\c"
+  read answer
+  if [ "$answer" = "y" -o "$answer" = "Y" ]; then
+    cd /
+    /etc/shutdown -yr 0
+  else
+    print "System not restarted"
+    exit
+  fi
+else
+  print -u2 "$me: Error: Unable to find new kernel files:"
+  print -u2 "\t$kernel_1_source"
+  print -u2 "\t$kernel_2_source"
+  exit 1
+fi

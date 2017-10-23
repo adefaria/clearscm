@@ -1,0 +1,180 @@
+#!/usr/bin/expect --
+################################################################################
+#
+# File:         tester
+# Description:  This is the test driver program. It is responsible for running
+#		all tests based on category, etc.
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Jun  6 15:37:15 PDT 2003
+# Language:     Expect
+#
+# (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Source in the Testing package
+set test_base "/dview/defaria_default/Tools/testing"
+source "$test_base/bin/TestPkg.tcl"
+
+namespace import Test::*
+
+# Globals
+set machine	""
+set class	""
+set test	""
+
+proc usage {} {
+  Display "Usage: tester \[-u\] \[-v\] \[-d\] \[-c <class>\] \[-t <test>\] <IP Address>"
+  Display ""
+  Display "Where:"
+  Display ""
+  Display "\t-u\tUsage (this screen)"
+  Display "\t-v\tTurn on verbose mode"
+  Display "\t-d\tTurn on debug mode"
+  Display "\t-c\tRun only <class> tests"
+  Display "\t-t\tRun only <test>"
+
+  exit 1
+}
+
+proc ExecTestCase {test class} {
+  variable debug
+  variable test_base
+
+  cd "$test_base/tests/$class"
+
+  if {[catch {source $test}]} {
+    Warning "Internal problems executing test $test"
+    # If debug is on then re-source the test to see the errors
+#    if {$Test::debug == 1} {
+#    Debug "Re-sourcing test..."
+      source $test
+    }
+  }
+}
+
+proc ExecTestClass {class} {
+  variable test_base
+
+  cd "$test_base/tests/$class"
+
+  if {[catch {set tests [lsort [glob *.exp]]}]} {
+    Warning "No tests in class $class"
+  } else {
+    set nbr_tests [llength $tests]
+
+    if {$nbr_tests == 1} {
+      Log ">>\tStart $class class of tests ($nbr_tests test)"
+    } else {
+      Log ">>\tStart $class class of tests ($nbr_tests tests)"
+    }
+
+    foreach test $tests {
+      ExecTestCase $test $class
+    }
+
+    Log ">>\tEnd $class class of tests"
+  }
+
+  cd ".."
+}
+
+proc ExecAllTests {} {
+  variable test_base
+
+  cd "$test_base/tests"
+
+  foreach class [exec "ls"] {
+    if {[file isdirectory $class]} {
+      ExecTestClass $class
+    }
+  }
+}
+
+proc GetParms {argv argc} {
+  # Other machines to try:
+  #	172.16.35.210
+  #	172.16.35.230
+
+  variable machine
+  variable class
+  variable test
+
+  set index 0
+
+  while {$index < $argc} {
+    set arg [lindex $argv $index]
+
+    switch -- $arg {
+      -u {
+        usage
+      }
+
+      -c {
+        incr index
+        set class [lindex $argv $index]
+      }
+
+      -t {
+        incr index
+        set test [lindex $argv $index]
+      }
+
+      -v {
+        set Test::verbose 1
+      }
+
+      -d {
+        set Test::debug 1
+      }
+
+      default {
+        set machine $arg
+      }
+    }
+
+    incr index
+  }
+}
+
+# Main
+GetParms $argv $argc
+
+if {$machine == ""} {
+#  Warning "Defaulting to machine $Test::machine"
+  set machine $Test::machine
+}
+
+if {$class != ""} {
+  if {[file isdirectory "$test_base/tests/$class"] == 0} {
+    Error "Class $class not found ($test_base/$class)"
+  }
+}
+
+if {$test != ""} {
+  if {$class == ""} {
+    Error "You must specify the test class when performing individual test case runs"
+  } else {
+    if {[file exists "$test_base/tests/$class/$test"] == 0} {
+      Error "Test $test not found ($test_base/$class/$test)"
+    }
+  }
+}
+  
+# Log into card
+Login $machine
+
+# Start test(s)
+if {$test != ""} {
+  ExecTestCase $test $class
+} else {
+  StartSuite
+
+  if {$class != ""} {
+    ExecTestClass $class
+  } else {
+    ExecAllTests
+  }
+
+  EndSuite
+}
+

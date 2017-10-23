@@ -1,0 +1,11 @@
+# User aliases
+User_Alias ADMINS = \
+  v801310
+
+# Host aliases
+Host_Alias DB_MACHINES = \
+  smoc4056, \
+  smoc4129
+
+# Super Users
+v801310 ALL = NOPASSWD: ALL

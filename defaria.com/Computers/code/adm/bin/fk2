@@ -1,0 +1,98 @@
+#!/bin/bash
+################################################################################
+#
+# File:         .tep
+# RCS:          $Header: .tep,v 1.5 97/10/05 22:31:46 defaria Exp $
+# Description:  Wrapper script to set function keys for the TEP Console
+#               Concentrators.
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Thu Jun  6 08:31:57 PDT 1996
+# Modified:     Thu Jun  6 08:32:13 PDT 1996 (Andrew DeFaria) defaria@spock
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+export esc=$(print "\033")
+export cr=$(print "\015")
+
+if [ "$TERM" = "hpterm" \
+  -o "$TERM" = "hp"     \
+  -o "$TERM" = "2394"   \
+  -o "$TERM" = "70096" ]; then
+  # Turn:
+  #   . Enq/Ack:        No
+  #   . RecvPace:       Xon/Xoff
+  #   . InhHndShk (G):  Yes
+  #   . Inh DC2 (H):    Yes
+  print "${esc}&q0n1h${esc}&s1g1H\c"
+
+  if [ "$me" = fk1 ]; then
+    print "\
+${esc}&f1k2a16d7L Young  hpcleareQQQQT1${cr}\
+${esc}&f2k2a16d7L Loomis hpclsv1 QQQQT2${cr}\
+${esc}&f3k2a16d7L        hpcll237QQQQT3${cr}\
+${esc}&f4k2a16d7L Stablerhpclear1QQQQT4${cr}\
+${esc}&f5k2a16d7L Unitas hpclear3QQQQT5${cr}\
+${esc}&f6k2a16d7L Griese hpclear5QQQQT6${cr}\
+${esc}&f7k2a16d7L Simms  hpclear7QQQQT7${cr}\
+${esc}&f8k2a16d5L  Dis   connect QQQQ${cr}\c"
+  elif [ $me = fk2 ]; then
+    print "\
+${esc}&f1k2a16d7LDynamitehpclldynQQQQT1${cr}\
+${esc}&f2k2a16d7L Mobius hpclang6QQQQT2${cr}\
+${esc}&f3k2a16d7L Starr  hpclearnQQQQT3${cr}\
+${esc}&f4k2a16d7L        hpcll208QQQQT4${cr}\
+${esc}&f5k2a16d7LTarkentnhpclear9QQQQT5${cr}\
+${esc}&f6k2a16d7L  Veil          QQQQT6${cr}\
+${esc}&f7k2a16d7L Kilmer hpclearkQQQQT7${cr}\
+${esc}&f8k2a16d7L        hpcll207QQQQT8${cr}\c"
+  elif [ $me = fk3 ]; then
+    print "\
+${esc}&f1k2a16d7LDuchess         QQQQT1${cr}\
+${esc}&f2k2a16d7LCatbert         QQQQT2${cr}\
+${esc}&f3k2a16d7L  Nala          QQQQT3${cr}\
+${esc}&f4k2a16d7LPywacket        QQQQT4${cr}\
+${esc}&f5k2a16d7L Alley          QQQQT5${cr}\
+${esc}&f6k2a16d7L                QQQQT6${cr}\
+${esc}&f7k2a16d7L                QQQQT7${cr}\
+${esc}&f8k2a16d5L  Dis   connect QQQQ${cr}\c"
+  elif [ $me = fk4 ]; then
+    print "\
+${esc}&f1k2a16d7L Wampus         QQQQT1${cr}\
+${esc}&f2k2a16d7Lcllvob01        QQQQT2${cr}\
+${esc}&f3k2a16d7Lcllvob02        QQQQT3${cr}\
+${esc}&f4k2a16d7Lcllvob03        QQQQT4${cr}\
+${esc}&f5k2a16d7Lcllvob04        QQQQT5${cr}\
+${esc}&f6k2a16d7L                QQQQT6${cr}\
+${esc}&f7k2a16d7L                QQQQT7${cr}\
+${esc}&f8k2a16d5L  Dis   connect QQQQ${cr}\c"
+  elif [ $me = fk5 ]; then
+    print "\
+${esc}&f1k2a16d7Lcllvob05        QQQQT1${cr}\
+${esc}&f2k2a16d7Lcllvob06        QQQQT2${cr}\
+${esc}&f3k2a16d7Lcllvob07        QQQQT3${cr}\
+${esc}&f4k2a16d7Lcllvob08        QQQQT4${cr}\
+${esc}&f5k2a16d7Lcllvob09        QQQQT5${cr}\
+${esc}&f6k2a16d7Lcllvob10        QQQQT6${cr}\
+${esc}&f7k2a16d7L                QQQQT7${cr}\
+${esc}&f8k2a16d5L  Dis   connect QQQQ${cr}\c"
+  elif [ $me = fk6 ]; then
+    print "\
+${esc}&f1k2a16d7L Gideon         QQQQT1${cr}\
+${esc}&f2k2a16d7L Oliver         QQQQT2${cr}\
+${esc}&f3k2a16d7L Dinah          QQQQT3${cr}\
+${esc}&f4k2a16d7LCheshire        QQQQT4${cr}\
+${esc}&f5k2a16d7Lcllbld01        QQQQT5${cr}\
+${esc}&f6k2a16d7Lcllbld02        QQQQT6${cr}\
+${esc}&f7k2a16d7Lcllbld03        QQQQT7${cr}\
+${esc}&f8k2a16d7Lhpcll321        QQQQT8${cr}\c"
+  fi
+
+  # Turn on Function keys to see changes
+  print "${esc}&jB\c"
+else
+  print -u2 "Sorry but the terminal type $TERM, is not supported"
+  exit 1
+fi

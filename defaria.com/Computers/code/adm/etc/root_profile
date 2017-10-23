@@ -1,0 +1,52 @@
+# @(#) $Revision: 74.2 $
+
+# Default (example of) super-user's .profile file
+
+# Do not put "." in PATH; it is a potential security breach.
+# Do not put "/usr/local/bin" in PATH; it is a potential security breach.
+# Example assumes /home/root exists.
+        set +u
+
+        PATH=/usr/sbin:$PATH:/sbin:/home/root
+
+# Be sure that VUE does not invoke tty commands
+
+   if [ ! "$VUE" ]; then
+
+   # Set up the terminal:
+        if [ "$TERM" = "" ]
+        then
+                eval ` tset -s -Q -m ':?hp' `
+        else
+                eval ` tset -s -Q `
+        fi
+        eval `/usr/bin/X11/resize`
+        stty erase "^H" kill "^X" intr "^C" eof "^D" susp "^Z"
+        stty hupcl ixon ixoff
+        tabs
+
+        #echo
+        #echo "Value of TERM has been set to \"$TERM\". "
+        export TERM
+
+        EDITOR=vi
+        export EDITOR
+
+   fi          # if !VUE
+
+# Set up shell environment:
+        HISTFILE=/.sh_history; export HISTFILE
+        set -u                                  # error if undefined
+variable.
+        set -o emacs
+        #trap "echo 'logout root'" 0            # what to do on exit.
+        alias t="exec /app/tcsh"
+
+# Set up shell variables:
+
+        MAIL=/var/mail/root
+        # don't export, so only login shell checks.
+
+        # For Medusa: Turn off mesg
+        mesg n
+        echo "Warning: You are superuser!"

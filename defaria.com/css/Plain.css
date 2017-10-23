@@ -1,0 +1,462 @@
+/************************************************************************/
+/* File:	Plain.css						*/
+/* Description: Cascading Style Sheet definitions for site		*/
+/* Author:	Andrew@DeFaria.com					*/
+/* Created:     Mon Nov  3 21:55:05 PST 2003				*/
+/* Language:	Cascading Style Sheet					*/
+/*									*/
+/* (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved.		*/
+/************************************************************************/
+body {
+  background:		white;
+  margin:		3px;
+  padding:		2px;
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			sans-serif,
+			arial;
+  color:		black;
+}
+
+.heading {
+  margin-top:		5px;
+  padding:		5px;
+}
+
+h1, h2, h3, h4, h5 { 
+  color:		#005A9C;
+}
+
+h1.centered { 
+  text-align:		center;
+}
+
+h1 {
+  font-size:		1.5em;
+}
+
+h2 {
+  font-size:		1.25em;
+}
+
+h3 {
+  font-size:		1em;
+}
+
+h4 {
+  font-size:		.75em;
+}
+
+h5 {
+  font-size:		.5em;
+}
+
+a {
+  color:		#4A7184;
+  text-decoration:	none;
+  font-weight:		bold;
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		14px;
+  font-weight:		bold;
+}
+
+a:link {
+  color:		#0080c0;
+}
+
+a:visited {
+  color:		#4A7184;
+}
+
+a:active {
+  color:		#999966;
+}
+
+a:hover {
+  color:		blue;
+  background:		#ffff80;
+}
+
+/* For img's that happen to be links, don't put that silly    */
+/* border!                                                    */
+img {                                                                       
+  border:		none;
+}                                                                           
+
+font {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-weight:		normal;
+  text-transform:	none;
+}
+
+font.title {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		11px;
+  color:		#666;
+  line-height:		15px;
+}
+
+font.title-list {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		11px;
+  color:		#666;
+  line-height:		15px;
+}
+
+font.bold-label {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		 11px;
+  color:		 #666;
+  font-weight:		 bold;
+}
+
+font.title-no-padding {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		11px;
+  color:		#FFF;
+}
+
+font.title-padding {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		11px;
+  color:		#FFF;
+  line-height:		15px;
+  padding:		5px;
+}
+
+font.title-padding-grey {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		11px;
+  color:		#333;
+  line-height:		15px;
+  padding:		5px;
+}
+
+font.pagetitle {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		12px;
+  color:		#666;
+  line-height:		15px;
+  font-weight:		bold;
+}
+
+font.pagetitlelink {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		12px;
+  color:		#336699;
+  line-height:		15px;
+  font-weight:		bold;
+}
+
+font.plain {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		11px;
+  color:		#666;
+  line-height:		15px;
+}
+
+font.instructional {
+  font-family:		verdana,
+			arial,
+			sans-serif;
+  font-size:		10px;
+  color:		#666;
+  line-height:		13px;
+  text-align:		justify;
+}
+
+.message {
+  font-family:		verdana,
+			arial,
+			sans-serif;
+  font-size:		11px;
+  color:		#669966;
+  line-height:		13px;
+  font-weight:		bold;
+  margin-bottom:	10px;
+}
+
+.message a {
+  font-family:		verdana,
+			arial,
+			sans-serif;
+  font-size:		11px;
+}
+
+.standout {
+  font-family:		verdana,
+			arial,
+			sans-serif;
+  font-size:		12px;
+  color:		#993333;
+  line-height:		13px;
+  font-weight:		bold;
+  margin-bottom:	10px;
+}
+
+.error-message {
+  font-family:		verdana,
+			arial,
+			sans-serif;
+  font-size:		11px;
+  color:		#993333;
+  line-height:		13px;
+  font-weight:		bold;
+  margin-bottom:	10px;
+}
+
+.error-message a {
+  font-family:		verdana,
+			arial,
+			sans-serif;
+  font-size:		21px;
+}
+
+font.instructional-just {
+  font-family:		verdana,
+			arial,
+			sans-serif;
+  font-size:		10px;
+  color:		#666;
+  line-height:		13px;
+}
+
+font.head1 {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		11px;
+  color:		#336699;
+  line-height:		15px;
+  font-weight:		bold;
+}
+
+font.command {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		12px;
+  line-height:		15px;
+  text-transform:	uppercase;
+  font-weight:		bold;
+}
+
+font.command-grey {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			arial,
+			sans-serif;
+  font-size:		12px;
+  line-height:		15px;
+  color:		#666;
+  font-weight:		bold;
+}
+
+p {
+  color:		black;
+  font-family:		Times New Roman,
+			Arial;
+  font-size:		12pt;
+  line-height:		12pt;
+}
+
+ul {
+  color:		black;
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			helvetica,
+			sans-serif;
+  font-size:		14px;
+  line-height:		16px;
+}
+
+li {
+  font-family:		trebuchet MS,
+			trebuchet,
+			verdana,
+			helvetica,
+			sans-serif;
+  font-size:		14px;
+  line-height:		16px;
+}
+
+.box {
+  padding:		5px;
+  background-color:	#ffffea;
+  color:		rgb(165, 42, 42);
+  font-size:		8pt;
+  margin-bottom:	5px;
+  margin-left:		auto;
+  margin-right:		auto;
+  border-top:		4px solid #804000;
+  border-left:		1px solid #804000;
+  border-bottom:	1px solid #aca899;
+  border-right:		1px solid #aca899;
+  width:		75%;
+  text-align:		center;
+  -moz-border-radius:	7px;
+}
+
+.padded-box {
+  border:		1px solid #696;
+  padding:		5px;
+  margin-top:		50px;
+  text-align:		center;
+  background:		#ccc;
+}
+
+.copyright {
+  border-bottom:	1px dotted #ccc;
+  border-top:		1px dotted #ccc;
+  color:		#999;
+  font-family:		verdana,
+  			arial,
+			sans-serif;
+  font-size:		10px;
+  margin-top:		5px;
+  text-align:		center;
+  width:		auto;
+}
+
+.copyright a {
+  font-size:		10px;
+}
+
+.input {
+  font-family:		verdana,
+			arial,
+			sans-serif;
+  font-size:		11px;
+  font-weight:		bold;
+  color:		#666;
+}
+
+/* Code */
+.code {
+  border:		2px solid #336699;
+  padding:		5px;
+  margin-top:		20px;
+  background:		#ffffea;
+  color:		black;
+  font-size:		14px;
+  font-family:		courier;
+  -moz-border-radius:	10px;
+}
+
+#code {
+  color:		black;
+  font-size:		14px;
+  font-family:		courier;
+  padding-left:		5px;
+}
+
+#line-number {
+  color:		#804000;
+  font-family:		Arial;
+  font-size:		14px;
+  padding-right:	5px;
+  border-right:		1px dotted #804000;
+}
+
+.highlightbox {
+  border:		solid;
+  border-top-color:	#336699;
+  border-top-width:	4pt;
+  border-left-color:	#336699;
+  border-left-width:	1pt;
+  border-bottom-color:	#000000;
+  border-bottom-width:	1pt;
+  border-right-color:	#000000;
+  border-right-width:	1pt;
+  background-color:	#eeeeee;
+  font-size:		8pt;
+  padding:		5px;
+  float:		right;
+  text-align:		center;
+  width:		200px;
+  -moz-border-radius:	7px;
+}
+
+.centered { 
+  text-align:		center;
+  margin-left:		auto;
+  margin-right:		auto;
+}
+
+.floatright { 
+  float:		right;
+}
+
+.floatcenter { 
+  text-align:		center;
+}
+
+pre {
+  white-space:          pre-wrap;       /* css-3 */
+  white-space:          -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space:          -pre-wrap;      /* Opera 4-6 */
+  white-space:          -o-pre-wrap;    /* Opera 7 */
+  word-wrap:            break-word;     /* Internet Explorer 5.5+ */
+}
+
+address {
+  font-family:	Georgia,
+  		Times New Roman,
+		Arial,
+		sans-serif;
+  font-size:	12pt;
+}
+address.my { 
+  text-align:	right;
+}

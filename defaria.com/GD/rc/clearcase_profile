@@ -1,0 +1,17 @@
+################################################################################
+#
+# File:		$RCSfile: .clearcase_profile,v $
+# Revision:	$Revision: %
+# Description:	Clearcase profile
+# Author:	Andrew@ClearSCM.com
+# Created:	Fri Jun 27 17:45:37 MST 2008
+# Modified:	$Date: $
+# Language:	.clearcase_profile
+#
+# (c) Copywrite 2000-2009, Andrew@ClearSCM.com, all rights reserved.
+#
+################################################################################
+checkout	-nc
+checkin		-nc
+mkelem		-nc
+unco		-rm

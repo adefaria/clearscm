@@ -1,0 +1,39 @@
+#!/bin/bash
+################################################################################
+#
+# File:         vobservers
+# RCS:          $Header: vobservers,v 1.2 98/01/28 12:22:27 defaria Exp $
+# Description:  A script to execute a command on all vob servers.
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Wed Mar  5 16:31:13 PST 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+PATH=/adm/bin:$PATH
+
+if [ "$1" = "-r" ]; then
+  root=yes
+  shift
+fi
+
+for vobserver in $(get_info server_names vobserver); do
+  # Execute command. Note if no command is given then the effect is to
+  # rlogin to each machine.
+  print "$vobserver:$@"
+  if [ $# -gt 0 ]; then
+    if [ -z "$root" ]; then
+      remsh $vobserver -l vobadm -n "$@"
+    else
+      root remsh $vobserver -n "$@"
+    fi
+  else
+    if [ -z "$root" ]; then
+      remsh $vobserver -l vobadm
+    else
+      root remsh $vobserver
+    fi
+  fi
+done

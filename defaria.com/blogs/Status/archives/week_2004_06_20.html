@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: June 20, 2004 - June 26, 2004 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2004_06_13.html" title="June 13, 2004 - June 19, 2004" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2004_06_27.html" title="June 27, 2004 - July  3, 2004" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2004_06_13.html">&laquo; June 13, 2004 - June 19, 2004</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2004_06_27.html">June 27, 2004 - July  3, 2004 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">June 25, 2004</h2>
+                     <a id="a000205"></a>
+                     <div class="entry" id="entry-205">
+                        <h3 class="entry-header">Finished backup script</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>The backup script is ready for deployment. It was determined to lock all vobs at once, back them all up then unlock the vobs. I also implemented the 7 days of history option. History is stored under d:\vobstore\backup as numbered directories (0-6 for Sun-Sat). The script now manages that area by first moving the current backup under d:\backup -> d:\vobstore\backup\<current day #> after first clearing out d:\vobstore\backup\<current day #> (if it existed). It was decided to put the history stuff under vobstore because this way we can tell the backup people "Just exclude d:\vobstore but get everything else".</p>
+
+<p>I was experiencing "Access denied" errors irradically until I found out that there may be .being-deleted files as described <a href="http://www-1.ibm.com/support/docview.wss?rs=0&q1=being-deleted&uid=swg21129318&loc=en_US&cs=utf-8&cc=us&lang=en">here</a>. To solve this I implemented exclusions on the xcopy command (/exclude:d:\backup\exclude.strings) which tells xcopy to exclude things in the "c" directory - i.e. the cleartext pool - which Clearcase can easily recreate without data loss. This also has the effect of reducing the backup copy size in some cases significantly (e.g. \ASAP_Docs goes from 2.1 gig down to 1 gig!).</p>
+
+<p>Here's a rough psuedo code of what the script does:</p>
+
+<div id="code">
+<pre>
+Obtain a list of all vobs
+Lock all vobs
+foreach @vobs
+  if d:\vobstore\backup\$current_day\$vob exists then
+    remove it
+  end if
+  move d:\backup\$vob -> d:\vobstore\backup\$current_day\$vob
+  copy $vob's storage area -> d:\backup\$vob
+Next
+Unlock all vobs
+</pre>
+</div>
+<p>Cutting out the copying of cleartext pool has reduced the current backup time from 56 minutes (yes it grew) to 33 minutes.</p>
+
+<p>Now, where are we WRT the SQL backup scripts?....</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:37 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000205.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 23, 2004</h2>
+                     <a id="a000202"></a>
+                     <div class="entry" id="entry-202">
+                        <h3 class="entry-header">Multisite/backup.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Spent some time trying to multisite a test vob (\defaria). Realized that we will have a problem in that we will need a machine (server or client) dedicated to handling the multisite region in order to lock vobs and backup things.</p>
+
+<p>Had a meeting WRT multisite approach. It was determined that will we switch to using a script to make a copy of the vobs and back up from there. Started writing script...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  9:21 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000202.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 21, 2004</h2>
+                     <a id="a000204"></a>
+                     <div class="entry" id="entry-204">
+                        <h3 class="entry-header">XML</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Spent most of the day investigating XML and XSL.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  9:29 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000204.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

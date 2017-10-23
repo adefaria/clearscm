@@ -1,0 +1,189 @@
+#!/usr/bin/ksh
+################################################################################
+#
+# File:         config_disk_array
+# RCS:          $Header: config_disk_array,v 1.2 97/04/21 13:27:19 defaria Exp $
+# Description:  A script to configure a NIKE Model 20 Disk Array
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Tue Jan 28 15:59:11 PST 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+
+if [ $(id -u) -ne 0 ]; then
+  print -u2 "$me: Error: Must be root to execute this command!"
+  exit 1
+fi
+
+# Get parametes
+primary_disk=
+mirror_disk=
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -p)
+      if [ $# -le 1 ]; then
+        print -u2 "$me: Error: Primary disk not specified"
+      fi
+      shift
+      primary_disk="$1"
+      ;;
+
+    -m)
+      if [ $# -le 1 ]; then
+        print -u2 "$me: Error: Mirror disk not specified"
+      fi
+      shift
+      mirror_disk="$1"
+      ;;
+
+    -d|-debug)
+      debug=yes
+      ;;
+
+    *)
+      print -u2 "$me: Error: Unknown parameter found ($1)"
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+print "This script will configure the NIKE Model 20 Disk Array"
+
+if [ "_$primary_disk" != "_" ]; then
+  print "The primary disk is at:        /dev/dsk/$primary_disk"
+fi
+
+if [ "_$mirror_disk" != "_" ]; then
+  print "The mirror disk is at: /dev/dsk/$mirror_disk"
+fi
+
+print
+
+if [ "_$primary_disk" = "_" -a "_$mirror_disk" = "_" ]; then
+  print -u2 "Nothing to do!"
+  exit 1
+fi
+
+answer=y
+print "Are these settings correct (Y/n)?\c"
+read answer
+
+if [ "$answer" != "y" -a "$answer" != "Y" ]; then
+  print -u2 "Nothing done"
+  exit 1
+fi
+
+# First create the mirror disk
+if [ "_$mirror_disk" != "_" ]; then
+  print "Creating the mirror disk"
+  /sbin/pvcreate -f /dev/rdsk/$mirror_disk
+  status=$?
+
+  if [ $status -eq 0 ]; then
+    print "Mirror disk created"
+  else
+    print "Unable to create mirror disk (Status: $status)"
+    exit 1
+  fi
+fi
+
+# Create Physical Volume Groups
+if [ "_$primary_disk" != "_" ]; then
+  print "Creating Physical Volume Groups"
+  /sbin/vgextend -g primary /dev/vgvobs /dev/dsk/$primary_disk
+  status=$?
+
+  # Ignore the warning about the volume already being created (Status: 2)
+  if [ $status -eq 0 -o $status -eq 2 ]; then
+    print "Physical Volume Group \"primary\" created"
+  else
+    print "Unable to create Physical Volume Group \"primary\" (Status: $status)"
+    exit 1
+  fi
+fi
+
+if [ "_$mirror_disk" != "_" ]; then
+  /sbin/vgextend -g mirror /dev/vgvobs /dev/dsk/$mirror_disk
+  status=$?
+
+  if [ $status -eq 0 ]; then
+    print "Physical Volume Group \"mirror\" created"
+  else
+    print "Unable to create Physical Volume Group \"mirror\" (Status: $status)"
+    exit 1
+  fi
+fi
+
+if [ "_$primary_disk" = "_" ]; then
+  exit
+fi
+
+# Create CLO logical volume
+print "Creating CLO Logical Volume"
+
+if [ "_$mirror_disk" = "_" ]; then
+  /sbin/lvcreate -l 3004 -n CLO -r y -C n -s y -p w -d p vgvobs
+else
+  /sbin/lvcreate -l 3004 -n CLO -m 1 -r y -C n -M y -s g -p w -d p vgvobs
+fi
+
+status=$?
+
+if [ $status -eq 0 ]; then
+  print "CLO Logical Volume created"
+else
+  print "Unable to create CLO Logical Volume (Status: $status)"
+  exit 1
+fi
+
+# Create the file system
+print "Creating file system on CLO Logical Volume"
+/usr/sbin/newfs -F hfs -L -i 6144 -m 5 /dev/vgvobs/rCLO
+status=$?
+
+if [ $status -eq 0 ]; then
+  print "File system for CLO Logical Volume created"
+else
+  print "Unable to create file system for CLO Logical Volume (Status: $status)"
+  exit 1
+fi
+
+# Mount the new CLO logical volume
+print "Mounting CLO Logical Volume"
+mkdir -p /CLO
+/usr/sbin/mount -o rw,suid, -F hfs /dev/vgvobs/CLO /CLO
+status=$?
+
+if [ $status -eq 0 ]; then
+  print "CLO Logical Volume mounted"
+else
+  print "Unable to mount CLO Logical Volume (Status: $status)"
+  exit 1
+fi
+
+# Add the /etc/fstab entry
+print "/dev/vgvobs/CLO /CLO hfs rw,suid 0 2" >> /etc/fstab
+print "Added CLO Logical Volume to /etc/fstab"
+
+# Add the /etc/exports entry
+print "/CLO -async" >> /etc/exports
+print "Added CLO Logical Volume to /etc/exports as -async"
+
+# Export /CLO
+print "Exporting CLO Logical Volume"
+/usr/sbin/exportfs -a
+status=$?
+
+if [ $status -eq 0 ]; then
+  print "CLO Logical Volume exported"
+else
+  print "Unable to export CLO Logical Volume (Status: $status)"
+  exit 1
+fi
+
+print "Done"

@@ -1,0 +1,187 @@
+#!/bin/bash
+################################################################################
+#
+# File:         add_sharedx
+# RCS:          $Header: add_sharedx,v 1.1 97/05/27 15:35:33 defaria Exp $
+# Description:  This script adds a new person to the SharedX addressbook
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Mon May 19 15:56:06 PDT 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+function usage {
+  print -u2 "Usage: $me -username <username> -fullname <fullname>"
+  print -u2 "\t-phone <phonenumber> -hostname <hostname>"
+  print -u2 "\t-displayname <displayname>"
+  exit 1
+} # usage
+
+function add_to_sharedx {
+  cd $sharedx_dir
+  check_out_file=$sharedx_addressbook
+  co -q -l $check_out_file
+
+  if [ $? -ne 0 ]; then
+    error "Unable to checkout $check_out_file"
+    exit $?
+  fi
+
+  trap cancel_checkout INT ERR
+
+  if [ "$xterm" = "T" ]; then
+    print "$displayname:0\t$fullname\t$phonenumber $username\t$hostname" >>
+$check_out_file
+  else
+    print "$displayname:0\t$fullname\t$phonenumber $username" >>
+$check_out_file
+  fi
+
+  if [ $? -ne 0 ]; then
+    error "Unable to add entry to $check_out_file"
+    exit $?
+  fi
+
+  ci -u -q -m"Added $fullname" $check_out_file
+  if [ $? -ne 0 ]; then
+    error "Unable to check in $check_out_file!"
+    exit $?
+  fi
+
+  trap INT ERR
+
+  cd $OLDPWD
+} # add_to_sharedx
+
+function cancel_checkout {
+  info "Canceling checkout"
+  rcs -q -u $check_out_file
+  chmod -w $check_out_file
+  co -q $check_out_file
+  exit 1
+} # cancel_checkout
+
+# Find AppServer's data directory
+if [ -d /net/bismol/app/data ]; then
+  appserver_data=/net/bismol/app/data
+elif [ -d /net/hpclbis/app/data ]; then
+  appserver_data=/net/hpclbis/app/data
+elif [ -d /nfs/bismol/app/data ]; then
+  appserver_data=/nfs/bismol/app/data
+elif [ -d /nfs/hpclbis/app/data ]; then
+  appserver_data=/nfs/hpclbis/app/data
+elif [ -d /nfs/hpclbis/root/app/data ]; then
+  appserver_data=/nfs/hpclbis/root/app/data
+else
+  error "Internal error: Unable to ascertain appserver_data!"
+  exit 1
+fi
+
+sharedx_dir=$appserver_data/SharedX/address_books
+sharedx_addressbook=$sharedx_dir/CLL
+username=
+fullname=
+phonenumber="????"
+hostname=
+displayserver=
+xterm=
+check_out_file=
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+      ;;
+
+    -username)
+      if [ $# -le 1 ]; then
+        error "Username not specified!"
+        usage
+      fi
+      shift
+      username="$1"
+      ;;
+
+    -fullname)
+      if [ $# -le 1 ]; then
+        error "Full name not specified!"
+        usage
+      fi
+      shift
+      fullname="$1"
+      ;;
+    -phone)
+      if [ $# -le 1 ]; then
+        error "Phone not specified!"
+        usage
+      fi
+      shift
+      phonenumber="$1"
+      ;;
+
+    -hostname)
+      if [ $# -le 1 ]; then
+        error "Hostname not specified!"
+        usage
+      fi
+      shift
+      hostname="$1"
+      ;;
+
+    -displayname)
+      if [ $# -le 1 ]; then
+        error "Displayname not specified!"
+        usage
+      fi
+      shift
+      displayname="$1"
+      ;;
+
+    *)
+      error "Unknown parameter encounter: \"$1\""
+      usage
+      ;;
+  esac
+  shift
+done
+
+if [ "_$username" = "_" -o \
+ "_$fullname" = "_" -o \
+ "_$displayname"    = "_" ]; then
+  error "Missing parameter"
+  usage
+fi
+
+if [ "_$hostname" = "_" ]; then
+  hostname=$displayname
+elif [ "$displayname" != "$hostname" ]; then
+  xterm="T"
+else
+  xterm="F"
+fi
+
+add_to_sharedx
+
+if [ $? -eq 0 ]; then
+  info "$fullname has been added to Shared/X addressbook"
+  if [ "$xterm" = "T" ]; then
+    info "X Terminal Server: $hostname; X Terminal Display Name:
+$displayname"
+  fi
+else
+  error "Problems encountered trying to create Shared/X entry for $fullname"
+fi

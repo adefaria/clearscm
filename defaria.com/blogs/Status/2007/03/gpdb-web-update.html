@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en-us" itemscope itemtype="http://schema.org/Article">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content=" Added menus to GPDB web Tested and documented access of Oracle databases, such as GPDB, using standard Perl and standard Oracle libraries from various architectures...">
+    <meta name="generator" content="Movable Type 5.2.3">
+    <title>GPDB Web Update/Oracle testing - Status</title>
+    <link rel="alternate" type="application/atom+xml" title="Recent Entries" href="http://defaria.com/blogs/Status/atom.xml">
+    <link rel="canonical" href="http://defaria.com/blogs/Status/2007/03/gpdb-web-update.html">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles.css">
+    <!--[if lt IE 9]>
+    <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles_ie.css">
+    <script src="/mt/mt-static/support/theme_static/rainier/js/html5shiv.js"></script>
+    <![endif]-->
+    
+    <link rel="start" href="http://defaria.com/blogs/Status/">
+
+    <link rel="prev" href="http://defaria.com/blogs/Status/2007/03/mysql-client-li.html" title="MySQL Client Libraries">
+    <link rel="next" href="http://defaria.com/blogs/Status/2007/03/gpdb-login-1.html" title="GPDB Login">
+    <!-- Open Graph Protocol -->
+    <meta property="og:type" content="article">
+    <meta property="og:locale" content="en-us">
+    <meta property="og:title" content="GPDB Web Update/Oracle testing">
+    <meta property="og:url" content="http://defaria.com/blogs/Status/2007/03/gpdb-web-update.html">
+    <meta property="og:description" content=" Added menus to GPDB web Tested and documented access of Oracle databases, such as GPDB, using standard Perl and standard Oracle libraries from various architectures...">
+    <meta property="og:site_name" content="Status">
+    <meta property="og:image" content="/mt/mt-static/support/theme_static/rainier/img/siteicon-sample.png">
+    <!-- Metadata -->
+    <meta itemprop="description" content=" Added menus to GPDB web Tested and documented access of Oracle databases, such as GPDB, using standard Perl and standard Oracle libraries from various architectures...">
+    <link itemprop="url" href="http://defaria.com/blogs/Status/2007/03/gpdb-web-update.html">
+    <link itemprop="image" href="/mt/mt-static/support/theme_static/rainier/img/siteicon-sample.png">
+    
+  </head>
+  <body>
+    <div id="container">
+      <div id="container-inner">
+        <header id="header" role="banner">
+          <div id="header-inner">
+            <div id="header-content">
+              <h1>
+                <a href="http://defaria.com/blogs/Status/">
+
+                  Status
+
+                </a>
+              </h1>
+              
+            </div>
+
+            <nav role="navigation">
+          <ul>
+            <li><a href="http://defaria.com/blogs/Status/">Home</a></li>
+
+
+          </ul>
+        </nav>
+
+          </div>
+        </header>
+        <div id="content">
+          <div id="content-inner">
+            <ul class="breadcrumb breadcrumb-list">
+              <li class="breadcrumb-list-item"><a href="http://defaria.com/blogs/Status/">Home</a></li>
+              <li class="breadcrumb-list-item">GPDB Web Update/Oracle testing</li>
+            </ul>
+            <div id="individual-main" class="main" role="main">
+              <article id="entry-1874" class="entry entry-asset asset hentry">
+                <div class="asset-header">
+                  <h2 itemprop="name" class="asset-name entry-title">GPDB Web Update/Oracle testing</h2>
+                  <footer class="asset-meta">
+                    <ul class="asset-meta-list">
+                      <li class="asset-meta-list-item">Posted on <time datetime="2007-03-21T16:52:37-08:00" itemprop="datePublished">March 21, 2007</time></li>
+                      <li class="asset-meta-list-item">by <span class="author entry-author vcard"></span></li>
+
+  
+                      <li class="asset-meta-list-item">in <a itemprop="articleSection" rel="tag" href="http://defaria.com/blogs/Status/texas-instruments/">Texas Instruments</a></li>
+  
+
+                   </ul>
+                </footer>
+                </div>
+                <div class="entry-content asset-content" itemprop="articleBody">
+                  <ul>
+  <li>Added menus to GPDB web</li>
+
+  <li>Tested and documented access of Oracle databases, such as GPDB, using standard Perl and standard Oracle libraries from various architectures</li>
+</ul>
+                  <p>Joe Ramey had worked on getting the Oracle Linux client API library to work with Perl. I am trying to validate that this works on all supported architectures where <i>all supported architectures</i> is considered the subset of:</p>
+<ol>
+  <li>Solaris (e.g. Stashu)</li>
+  <li>Linux 32-bit (e.g. Fad01)</li>
+  <li>Linux 64-bit AMD Opteron processor (e.g. DrTeeth)</li>
+  <li>Linux 64-bit Intel processor (e.g. Fad11)</li>
+</ol>
+
+<h3>How to properly code Perl to access an Oracle DB</h3>
+
+<p>Normal access to SQL databases in Perl usually consists of use'ing two different Perl modules. First a DBI.pm module which is the<i> <b>D</b>ata<b>B</b>ase <b>I</b>ndependent</i> interface and the DBD or <b><i>D</i></b><i>ata<b>B</b>ase <b>D</b>river</i> module for the particular SQL database involved. We are interested in Oracle here but others include mSQL, MySQL, etc.</p>
+
+<p>Couple this with the fact that we wish to use the standard Perl (e.g. /apps/perl/5.8.3/bin/perl) and standard Perl modules (/apps/perl/modules-&lt;<i>datecode</i>&gt; where <i>datecode</i> is some combination of a year/month date code whose apparent LCD seems to be modules-0412).</p>
+
+<p>So first our Perl script should start with:</p>
+
+<div class=code><pre>
+<font color="#3333ff">#!/apps/perl/5.8.3/bin/perl</font>
+<font color="#ff0000">use strict</font>;
+<font color="#ff0000">use warnings</font>;
+
+<font color="#3333ff"># Standard CDOE modules (Modules of the month!) - need this to pick up DBI.pm</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/apps/perl/modules-0412/lib</font>";
+</pre></div>
+
+<p>So as the comment indicates we are picking up the DBI.pm module from here. Next, normally, we'd simply include the lib path for the Oracle DBD.pm (or in the special case of Oracle, the Oracle.pm file) as well as the supporting shared library Oracle.so (which is architecturally dependent) by coding the following:</p>
+
+<div class=code><pre>
+<font color="#3333ff"># Perl/Oracle libraries</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/apps/oracle/perl/10.2.0.1.0/lib</font>";
+</pre></div>
+
+<p>However, since Linux client support is not included in /apps/oracle/perl/10.2.0.1.0/lib (yet) we need to pick up Joe's stuff:</p>
+
+<div class=code><pre>
+<font color="#3333ff"># Linux API is in Ramey's home dir...</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/home/ramey/oracle/perl/10.2.0.1.0/lib</font>";
+</pre></div>
+
+<p>The next excerpt from my code, shown in it's entirety later, shows a lib path I used to use that allows Solaris clients to work correctly, however we wish to move away from this special cased library thus it's commented out here:</p>
+
+<div class=code><pre>
+<font color="#3333ff"># This is a non standard Oracle</font>
+<font color="#3333ff">#use lib "/apps/perl/5.8.0/lib/perl5/site_perl/5.8.0";</font>
+</pre></div>
+
+<p>As the full code listing that follows shows I then use my current development libraries and attempt to log into the development version of GPDB, and Oracle database, and retrieve and display some rudimentary data:</p>
+
+<p><font color="#999999">Entire code listing of ~x0062320/testgpdb.pl</font></p>
+
+<div class=code><pre>
+<font color="#3333ff">#!/apps/perl/5.8.3/bin/perl</font>
+<font color="#ff0000">use strict</font>;
+<font color="#ff0000">use warnings</font>;
+
+<font color="#3333ff"># Standard CDOE modules (Modules of the month!) - need this to pick up DBI.pm</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/apps/perl/modules-0412/lib</font>";
+
+<font color="#3333ff"># Perl/Oracle libraries</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/apps/oracle/perl/10.2.0.1.0/lib</font>";
+
+<font color="#3333ff"># Linux API is in Ramey's home dir...</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/home/ramey/oracle/perl/10.2.0.1.0/lib</font>";
+
+<font color="#3333ff"># This is a non standard Oracle</font>
+<font color="#3333ff">#use lib "/apps/perl/5.8.0/lib/perl5/site_perl/5.8.0";
+
+# Current development GPDB modules</font>
+<font color="#ff0000">use lib</font> "<font color="#009900">/web/gpdb/cgi-bin</font>";
+
+<font color="#ff0000">use GPDB::gpdb</font>;
+
+<font color="#3333ff"># Log into GPDB - read only</font>
+gpdb_login (<font color="#33cc00">undef</font>, <font color="#33cc00">undef</font>, "<font color="#009900">OracleDevelopment</font>");
+
+<font color="#3333ff"># Get a project</font>
+<font color="#ff0000">my</font> <font color="#3333ff"><b>@projects</b></font> = gpdb_getProject ("<font color="#009900">uma</font>");
+
+<font color="#3333ff"># Play with it a little bit...</font>
+<font color="#ff0000">my</font> <i><font color="#ff0000">%project</font></i> = %{<font color="#3333ff"><b>$projects</b></font> [0][0]};
+
+<font color="#33cc00">print</font> "<font color="#009900">Project: ${project {PROJECT}{NAME}}\n</font>";
+<font color="#33cc00">print</font> "<font color="#009900">Site: ${project {PROJECT}{SITE_NAME}}\n</font>";
+
+<font color="#33cc00">print</font> "<font color="#009900">Vobs:\n</font>";
+
+<font color="#ff0000">foreach</font> (@{<font color="#ff0000">$project</font> {CLEARCASE}}) {
+<font color="#ff0000">my</font> <i><font color="#ff0000">%cc</font></i> = %{$_};
+
+<font color="#33cc00">print</font> "<font color="#009900">\t${cc {VOB_TAG}}\n</font>";
+} <font color="#3333ff"># foreach</font>
+
+<font color="#33cc00">print</font> "<font color="#009900">done\n</font>";
+</pre></div>
+
+<h3>Results</h3>
+
+<p>Here's the results running on the target architectures:</p>
+
+<div class=code><pre>
+$ ssh stashu testgpdb.pl
+DBI connect('host=dflorad01.itg.ti.com;sid=flddsync;port=1521','cm_gpdb_readonly',...) failed: ERROR OCIEnvNlsCreate. Check ORACLE_HOME env var, NLS settings, permissions, etc. at /web/gpdb/cgi-bin/GPDB/DBHelper.pm line 136
+Could not connect to database. Check $ORACLE_HOME. at /web/gpdb/cgi-bin/GPDB/primitive.pm line 81
+$ ssh fad01 testgpdb.pl
+Project: uma
+Site: Dallas
+Vobs:
+        /cdb/dspumatdl
+        /cdb/uma
+        /cdb/uma_2.2
+        /cdb/uma_2.6a
+done
+$ ssh drteeth testgpdb.pl
+Project: uma
+Site: Dallas
+Vobs:
+        /cdb/dspumatdl
+        /cdb/uma
+        /cdb/uma_2.2
+        /cdb/uma_2.6a
+done
+$ ssh fad11 testgpdb.pl
+Can't load
+'/home/ramey/oracle/perl/10.2.0.1.0/lib/i686-linux-thread-multi/auto/DBI/DBI.so' for module DBI: /lib/libc.so.6: version `GLIBC_2.3' not found (required by
+/home/ramey/oracle/perl/10.2.0.1.0/lib/i686-linux-thread-multi/auto/DBI/DBI.so) at /apps/perl/5.8.3/lib/5.8.3/i686-linux-thread-multi/DynaLoader.pm line 229.
+at /home/ramey/oracle/perl/10.2.0.1.0/lib/i686-linux-thread-multi/DBI.pm line 259
+BEGIN failed--compilation aborted at /home/ramey/oracle/perl/10.2.0.1.0/lib/i686-linux-thread-multi/DBI.pm line 259.
+Compilation failed in require at /web/gpdb/cgi-bin/GPDB/primitive.pm line 24.
+BEGIN failed--compilation aborted at /web/gpdb/cgi-bin/GPDB/primitive.pm line 24.
+Compilation failed in require at /web/gpdb/cgi-bin/GPDB/gpdb.pm line 38.
+BEGIN failed--compilation aborted at /web/gpdb/cgi-bin/GPDB/gpdb.pm line 38.
+Compilation failed in require at ./testgpdb.pl line 20.
+BEGIN failed--compilation aborted at ./testgpdb.pl line 20.
+</pre></div>
+
+<p>So as we can see this is <b>not</b> working for Solaris or Linux 64-bit Intel.</p>
+                </div>
+                <nav class="page-navigation entry-navigation pagination content-nav">
+                  <ul class="page-navigation-list">
+
+                    <li class="page-navigation-list-item page-navigation-prev"><a rel="prev" href="http://defaria.com/blogs/Status/2007/03/mysql-client-li.html" title="MySQL Client Libraries">Previous entry</a></li>
+
+
+                    <li class="page-navigation-list-item page-navigation-next"><a rel="next" href="http://defaria.com/blogs/Status/2007/03/gpdb-login-1.html" title="GPDB Login">Next entry</a></li>
+
+                  </ul>
+                </nav>
+                <!--
+<aside id="zenback" class="zenback feedback">
+  Please paste Zenback script code here.
+</aside>
+-->
+                
+                
+              </article>
+            </div>
+            <aside class="widgets related" role="complementary">
+              <nav class="widget-search widget">
+  <div class="widget-content">
+    <form method="get" id="search" action="http://defaria.com/mt/mt-search.cgi">
+      <div>
+        <input type="text" name="search" value="" placeholder="Search...">
+
+        <input type="hidden" name="IncludeBlogs" value="8">
+
+        <input type="hidden" name="limit" value="20">
+        <button type="submit" name="button">
+          <img alt="Search" src="/mt/mt-static/support/theme_static/rainier/img/search-icon.png">
+        </button>
+      </div>
+    </form>
+  </div>
+</nav>
+<nav class="widget-archive-category widget">
+  <h3 class="widget-header">Categories</h3>
+  <div class="widget-content">
+    
+      
+    <ul class="widget-list">
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/ameriquest/">Ameriquest (99)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/audience/">Audience (3)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/broadcom/">Broadcom (76)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/gpdb/">GPDB (35)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/general-dynamics/">General Dynamics (61)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/general-electric/">General Electric (13)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/hewlett-packard/">Hewlett Packard (13)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/lynuxworks/">LynuxWorks (162)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/pqa/">PQA (35)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/salira/">Salira (79)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/tellabs/">Tellabs (2)</a>
+      
+      
+      </li>
+      
+    
+      
+      
+      <li class="widget-list-item"><a href="http://defaria.com/blogs/Status/texas-instruments/">Texas Instruments (31)</a>
+      
+      
+      </li>
+      
+    </ul>
+      
+    
+  </div>
+</nav>
+  
+
+<nav class="widget-archive-dropdown widget">
+  <h3 class="widget-header">Archives</h3>
+  <div class="widget-content">
+    <select>
+      <option>Select a Month...</option>
+    
+      <option value="http://defaria.com/blogs/Status/2016/02/">February 2016</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/09/">September 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/04/">April 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2014/03/">March 2014</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2013/02/">February 2013</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/09/">September 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/08/">August 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/05/">May 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/04/">April 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/02/">February 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2012/01/">January 2012</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2011/10/">October 2011</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2011/07/">July 2011</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/09/">September 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/08/">August 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/04/">April 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/03/">March 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2010/02/">February 2010</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2009/05/">May 2009</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2009/04/">April 2009</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/07/">July 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/05/">May 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/04/">April 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/03/">March 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/02/">February 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2008/01/">January 2008</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/12/">December 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/11/">November 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/10/">October 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/09/">September 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/08/">August 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/07/">July 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/06/">June 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/05/">May 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/04/">April 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/03/">March 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2007/01/">January 2007</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/12/">December 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/11/">November 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/10/">October 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/09/">September 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/07/">July 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/06/">June 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/05/">May 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/04/">April 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/03/">March 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/02/">February 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2006/01/">January 2006</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/12/">December 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/11/">November 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/10/">October 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/09/">September 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/08/">August 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/07/">July 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/06/">June 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/05/">May 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/04/">April 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/03/">March 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/02/">February 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2005/01/">January 2005</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/12/">December 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/09/">September 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/08/">August 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/07/">July 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/06/">June 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/05/">May 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/04/">April 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/03/">March 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/02/">February 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2004/01/">January 2004</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2003/12/">December 2003</option>
+    
+  
+    
+      <option value="http://defaria.com/blogs/Status/2003/11/">November 2003</option>
+    
+    </select>
+  </div>
+</nav>
+    
+  
+
+<div class="widget-syndication widget section">
+  <div class="widget-content">
+    <p><img src="http://defaria.com/mt/mt-static/images/status_icons/feed.gif" alt="Subscribe to feed" width="9" height="9" /> <a href="http://defaria.com/blogs/Status/atom.xml">Subscribe to this blog's feed</a></p>
+
+  </div>
+</div>
+
+            </aside>
+          </div>
+        </div>
+        <footer id="footer" role="contentinfo">
+          <div id="footer-inner">
+            <div id="footer-content">
+  <nav role="navigation">
+          <ul>
+            <li><a href="http://defaria.com/blogs/Status/">Home</a></li>
+
+
+          </ul>
+        </nav>
+
+  <p class="license">&copy; Copyright 2016.</p>
+  <p class="poweredby">Powered by <a href="http://www.movabletype.org/">Movable Type</a></p>
+</div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <script src="http://defaria.com/mt/mt-static/jquery/jquery.min.js"></script>
+    <script src="http://defaria.com/blogs/Status/mt-theme-scale2.js"></script>
+  </body>
+</html>

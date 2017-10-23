@@ -1,0 +1,91 @@
+#!/bin/bash
+################################################################################
+#
+# File:         allmach
+# Description:  Runs an arbitrary command on all machines
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Apr 30 14:17:40 PDT 1999
+# Language:     Korn Shell
+# Modifications:Added trapping of INT so that you can abort a non-responding
+#               machine.
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Set currmachine
+currmachine=
+
+if [ "$1" = "-r" ]; then
+  root_remsh=true
+  shift
+fi
+
+function trap_intr {
+  echo "$currmachine:$cmd interrupted"
+  echo -e "(A)bort $me or (C)ontinue with next machine? \c"
+  read response
+  response=$(echo $response | tr [:upper:] [:lower:])
+
+  case "$response" in
+    a|abort)
+      display "Aborting $me..."
+      exit
+    ;;
+  esac
+  display "Continuing on with the next machine..."
+} # trap_intr
+
+# Gather all machines into the machines variable so we can
+# use a for loop
+net view	| 
+  grep -e '\\'	| 
+  cut -f3 -d\\	| 
+  cut -f1 -d' '	|
+  tr [:upper:] [:lower:] > /tmp/$me.$$
+
+machines=$(cat /tmp/$me.$$);
+rm -f /tmp/$me.$$
+
+# This loop executes the command
+trap trap_intr INT
+
+for machine in $machines; do
+  currmachine=$machine
+  # Execute command. Note if no command is given then the effect is to
+  # rlogin to each machine.
+  echo "$machine:$@"
+  cmd="$@"
+  if [ $# -gt 0 ]; then
+    if [ "$root_remsh" = "true" ]; then
+      rsh $machine -nl root "$cmd"
+    else
+      rsh $machine -n "$cmd"
+    fi
+  else
+    if [ "$root_remsh" = "true" ]; then
+      rsh $machine -nl root
+    else
+      echo "Executing rlogin $machine"
+      rlogin $machine
+    fi
+  fi
+done

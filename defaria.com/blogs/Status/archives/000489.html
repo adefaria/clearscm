@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Cleardiffmrg/bin_merge problems</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000488.html" title="Code Page/create_dev_snapview.pl" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000491.html" title="Stripmime/Cleardiffmrg/CharacterSetValidation" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000488.html">&laquo; Code Page/create_dev_snapview.pl</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000491.html">Stripmime/Cleardiffmrg/CharacterSetValidation &raquo;</a>
+                     </p>
+
+                     <a id="a000489"></a>
+                     <div class="entry" id="entry-489">
+                        <h3 class="entry-header">Cleardiffmrg/bin_merge problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Told Andrew about new -reuse_stream option to create_dev_snapview.pl. I have him testing this</li>
+
+  <li>Worked with Shivdutt and IBM/Rational on problem with cleardiffmrg. I think I've worked this out to the leading "/" that UCMCustom users.</li>
+
+  <li>Finished stripmime - Ray testing it - created stripmimed that logs to /tmp.</li>
+
+  <li>Worked at getting bin_merge integrated into UCMCustom.pl</li>
+
+  <li>Implemented quick script (topper) to try to catch the hanging problem with ccase-rmna-3</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Cleardiffmgr problem</h2>
+
+<p>The problem occurs during a deliver between projects where there is a merge conflict and UCMCustom wants to have findmerge call up a Cleardiffmgr to resolve the conflicts. I've seen this before WRT snapshot views and view tags with forward slashes at Ameriquest. UCMCustom perfaces' the vob tags with "/".</p>
+
+<p>But this problem doesn't always happen - in fact most of the time it appears to work. It might be just when there's a merge conflict</p>
+
+<p>After working with Shivdutt and IBM/Rational on the problem and getting down to reproducing it with a long cleartool findmerge command in the user's environment this problem started happening to me in my test environment as I was integrating bin_merge. After much narrowing down I found:</p>
+
+<p>Here's some more information. As you know I started having a similar problem as the end user. I paired it down to the following. This fails (but does not always fail):</p>
+
+<div class="code"><pre>
+    Z:\andys_pvob>cleartool findmerge /andy\bin\cygwin_setup -fver \main\Andrew_Integration\6 -log NUL -gmerge -nc
+    Needs Merge "/andy\bin\cygwin_setup" [to \main\Andrew_Integration\Andrew2_Integration\CHECKEDOUT from \main\Andrew_Integration\6 base \main\Andrew_Integration\5]
+</pre></div>
+
+<p>However the following does work:</p>
+
+<div class="code"><pre>
+    Z:\andys_pvob>cleartool findmerge \andy\bin\cygwin_setup -fver \main\Andrew_Integration\6 -log NUL -gmerge -nc
+    Needs Merge "\andy\bin\cygwin_setup" [to \main\Andrew_Integration\Andrew2_Integration\CHECKEDOUT from \main\Andrew_Integration\6 base \main\Andrew_Integration\5]
+</pre></div>
+
+<p>Notice the difference? It's subtle. The first findmerge's path starts with a "/" while the second one starts with a "\".</p>
+
+<h2>bin_merge integration</h2>
+
+<p>My bin_merge script remains it's own process. This will be useful if others wish to use this process. However UCMCustom needs to incorporate calling bin_merge. I'm currently having a problem with this because I want to start bin_merge as a pipe so I can give the user feedback. But bin_merge runs to completion before the first output is received. I don't know why this is happening as it doesn't happen in a smaller test.pl environment, only under the massive UCMCustom.pl...</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on December  5, 2005  7:54 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000489.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

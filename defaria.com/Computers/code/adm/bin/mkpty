@@ -1,0 +1,102 @@
+#!/bin/bash
+# usage:  mkpty -n number [-d dir] [ -m mastermajor ]
+
+# Algorithm:
+#      For master side, the files have a ptym/pty prefix.
+#      For slave side, the files have a pty/tty prefix.
+#      The suffix naming convention is:
+#          First  400: pty[p-za-ce-o]<hex_digit>
+#          Next  2500: pty[p-za-ce-o]<digit><digit>
+#          Last 25000: pty[p-za-ce-o]<digit><digit><digit>
+
+export OS=$(/bin/uname -r | /usr/bin/cut -f2 -d.)
+
+if [ "$OS" = "10" ]; then
+  mknod=/sbin/mknod
+else
+  mknod=/etc/mknod
+fi
+
+function makepty {
+  [[ -c $1 ]] && return 0
+  $mknod $1 c $2 $3
+  chmod 666 $1 && chown bin:bin $1
+}
+
+typeset -i major=16 slave
+typeset -i npty=0 minor=0 j k
+typeset -Z2 n2
+typeset -Z3 n3
+typeset -l prefix[25] hex[16]
+
+set -A prefix p q r s t u v w x y z a b c e f g h i j k l m n o
+set -A hex 0 1 2 3 4 5 6 7 8 9 a b c d e f
+
+dir=/dev
+
+while getopts :n:Dd:m: c; do
+  case $c in
+    n) npty=$OPTARG;;
+    d) dir=$OPTARG;;
+    m) major=$OPTARG;;
+    D) set -x;;
+    :) print -u2 $OPTARG requires a value; exit 1;;
+    *) print -u2 Invalid argument $OPTARG; exit 1;;
+  esac
+done
+
+shift OPTIND-1;
+
+if [[ $# -ne 0 ]]; then
+  print -u2 "Usage: $0 -n number [-d dir] [-m mastermajor]"
+  exit 1;
+fi
+
+slave=major+1
+cd ${dir}
+
+mkdir -p pty ptym
+
+j=0;k=0
+while (( j < 25 && npty>0 )); do
+  name=${prefix[j]}${hex[k]}
+  makepty ptym/pty${name} ${major} ${minor}
+  makepty pty/tty${name} ${slave} ${minor}
+  if (( j<3 )); then
+    rm -f pty${name} && ln ptym/pty${name} pty${name}
+    rm -f tty${name} && ln pty/tty${name} tty${name}
+  fi
+  npty=npty-1
+  (( (k=k+1) >= 16 )) && k=0 && j=j+1
+  minor=minor+1
+done
+
+j=0;k=0
+while (( j < 25 && npty>0 )); do
+  n2=$k
+  name=${prefix[j]}${n2}
+  makepty ptym/pty${name} ${major} ${minor}
+  makepty pty/tty${name} ${slave} ${minor}
+  npty=npty-1
+  (( (k=k+1) >= 100 )) && k=0 && j=j+1
+  minor=minor+1
+done
+
+j=0;k=0
+while (( j < 25 && npty>0 )); do
+  n3=$k
+  name=${prefix[j]}${n3}
+  makepty ptym/pty${name} ${major} ${minor}
+  makepty pty/tty${name} ${slave} ${minor}
+  npty=npty-1
+  (( (k=k+1) >= 1000 )) && k=0 && j=j+1
+  minor=minor+1
+done
+
+if hp9000s700; then
+:
+elif hp9000s800; then
+  mknod ptym/clone c ${major} 0xffffff
+  chmod 666 ptym/clone
+  chown bin:bin ptym/clone
+fi

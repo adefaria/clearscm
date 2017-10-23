@@ -1,0 +1,93 @@
+#!/bin/bash
+################################################################################
+#
+# File:         mount_nfs
+# RCS:          $Header:$
+# Description:  A script to mount all nfs mounts. Note if the automounter is
+#		running then this script will first shutdown the automounter.
+#		This script returns 0 for success or non zero if it was unable
+#		to umount all nfs mounts. This script must run as root.
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Fri Jun  6 10:31:51 PDT 1997
+# Modified:     
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+if is_not_root; then
+  error "This script must be run as root" 1
+fi
+
+integer automount_pid=$(process_is_running automount)
+kill_automounter=yes
+
+if [ $automount_pid -ne 0 ]; then
+  print "Attempting to shutdown the automounter..."
+  kill -15 $automount_pid
+
+  print "Waiting for the automounter to shutdown..."
+  integer max_tries=5
+  integer wait_time=10
+
+  while [ $max_tries -ne 0 ]; do
+    sleep 10
+    automount_pid=$(process_is_running automount)
+    process_is_running automount
+    if [ $automount_pid -ne 0 ]; then
+      print "The automounter ($automount_pid) is still running!"
+      print "I will wait $max_tries more time\c"
+      if [ $max_tries -gt 1 ]; then
+	print -u2 "s\c"
+      fi
+      print ". Waiting $wait_time seconds..."
+      sleep $wait_time
+    else
+      break
+    fi
+    let max_tries=max_tries-1
+  done
+fi
+
+automount_pid=$(process_is_running automount)
+if [ $automount_pid -ne 0 ]; then
+  print "The automounter has not shutdown! Continuing..."
+else
+  print "The automounter has been shut down successfully"
+  touch /etc/automounter_was_here
+fi
+
+print "\nAttempting to unmount all nfs mounts"
+if [ "$OS" = "09" ]; then
+  /etc/umount -at nfs
+else
+  /usr/sbin/umount -a -F nfs
+fi
+
+integer nfs_mounts_left=$(grep -c "nfs" /etc/mnttab)
+
+if [ $nfs_mounts_left -eq 0 ]; then
+  print "All nfs filesystems have been successfully unmounted!"
+  exit 0
+else
+  print "There \c"
+  if [ $nfs_mounts_left -eq 1 ]; then
+    print "is one filesystem left mounted:\n"
+  else
+    print "are $nfs_mounts_left filesystems left mounted:\n"
+  fi
+  grep nfs /etc/mnttab
+  exit 1
+fi

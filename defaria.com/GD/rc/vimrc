@@ -1,0 +1,8 @@
+set background=light
+set autoindent
+set autowrite
+colorscheme evening
+syntax enable
+set t_kb=
+fixdel
+set backspace=indent,eol,start

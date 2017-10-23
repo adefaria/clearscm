@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: LOS178 3.0.0</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000331.html" title="Bluecat RH 8.0 port" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000333.html" title="LOS178 3.0.0" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000331.html">&laquo; Bluecat RH 8.0 port</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000333.html">LOS178 3.0.0 &raquo;</a>
+                     </p>
+
+                     <a id="a000332"></a>
+                     <div class="entry" id="entry-332">
+                        <h3 class="entry-header">LOS178 3.0.0</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Merged 2.1.0 -> 2.0.0</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Ah, here's the deal, according to CR 491:</p>
+
+<blockquote type=cite>
+<p>Clarification on who removed the C++ libraries: Rockwell Collins distributed the official VMOS 8.4 packages without the libstdc++.a and it is not LW that removed the libstdc++.a.</p>
+
+<p>Since LW doesn't build the toolchain. The C++ libraries will be taken from LynxOS 3.1.0a PPC (12000.devos.tar.gz) and package into ppc.cdksol.tar.gz the prebuilt solaris cdk. This package will get extracted before starting the build.</p>
+</blockquote>
+
+<p>So then the trick is to get the appropriate ppc.cdksol.tar.gz (revision 1.3.2.1).</p>
+
+<p>So then summarizing what needs to be done:</p>
+
+<ol>
+  <li>Resolve the issue with arinc653drv.import (i.e. delete the file since it's marked dead)</li>
+
+  <li>Resolve the issue with ENVIRONMENT (see below)</li>
+
+  <li>Merge REL_LOS178_2p1p0-branch -> REL_LOS178_2p0p0_ppc_20050228 for bin-image to get the right ppc.cdksol.tar.gz.</li>
+
+  <li>Build to insure that it builds</li>
+
+  <li>Checkin merges</li>
+</ol>
+
+<p>Regarding ENVIRONMENT: The conflict arise in 3 variables. The first variable, LYNXOS178_RELEASE is 2.0.0 in the old version and 2.1.0 in the new version. The new value will be 3.0.0.</p>
+
+<p>The second variable is LYNXOS178_VERSION. In the old version it's 20050228 and the new version is 20050128. The new value will be today's date (20050408)</p>
+
+<p>The third variable is also one of those time ones, RELEASE_TIMESTAMP. Old = "Mon Feb 28 11:00:00 2005" and New = "Fri Jan 28 11:00:00 2005". The new value will be "Fri Apr 8 11:00:00 2005".</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April  8, 2005  2:27 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000332.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

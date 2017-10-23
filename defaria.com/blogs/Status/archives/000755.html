@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Creating a Development Schema</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000754.html" title="Creating Development Schema Repositories" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000756.html" title="Shebang and script interpreters" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000755.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/119"
+    dc:title="Creating a Development Schema"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000755.html"
+    dc:subject="Broadcom"
+    dc:description="Creating a dev schema is not that difficult. Note you can create a dev schema in the production schema repo or in a dev schema repo. The later is a just a bit safer as it is a bit more..."
+    dc:creator=""
+    dc:date="2012-08-29T21:08:12-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000754.html">&laquo; Creating Development Schema Repositories</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000756.html">Shebang and script interpreters &raquo;</a>
+                     </p>
+
+                     <a id="a000755"></a>
+                     <div class="entry" id="entry-755">
+                        <h3 class="entry-header">Creating a Development Schema</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Creating a dev schema is not that difficult. Note you can create a dev schema in the production schema repo or in a dev schema repo. The later is a just a bit safer as it is a bit more isolated.</p>
+
+<p>To create a dev schema from the CQ Designer, right click on the schema repo and select <b>New: Schema</b>. We are creating a new schema by basing it off of an existing schema. Expand the + sign and select the version that you wish to base your new schema off of. Right now there is only Version 1. Select next and name your schema. I suggest that you use your username (e.g. adefaria) indicating that we are the owner of this dev schema. Enter comments if you like and then <b>Finish</b>.</p>
+
+<p>After the schema is created it will ask you if you want to associate this with a database. You could select <b>Yes</b> and then go though naming your database and connecting it to an existing user database but chances are you don't have one of those yet. So select <b>No</b> for now. You now have a development schema.</p>
+
+<h3>Creating a Test Database</h3>
+
+<p>You must create an empty database on the database server. Use RDP to get a remote desktop there and run the SQL Server Management Studio and connect to the database server engine.</p>
+
+<p>Next right click on databases and select New Database. Name your database. The convention for test databases is &lt;schemaname&gt;_&lt;id&gt;. For our personal test databases again I'd suggest using your user ID so I will create &lt;schemaname&gt;_adefaria for me.</p>
+
+<h3>Setting the db_owner and schema owner</h3>
+
+<p>In MSSQL we need to set the dbowner and the schema for this new database. Expand the folder tree (+) on your newly created database (MobDev_adefaria) then right click on Security and select New: User. Type &lt;dbadmin&gt; in the User Name edit box and then select and copy this string. We'll need it several times more in this process. Paste this into the Login name and Default Schema and then toggle on db_owner in both the Schemas owned by this user and Database role membership boxes then select OK.</p>
+
+<p>Next right click on Security again and select <b>New: Schema</b>. Paste &lt;dbadmin&gt; into Schema Name and Schema Owner and click OK.</p>
+
+<p>Now you have an empty database that you can associate with your schema.</p>
+
+<h3>Associating your new test database with your dev schema</h3>
+
+<p>Go back to CQ Designer and right click on your development schema again and select <b>Show: User Databases</b>. You should see a list of databases. Right click on an empty area and select <b>Create Database</b>. Seems odd to call it create database when the database has already been created - it really means "take this schema and it's definition of what should be in the user database and apply that definition/schema to my newly created empty database".</p>
+
+<p>Give this database a Logical Database Name. Alas we only have 5 characters. I just use my initials - apd - short and simple. Add comments if you like. We use MSSQL for the database vendor. Then toggle Database Type to Test Database. We already have a production database in our dev schema repo then select next.</p>
+
+<p>Now we fill in Physical Database Name with the name of the database (&lt;schemaname&gt;_adefaria) and the Database Server . Then paste that &lt;dbadmin&gt; into Administrator User and Administrator Password (See I told you you'd need it!) then Next and Next again.</p>
+
+<p>Now we need to expand the adefaria (your dev schema) and select which version you want this new test database to start with. Select Version 1 and Finish.</p>
+
+<p>Clearquest Designer now goes out and creates all the necessary tables and transfers all of the necessary data, hook scripts, etc. from Version 1 of the dev schema adefaria into your database. Get coffee...</p>
+
+<p>After the database is created follow the steps at Seeding a test database to seed your test database with some test data.</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on August 29, 2012  9:08 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000755.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/119</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

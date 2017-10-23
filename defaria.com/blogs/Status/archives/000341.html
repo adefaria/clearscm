@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Bluecat/Bluecat</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000340.html" title="BC Builds/CVS Corruption" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000342.html" title="LOS178 &amp; CR 542" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000340.html">&laquo; BC Builds/CVS Corruption</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000342.html">LOS178 & CR 542 &raquo;</a>
+                     </p>
+
+                     <a id="a000341"></a>
+                     <div class="entry" id="entry-341">
+                        <h3 class="entry-header">Bluecat/Bluecat</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Building of BC 5.3 on RH 6.1 failed in step 7. Apparently I had /mnt/cdrom already mounted. Picked up from step 8...</li>
+
+  <li>Building of BC 5.2 on RH 8.0 got along farther - to step 3.7! - but failed due to lack of uudecode. Installed and proceeding</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>BC 5.2 on RH 8.0</h3>
+
+<p> Building BC 5.3 on RH 8.0 failed in step 3 with the following in build_ncurses.log:</p>
+
+<div class="code"><pre>
++ zcat /build/bluecat/build/20050319/cdt/src/bluecat/SOURCES/patch-5.3-20021231.sh.gz
++ sh
+sh: line 2196: uudecode: command not found
+gzip: ncurses-5.3-20021231.patch.gz: No such file or directory
++ echo 'Patch #2 (ncurses-5.3-20030105.patch.gz):'
++ /bin/gzip -dc /build/bluecat/build/20050319/cdt/src/bluecat/SOURCES/ncurses-5.3-20030105.patch.gz
++ patch -p1 -s
+patch: **** aborted
+error: Bad exit status from /build/bluecat/build/20050319/var/tmp/rpm-tmp.56417 (%prep)
+    Bad exit status from /build/bluecat/build/20050319/var/tmp/rpm-tmp.56417 (%prep)
+</pre></div>
+
+<p>Turns out uudecode is part of sharutils-4.2.1-12 which I downloaded and installed. This should be added to the required package list.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 22, 2005  2:46 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000341.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

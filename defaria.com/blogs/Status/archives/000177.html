@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: ASAP_BUS_REQ move</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000174.html" title="ASAP_BUS_REQ" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000178.html" title="Lab" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000174.html">&laquo; ASAP_BUS_REQ</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000178.html">Lab &raquo;</a>
+                     </p>
+
+                     <a id="a000177"></a>
+                     <div class="entry" id="entry-177">
+                        <h3 class="entry-header">ASAP_BUS_REQ move</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              In trying to test this out before actually implementing this on the production vob I found that this does not appear to work as expected. Here's what I did:
+
+<ol>
+
+<li>Created a new share on the production server (rtnlprod01) named defaria</li>
+<li>Set share permissions to Everyone: Full Control (for now).</li>
+<li>Created a private vob defaria2 with a path of \\rtnlprod01\defaria\defaria2.vbs. This vob is owned by vobadm and the group is CC-PMO.</li>
+<li>Mounted the vob on my desktop and through my already existing defaria view I copied some files into the vob root directory as well as made a subfolder with some files in there too.</li>
+<li>Added all files and folders to source control. This is now my test vob.</li>
+<li>Unmounted the \defaria2 vob from my desktop. (Note I also had to find and kill the vob_server, db_server and vobrpc_server processes on the vob server that were associated with this vob, \defaria2, as unmounting a vob does not stop these processes)</li>
+<li>Changed the share permission on the \\rtnlprod01\defaria share by removing Everyone and adding two groups: CC-PMO, which I am a part of, which will serve as the read/write test group and CC-TTE, which I am not a part of, which will serve as the read only test group. These two groups were added with Full Control to the share. Since CC-TTE is not a member of the vob group list they will fall into using the "other" permissions setting for the vob, which will limit them to read only. CC-PMO, being part of the vob group list will use the "group" permissions setting which will provide read/write.</li>
+<li>Next I remounted the vob on my desktop and checked out a file. So far so good. (I'm acting as a member of CC-PMO - a read/writer at this time)</li>
+<li>When I went to check in this file, however, I received the following error: "mvfs: ERROR: view=defaria vob=\defaria2 - ClearCase vob error see view_log on host rtnlprod02 for more info"</li>
+<li>Checking rtnlprod02 (the view server)'s view log shows me: 'view_server.exe(5684): Error: Unable to construct cleartext for object "0x46" in VOB "rtnlprod01:D:\defaria\defaria2.vbs": error detected by ClearCase subsystem' and 'text_file_delta: Error: Unable to open file  \\rtnlprod01\defaria\defaria2.vbs\s\sdft\1f\a\0-8d2a90ad41134b1e9cddf04d42034d38-tk": Permission denied'</li>
+<li>Unmounted the vob again and went to the server and killed the vob_server/db_server/vobrpc_process again</li>
+<li>Added Everyone: Full Control back to the share point (leaving both CC-PMO and CC-TTE)</li>
+<li>Remounted the vob on my desktop. The first thing that I noticed was that the element did not have a checked out symbol next to it and it was accessible. Checked out and checked in the element again. No problems.</li>
+
+</ol>
+
+<p>So it seems that there is some process in the Clearcase Explorer that requires that the share point have Everyone: Full Control set (or at least something more than just CC-PMO and CC-TTE). Note that if I click somewhere out of the directory, like to the subfolder then go back I get the "mvfs: ERROR..." again. I see no errors in the cleartool command line - just in Clearcase Explorer.</p>
+
+<p>Seems the answer to the problem is to add clearcase_albd to the share permissions. I also added vobadm and the CCADMIN group</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on May 10, 2004  4:10 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000177.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

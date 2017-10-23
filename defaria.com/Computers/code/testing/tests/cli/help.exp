@@ -1,0 +1,45 @@
+#!/usr/bin/expect --
+################################################################################
+#
+# File:         help.exp
+# Description:  Tests help command
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Jun  6 15:37:15 PDT 2003
+# Language:     Expect
+# Test Class:	Sanity
+#
+# (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+set test_base "/dview/defaria_default/Tools/testing"
+source "$test_base/bin/TestPkg.tcl"
+
+catch {namespace import Test::*}
+
+proc Setup {} {
+  Start "help"
+}
+
+proc Run {} {
+  set Test::result 1
+
+  send "help\r"
+
+  expect {
+    "Error: " {
+      set $Test::result 1
+    }
+    $Test::success {
+      set Test::result 0
+    }
+  }
+}
+
+proc CleanUp {} {
+  End
+}
+
+# Main
+Setup
+Run
+CleanUp

@@ -1,0 +1,220 @@
+#!/bin/bash
+################################################################################
+#
+# File:         whosdown
+# Description:  Pings machines listed in machines database and produces a report
+#               about which machines are down
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Oct  5 09:32:21 PDT 2000
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Set OS
+OS=$(uname -s | sed 's/CYGWIN_//')
+
+uname=$(uname -a | tr [:upper:] [:lower:])
+
+function usage {
+  display "$me [-v|verbose] [-d|debug] [-usage]"
+  display "        -v|verbose:     Turns on verbose mode"
+  display "        -d|debug:       Turns on debug mode"
+  display "        -usage:         Print this usage message"
+  display " "
+  display "The following options will be prompted for if not supplied on the"
+  display "command line. If any parameter has spaces in it then you need to"
+  display "surround it in quotes (e.g. -owners_fullname \"Andrew DeFaria\"."
+  display "You'll probably need to do this for the first 3 in the list below:"
+  display " "
+  display "     -owners_fullname  Specify owners full name"
+  display "     -machine_usage    Specify what this machine is to be used for"
+  display "     -location         Specify where this machine is located"
+  display "     -owners_email     Specify email address (no @salira.com)"
+  display "     -owners_extension Specify phone extenstion"
+  display
+
+  error "$1"
+  exit 1
+} # usage
+
+function display_options {
+  display "Setup this machine according to the following profile:"
+  display --------------------------------------------------------------------------------
+  display "Machine Name:\t\t$machine_name"
+  display "Machine Usage:\t\t$machine_usage"
+  display "Machine Location:\t$location"
+  display "Owner's Fullname:\t$owners_fullname"
+  display "Owner's Email:\t\t$owners_email@Salira.com"
+  display "Owner's Extension:\t$owners_extension"
+} # display_options
+
+function prompt_for_options {
+  # Prompt for options not specified on the command line
+  if [ "_$owners_fullname" = "_" -o "$owners_fullname" = "Unknown" ]; then
+    echo -e "Owner's Fullname"
+    echo -e "> \c"
+    read owners_fullname
+    if [ "_$owners_fullname" = "_" ]; then
+      owners_fullname=Unknown
+    fi
+  fi
+
+  if [ "_$machine_usage" = "_" -o "$machine_usage" = "Unknown" ]; then
+    echo -e "What is this machine used for?"
+    echo -e "> \c"
+    read machine_usage
+    if [ "_$machine_usage" = "_" ]; then
+      machine_usage=Unknown
+    fi
+  fi
+
+  if [ "_$location" = "_" -o "$location" = "Unknown" ]; then
+    echo -e "Where is this machine located?"
+    echo -e "> \c"
+    read location
+    if [ "_$location" = "_" ]; then
+      location=Unknown
+    fi
+  fi
+
+  if [ "_$owners_email" = "_" -o "$owners_email" = "Unknown" ]; then
+    echo -e "Owner's Email address:"
+    echo -e "(Should be the same as username. This script will supply the @salira.com)"
+    echo -e "> \c"
+    read owners_email
+    if [ "_$owners_email" = "_" ]; then
+      owners_email=Unknown
+    fi
+  fi
+
+  if [ "_$owners_extension" = "_" -o "$owners_extension" = "Unknown" ]; then
+    echo -e "Owner's Phone extention:"
+    echo -e "(Should be of the format XXX)"
+    echo -e "> \c"
+    read owners_extension
+    if [ "_$owners_extension" = "_" ]; then
+      owners_extension=Unknown
+    fi
+  fi
+} # prompt_for_options
+
+# Set initial parm values
+owners_fullname=Unknown
+owners_email=Unknown
+owners_extension=Unknown
+machine_usage=Unknown
+location=Unknown
+machine_name=$(hostname | tr [:upper:] [:lower:])
+
+# Get parameters
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+      ;;
+
+    -v|-verbose)
+      verbose=yes
+      ;;
+
+    -d|-debug)
+      debug=yes
+      ;;
+
+    -owners_fullname)
+      if [ $# -le 1 ]; then
+        usage "Owner's Full Name is not specified!"
+      fi
+      shift
+      owners_fullname="$1"
+      ;;
+
+    -machine_usage)
+      if [ $# -le 1 ]; then
+        usage "Machine Usage was not specified!"
+      fi
+      shift
+      machine_usage="$1"
+      ;;
+
+    -location)
+      if [ $# -le 1 ]; then
+        usage "Location was not specified!"
+      fi
+      shift
+      location="$1"
+      ;;
+
+    -owners_email)
+      if [ $# -le 1 ]; then
+        usage "Owner's Email was not specified!"
+      fi
+      shift
+      owners_email="$1"
+      ;;
+
+    -owners_extension)
+      if [ $# -le 1 ]; then
+        usage "Owner's Extention was not specified!"
+      fi
+      shift
+      owners_extension="$1"
+      ;;
+
+    *)
+      usage "Unrecognized parameter $1"
+      ;;
+  esac
+  shift
+done
+
+anwser="y"
+until [ "$answer" = "done" ]; do
+  prompt_for_options
+  display_options
+
+  display
+  display "Correct (Y/n)?\c"
+
+  answer="y"
+  read answer
+    case "$answer" in
+      y|Y|yes|Yes|YES|"")
+        answer="done"
+      ;;
+
+      *)
+        owners_fullname=Unknown
+        owners_email=Unknown
+        owners_extension=Unknown
+        machine_usage=Unknown
+        location=Unknown
+    esac
+done
+
+echo "$uname" > /etc/motd
+cat >> /etc/motd <<:END
+-------------------------------------------------------------------------------
+- This is a private system operated for Salira. Authorization from Salira     -
+- management is required to use this system. Use by unauthorized persons is   -
+- prohibited. For system support email: Support@Salira.com                    -
+-------------------------------------------------------------------------------
+Usage:    $machine_usage
+Owner:    $owners_fullname <$owners_email@Salira.com>
+Phone:    (408)-325-8700x$owners_extension
+Location: $location
+-------------------------------------------------------------------------------
+:END

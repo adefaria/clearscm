@@ -1,0 +1,109 @@
+#!/bin/bash
+################################################################################
+#
+# File:         bigfiles
+# Description:  Reports large files
+# Parameters:   See usage
+# Author:       Andrew@DeFaria.com
+# Created:      Mon May 24 09:09:24 PDT 1999
+# Modified:     <date> by Andrew@DeFaria.com
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+
+function usage {
+  print "usage: $me: [ -verbose | -v ] [ -size | -s n ] [ <filesystem> ]"
+  print "\t\t[ -top n | -t n ] [ -notop | -not ]\n"
+  print "Where:"
+  print "  -size | -s n\tShow only files bigger then n Meg (default 1 Meg)"
+  print "  -verbose | -v\tTurn on verbose mode (default verbose off)"
+  print "  -top | -t n\tPrint out only the top n largest files (default LINES - 1)"
+  print "  -notop|not\tPrint out all files (default top LINES - 1)"
+  print "  <filesystems>\tFilesystems to check (default all hfs filesystems)"
+  exit
+} # usage
+
+filesystems=
+verbose=off
+integer top_n
+lines=${LINES:-25}
+let top_n=$lines-1
+bytes_in_meg=1048576
+block_size=512
+
+# Now get parms
+integer size_in_meg=1
+integer size=$size_in_meg*$bytes_in_meg/$block_size
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -size|-s)
+      shift
+      size_in_meg=$1
+      # Convert size to 512 blocks
+      size=$size_in_meg*$bytes_in_meg/$block_size
+      shift
+      ;;
+
+    -usage)
+      usage
+      ;;
+
+    -top|-t)
+      shift
+      top_n=$1
+      shift
+      ;;
+
+    -notop|-not)
+      top_n=0
+      shift
+      ;;
+
+    -verbose|-v)
+      verbose=on
+      shift
+      ;;
+
+    -*)
+      print -u2 "$me: Error: Unknown option $1"
+      print
+      usage
+      ;;
+
+    *)
+      filesystems="$filesystems $1"
+      shift
+      ;;
+  esac
+done
+
+if [ "_$filesystems" = "_" ]; then
+  i=1
+  df -k -F ufs | while read line; do
+    if [ $i -gt 1 ]; then
+      filesystems="$filesystems $(echo $line | awk '{print $6}')"
+    fi
+    let i=$i+1
+  done
+fi
+
+# Now do the find
+if [ $verbose = "on" ]; then
+  print "Filesystems:\t$filesystems"
+  print "Size:\t\t$size_in_meg Meg ($size blocks)"
+  print "Top:\t\t$top_n"
+fi
+
+if [ $top_n -eq 0 ]; then
+  head_cmd="cat"
+else
+  head_cmd="head -$top_n"
+fi
+
+find $filesystems -xdev -size +$size -exec ls -l {} \; |\
+  sort +nr5 | awk '{ printf ("%.3f %s\t%s\n", $5/(1024*1024), $3, $9) }' |
+  $head_cmd

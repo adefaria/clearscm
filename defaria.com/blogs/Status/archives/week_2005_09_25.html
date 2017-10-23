@@ -1,0 +1,579 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: September 25, 2005 - October  1, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_09_18.html" title="September 18, 2005 - September 24, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_10_02.html" title="October  2, 2005 - October  8, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_09_18.html">&laquo; September 18, 2005 - September 24, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_10_02.html">October  2, 2005 - October  8, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">September 30, 2005</h2>
+                     <a id="a000438"></a>
+                     <div class="entry" id="entry-438">
+                        <h3 class="entry-header">More study of Rebase project to parent & Deliver between projects</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Studied Rebase project to parent in depth</li>
+
+  <li>Studied Deliver between projects in depth</li>
+
+  <li>Discussed SJ vob move with Jennifer and Chini</li>
+
+  <li>Met with Phil regarding merge problem - turns out to be no problem</li>
+</ul>
+                              
+                              <h3>Rebase Project to Parent</h3>
+
+<p>The procedure calls rebase_project which essentially calls ct rebase...</p>
+
+<ul>
+  <li>Given a pvob and project rebase_project calls get_integration_stream to get the intergation stream</li>
+
+  <li>It then gets a list of the foundation baselines</li>
+
+  <li>For each foundation baseline it calls get_stream_for_baseline to get the stream for the foundation baseline.</li>
+
+  <li>Using that it calls get_project_for_stream to obtain the project name for this baseline.</li>
+
+  <li>Next it gets all of the recommended baselines for the project</li>
+</ul>
+
+<h3>Deliver Between Projects</h3>
+
+<p>This procedure calls inter_project_deliver. UCM doesn't support the concept of delivering between projects so this procedure implement interproject delivery by using ct merge.</p>
+
+
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:07 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000438.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 29, 2005</h2>
+                     <a id="a000437"></a>
+                     <div class="entry" id="entry-437">
+                        <h3 class="entry-header">Trigger config/Web config</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Went to Salira to help Shuqing to set up a rel_3.1 branch.</p>
+
+<ul>
+  <li>Changed trigger to recogonize rel_3.1/china_3.1 as a valid branches.</li>
+
+  <li>Cleaned up web area on sonsweb</li>
+
+  <li>Added link for old 2.3 releases</li>
+
+  <li>Created 3.1.1.8.bugs file</li>
+
+  <li>Explained to Shuqing how the whole set up worked</li>
+
+  <li>Created china_3.1.lst file for Shanghai. Changes to CheckInPreop.pl will replicate to Shanghai and should become effective tomorrow.</li>
+
+  <li>Investigated changing <b>Found In</b> and <b>Fixed In</b> dropped downs to be sorted in reverse order since they are working on the latest, therefore highest numbered releases first. Turns out this will require more work with a possible change to the Clearquest schema. Jeff has schema checked out so I couldn't do anything. Basically those fields tie into a stateless record which contains a <b>Release ID</b> and a <b>Description</b>. I'm not sure how to tell Clearquest to sort that drop down.</li>
+</ul>
+
+<p>Total time: 2 hours</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:18 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000437.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000436"></a>
+                     <div class="entry" id="entry-436">
+                        <h3 class="entry-header">UCM: Rebase project to parent & Deliver between projects</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created UCM environment where I can rebase and deliver</li>
+
+  <li>Reproduced binary merge problem in both rebase and deliver mode</li>
+
+  <li>Studied UCMCustom for <i>Rebase project to parent</i> & <i>Deliver between projects</i> functions. The former uses cleartool rebase while the later does not use deliver in the classic UCM sense</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:41 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000436.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 28, 2005</h2>
+                     <a id="a000435"></a>
+                     <div class="entry" id="entry-435">
+                        <h3 class="entry-header">Clearcase Deliver problem</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Helped Darren Edamura with a Clearcase problem</li>
+
+  <li>Started looking into Binary Merge problem</li>
+
+  <li>Added FixChar subroutine to CheckCodePage</li>
+</ul>
+                              
+                              <h3>Clearcase Deliver Failiure Leaves Corrupted Version</h3>
+
+<p>Worked with Darren Edamura on a problem he had during delivery. He says that he was working in a snapshot view and had inadvertantly had 2 hijaked files. When he wanted to deliver he had to do a rebase operation. Rebase noted the hijaked files and offered to check them in. He said he had checked them out. At this point he was left with a file version that had no activity associated with it. Right clicking that version in the version tree and selecting properties yielded:</p>
+
+<img src="cc_corruption.jpg">
+
+<p>Darren continued onward by checking out version 4 and checking in identical to create version 6 then delievered that.</p>
+
+<p>In attempting to clean up version 5 we decided to remove that version. However doing so yielded:</p>
+
+<img src="rmver_failure.jpg">
+
+<p>Refreshing the version tree after that error revealed the activity on version 5 and now it all seems to be OK. I guess the rmver action cleared up the problem!</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000435.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 27, 2005</h2>
+                     <a id="a000432"></a>
+                     <div class="entry" id="entry-432">
+                        <h3 class="entry-header">Code Page/rgy_switchover</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked more on detecting and report invalid ASCII characters in PQA databases</li>
+
+  <li>Working with IBM Rational Support regarding rgy_switchover</li>
+</ul>
+                              
+                              <h3>Code Page</h3>
+
+<p>Managed to get the non ASCII characters in the databases down to a handful of cases and implement a "fix_char" routine. The basic mapping turns out to be:</p.
+
+<div class="code"><pre>
+# Translate from special char -> ASCII
+my %char_mapping = (
+  "ffffff85"	=> "_",
+  "ffffff91"	=> "\'",
+  "ffffff92"	=> "\'",
+  "ffffff93"	=> "\"",
+  "ffffff94"	=> "\"",
+  "ffffff96"	=> "-",
+#  "ffffffa2"	=>
+#  "ffffffae"	=>
+  "ffffffb7"	=> "\."
+#  "ffffffbd"	=> "1/2",
+#  "ffffffe7"	=> ???
+);
+</pre></div>
+
+<p>The commented out lines represent characters I have not be able to determine the ASCII equivalents, except the 1/2 which is a 1/2 in one character. In order to translate the one character 1/2 to the 3 character 1/2 I would need to expand the array. I have not done this yet.</p>
+
+<h3>PMR#59845,999,000 backup rgy switchover not working on Windows clients</h3>
+
+<p>Steven Chaves wrote:</p>
+
+<blockquote><p>Andrew,</p>
+
+<p>During the tech session, other TSEs did say that rgy_switchover does not always work. For DNS resolution, running:  ipconfig /release and then afterwards ipconfig /renew usually works, but this would have to be done on each client. Can you give the servers fixed IP addresses.</p></blockquote>
+
+<p>There still seems to be some confusion here. I will attempt to be explicit here.</p>
+
+<p>I realize that rgy_switchover will not always work 100%. Client machines may be down, etc. However what I'm seeing is that rgy_switchover never works - or at least never works with any of the Windows client  machines who has their IP address assigned via DHCP and who's Windows machine name (WINS name) != Unix DNS CNAME.</p>
+
+<p>Here's the situation. There are two Unix Solaris boxes: ccase-sj1-3 (10.16.191.241) and ccase-sj1-4 (10.16.191.243). Both are servers and have statically assigned IP addresses.</p>
+
+<p>There are just a few Windows clients in this test scenario, mostly laptops. All fail. All have DHCP assigned IP addresses and Windows computer names that are not the same as DNS. Let's use my laptop as an example: ltsjca-adefaria (10.16.191.243) is it's name. It's a Windows XP box, is a laptop yet remains docked at my desk.</p>
+
+<p>When the rgy_switchover command was run from ccase-sj1-3 to switch over to ccase-sj1-4 both ccase-sj1-3 and ccase-sj1-4 became aware of the change and switched over. None (i.e. 0) of the other clients (all DHCP assigned Windows boxes) failed, including my laptop (who's IP address, BTW, had not changed).</p>
+
+<p>Investigating I find that I can nslookup and ping ccase-sj1-3 and ccase-sj1-4 from my laptop, ltsjca-adefaria</p>
+
+<div class="code"><pre>
+    <font color="blue"><b>Local:</b></font><u>nslookup ccase-sj1-3</u>
+    Server:  dns-sj1-1b.sj.broadcom.com
+    Address:  10.16.64.11
+
+    Name:    ccase-sj1-3.sj.broadcom.com
+    Address:  10.16.191.241
+    Aliases:  ccase-sj1-3.broadcom.com
+
+    <font color="blue"><b>Local:</b></font><u>nslookup ccase-sj1-4</u>
+    Server:  dns-sj1-1b.sj.broadcom.com
+    Address:  10.16.64.11
+
+    Name:    ccase-sj1-4.sj.broadcom.com
+    Address:  10.16.191.243
+    Aliases:  ccase-sj1-4.broadcom.com
+    <font color="blue"><b>Local:</b></font><u>ping ccase-sj1-3</u>
+    Pinging ccase-sj1-3.sj.broadcom.com [10.16.191.241] with 32 bytes of data:
+
+    Reply from 10.16.191.241: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.241: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.241: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.241: bytes=32 time<1ms TTL=254
+
+    Ping statistics for 10.16.191.241:
+        Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+        Minimum = 0ms, Maximum = 0ms, Average = 0ms
+    <font color="blue"><b>Local:</b></font><u>ping ccase-sj1-4</u>
+    Pinging ccase-sj1-4.sj.broadcom.com [10.16.191.243] with 32 bytes of data:
+
+    Reply from 10.16.191.243: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.243: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.243: bytes=32 time<1ms TTL=254
+    Reply from 10.16.191.243: bytes=32 time<1ms TTL=254
+
+    Ping statistics for 10.16.191.243:
+        Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+        Minimum = 0ms, Maximum = 0ms, Average = 0ms
+</pre></div>
+
+<p>I can ping my laptop by name but I cannot nslookup it:</p>
+
+<div class="code"><pre>
+    <font color="blue"><b>Local:</b></font><u>ping ltsjca-adefaria</u>
+    Pinging LTSJCA-ADEFARIA.corp.ad.broadcom.com [10.16.65.94] with 32 bytes of data:
+
+    Reply from 10.16.65.94: bytes=32 time<1ms TTL=64
+    Reply from 10.16.65.94: bytes=32 time<1ms TTL=64
+    Reply from 10.16.65.94: bytes=32 time<1ms TTL=64
+    Reply from 10.16.65.94: bytes=32 time<1ms TTL=64
+
+    Ping statistics for 10.16.65.94:
+        Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+    Approximate round trip times in milli-seconds:
+        Minimum = 0ms, Maximum = 0ms, Average = 0ms
+    <font color="blue"><b>Local:</b></font><u>nslookup ltsjca-adefaria</u>
+    *** dns-sj1-1b.sj.broadcom.com can't find ltsjca-adefaria: Non-existent domain
+    Server:  dns-sj1-1b.sj.broadcom.com
+    Address:  10.16.64.11
+</pre></div>
+
+<p>From the Solaris boxes (either ccase-sj1-3 or ccase-sj1-4) I cannot nslookup nor ping ltsjca-adefaria by name:</p>
+
+<div class="code"><pre>
+    <font color="red"><b>ccase-sj1-3:</b></font><u>nslookup ltsjca-adefaria</u>
+    Server:  dns-sj1-1c.sj.broadcom.com
+    Address:  10.16.128.11
+
+    *** dns-sj1-1c.sj.broadcom.com can't find ltsjca-adefaria: Non-existent host/domain
+    ccase-sj1-3:ping ltsjca-adefaria
+    ping: unknown host ltsjca-adefaria
+    ccase-sj1-3:
+</pre></div>
+
+<p>I can ping by IP address:</p>
+
+<div class="code"><pre>
+    <font color="red"><b>ccase-sj1-3:</b></font><u>ping 10.16.65.94</u>
+    10.16.65.94 is alive
+</pre></div>
+
+<p>However the Solaris boxes (nor the laptop it seems) can resolve the name ltsjca-adefaria to an IP address:</p>
+
+<div class="code"><pre>
+    <font color="red"><b>ccase-sj1-3:</b></font><u>nslookup ltsjca-adefaria</u>
+    Server:  dns-sj1-1c.sj.broadcom.com
+    Address:  10.16.128.11
+
+    *** dns-sj1-1c.sj.broadcom.com can't find ltsjca-adefaria: Non-existent host/domain
+</pre></div>
+
+<p>Finally a nslookup by IP address yields the following:</p>
+
+<div class="code"><pre>
+    <font color="red"><b>ccase-sj1-3:</b></font><u>nslookup 10.16.65.94</u>
+    Server:  dns-sj1-1c.sj.broadcom.com
+    Address:  10.16.128.11
+
+    Name:    dhcpe1-sj1-094.sj.broadcom.com
+    Address:  10.16.65.94
+</pre></div>
+
+<p>Thus showing that the DNS CNAME for 10.16.65.94 is dhcpe1-sj1-094.sj.broadcom.com not ltsjca-adefaria.</p>
+
+<p>If I cannot translate ltsjca-adefaria to an IP address for ping then how is rgy_switchover gonna do it?</p>
+
+<p>Now assuming that it's prevalent or common here at my client's site to have Windows clients with DHCP assigned addresses who's Windows machine names do not resolve in DNS and assuming that if the client name does not resolve in DNS then rgy_switchover fails, can it be said that rgy_switchover is relatively useless given this enviornment?</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:08 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000432.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 26, 2005</h2>
+                     <a id="a000431"></a>
+                     <div class="entry" id="entry-431">
+                        <h3 class="entry-header">Clearquest Code Pages</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Clearquest 2003.06.15 now uses Code Pages to insure that data entered into Clearquest databases are correct. When incorrect data is encountered there is a problem. The question is, which code page should we use?</p>
+
+                              
+                              <p>Chris had went through this decision when he migrated Clearquest data to San Diego. We are faced with this decision now by moving to 2003.06.15.</p>
+
+<blockquote>If you have ClearQuest databases that were created with previous versions of ClearQuest, they may contain data from a variety of code pages. When you set the ClearQuest data code page, the data in your databases is not converted to characters in the selected code page. If your database contains characters that do not map to the newcode page characters, data corruption will occur.
+</blockquote>
+
+<p>There seems to be 4 choices for code pages:</p>
+
+<ol>
+  <li>ASCII</li>
+
+  <li>Latin-1</li>
+
+  <li>Chinese - Simplified</li>
+
+  <li>Japanese</li>
+</ol>
+
+<p>I'm going to assume 3 and 4 are non issues. This leaves 1 and 2. Chris went with #1 and I think that's a good choice because ASCII is a base code set. However going with #1 means we need to clean up data now as we already have non ASCII characters in the databases.</p>
+
+</p>There is also a <strong>NOCHECKING</strong> option which essentially turns off checking and allows any character in. Using <strong>NOCHECKING</strong> would mean that Clearquest Multisite will not be an option in the future as it does not support <strong>NOCHECKING</strong></p>.
+
+<p>I believe if we went with #2 our non ASCII characters would not be a problem. However:</p>
+
+<blockquote>All Windows clients must run the same operating system code page, and that code page must match the ClearQuest data code page. If you have mixed-platform environments (both Windows and UNIX clients), or clients using different operating system code pages, you must set the ClearQuest data code page to 20217 (ASCII), which is the common character set of all code pages. An alternate usage model is to set the ClearQuest data code page to a non-ASCII value and require that all users with UNIX systems interact with ClearQuest only with the Webclient.</blockquote>
+
+<p>And</p>
+
+<ul>
+  <li>If you set the ClearQuest data code page to a non-ASCII value, users can only modify data in that database from a Windows client running the same operating system code page. If the code pages do not match, the database is opened in read-only mode.</li>
+
+  <li>If you set the ClearQuest data code page to a non-ASCII value, UNIX clients will have read-only access to the databases. (UNIX users can choose to use the only the Web client, which prevents data corruption if a non-ASCII data code page value is selected.)</li>
+
+  <li>If you set the ClearQuest data code page to a non-ASCII value, invalid characters can still potentially enter the database without being detected by ClearQuest. For example, ClearQuest cannot validate text that you cut from an e-mail or Web page and paste into a database record. If the e-mail or Web page text contains characters outside of the ClearQuest data code page, the characters are corrupted during display and may show up as invalid characters (for example, a question mark (?) character).</li>
+</ul>
+
+<p>Bottom line appears to be use ASCII and bite the bullet now by cleaning up data or use Latin-1 and avoid data cleanup now with potentially a larger clean up later.</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:32 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000431.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000430"></a>
+                     <div class="entry" id="entry-430">
+                        <h3 class="entry-header">Clearquest Franchise/PQA Invalid ASCII characters</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Discussed SJ/Irvine migration</li>
+
+  <li>Drew up Clearquest Franchise plan</li>
+
+  <li>Modifed CheckCodePage.pl to show the invalid characters in a word context</li>
+
+  <li>Investigating Clearquest Data Code Pages</li>
+</ul>
+                              
+                              <h3>Clearquest Data Code Pages</h3>
+
+<p>It seems, in an effort to better support international charactersets, Clearquest is tighening its enforcement of data code pages. In practice here this means that the default character set of US-ASCII will not longer due. I've been scanning the data for invalid characters and we've got 'em. Oddly it's stuff like the apostrophe in worlds like "shouldn't" and the hyphen in phrases such as "this - or that". Now when I go in and replace them with typed versions it works OK. I can only think that this might be a result of copy and pasting from Microsoft Word, which tends to use such odd versions of such simple characters.</p>
+
+<h3>Audit_Log</h3>
+
+<p>Another problem raises its head in an odd way. After changing the odd apostrophe to a simple apostrophe and saving the record from the Clearquest client, I again get errors, this time in the Audit_Log. Seems that we have a hook script that basically captures the <em>old</em> and <em>new</em> strings of what had changed and logs them. Problem is, the <em>old</em> string has the old <strong>bad</strong> characters! Plus Audit_Log is not editable! So now we're stuck! Perhaps when we programmatically convert the database we will not hit a problem however I suspect that in order to add a record we need to validate it and the creation of Audit_Log is a function of Validate. If so we might be able to temporarily turn off the Create_Audit_Log function.
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:48 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000430.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 25, 2005</h2>
+                     <a id="a000427"></a>
+                     <div class="entry" id="entry-427">
+                        <h3 class="entry-header">Triggers</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked on mktriggers script to mktriggers for all regions, all vobs</li>
+</ul>
+                              
+                              <h2>Trigger Standardization</h2>
+
+<p>I have been trying to centralize and standardize triggers. The idea here is to be able to add all the triggers to all of the necessary vobs quickly and easily and to insure that triggers - implementors of policy - are consistently applied. As triggers are not replicated by Multisite it is essential that you can add triggers to a replicate if needed. For example, we need it to add triggers to the new replicas of the San Jose and Irvine vobs. Also new triggers and new vobs come into being and you usually want to make sure that all vobs have the appropriate triggers in force.</p>
+
+<blockquote><strong>Note:</strong> For example, the vob /vobs/CommEngine is replicated from Irvine <-> San Jose. Irvine has a set of triggers applied to their replica and we have a different set.
+</blockquote>
+
+<p>Within Broadcom there are various vobs in various regions. This makes automation a little more difficult but not impossible. Some standardization of what triggers go where and how Clearcase gains access to the trigger code is necessary. One way I've seen companies accomplish this in the past was to create an administration vob and place trigger code in that vob. This vob would be replicated to all sites and trigger code made available through the use of a snapshot view in a well known location. Other administrative scripts can be shared in a similar fashion. Additionally we need to address differences between Windows and Unix.</p>
+
+<h2>Inconsistent paths</h2>
+
+<p>As it stands now triggers seem to be in a few places and I don't think that this places are kept in sync. As such I see inconsistencies that are confusing me. For example there are the following paths to triggers mentioned in /home/vobadm/scripts/mktrtype.sh:</p>
+
+<div class="code"><pre>
+       ccase-atla-1)
+          NTPATH="\\\cc-atla-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-blr-1)
+          NTPATH="\\\cc-blr-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-brsa-1)
+          NTPATH="\\\cc-brsa-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-irva-2)
+          NTPATH="\\\Fs-irva-37\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-irva-4)
+          NTPATH="\\\Fs-irva-37\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-irva-tst)
+          NTPATH="\\\Fs-irva-37\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-mhtb-1)
+          NTPATH="\\\cc-mhtb-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-peka-1)
+          NTPATH="\\\cc-peka-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-rmna-3)
+          NTPATH="\\\cc-rmna-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-sdoa-1|ccase-sdoa-2)
+          NTPATH="\\\Fs-irva-37\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+
+       ccase-sj1-1)
+          NTPATH="\\\cc-sj-storage\ccase\bse\script\trigger"
+          UNIXPATH="/projects/ccase/bse/script/trigger"
+          ;;
+
+       ccase-tlva-1|ccase-tlva-1.il.broadcom.com)
+          NTPATH="\\\cc-tlva-storage\ccase\script\trigger"
+          UNIXPATH="/projects/ccase/script/trigger"
+          ;;
+</pre></div>
+
+<p>As you can see the NTPATH varies where the UNIXPATH is largely the same (ccase-sj1-1 puts scripts under bse). Also, with ccase-rmna-3 it says /projects/ccase/script/trigger yet is currently using /projects/cc4/triggers and the differences between those two directories are many. Which one is correct? Why the bse directory for San Jose?</p>
+
+<p>I assume that the reasons for the different NTPATH names is to avoid going over the WAN to get trigger script code. I also assume that this is mitigated on Unix by use of the automounter and yet we cannot say that UNIXPATH is always the same due to the difference in San Jose. I wonder if DFS could be used to provide a consistent, globally well known path to trigger code under Windows...</p>
+
+<p>In any event the question that rises is how are these various repositories of code kept in sync if at all?</p>
+
+<h2>Inconsistent Application of Triggers</h2>
+
+<p>Normally there are a certain set of triggers that are implementing policy that are consistently applied to all vobs (or at least all vobs in a region). For example, usually empty branches are considered bad and to be avoided. Thus there is normally a trigger script applied to all vobs to avoid this. Or if an organization determines that rmelem should not be performed then it is enforced with a trigger on all vobs. Yet there doesn't seem to be any triggers consistently applied to all vobs. In fact many vobs have no triggers at all!</p>
+
+<p>I see, for example, 3 different triggers for preop checkins: GIpreci, preci and test_preci. Triggers could be written that can be applied to any vob and then they act only if the conditions are such that they should do something. IOW for situations where they don't apply they simple exit.</p>
+
+<p>There are also triggers that do nothing but allow people to proceed or not based on whether the user is on an "approved" list. They carry with them a long list of -nusers. I would think that that would be more difficult to maintain than for a trigger to be written that opens up a file of approved users and validates the user based on that. Then to add/change/delete users one merely needs to update the data file, not re-create a trigger in a vob and then have to worry about what other vobs need their triggers updated. Of course the trigger would need to deal with the issue of what is the global file pathname to that data file.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:04 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000427.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

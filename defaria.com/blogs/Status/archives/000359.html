@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: LOS178 TOT</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000358.html" title="LOS178-570/int/package and check" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000360.html" title="LinuxABI/CVS Report - Changes Only" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000358.html">&laquo; LOS178-570/int/package and check</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000360.html">LinuxABI/CVS Report - Changes Only &raquo;</a>
+                     </p>
+
+                     <a id="a000359"></a>
+                     <div class="entry" id="entry-359">
+                        <h3 class="entry-header">LOS178 TOT</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Tried building LOS178 - CR #570 again. This time by date. Turns out dates in CVS are UTC and you gotta subtract 7 hours from them - Argh!</li>
+
+  <li>Managed to build LOS178 TOT (i.e. + CR #570). Some other CRs were checked in to resolve past build problems</li>
+
+  <li>Started to package up stuff (still need to create CR for this) with new packaging script. Found out I needed to build pdn. Pdn build fails!</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>OpenSSL</h3>
+
+<p>Regarding the openssl problems: With the inclusion of the new TCP/IP stack comes openssl. When building on GD we experienced a problem where when building openssl it tries to regenerate certs. Since some parts of openssl use absolute pathnames and since Tomcat had a /usr/local/ssl directory we theorized that due to the existence of that directory the build of openssl tried to regenerate certs. Since the new certs were not required and were not functionality we said that that error was of no consiquence.</p>
+
+<p>Turns out that what it really happening is that the openssl portion of the build will try to regenerate certs regardless of the presence of /usr/local/ssl and it does so by executing src/net/openssl-0.9.6/apps/openssl. This file is a Linux binary so building on Solaris causes errors. This explains why I keep seeing this as I am building on Rock and Vinnie doesn't see this since he is building on a Linux system.</p>
+
+<p>Later Vinnie points out:</p>
+
+<blockquote>
+<p>Here is what is happening the apps/openssl is actually a los178 binary which we build & install in $(ENV_PREFIX)/usr/ssl/bin, but is being executed to generate the  certificates on a Solaris or Linux host which is not going to work. The problem is happening on both host except on linux the error is different and our check script does not have that  error message in the list. We need to update the script to capture the linux error string.</p>
+
+<p>On linux host the error is:</p>
+
+<blockquote>
+     ": cannot execute binary file"
+</blockquote>
+
+<p>On Solaris host the error is</p>
+ 
+<blockquote>
+     ": syntax error at line 1: `(' unexpected"
+</blockquote>
+
+<p>File a CR for this problem and maybe suggest the two option below.</p>
+
+<p>There are two options to fix this issue:</p>
+
+<ol>
+  <li>Disable generating the certificates in the Makefile since the pre-generated certificates files are checked-in/available, but these files needs to be installed in usr/ssl/certs</li>
+
+  <li>Generate the certificates, but the appropriate openssl should be installed in the host system & pass the openssl path to the Makefile command.</li>
+</ol>
+</blockquote>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on May 19, 2005  2:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000359.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: August 2012 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2012_05.html" title="May 2012" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2012_09.html" title="September 2012" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2012_05.html">&laquo; May 2012</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2012_09.html">September 2012 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2012_08.html#entry-000755"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/119"
+    dc:title="Creating a Development Schema"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2012_08.html#entry-000755"
+    dc:subject="Broadcom"
+    dc:description="Creating a dev schema is not that difficult. Note you can create a dev schema in the production schema repo or in a dev schema repo. The later is a just a bit safer as it is a bit more..."
+    dc:creator=""
+    dc:date="2012-08-29T21:08:12-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 29, 2012</h2>
+                     <a id="a000755"></a>
+                     <div class="entry" id="entry-755">
+                        <h3 class="entry-header">Creating a Development Schema</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Creating a dev schema is not that difficult. Note you can create a dev schema in the production schema repo or in a dev schema repo. The later is a just a bit safer as it is a bit more isolated.</p>
+
+<p>To create a dev schema from the CQ Designer, right click on the schema repo and select <b>New: Schema</b>. We are creating a new schema by basing it off of an existing schema. Expand the + sign and select the version that you wish to base your new schema off of. Right now there is only Version 1. Select next and name your schema. I suggest that you use your username (e.g. adefaria) indicating that we are the owner of this dev schema. Enter comments if you like and then <b>Finish</b>.</p>
+
+<p>After the schema is created it will ask you if you want to associate this with a database. You could select <b>Yes</b> and then go though naming your database and connecting it to an existing user database but chances are you don't have one of those yet. So select <b>No</b> for now. You now have a development schema.</p>
+
+<h3>Creating a Test Database</h3>
+
+<p>You must create an empty database on the database server. Use RDP to get a remote desktop there and run the SQL Server Management Studio and connect to the database server engine.</p>
+
+<p>Next right click on databases and select New Database. Name your database. The convention for test databases is &lt;schemaname&gt;_&lt;id&gt;. For our personal test databases again I'd suggest using your user ID so I will create &lt;schemaname&gt;_adefaria for me.</p>
+
+<h3>Setting the db_owner and schema owner</h3>
+
+<p>In MSSQL we need to set the dbowner and the schema for this new database. Expand the folder tree (+) on your newly created database (MobDev_adefaria) then right click on Security and select New: User. Type &lt;dbadmin&gt; in the User Name edit box and then select and copy this string. We'll need it several times more in this process. Paste this into the Login name and Default Schema and then toggle on db_owner in both the Schemas owned by this user and Database role membership boxes then select OK.</p>
+
+<p>Next right click on Security again and select <b>New: Schema</b>. Paste &lt;dbadmin&gt; into Schema Name and Schema Owner and click OK.</p>
+
+<p>Now you have an empty database that you can associate with your schema.</p>
+
+<h3>Associating your new test database with your dev schema</h3>
+
+<p>Go back to CQ Designer and right click on your development schema again and select <b>Show: User Databases</b>. You should see a list of databases. Right click on an empty area and select <b>Create Database</b>. Seems odd to call it create database when the database has already been created - it really means "take this schema and it's definition of what should be in the user database and apply that definition/schema to my newly created empty database".</p>
+
+<p>Give this database a Logical Database Name. Alas we only have 5 characters. I just use my initials - apd - short and simple. Add comments if you like. We use MSSQL for the database vendor. Then toggle Database Type to Test Database. We already have a production database in our dev schema repo then select next.</p>
+
+<p>Now we fill in Physical Database Name with the name of the database (&lt;schemaname&gt;_adefaria) and the Database Server . Then paste that &lt;dbadmin&gt; into Administrator User and Administrator Password (See I told you you'd need it!) then Next and Next again.</p>
+
+<p>Now we need to expand the adefaria (your dev schema) and select which version you want this new test database to start with. Select Version 1 and Finish.</p>
+
+<p>Clearquest Designer now goes out and creates all the necessary tables and transfers all of the necessary data, hook scripts, etc. from Version 1 of the dev schema adefaria into your database. Get coffee...</p>
+
+<p>After the database is created follow the steps at Seeding a test database to seed your test database with some test data.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  9:08 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000755.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000755.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2012_08.html#entry-000754"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/118"
+    dc:title="Creating Development Schema Repositories"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2012_08.html#entry-000754"
+    dc:subject="Broadcom"
+    dc:description=" When you have multiple Clearquest Designers you quickly realize that you cannot easily do parallel development of the schema. The best way to do this is to work through a development schema repository and to create development schemas for..."
+    dc:creator=""
+    dc:date="2012-08-28T14:41:42-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 28, 2012</h2>
+                     <a id="a000754"></a>
+                     <div class="entry" id="entry-754">
+                        <h3 class="entry-header">Creating Development Schema Repositories</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                                          <p>When you have multiple Clearquest Designers you quickly realize that you cannot easily do parallel development of the schema. The best way to do this is to work through a development schema repository and to create development schemas for each schema designer. To create a development schema repository you should first create an empty database for Clearquest to work in. You can create an empty database by following the instructions for&nbsp;<span class="nobr"><a href="http://confluence.broadcom.com/display/MWGMPSSCM/Creating+a+Development+Schema#CreatingaDevelopmentSchema-CreatingaTestDatbase" class="external-link" rel="nofollow">Creating a Test Database</a>. Next you must use the Clearquest Maintenance Tool to create a new Schema Repository:</p>
+
+<ul>
+  <li>Start the Clearquest Maintenance Tool</li>
+  <li>Select <b>Schema Respository: Create</b></li>
+  <li>The Maintenance Tool then asks you to fill out information regarding the location of your schema database. Fill in information about the database server and Administrator Name and password. Do not create a sample database at this time. The Clearquest Maintenance tool will take some time to set up the new schema repository.</li>
+</ul>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-ExportingaCQProfile.iniforthisnewDevelopmentSchemaRepository"></a>Exporting a CQProfile.ini for this new Development Schema Repository</h3>
+
+<p>In order to see this new development schema repository you should export the schema repository from the Clearquest&nbsp;Maintenance&nbsp;Tool. This exported cqprofile.ini can be shared with out Schema Developers who would import the .ini file into their environment using the Clearquest Maintenance Tool. You export the cqprofile.ini by selecting&nbsp;<b>File: Export Profile</b>. You need only select the new repository you created.</p>
+
+<p><img src="images/Export cqprofile.png"></p>
+
+<p>Click on the "..." button to select where to store the .ini file and what it's name will be - I used C:\Cygwin\tmp\MPSDev.ini and click&nbsp;<b>Finish</b>. This file can be passed to your fellow Schema Developers.</p>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-ImportingUsers"></a>Importing Users</h3>
+
+<p>Your new development schema repo has no users in it except a default set of users including the "admin" user (with no password). Run the User Administration tool on production (MCBU) and export all of the users. Run the User Administration tool again on the new development schema repo (e.g. MPSDev) and import the users.</p>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-CleanupUnnecessarySchemas"></a>Clean up Unnecessary Schemas</h3>
+
+<p>Now's a good time to remove additional default schemas in your development schema repo like Common, DefectTracking, Enterprise, etc. You cannot delete the Blank schema.</p>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-SeedingtheDevelopmentSchemaRepowiththeLatestVersionfromProduction"></a>Seeding the Development Schema Repo with the Latest Version from Production</h3>
+
+<p>One trick to seed your new development schema repo with a recent version of the production schema is to create a new development schema in the production schema repo based off of the latest version of the production schema. Then export that whole schema of the <b>new</b> development schema and import it into the new development schema repo. You will only have the history of the latest version of the schema but that's OK for development purpose. Make sure you specify an appropriate Schema Name and Comment when you export the schema from production:</p>
+
+<p><img src="images/New Schema.png"></p>
+
+<p><b>Note:</b>&nbsp;We are giving this schema the name MPSDev because that's what we want it to be called in the new development schema repo. Also, the comment is appropriate when we will be looking at it in the MPSDev development schema repo.</p>
+
+<p>Do not associate a database with this schema, there's no reason. We don't care as we are only using this to exportschema from production &#45;&gt; development schema repo. We'll create databases there. We don't need to check out this schema either.</p>
+
+<h4><a name="CreatingDevelopmentSchemaRepositories-ExportingtheSchemafromProduction"></a>Exporting the Schema from Production</h4>
+
+<p>We assume you have created a new development schema in the production schema repo based off of the tip of the production database. You need to export that with:</p>
+
+<div class="code" >$ cqload exportschema -dbset MCBU admin &lt;password&gt; &lt;schemaname&gt; &lt;path to &lt;schemaname&gt;.full.schema&gt;]]>
+</div>
+
+<p>Where &lt;schemaname&gt; is the name of the development schema name you created in the production schema repo</p>
+
+<h4><a name="CreatingDevelopmentSchemaRepositories-ImportingtheSchemaintotheDevelopmentSchemaRepo"></a>Importing the Schema into the Development Schema Repo</h4>
+
+<p>Next we import this full.schema of only the tip of production to seed a development schema in the development schema repo.</p>
+
+<p><div class="code">$ cqload importschema -dbset MPSDev admin &lt;password&gt; &lt;path to &lt;schemaname&gt;.full.schema&gt;
+*********************************************************
+Starting importschema
+*********************************************************
+
+CRMMD1264E The import file ".\MPSDev.full.schema" is invalid:
+CRMMD1422E The schema requires the following package(s), which is(are) not currently installed in the database...
+    revision '2.1' of package 'EmailPlus'
+    revision '1.2' of package 'Resolution'
+    revision '2.1' of package 'Attachments'.
+
+*********************************************************
+ERROR: importschema FAILED!
+*********************************************************
+</div>
+
+<p>Oops! We need to import these packages into our new schema. Right click on your new development schema repo in Clearquest Designer and select <b>Install Package</b>. Expand the EmailPlus and select 2.1 to install that. Repeat this for Resolution and Attachments. Repeat the cqload importschema.</p>
+
+<h4><a name="CreatingDevelopmentSchemaRepositories-RemoveOldSchemainProductionRepo"></a>Remove Old Schema in Production Repo</h4>
+
+<p>You can remove the schema you created above in the Production repo as it is no longer needed.</p>
+
+<h3><a name="CreatingDevelopmentSchemaRepositories-CreateDevSchemas"></a>Create Dev Schemas</h3>
+
+<p>You are now free to create development schemas in the new development schema repo as described&nbsp;<a href="/display/MWGMPSSCM/Creating+a+Development+Schema" title="Creating a Development Schema">Creating a Development Schema</a>&nbsp;as well as test databases and <a href="/display/MWGMPSSCM/Seeding+a+Test+Database" title="Seeding a Test Database">seeding them</a>.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:41 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000754.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000754.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2012_08.html#entry-000753"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/117"
+    dc:title="Eliminating Perl Syntactic Sugar"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2012_08.html#entry-000753"
+    dc:subject=""
+    dc:description="Programming complex systems is... well... complicated. You need to focus on the task at hand and be able to see the trees from the forest as they say. That&apos;s why I like to eliminate as much what I call syntactic..."
+    dc:creator=""
+    dc:date="2012-08-02T20:13:44-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  2, 2012</h2>
+                     <a id="a000753"></a>
+                     <div class="entry" id="entry-753">
+                        <h3 class="entry-header">Eliminating Perl Syntactic Sugar</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Programming complex systems is... well... complicated. You need to focus on the task at hand and be able to see the trees from the forest as they say. That's why I like to eliminate as much what I call syntactic sugar from the language. Syntactic sugar are ornaments, special characters and restating the obvious or default that makes your mind drift from the problem at hand to how to formulate syntactic sugar. Additionally such sugar takes time to type in, is prone to errors if you don't get it right and usually are comprised of characters that, as a touch typist, you have to often stretch to reach on the keyboard.</p>
+
+<p>Here's an example. Recently I came across the following code:</p>
+
+<div class="code">
+    delete($self->{'cqc'}->{'fields'}->{'PCP_ID'}) if (exists $self->{'cqc'}->{'fields'}->{'PCP_ID'}); # PCP_ID  is read-only and should not be passed through.<br>
+    delete($self->{'cqc'}->{'fields'}->{'Approved_by_CCB'}) if (exists $self->{'cqc'}->{'fields'}->{'Approved_by_CCB'});<br>
+    delete($self->{'cqc'}->{'fields'}->{'record_type'}) if (exists $self->{'cqc'}->{'fields'}->{'record_type'});<br>
+</div>
+
+<p>Now that takes a some time to parse... (Did you see the comment buried in there?) And here's the same code with the syntactic sugar removed:</p>
+
+<div class="code">
+    delete $self->{cqc}{fields}{PCP_ID};<br>
+    delete $self->{cqc}{fields}{Approved_by_CCB};<br>
+    delete $self->{cqc}{fields}{record_type};<br>
+</div>
+
+<p>which do you find easier to read?</p>
+
+<p><b>Notes:</b></p>
+
+<ul>
+  <li> Surrounding hash keys with '' is unnecessary unless you use special characters in the key name like spaces and '-'. The '_' character is OK (the Perl interpreter views '-' as a possible subtraction). Use '' for hash keys only when necessary.</li>
+
+  <li>The additional '->' operators are unnecessary. The first one is necessary since $self is a hashref, but after that you don't need them - why type them?</li>
+
+  <li>The delete call need not have (). Granted, delete is a function and some people field all function should have () even if there are no parameters. And yet even people who feel this way rarely use () on Perl builtins like print and die. If you define your subroutines before they are used you can call them without ().</li>
+
+  <li>There's no reason to include "if (exists $self->{'cqc'}->{'fields'}->{'PCP_ID'})". First off, if clauses that follow the statement do not need (). Even "exists" is unnecessary as if it is omitted the if statement works the same anyway. Finally, delete $hashref->{unknown} will not error out if $hashref->{unknown} doesn't exist.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  8:13 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000753.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000753.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

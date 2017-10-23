@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: HybridOS Binary Comparison problems</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000325.html" title="Hybrid OS" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000327.html" title="Finalized HybridOS" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000325.html">&laquo; Hybrid OS</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000327.html">Finalized HybridOS &raquo;</a>
+                     </p>
+
+                     <a id="a000326"></a>
+                     <div class="entry" id="entry-326">
+                        <h3 class="entry-header">HybridOS Binary Comparison problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Managed to perform binary comparison of HybridOS</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>HybridOS Binary Comparison</h3>
+
+<p>HybridOS has been checked in and built. As you know the binary comparison procedure described in the GS: LOS178 Impact Summary discovered more differences. Specifically 227 .o files had differences. Further investigation revealed that the action of committing the sources to CVS caused $Header/ident strings to change. The following describes the changes to the $Header strings due to cvs commit:</p>
+
+<div class="code"><pre>
+tomcat:strings -a orig.uipc_usrreq.o | grep Header
+$Header: /cvs/<font color="blue"><b>los178-cvs</b></font>/los178/sys/networking/tcpip/general/uipc_usrreq.c,v  <font color="orange"><b>1.1.1.1</b></font> <font color="green"><b>2004/03/03 00:59:24</b></font> <font color="purple"><b>emooring</b></font> Exp $
+tomcat:strings -a new.uipc_usrreq.o | grep Header
+$Header: /cvs/<font color="blue"><b>hybrid-os-cvs</b></font>/los178/sys/networking/tcpip/general/uipc_usrreq.c,v <font color="orange"><b>1.1</b></font> <font color="green"><b>2005/03/30 00:39:03</b></font> <font color="purple"><b>adefaria</b></font> Exp $
+</pre></div>
+
+<p>The changes are as follows:</p>
+
+<ol>
+  <li>CVS Repository name changed from los178-cvs -> hybrid-os-cvs (<font color="blue">blue</font>)</li>
+
+  <li>Revision changed from whatever it was -> 1.1 (<font color="orange">orange</font>) All revisions for HybridOS are now 1.1</li>
+
+  <li>Date changed to reflect time of cvs commit to new CVS repository (<font color="green">green</font>)</li>
+
+  <li>User changed from whatever it was -> adefaria (<font color="purple">purple</font>) since I was the user to perform the commit</li>
+</ol>
+
+<p>Using objdump once again to disassemble these .o files and comparing the output left us with the following .o files that were still different:</p>
+
+<ol>
+  <li>/sys/lib/libcsp_970.a (context_asm.o)</li>
+
+  <li>/sys/lib/libcsp_970.a (csp_cpu_asm.o)</li>
+
+  <li>/sys/lib/libcsp_970.a (flih.o)</li>
+
+  <li>/sys/lib/libcsp_970.a (fpu_asm.o)</li>
+
+  <li>/sys/lib/libcsp_970.a (launch_asm.o)</li>
+
+  <li>/sys/lib/libcsp_970.a (tlbmiss.o)</li>
+</ol>
+
+<p>Closer examination of these .o files reveals that the also contained ident strings in the text segment that had the same differences as the $Header differences described above. In other words the code was the same but the version strings and dates changed, as is expected.</p>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on March 30, 2005  4:59 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000326.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

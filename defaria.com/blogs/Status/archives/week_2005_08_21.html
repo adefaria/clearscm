@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: August 21, 2005 - August 27, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_08_14.html" title="August 14, 2005 - August 20, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_09_04.html" title="September  4, 2005 - September 10, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_08_14.html">&laquo; August 14, 2005 - August 20, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_09_04.html">September  4, 2005 - September 10, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">August 26, 2005</h2>
+                     <a id="a000415"></a>
+                     <div class="entry" id="entry-415">
+                        <h3 class="entry-header">portgd, 3.0.0 TOT build again</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Portgd still not working well</li>
+
+  <li>Build 3.0.0 TOT again</li>
+
+  <li>Added package of pdn to 2.1.0. Somehow I missed it</li>
+
+  <li>Repackaged cdklinux</li>
+</ul>
+                              
+                              <h3>Portgd's continuing woes</h3>
+
+<p>Turns out the problem is that we are attempting to do a cvs add from outside of the repository. Portgd works from one directory and checks out an los178.from and an los178.to. Then from that directory it attempts to cvs add los178.to/&lt;path&gt;/&lt;dir&gt;. This will not work. We need, instead, to cd los178.to then do cvs add &lt;path&gt;/&lt;dir&gt;.</p>
+
+<p>But portgd was also having a problem trying to recursively add the directories above new files. How to debug/test this is the question...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:00 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000415.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">August 25, 2005</h2>
+                     <a id="a000414"></a>
+                     <div class="entry" id="entry-414">
+                        <h3 class="entry-header">portgd, NetSNMP</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed portgd script to attempt to handle new CVS files/li>
+
+  <li>Changed package.sh for 3.0.0 to package NetSNMP</li>
+
+  <li>Release LOS178 2.1.0. Still working on building GDB on Windows</li>
+
+  <li>Built and released LOS178 3.0.0 20050825. Turns out the toolchain I was using does indeed have the latest!</li>
+
+  <li>Port of GD from LOS178 has some missing CRs. Will work on this tomorrow</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:43 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000414.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">August 24, 2005</h2>
+                     <a id="a000413"></a>
+                     <div class="entry" id="entry-413">
+                        <h3 class="entry-header">3.0.0 build, GD build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Performed a TOT 3.0.0 build. More stuff coming in...</li>
+
+  <li>Struggling with 2.0 GD build. Turns out I was missing some CRs. Finally building!</li>
+
+  <li>GDB Server build on Solaris is OK now but it fails on Linux. I suspect a packaging problem</li>
+
+  <li>The portgd script has issues</li>
+</ul>
+                              
+                              <h3>Portgd Challenges</h3>
+
+<p>One of the problems with portgd is that the from CVS repository really needs to be set to HEAD because you want the latest but you're gonna pull the CRs by number and individual file revisions. This may cause problems sometimes (think ordering of CR numbers where pulling one CR overwrites a previous one in the wrong way. BTW This is why branching is good!)</p>
+
+<p>Additionally portgd has a problem where the CR introduces new elements (Clearcase term - think new files and/or directories). When portgd attempts to cp the file to the to CVS repository it may fail because the parent directory did not previously exist and is not in the to CVS repository.</p>
+
+<p>The portgd script can be updated to check to insure that each directory in the path of the file revision to be "ported" exists and if not then to create it and add it to CVS. It should also check to see if the file is new and again copy it but also add it to CVS.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:32 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000413.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">August 22, 2005</h2>
+                     <a id="a000411"></a>
+                     <div class="entry" id="entry-411">
+                        <h3 class="entry-header">Linux ABI build failure/GDB Build failure</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Linux ABI build fails. Reported to vlad</li>
+
+  <li>GDB build failed. Rebuilding...</li>
+</ul>
+                              
+                              <h3>Linux ABI build failure</h3>
+
+<p>The Linux ABI fails to build on yellowdog Linux.</p>
+
+<div class="code"><pre>
+    + DebugFlags=
+    + export GLIBC_LOCATION LYNX_PREFIX LIBLYNXPTHREAD_PREFIX
+    + export LYNXOS_VERSION_MAJOR LYNXOS178_VERSION_MAJOR
+    + '[' 1 '!=' 0 ']'
+    + '[' '!' -r /home/int/LOS178-300/20050822/linuxabi/glibc-2.3.3/../liblynxpthrea
+    d/Makefile ']'
+    + echo ======================= BUILD - LIBLYNXPTHREAD ==========================
+    ===========
+    ======================= BUILD - LIBLYNXPTHREAD =================================
+    ====
+    + cd /home/int/LOS178-300/20050822/linuxabi/glibc-2.3.3/../liblynxpthread
+    + make PLATFORM=ppc
+    make: *** No rule to make target `include/itimer.h', needed by `all'.  Stop.
+    + exit 1
+</pre></div>
+
+<p>itimer.h has been removed. There are other problems too.</p>
+
+<h3>GDB Build Failure</h3>
+
+<p>For some reason it turns out that several libraries such as libc.a appear in the dev area as if they were built as production. IOW the size of libc.a(dev) == libc.a(pdn). Don't know why this happened because the install.log for dev seems to indicate that it was built in dev mode. May be a problem in the build_los178 script. Rebuilding...</p>
+
+<p>Also, due to hardcoding of bison's location we must build in /usr/los178/2.1.0/ppc_dev.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:10 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000411.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

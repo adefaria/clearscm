@@ -1,0 +1,53 @@
+#!/bin/bash
+################################################################################
+#
+# File:         fixr_startup
+# Description:  This script will fix the local startup scripts. Thist is done
+#		by moving them from /sbin/rc2.d to /sbin/rc3.d where they 
+#		really belong.
+# Author:       Andrew DeFaria (defaria@cup.hp.com)
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# First source /app/appserver
+if [ -x /app/appserver ]; then
+  . /app/appserver
+fi
+
+if [ $(id -u) -ne 0 ]; then
+  print -u2 "Error: You must be root to execute this command!"
+  exit 1
+fi
+
+if [ "$OS" = "09" ]; then
+  print -u2 "Error: $(basename $0) does not run on 9.x!"
+  exit 1
+fi
+
+moved_a_file=no
+
+if [ -x /sbin/rc2.d/S900local ]; then
+  print "Moving /sbin/rc2.d/S900local \-> /sbin/rc3.d/S900local"
+  mv /sbin/rc2.d/S900local /sbin/rc3.d/S900local
+  moved_a_file=yes
+fi
+
+if [ -x /sbin/rc2.d/S920start_views ]; then
+  print "Moving /sbin/rc2.d/S920start_views \-> /sbin/rc3.d/S770start_views"
+  mv /sbin/rc2.d/S920start_views /sbin/rc3.d/S770start_views
+  moved_a_file=yes
+fi
+
+if [ -x /sbin/rc2.d/S910mount_additional_vobs ]; then
+  print "Moving /sbin/rc2.d/S910mount_additional_vobs \-> /sbin/rc3.d/S775mount_additional_vobs"
+  mv /sbin/rc2.d/S910mount_additional_vobs /sbin/rc3.d/S775mount_additional_vobs
+  moved_a_file=yes
+fi
+
+if [ "$moved_a_file" = "no" ]; then
+  print "Startup scripts already in their proper places"
+else
+  print "Fixed startup scripts"
+fi

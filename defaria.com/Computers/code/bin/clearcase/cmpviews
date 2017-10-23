@@ -1,0 +1,240 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         cmpview
+# Description:  This script will produce listing of the delta between two
+#		different views
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Apr  2 15:21:21 PST 2003
+# Modified:
+# Language:     Perl
+#
+# (c) Copyright 2003, Salira Optical Network Systems, all rights reserved.
+#
+################################################################################
+use strict;
+
+my $me = substr ($0, rindex ($0, "/") + 1);
+my (@view1out, @view2out);
+my ($view1, $view2);
+my ($view1_tag, $view2_tag);
+my $cwd = $ENV {PWD};
+my $dynamic;
+
+sub usage {
+  print "Usage: $me: [-g] <view 1> <view 2>\n";
+  print "\nWhere:\n";
+  print "\n\t-g\t\tGenerate lists - otherwise <view 1>.list and\n";
+  print "\t\t\t<view 2>.list files in the current directory are\n";
+  print "\t\t\tsearched. If the file is not found then a list file\n";
+  print "\t\t\tis generated.\n";
+  print "\t<view 1>\tClearcase view to compare from\n";
+  print "\t<view 2>\tClearcase view to compare to\n";
+  exit 1;
+} # usage
+
+sub ProduceListFile {
+  # This subroutine will simply produce a file listing all Clearcase elements
+  # elements into a file.
+  my $view     = shift;
+  my $view_tag = shift;
+
+  chdir $view or die "Unable to change directory to $view\n";
+
+  # Produce listing into array
+  print "Producing a list of elements in view $view_tag...\n";
+  `cleartool ls -recurse -short -visible -vob_only salira > $cwd/$view_tag.list`;
+} # ProduceListFile
+
+sub PrintArray {
+  # This subroutine merely prints the array passed to it.
+  foreach (@_) {
+    print "$_\n";
+  } # foreach
+} # PrintArray
+
+sub CheckView {
+  # This subroutine checks to see if the view passed is a Clearcase view.
+  my $view = shift;
+
+  if (-d $view) {
+    return 0;
+  } else {
+    return 1;
+  } # if
+} # CheckView
+
+sub ProduceLists {
+  my $view1   = shift;
+  my $view2   = shift;
+
+  # This subrourtine produces a list of all elements in the view. These
+  # lists are placed into arrays and saved as files for future runs.
+  if ($dynamic eq 1) {
+    ProduceListFile $view1, $view1_tag;
+    ProduceListFile $view2, $view2_tag;
+  } else {
+    if (! -f "$cwd/$view1_tag.list") {
+      ProduceListFile $view1, $view1_tag;
+    } # if
+    if (! -f "$cwd/$view2_tag.list") {
+      ProduceListFile $view2, $view2_tag;
+    } # if
+  } # if
+
+  # Load up arrays from listing files
+  open (VIEW1OUT, "<$cwd/$view1_tag.list") || die "Unable to open $cwd/$view1_tag.list\n";
+  open (VIEW2OUT, "<$cwd/$view2_tag.list") || die "Unable to open $cwd/$view2_tag.list\n";
+  @view1out = <VIEW1OUT>;
+  @view2out = <VIEW2OUT>;
+
+  # Now ensure their in sorted order
+  @view1out = sort (@view1out);
+  @view2out = sort (@view2out);
+} # ProduceLists
+
+sub ProcessLists {
+  # This subroutine will process the two list arrays producing the report.
+  # Now enter a loop comparing items
+  my $view1line = shift (@view1out);
+  my $view2line = shift (@view2out);
+
+  my (@diffs, @view1only, @view2only);
+  my $nbrelements;
+
+  if (!$view1line && !$view2line) {
+    print "$me: Warning: No elements found for either view $view1_tag nor $view2_tag\n";
+    print "Nothing to compare!\n";
+    exit;
+  } # if
+
+  if (!$view1line) {
+    print "$me: Warning: No elements found for view $view1_tag\n";
+    $view1line = " ";
+  } # if
+
+  if (!$view2line) {
+    print "$me: Warning: No elements found for view $view2_tag\n";
+    $view2line = " ";
+  } # if
+
+  while ($view1line && $view2line) {
+    # Extract versions and elements
+    my $version_start = rindex ($view1line, "@") + 1;
+    my $version1      = substr ($view1line, $version_start);
+    my $element1      = substr ($view1line, 0, $version_start - 2);
+    my $version_start = rindex ($view2line, "@") + 1;
+    my $version2      = substr ($view2line, $version_start);
+    my $element2      = substr ($view2line, 0, $version_start - 2);
+
+    # Change "\"'s to "/"'s
+    $element1 =~ s/\\/\//g;
+    $version1 =~ s/\\/\//g;
+    $element2 =~ s/\\/\//g;
+    $version2 =~ s/\\/\//g;
+
+    # Remove leading vob pathname
+    #$element1 =~ s/$vob\///;
+    #$element2 =~ s/$vob\///;
+
+    # Remove trailing carriage return and linefeed
+    chop ($version1); chop ($version1);
+    chop ($version2); chop ($version2);
+
+    # Compare element names
+    if ($element1 eq $element2) {
+      # Element is the same
+      if ($version1 ne $version2) {
+	# Element has different version
+	push (@diffs, "$element1 $version1 -> $version2");
+      } # if
+
+      # Get next element/version
+      $view1line = shift (@view1out);
+      $view2line = shift (@view2out);
+    } else {
+      # Elements names are different
+      if (!$element1) {
+	# Element 1 is blank indicating there are no items in view1out array
+	# Push all of element 2
+	push (@view2only, $element2 . " " . $version2);
+	$view2line = shift (@view2out);
+      } elsif (!$element2) {
+	# Element 2 is blank indicating there are no items in view1out array
+	# Push all of element 1
+	push (@view1only, $element1 . " " . $version1);
+	$view1line = shift (@view1out);
+      } elsif ($element1 lt $element2) {
+	# Element 1 is less so get next element 1
+	push (@view1only, $element1 . " " . $version1);
+	$view1line = shift (@view1out);
+      } else {
+	# Element 2 is less so get next element 2
+	push (@view2only, $element2 . " " . $version2);
+	$view2line = shift (@view2out);
+      } # if
+    } # if
+  } # while
+
+  # Output comparison listing
+  print "Comparison of $view1_tag -> $view2_tag\n";
+
+  if ($#diffs ne -1) {
+    $nbrelements = $#diffs + 1;
+    if ($nbrelements eq 1) {
+      print "\nThe following $nbrelements element appears in only one view:\n\n";
+    } else {
+      print "\nThe following $nbrelements elements appear in both views:\n\n";
+    } # if
+    PrintArray (@diffs);
+  } # if
+
+  if ($#view1only ne -1) {
+    $nbrelements = $#view1only + 1;
+    if ($nbrelements eq 1) {
+      print "\nThe following element only appears in the view $view1_tag:\n\n";
+    } else {
+      print "\nThe following $nbrelements elements only appear in the view $view1_tag:\n\n";
+    } # if
+    PrintArray (@view1only);
+  } # if
+
+  if ($#view2only ne -1) {
+    $nbrelements = $#view2only + 1;
+    if ($nbrelements eq 1) {
+      print "\nThe following element only appear in the view $view2_tag:\n\n";
+    } else {
+      print "\nThe following $nbrelements elements only appear in the view $view2_tag:\n\n";
+    } # if
+    PrintArray (@view2only);
+  } # if
+} # ProcessLists
+
+# Get options...
+if ($ARGV[0] eq "-g") {
+  shift (@ARGV);
+  $dynamic = 1;
+} else {
+  $dynamic = 0;
+} # if
+
+usage if $ARGV [0] eq "" || $ARGV [1] eq "";;
+
+$view1=$ARGV[0];
+$view2=$ARGV[1];
+
+$view1_tag = substr ($view1, rindex ($view1, "/") + 1);
+$view2_tag = substr ($view2, rindex ($view2, "/") + 1);
+
+if (CheckView ($view1)) {
+  print "$me: Error: $view1 is not a view\n";
+  exit 1;
+} # if
+
+if (CheckView ($view2)) {
+  print "$me: Error: $view2 is not a view\n";
+  exit 1;
+} # if
+
+ProduceLists $view1, $view2;
+ProcessLists;

@@ -1,0 +1,412 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Movable Type 5.2.3" />
+<link rel="stylesheet" href="http://defaria.com/blogs/General/styles.css" type="text/css" />
+<link rel="start" href="http://defaria.com/blogs/General/" title="Home" />
+<link rel="alternate" type="application/atom+xml" title="Recent Entries" href="http://defaria.com/blogs/General/atom.xml" />
+<script type="text/javascript" src="http://defaria.com/blogs/General/mt.js"></script>
+
+
+    <title>General: August 2005 Archives</title>
+
+
+    <link rel="prev" href="http://defaria.com/blogs/General/archives/2005/03/" title="March 2005" />
+    <link rel="next" href="http://defaria.com/blogs/General/archives/2005/09/" title="September 2005" />
+
+</head>
+<body id="classic-blog" class="mt-archive-listing mt-datebased-monthly-archive layout-wtt">
+    <div id="container">
+        <div id="container-inner">
+
+
+            <div id="header">
+    <div id="header-inner">
+        <div id="header-content">
+
+
+            <div id="header-name"><a href="http://defaria.com/blogs/General/" accesskey="1">General</a></div>
+            <div id="header-description"></div>
+
+        </div>
+    </div>
+</div>
+
+
+
+            <div id="content">
+                <div id="content-inner">
+
+
+                    <div id="alpha">
+                        <div id="alpha-inner">
+
+
+                            <h1 id="page-title" class="archive-title">August 2005 Archives</h1>
+
+
+
+
+
+                            
+                            <div id="entry-412" class="entry-asset asset hentry">
+    <div class="asset-header">
+        <h2 class="asset-name entry-title"><a href="http://defaria.com/blogs/General/archives/2005/08/jinzora.html" rel="bookmark">Jinzora</a></h2>
+        <div class="asset-meta">
+            <span class="byline">
+    
+                <abbr class="published" title="2005-08-23T08:58:50-08:00">August 23, 2005  8:58 AM</abbr>
+    
+            </span>
+
+            
+            
+
+        </div>
+    </div>
+    <div class="asset-content entry-content">
+
+        <div class="asset-body">
+            <p>Recently I disovered <a href="http://jinzora.com">Jinzora></a> which allows you to keep a media library on your web server and stream songs to anywhere on the Internet. It's really cool with it's "slick" interface displaying album art, artist art as well as descriptions of artists, albums and even lyrics! I've moved my <a href="/jinzora2">Media Collection</a> over to using Jinzora. It's a PHP application using a MySQL backend and it's open source. Problem is it's a big app and it uses a lot of resources on my tiny server. I need a bigger server for sure!</p>
+
+<p>Jinzora has capabilities for <i>transcoding</i> songs to other bitrates <b>on the fly</b>. While nice in theory I cannot afford yet more server bandwidth - my server is crawling at times as it is!</p>
+
+<p>Jinzora also allows people to register for user accounts and for the administrator to configure the level of access per user classes. It also has the ability to stream music to several Flash based players as well as allow the user to use an external media player such as Windows Media Player or WinAmp, etc. For example, on Linux I use xmms. This helps because you can configure Jinzora to use a Flash based player and you don't have to worry about whether or not your end user has properly configured say Windows Media Player or that they have a mess of Windows Media Player, WinAmp, MusicMatch and Real Player all competing for their media files and none really configured correctly, which is often the case.</p>
+
+<p>One thing that bugs me is that Jinzora is that it encodes links with parameter information that is encoded in base64. This is probably for security purposes but it really makes links that you may email or paste to an IM window ugly!. The following will turn this off but there's a problem where when you implement this hack logging in of users then fails to work! The following was gotten from the <a href="http://www.jinzora.com/forums">Jinzora Forums</a> from <a href="http://www.jinzora.com/forums/viewtopic.php?t=1801&start=15">this</a posting:
+
+<p>bioart wrote:</p>
+<blockquote type="cite">
+  <p>Thanks for the offline comments... long story short, it appears like it was a minor incompatibility between the released J2 and Mandrake 10.1's php. I don't know how it will be fixed in the release, but the quick fix I got from Ben/Wim: (This fixes it, but it is not optimal, so only use it if you really need it).</p>
+
+<p>Open /lib/general.lib and add this code to the scrable functions: "return $string ;". First: Search for this part:</p>
+
+<div class="code"><pre>
+function jz_encode($string, $key = false) {
+  // Complex scheme.
+</pre></div>
+
+<p>change it in:</p>
+
+<div class="code"><pre>
+function jz_encode($string, $key = false) {
+  return $string ;
+  // Complex scheme.
+</pre></div>
+
+<p>Next : Search for this part:</p>
+
+<div class="code"><pre>
+function jz_decode($string, $key = false) {
+  // Complex scheme.
+</pre></div>
+
+<p>change it in:</p>
+
+<div class="code"><pre>
+function jz_decode($string, $key = false) {
+  return $string ;
+  // Complex scheme.
+</pre></div>
+</blockquote>
+
+<p>Again, currently, implementing this does indeed turn off the base64 encoding of URL parms but it breaks logging in and logging out.</p>
+
+<p>Finally, a note on security: When I get my Jinzora site up and streaming I noticed even slower than normal response from my server and even got knocked off the net a few times. Scanning the logs it appears as if there are people again hitting my server and attempting to directly download my mp3 files or download them through Jinzora in an automated fashion that just swamps my tiny server. For example, college kids find a site with mp3 files then swamp it to steal your mp3's.</p>
+
+<p>Jinzora has it's own directory where the PHP files and other data is stored. It also has <i>media directories</i> where media is pulled from. My Jinzora directory is at /web/jinzora2. My media directory is at /web/Music (which is shared via Samba over to my XP boxes). As /web is my DocumentRoot, this exposes /web/Music to the INternet. Thus you could access http://defaria.com/Music/<proper path>/<song file>.mp3 and utilize something like wget(1) to effectively steal mp3 files.</p>
+
+<p>IOW you don't need to go through the Jinzora interface, thus be subject to Jinzora's user/password login to get to my mp3 files. My first attempt to secure this was to put a .htaccess file in /web/jinzora2. This secures Jinzora by making the web server perform basic authentication. But basic authentication is a pain to manage and it defeats the username/password accounts in Jinzora.</p>
+
+<p>So I got to thinking "I just need to secure /web/Music. Jinzora will still be able to access those media files without the need to authenticate through the web server because it's basically a PHP app running on my server and just reading files through a path" and I moved .htaccess to /web/Music. Viola, I'm now secure!</p>
+        </div>
+
+
+
+    </div>
+    <div class="asset-footer"></div>
+</div>
+
+
+
+
+                            <div class="content-nav">
+                                <a href="http://defaria.com/blogs/General/archives/2005/03/">&laquo; March 2005</a> |
+                                <a href="http://defaria.com/blogs/General/">Main Index</a> |
+                                <a href="http://defaria.com/blogs/General/archives.html">Archives</a>
+                                | <a href="http://defaria.com/blogs/General/archives/2005/09/">September 2005 &raquo;</a>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+                    <div id="beta">
+    <div id="beta-inner">
+
+
+    
+    <div class="widget-archive widget-archive-category widget">
+    <h3 class="widget-header">Categories</h3>
+    <div class="widget-content">
+    
+    </div>
+</div>
+
+
+
+
+    <div class="widget-archive-monthly widget-archive widget">
+    <h3 class="widget-header">Monthly <a href="http://defaria.com/blogs/General/archives.html">Archives</a></h3>
+    <div class="widget-content">
+        <ul>
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2017/07/">July 2017 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2017/04/">April 2017 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2016/11/">November 2016 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2016/05/">May 2016 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2016/03/">March 2016 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2015/10/">October 2015 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2015/01/">January 2015 (2)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2014/11/">November 2014 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2014/02/">February 2014 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2014/01/">January 2014 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2011/03/">March 2011 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2010/11/">November 2010 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2010/10/">October 2010 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2010/06/">June 2010 (4)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2010/04/">April 2010 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2010/03/">March 2010 (4)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2010/02/">February 2010 (7)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2009/05/">May 2009 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2009/04/">April 2009 (2)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2009/01/">January 2009 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2007/04/">April 2007 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2006/11/">November 2006 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2006/09/">September 2006 (2)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2005/12/">December 2005 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2005/10/">October 2005 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2005/09/">September 2005 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2005/08/">August 2005 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2005/03/">March 2005 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2004/02/">February 2004 (6)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2004/01/">January 2004 (1)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2003/11/">November 2003 (2)</a></li>
+        
+    
+        
+            <li><a href="http://defaria.com/blogs/General/archives/2003/10/">October 2003 (5)</a></li>
+        
+        </ul>
+    </div>
+</div>
+        
+    
+
+
+
+<div class="widget-pages widget">
+    <h3 class="widget-header">Pages</h3>
+    <div class="widget-content">
+        <ul>
+    
+    
+            <li class="folder folder-38"><strong>about</strong>
+        
+            </li>
+        
+    
+        </ul>
+    </div>
+</div>
+
+<div class="widget-syndication widget">
+    <div class="widget-content">
+        <ul>
+            <li><img src="http://defaria.com/mt/mt-static/images/status_icons/feed.gif" alt="Subscribe to feed" width="9" height="9" /> <a href="http://defaria.com/blogs/General/atom.xml">Subscribe to this blog's feed</a></li>
+
+        </ul>
+    </div>
+</div>
+<div class="widget-powered widget">
+    <div class="widget-content">
+        <a href="http://www.movabletype.com/"><img src="http://defaria.com/mt/mt-static/images/bug-pbmt-white.png" alt="Powered by Movable Type 5.2.3" width="120" height="75" /></a>
+    </div>
+</div>
+
+
+
+    </div>
+</div>
+
+
+
+    
+<div id="gamma">
+    <div id="gamma-inner">
+    <div class="widget-search widget">
+    <h3 class="widget-header">Search</h3>
+    <div class="widget-content">
+        <form method="get" action="http://defaria.com/mt/mt-search.cgi">
+            <input type="text" id="search" class="ti" name="search" value="" />
+
+            <input type="hidden" name="IncludeBlogs" value="1" />
+
+            <input type="hidden" name="limit" value="20" />
+            <input type="submit" accesskey="4" value="Search" />
+        </form>
+    </div>
+</div>
+
+<div class="widget-about-this-page widget">
+    <h3 class="widget-header">
+
+    
+        About this Archive
+    
+
+
+    </h3>
+    <div class="widget-content">
+
+
+
+
+
+        <p class="first">This page is an archive of entries from <strong>August 2005</strong> listed from newest to oldest.</p>
+    
+        <p><a href="http://defaria.com/blogs/General/archives/2005/03/">March 2005</a> is the previous archive.</p>
+    
+    
+        <p><a href="http://defaria.com/blogs/General/archives/2005/09/">September 2005</a> is the next archive.</p>
+    
+
+
+        <p>Find recent content on the <a href="http://defaria.com/blogs/General/">main index</a> or look in the <a href="http://defaria.com/blogs/General/archives.html">archives</a> to find all content.</p>
+
+    </div>
+</div>
+
+
+    </div>
+</div>
+
+
+
+
+                </div>
+            </div>
+
+
+            <div id="footer">
+    <div id="footer-inner">
+        <div id="footer-content">
+            <div class="widget-powered widget">
+                <div class="widget-content">
+                    Powered by <a href="http://www.movabletype.org/">Movable Type</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+        </div>
+    </div>
+</body>
+</html>

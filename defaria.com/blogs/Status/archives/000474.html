@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Finding the missing 261,285,366 bytes</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000473.html" title="Removing DBs from a Schema/Email link concerns" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000475.html" title="Final PQA fixes" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000473.html">&laquo; Removing DBs from a Schema/Email link concerns</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000475.html">Final PQA fixes &raquo;</a>
+                     </p>
+
+                     <a id="a000474"></a>
+                     <div class="entry" id="entry-474">
+                        <h3 class="entry-header">Finding the missing 261,285,366 bytes</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed bug in pqamerge that caused some attachments to not transfer</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>I think I've figured out where that missing data went to. As you know the total of the attachment sizes of the old databases compared to the new database was still off but a relatively substantial amount (261,285,366 bytes - see https://defaria.com/blogs/Status/archives/000471.html#more).</p>
+
+<p>I changed check_attachments to help me find where the missing data was. The basic idea was to read all Cont records, total up the attachment size, then use Cont: old_id to locate the old record and total it. With those two figures I could find which records didn't convert correctly.</p>
+
+<p>Turns out:</p>
+
+<div class="code"><pre>
+ # At this point we don't have any info about whether we are
+ # coming from Prod or TO, however, there are the following fields:
+ #
+ #          TO               Prod              Cont
+ # ----------------------- ----------------------- ----------------
+ # Attachments        Attachments        Attachments
+ # AttachmentsBRCM        AttachmentBRCM        AttachmentsBRCM
+ #
+ # You may notice that Prod: AttachmentBRCM is missing the "s".
+ # Therefore:
+ $field_name = "AttachmentsBRCM" if $field_name eq "AttachmentBRCM";
+</pre></div>
+
+<p>Remerging and will run check_attachments again.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on November 10, 2005 11:55 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000474.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

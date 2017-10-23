@@ -1,0 +1,40 @@
+#!/bin/bash
+################################################################################
+#
+# File:         wrkservers
+# RCS:          $Header: wrkservers,v 1.1 98/01/27 22:31:43 defaria Exp $
+# Description:  A script to execute a command on all virtual workstation
+#               servers.
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Wed Mar  5 16:31:13 PST 1997
+# Modified:     Fri Jan 16 13:54:53 PST 1998
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+PATH=/adm/bin:$PATH
+
+if [ "$1" = "-r" ]; then
+  root=yes
+  shift
+fi
+
+for wrkserver in $(get_info server_names virtualws); do
+  # Execute command. Note if no command is given then the effect is to
+  # rlogin to each machine.
+  print "$wrkserver:$@"
+  if [ $# -gt 0 ]; then
+    if [ -z "$root" ]; then
+      remsh $wrkserver -n "$@"
+    else
+      root remsh $wrkserver -n "$@"
+    fi
+  else
+    if [ -z "$root" ]; then
+      remsh $wrkserver
+    else
+      root remsh $wrkserver
+    fi
+  fi
+done

@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: February 2004 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2004_01.html" title="January 2004" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2004_03.html" title="March 2004" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2004_01.html">&laquo; January 2004</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2004_03.html">March 2004 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">February 27, 2004</h2>
+                     <a id="a000145"></a>
+                     <div class="entry" id="entry-145">
+                        <h3 class="entry-header">Hok's merge</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Assisting with Hok's merging of his FX -> 2.4 stuff.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:34 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000145.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February 24, 2004</h2>
+                     <a id="a000144"></a>
+                     <div class="entry" id="entry-144">
+                        <h3 class="entry-header">Builds, Releases and Merging</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Lots of merging and building with 2 releases today. Still working through problems with us_2340 <-> china_2340 merging. Had to merge flmFiles.h from 2.3 -> us_2340 to pick up some definintions. Also had to build mksf.exe because some changes were coming from China and some from here at the same time. Merging the .exe is not possible in such situations so after insuring that all sources were merged I rebuilt the .exe</p>
+
+<ul>
+
+<li>Built and released 2.2.2.1</li>
+
+<li>Completed merge of 2.2 -> 2.3</li>
+
+<li>Built and released 2.3.0.5</li>
+
+<li>Completed merge of 2.3 -> 2.4</li>
+
+<li>Finished <a href="http://sonsweb.salira.com/WebSAM.html">WebSAM Testing</a> and entered <a href="http://sonsweb.salira.com/WebSAM_Testing.html">bugs</a> into Clearquest</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:54 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000144.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February 19, 2004</h2>
+                     <a id="a000141"></a>
+                     <div class="entry" id="entry-141">
+                        <h3 class="entry-header">build_view bug</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Fixed bug in build_view:</p>
+
+<p>Fixed problem counting errors in output. This is a common problem: How do you distinguish between real errors and file elements or variable that contain the string "error". The approach was:</p>
+   
+<tt>
+errors=$(grep -i error $card.build.log | grep -v "Errors: 0" | grep -vc "cli_errors.c")
+</tt>
+   
+<p>which looks for errors in general, weeds out the "Errors: 0" that the NP complier puts out and then makes an exception for the file element named cli_errors.c. Well with onu2311 comes new output that contains the string "error" but is not an error. Notably:</p>
+   
+<tt>
+dmt_main.c: In function `reportErrorPort':<br>
+dmt_main.c:274: warning: implicit declaration of function `resetPortErrorCounts'
+</tt>
+   
+<p>For now we will make an exceptions for "ErrorPort" and "PortError" but this is not an ideal solution to the problem in general.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:54 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000141.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February 18, 2004</h2>
+                     <a id="a000140"></a>
+                     <div class="entry" id="entry-140">
+                        <h3 class="entry-header">WebSAM Testing</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>More WebSAM Testing. Almost done...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:37 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000140.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February 13, 2004</h2>
+                     <a id="a000136"></a>
+                     <div class="entry" id="entry-136">
+                        <h3 class="entry-header">2.3.0.4 and more testing</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Was trying to get all of my WebSAM testing completed but was not able to. Got kicked onto another test system and that one had problems. Luckily Asad and Jeff helped fix things up for me. Got a lot done but may need to do more tomorrow.</p>
+
+<h3>2.3.0.4 releaseed</h3>
+
+<p>2.3.0.4 bring in the FX branch into the 2.3 release line. It also has fairly major functionality identified by bug ID 3605 (287 elements changed!) and a new card, onu2311.</p>
+
+<p>Please let me know when you guys and gals make a new card! While updating the makefile will indeed insure that the new card is build when one types make, I use scripts and processes that rely on the definition of <i>cards</i> defined in /Tools/adm/etc/cards and need to update that file when a new card appears. Thanks.</p>
+
+<p>Regarding the FX branch: The FX branch was a temporary branch for engineers to work on until 2.3 stablized. As such, with it's successful merge I plan on <font color="red"><b>destroying</b></font> both us_fx and china_fx branches. A destroy means that <i>the branch, element versions on that branches,  any labels on those element versions and merge arrows to and from the FX branches will <b>disappear</b></i>. It will be as if suddenly a bunch of new FX related code got checked into the 2.3 release line. Since the FX branch was indeed temporary I don't see any problem with destroying it though. Let me know if you have any objection to this.</p>
+
+<p>Before I destroy the FX branches however Hok has to check in his code and merge it to 2.4.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  8:57 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000136.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February 12, 2004</h2>
+                     <a id="a000131"></a>
+                     <div class="entry" id="entry-131">
+                        <h3 class="entry-header">Trigger bug, Testing, FX Merge complete!</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Fixed bug in CheckinPostop.pl trigger. Seems we need to have a total of 4, count 'em, 4 "\" to equate to one "\" in Windows. Needed to change code to use "@\\\\salira" to indicate the salira vob.</li>
+
+<li>Performed more testing of WebSAM. Didn't get very far because I encountered some sort of hardware problem that Asad got me out of (partitially). Still seem to have some misbehaving cards. Don't seem to have a PTC card in this system nor any ONUs. Must look into this more tomorrow.</li>
+
+<li>Fixed bug in trigger for real this tiem. It was not as indicated above. We did not need extra "\"'s rather we needed to remove the "2> /dev/null" redirection as that is a Unix'ism and ActiveState Perl, which is the Perl the Clearcase is invoking, doesn't like that syntax!</li>
+
+<li>Completed the FX merge!</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:34 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000131.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February 10, 2004</h2>
+                     <a id="a000130"></a>
+                     <div class="entry" id="entry-130">
+                        <h3 class="entry-header">Fixing code</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Fixed bug in build script that incorrectly passes status back up to calling script. This caused build to report success when build actually failed</li>
+
+<li>Fixed CheckInPostop script to check to see if label already exists instead of creating it everytime. This should reduce some nonsense error messages</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000130.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February  9, 2004</h2>
+                     <a id="a000129"></a>
+                     <div class="entry" id="entry-129">
+                        <h3 class="entry-header">2.3.0.3 built - build bug</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Built 2.3.0.3. Not sure if it's officially done yet in that there may be some problems with the ONU2310 FPGA image.</p>
+
+<p>Meantime I've been trying to figure out why sometimes the build process says all is OK when there are build errors. Turns out to be a shell problem with tee. When building I'm doing:</p>
+
+<pre>
+$ make $card.sf 2>&1 | tee -a $teefile > $card.build.log
+</pre>
+
+<p>Seems this tee thing messes up the return code from make. This can be demonstrated simply by:</p>
+
+<pre>
+$ ls nonexistance_file 2>&1 | tee -a /tmp/ls.log > /tmp/ls2.log; echo $?
+0
+</pre>
+
+<p>Need to figure out how to fix this...</p>
+
+<p>Merged NeoPON.ccp from 2.2 -> 2.3 by drawing merge arrow. This was after Zhiyi OKed this merge.</p>
+
+<p>Worked out remaining merge issues on other branches. These were largely "can't check in identical file" type problems.</p>
+
+<p>Attempted an FX -> 2.3 merge. Only like 40 elements to merge but some manual merging was required. Due to 2.3.0.3 build for KDDI this was put on hold. Need to merge this then allow Hok to check in before destroying this branch.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:37 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000129.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February  6, 2004</h2>
+                     <a id="a000119"></a>
+                     <div class="entry" id="entry-119">
+                        <h3 class="entry-header">CI Trigger Bug</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Fixed bug in CheckInPost.pl. This bug was caused by an element having a space character in it (e.g. a directory named "source code"). The checkin trigger had the following line:</p>
+
+<pre>
+$result = system ("cleartool mklabel -replace $bugid $pname");
+</pre>
+
+<p>This line assumes that $pname does not contain a space character. The fix was:</p>
+
+<pre>
+$result = system ("cleartool mklabel -replace $bugid \"$pname\"");
+</pre>
+
+<p>The \"'s surround $pname and thus protect it.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:13 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000119.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February  5, 2004</h2>
+                     <a id="a000118"></a>
+                     <div class="entry" id="entry-118">
+                        <h3 class="entry-header">2.3 KDDI release</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Built 2.3.0.2</li>
+
+<li>Created 2.2.2.1</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:06 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000118.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February  4, 2004</h2>
+                     <a id="a000117"></a>
+                     <div class="entry" id="entry-117">
+                        <h3 class="entry-header">2.3 merging/New 2340 branch</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Worked on 2.3 merge problems. NeoPON.ccp came in merged but the auto merged failed due to a link problem with onu2330. Zhiyi is working on this for 2.3.0.2</li>
+
+<li>Worked with Hong Bin to get FPGA files visible</li>
+
+<li>Changed includeable config specs to handle new files created by other site</li>
+
+<li>Setup us_2340/china_2340 branches, views and ctmerge jobs.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:13 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000117.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February  2, 2004</h2>
+                     <a id="a000116"></a>
+                     <div class="entry" id="entry-116">
+                        <h3 class="entry-header">2.3 merge issues</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Resolved 2.3 merge issues</li>
+<li>More WebSAM testing...</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:18 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000116.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

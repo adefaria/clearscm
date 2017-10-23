@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Hybrid OS</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000324.html" title="HybridOS built" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000326.html" title="HybridOS Binary Comparison problems" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000324.html">&laquo; HybridOS built</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000326.html">HybridOS Binary Comparison problems &raquo;</a>
+                     </p>
+
+                     <a id="a000325"></a>
+                     <div class="entry" id="entry-325">
+                        <h3 class="entry-header">Hybrid OS</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Checked HybridOS into CVS</li>
+
+  <li>Rebuilt HybridOS</li>
+
+  <li>Attempted binary comparison - fails due to $Header$ strings</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Binary Differences</h3>
+
+<p>Well the build finished but the binary comparison as per the Impact Summary failed. For a while I thought I did something wrong so I went back and re-extracted from the SCL and rebuild the old LOS178 that I had stored on the side, etc. Still it kept failing! Not only 25 files that were different and needed to be disassembled and compared but more like 228 files! What's going on?!?</p>
+
+<p>So I dug deeper... Seems that $Header is embedded in some .o files and the $Headers differ (picking at random a .o that didn't compare):</p>
+
+<div class="code"><pre>
+tomcat:strings -a new.uipc_usrreq.o | grep Header
+$Header: /cvs/hybrid-os-cvs/los178/sys/networking/tcpip/general/uipc_usrreq.c,v 1.1 2005/03/30 00:39:03 adefaria Exp $
+tomcat:strings -a orig.uipc_usrreq.o | grep Header
+$Header: /cvs/los178-cvs/los178/sys/networking/tcpip/general/uipc_usrreq.c,v 1.1.1.1 2004/03/03 00:59:24 emooring Exp $
+tomcat:
+</pre></div>
+
+<p>So as you can see, we have differences. I don't know why all 2543 .o files extracted from the .a files didn't all differ.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on March 29, 2005 11:08 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000325.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

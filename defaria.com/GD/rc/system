@@ -1,0 +1,38 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: system,v $
+# Revision:	$Revision: 1.4 $
+# Description:  System specific settings
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Aug 20 17:35:01  2001
+# Modified:     $Date: 2006/02/03 01:50:00 $
+# Language:     bash
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# This system's name
+export SYSNAME=$(uname -n)
+
+# Export DISPLAY and GNU_* stuff
+case $SYSNAME in
+  *)	
+    export GNU_SECURE=$HOME/.gnuhosts
+    #export GNU_HOST=
+    ;;
+esac
+
+# Strip domains
+SYSNAME=${SYSNAME%%\.*}
+
+# Set to initial cap
+SYSNAME=$(echo ${SYSNAME:0:1} | tr [:lower:] [:upper:])$(echo ${SYSNAME:1}   | tr [:upper:] [:lower:])
+
+# System name aliases 
+case $SYSNAME in
+  Mirandag)
+    export SYSNAME="Local"
+    ;;
+
+esac

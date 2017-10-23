@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Production User Database Migrated</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000540.html" title="More fun with SQL ANYWHERE" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000543.html" title="Ant Rant" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000540.html">&laquo; More fun with SQL ANYWHERE</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000543.html">Ant Rant &raquo;</a>
+                     </p>
+
+                     <a id="a000541"></a>
+                     <div class="entry" id="entry-541">
+                        <h3 class="entry-header">Production User Database Migrated</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Managed to migrate the production user database</li>
+
+  <li>Clearquest desktop users need to upgrade their software. Meantime they can use the web interface</li>
+
+  <li>Verified cqd and triggers work</li>
+
+  <li>Documented how to switch a desktop to the new server</li>
+
+  <li>Documented how to build on the new server</li>
+</ul>
+
+<p><b>Time Spent:</b> 4 Hours</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Production User Database Migrated!</h2>
+
+<p>More progress in this area.</p>
+
+<p>I decided to try to use the Sybase Central tool to see if I could
+verify or otherwise fix this potentially bad database. I also looked at
+running Chkdisk as the eventlog was reporting some bad sectors on the
+disk. Unfortunately chkdisk cannot fully check the disk since the
+database is on the C drive and the C drive is currently busy. Normally
+you just set a flag and chkdisk will run after next boot. But such a
+chkdisk will take a long time on a big disk.</p>
+
+<p>Meantime in Sybase Central I decide to do fresh backups of the
+databases which seem to go OK. These backup databases look no different
+really than the regular databases so I run validate on the backup
+database. Hmmm.... Doesn't seem to have any errors. So I tried the
+installutil copyuserdb to copy the <b>backup</b> database <b>as if is
+was the real production database</b> to the new server. Hmmm.... That
+worked!</p>
+
+<p>Next I had to go into Clearquest Maintenance Tool and select Schema
+Respository: Upgrade: Selected Connection and upgrade the production
+user database. That worked!</p>
+
+<p>I checked the Clearquest web (<a href="http://sons-sc-cc/cqweb/login">http://sons-sc-cc/cqweb/login</a>) and the
+new database is indeed there and working!</p>
+
+<h2>Clearquest Desktop Clients Need to Upgrade</h2>
+
+<p><font color="#ff0000"><b>Problem:</b> Clearquest 2002.05.00 desktop
+clients cannot access this new database!</font></p>
+
+<p>I tried creating a connection profile to this new database and then
+importing it on the old server running 2002.05.00.This did not work!
+Later I read in the Rational Suite Migration Guide:</p>
+
+<blockquote>Your network environement can contain misxed versions of
+ClearCase and ClearQuest clients (where some clients are at v2003 and
+some clients are at ealier versions) if these products are in a
+standalone environment, that is:</p>
+<p></p>
+....
+<p></p>
+
+<p>If your vendor database is SQL Anywhere, you do not plan to upgrade to
+SQL Anywhere 8.0 until all ClearQuest clients and databases have been
+upgraded to version 2003.</p>
+</blockquote>
+
+<p>So we'll have to upgrade desktop clients to 2003.06.00! Luckily people
+can use the Clearquest Web Client...</p>
+
+<h2>Clearquest Daemon Works with Minor Tweaks</h2>
+
+<p>Checked that cqd and cqc work with the new server. All that need to be
+changed is to change the default server from sons-clearcase -&gt;
+sons-sc-cc in cqc.pm.</p>
+
+<h2>Checked and Triggers Work in New Environment</h2>
+
+<p>I was able to check to see that the triggers function in the new
+environment.</p>
+
+<h2>Switching Your Desktop to the New Server</h2>
+
+<p>Use the following steps switch your desktop to the new server:</p>
+
+<ol>
+  <li>Stop all Clearcase activity. Close any Clearcase Explorer windows
+and any shells in Clearcase views.</li>
+  <li>In a Cygwin shell type ct umount -all to unmount all vobs.</li>
+  <li>Go to Control Panel: Clearcase</li>
+  <li>Click on the Services tab then Stop Clearcase</li>
+  <li>Click OK to the dialog saying Clearcase has stopped</li>
+  <li>Click OK to <b>close</b> the Clearcase Control Panel Applet</li>
+  <li>Start the Clearcase Control Panel <b>again</b></li>
+  <li>On the registry tag, change the registry server to sons-sc-cc</li>
+  <li>Click OK to close the Clearcase Control Panel <b>again</b></li>
+  <li>On the Registry tab click the drop down arrow for Windows Region.
+You should see the new SC region. Select it.</li>
+  <li>Click on <b>Apply</b></li>
+  <li>Click on the Services Startup tab and then Start Clearcase</li>
+  <li>Close the Clearcase Control Panel</li>
+  <li>Start a Cygwin shell and type ct hostinfo -l. You should see
+something like:<br>
+    <br>
+<div class=code><pre>
+<font color="blue"><b>[ccadmin] adefaria:</b></font><u>ct hostinfo -l</u>
+Client: adefaria
+  Product: ClearCase 2002.05.00+
+  Operating system: Windows NT 5.1 (build 2600) Service Pack 2
+  Hardware type: Pentium
+  Registry host: <b>sons-sc-cc</b>
+  Registry region: <b>SC</b>
+  License host: sons-clearcase
+</pre></div>
+
+    <p>As you can see we are now pointing to the sons-sc-cc registry
+host and the SC region. Sons-clearcase is still the license server at
+this time. Type ct lsview and you should see:</p>
+
+<div class="code"><pre>
+<font color="blue"><b>[ccadmin] adefaria:</b></font><u>ct lsview</u>
+  official             \\sons-sc-cc\Views\SALIRA\ccadmin\official.vws
+  3.1.ccadmin     \\sons-sc-cc\Views\SALIRA\ccadmin\3.1.ccadmin.vws
+  szhu_view_2     \\sons-sc-cc\Views\SALIRA\szhu\szhu_view_2.vws
+    </pre></div>
+
+    <p>A noticeably smaller list of views that are on sons-sc-cc in
+the SC region</li>
+</ol>
+
+<p>Follow a similar set of steps to switch back to the old registry server
+(sons-clearcase) and region (US). No reboots required (provided you
+properly stop Clearcase and do things like get out of views and umount
+vobs).</p>
+
+<h2>Attempting an Official Build on sons-sc-cc</h2>
+
+<p>This procedure can be done either by following the procedure above to
+switch your desktop to the new server or simply use rsh/telnet to log
+into sons-sc-cc. Once there:</p>
+
+<ol>
+  <li>Make user that the 3.1.ccadmin view is started<br>
+<div class=code><pre>
+$ ct startview 3.1.ccadmin
+</pre></div></li>
+  <li>Make sure the salira vob is mounted:<br>
+    <br>
+<div class=code><pre>
+$ ct mount \\salira
+</pre></div></li>
+  <li>Change directory to the build area:<br>
+    <br>
+<div class=code><pre>
+$ cd /dview/3.1.ccadmin/salira/neopon/build
+</pre></div></li>
+  <li>Type make:<br>
+<div class=code><pre>
+$ make
+</pre></div></li>
+</ol>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 15, 2006  6:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000541.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

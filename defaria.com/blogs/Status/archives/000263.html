@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: los178 build</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000262.html" title="Fixing fix_copyright.pl" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000264.html" title="Fix Copyright, native 3.2.2/5.0.0 build" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000262.html">&laquo; Fixing fix_copyright.pl</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000264.html">Fix Copyright, native 3.2.2/5.0.0 build &raquo;</a>
+                     </p>
+
+                     <a id="a000263"></a>
+                     <div class="entry" id="entry-263">
+                        <h3 class="entry-header">los178 build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Finished los178 build of sources with fixed copyrights!</li>
+
+<li>Still an error with the non development build of los178 :-(</li>
+
+<li>Made more progress on cmptags.pl (a Perl script to compare and report on the difference in terms of revisions and associated ECRs, authors and dates between two tags in CVS)</li>
+
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>First I obtained the latest TOT for los178 - apparently they are still fixing things. This makes it imperative that fix_copyright.pl work flawlessly. Was able to build los178 from old, unmodified sources thus I know I'm starting from a good set of sources.</p>
+
+<p>Next was to run fix_copyright.pl and attempt a compile. This time, instead of just hand editing the files I examined the file in question and why fix_copyright.pl failed in this case. Then fix fix_copyright.pl and repeat.</p>
+
+<p>One problem was that some files have MS-DOS line endings. Fixed this by removing such line endings and making them standard Unix line endings.</p>
+
+<p>Next some files ended the comment block with */ and then some additional spaces. This was fixed by not attempting to anchor the end comment block match with the end of the line (i.e. $).</p>
+
+<p>Injected these actual two or three files back into the build process until it built.</p>
+
+<p>For safety's sake I then destroyed my build area and recreated from scratch with cvs update -C then running fix_copyright.pl again and bringing that over to grumpy.</p>
+
+<p>WRT cmptags.pl, made some more progress parsing cvs log info...</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on December 22, 2004  3:28 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000263.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

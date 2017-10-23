@@ -1,0 +1,80 @@
+#!/bin/bash
+################################################################################
+#
+# File:         reinstall_unixsysadm
+# Description:  Script to reinstall this package.
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Sep 24 10:11:56 PDT 1999
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+function usage {
+  if [ "_$1" != "_" ]; then
+    display "$1"
+    display
+  fi
+  display "Usage: $me"
+  exit 1
+} # usage
+
+# Check for execution by root
+if is_not_root; then
+  error "This script must be run as root" 1
+fi
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+    ;;
+
+    -v|-verbose)
+      verbose=yes
+    ;;
+
+    -d|-debug)
+      debug=yes
+    ;;
+
+    *)
+      usage "Unrecognized parameter $1"
+    ;;
+  esac
+  shift
+done
+
+# Currently we must swremove and swinstall this package. In the future the
+# swinstall package may be made smarter and clean up older files...
+
+verbose "Removing old UnixSysadm package..."
+/usr/sbin/swremove UnixSysadm > /tmp/swremove.log 2>&1
+
+if [ $? -ne 0 ]; then
+  error "Unable to swremove UnixSysadm! Check /tmp/swremove.log"
+else
+  rm /tmp/swremove.log
+fi
+
+verbose "Reinstalling new UnixSysAdm package..."
+/usr/sbin/swinstall -s pdlapp:/var/depot/adm UnixSysadm > /tmp/swinstall.log
+2>&1
+
+if [ $? -ne 0 ]; then
+  error "Unable to swinstall UnixSysadm! Check /tmp/swinstall.log"
+else
+  rm /tmp/swinstall.log
+fi

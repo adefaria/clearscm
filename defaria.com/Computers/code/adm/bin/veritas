@@ -1,0 +1,32 @@
+#!/bin/bash
+###############################################################################
+#
+# File:         veritos
+# Description:  Run the veritos GUI
+# Author:       Andrew DeFaria <Andrew@DeFaria.com>
+# Created:      Thu Jun  6 08:31:57 PDT 1996
+# Modified:     
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+###############################################################################
+me=$(basename $0)
+VRTS_veritos=/opt/VRTSvxva/bin/vxva
+SUNW_veritos=/opt/SUNWvxva/bin/vxva
+
+if [ $(/usr/xpg4/bin/id -u) -ne 0 ]; then
+  print -u2 "$me: Error: Must be root to run this command"
+  exit 1
+fi
+
+if [ -x $VRTS_veritos ]; then
+  veritos=$VRTS_veritos
+elif [ -x $SUNW_veritos ]; then
+  veritos=$SUNW_veritos
+else
+  print "$me: Error: Unable to find veritos"
+  exit 1
+fi
+
+$veritos "$@"

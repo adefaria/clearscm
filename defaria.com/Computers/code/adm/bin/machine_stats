@@ -1,0 +1,45 @@
+#!/bin/bash
+################################################################################
+#
+# File:         machine_stats
+# Description:  Displays statistical information about all machines
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Apr 30 14:13:56 PDT 1999
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Set machines
+machines=${machines:-$adm_base/data/machines}
+
+if [ ! -f $machines ]; then
+  echo "$me: Error: Unable to find $machines file!"
+  exit 1
+fi
+
+total_machines=$(grep -cv "^#" $machines)
+total_XP=$(grep -v "^#" $machines | grep -c "NT-5.1")
+total_2000=$(grep -v "^#" $machines | grep -c "NT-5.0")
+total_NT4_0=$(grep -v "^#" $machines | grep -c "NT-4.0")
+total_cc=$(grep -v "^#" $machines | grep -c "4\.1\:")
+
+echo "Machine breakdown"
+echo --------------------------------
+echo "Total Windows XP.............. $total_XP"
+echo "Total Windows 2000 Pro........ $total_2000"
+echo "Total Windows NT 4.0.......... $total_NT4_0"
+echo "Total Clearcase............... $total_cc"
+echo "Total Machines ............... $total_machines"

@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Mkcc.pm and mkvob</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000603.html" title="Reworking GPDB tables, mkview" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000606.html" title="Site Admins" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000603.html">&laquo; Reworking GPDB tables, mkview</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000606.html">Site Admins &raquo;</a>
+                     </p>
+
+                     <a id="a000604"></a>
+                     <div class="entry" id="entry-604">
+                        <h3 class="entry-header">Mkcc.pm and mkvob</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Pulled out common code from mkview that will be needed for mkvob into Mkcc.pm Perl module</li>
+
+  <li>Re-engineered mkview to use Mkcc.pm</li>
+
+  <li>Started recoding mkvob to use GPDB and the new Mkcc.pm</li>
+
+  <li>Code complete on mkvob - need to test</li>
+
+  <li><b>Issue</b>: It seems that we have multiple versions of mkview_linked and that UK has continued development of their version of mkview_linked while we've been developing on mkview_linked here in Dallas. IOW there are two versions in separate vobs!</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>The old mkvob_db</h3>
+
+<p>There are some oddities in the old mkvob_db code. For example, there is an insistence in setting umask to 0 before creating directories, which are created with specific permissions. Setting umask is only for the new creation of a directory or file. One could, instead, simply make the directory then chmod it to whatever you really wanted the permissions to be. The new subroutine MakeDir in Mkcc.pm does just that, as well as chown if owner and group are passed in as well as only making the directory if it is needed. This simplifies the code a lot and removes the need to save, set and restore umask.</p>
+
+<p>Another oddity of the old code can be seen in the following:</p>
+
+<div class=code><pre>
+foreach $rgn (@regionList) {
+  $debug && print "DEBUG: Checking tag in $rgn\n";
+
+  $cmd = 'lsvob -s -region $rgn';
+
+  @output = ctcmd($cmd);
+
+  foreach $item (@output)
+  {
+    if ($item =~ /^$tag$/)
+      {
+	print "VOB tag $tag already exists in $rgn\n\n";
+	exit (1);
+      }
+  }
+}
+</pre></div>
+
+<p>Looks innocuous enough - run through a list of regions looking to see if this newly requested vob tag already exists in any of the regions. However there are bugs and inefficiencies in the above code. For starters the single quote on the setting of $cmd says to <b>not</b> expand the variable $rgn. The resulting command then becomes "cleartool lsvob -s region $rgn" which, of course, would return an error, which, of course, is not checked for here. So the code, while trying to verify that this vob tag does not exist in any of the regions, fails to actually check it!</p>
+
+<p>However if we just correct that by using double quotes we will now incur a performance penalty. Now the registry server will be required to return all the vob tags for each and every region which can take some time. Is there any way we can make this faster? Why yes there is! Specify the actual vob tag (as in cleartool lsvob -s -region &lt;region name&gt; &lt;vob tag&gt;)! You know sometimes people say that Clearcase always returns all of the registry data which is then parsed locally. Then again, sometimes it's the programmer who asks for it!</p>
+
+<p>So the new code looks like:</p>
+
+<div class=code><pre>
+foreach (@regionList) {
+  debug "Checking for $tag in region $_";
+
+  @output = ctcmd "lsvob -s -region $_ $tag";
+
+  error "VOB tag $tag already exists in region $_", 1 if !grep /Error/, @output;
+} # foreach
+</pre></div>
+
+<p>Note the simplifications for debug (now a subroutine from Mkcc.pm), usage of the default variable ($_) and error reporting (also a subroutine from Mkcc.pm). This algorithm performs the same task, correctly and orders of magnitude quicker.
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on December 28, 2006  4:50 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000604.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

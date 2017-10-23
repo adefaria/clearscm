@@ -1,0 +1,238 @@
+#!/bin/bash
+################################################################################
+#
+# File:         mkpass
+# Description:  Mother of All (MoA) passwd administration script
+# Author:       Cory Chan (cory@cup.hp.com)
+# Language:     Korn Shell
+# Modified:	11/18/1994 Ryan Fong (fong@cup.hp.com) Modified for 10.0
+#               07/26/1995 Andrew DeFaria (defaria@cup.hp.com) Revamped to use
+#		NFS mount point to avoid rcp. Script now works for both 9.0
+#		and 10.0.
+#		08/21/1995 Andrew DeFaria (defaria@cup.hp.com) Revamped mail
+#		message sending.
+#		03/25/98 Michael Coulter (coulter) Changed "ch.apollo" to
+#		"che.hp.com" because of a domain name change for Chelmsford.
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# First source the appserver script
+if [ -x /app/appserver ]; then
+  . /app/appserver
+fi
+
+if [ "$OS" = "09" ]; then
+  /bin/cp /usr/spool/cron/crontabs/root /tmp/root-crontab
+  /usr/bin/crontab /tmp/root-crontab >> /nisclient.log 2>&1
+  /bin/rm /tmp/root-crontab
+else
+  /bin/cp /var/spool/cron/crontabs/root /tmp/root-crontab
+  /usr/bin/crontab /tmp/root-crontab >> /nisclient.log  2>&1
+  /bin/rm /tmp/root-crontab
+fi
+exit
+
+# Set ADMIN_ROOT
+ADMIN_ROOT=/app/admin
+
+# Check for force flag
+FORCE="False"
+
+if [ "$1" = "-f" ]; then
+  FORCE="True"
+fi
+
+# Whom to notify of problems. 
+NOTIFY=root@$(hostname)
+
+# Determine OS level
+OS=`uname -r | cut -c 3-4`
+
+MASTER_PASSWD=$ADMIN_ROOT/lib/master_passwd
+MASTER_PASSWD_MLL=$ADMIN_ROOT/lib/master_passwd.mll
+LOCAL_PASSWD=/etc/passwd.loc
+EXCLUDED_PASSWD=/etc/passwd.exc
+MARKER_FILE=/etc/pass.time
+PASSWD_OLD=/etc/passwd.old
+PASSWD=/etc/passwd
+TMP_PASSWD=/tmp/passwd.$$
+TMP_PASSWD2=/tmp/passwd2.$$
+
+# Log and save old messages if there were any problems
+MESSAGE_FILE=$ADMIN_ROOT/log/mkpass.$(uname -n)
+
+# Set file attribute
+umask 022				
+# Check for existance of $MASTER_PASSWD file. If missing send message and
+# abort.
+if [[ ! -f $MASTER_PASSWD ]]; then
+  mailx -s "mkpass: $MASTER_PASSWD file is missing!" $NOTIFY < /dev/null
+  exit 1
+fi
+
+# Check existence of necessary files; make when necessary.  
+if [[ ! -f $MARKER_FILE ]]; then
+  # make time marker if not exists
+  touch $MARKER_FILE
+fi
+
+if [[ ! -f $EXCLUDED_PASSWD ]]; then
+  echo "# one login per line, no space/tab/null line#" > $EXCLUDED_PASSWD
+fi
+
+if [[ ! -f $PASSWD_OLD ]]; then
+  # make old passwd file if not exists
+  cp $PASSWD $PASSWD_OLD		
+fi
+
+if [[ ! -f $LOCAL_PASSWD ]]; then		
+  # no local file, notify and exit
+  cat > $MESSAGE_FILE <<!EOM
+There was no $LOCAL_PASSWD file found on `uname -n`. This file must exist
+and have root as its first entry. Please correct the problem.
+
+For more information see:
+
+http://cllweb/productivity/SysAdmin/Passwords.html#root
+
+!EOM
+  mailx -s "mkpass: $LOCAL_PASSWD missing!" $NOTIFY < $MESSAGE_FILE
+  exit 0
+fi
+
+if [ $FORCE = "False" ]; then
+  # Check if passwd was changed directly since last check, if so mail the
+  # differences to $NOTIFY
+  if [[ $PASSWD -nt $MARKER_FILE ]] ; then
+    cat > $MESSAGE_FILE <<!EOM
+$PASSWD on `uname -n` changed without using merge script! This is not the 
+proper way to update passwords. For help regarding what you should do see:
+
+http://cllweb/productivity/SysAdmin/Passwords.html#email
+
+Here are the differences between the files:
+
+(< = /etc/passwd > = /etc/passwd.old)
+-----------------------------------------------------------------------------
+!EOM
+    diff $PASSWD $PASSWD_OLD >> $MESSAGE_FILE
+    mailx -s "mkpass: $PASSWD incorrectly changed" $NOTIFY < $MESSAGE_FILE
+    exit 0
+  fi
+fi
+
+# Check to see if $LOCAL_PASSWD, $MASTER_PASSWD or $EXCLUDED_PASSWD is newer
+# than $PASSWD. If so, combine $LOCAL_PASSWD and $MASTER_PASSWD (excluding 
+# entries from $EXCLUDED_PASSWD) to form new $PASSWD
+if [[ $FORCE             =   "True"  ||
+      $LOCAL_PASSWD      -nt $PASSWD || 
+      $MASTER_PASSWD     -nt $PASSWD || 
+      $MASTER_PASSWD_MLL -nt $PASSWD || 
+      $EXCLUDED_PASSWD   -nt $PASSWD ]]; then
+
+  # If only the $MASTER_PASSWD changed then make a note not to send email
+  if [[ $LOCAL_PASSWD    -nt $PASSWD || 
+        $EXCLUDED_PASSWD -nt $PASSWD ]]; then
+    NOTIFY_OF_CHANGE=True
+  else
+    NOTIFY_OF_CHANGE=False
+  fi
+
+  # Save an old copy around
+  cp $PASSWD $PASSWD_OLD
+
+  # Check root entry in $LOCAL_PASSWD
+  if grep -v "^#" $LOCAL_PASSWD | head -n 1 | grep "^root:" > /dev/null; then
+    # 1st entry root OKAY in $LOCAL_PASSWD
+    :
+  else
+    # 1st entry NOT root in passwd.loc
+    cat > $MESSAGE_FILE <<!EOM
+The first entry of $LOCAL_PASSWD on `uname -n` should be for root. 
+Please correct this problem. 
+
+For more information see:
+
+http://cllweb/productivity/SysaAdmin/Passwords.html#root
+
+!EOM
+    mailx -s "mkpass: Missing first root in $LOCAL_PASSWD" $NOTIFY < $MESSAGE_FILE
+    rm -f $TMP_PASSWD
+    exit 0
+  fi
+
+  # Make new $PASSWD
+  rm -f $TMP_PASSWD2
+
+  # MLL gives us a passwd file that does not qualify the machine name portion
+  # of the home directory. This code fixes that up and also adds "_MoA" to the
+  # geos field.
+  #
+  # Some engineers also use a local copy of tcsh, therefore we must also check
+  # shell and add on .che.hp.com to the shell path.
+  IFS=:
+  while read user pass uid gid geos home shell; do
+    first_component_home=$(print $home | cut -f2 -d/)
+    machine_component_home=$(print $home | cut -f3 -d/)
+    rest_home=$(print $home | cut -f4- -d/)
+    home=/$first_component_home/$machine_component_home.che.hp.com/$rest_home
+    first_component_shell=$(print $shell | cut -f2 -d/)
+    machine_component_shell=$(print $shell | cut -f3 -d/)
+    rest_shell=$(print $shell | cut -f4- -d/)
+    if [ $first_component_shell = "net" ]; then
+      shell=\
+/$first_component_shell/$machine_component_shell.che.hp.com/$rest_shell
+    fi
+    print "$user:$pass:$uid:$gid:$geos,_MoA_:$home:$shell" >> $TMP_PASSWD2
+  done < $MASTER_PASSWD_MLL
+
+  cat $LOCAL_PASSWD $MASTER_PASSWD $TMP_PASSWD2 > $TMP_PASSWD
+
+  # Do exclusion
+  grep -v "^#" $EXCLUDED_PASSWD |\
+   grep -vf $EXCLUDED_PASSWD $TMP_PASSWD > $TMP_PASSWD2
+
+  # Transform password file to 10.0 format
+  if [ $OS = "10" ]; then
+    sed -e 's/:\/nfs/:\/net/' -e 's/:\/bin/:\/usr\/bin/' \
+     $TMP_PASSWD2 > $TMP_PASSWD
+    rm -f $TMP_PASSWD2
+  else
+    mv $TMP_PASSWD2 $TMP_PASSWD
+  fi
+
+  if [ -s $TMP_PASSWD ]; then
+    mv $TMP_PASSWD $PASSWD
+    chmod 444 $PASSWD
+  else
+    rm -f $TMP_PASSWD
+    mailx -s "mkpass: Error: Zero length passwd file resulted!" $NOTIFY <<!EOM
+For some reason mkpass resulted in a zero length passwd file. Please
+investigate this.
+!EOM
+  fi
+ 
+  if [[ $NOTIFY_OF_CHANGE = "True" ]]; then
+    # Notify... (This could be improved by implementing a logging facility
+    # instead of tons of email).
+    cat > $MESSAGE_FILE <<!EOM
+MoA has updated the $PASSWD file on `uname -n`. Here were the differences
+before the update occured. Unless you feel that these updates were made
+incorrectly you can probably safely ignore this message.
+
+(< = /etc/passwd > = /etc/passwd.old)
+-----------------------------------------------------------------------------
+!EOM
+    diff $PASSWD $PASSWD_OLD >> $MESSAGE_FILE
+    mailx -s "mkpass: Made new $PASSWD" $NOTIFY < $MESSAGE_FILE
+  fi
+fi
+
+# Update marker file
+touch -ma $MARKER_FILE
+
+# Update log file
+echo "$PASSWD on `uname -n` is up to date as of `date`" > $MESSAGE_FILE
+
+exit 0

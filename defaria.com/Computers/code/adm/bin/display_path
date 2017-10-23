@@ -1,0 +1,32 @@
+#!/bin/bash
+################################################################################
+#
+# File:         display_path
+# Description:  Displays the components in PATH
+# Author:       Andrew@DeFaria.com
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+declare -i i=0
+
+for path_component in $(echo $PATH | tr ":" "\n"); do
+  let i=i+1
+  if [ $i -eq 1 ]; then
+    display "PATH consists of the following components:\n"
+  fi
+  display "\t$i) $path_component"
+done | $PAGER

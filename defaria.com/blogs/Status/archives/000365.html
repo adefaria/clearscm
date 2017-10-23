@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: LOS178 TOT Build</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000364.html" title="Build notes LW/GD and tst" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000366.html" title="LOS178 2.1.0 build" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000364.html">&laquo; Build notes LW/GD and tst</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000366.html">LOS178 2.1.0 build &raquo;</a>
+                     </p>
+
+                     <a id="a000365"></a>
+                     <div class="entry" id="entry-365">
+                        <h3 class="entry-header">LOS178 TOT Build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Built TOT for LOS178</li>
+
+  <li>Tagged and release resultant build</li>
+
+  <li>Worked some more on build_los178 script to do automatic building</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Automatic building</h3>
+
+<p>In general this is going to be hard because each systems has it's own build mechanism and quirks. The intend was initially to create a script that normalized those quirks but it was later decided to create a build_los178 script that has particular knowledge of LOS178.</p>
+
+<p>So far the set up and initial build steps are done. It's not optimal, more like a mirroring of the steps that a builder would do - but it's a start. One problem is that through Perl one cannot expect to `. SETUP.bash` and expect environment variables to remain in force. This is because Perl execs a subshell to perform the command and after that subshell dies so does its environment. For now build_los178 has a subroutine coded that mimicks what SETUP.bash does. This is not good because if SETUP.bash changes then that would break this until it was likewised changed. I need to find a better way to do this...</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on June  1, 2005  5:24 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000365.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

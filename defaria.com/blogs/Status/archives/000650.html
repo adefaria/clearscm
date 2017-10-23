@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: View space/Locked stream</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000649.html" title="Removed views/documented customizing Unix environments" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000652.html" title="Help Desk Cleanup" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000650.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/38"
+    dc:title="View space/Locked stream"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000650.html"
+    dc:subject="General Dynamics"
+    dc:description=" Resolved a ticket where the user was unable to deliver due to lock on activity - which is really a lock on the stream Did an analysis of view disk space usage Assisted Kirk and Tom with Clearcase 7.0.1.0..."
+    dc:creator=""
+    dc:date="2007-07-11T17:11:16-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000649.html">&laquo; Removed views/documented customizing Unix environments</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000652.html">Help Desk Cleanup &raquo;</a>
+                     </p>
+
+                     <a id="a000650"></a>
+                     <div class="entry" id="entry-650">
+                        <h3 class="entry-header">View space/Locked stream</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Resolved a ticket where the user was unable to deliver due to lock on activity - which is really a lock on the stream</li>
+
+  <li>Did an analysis of view disk space usage</li>
+
+  <li>Assisted Kirk and Tom with Clearcase 7.0.1.0 installation on Linux</li>
+
+  <li>Fixed problem with ssh public key authentication</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>View space</h2>
+
+<p>I looked into the disk space usage on the view2 server (partitions view2a, view2b and view2c0 and find the following:</p>
+
+<img src="/blogs/images/view2a.jpg"><br>
+<img src="/blogs/images/view2a_list.jpg"><br>
+<img src="/blogs/images/view2b.jpg"><br>
+<img src="/blogs/images/view2b_list.jpg"><br>
+<img src="/blogs/images/view2c.jpg"><br>
+<img src="/blogs/images/view2c_list.jpg"><br>
+
+<h2>View Policy and view_db.crs_file size</h2>
+
+<p>When you use use dynamic view and <tt>clearmake(1)</tt> to utilize <i>build
+avoidance</i> by <i>winking </i>in <i>derived objects</i>, Clearcase
+stores <i>configuration records</i> in the view's storage directory
+(.s):</p>
+
+<blockquote>
+
+<p><small class="AllCaps Text"><b>CONFIGURATION RECORDS.</b></small>
+The file <b>view_db.crs_file</b> in the <b>.s</b> subdirectory is actually part of the view's database, as described inthe following section. It is the part that stores the configuration records of derived objects built in the view.</p>
+
+<p>...</p>
+
+<p><b>view_db.crs_file</b></p>
+
+<p>Stores the configuration records of nonshareable and unshared derived objects. This file resides in subdirectory <b>.s</b> of the view storage directory, allowing it to be remote.</p>
+
+<p>Compressed copies of the configuration records are cached in a view-private file, <b>.cmake.state</b>, located in the directory that was current when the build started. This speeds up configuration lookup during subsequent builds in the view.</p>
+
+</blockquote>
+
+<p>The view_db.crs_file can get fairly large over time. This is another reason why Rational says that "views should be used like Kleenex".</p>
+
+<h2>Recovering View Space</h2>
+
+<p>According to <a
+ href="http://members.cox.net/ejostrander/clearteam/cc_howto.html">Eric J. Ostrander's ClearCase / ClearQuest pages</a>:</p>
+
+<blockquote>
+
+<h3> Release view database disk space back to the system.</h3>
+
+<p>As data is collected in a view, the view's database increases in size. Commands such as view_scrubber that remove DOs from a view merely release logical space inside the view's database. That is, the disk space taken by the database does not shrink. This is true for the <i>view-storage</i>/db/* files and the <i>view-storage</i>/.s/view_db.crs_file file (which contains the derived object configuration records). To actually release that
+space back to the system, one needs to run recoverview twice on that view. Normally recoverview is only needed when a VOB is no longer available and the view's view-private files that once belonged to the VOB are now stranded. However, it has the added benefit that it calls reformatview, which in turn cleans up the database.</p>
+
+<p>The recoverview must be run twice. The first pass releases any unused space in the database back to the system and cleans up CRs no longer attached to a DO. The second pass releases the now newly unused space (freed up in the first pass) back to the system. A third run has no affect.</p>
+
+<p>An attempt to run reformatview by itself (which is actually the only part that is really needed) will result in the message "reformat not needed for view". Unfortunately,  reformatview does not have a -force option, but recoverview does.</p>
+
+<div class=code><pre>
+# ct recoverview -force -tag <i>view-tag</i>
+# ct recoverview -force -tag <i>view-tag</i>
+</pre></div>
+
+<p><b>NOTE:</b> Running recoverview does not affect view-private files.</p>
+
+<p><b><font color="red">WARNING!</font></b> Rational recommends not being
+anywhere in the <i>view-storage</i>area during the recoverview/reformatview (reason unknown).</p>
+</blockquote>
+
+<h3>Clearcase 7.0.1.0 Installation on Linux</h3>
+
+<p>In installing Clearcase 7.0.1.0 on Linux, Kirk and Tom were having problems getting it set up as a registry server. One problem was that they incorrectly named the config file rgy_srv.conf instead of rgy_svr.conf (I always get those wrong myself). There also seems to be an issue where there are two directories, both under /var/adm/rational/clearcase, one named rgy (where the registry is stored) and one named config (where other config files are stored). And there are additional config files related to the registry, rgy_hosts.conf and rgy_region.conf. As it seems to turn out those three files (rgy_svr.conf, rgy_hosts.conf and rgy_region.conf) need to be in both the rgy and config directories under /var/adm/rational/clearcase. Is this new for 7.0.1.0?</p>
+
+<p>Turns out I was mistaken. While I was working on this so was Kirk. So our actions overlapped and effected each other. The real thing is that these rgy_*.conf files rightfully moved from the rgy directory to the conf directory for 7.0.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on July 11, 2007  5:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000650.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/38</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

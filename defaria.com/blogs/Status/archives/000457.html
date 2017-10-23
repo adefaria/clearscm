@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: AddListMember</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000456.html" title="enable_ldap/Another PQA Merge" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000458.html" title="PQA Dynamic Lists" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000456.html">&laquo; enable_ldap/Another PQA Merge</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000458.html">PQA Dynamic Lists &raquo;</a>
+                     </p>
+
+                     <a id="a000457"></a>
+                     <div class="entry" id="entry-457">
+                        <h3 class="entry-header">AddListMember</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed bug in pqamerge so that it now properly adds new entries to dynamic lists</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>AddListMember</h2>
+
+<p>I was dynamically adding to Dynamic lists by calling SetFieldChoiceList. This allowed validate and commit to work and for the record to be added however it doesn't actually add to the Dynamic list! You can see this later by attempting to modify a record. It's dynamic list items will show in red and you will not be able to apply the changes because it will state that the value is not a valid choice of that dynamic list.</p>
+
+<p>This is quite a surprise to me. I found that I need to call AddListMember to actually get this to add to the Dynamic list. This appears to be working so I need to redo the merge again.</p>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on October 21, 2005  1:51 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000457.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

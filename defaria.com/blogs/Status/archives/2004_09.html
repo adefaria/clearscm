@@ -1,0 +1,412 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: September 2004 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2004_08.html" title="August 2004" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2004_12.html" title="December 2004" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2004_08.html">&laquo; August 2004</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2004_12.html">December 2004 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">September 22, 2004</h2>
+                     <a id="a000251"></a>
+                     <div class="entry" id="entry-251">
+                        <h3 class="entry-header">gs.vbs/Backups</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Coded up gs.vbs, which will dump out the group heirarchy, whenever that arrives</li>
+
+<li>Resolved the lockvobs.pl for backup issue - now working!</li>
+
+<li>Spoke with server guy about new server's configuirations. Rtnlprod04 & 5 should be available by Monday!</li>
+
+<li>Worked with Adam trying to get his login working</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:33 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000251.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 21, 2004</h2>
+                     <a id="a000249"></a>
+                     <div class="entry" id="entry-249">
+                        <h3 class="entry-header">Group structure/View Server Problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Finished designing group structure - about to make AD requests</li>
+
+<li><p>View server had a problem again. More and more it seems to be a problem with the NIC card on rtnlprod02. Managed to log into rtnlprod02 and look around. Couldn't see any processes at all in the TaskManager even though the 4 CPUs were 70-90% busy! Couldn't look at the Network tab - said there was no network adapter. Additionally the following appeared in the System event log:</p>
+
+<pre>
+Event Type:	Error
+Event Source:	NIC Agents
+Event Category:	Service 
+Event ID:	1285
+Date:		9/21/2004
+Time:		2:07:32 PM
+User:		N/A
+Computer:	RTNLPROD02
+Description:
+NIC Agent: Connectivity has been lost for the NIC in slot 0, port 1. [SNMP TRAP: 18006 in CPQNIC.MIB]
+Data:
+0000: 00 00 06 00 00 00 00 00   ........
+0008: 01 00                     ..      
+</pre>
+
+</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:18 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000249.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 20, 2004</h2>
+                     <a id="a000250"></a>
+                     <div class="entry" id="entry-250">
+                        <h3 class="entry-header">cmconfig.vbs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Held code review for cmconfig.vbs. Spent the rest of the day implementing changes. Some changes were minor while a few others were good catches of possible problems.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:19 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000250.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 16, 2004</h2>
+                     <a id="a000248"></a>
+                     <div class="entry" id="entry-248">
+                        <h3 class="entry-header">Finished up populate_groups.vbs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Investigated the group structure to document that is it not really heirarchical. We need to get it more tree like</li>
+
+<li>Finished up coding populate_groups.vbs. Code now will walk the tree (that is when we get a tree!) and add users to the TOOLS database including their groups, gathered from walking the tree. If we do not have a tree to walk then the groups will be incomplete. Similarly if we tell populate_groups to populate from a node in the tree then only the groups in that node down will be gathered properly.</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:43 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000248.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 15, 2004</h2>
+                     <a id="a000247"></a>
+                     <div class="entry" id="entry-247">
+                        <h3 class="entry-header">Populate users</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Worked mainly on a script to backfill and populate users into the TOOLS database</li>
+
+<li>View server acted up again. Rebooted it but then it didn't come up!  Got the server guys involved and they booted it to the <i>Last Known Good Configuration</i>. This means that the Server Heap Size registry tweaks have been backed out. This also means that we'll probably have the view server having problems again soon. We need to schedule a maintainance period to reboot the view server with the proper registry tweaks. I can't imagine that that setting caused a problem with rebooting as it's the same setting as rtnlprod01 which is the same hardware. I looked at the event log a little bit and I think that rtnlprod02's problems may be a failing NIC card. I guess time will tell...</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  8:57 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000247.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 14, 2004</h2>
+                     <a id="a000245"></a>
+                     <div class="entry" id="entry-245">
+                        <h3 class="entry-header">Code complete for cmconfig.vbs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Working mainly on cmconfig.vbs. Solution for the env problem was to set both the user environment and the process environment then call cmverfiy.cmd from cmconfig.vbs. The code now does the folowing:</p>
+
+<ol>
+  <li>Configure Clearquest using installutil</li>
+
+  <li>Verify connection to Clearquest</li>
+
+  <li>Connect to the TOOLS database and verify that the user exists there</li>
+
+  <li>Verify the user is in the proper Clearcase Active Directory group</li>
+
+  <li>Set CLEARCASE_PRIMARY_GROUP and CLEARCASE_GROUPS properly for the user based on the users TOOLS record</li>
+
+  <li>Set the Clearcase region as per the user's TOOLS record</li>
+
+  <li>Configure user's Clearquest email settings</li>
+
+  <li>Add registry entry to execute PMO-CM.cmd</li>
+
+  <li>Add registry entry indicating the version of this script that was used</li>
+
+  <li>Update the following fields in the user's record in the TOOLS database:
+
+  <ul>
+     <li>machineName (set to hostname if machineName was blank or set to "My Computer" or "Unknown")</li>
+
+    <li>machineName2 (set to hostname if machineName was NOT blank or set to "My Computer" or "Unknown")</li>
+
+    <li>idAddedtoCC (if #4 succeeds)</li>
+
+    <li>isDeployed (if no other errors occur)</li>
+
+    <li>isAddedtoCQ (if #3 succeeds)</li>
+  </ul>
+
+  <li>Runs cmverify to verify that all is OK</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:01 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000245.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September 13, 2004</h2>
+                     <a id="a000246"></a>
+                     <div class="entry" id="entry-246">
+                        <h3 class="entry-header">Env var problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>There is a slight problem with the "set everything and verify it" script cmconfig.cmd. The idea was that that one script would perform 3 separate actions:</p>
+
+<ol>
+  <li>Set up Clearquest configuration parameters (installutil)</li>
+
+  <li>Set up Clearcase configuration parameters (as per the logged in user) (setccconf.vbs)</li>
+
+  <li>Verify the installation (cmverify.cmd)</li>
+</ol>
+
+<p>The problem is with #2 being VBScript and #3 happening as a result of executing from the cmconfig.cmd script. While setccconf.vbs does indeed set the proper configuration environment variables as soon as it ends those settings are no longer set anymore by the evoking script only. All other (new) processes know about the change to the environment variables. To illustrate this odd phenomena:</p>
+
+<div class="code">
+<pre>
+$ <u>type setenv_var.vbs</u>
+Set sh  = WScript.CreateObject ("WScript.Shell")
+Set env = sh.Environment ("USER")
+
+env ("foo") = "bar"
+$ <u>type senenv_var.cmd</u>
+@echo off
+set foo=bar
+$ <u>echo foo = %foo%</u>
+foo = %foo%
+$ <u>cscript setenv_var.vbs</u>
+$ <u>echo foo = %foo%</u>
+foo = %foo%
+$ <u>call setenv_var.cmd</u>
+$ <u>echo foo = %foo%</u>
+foo = bar
+$ <u>cmd /c echo foo = %foo%</u>
+foo = bar
+</pre>
+</div>
+
+<p>Why it works for a .cmd script but not for a .vbs script I don't know.</p>
+
+<p>So I will change cmconfig.cmd to do #1 and #2 above but skip #3. This means two things:</p>
+
+<ol>
+  <li>Customers will have to run cmconfig.cmd first, then cmverify.cmd second</li>
+
+  <li>The running of cmverify.cmd must be done in a separate, new cmd session</li>
+</ol>
+
+<p>The reason for #2 is that even after cmconfig.cmd is run environment variables such as CLEARCASE_PRIMARY_GROUP and CLEARCASE_GROUPS will not have been "exported" into that cmd's environment (unless somebody can tell me how to set the parent's environment variables from VBScript...).</p>
+
+<p>For the point and click crowd this should be OK. The email message you send the customer should have two links: one to cmconfig.cmd and one to cmverify.cmd. If the customer clicks the cmconfig.cmd link then cmconfig.cmd should run, in it's own process, and go away. Subsequently if the user clicks on cmverify.cmd that will run in it's own cmd process and it should pick up the appropriate environment variable settings.</p>
+
+<p>There have been many requests for enhancements to the configuration scripts including updating the TOOLS database on successful verification and performing additional checks such as "is this user really in the AD group". I believe I will only be able to solve the above problem by having the setccconf.vbs script actually envoke the cmverify.cmd directly so that the environment variables that setccconf.vbs just set are exported into the cmverify.cmd's environment.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:07 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000246.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September  9, 2004</h2>
+                     <a id="a000244"></a>
+                     <div class="entry" id="entry-244">
+                        <h3 class="entry-header">Server Heap Size/Comment PINE code</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Investigated why the view server keeps needing a reboot. Found out that the server heap size was never increased. Fixed that.</li>
+
+<li>Coded up a new trigger called COMMENT_PINE_CODE</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:57 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000244.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September  8, 2004</h2>
+                     <a id="a000243"></a>
+                     <div class="entry" id="entry-243">
+                        <h3 class="entry-header">Fixed corrupted SQL files for BUCS</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Fixed corrupted SQL files for BUCS</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000243.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September  2, 2004</h2>
+                     <a id="a000241"></a>
+                     <div class="entry" id="entry-241">
+                        <h3 class="entry-header">setccconf</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Found that there are situations where one needs to have CLEARCASE_PRIMARY_GROUP set. Worked with Mike to implement groups in the TOOLS database. Spent a large part of today implementing setccconfig.vbs. This command will replace setregion and sets 3 things:</p>
+
+<ul>
+
+<li>Region</li>
+
+<li>CLEARCASE_PRIMARY_GROUP</li>
+
+<li>CLEARCASE_GROUPS (if required)</li>
+
+</ul>
+
+<p>In order to do this the username is used to retrieve information from the TOOLS database. If the username is found then we get the project record and obtain the region. Next we check CC Primary Group and CC Groups. These fields will not always be filled in (previous entries lacked them but future entries should have them filled in. We then set CLEARCASE_PRIMARY_GROUP and CLEARCASE_GROUPS if there are any.</p>
+
+<p>CC Groups in the TOOLS database will contain all Clearcase groups that the user belongs to - including their Primary group.  In a lot of cases the user's CC Groups will be only one and equal to the Primary group. In that case CLEARCASE_GROUPS is not set. If the user is a member of more than one group then it will be their Primary group and additional groups in the CC Groups field. In that case Primary group is removed from that list and the rest are set into CLEARCASE_GROUPS.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:57 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000241.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">September  1, 2004</h2>
+                     <a id="a000242"></a>
+                     <div class="entry" id="entry-242">
+                        <h3 class="entry-header">CLEARCASE_PRIMARY_GROUP</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Worked on setccconf.vbs</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:05 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000242.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

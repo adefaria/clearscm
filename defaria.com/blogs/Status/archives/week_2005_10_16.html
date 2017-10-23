@@ -1,0 +1,402 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: October 16, 2005 - October 22, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_10_09.html" title="October  9, 2005 - October 15, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_10_23.html" title="October 23, 2005 - October 29, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_10_09.html">&laquo; October  9, 2005 - October 15, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_10_23.html">October 23, 2005 - October 29, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">October 22, 2005</h2>
+                     <a id="a000458"></a>
+                     <div class="entry" id="entry-458">
+                        <h3 class="entry-header">PQA Dynamic Lists</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed Dynamic Lists to properly handle bad data</li>
+</ul>
+                              
+                              <h2>Dynamic Lists and Bad Data</h2>
+
+<p>I now have pqamerge properly creating Dynamic Lists. In the past I would call SetFieldChoiceList, which would allow validate and commit to work, but which wouldn't actually add a member to the Dynamic List. I've since changed that.</p>
+
+<p>The first problem I hit was that Clearquest would treat "1.A" as the same as "1.a". So when pqamerge attempted to add "1.a" to the Dynamic List it would fail. I needed to compare ignoring case. In Perl usually one uses a regex for that and specifies "i" to ignore case.</p>
+
+<div class="code"><pre>
+if ($var =~ /^$pattern$/i) {
+  &lt;<i>matched ignoring case</i>&gt;
+} # if
+</pre></div>
+
+<p>But some of the values of the various Dynamic Lists contain regex meta characters (e.g. "?" or "(") which caused me problems. I've fixed those now.</p>
+
+<div class="code"><pre>
+if ("\L$var\E" eq "\L$pattern\E") {
+  &lt;<i>matched ignoring case</i>&gt;
+} # if
+</pre></div>
+
+<p>The above basically says to downshift characters between the "\L" and the "\E". Then a regular eq is used so as to avoid problems with interpreting regex meta characters.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:50 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000458.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October 21, 2005</h2>
+                     <a id="a000457"></a>
+                     <div class="entry" id="entry-457">
+                        <h3 class="entry-header">AddListMember</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed bug in pqamerge so that it now properly adds new entries to dynamic lists</li>
+</ul>
+                              
+                              <h2>AddListMember</h2>
+
+<p>I was dynamically adding to Dynamic lists by calling SetFieldChoiceList. This allowed validate and commit to work and for the record to be added however it doesn't actually add to the Dynamic list! You can see this later by attempting to modify a record. It's dynamic list items will show in red and you will not be able to apply the changes because it will state that the value is not a valid choice of that dynamic list.</p>
+
+<p>This is quite a surprise to me. I found that I need to call AddListMember to actually get this to add to the Dynamic list. This appears to be working so I need to redo the merge again.</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:51 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000457.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October 20, 2005</h2>
+                     <a id="a000456"></a>
+                     <div class="entry" id="entry-456">
+                        <h3 class="entry-header">enable_ldap/Another PQA Merge</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Wrote and enable_ldap Perl script</li>
+
+  <li>Vinh Ton has provided me with yet another schema and corresponding databases</li>
+</ul>
+                              
+                              <h2>Another Merge</h2>
+
+<p>Performing yet another merge so I will once again document the steps I take:</p>
+
+<ul>
+  <li>Restored the databases CQSchema03, CQ_Controller_Test and CQ_Controller_Prod. Doing so wipes out the old data</li>
+
+  <li>When importing you must go into the CQSchema03 tables for master_dbs and change the server to p4test. Otherwise you will be effecting the data on the other server!</li>
+
+  <li>Enter Clearquest Designer and mark the following fields as optional:</li>
+
+    <ul>
+      <li>Submitter</li>
+
+      <li>Submit_Date</li>
+
+      <li>Audit_Log</li>
+
+      <li>old_id</li>
+   </ul>
+
+  <li>Change commitmentLevel_Value_Changed hook to simply return</li>
+
+  <li>Test Work, Check in Schema and Upgrade Database</li>
+
+  <li>Import OEMUsers.cqu and Users.cqu</li>
+
+  <li>Upgrade Database</li>
+
+  <li>Run pqamerge</li>
+
+  <li>Test</li>
+
+  <li>Reverse the schema changes performed above and apply the changes</li>
+
+  <li>Backup new CQSchema03, CQ_Controller_Test and CQ_Controller_Prod</li>
+</ul>
+
+<p>Use the following for a Check in Comment:</p>
+
+<blockquote>
+  <p>Changing Submitter, Submit_Date, Audit_Log and old_id to be optional for data conversion</p>
+
+  <p>Also changed commitmentLevel_ValueChanged hook to return before sending email.</p>
+</blockquote>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:19 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000456.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October 19, 2005</h2>
+                     <a id="a000455"></a>
+                     <div class="entry" id="entry-455">
+                        <h3 class="entry-header">Most PQA Issues resolved...</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Resolved most of the remaining issues with PQA Merge Vinh Ton</li>
+</ul>
+                              
+                              <h2>Remaining Issues</h2>
+
+<p>I have incorporated all of your changes and have imported your CQ_Controller_Prod, CQ_Controller_Test and CQSchema03 databases. I don't see any new users. Weren't they in the CQAllUsers database?</p>
+
+<p>In any event here's how I proceeded:</p>
+<ul>
+  <li>Made changes to pqamerge. This included handling a few new fields that I didn't notice before as well as adjustments to accommodate the changes in your last email. Also set <b>Cont:old_id</b> = the old id from the <b>TO</b> or <b>Prod</b>. Now we have a cross reference field. You will need to change your form to expose this field to the users.</li>
+
+  <li>Imported CQ_Controller_Prod, CQ_Controller_Test and CQSchema03. I see the changes that you've made to the schema.</li> 
+
+  <li>Imported OEMUsers.cqu and Users.cqu.</li>
+
+  <li>Changed <b>Submitter</b>, <b>Submit_Date</b>, <b>Audit_Log</b>,
+and <b>old_id</b> to be optional</li>
+
+  <li>Changed <b>Global Script:</b> <i>RecordHistory</i> to simply <tt>Exit Function</tt></li>
+  <li>Changed <i>CommitmentLevel_ValueChanged</i> to <tt>Exit Sub</tt>
+before sending email.</li>
+
+  <li>Added <b>delete</b> action to defect record for admin only. This
+is needed for <tt>pqaclean</tt> to work.</li>
+
+  <li>Ran <tt>pqamerge</tt></li>
+</ul>
+
+<p>By and large this worked! There was a user who was missing. This user, <i>tngo</i>,
+was not listed as being subscribed to either TO nor Prod, rather to BT. I suspect that he used to be subscribed to Prod but then later was removed. If there are more users like this then there will be similar errors.</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:23 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000455.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October 18, 2005</h2>
+                     <a id="a000454"></a>
+                     <div class="entry" id="entry-454">
+                        <h3 class="entry-header">PQA Merge: User Issues</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Starting to look into user accounts issues</li>
+
+  <li>Send out form for LDAP Authentication Information</li>
+
+  <li>Coded up pong.sh and pong.tcl to check and see if ccase-rmna-3 is up or down</li>
+
+  <li>Created initial set of PQA User/Group Account files</li>
+</ul>
+                              
+                              <h2>PQA User/Group Account Files</h2>
+
+<p>Here's what I did for user accounts. I've attached all the files and
+will refer to them by name here.</p>
+
+<h3>OEM Users</h3>
+
+<p>First I took the export list from Clearquest (<tt>userinfo.txt.orig</tt>).
+This is the untouched original export file.</p>
+
+<p>Next I extracted user names that begin with "oem" -&gt; <tt>OEMUsers.cqu</tt>. Then I noticed that some of these users only appeared to be subscribed to NAS or BT. I then separated those out to <tt>OldOEMUsers.cqu</tt>.</p>
+
+<h3>New Groups</h3>
+
+<p>Patterning off of <tt>userinfo.txt.orig</tt> file for groups I created <tt>NewGroups.cqu</tt> to match the new groups you describe on your Users tab of the Excel Workbook. The group records from  <tt>userinfo.txt.orig</tt> I stored off in <tt>Groups.cqu</tt> and then separated off groups that were only NAS or BT to <tt>OldGroups.cqu</tt>.</p>
+
+<h3>Other Users</h3>
+
+<p>This left me with all of the other users which were split up into <tt>Users.cqu</tt> and <tt>RemovedUsers.cqu</tt> based on whether they
+subscribed to Prod or TO.</p>
+
+<h3>Changing databases= line</h3>
+
+<p>For all files I made the following assumption: If the databases= line
+contained no values then that means "all databases". So any users or
+groups with a databases= line with no values I assume subscribed to TO
+or Prod. I left these databases= lines alone.</p>
+
+<p>For other users or groups, if TO or Prod appeared in the databases=
+line I removed all values and put in Cont.</p>
+
+<p>Please let me know if this comes close to what you wanted WRT users and groups.</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:22 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000454.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October 17, 2005</h2>
+                     <a id="a000453"></a>
+                     <div class="entry" id="entry-453">
+                        <h3 class="entry-header">PQA Merge Issues/Pong</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Documented remaining <a href="http://intranet.broadcom.com/~adefaria/Clearquest/">PQA Conversion Issues</a></li>
+
+  <li>Audit_Log is not handled properly currently. Querying Vinh</li>
+
+  <li>Resolved problem with Submitter and Submit_Date. Need to change schema to make those fields OPTIONAL as well as add return statements to the Perl action hooks</li>
+
+  <li>Investigated using LDAP authentication with Clearquest</li>
+
+  <li>Wrote a simple expect script (pong) and bash script to verify that a machine is up and send email if it isn't. Problem is ccase-rmna-1 lacks expect!</li>
+</ul>
+                              
+                              <h2>Audit_Log</h2>
+
+<p>As it stands <b>Audit_Log</b> is probably not being handled the way you think it should be. My investigation seems to indicate that <b>Audit_Log</b> is, as its name suggest, an auditing of what changes were made. In transferring from the old databases to the new one, the new <b>Audit_Log</b> is essentially a blank slate. It is the responsbility of the Action Script <tt>RecordHistory</tt> to update the <b>Audit_Log</b>. Thus the only recording in <b>Audit_Log</b> for the transfer is that the record was added! In    other words all history is lost! I don't think that's what you want. We will need to similarly change <b>Audit_Log</b> to be a simple <i>OPTIONAL</i> field with no Action Scripts in order for <tt>pqamerge</tt> to transfer the Audit_Log</b>.</p>
+
+<h2>LDAP Authentication</h2>
+
+<p>Regarding LDAP authentication: There is a whole new chapter in the Clearquest Admin Guide about this and we'll need to coordinate this with an <i>LDAP Administrator</i> (Ray, who's our LDAP Administrator?). On the plus side users would no longer have to remember separate  usernames/passwords for Clearquest. In fact, new users would not even need to be added because if they are in the ActiveDirectory then they have a login from Clearquest. Of course I suspect that security is then achieved by Clearquest groupings, which, as far as I can tell, are still manually created in Clearquest Designer's User Administration screen. Additionally, LDAP permitting, other fields will be instantaneously mapped properly like Full Name, Phone Number and the ever popular Email Address! In other words, LDAP authentication is doable but a little complicated, requires coordination with the LDAP administrator and requires a number of carefully executed commands.</p>
+
+<p>One issue or thing to test would be if older Clearquest clients can
+still authenticate with LDAP. If not then the user community would need
+to update their Clearquest.</p>
+
+<h2>Pong</h2>
+
+<p>I now have a script called pong.sh (and a corresponding expect script called pong.tcl) that will "pong" a system and send email if it does not respond. By "pong" I mean it will telnet to the machine, attempt to login as vobadm and check for a "proper" prompt. If it fails then email is sent to the members of our project (Ray is working on a bona fide email alias...).</p>
+
+<p>I planned on running this from ccase-rmna-1 in vobadm's crontab (BTW: There was a blank line in the crontab, which causes Solaris to complain (Other OSes are this picky. I removed that blank line).</p>
+
+<p>The problem now is that ccase-rmna-1 lacks expect! :-( </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  8:00 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000453.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">October 16, 2005</h2>
+                     <a id="a000452"></a>
+                     <div class="entry" id="entry-452">
+                        <h3 class="entry-header">PQA Clearquest:: Spacing out</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed minor problems with trailing spaces on fields</li>
+
+  <li>Fixed minor problem with space filled <b>Software_Revision</b></li>
+
+  <li>Fixed problem where field names were reversed.</li>
+
+  <li><b>Submitter</b> and <b>Submit_Date</b> are set by action hooks to the current username and current date/time. We'll need to turn
+ this off if we want the old <b>Submitter</b> and <b>Submit_Date</b>.</li>
+
+  <li>Implemented <i>Attachment Handling</i></li>
+</ul>
+
+
+                              
+                              <h3>Trailing spaces</h3>
+
+<p>There are some minor problems with the data involving spaces. For example, a <b>Prod:HUT_Version</b> is set to "<i>BCM95704CA40 v1.0 revA0 </i>" - Note that it has a trailing space. Well <b>AddToFieldChoiceList()</b> attempts to add this value but the Clearquest API trims the trailing space! This results in a validation error as "<i>BCM95704CA40 v1.0 revA0 </i>" is <b>not</b> equal to "<i>BCM95704CA40 v1.0 revA0</i>". The solution here is to trim the trailing space before calling <b>AddToFieldChoiceList()</b>.</p>
+
+<h3>Space filled Software_Revision</h3>
+
+<p><b>Prod:Software_Version</b> would sometimes come in as " " instead of "". My code was only checking for "" and changing that to "N/A". It now also checks for " ".</p>
+
+<h3>Field name reversal</h3>
+
+<p>Some fields, for example <b>ReportedBy</b>, were supposed to be renamed to another field name, i.e. <b>Reported_By</b>, in the destination database but my code reversed the field naming change. It's odd that Clearquest was OK with adding <b>ReportedBy</b> field to <b>Cont</b> as there was no <b>ReportedBy</b> field in <b>Cont</b>. Adding the correct field name solved a problem with <b>Visibility</b> and its action hook.</p>
+
+<h3>Attachments take time!</h3>
+
+<p>While the <i>TransferAttachments()</i> routine now works, it adds a significant amount of time to the processing of defects with attachments. Some attachments are as large as 82 Meg! There are zip files, Excel spreadsheets, screen dumps in the very inefficient BMP file format and Ethreal dumps and even tape I/O dumps. <i>TransferAttachments()</i> operates by extracting the files from the source database to disk then calling <i>AddAttachment()</i> to copy the files back into the new DB. While not the most efficient way to do this I see no other way given the current Clearquest API.</p>
+
+<p>As a measure, previously it took 16 minutes and 44 seconds to merge 1382 defect records from <b>TO</b> -> <b>Cont</b>, with attachments it took <b>4 hours and 11 minutes!!!</b></p>
+
+<p>Ah, figured out why it took so long. I was using a snapshot view that was housed on my laptop. So the attachment files were being written to the current working directory, my snapshot view on the laptop. So those writes and reads were over the network. To make matters worse my laptop was not even at Broadcom, rather it was at my house. So those 82 meg files had to travel from Broadcom though my small DSL connection and even through a VPN! No wonder it took so long!</p>
+
+<p>Now running it in ~vobadm/My Documents on the server and it's much quicker... Only 25 minutes and 21 seconds.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:57 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000452.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

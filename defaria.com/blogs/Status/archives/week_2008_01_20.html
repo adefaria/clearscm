@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: January 20, 2008 - January 26, 2008 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2007_12_02.html" title="December  2, 2007 - December  8, 2007" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2008_01_27.html" title="January 27, 2008 - February  2, 2008" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2007_12_02.html">&laquo; December  2, 2007 - December  8, 2007</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2008_01_27.html">January 27, 2008 - February  2, 2008 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2008_01_20.html#entry-000694"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/81"
+    dc:title="East.pm"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2008_01_20.html#entry-000694"
+    dc:subject="General Dynamics"
+    dc:description=" Initial coding of East.pm Added parameters to testeast script Changed Rexec to handle timeouts better Opened WOR for Rexec work..."
+    dc:creator=""
+    dc:date="2008-01-23T13:32:00-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">January 23, 2008</h2>
+                     <a id="a000694"></a>
+                     <div class="entry" id="entry-694">
+                        <h3 class="entry-header">East.pm</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Initial coding of East.pm</li>
+
+  <li>Added parameters to testeast script</li>
+
+  <li>Changed Rexec to handle timeouts better</li>
+
+  <li>Opened WOR for Rexec work</li>
+</ul>
+                              
+                              <h2>East.pm Library</h2>
+
+<p>Started coding the East.pm library. The idea was that this library would allow testers to invoke tests using a few simple Perl statements. Work on this was initially laid out by Gantry York for other simulators like TM500, etc. This East.pm merely falls in line with those.</p>
+
+<p>I'm trying to code a Perl library for running test cases/suites on East. I'm new to this environment so I don't understand it well. It seems like there are test cases and test suites. There may be "load runner" things and "regression runner" things. All of these objects and how this works is all Greek to me at this moment.</p>
+
+<p>What I'm told is that in order to run these things the following steps must take place:</p>
+
+<ol>
+  <li>From the RAN, ssh to raneast</li>
+
+  <li>Once there a TCL/Tk script will pop up a window that shows various RBS/RNC/East things numbered from 1-7. Some boxes will be red indicating that they are in use and some will be green indicating that they are available.</li>
+
+  <li>I assume I'm supposed to pick a green one. Whether I'm looking for an RBS or an RNC or even an East is unknown to me at this time. <font color=red>This is chosen based on the Device Under Test, if you want to test rbs6 that is what you would choose.  East logins are used only for scripting purposes, and will not work for actual execution.</font></li>
+
+  <li>So far I've only played with RBSs so I pick a green RBS box and type in "rbs &lt;n&gt;" where &lt;n&gt; is the number of the green box I chose. This apparently goes through a mapping of sorts and ssh's to a ceast machine of appropriate number.</li>
+
+  <li>Once there I do a start_east_auto &lt;view name&gt; &lt;rbs&lt;n&gt;&gt; where this time "rbs" and "&lt;n&gt;" are squished together. Step 4 above has a space between the "rbs" and the "&lt;n&gt;". This, in some manner, starts the East server(s) and another GUI appears. There are various buttons - mostly initially yellow. I am supposed to wait 10-15 seconds for them (well some of them) to turn green.</li>
+
+  <li>Next I run java [type of test] -run -name &lt;name of test&gt;.</li>
+</ol>
+
+<p>At this point I'd like to ask some questions:</p>
+
+<ol>
+  <li>Does the "rbs &lt;n&gt;" command and the "rbs&lt;n&gt;" parameter have to be the same with respect to &lt;n&gt;? <font color=red>Yes, the choice should be the same with regards to the rbs/rnc and <n>  The first is used to ssh to the correct ceast blade, the second is used to execute the east application with the correct settings for testing that particular node.  The second command is also what creates the lock file indicating you are currently using that resource (the box changes from green to red in the TCL script).</font></li>
+
+  <li>How can I programmatically determine if the desired "rbs &lt;n&gt;" unit is indeed green?<font color=red>There is a command line tool called elock that prints the status of each device. The DUT name will only be present if it is currently locked.</font></li>
+
+  <li>What is [type of test]? From the <i>Command Line in EAST</i> document I have ascertained the following "types" of tests:
+    <ul>
+      <li>LoadTCRunner <font color=red>The type of test which is run is called a Test Case or “TC”, it is run in Load which means it can be run with multiple contexts.</font></li>
+
+      <li>RegressionRunner <font color=red>Same as above, except the test is run as a single context</font></li>
+
+      <li>RegressionLoadRunner <font color=red>Not used in our current implementation</font></li>
+
+      <li>RegressionTSRunner <font color=red>This command runs Test Suites or “TS”</font></li>
+    </ul>
+  </li>
+</ol>
+
+<blockquote>
+<p>From what I can tell, and from an IM with Ross, there appears to be the following relationship:</p>
+</blockquote>
+
+<blockquote>
+  <table border="1" cellpadding="2" cellspacing="0" width="100%" bgcolor=white>
+    <tbody>
+      <tr>
+        <th bgcolor="#339999" valign="top"><font color="#ffffff">Java Command<br>
+        </font></th>
+        <th bgcolor="#339999" valign="top"><font color="#ffffff">-name<br>
+        </font></th>
+        <th bgcolor="#339999" valign="top"><font color="#ffffff">Path<br>
+        </font></th>
+        <th bgcolor="#339999" valign="top"><font color="#ffffff">Comments<br>
+        </font></th>
+      </tr>
+      <tr>
+        <td valign="top">LoadTCRunner<br>
+        </td>
+        <td valign="top">&lt;test&gt;.profile<br>
+        </td>
+        <td valign="top">/simdev/tc_data/tc/profiles/load<br>
+        </td>
+        <td valign="top"><br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top">RegressionRunner<br>
+        </td>
+        <td valign="top">&lt;test&gt;.profile<br>
+        </td>
+        <td valign="top">/simdev/tc_data/tc/profiles/tc<br>
+        </td>
+        <td valign="top"><br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top">RegressionLoadRunner<br>
+        </td>
+        <td align="center" valign="top">???<br>
+        </td>
+        <td align="center" valign="top">???<br>
+        </td>
+        <td valign="top">Not used?<br>
+        </td>
+      </tr>
+      <tr>
+        <td valign="top">RegressionTSRunner<br>
+        </td>
+        <td valign="top">&lt;test&gt;.profile<br>
+        </td>
+        <td valign="top">/simdev/tc_data/ts/profiles/ts<br>
+        </td>
+        <td valign="top"><br>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p><b>Note:</b> Path is important as you cannot specify -path to the java command. <font color=red.True, but you can specify a path past the default directory in the –name argument.  A file at /simdev/tc_data/tc/profiles/load/RBS_SIM/TC_test.profile can be specified with –name “RBS_SIM/TC_test.profile”</font></p>
+</blockquote>
+
+<p>Finally, according to the <i>Command Line in EAST</i> document there is a -flag parameter which states:</p>
+
+<blockquote>
+  <dl>
+    <dt><b>-flag</b></dt>
+    <dd>If this argument is used the runner will quit when the load engine exits</dd>
+  </dl>
+</blockquote>
+
+<p>Can this be used to block while the test is being run and is the exit status properly set to indicate success or failure?</p>
+
+<p><font color=red>Yes, it will block when the test is run and exit when it is finished, however in tests yesterday it doesn’t seem to matter whether the test passed or failed, it always returns 0.  Also, there will be cases in which scripts that we run are designed to never exit, so the process would have to be killed after meeting a set of criteria.</font></p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:32 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000694.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000694.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

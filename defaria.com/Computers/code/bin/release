@@ -1,0 +1,263 @@
+#!/bin/bash
+################################################################################
+#
+# File:         release
+# Description:  Copies files to the release area
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Dec 13 19:11:15  2001
+# Language:     Bash Shell
+# Modifications:07/09/2003: AD: Added sequential option so as to perform the
+#		copying sequentially.
+#		07/23/2003: AD: Added check on release number
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Get cards definition
+. $SITE_TOOLS_PATH/adm/etc/cards
+
+function usage {
+  if [ ! -z "$1" ]; then
+    display -e "$me: Error: $1\n"
+  fi
+  display "Usage: $me: [-v|erbose} [-d|ebug] [-c|reate] [-view <view_path>]"
+  display "\t\t[-s|equential] [-o|verwrite] [-n|ocheck] -r|elease <release>"
+  display
+  display "Where:"
+  display
+  display "\t-verbose\tCauses verbose output"
+  display "\t-debug\t\tCauses debug output"
+  display "\t-create\t\tWill create release areas if they didn't exist"
+  display "\t-view\t\tSpecify alternate path to view to get images from"
+  display "\t\t\t(Default: Current directory)"
+  display "\t-sequential\tPerform copying sequentially (Default: off)"
+  display "\t-overwrite\tOverwrite old files (default don't overwrite)"
+  display "\t-nocheck\tDo not check that the release string is in the"
+  display "\t\t\tsuperfile (default check)"
+  display "\t-release\tRelease area name (Required)"
+  exit 1
+} # usage
+
+function copyfile {
+  from="$1"
+  to="$2"
+
+  if [ -f "$to" ]; then
+    if [ $overwrite = "no" ]; then
+      filedate=$(ls -l "$to" | awk '{printf "%s-%s-%s", $7, $8, $9}' | tr ":" ".")
+      verbose "Saving previous file as $to.$filedate"
+      nice mv "$to" "$to".$filedate
+    else
+      rm -f "$to"
+    fi
+  fi
+  nice cp "$from" "$to"
+  chmod 444 "$to"
+} # copyfile
+
+release=
+verbose=
+debug=
+create=
+background="&"
+viewarea=$(pwd)
+overwrite="no"
+check="yes"
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage|-u)
+      usage
+    ;;
+
+    -release|-r)
+      if [ $# -le 1 ]; then
+        usage "Release ID not specified!"
+      fi
+      shift
+      release="$1"
+    ;;
+
+    -c|-create)
+      create="yes"
+    ;;
+
+    -v|-verbose)
+      verbose=yes
+    ;;
+
+    -view)
+      if [ $# -le 1 ]; then
+        usage "View not specified!"
+      fi
+      shift
+      viewarea="$1/salira/neopon/build"
+    ;;
+
+    -d|-debug)
+      debug=yes
+    ;;
+
+    -s|-sequential)
+      background=""
+    ;;
+
+    -o|-overwrite)
+      overwrite="yes"
+    ;;
+
+    -n|-nocheck)
+      check="no"
+    ;;
+
+    *)
+      usage "Unknown parameter encountered: \"$1\""
+      ;;
+  esac
+  shift
+done
+
+# Check release
+if [ -z "$release" ]; then
+  usage "Release not specified!"
+fi
+
+# Go to view area
+cd $viewarea
+
+if [ $check = "yes" ]; then
+  # Check release string is correct
+  # Find a superfile
+  for card in $cards; do
+    if [ -f "$card.sf" ]; then
+      break
+    fi
+  done
+
+  release_string=$(dumpsf -f $card.sf | grep "Build Version:" | awk '{print $NF}')
+  if [ "$release_string" != "$release" ]; then
+    error "Release specified ($release) does not match release in superfile ($release_string)" 2
+  fi
+fi
+# Get release areas
+declare -i i=1
+for site_release_server in $SITE_RELEASE_SERVER; do
+  site_release_server[$i]=$site_release_server
+  ((i++))
+done
+
+i=1
+
+for site_release_path in $SITE_RELEASE_PATH; do
+  site_release_path[$i]=$site_release_path
+  ((i++))
+done
+
+i=1
+while [[ ! -z ${site_release_server[$i]} ]]; do
+  if [ $i -eq 1 ]; then
+    release_areas="//${site_release_server[$i]}/${site_release_path[$i]}/$release"
+  else
+    release_areas="$release_areas //${site_release_server[$i]}/${site_release_path[$i]}/$release"
+  fi
+  ((i++))
+done
+
+for area in $release_areas; do
+  if [ ! -d "$area" ]; then
+    if [ "$create" = "yes" ]; then
+      mkdir "$area"
+      verbose "Created release area $area"
+    else
+      warning "$area does not exist!" 2
+      answer=
+      echo -e "Would you like to create this area? (y/n): \c"
+
+      read answer
+      answer=$(echo $answer | tr [:upper:] [:lower:])
+
+      if [ "$answer" = "y" ]; then
+        mkdir "$area"
+
+        if [ $? -ne 0 ]; then
+          error "Unable to create area: $area"
+        fi
+      else
+        display "Area not created!"
+        exit 1
+      fi
+    fi
+  fi
+done
+
+for area in $release_areas; do
+  for card in $cards; do
+    # Check to see if card's build directory is present
+    if [ "$card" = "scc" ]; then
+      card_dirname="sc"
+    else
+      card_dirname=$card
+    fi
+
+    if [ -d "$viewarea/$card_dirname" ]; then
+      # Copy logfile...
+      if [ ! -f "$viewarea/$card.build.log" ]; then
+        warning "No build log found for card $card! - Skipping"
+      else
+        verbose "Copying $card.build.log to $area/$card.build.log"
+	debug "Executing: \"$viewarea/$card.build.log\" \"$area/$card.build.log\" $background"
+        copyfile "$viewarea/$card.build.log" "$area/$card.build.log" $background
+	debug "Executed: \"$viewarea/$card.build.log\" \"$area/$card.build.log\" $background"
+      fi
+
+      # Copy superfile...
+      if [ ! -f "$viewarea/$card.sf" ]; then
+        warning "No superfile found for card $card! - Skipping"
+      else
+        verbose "Copying $card.sf to $area/$card.sf"
+	debug "Executing: \"$viewarea/$card.sf\" \"$area/$card.sf\" $background"
+        copyfile "$viewarea/$card.sf" "$area/$card.sf" $background
+	debug "Executed: \"$viewarea/$card.sf\" \"$area/$card.sf\" $background"
+      fi
+
+      # Copy elf files and map files
+      if [ ! -f $viewarea/$card_dirname/vxWorks_st.elf ]; then
+        warning "No image for $card found! - Skipping"
+      else
+        verbose "Copying $card image to $area/$card.[elf|map]"
+	debug "Executing: \"$viewarea/$card_dirname/vxWorks_st.elf\" \"$area/$card.elf\" $background"
+        copyfile "$viewarea/$card_dirname/vxWorks_st.elf" "$area/$card.elf" $background
+	debug "Executed: \"$viewarea/$card_dirname/vxWorks_st.elf\" \"$area/$card.elf\" $background"
+        debug "Executing: \"$viewarea/$card_dirname/vxWorks_st.map\" \"$area/$card.map\" $background"
+        copyfile "$viewarea/$card_dirname/vxWorks_st.map" "$area/$card.map" $background
+        debug "Executed: \"$viewarea/$card_dirname/vxWorks_st.map\" \"$area/$card.map\" $background"
+      fi
+    fi
+  done
+done
+
+if [ "$sequenctial" = "&" ]; then
+  echo -n "Waiting for copying to complete... "
+  wait
+fi
+
+echo "done"

@@ -1,0 +1,353 @@
+#!/bin/bash
+################################################################################
+#
+# File:		$RCSfile: clearcase,v $
+# Revision:	$Revision: 1.8 $ 
+# Description:	This script set up some useful environment variables and aliases
+#		for Clearcase execution. File should be sourced (e.g . 
+#		clearcase)
+# Author:	Andrew@DeFaria.com
+# Created:	Wed Jun  5 21:08:03 PDT 1996
+# Modified:	$Date: 2006/05/15 17:59:30 $
+# Assumptions:	ARCH is set represent the host's architecture (e.g. "sun", 
+#		"cygwin", etc.)
+# Language:	bash
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+if [ $ARCH = "cygwin" ]; then
+  export CCHOME=${CCHOME:-"$SYSTEMDRIVE/Program Files/Rational/ClearCase"}
+else 
+  export CCHOME=/opt/rational/clearcase
+fi
+
+if [ ! -d "$CCHOME" ]; then
+  unset CCHOME
+  return
+fi
+
+export CLEARTOOL="$CCHOME/bin/cleartool"
+export CLEARCASE_BLD_HOST_TYPE=unix
+
+if [ -f "$CCHOME/etc/utils/creds" ]; then
+  if [ $ARCH = "cygwin" ]; then
+    alias creds=$(cygpath "$CCHOME/etc/utils/creds")
+  else 
+    alias creds="$CCHOME/etc/utils/creds"
+  fi
+fi
+
+if [ -x "$CLEARTOOL" ]; then
+  alias clist='ct lsco -short -cview -all'
+  alias ciwork='ct ci -cq `ct lsco -cview -me -all -sh`'
+  alias lsbr='ct lstype -brtype'
+  alias lslab='ct lstype -lbtype'
+  #export WINEDITOR=edit
+  export RGY="$CCHOME/var/atria/rgy"
+  export LOGS="$CCHOME/var/log"
+fi
+
+function ct {
+  if [ -x "$CLEARTOOL" ]; then
+    "$CLEARTOOL" "$@"
+  else
+    echo "ClearCase is not installed on this system!"
+  fi
+} # ct
+
+# View related functions
+function setview {
+  if [ $ARCH = "cygwin" ]; then 
+    # Save off where we are
+    back=$PWD
+
+    # Start the view
+    startview "$@"
+
+    # Setup /vob
+    mount -bf X:/$1 /vob
+
+    # Chdir to the view root
+    cd /view/$1
+
+    # Start a bash shell
+    bash --noprofile
+
+    # Remove /vob mount
+    umount /vob
+
+    # Chdir back to were we started
+    cd $back
+  else
+    ct setview "$@"
+  fi
+
+  set_title
+  set_prompt
+} # setview
+
+function startview {
+  ct startview "$@"
+
+  _cd /view/$1
+} # startview
+
+function endview {
+  ct endview "$@"
+} # endview
+
+function killview {
+  ct endview -server "$@"
+} # killview
+
+function mkview {
+  ct mkview "$@"
+} # mkview
+
+function rmview {
+  ct rmview "$@"
+} # rmview
+
+function lsview {
+  if [ $# = 0 ]; then
+    ct lsview | $PAGER
+  elif [ $# = 1 ]; then
+    ct lsview | grep "$1"
+  else
+    ct lsview "$@"
+  fi
+} # lsview
+
+function myviews {
+  # Well they asked for my "views"...
+  if [ $(whence fortune) ]; then
+    fortune
+    echo
+  fi    
+
+  # List my views and their associated activities
+  for view in $(ct lsview -s 2>&1 | tr -d  | grep $USER); do
+    headline=$(ct lsact -cact -fmt "%[headline]p" -view $view 2> /dev/null)
+   
+    if [ "$headline" = "" ]; then
+      headline="<no activity set>"
+    fi
+
+    echo -e "$view\t$headline"
+  done
+} # myviews
+
+function llview {
+  if [ $# = 0 ]; then
+    ct lsview -long | $PAGER
+  else 
+    ct lsview -long "$@"
+  fi
+} # llview
+
+# Vob related functions
+function lsvob {
+  if [ $# = 0 ]; then
+    ct lsvob | $PAGER
+  elif [ $# = 1 ]; then
+    ct lsvob | grep "$1"
+  else
+    ct lsvob "$@"
+  fi
+} # lsvob
+
+function llvob {
+  if [ $# = 0 ]; then
+    ct lsvob -long | $PAGER
+  else 
+    ct lsvob -long "$@"
+  fi
+} # llvob
+
+# Config spec functions
+function setcs {
+  ct setcs "$@"
+} # setcs
+
+function edcs {
+  ct edcs "$@"
+} # edcs
+
+function catcs {
+  ct catcs "$@"
+} # catcs
+
+function pwv {
+  ct pwv -s "$@"
+} # pwv
+
+function rmtag {
+  ct rmtag "$@"
+} # rmtag
+
+function mktag {
+  ct mktag "$@"
+} # mktag
+
+function describe {
+  ct describe "$@"
+} # describe
+
+# Action functions
+function vtree {
+  if [ $# != 1 ]; then
+    echo "vtree: Error: Must specify a file to view."
+  else
+    if [ $ARCH = "cygwin" ]; then
+      ct lsvtree -g "$@"
+    else
+      xlsvtree "$@"
+    fi
+  fi
+} # vtree
+
+function unco {
+  if [ $# = 0 ]; then
+    echo "unco: Error: No files specified"
+  else
+    ct unco -rm "$@"
+  fi
+} # unco
+
+function merge {
+  ct merge "$@"
+} # merge
+
+function findmerge {
+  ct findmerge "$@"
+} # findmerge
+
+function cdiff {
+  if [ $# = 1 ]; then
+    ct diff -graphical -pred $1
+  else
+    ct diff -graphical -diff "$@"
+  fi
+} # cdiff
+
+function ctdiff {
+  if [ $# = 1 ]; then
+    ct xdiff -vstack -pred $1
+  else
+    ct xdiff -vstack $@
+  fi
+} # ctdiff
+
+# Administrative functions
+function space {
+  ct space "$@"
+} # space
+
+function register {
+  ct register "$@"
+} # register
+
+function unregister {
+  ct unregister "$@"
+} # unregister
+
+# Information functions
+function hostinfo {
+  ct hostinfo "$@"
+} # hostinfo
+
+function lstrig {
+  if [ $# = 2 ]; then
+    trig_name=$1
+    vob=$2
+    ct lstype trtype:$trig_name@$vob
+  else
+    ct lstype -kind trtype "$@" | $PAGER
+  fi
+} # lstrig
+
+function lltrig {
+  if [ $# = 1 ]; then
+    ct lstype -long trtype:$1
+  else
+    ct lstype -long -kind trtype "$@"| $PAGER
+  fi
+} # lltrig
+
+# UCM oriented functions
+function lsstream {
+  if [ $# = 0 ]; then
+    ct lsstream | $PAGER
+  else
+    ct lsstream "$@"
+  fi
+} # lsstream
+
+function llstream {
+  if [ $# = 0 ]; then
+    ct lsstream -l | $PAGER
+  else
+    ct lsstream -l "$@"
+  fi
+} # llstream
+
+function rebase {
+  ct rebase "$@"
+} # rebase
+
+function deliver {
+  ct deliver "$@"
+} # deliver
+
+function lsbl {
+  ct lsbl "$@"
+} # lsbl
+
+function lsproject {
+  if [ $# = 0 ]; then
+    ct lsproject | $PAGER
+  else
+    ct lsproject "$@"
+  fi
+} # lsproject
+
+function llproject {
+  if [ $# = 0 ]; then
+    ct lsproject -l | $PAGER
+  else
+    ct lsproject -l "$@"
+  fi
+} # llproject
+
+function lsstgloc {
+  if [ $# = 0 ]; then
+    ct lsstgloc | $PAGER
+  else
+    ct lsstgloc "$@"
+  fi
+} # lsstgloc
+
+function llstgloc {
+  if [ $# = 0 ]; then
+    ct lsstgloc -l | $PAGER
+  else
+    ct lsstgloc -l "$@"
+  fi
+} # llstgloc
+
+function lsstream {
+  if [ $# = 0 ]; then
+    ct lsstream | $PAGER
+  else
+    ct lsstream "$@"
+  fi
+} # lsstream
+
+function llstream {
+  if [ $# = 0 ]; then
+    ct lsstream -l | $PAGER
+  else
+    ct lsstream -l "$@"
+  fi
+} # llstream

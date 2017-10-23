@@ -1,0 +1,124 @@
+#!/bin/bash
+################################################################################
+#
+# File:         lockbugs
+# Description:	Locks all bugs in the current release (Must be run by $ccadmin)
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Jun  2 11:19:46 PDT 2003
+# Language:     bash
+#
+# (c) Copyright 2001-2003, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Admin user
+ccadmin="ccadmin"
+
+if [[ $USER != $ccadmin ]]; then
+  error "This command must be executed by $ccadmin" 1
+fi
+
+# Set release_web_area
+release_web_area=~adefaria/www/Internal/Release
+
+# Set view area
+view="$SITE_SNAPSHOT_VIEW_PATH/$SITE_OFFICIAL_VIEW/salira"
+
+# Commands used
+cqc="$SITE_TOOLS_PATH/bin/cqc"
+
+# Cd there to operate on files
+cd $release_web_area
+
+if [ $? -ne 0 ]; then
+  echo "$me: Error: Unable to cd to release web area"
+  exit 1
+fi
+
+# Current release is now stored in a file
+current_release="$(cat addbug/current_release).bugs"
+
+# Declare some counters
+declare -i bugs=0
+declare -i resolved_bugs=0
+declare -i already_locked_bugs=0
+declare -i locked_bugs=0
+declare -i errors=0
+
+declare -i status=0
+
+# Get and process a list of bugs
+buglist=$(grep -ve ^# -e ^* "$current_release" | cut -f1)
+
+# Must be in a view/vob context
+cd "$view"
+
+if [ $? -ne 0 ]; then
+  echo "$me: Error: Unable cd to official view ($view)"
+  exit 1
+fi
+
+for bugid in $buglist; do
+  # Count the bug
+  let bugs=bugs+1
+
+  # Get state of bug
+  state=$($cqc $bugid state)
+
+  # Check to see if bug is already locked
+  locked=$(cleartool lslock -short lbtype:$bugid 2> /dev/null)
+
+  if [ ! -z "$locked"		-o \
+         "$state" = "Closed"	-o \
+         "$state" = "Verified" ]; then
+    let already_locked_bugs=already_locked_bugs+1
+  fi
+
+  # Process only Resolved bugs
+  if [ "$state" = "Resolved" ]; then
+    let resolved_bugs=resolved_bugs+1
+
+    if [ -z "$locked" ]; then
+      # If not already locked then lock it
+      echo "Found unlocked, resolved bug $bugid - attempting to lock it..."
+      lockbug $bugid
+
+      status=$?
+
+      if [ $status -eq 0 ]; then
+        let locked_bugs=locked_bugs+1
+      fi
+
+      # Total up errors
+      let errors=errors+status
+    fi
+  fi
+done
+
+# Report results
+declare -i not_resolved=bugs-resolved_bugs
+
+echo -e "Bugs processed:\t\t$bugs"
+echo -e "Resolved:\t\t$resolved_bugs"
+echo -e "Not resolved:\t\t$not_resolved"
+echo -e "Currently locked:\t$already_locked_bugs"
+echo -e "Newly locked:\t\t$locked_bugs"
+echo -e "Errors:\t\t\t$errors"

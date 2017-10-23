@@ -1,0 +1,329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: April 29, 2007 - May  5, 2007 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2007_04_15.html" title="April 15, 2007 - April 21, 2007" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2007_05_06.html" title="May  6, 2007 - May 12, 2007" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2007_04_15.html">&laquo; April 15, 2007 - April 21, 2007</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2007_05_06.html">May  6, 2007 - May 12, 2007 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_04_29.html#entry-000640"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/28"
+    dc:title="LDAP changes/Synonyms and Grants/Reports"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_04_29.html#entry-000640"
+    dc:subject="GPDB"
+    dc:description=" Change primitives::login and ldap_authenticate to return a user record of user information if we can find it in LDAP, even if we could not authenticate the password, and pass back proper status Straightened out new views WRT Synonyms and..."
+    dc:creator=""
+    dc:date="2007-05-04T14:35:52-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">May  4, 2007</h2>
+                     <a id="a000640"></a>
+                     <div class="entry" id="entry-640">
+                        <h3 class="entry-header">LDAP changes/Synonyms and Grants/Reports</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Change primitives::login and ldap_authenticate to return a user record of user information if we can find it in LDAP, even if we could not authenticate the password, and pass back proper status</li>
+
+  <li>Straightened out new views WRT Synonyms and Grants</li>
+
+  <li>Implemented Users, Clearcase and DesignSync reports</li>
+</ul>
+                              
+                              <h2>Synonyms and Grants</h2>
+
+<p>When one creates a table or view in Oracle it appears to be "private" to the user who has created it. Others can get to the table but they need to specify a more qualified name. Additionally the need to have been granted access to it (at least select access).</p>
+
+<p>So if we create a view, say foo, we also need to grant select access to those tables to the other users who might be using it. Additionally, in GPDB we have 3 DB level usernames: cm_gpdb, cm_gpdb_readonly and cm_gpdb_update. So if we create the view foo while logged in as cm_gpdb then login as say cm_gpdb_readonly, this new session will not be able to see foo.</p>
+
+<p>So then the sequence is:</p>
+
+<ol>
+  <li>Create the table or view</li>
+
+<div class=code><pre>
+create or replace view foo ...
+</pre></div>
+
+  <li>Grant select privileges to the table or view:</li>
+
+<div class=code><pre>
+grant select to foo on cm_gpdb.foo for cm_gpdb_readonly
+</pre></div>
+
+  <li>Log into Oracle database as other user and create synonym:</li>
+
+<div class=code><pre>
+create or replace synonym foo for cm_gpdb.foo
+</pre></div>
+</ol>
+
+<h4>Notes</h4>
+
+<ol>
+  <li>The database's schema name for GPDB is cm_gpdb above</li>
+
+  <li>Grants need to be done whenever the table or view is recreated. Synonyms, being pointers, need to be created only when a new pointer is needed</li>
+</ol>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000640.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000640.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_04_29.html#entry-000639"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/27"
+    dc:title="GPDB/LDAP/Org/SBE"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_04_29.html#entry-000639"
+    dc:subject="GPDB"
+    dc:description=" Added Org/SBE drop down to edit Project Integrated LDAP! Changed primitive.pm to authenticate with LDAP! Added description to Org/SBE and removed password Added edit links to showProject and showSite..."
+    dc:creator=""
+    dc:date="2007-05-03T18:45:32-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">May  3, 2007</h2>
+                     <a id="a000639"></a>
+                     <div class="entry" id="entry-639">
+                        <h3 class="entry-header">GPDB/LDAP/Org/SBE</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added Org/SBE drop down to edit Project</li>
+
+  <li>Integrated LDAP!</li>
+
+  <li>Changed primitive.pm to authenticate with LDAP!</p>
+
+  <li>Added description to Org/SBE and removed password</li>
+
+  <li>Added edit links to showProject and showSite</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:45 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000639.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000639.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_04_29.html#entry-000638"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/26"
+    dc:title="GPDB (Org/SBE and others)"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_04_29.html#entry-000638"
+    dc:subject="GPDB"
+    dc:description=" Changed org_sbe.name to link up with parent_project Created org_sbe.sql to add org_sbe entries Added gpdb_getOrgSBE and gpdb_putOrgSBE to gpdb.pm Added Org/SBE menu Changed various new tables to to be uniform in width Fixed a few bugs regarding adding of..."
+    dc:creator=""
+    dc:date="2007-05-03T09:46:24-06:00" />
+</rdf:RDF>
+-->
+
+
+                     
+                     <a id="a000638"></a>
+                     <div class="entry" id="entry-638">
+                        <h3 class="entry-header">GPDB (Org/SBE and others)</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed org_sbe.name to link up with parent_project</li>
+
+  <li>Created org_sbe.sql to add org_sbe entries</li>
+
+  <li>Added gpdb_getOrgSBE and gpdb_putOrgSBE to gpdb.pm</li>
+
+  <li>Added Org/SBE menu</li>
+
+  <li>Changed various new tables to to be uniform in width</li>
+
+  <li>Fixed a few bugs regarding adding of sites where no site domains are added</li>
+
+  <li>Added much of Update Project</li>
+
+  <li>Fixed bug with update CCDefaults for Projects</li>
+
+  <li>Added screen for adding CCDefaults when adding a project</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  9:46 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000638.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000638.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_04_29.html#entry-000637"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/25"
+    dc:title="GPDB Enhancements/Fixes"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_04_29.html#entry-000637"
+    dc:subject="GPDB"
+    dc:description="GPDB Login Moved to the top. Changed wording to be more friendly Login with unknown username puts up a warning but grants read only access Login with known username but wrong password is properly denoted Other changes In Project display,..."
+    dc:creator=""
+    dc:date="2007-05-01T19:25:50-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">May  1, 2007</h2>
+                     <a id="a000637"></a>
+                     <div class="entry" id="entry-637">
+                        <h3 class="entry-header">GPDB Enhancements/Fixes</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <h3>GPDB Login</h3>
+
+<ul>
+  <li>Moved to the top.</li>
+  <li>Changed wording to be more friendly</li>
+  <li>Login with unknown username puts up a warning but grants read
+only access</li>
+  <li>Login with known username but wrong password is properly denoted</li>
+</ul>
+
+<h3>Other changes</h3>
+
+<ul>
+  <li>In Project display, site defaults are not listed on top of the
+Project defaults.</li>
+
+  <li>Change width of tables to line up with the menus across the top.</li>
+
+  <li>Updating of project CC defaults still not working correctly</li>
+
+  <li>Added Add Project</li>
+</ul>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000637.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000637.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2007_04_29.html#entry-000636"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/24"
+    dc:title="GPDB Enhancements/Fixes"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2007_04_29.html#entry-000636"
+    dc:subject="GPDB"
+    dc:description=" Implemented gpdb_deleteSiteDomain Modify site almost functionally complete Looking into how to do what MySQL does with it&apos;s limit clause in Oracle Changed List Projects at Site to be paged Changed how Projects are displayed Added most of the Project..."
+    dc:creator=""
+    dc:date="2007-04-30T14:58:37-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">April 30, 2007</h2>
+                     <a id="a000636"></a>
+                     <div class="entry" id="entry-636">
+                        <h3 class="entry-header">GPDB Enhancements/Fixes</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Implemented gpdb_deleteSiteDomain</li>
+  <li>Modify site almost functionally complete</li>
+  <li>Looking into how to do what MySQL does with it's limit clause in
+Oracle</li>
+  <li>Changed List Projects at Site to be paged</li>
+  <li>Changed how Projects are displayed </li>
+  <li>Added most of the Project update page</li>
+  <li>Change some of the logic on login/logout</li>
+  <li>Change gpdb_putClearcase to set a global as to whether the record
+was added/updated or nothing changed.</li>
+  <li>Changed gpdb_add_vob.pl to:</li>
+  <ul>
+    <li>Report better the number of Clearcase vob records added or not.</li>
+  </ul>
+  <ul>
+    <li>Add an UNKNOWN project for the site it's running at (if needed)</li>
+    <li>Properly select the appropriate UNKNOWN project</li>
+  </ul>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:58 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000636.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000636.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

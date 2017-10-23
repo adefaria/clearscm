@@ -1,0 +1,23 @@
+#!/bin/bash
+################################################################################
+#
+# File:         sudo
+# Description:  Run sudo
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Sep 24 10:11:56 PDT 1999
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set app_base
+app_base=${app_base:-$HOME/app}
+
+# Set sudo_base
+sudo_base=$app_base/opt/sudo/bin
+
+# Exec the executable.
+exec $sudo_base/$me "$@"

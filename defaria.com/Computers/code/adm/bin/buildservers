@@ -1,0 +1,39 @@
+#!/bin/bash
+################################################################################
+#
+# File:         buildservers
+# RCS:          $Header: buildservers,v 1.3 98/01/28 12:21:43 defaria Exp $
+# Description:  A script to execute a command on all build servers.
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Wed Mar  5 16:31:13 PST 1997
+# Modified:     Fri Jan 16 13:51:43 PST 1998
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+PATH=/adm/bin:$PATH
+
+if [ "$1" = "-r" ]; then
+  root=yes
+  shift
+fi
+
+for buildserver in $(get_info server_names buildserver); do
+  # Execute command. Note if no command is given then the effect is to
+  # rlogin to each machine.
+  print "$buildserver:$@"
+  if [ $# -gt 0 ]; then
+    if [ -z "$root" ]; then
+      remsh $buildserver -n "$@"
+    else
+      root remsh $buildserver -n "$@"
+    fi
+  else
+    if [ -z "$root" ]; then
+      remsh $buildserver
+    else
+      root remsh $buildserver
+    fi
+  fi
+done

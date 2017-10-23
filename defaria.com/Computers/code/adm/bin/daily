@@ -1,0 +1,151 @@
+#!/bin/bash
+################################################################################
+#
+# File:         daily
+# Description:  This is the daily cronjob for root
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Jul 21 12:12:28 PDT 1999
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Add $adm_base/bin and $adm_base/clearcase PATH
+export PATH=$adm_base/bin:$adm_base/clearcase:$PATH
+
+# Source in tmpfiles function
+tmpprefix=${TMPDIR:-/tmp}/$me.$$
+tmpfile=$tmpprefix
+. $adm_fpath/tmpfiles
+arm_trap
+
+# Where logs are kept
+logs=$adm_host/logs
+
+# Define admin_host. Admin_host is the machine where checks for the network
+# as a whole are run (such as check_view_storage)
+admin_host=dreamcicle # For now...
+
+verbose=
+debug=
+
+function usage {
+  display "$me [-v|verbose] [-d|debug] [-u|usage] [-n|notify <email address>]"
+  display "        -v|verbose:     Turns on verbose mode"
+  display "        -d|debug:       Turns on debug mode"
+  display "        -u|usage:       Print this usage message\n"
+  display "        -n|notify:      Who to notify of problems (default root)"
+
+  error "$1" 1
+} # usage
+
+lab_admin=cdsadmin # For now
+local_admin=cdsadmin
+
+function notify {
+  debug "ENTER notify"
+  who=$1
+  logfile=$2
+
+  cat > $tmpfile <<END
+Notice: $me cronjob discovered the following problems:
+
+END
+
+  cat $logfile >> $tmpfile
+
+  mailx -s "Notice: $me cronjob discovered the following problems" $who <
+$tmpfile
+  debug "EXIT notify"
+} # notify
+
+# Get parameters
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+    ;;
+
+    -v|-verbose)
+      verbose=yes
+    ;;
+
+    -d|-debug)
+      debug=yes
+    ;;
+
+    -n|-notify)
+      shift
+      if [ $# -lt 1 ]; then
+        error "Notify email address was unspecified!" 1
+      fi
+      local_admin="$1"
+    ;;
+
+    *)
+      usage "Unrecognized parameter $1"
+    ;;
+  esac
+  shift
+done
+
+## Main
+# Some common portions of log filenames:
+host=$(uname -n) # System's name
+date=$(date +%d) # Note we keep one month of rolling logs
+
+if [ "$host" = "$admin_host" ]; then
+  network_diskspace_log=$logs/network.diskspace.$date.log
+  verbose "Diskspace Report -> $network_diskspace_log"
+  diskspace -network > $network_diskspace_log 2>&1
+
+  if [ -s $network_diskspace_log ]; then
+    notify $lab_admin $network_diskspace_log
+  fi
+
+  view_storage_log=$logs/viewstorage.$date.log
+  verbose "View Storage Report -> $view_storage_log"
+  check_view_storage > $view_storage_log 2>&1
+
+  if [ -s $view_storage_log ]; then
+    notify $lab_admin $view_storage_log
+  fi
+
+  # Produce a viewspace report for all production view servers
+  viewservers="cds-sundev-rem canon"
+
+  for viewserver in $viewservers; do
+    viewspace_log=$logs/$viewserver.viewspace.$date.log
+    verbose "Viewspace Report for $viewserver -> $viewspace_log"
+    viewspace -host $viewserver > $viewspace_log
+  done
+fi
+
+# Checks run on all machines
+local_diskspace_log=$logs/$host.diskspace.$date.log
+verbose "Diskspace Report -> $local_diskspace_log"
+diskspace -local > $local_diskspace_log 2>&1
+
+if [ -s $local_diskspace_log ]; then
+  notify local_admin $local_diskspace_log
+fi
+
+machine_configuration_log=$logs/$host.machine_configuration.$date.log
+verbose "Machine Configuration Report -> $machine_configuration_log" 2>&1 &
+configure_machine -f > $machine_configuraton_log 2>&1
+
+if [ -s $machine_configuration_log ]; then
+  notify local_admin $machine_configuration_log
+fi

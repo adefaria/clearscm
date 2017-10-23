@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: January 29, 2006 - February  4, 2006 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2006_01_22.html" title="January 22, 2006 - January 28, 2006" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2006_02_05.html" title="February  5, 2006 - February 11, 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2006_01_22.html">&laquo; January 22, 2006 - January 28, 2006</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2006_02_05.html">February  5, 2006 - February 11, 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">January 31, 2006</h2>
+                     <a id="a000527"></a>
+                     <div class="entry" id="entry-527">
+                        <h3 class="entry-header">Final MobMM Issues</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Resolved issue with MsgBox not being executed for the web</li>
+
+  <li>Still have problem with IE and certain drop down boxes</li>
+
+  <li>Worked with John Luu to get the web server running on nt-irva-0458. We need to have a database instance created and to move this schema and user databases to that server. Why is the web server in Ivrine when the group is in San Jose?</lI>
+                              
+                              <h2>IE and drop down boxes</h2>
+
+<p>Jean had reported that certain fields on the Resolution tab did not work. They do work, in the client and using Firefox but indeed don't work in IE. At first I thought that this was a problem with the JRE so I tried installing the latest. That did not solve the problem.</p>
+
+<p>IE seems to have a bona fide problem with the new CQJW and certain fiels. I scoured the Rational Formus to no avail. A defect will need to be submitted to Rational for this. I did not submit one because the follow up would be to me and probably should be to John.</p>
+
+<p>It is not just the fields on the Resolution tab that are causing problems, fields on the Verification tab as well as some fields on the Submission tab (e.g. Hardware Platform).</p>
+
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:30 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000527.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January 30, 2006</h2>
+                     <a id="a000526"></a>
+                     <div class="entry" id="entry-526">
+                        <h3 class="entry-header">MobMM Completion</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Reached code completion level for MobMM</li>
+</ul>
+                              
+                              <h2>Remaining issues</h2>
+
+<p>I see only a few remaining issues to be code complete and that is to implement the CC list. I'm trying to implement it as a box with a "..." button that has a dialog that walks you through entering lines of text. Not sure if I can validate those lines to &lt;user&gt;@&lt;domain&gt;.&lt;tld&gt;. Once that's done I just need to add code to SendEmail to parse CC, separate by newlines and push the email addresses onto the recipients array. The rest of the code will already handle sending out email. (Note there's currently a flag field there called Testing which is set to true. Having it set to true says "Send out email only to  adefaria@broadcom.com". I didn't think it wise to be sending out test email to real people right yet - it'd only confuse them. We just need to either set Testing = false or remove the test code for production).</p>
+
+<p>There is also the issue of a script, triggered to run when a Perforce user checks in, to update changeset. I could write a Perl module that has a simple function to update MobMM's changeset (e.g. UpdateMMChangeset (&lt;id&gt;, &lt;changeset&gt;)) then the implementer for the Perforce trigger need only use the module and call the procedure. Ray let me know if you want that.</p>
+
+<p>Other than that this project would be "code complete". Things that still need to be done for production would be:</p>
+
+<ol>
+  <li>Set up production server (I believe this is in progress)</li>
+
+  <li>Create production DBs</li>
+
+  <li>Upgrade DBs with user accounts</li>
+
+  <li>Setup CQ Web</li>
+
+  <li>Disseminate Clearquest software to those who wish to use Clearquest Client</li>
+</ol>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:07 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000526.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: November 20, 2005 - November 26, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_11_13.html" title="November 13, 2005 - November 19, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_11_27.html" title="November 27, 2005 - December  3, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_11_13.html">&laquo; November 13, 2005 - November 19, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_11_27.html">November 27, 2005 - December  3, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">November 23, 2005</h2>
+                     <a id="a000484"></a>
+                     <div class="entry" id="entry-484">
+                        <h3 class="entry-header">Forking in PerlTk</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Continued to help several users with connecting to the new Controller Clearquest Database for Vinh's users</li>
+
+  <li>Added Version Tree button to the bin_merge prompt dialog box.</li>
+
+  <li>Resolved problem with forking from PerlTk</li>
+</ul>
+                              
+                              <h2>Forking in PerlTk</h2>
+
+<p>The issue here is that calling fork(2) in general on Windows just doesn't work well. Clearcase's Perl is based on ActiveState Perl and ActiveState Perl is not the best implementation of Perl. Cygwin's Perl is by far a much better implementation but Cygwin's Perl works from a true Posix environment which is specifically what Cygwin is all about. However Cygwin's Perl does not support PerlTk (I posted on Cygwin's mailing list about this - it would be great if Cygwin would finally support PerlTk) and Cygwin would need to be present on all Windows systems.</p>
+
+<p>In general, while fork(2) does work under ActiveState is does not work if you have Tk objects created. Chris had suggested to use "start &lt;program&gt;" which is fine - for Windows - but would fail in Unix. I like to wrote my code such that it works on both Windows and Unix. So I tried in vain to get fork to work. However, ActiveState's fork(2) call is horribly broken so I had to code around it like this:</p>
+
+<div class="code"><pre>
+sub VersionTree {
+  my $file = shift;
+
+  my $cmd =  "cleartool lsvtree -graphical $file";
+
+  if ($^O =~ /mswin|cygwin/i) {
+    system "start /b $cmd";
+  } else {
+    my $pid = fork;
+
+    return if $pid;
+
+    system $cmd;
+    exit;
+  } # if
+} # VersionTree
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:59 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000484.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">November 21, 2005</h2>
+                     <a id="a000483"></a>
+                     <div class="entry" id="entry-483">
+                        <h3 class="entry-header">Remaining PQA Issues/GNATS stripmime</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked with Vinh's group and adjusting to life with the new Controller CQ Database. Wrote instructions for how to unsubscribe to some Broadcom email distribution lists</li>
+
+  <li>Documented how to install the new Clearquest Client Software</li>
+
+  <li>Coded stripmime filter for GNATS.</li>
+</ul>
+                              
+                              <h2>Stripmime</h2>
+
+<p>The script described above basically takes as input an email message. It then extracts the header portion and the body portion. It uses some CPAN modules (MIME::Base64 and MIME::Tools as well as MIME::Parser) to analyze the message and obtain the message "parts". Some transformations are performed on the header information and then it is written to stdout. For the plaintext part (if present) it will again write out the message to stdout Other, non-textual parts (AKA attachments) are written to a subdirectory based on the message name/number and a note is included to stdout indicating were to find the attachment.</p>
+
+<p>The stripemime script placed in /tools/gnats/4.0/bin does the same thing except that attachments are disregarded and no mention of them are written to stdout. However there is an implicit assumption above that there does exist at least one plaintext version of the mail message. This need not be the case. I know, for example, when using Thunderbird I have the option of sending email as HTML, plain text or both. I tend to send both, which are  epresented in the raw email as MIME multipart with the first part being a plaintext version of the HTML, which is sent as the second multipart as HTML. However, if I were to select HTML Only I would not get the plaintext part.  Stripemime, as currently coded would generate a blank email message.</p>
+
+<p>Also, on gnats-irva-3, could my shell be set to bash? I've tried to set it but I get permission denied. Also, I don't appear to have a home directory set to /home/adefaria for the gadefaria user?</p>
+
+<p>Finally, MIME::Parser is not installed on gnats-irva-3:</p>
+
+<div class="code"><pre>
+gnats4@gnats-irva-3[+1035] bin/stripmime
+Can't locate MIME/Parser.pm in @INC (@INC contains:
+/tools/perl/5.004_04/SunOS/lib/sun4-solaris/5.00404
+/tools/perl/5.004_04/SunOS/lib
+/tools/perl/5.004_04/SunOS/lib/site_perl/sun4-solaris
+/tools/perl/5.004_04/SunOS/lib/site_perl .) at bin/stripmime line 47.
+BEGIN failed--compilation aborted at bin/stripmime line 47.
+</pre></div>
+
+<p>I had managed to install MIME::Parser on my Cygwin system using "perl
+-MCPAN -e 'install MIME::Parser'"</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:38 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000483.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

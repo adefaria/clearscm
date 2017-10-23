@@ -1,0 +1,59 @@
+#!/bin/bash
+################################################################################
+#
+# File:         setup_rhosts
+# Description:  Sets up a users ~/.rhosts file
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Apr 30 14:13:56 PDT 1999
+# Modifications:Thu Mar  7 11:25:36  2002: Adapted for Windows/Cygwin.
+# Language:     Korn Shell
+#
+# (c) Copyright 2002, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Check if root
+if is_root; then
+  error "You should not run the script as root!" 1
+fi
+
+rhosts=$HOME/.rhosts
+rhosts_loc=$HOME/.rhosts.loc
+
+# Generate new $rhosts
+
+if [ -f $rhosts_loc ]; then
+  cp $rhosts_loc $rhosts
+else
+  rm -f $rhosts
+fi
+
+# Loop through all machines in the domain and add them to the .rhosts file:
+for machine in $(net view | grep -e "\\\\" | cut -f3 -d\\ | cut -f1 -d' ' | tr [:upper:] [:lower:]); do
+  if [ ${#machine} -lt 8 ]; then
+     echo -e "$machine\t\t$USER" >> $rhosts
+  else
+    echo -e "$machine\t$USER" >> $rhosts
+  fi
+done
+
+# Insure proper permissions
+chmod 644 $rhosts

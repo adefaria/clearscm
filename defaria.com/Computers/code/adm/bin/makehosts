@@ -1,0 +1,44 @@
+#!/bin/bash
+################################################################################
+#
+# File:         makehosts
+# Description:  Makes an /etc/hosts file
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Jun  3 17:21:24 PDT 1999
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+if [ $(/usr/xpg4/bin/id -u) -ne 0 ]; then
+  print -u2 "$me: Error: You must be root to use this command"
+  exit 1
+fi
+
+stdhosts=${stdhosts:-$adm_base/etc/stdhosts}
+syshosts=${syshosts:-/etc/hosts}
+localhosts=${localhosts:-/etc/hosts.local}
+
+current_ip=$(nslookup $(hostname) | tail -2 | awk '{print $NF}')
+
+cp $stdhosts $syshosts
+
+if ! grep $(hostname) $syshosts > /dev/null; then
+  print "$current_ip\t$(hostname).cisco.com\t\t$(hostname)" >> $syshosts
+fi
+
+if [ -f $localhosts ]; then
+  cat $localhosts >> $syshosts
+fi

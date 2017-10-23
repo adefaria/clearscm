@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: </title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000692.html" title="UCMWB 1.2.4 &amp; new comptree (IPC)" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000694.html" title="East.pm" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000693.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/80"
+    dc:title=""
+    dc:identifier="http://defaria.com/blogs/Status/archives/000693.html"
+    dc:subject=""
+    dc:description=" Documented how to properly source cq_setup..."
+    dc:creator=""
+    dc:date="2007-12-06T16:52:05-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000692.html">&laquo; UCMWB 1.2.4 & new comptree (IPC)</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000694.html">East.pm &raquo;</a>
+                     </p>
+
+                     <a id="a000693"></a>
+                     <div class="entry" id="entry-693">
+                        <h3 class="entry-header"></h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Documented how to properly source cq_setup</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>cq_setup</h3>
+
+<p>In order for Clearquest to work properly the user must source cq_setup.
+Rational provides both cq_setup.csh for C style shells and cq_setup.sh
+for Borne style shells. GD only primarly supports tcsh/csh shells and
+provides a start up environment for those shells. However, Linux
+systems then to use bash by default.</p>
+
+<h3>bashrc</h3>
+
+<p>An effort has been made to tranliterate the GD/RAN tcsh/csh startup
+environment -&gt; a bash startup environment (this can be found under
+/prj/muosran/config/bashrc).  Further complicating matters is that SWIT
+and Pat Phelps group have their own, highly customized environment.</p>
+
+<h3>Proposed change to ~/.bash_profile</h3>
+
+<div class=code><pre>
+if [ -f /opt/rational/clearquest/bin/clearquest ]; then
+  . /prj/muosran/config/cq_setup.sh
+  fi
+</pre></div>
+
+<p>The above should be added to the ~/.bash_profile which (from the bash(1) manpage):</p>
+
+<blockquote>
+  <p>When bash is invoked as an interactive login shell, or as a non-interactive shell with the --login option, it first reads and executes commands from the file /etc/profile, if that file  exists.  After  reading that file, it looks for ~/.bash_profile, ~/.bash_login, and ~/.profile,  in that order, and reads and executes commands from the first one that exists and is readable. The --noprofile option may be used when the shell is started to inhibit this behavior.</p>
+</blockquote>
+
+<p>Since we are only really concerned with executing cq_setup for the purposes or running clearquest, the GUI client, we should only be
+concerned with interactive login shells.</p>
+
+<p>For the record, also from the bash(1) manpage:</p>
+
+<blockquote>
+  <p>When an interactive shell that is not  a login shell is started, bash reads and executes commands from ~/.bashrc, if that file exists. This may be inhibited by using the --norc option. The --rcfile file option will force bash to read and execute commands from file instead of ~/.bashrc.</p>
+</blockquote>
+
+<h3>The /prj/muosran/config versions</h3>
+
+<p>As I said Rational supports it's own versions of cq_setup.[csh|sh] stored in /opt/rational/clearquest. Why the private copies under /prj/muosran/config you ask? The main (i.e. only real) difference is that the Rational copies annoyingly echo out "You can now run 'clearquest' to start Rational ClearQuest'.</p>
+
+<h3>Platform independence</h3>
+
+<p>In order to maintain platform independance the cq_setup.[csh|sh] script
+resides in /opt/rational/clearquest/bin/clearquest. The Rational installation procedure symlinks this to /opt/rational/clearquest/&lt;arch&gt;/bin/clearquest where &lt;arch&gt;
+is one of sun5, rhat_x86 or later changed to linux_x86.</p>
+
+<h3>What does cq_setup really do?</h3>
+
+<p>So what does this cq_setup really do? Glad you asked. Essentially it runs a shell script called clearquest. This shell script does many things related to setting up the proper environment for Clearquest execution then exec's clearquest_main. In fact, many scripts under /opt/rational/clearquest/&lt;arch&gt;/bin are merely symlinks to this clearquest script. Based on the name of the script invoked (i.e. $0) the script will do different things but all essentially set up the environment and exec clearcase_main.</p>
+
+<h3>Dumping environment variable settings</h3>
+
+<p>It also supports parameters. In particular it supports the special -dumpsh and -dumpcsh parameters. When called with these parameters it essentially dumps out the required shell syntax (sh or csh) for setting environment variables. Here's an example run:</p>
+
+<div class=code><pre>
+# /opt/rational/clearquest/bin/clearquest -dumpsh
+PATH='/opt/rational/clearquest//bin:/home/p6258c/bin/sun:.:/home/p6258c/bin:/home/p6258c/adm/bin:/home/p6258c/adm/cc:/home/p6258c/adm/cq:/home/p6258c/adm/cvsbin:/usr/local/bin:/usr/local/oracle/product/9.2/bin:/prj/muosran/bin:/prj/software/framemaker/bin:/prj/Studio11/SUNWspro/bin:/opt/rational/clearquest/bin:/prj/muosran/bin:/opt/rational/clearcase/bin:/opt/rational/clearcase/etc:/prj/Imagix4D/bin:/usr/local/python-1.5.2/bin:/prj/MathWorksR14sp3/bin:/usr/local/swig/bin:/prj/synplify81/fpga_81/bin:/usr/local/slickedit11/bin:/usr/local/python-1.5.2/bin:/cleartrig/ent/SNSD/muos/ccadm_tools/vobs/ranccadm/scripts/clearcase:/cleartrig/ent/SNSD/muos/ccadm_tools/vobs/ranccadm/scripts/clearquest:/home/p6258c/adm/bin:/bin:/usr/local/bin:/usr/bin:/usr/dt/bin:/usr/openwin/bin:/usr/sbin:/usr/ccs/bin:/usr/ucb';<br>
+export PATH;
+CQ_HOME='/opt/rational/clearquest/';
+export CQ_HOME;
+CQ_ARCH='sun5';
+export CQ_ARCH;
+ODBCINI='/opt/rational/clearquest//sun5/resources/cqodbc.ini';
+export ODBCINI;
+LM_LICENSE_FILE='flex2:flex2:1850@flex2:15280@ranadm2:19353@ranadm2:19355@ranadm2:2468@ranadm2:1717@flex2:1711@bartlett:1711@flex3:27000@ranadm2:28000@ranadm2:5270@flex2';<br>
+export LM_LICENSE_FILE;
+RSU_TEMPLATE2_INI='/opt/rational/clearquest//sun5/resources/templates2.ini';<br>
+export RSU_TEMPLATE2_INI;
+MANPATH='/opt/rational/clearquest//doc/En_US/man:/usr/man:/usr/share/man:/usr/dt/man:/usr/openwin/share/man:/usr/local/man:/usr/local/share/man';<br>
+export MANPATH;
+CQ_HELP_BROWSER='netscape';
+export CQ_HELP_BROWSER;
+CQ_PERLLIB='/opt/rational/clearquest//../common/lib/perl5/5.6.1/sun4-solaris-multi:/opt/rational/clearquest//../common/lib/perl5/5.6.1:/opt/rational/clearquest//../common/lib/perl5/site_perl/5.6.1/sun4-solaris-multi:/opt/rational/clearquest//../common/lib/perl5/site_perl/5.6.1:/opt/rational/clearquest//../common/lib/perl5/site_perl';<br>
+export CQ_PERLLIB;
+LD_LIBRARY_PATH='/usr/lib:/usr/ucblib:/usr/local/lib:/usr/local/oracle/product/9.2/lib:/usr/local/python-1.5.2/lib:/opt/rational/clearcase/shlib:/opt/rational/clearquest//sun5/shlib:/opt/rational/clearquest//sun5/odbc/lib';<br>
+export LD_LIBRARY_PATH;
+EVAL_STATUS=0;<br>
+export EVAL_STATUS;</tt>
+</pre></div>
+
+<h3>Eval</h3>
+
+<p>As such this execution is meant to passed to eval(1) so that these environment variable setting statement are evaluated and the environment is modified. Finally one should source (csh or "." in sh) this to effect the current shell. Hence we boil all this down to:</p>
+
+<div class=code><pre>
+if [ -f /opt/rational/clearquest/bin/clearquest ]; then
+  . /prj/muosran/config/cq_setup.sh
+fi
+</pre></div>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on December  6, 2007  4:52 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000693.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/80</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

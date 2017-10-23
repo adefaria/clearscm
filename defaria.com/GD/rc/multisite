@@ -1,0 +1,83 @@
+#!/bin/bash
+################################################################################
+#
+# File:		$RCSfile: multisite,v $
+# Revision:	$Revision: 1.4 $ 
+# Description:	This script set up some useful environment variables and aliases
+#		for MultiSite execution. File should be sourced (e.g . 
+#		multisite)
+# Author:	Andrew@DeFaria.com
+# Created:	Wed Jun  5 21:08:03 PDT 1996
+# Modified:     $Date: 2005/12/30 08:36:46 $
+# Language:     bash
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+if [ $ARCH = "cygwin" ]; then
+  export MSHOME=${MSHOME:-"$SYSTEMDRIVE/Program Files/Rational/ClearCase"}
+else 
+  export MSHOME=/opt/rational/clearcase
+fi
+
+if [ ! -d "$MSHOME" ]; then
+  unset MSHOME
+  return
+fi
+
+export MULTITOOL="$MSHOME/bin/multitool"
+
+if [ -x "$MULTITOOL" ]; then
+  export CCHOME=${CCHOME:-"$SYSTEMDRIVE/Program Files/Rational/Multisite"}
+  export CLEARCASE_BLD_HOST_TYPE=Windows
+  export SLOGS=$LOGS/sync_logs
+  export SB="$CCHOME/var/shipping/ms_ship"
+fi
+
+function mt {
+  if [ -x "$MULTITOOL" ]; then
+    "$MULTITOOL" "$@"
+  else
+    echo "MultiSite is not installed on this system!"
+  fi
+} # mt
+
+function lspacket {
+  "$MULTITOOL" lspacket "$@"
+} # lspacket
+
+function llpacket {
+  "$MULTITOOL" lspacket -long "$@"
+} # llpacket
+
+function lsreplica {
+  "$MULTITOOL" lsreplica -invob "$@"
+} # lsreplica
+
+function llreplica {
+  "$MULTITOOL" lsreplica -long -invob "$@"
+} # llreplica
+
+function lsepoch {
+  "$MULTITOOL" lsepoch -invob "$@"
+} # lsepoch
+
+function llepoch {
+  "$MULTITOOL" lsepoch -long -invob "$@"
+} # llepoch
+
+function chepoch {
+  "$MULTITOOL" chepoch -invob "$@"
+} # chepoch
+
+function shipping_server {
+  $MSHOME/etc/shipping_server "$@"
+} # shipping_server
+
+function mkorder {
+  $MSHOME/etc/mkorder "$@"
+} # mkorder
+
+function syncreplica {
+  "$MULTITOOL" syncreplica "$@"
+} # syncreplica

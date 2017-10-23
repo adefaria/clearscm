@@ -1,0 +1,86 @@
+#!/usr/bin/expect --
+################################################################################
+#
+# File:         pon
+# Description:  Connect to a Salira PON
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Jun  6 15:37:15 PDT 2003
+# Language:     Tcl
+#
+# (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+global argv
+global spawn_id
+
+# Reporting procedures
+proc Error {args} {
+  send_user "ERROR: [join $args]\n"
+  
+  if {[info exist spawn_id]} {
+    close $spawn_id
+  }
+
+  exit 1;
+} ;# Error
+
+proc Display {args} {
+  send_user "[join $args]\n"
+} ;# Display
+
+proc Login {to_machine {username root} {password root}} {
+  # Establish connection
+  spawn "telnet" $to_machine
+
+  # Look for Login prompt
+  expect {
+    "Login:" {
+    }
+    "login:" {
+      Error "Host does not appear to be a Salira PON"
+    }
+    "Unknown host" {
+      Error "Machine $to_machine does not exist!"
+    }
+    timeout {
+      Error "$to_machine is not responding"
+    }
+  }
+
+  send $username\r
+  expect {
+    "Password:" {
+      send $password\r
+    }
+    timeout {
+      Error "Password prompt not issued"
+    }
+  }
+
+  expect {
+    "\# " {
+      puts -nonewline "Logged into $to_machine"
+      puts -nonewline $expect_out(buffer)
+    }
+    timeout {
+      Error "$to_machine appears to be dead"
+    }
+  }
+
+  return $spawn_id
+}
+
+# Main
+log_user 0
+
+set machine [lindex $argv 0]
+
+if {![info exist machine] || $machine == ""} {
+  Error "You must specify a machine to log into"
+}
+
+set spawn_id [Login $machine]
+
+log_user 1
+
+interact

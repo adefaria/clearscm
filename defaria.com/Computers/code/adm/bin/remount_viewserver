@@ -1,0 +1,48 @@
+#!/bin/bash
+################################################################################
+#
+# File:         remount_viewserver
+# Description:  This script will remount a viewservers LVMs. This is handy
+#               when a viewserver goes down and needs to be remounted to
+#               the build servers.
+# Author:       Andrew DeFaria (defaria@cup.hp.com)
+# Language:     Korn Shell
+# Modified:
+#
+# (c) Copyright 1998, Hewlett-Packard Company, all rights reserved.
+#
+
+################################################################################
+me=$(basename $0)
+if [ $(id -u) -ne 0 ]; then
+  print -u2 "$me: Error: You must be root to execute this command!"
+  exit 1
+fi
+
+if [ $# -ne 1 ]; then
+  print -u2 "Usage: $me viewserver"
+  exit 1
+fi
+
+viewserver=$1
+
+function remount {
+  cd /tmp_mnt/net/$viewserver/CLO/Storage/Views
+  for dir in *; do
+    print Mounting $viewserver:/CLO/Storage/Views/$dir to $PWD/$dir
+    /usr/sbin/mount $viewserver:/CLO/Storage/Views/$dir $PWD/$dir 2>&1 |
+grep -v "already mounted"
+  done
+  cd $OLDPWD
+} # remount
+
+function kick_automounter {
+  automount_pid=$(/app/sj automount | awk '{print $2}')
+
+  print Kicking automounter \($automount_pid\)
+  kill -HUP $automount_pid
+} # kick_automounter
+
+remount $viewserver
+
+kick_automounter

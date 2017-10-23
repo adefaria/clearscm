@@ -1,0 +1,304 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: November 13, 2005 - November 19, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_11_06.html" title="November  6, 2005 - November 12, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_11_20.html" title="November 20, 2005 - November 26, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_11_06.html">&laquo; November  6, 2005 - November 12, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_11_20.html">November 20, 2005 - November 26, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">November 19, 2005</h2>
+                     <a id="a000482"></a>
+                     <div class="entry" id="entry-482">
+                        <h3 class="entry-header">PQA Merge (Part II)</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked with Vinh on small problem with Gating_Item_SW.</li>
+
+  <li>Backed up database to \\p4test\Cont as CQ_Controller_Prod.db.backup</li>
+
+  <li>Copied backup up to \\pcirvd-dshah\CQ</li>
+</ul>
+                              
+                              <h2>Gating_Item_SW</h2>
+
+<p>Vinh noticed an abnormality whereby some Gating_Item_SW items were not correctly transfered. I'm not sure how pqamerge messed this up as it never changes the value of the data, just the field name. We can look at this later, after the merge is completed. Meantime VInh use his SQL prowness to fix the problem.</p>
+
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:47 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000482.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">November 18, 2005</h2>
+                     <a id="a000481"></a>
+                     <div class="entry" id="entry-481">
+                        <h3 class="entry-header">PQA Merge</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>This blog entry is to track the PQA merge process. See extended entry for full details...</p>
+                              
+                              <ul>
+  <li>Received backups from Dave Shah</li>
+
+  <li>In Clearquest designer I did Database: Delete Database for Cont and ContT</li>
+
+  <li>In Enterprise Manager:</li>
+
+  <ul>
+    <li>Deleted 5 databases: CQ_Controller_Test, CQ_Controller_Prod, CQSchema03, CQ_TO_Prod and CQ2001AProd</li>
+
+    <li>Created those 5 databases anew</li>
+
+    <li>Restored CQSchema03, CQ_TO_Prod and CQ2001AProd</li>
+
+    <li>Changed server field in CQSchema02: master_dbs from production server to p4test</li>
+
+    <li>Ran SIDMap on all 5 databases</li>
+
+    <li>Made sure that the user CQ03_Admin was added to CQSchema03, CQ_Controller_Test and CQ_Controller_Prod as a DB owner</li>
+  </ul>
+
+  <li>Back in Clearquest Designer I found that Cont and ContT were not deleted in the newly restored schema so I deleted ContT</li>
+
+  <li>Next I created a new database for ContT</li>
+
+  <li>Tried to delete Cont but received an error: Invalid object name "dbglobal". Worked around this problem but setting is_deleted to 1 using Enterprise Manager</li>
+
+  <li>Created new Cont database</li>
+
+  <li>Imported userinfo.txt (user/group info given to me by Vinh) using Clearquest Designer: User Administration. In looking at the subscriptions I see that groups appear are properly subscribed to databases but the users, particularly admin was not subscribed to any database! I will attempt to apply these user/groups and see if I can get into the db using Clearquest. Nope, as I suspected admin cannot login. Subscribing admin to all databases...</li>
+
+  <li>Upgraded Cont and ContT with imported user/group info. By accident I closed Clearquest Designer and now I can no longer login as admin! Ended up hacking the encrypted password from userinfo.txt back into CQSchema03:master_users:admin:encrypted password! I can now run Clearquest Designer. Subscribed admin to all databases. Also changed my user, adefaria, to no longer attempt to authenticate via LDAP (that never worked anyway) and to be on par with admin (be a superuser, subscribe to all databases and groups, etc.). I can now access Cont via Clearquest client.</li>
+
+  <li>Started pqamerge...</li>
+
+  <li>pqamerge finishes in 7 hours 2 minutes 5 seconds</li>
+
+  <li>Running check_attachments just to be sure</li>
+
+  <li>A quick spot check doesn't show any abnormalities. Vinh can check the data more thoroughly</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  8:21 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000481.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">November 17, 2005</h2>
+                     <a id="a000480"></a>
+                     <div class="entry" id="entry-480">
+                        <h3 class="entry-header">create_dev_snapview.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Looked into create_dev_snapview.pl.</li>
+
+  <li>Tested speeds of FTP vs. SMB</li>
+</ul>
+                              
+                              <h2>create_dev_snapview.pl</h2>
+
+<blockquote type=cite>
+<b>From:</b> Andrew Feltham <br>
+<b>Sent:</b> Tuesday, November 15, 2005 3:58 PM<br>
+<b>To:</b> Shivdutt Jha<br>
+<b>Subject:</b> creating snapshot views <br>
+</font><br>
+
+<p>Hi Shivdutt,</p>
+
+<p>so I've tried to use Naga's tool for creating a snapshot view of a particular stream using a variety of  incremental baselines.</p>
+
+<p>I've done this using a file generated by Phil's nightly builds (see attached) which lists the specific baseline which was current for each vob.</p>
+
+<p>First of all, it does not seem to work (see image below). I'm not sure I'm handling the composite baseline label properly</p>
+
+<p>Secondly, I do find the tool a bit awkward as it expects me to input several incremental baselines for vobs which are not included in my load rules.</p>
+
+<p>It would be nice if I could specify the vobs on the cmd line, and only provide those labels.</p>
+</blockquote>
+
+<p>Actually the script is working as designed. The arguments for create_dev_snapview.pl are:</p>
+
+<div class="code"><pre>
+create_dev_snapview.pl &lt;project_name&gt; [ baseline_selector ]
+</pre></div>
+
+<p>project_name is mandatory but baseline_selector is optional. If you don't specify the baseline_selector then it appears that the script takes all the recommended baselines for all components in the project. Or you can specify a list of baselines if you want different ones. The script checks the number of baselines you specified and compares them to the number of <i>modifiable</i> components in the project. These two numbers must agree.</p>
+
+<p>After painstakingly typing in the command line (wish you would have posted the command line in text! :-( ) and running it through Perl's debugger I came to the realization that you typed in 11 (very long) baselines and there are only 10 modifiable components in the ldx_2.3 project.</p>
+
+<p>In thinking of how to do this better I can think of two methods:</p>
+
+<ul>
+  <li>Assuming the <span>buildconfig</span>.txt file is a standard file and contains all the information needed, add a -f &lt;buildconfig&gt; option to create_dev_snapview.pl. When present the script would open and parse that file, extracting out the required information. This would help cut down on typing and errors.</li>
+
+  <li>Modify the script to present a series of dialog boxes prompting for the baseline to use for each component in the project. Note that in this instance this would mean a total of 10 dialog box prompts!</li>
+</ul>
+
+<p>Either of these options can be added to the existing script via options that cause it to operate in a different way if present or to operate like it used to operate if those options are not present.</p>
+
+<p>(Question: When you type "perl" at your command line, what Perl are you running? Because Perl isn't normally present on Windows. Normally people using Clearcase run ccperl...).</p>
+
+<h2>FTP vs. SMB</h2>
+
+<p>Well this runs contrary to my previous experience but it turns out that a regular file copy using SMB shares is faster than FTP. I tested copying the old 2.7 Gig CQProd2001A database to my desktop, once with FTP and once with SMB. SMB won! Which is surprising to me because last time I tested something like this FTP was up to 10 times faster:</p>
+
+<div class="code"><pre>
+Local:time ftpget -u vobadm -p4sjadm p4test . "/dev/d/CQBackupsfromIrvine/0916/CQProd2001A_db_200509160213.BAK"
+CQProd2001A_db_200509160213.BAK           2.66 GB    60.35 kB/s
+
+real               769m10.858s
+user               1m29.418s
+sys                4m36.387s
+</pre></div>
+
+<p>Versus:</p>
+
+<div class="code"><pre>
+Local:time cp //p4test/CQBackupsfromIrvine/0916/CQProd2001A_db_200509160213.BAK /tmp
+
+real              532m7.457s
+user              0m16.714s
+sys               1m11.362s
+</pre></div>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:39 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000480.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">November 16, 2005</h2>
+                     <a id="a000478"></a>
+                     <div class="entry" id="entry-478">
+                        <h3 class="entry-header">PerlTk</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Continued work on clearprompt replacement in PerlTk.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  9:13 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000478.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">November 15, 2005</h2>
+                     <a id="a000477"></a>
+                     <div class="entry" id="entry-477">
+                        <h3 class="entry-header">PerlTK/Bug in pqamerge</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Experimented with PerlTK in an effort to come up with a better Clearprompt for bin_merge</li>
+
+  <li>Vinh found a bug in pqamerge where Prod: Open_Close_Status was not getting transferred to Cont: Active_Deferred_Status</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:19 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000477.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">November 14, 2005</h2>
+                     <a id="a000479"></a>
+                     <div class="entry" id="entry-479">
+                        <h3 class="entry-header">Finalizing pqamerge</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Identified a few more bugs with pqamerge</li>
+
+  <ul>
+    <li>Changed to handle Open_Close_Status -> Active_Deferred_Status for Prod.</li>
+
+    <li>Changed to correctly handle Gating_Item_SW. This is set from GatingItem from both TO and Prod. Gating_Item_HW is a new field and is set to "No".</li>
+  </ul>
+
+  <li>Worked with Vinh finalizing steps for pqamerge</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  9:15 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000479.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+#!/bin/bash
+################################################################################
+#
+# File:         switch_rgy
+# Description:  A script to switch the registry host from one machine to
+#		another.
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Wed Jan 15 16:52:22 PST 1997
+# Modified:     Wed Jan 15 16:52:22 PST 1997 (Andrew DeFaria) defaria@cup.hp.com
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+
+function usage {
+  print "Usage: $me: <new ClearCase Registry Server>"
+  exit 1
+} # usage
+
+if [ $(id -u) -ne 0 ]; then
+  print -u2 "$me: Error: Must be root to execute this command!"
+  usage
+fi
+
+# Get parameters
+if [ $# -ne 1 ]; then
+  usage;
+else
+  new_registry_server="$1"
+fi
+
+registry_host_file=/usr/adm/atria/rgy/rgy_hosts.conf
+
+if [ -f $registry_host_file ]; then
+  old_registry_server=$(cat $registry_host_file)
+  if [ "$old_registry_server" = "$new_registry_server" ]; then
+    print -u2 "$me: The registry server is already $new_registry_server"
+    print -u2 "$me: Nothing changed!"
+    exit
+  fi
+  cp $registry_host_file $registry_host_file.old
+  print $new_registry_server > $registry_host_file
+  print "$me: Switched registry server from $old_registry_server \c"
+  print "to $new_registry_server."
+  print "$me: Saved old registry setting in $registry_host_file.old"
+fi

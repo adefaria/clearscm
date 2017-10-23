@@ -1,0 +1,48 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: setup_rc,v $
+# Revision:	$Revision: 1.1 $
+# Description:  This script sets up my rc scripts
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Feb 16 07:34:32 PST 2006
+# Modified:	$Date: 2006/02/16 16:02:49 $
+# Language:     bash
+#
+# (c) Copyright 2006, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+function ReplaceFile {
+  dest=$1
+  source=$2
+
+  if [ -f "$dest" ]; then
+    if [ -h "$dest" ]; then
+      return
+    else
+      echo "Saving your old $dest as $dest.save..."
+      mv "$dest" "$dest.save"
+    fi
+  fi
+
+  if [ ! -h "$dest" ]; then
+    ln -s "$source" "$dest"
+  fi
+} # ReplaceFile
+
+cd ~
+
+if [ ! -d .rc ]; then
+  echo "No ~/.rc directory found"
+  exit 1
+fi
+
+ReplaceFile ".Xdefaults"		".rc/Xdefaults"
+ReplaceFile ".bash_login"		".rc/bash_login"
+ReplaceFile ".bashrc"			".rc/bash_login"
+ReplaceFile ".inputrc"			".rc/inputrc"
+ReplaceFile ".vimrc"			".rc/vimrc"
+ReplaceFile ".perldb"			".rc/perldb"
+ReplaceFile ".clearcase_profile"	".rc/clearcase_profile"
+ReplaceFile ".perlcriticrc"		".rc/perlcriticrc"
+ReplaceFile ".perltidyrc"		".rc/perltidyrc"

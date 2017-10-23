@@ -1,0 +1,124 @@
+#!/bin/bash
+################################################################################
+#
+# File:         trim_sw_logs
+# Description:  Script to trim logfiles produced by SD-UX
+# Author:       Andrew@DeFaria.com (Derived from /usr/sbin/cleanup on HP-UX
+#               10.20)
+# Created:      Thu Feb 17 16:12:17 PST 2000
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+tmpprefix=/tmp/$me
+. $adm_fpath/tmpfiles
+trap cleanup INT EXIT ERR
+
+function usage {
+  if [ "_$1" != "_" ]; then
+    display "$1"
+    display
+  fi
+  display "Usage: $me"
+  exit 1
+} # usage
+
+# Check for execution by root
+if is_not_root; then
+  error "This script must be run as root" 1
+fi
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+    ;;
+
+    -v|-verbose)
+      verbose=yes
+    ;;
+
+    -d|-debug)
+      debug=yes
+    ;;
+
+    *)
+      usage "Unrecognized parameter $1"
+    ;;
+  esac
+  shift
+done
+
+logdir=/var/adm/sw
+
+# This routine will trim the given SD logfile by deleting old session
+# log information.  By specifying a date in the mm/dd/yy format, the
+# user can trim all log information for sessions prior to the date.
+function trim_sd_logfile {
+  date=$1
+  logfile=$2
+
+  # Process logfile.
+  # Toss all lines until a line of the form:    =======  date
+  # is discovered.  Retain all lines after recognizing this one.
+  awk '
+    print_all == 1 \
+      {
+      print;
+      next;
+      }
+
+      /^=======  / \
+      {
+      key = sprintf("%s%s", "=======  ", searchdate);
+      if ( index($0, key) == 1 )
+        {
+        print;
+        print_all = 1;
+        }
+      next;
+      }
+' searchdate="$date" $logfile > $tmpprefix
+
+  # Check the size of the tmp file to see if any trimming occurred
+  # If the tmp file is zero-length, then do NOT overwrite the logfile.
+
+  length=$(wc -l $tmpprefix | awk '{print $1}')
+
+  if [ "$length" != "0" ]; then
+    cat $tmpprefix 2>/dev/null > $logfile
+    if [ $? != 0 ]; then
+       warning "Cannot overwrite $logfile" 1
+    fi
+  fi
+} # trim_sd_logfile
+
+function trim_sd_logfiles {
+  cd $logdir
+  for file in $(ls sw*.log); do
+    if [ -s $file ]; then
+      verbose "Trimming $file"
+
+      # Get a suitable date from the file to pass to "trim" The date will be
+      # the 2nd to last date mentioned in  the logfile.
+      target_date=$(awk '/^=======/ {print $2, $3}' $file | \
+                                   uniq | tail -5 | head -1)
+
+      trim_sd_logfile "$target_date" $file
+    fi
+  done
+} # trim_sd_logfiless
+
+trim_sd_logfiles

@@ -1,0 +1,209 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: bash_login,v $
+# Revision:	$Revision: 1.12 $
+# Description:  bash startup file
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Aug 20 17:35:01  2001
+# Modified:     $Date: 2006/10/30 05:26:53 $
+# Language:     bash
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# Under cyqwin and bash the profile is not sourced so source it here
+. ~/.rc/profile
+
+# Set DISPLAY properly
+export DISPLAY=${DISPLAY:-AZ25-DTVQGC1:0.0}
+
+umask 002
+
+# Check to see if we're interactive
+if [[ $- = *i* ]]; then
+  interactive=true
+else
+  interactive=false
+fi
+
+if [ "$interactive" = "true" ]; then
+  stty tostop intr ^C kill ^X susp ^Z erase  -inpck -istrip -ixany -echok -echonl
+fi
+
+# Set adm_base
+adm_base=${adm_base:-~/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+if [ -f "$adm_fpath/common" ]; then
+  . "$adm_fpath/common"
+else
+  : echo "Warning: Cannot find $adm_fpath/common!"
+fi
+
+# Client specific customizations
+if [ -z "$USERDOMAIN" ]; then
+  if [ type -p domainname > /dev/null 2>&1 ]; then
+    USERDOMAIN=$(domainname)
+  else
+    USERDOMAIN="Unknown"
+  fi
+fi
+
+if [ $USERDOMAIN = "sanjose"  -o	\
+     $USERDOMAIN = "richmond" -o	\
+     $USERDOMAIN = "irvine" ]; then
+  if [ -f /tools/bin/common.profile ]; then
+    . /tools/bin/common.profile
+  fi
+  export CVSROOT=:pserver:$USER@cvsps-irva-1:/projects/BusAppsMaster/master
+else
+  export CVSROOT=:pserver:andrew@defaria.com:/cvs/defaria.com
+fi
+
+# Set PATH
+if [ -f ~/.rc/set_path ]; then
+   . ~/.rc/set_path
+else
+  echo "Warning: ~/.rc/set_path does not exist!"
+fi
+
+if [ -x ~/.rc/logout ]; then
+  trap "~/.rc/logout" 0
+fi
+
+# ClearCase Stuff
+if [ -f ~/.rc/clearcase ]; then
+  . ~/.rc/clearcase
+fi
+
+# MultiSite Stuff
+if [ -f ~/.rc/multisite ]; then
+  . ~/.rc/multisite
+fi
+
+# Import shell functions:
+if [ -f ~/.rc/functions ]; then
+  . ~/.rc/functions
+fi
+
+# Other settings:
+set -o emacs
+#set -o markdirs
+#set -o trackall
+set -o monitor
+#set -o ignoreeof
+#set -o viraw 
+set +u
+
+shopt -s lithist
+
+# Aliases:
+if [ $ARCH = "FreeBSD" ]; then
+  alias ls="ls -FG"
+else
+  if [ $ARCH = "sun" ]; then
+    # Ugh! --color doesn't work on braindead SUN
+    alias ls="ls -F"
+  else
+    alias ls="ls -F --color=auto"
+  fi
+fi
+
+alias ll="ls -la"
+alias whence="type -p"
+alias mroe=more
+
+if [ $(type -p vim) ]; then
+  alias vi=vim
+fi
+
+if [ $(type -p ncftp) ]; then
+  alias ftp=ncftp
+  alias ftpput=ncftpput
+  alias ftpget=ncftpget
+fi
+
+#alias grep="grep -d skip"
+
+if [ "$TERM" = "hpterm"    -o \
+     "$TERM" = "hp"        -o \
+     "$TERM" = "dtterm"    -o \
+     "$TERM" = "sun-color" -o \
+     "$TERM" = "vt100"     -o \
+     "$TERM" = "vt220"     -o \
+     "$TERM" = "xterm"     -o \
+     "$TERM" = "cygwin" ]; then
+  if [ $(uname) = "SunOS" ]; then
+    # sun-color doesn't work on the GD network... :-(
+    #export TERM="sun-color"
+    export TERM="vt100"
+  fi
+  alias cd=_cd
+  alias pushd=_pushd
+  alias popd=_popd
+fi
+
+# Miscellaneous:
+if [ -x $(type -p less) ]; then
+   export LESS=eiXP"?f%f :[stdin] .?pt(%pt\%):?bt(%bt bytes):-.."
+   alias more=less
+   export PAGER="less -s"
+else 
+   export MORE=-s
+   export PAGER=more
+fi
+
+# Source bash_completion (if present)
+#if [ -r /etc/bash_completion ]; then
+#  . /etc/bash_completion
+#fi
+
+export PS4='${0##*/} line $LINENO:'
+
+set_title
+set_prompt
+
+if [ "$TERM" = "dtterm" ]; then
+  export TERM=vt100
+  export DTTERM=True
+fi
+
+# Set mail
+export MAIL=/var/mail/$USER
+
+alias more=less
+alias mroe=less
+export PAGER=less
+
+# General Dynamics stuff
+umask 002
+
+export http_proxy=webgate0.gddsi.com:8080
+export ftp_proxy=webgate0.gddsi.com
+
+export QTDIR="/usr/local/Trolltech/Qt-4.2.2"
+export QMAKESPEC="$QTDIR/mkspecs/solaris-cc"
+export ORACLE="SID rancq"
+export ORACLE_HOME="/usr/local/oracle/product/9.2"
+
+export CCASE_MAKE_COMPAT=gnu
+
+export CQ_HOME=/opt/rational/clearquest
+export CQ_HELP_BROWSER=firefox
+export CQ_PERLLIB=/opt/rational/common/lib/perl5/5.6.1/sun4-solaris-multi:/opt/rational/common/lib/perl5/5.6.1:/opt/rational/common/lib/perl5/site_perl/5.6.1/sun4-solaris-multi:/opt/rational/common/lib/perl5/site_perl/5.6.1:/opt/rational/common/lib/perl5/site_perl
+
+export TZ="US/Arizona"
+
+alias xv=/prj/Synopsis/gccsparcOS5/ccss/utils/xv/xv
+
+export RSU_LICENSE_MAP="/prj/muosran/config/Rational_License_Map"
+
+export LM_LICENSE_FILE="flex2:1850@flex2:15280@ranadm2:19353@ranadm2:19355@ranadm2:2468@ranadm2:1717@flex2:1711@bartlett:1711@flex3:27000@ranadm2:28000@ranadm2:5270@flex2"
+
+alias xemacs="ssh muosbldforge2 xemacs"
+
+export EDITOR="ssh muosbldforge2 xemacs"

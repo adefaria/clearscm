@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Sharable vs Non-sharable derived objects</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000699.html" title="Santity Progress" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000701.html" title="EAST Automation" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000700.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/87"
+    dc:title="Sharable vs Non-sharable derived objects"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000700.html"
+    dc:subject="General Dynamics"
+    dc:description=" Resolved Helpdesk ticket involving non-sharable derived objects..."
+    dc:creator=""
+    dc:date="2008-03-17T15:40:07-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000699.html">&laquo; Santity Progress</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000701.html">EAST Automation &raquo;</a>
+                     </p>
+
+                     <a id="a000700"></a>
+                     <div class="entry" id="entry-700">
+                        <h3 class="entry-header">Sharable vs Non-sharable derived objects</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Resolved Helpdesk ticket involving non-sharable derived objects</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Sharable vs Non-sharable DOs</h2>
+
+<p>In Clearcase terms, DOs, or Derived Objects are objects created during a build. These are created when clearmake (or omake) is used. Clearmake will create a configuration record, AKA a bill of lading - basically a record of everything that went into making this derived object. Clearmake then adds a record to the vob saying that it made this DO and if any subsequent clearmake is attempting to make this same DO (given the same input or configuration record that is) then this DO is available for wink in. At this time the DO is copied to the vob and winked into the other view that was requesting this DO be build and the DOs reference count gets incremented. Or at least that's how DOs and winkins are supposed to work</p>
+
+<p>Rational also introduced a concept of <i>express building</i> which essentially creates "non-sharable DOs". A sharable DO and a non-sharable DO are essentially the same except that the advertisement of the DO is not made in the VOB.</p>
+
+<p>Here the error message stated:</p>
+
+<div class=code><pre>
+'Unable to change meta type of "/vobs/rnc/rnsap/trace_support/decoder_tmp" to create derived object reference count - No such file or directory'.
+</pre></div>
+
+<p>Notice the "_tmp" portion. The DO was named decoder, not decoder_tmp. I first thought perhaps Clearcase is just having a problem creating decorder_tmp which it may have needed temporarily. I tried touching that file and it was OK.  I then removed the decode_tmp file I touch and tried the checkin. It failed again.</p>
+
+<p>The view was marked as nshareable_dos:
+
+<div class=code><pre>
+$ ct lsview -full -properties p57347_RANCQ00028109_devview | grep Properties
+Properties: dynamic ucmview readwrite nshareable_dos
+</pre></div>
+
+<p>This is odd because the default, as shown by:</p>
+
+<div class=code><pre>
+$ ct lssite -inquire | grep shareable
+  view_shareable_dos=TRUE
+</pre></div>
+
+<p>is turned on for the site. I then thought that perhaps the problem is trying to check in a nonshareable DO is not allowed. Reading on the ct man winkin page is says:</p>
+
+<blockquote>
+winkin also converts nonshareable DOs to shareable (promoted) DOs. If you specify a nonshareable DO, winkin first advertises the DO by writing information about it to the VOB, and then promotes it by copying its data container into the VOB and moving its configuration record into the VOB. Because a shareable DO cannot have nonshareable sub-DOs or sibling DOs, winking in a nonshareable DO also advertises its sub-DOs and siblings, converting them to shareable DOs. With -siblings, winkin advertises and promotes the DO's siblings.
+</blockquote>
+
+<p>However even a ct winkin decoder gave the same error message. So then I again touched decoder_tmp and then ran the ct winkin and it worked! So I then checked in this derived object.</p>
+
+<p><b>Note</b>: You can change changed a view to sharable_dos with:</p>
+
+<div class=code><pre>
+$ ct chview -sharable_dos p57347_RANCQ00028109_devview
+</pre></div>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on March 17, 2008  3:40 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000700.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/87</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: January  9, 2005 - January 15, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_01_02.html" title="January  2, 2005 - January  8, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_01_16.html" title="January 16, 2005 - January 22, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_01_02.html">&laquo; January  2, 2005 - January  8, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_01_16.html">January 16, 2005 - January 22, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">January 13, 2005</h2>
+                     <a id="a000280"></a>
+                     <div class="entry" id="entry-280">
+                        <h3 class="entry-header">Native PPC toolchain build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Attempting to build PPC toolchain natively</li>
+</ul>
+                              
+                              <p>Although some errors persisted in the 120604-C build I decided it was time to at least try a native PPC build of the toolchain. The problem here is the PPC machine that I was told to use, t-mcpn765-1, is a LynxOS 4.0.0 machine! I don't think I'm supposed to try to build a 3.2.2 toolchain for 4.0.0.</p>
+
+<p>Additionally, I've never built the toolchain natively on a PPC machine before. Previously, when building the toolchain natively, one needed to extract things like X/Motif (according to my instructions - which may very well be off base - why would we need X/Motif to build a compiler?!?) and devos (I think). Where do I get such things?</p>
+
+<p>Additionally, t-mcpn765-1 doesn't have enough disk space.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:48 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000280.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000279"></a>
+                     <div class="entry" id="entry-279">
+                        <h3 class="entry-header">Disk space problems & int_tools checkout</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Rebuilt PPC cross toolchain from 120604-B</li>
+
+  <li>Attempted to build 120604-C but ran out of diskspace on Dopey</li>
+
+  <li>Discovered source of problem with toolchain tarball naming inconsistenies</li>
+</ul>
+                              
+                              <h3>Rebuilding of cross toolchain from 120604-B</h3>
+
+<p>After building LynxOS 120604-B and only receiving a few errors about (see previous days entry) I decided to attempt to rebuild the toolchain again. This seemed to work OK!</p>
+
+<h3>Building LynxOS 120604-C</h3>
+
+<p>With the toolchain rebuilt I went to rebuild LynxOS 120604-C. At this point Dopey ran out of disk space. I moved the 120604-A subdirectory over to /export/build2/defaria temporarily because that filesystem had much more space.</p>
+
+<h3>Toolchain tarball naming change</h3>
+
+<h4>AKA, why one should always cvs checkout int_tools instead of just copying it</h4>
+
+<p>There's been this nagging problem of int_tools not being able to find the proper toolchain tarball to install compilers. This we due to the fact that I've been copying int_tools from 120604-A -> 120604-B -> 120406-C. Well names have changed but the copies of int_tools didn't reflect that change! Plus, for some reason, somebody hand fixed 120604-B but 120604-C and -A had been refreshed from CVS. Moral of this story is to always use cvs checkout to get a fresh copy of int_tools.</p>
+
+<div class="note">
+  <p><b>Note:</b> This underscores one of the things that I do not like in CVS, that being the tendency of making many copies of what's in CVS due to it's snapshot view/sandbox like methodology. It's easy to see where one might create a 120604-C/int_tools directory via a cvs checkout int_tools and that int_tools be different than 120604-B and 120604-C's copies. If one then needs to make a change to int_tools and this change should apply to the -B and -C areas as well then one needs to remember about the -B and -C areas and remember to update them as well. This is a common problem with a snapshot/sandbox philosophy. Nevermind that it's wasteful to have so many multiple copies of essentially the same thing - wasteful in terms of diskspace and prone to misunderstanding and human error.</p>
+</div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:54 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000279.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January 12, 2005</h2>
+                     <a id="a000278"></a>
+                     <div class="entry" id="entry-278">
+                        <h3 class="entry-header">PPC Builds</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Built PPC Toolchain with 120604-A</li>
+
+  <li>Attempting to build 120604-B with this new toolchain</li>
+</ul>
+                              
+                              <p>Adam helped me figure out that the reason that the toolchain was failing to build was because the ppc/lib directory in 120604-B didn't have the proper libraries. I proceeded to build the tookchain using 120604-A.</p>
+
+<p>After successfully building the toolchain in 120604-A I proceeded to attempt to build LynxOS in 120604-B utilizing int_tools. The first problem that I had was that it attempts to install a compiler from DIR_PATH(compilers), which was set to 3.2.2-120604. But the toolchain I built for PPC was not there. Note that there was also a 3.2.2-122804 directory. I decided to use 3.2.2-122804 instead of 3.2.2-120604 and I scp'ed the toolchain I built over to that directory. The 3.2.2-122804 already had some toolchains in there but didn't have PPC toolchains.</p>
+
+<p>After performing a make package for the toolchain I wound up with a toolchain-i686-pc-linux-gnu-powerpc.tar.gz. So I copied that over to 3.2.2-122804. But int_tools was looking for a toolchain-i-686-pc-linux-gnu-ppc.tar.gz. I solved this problem by symlinking. I also needed a toolchain-powerpc-lynx-lynxos-ppc.tar.gz or int_tools complained.</p>
+
+<p>After fixing those problem I managed to build LynxOS but there were a few errors:</p>
+
+<div class="code"><pre>
+LOGS/makeall.log:make[5]: *** [/usr/lynx/5.0.0/ppc/sys/family.ppc/lib/libdrivers.a(flopdrvr.o)] Error 1
+LOGS/makeall.log:make[4]: *** [/usr/lynx/5.0.0/ppc/sys/family.ppc/lib/libdrivers.mpc8260_vads.a(flash_mtd_vads.o)] Error 1
+LOGS/makeall.log:make[3]: *** [common_all] Error 1
+LOGS/makeall.log:make[4]: *** [/usr/lynx/5.0.0/ppc/sys/family.ppc/lib/libdrivers.rpxl823.a(flopdrvr.o)] Error 1
+LOGS/makeall.log:make[4]: *** [/usr/lynx/5.0.0/ppc/sys/family.ppc/lib/libdrivers.vmpc.a(flopdrvr.o)] Error 1
+LOGS/makeall.log:make[4]: *** [/usr/lynx/5.0.0/ppc/sys/family.ppc/lib/libdrivers.vmpc.a(if_dec21040.o)] Error 1
+</pre></div>
+
+<p>There are also some errors in demo.log.</p>
+
+<p>Are these reasonable errors? Should I go one to attempt to build the PPC toolchain again using this LynxOS?</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000278.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January 11, 2005</h2>
+                     <a id="a000277"></a>
+                     <div class="entry" id="entry-277">
+                        <h3 class="entry-header">PPC Toolchain build</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Restarted building PPC toolchain cross</li>
+</ul>
+                              
+                              <p>Adam correctly pointed out that 120604-B had relatively nothing in $ENV_PREFIX/lib. I don't know what that's so empty but 120604-A had a more full $ENV_PREFIX/lib so we switched over to using that.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:33 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000277.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000276"></a>
+                     <div class="entry" id="entry-276">
+                        <h3 class="entry-header">The Mysterious RSync Process</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Documented the rsync process</li>
+
+  <li>Documented the <i>Dopey Archives</i></li>
+</ul>
+                              
+                              <p>The mysterious rsync process has been found! Apparently the int_tools START process cannot write directly to T3's dev_archive area. So, instead it puts it to DIR_PATH(archive) which needs to reside on dopey and then an rsync script, in ~int/toosl/rsync_500.sh, to copy the files over to the official dev_archive area on T3</p>
+
+<p>The psuedo archives, AKA <i>The Dopey Archvies</i> are pointed to by DIR_PATH(archive), typically at /export/build1/LYNXOS_500/archive.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:13 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000276.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">January 10, 2005</h2>
+                     <a id="a000275"></a>
+                     <div class="entry" id="entry-275">
+                        <h3 class="entry-header">Documentation</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Added more structure to the documentation by including things I've developed at home with PHP. Mainly added a menu on the left hand side so as to allow easier navigation of the pages.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:05 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000275.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000274"></a>
+                     <div class="entry" id="entry-274">
+                        <h3 class="entry-header">TOT Build succeeds</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>After Moscow fixed the atoi error I believe that the TOT build succeeded!</p>
+                              
+                              <p>How does one determine if a build it successful? I ask because sometimes some errors are considered OK. But I don't know how to determine whether an error is acceptable or not. Here's the errors that I'm getting in the TOT build after Moscow has fixed the atoi error:</p>
+
+<div class="code"><pre>
+LOGS/demo.log:make[1]: *** [hello_world] Error 1
+LOGS/demo.log:make[3]: *** [demo] Error 1
+LOGS/demo.log:make[2]: *** [demo/demo] Error 2
+LOGS/demo.log:make[1]: *** [local] Error 2
+LOGS/demo.log:make[1]: *** [hello_world] Error 1
+LOGS/demo.log:make[3]: *** [demo] Error 1
+LOGS/demo.log:make[2]: *** [demo/demo] Error 2
+LOGS/demo.log:make[1]: *** [local] Error 2
+LOGS/makeall.log:make[2]: *** No rule to make target `install'.  Stop.
+LOGS/makeall.log:make[2]: *** No rule to make target `install'.  Stop.
+LOGS/makeall.log:make[2]: *** No rule to make target `install'.  Stop.
+LOGS/makeall.log:make[2]: *** No rule to make target `install'.  Stop.
+LOGS/makeall.log:make[2]: *** No rule to make target `install'.  Stop.
+LOGS/makeall.log:make[2]: *** No rule to make target `install'.  Stop.
+LOGS/makeall.log:make[2]: *** No rule to make target `install'.  Stop.
+LOGS/makeall.log:make[2]: *** No rule to make target `install'.  Stop.
+LOGS/makeall.log:make[2]: *** No rule to make target `install'.  Stop.
+LOGS/makeall.log:make[2]: *** [rkjump.o] Error 127
+LOGS/makeall.log:make[2]: *** No rule to make target `install'.  Stop.
+</pre></div>
+
+<p>I figure the demo.log errors may be acceptable and I remember the [rkjump.o] error. But are those "No rule to make target 'install'"'s OK?</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:51 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000274.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

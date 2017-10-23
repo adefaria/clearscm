@@ -1,0 +1,302 @@
+#!/dev/c/Progra~1/Rational/ClearQuest/CQPerl
+use strict;
+use CQPerlExt;
+
+my $cquser   = "reporter";
+my $cqpasswd = "news";
+my $cqdb     = "BUGS2";
+my ($session, $query, $results, $status);
+my ($junk, $mday, $mon, $year, $from_date, $to_date);
+
+my @months = (0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334);
+
+sub date2jul {
+  my $date = shift;
+
+  my ($year, $month, $day);
+  my ($juldate, $juldays);
+
+  ($year, $month, $day) = split /-/, $date;
+
+  $juldays = @months [$month-1] + $day;
+  $juldate = $year . "-" . $juldays;
+  return $juldate;
+} # date2jul
+
+sub jul2date {
+  my $juldate = shift;
+
+  my ($year, $juldays);
+  my $month = 0;
+  my $day = 0;
+
+  ($year, $juldays)  = split /-/, $juldate;
+
+  foreach my $nbr_of_days (@months) {
+    last if ($juldays < $nbr_of_days);
+    $month++;
+  } # foreach
+
+  $day = $juldays - @months [$month - 1];
+
+  if ($month < 10) {
+    $month = "0" . $month;
+  } # if
+
+  if ($day < 10) {
+    $day = "0" . $day;
+  } # if
+  return $year . "-" . $month . "-" . $day;
+} # jul2date
+
+sub subtract_days {
+  my $date = shift;
+  my $days = shift;
+
+  my $juldate = date2jul ($date);
+  my ($year, $juldays);
+
+  ($year, $juldays) = split /-/, $juldate;
+
+  if ($juldays > $days) {
+    $juldays -= $days;
+  } else {
+    $year -= 1;
+    $juldays = 365 - ($days - $juldays);
+  } # if
+
+  $juldate = $year . "-" . $juldays;
+  return jul2date ($juldate);
+} # subtract_days
+
+sub OpenDB {
+  # Create ClearQuest Session
+  $session = CQPerlExt::CQSession_Build ();
+
+  # Login as admin
+  $session->UserLogon ($cquser, $cqpasswd, $cqdb, "");
+} # OpenDB
+
+sub ProcessRecords {
+  my $from_date = shift;
+  my $to_date   = shift;
+
+  # Build query for all defects
+  $query = $session->BuildQuery ("defect");
+
+  # Include fields into query
+  $query->BuildField ("id");		my $bugid;
+  $query->BuildField ("State");		my $state;
+  $query->BuildField ("Found_in");	my $found_in;
+  $query->BuildField ("submit_date");	my $submit_date;
+
+  # Generate result set
+  $results = $session->BuildResultSet ($query);
+
+  # Run the query
+  $results->Execute ();
+
+  # Counters
+  my (@assigned, @closed, @duplicate, @info, @junked);
+  my (@opened, @pending, @resolved, @verified, @total);
+
+  # Process results
+  $status = $results->MoveNext;
+
+  while ($status == 1) {
+    # Get column value
+    $bugid       = $results->GetColumnValue (1);
+    $state       = $results->GetColumnValue (2);
+    $found_in    = $results->GetColumnValue (3);
+    $submit_date = $results->GetColumnValue (4);
+
+    $submit_date = substr $submit_date, 0, 10;
+
+    if ($found_in =~ /2\.0/) {
+      @total       [0]++;
+      @assigned    [0]++ if ($state eq "Assigned");
+      @closed      [0]++ if ($state eq "Closed");
+      @duplicate   [0]++ if ($state eq "Duplicate");
+      @info        [0]++ if ($state eq "Info");
+      @junked      [0]++ if ($state eq "Junked");
+      @opened      [0]++ if ($state eq "Opened");
+      @pending     [0]++ if ($state eq "Pending");
+      @resolved    [0]++ if ($state eq "Resolved");
+      @verified    [0]++ if ($state eq "Verified");
+      if ($submit_date ge $from_date && $submit_date le $to_date) {
+	@total       [1]++;
+	@assigned    [1]++ if ($state eq "Assigned");
+	@closed      [1]++ if ($state eq "Closed");
+	@duplicate   [1]++ if ($state eq "Duplicate");
+	@info        [1]++ if ($state eq "Info");
+	@junked      [1]++ if ($state eq "Junked");
+	@opened      [1]++ if ($state eq "Opened");
+	@pending     [1]++ if ($state eq "Pending");
+	@resolved    [1]++ if ($state eq "Resolved");
+	@verified    [1]++ if ($state eq "Verified");
+      } # if
+    } # if
+
+    $status = $results->MoveNext;
+  } # while
+
+  # Print results
+  print "2.0 Bugs by date      Totals  $from_date\n";
+  print "                           to $to_date\n";
+  print "----------------  ----------  ----------\n";
+
+  print "Assigned:\t";
+  if ($assigned[0] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $assigned[0];
+  } # if
+  if ($assigned [1] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $assigned[1];
+  } # if
+  print "\n";
+
+  print "Closed:\t\t";
+  if ($closed[0] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $closed[0];
+  }
+  if ($closed[1] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $closed[1];
+  } # if
+  print "\n";
+
+  print "Duplicate:\t";
+  if ($duplicate[0] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $duplicate[0];
+  } # if
+  if ($duplicate[1] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $duplicate[1];
+  } # if
+  print "\n";
+
+  print "Info:\t\t";
+  if ($info[0] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $info[0];
+  } # if
+  if ($info[1] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $info[1];
+  } # if 
+  print "\n";
+
+  print "Junked:\t\t";
+  if ($junked[0] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $junked[0];
+  } # if
+  if ($junked[1] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $junked[1];
+  } # if
+  print "\n";
+
+  print "Opened:\t\t";
+  if ($opened[0] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $opened[0];
+  } # if 
+  if ($opened[1] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $opened[1];
+  } # if 
+  print "\n";
+
+  print "Pending:\t";
+  if ($pending[0] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $pending[0];
+  } # if 
+  if ($pending[1] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $pending[1];
+  } # if
+  print "\n";
+
+  print "Resolved:\t";
+  if ($resolved[0] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $resolved[0];
+  } # if
+  if ($resolved[1] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $resolved[1];
+  } # if
+  print "\n";
+
+  print "Verified:\t";
+  if ($verified[0] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $verified[0];
+  } # if
+  if ($verified[1] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $verified[1];
+  } # if
+  print "\n";
+  print "----------------  ----------  ----------\n";
+  print "Totals:\t\t";
+  if ($total[0] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $total[0];
+  } # if 
+  if ($total[1] eq "") {
+    printf "%12d", "0";
+  } else {
+    printf "%12d", $total[1];
+  } # if
+  print "\n";
+} # ProcessRecords
+
+sub CloseDB {
+  # Destroy ClearQuest Session
+  CQSession::Unbuild ($session);
+} # CloseDB
+
+if ($#ARGV == 1) {
+  $from_date = $ARGV[0];
+  $to_date   = $ARGV[1];
+} else {
+  ($junk,$junk,$junk, $mday, $mon, $year) = localtime (time);
+  $year += 1900;
+  $mon++;
+  if ($mon < 10) {
+    $to_date = $year . "-0" . $mon . "-" . $mday;
+  } else {
+    $to_date = $year . "-" . $mon . "-" . $mday;
+  } # if
+
+  $from_date = subtract_days ($to_date, 7);
+} # if
+
+OpenDB;
+ProcessRecords ($from_date, $to_date);
+CloseDB;

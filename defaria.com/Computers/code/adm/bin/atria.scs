@@ -1,0 +1,727 @@
+#!/bin/sh
+#############################################
+# @(#)scs	1.26
+# system characterization script
+# "scs" collects data from Atria
+# customer sites for analysis by
+# engineering.
+######################################
+
+#########################
+# For Solaris 5.x systems
+#########################
+nddit()
+{
+for i in tcp udp ip
+do
+  /usr/sbin/ndd /dev/$i \? | awk '{print $1}' | \
+             egrep -v '\?|directed|respond'> /tmp/$$
+  for j in `cat /tmp/$$`
+  do
+    printf "%-30s  %s\n" $j  `/usr/sbin/ndd /dev/$i $j`
+  done
+  rm /tmp/$$
+done
+}
+
+solaris()
+{
+show "System Device Configuration" /usr/sbin/prtconf -vP
+show "System Configuration" /usr/sbin/sysdef -i
+show "System Customization" '/bin/cat /etc/system | \
+            /bin/grep -v "^\*" | /bin/grep -v "^$"'
+show "Network Configuration" nddit
+show "System Messages" /bin/dmesg
+show "Patches" /bin/showrev -p
+
+show "Processes" '/usr/ucb/ps auxww | /bin/fold -80'
+show "Network Configuration" /usr/sbin/ifconfig -a
+show "Network Utilization Summary" /bin/netstat -i
+show "Network Protocol Statistics" /bin/netstat -s
+show "Network Mbuf Statistics" /bin/netstat -m
+show "VM Statistics" /bin/vmstat -s
+show "Cache Flush Statistics" /bin/vmstat -c
+show "Interrupts" /bin/vmstat -i
+show "NFS Statistics" /bin/nfsstat
+show "NFS Responses" /bin/nfsstat -m
+
+show "CPU Utilization" /bin/sar -u 1 10
+show "Buffer Activity" /bin/sar -b 1 10
+show "Block Device Activity" /bin/sar -d 1 10
+show "Disk  Device Activity" iostat -x 1 10
+show "Paging In Activity" /bin/sar -p 1 5
+show "Paging Out Activity" /bin/sar -g 1 5
+show "Free Memory" /bin/sar -r 1 5
+show "vmstat snapshot" /bin/vmstat 2 10
+show "Kernel Memory Allocation Activity" /bin/sar -k 1 5
+show "KMA statistics" echo kmastat | /usr/sbin/crash
+echo ""
+}
+
+#######################
+# For SUNOS 4.x systems
+#######################
+sunos()
+{
+
+show "Memory " '/etc/dmesg | grep mem'
+show "System Messages" /etc/dmesg
+show "Processes" '/bin/ps auxww | /usr/ucb/fold -80'
+show "Network Utilization Summary" /usr/ucb/netstat -i
+show "Network Protocol Statistics" /usr/ucb/netstat -s
+show "Network Mbuf Statistics" /usr/ucb/netstat -m
+show "VM Statistics" /usr/ucb/vmstat -s
+show "Cache Flush Statistics" /usr/ucb/vmstat -c
+show "Interrupts" /usr/ucb/vmstat -i
+show "NFS Statistics" /usr/etc/nfsstat
+
+show "Disk Device Activity" /bin/iostat -D 1 10
+show "CPU  Activity" /usr/ucb/vmstat  1 10
+show "Tables" /etc/pstat  -T
+show "vmstat snapshot" /usr/ucb/vmstat 2 10
+
+}
+
+
+#######################
+# For AIX
+#######################
+aix()
+{
+
+show "Processes" '/usr/bin/ps -elf '
+show "Network Utilization Summary" /bin/netstat -i
+show "Network Protocol Statistics" /bin/netstat -s
+show "Network Mbuf Statistics" /bin/netstat -m
+show "Network Configurables" /usr/sbin/no -a
+show "NFS Statistics" /usr/sbin/nfsstat
+
+show "System Attributes" /usr/sbin/lsattr -E -l sys0 
+show "CPU Utilization" sar -u 1 10
+show "Buffer Activity" sar -b 1 10
+show "Disk Activity" /bin/iostat 1 10
+show "Paging Stats" sar -r 1 5
+show "Network Monitor for 30s" '/bin/netpmon -v -o /tmp/$$; sleep 30; trcstop'
+echo ""
+}
+
+#######################
+# For OSF1
+#######################
+osf1()
+{
+show "Boot Messages"  'echo "";echo ""; echo "";uerf -r 300 | tail -100'
+show "Processes" '/usr/bin/ps glww | fold -80'
+show "Network Utilization Summary" /usr/sbin/netstat -i
+show "Network Protocol Statistics" /usr/sbin/netstat -s
+show "Network Mbuf Statistics" /usr/sbin/netstat -m
+show "NFS Statistics" /usr/bin/nfsstat 
+show "Kernel memory usage" /usr/bin/vmstat -M
+show "vmstat snapshopt" /usr/bin/vmstat  2 10
+show "Disk Device snapshot" /bin/iostat  2 10 
+
+}
+
+#######################
+# For IRIX  5.x
+#######################
+irix()
+{
+show "System Device Configuration" /usr/sbin/sysconf 
+show "System Hardware Configuration" /usr/bin/hinv
+show "System Software Configuration" /etc/chkconfig
+show "Disk Usage" /usr/sbin/df -l -k
+show "System Customization" '/bin/cat /var/sysgen/stune | \
+            /bin/grep -v "^\*" | /bin/grep -v "^$"'
+
+show "Processes" '/usr/bin/ps -elf | /bin/fold -80'
+show "Network Utilization Summary" /usr/etc/netstat -i
+show "Network Protocol Statistics" /usr/etc/netstat -s
+show "Network Mbuf Statistics" /usr/etc/netstat -m
+show "NFS Statistics" /usr/etc/nfsstat
+
+show "CPU Utilization" sar -u 1 10
+show "Buffer Activity" sar -b 1 10
+show "Block Device Activity" sar -d 1 10
+show "Paging In Activity" sar -p 1 5
+show "Paging Out Activity" sar -g 1 5
+show "Free Memory" sar -r 1 5
+echo ""
+}
+
+
+#####################
+# For HP-UX 9/800 systems
+#####################
+hpux98()
+{
+#first the shared info 
+hpux
+# now the system specific 
+show "System definition" /etc/sysdef
+show "CPU Utilization" /usr/bin/sar -u 1 10
+show "Buffer Activity" /usr/bin/sar -b 1 10
+show "Block Device Activity" /usr/bin/sar -d 1 10
+}
+#####################
+# For HP-UX 9/700 systems
+#####################
+hpux97()
+{
+# just the shared info 
+hpux
+}
+#####################
+# For All HP-UX 9  systems
+#####################
+hpux()
+{
+show "Memory " grep Physical /usr/adm/messages
+show "System Messages" /etc/dmesg
+show "Swap Space" /etc/swapinfo
+show "Patches" ls -ld /system/PH*
+show "IO devices" /etc/ioscan -f
+
+show "Processes" '/bin/ps -elf | /usr/bin/fold -80'
+show "Network Utilization Summary" /usr/bin/netstat -i
+show "Network Protocol Statistics" /usr/bin/netstat -s
+show "Network Mbuf Statistics" /usr/bin/netstat -m
+show "VM Statistics" /usr/bin/vmstat -s
+show "NFS Statistics" /usr/etc/nfsstat
+show "Network errors" /etc/netfmt -t 30 -f /usr/adm/nettl.LOG00
+
+show "Disk Utilization" df -l
+show "vmstat snapshot" /usr/bin/vmstat 2 10
+}
+
+#####################
+# For HP-UX 10 systems
+#####################
+hpux10()
+{
+
+show "Memory " grep Physical /var/adm/syslog/syslog.log
+show "System DMessages" /usr/sbin/dmesg
+show "System definition" /usr/sbin/sysdef
+show "Messages" "tail -100 /usr/adm/syslog/syslog.log"
+show "IO status" /etc/ioscan -f
+show "Patches" '/usr/sbin/swlist -l product | grep PH'
+
+show "Processes" '/usr/bin/ps -elf | /usr/bin/fold -80'
+show "Network Utilization Summary" /usr/bin/netstat -i
+show "Network Protocol Statistics" /usr/bin/netstat -s
+show "Network Mbuf Statistics" /usr/bin/netstat -m
+show "VM Statistics" /usr/bin/vmstat -s
+show "NFS Statistics" /usr/bin/nfsstat
+
+show "CPU Utilization" /usr/bin/sar -u 1 10
+show "Buffer Activity" /usr/bin/sar -b 1 10
+show "Block Device Activity" /usr/bin/sar -d 1 10
+show "vmstat snapshot" /usr/bin/vmstat 2 10
+}
+#####################
+# For Unixware systems
+#####################
+unixware()
+{
+show "Memory size" /sbin/memsize
+show "Message log" cat /usr/adm/log/osmlog
+show "System Configuration" /usr/sbin/sysdef 
+show "Processes" '/usr/bin/ps -elf '
+show "Network Utilization Summary" /bin/netstat -i
+show "Network Protocol Statistics" /bin/netstat -s
+show "NFS Statistics" /usr/sbin/nfsstat
+
+show "CPU Utilization" /sbin/sar -u 1 10
+show "Buffer Activity" /sbin/sar -b 1 10
+show "Block Device Activity" /sbin/sar -d 1 10
+show "Paging In Activity" /sbin/sar -p 1 5
+show "Paging Out Activity" /sbin/sar -g 1 5
+show "Free Memory" /sbin/sar -r 1 5
+show "Historical sar data" /sbin/sar -A
+echo ""
+}
+
+
+####################################
+# display informationin a uniform way
+####################################
+show() {
+        echo "----------------------------------------------------"
+        echo $1
+        echo "----------------------------------------------------"
+        shift
+        eval "$@"
+        echo ""
+}
+##################################################
+# check uw network - works for  Unixware
+##################################################
+check_uw_network() {
+
+netstat -i $interface
+sleep 10
+netstat -i $interface
+}
+
+##################################################
+# check network - works for HP-UX and SUNOS 5.x
+##################################################
+check_network() {
+   printf "%8s %8s %8s %8s %8s %8s \n" time inpkts inerrs \
+      outpkts outerrs colls 
+    netstat -i -I $interface $interval | (
+    (line ; line ; line) > /dev/null
+    t_inpkts=0	 			# initialize counter
+    t_inerrs=0				# initialize counter
+    t_outpkts=0				# initialize counter
+    t_outerrs=0				# initialize counter
+    t_colls=0				# initialize counter
+    i=0
+    while test $i -lt $count  ; do	# for each of the lines
+      time=`date +%T`
+      /bin/echo $time  \\c
+      set -- `line`			# get the line
+      printf "%8s %8s %8s %8s %8s\n" $1 $2 $3 $4 $5
+      t_inpkts=`expr $1 + $t_inpkts`	# accumulate in packets
+      shift
+      t_inerrs=`expr $1 + $t_inerrs`	# accumulate in errors
+      shift
+      t_outpkts=`expr $1 + $t_outpkts`	# accumulate out packets
+      shift
+      t_outerrs=`expr $1 + $t_outerrs`	# accumulate out errors
+      shift
+      t_colls=`expr $1 + $t_colls`	# accumulate collisions
+      i=`expr $i + 1 `
+    done
+    printf "\n%8s %8s %8s %8s %8s %8s \n" \
+      total $t_inpkts $t_inerrs $t_outpkts $t_outerrs $t_colls
+# now check error and collision rate. 
+# Use awk to get floating point accuracy
+    echo  $t_colls $t_outpkts $t_inerrs $t_inpkts | awk '$2 != 0 { 
+    collision_rate = $1 / $2;
+    printf("\n\ncollision rate ( %g %% )", (collision_rate * 100.0));
+    if ( collision_rate > 0.05 ) 
+      printf("  too high. Add subnets.\n");
+    else
+      printf("\n")}
+    $4 != 0 {
+    error_rate = $3 / $4;
+    printf("    error rate ( %g %% )", (error_rate * 100.0));
+    if (error_rate > 0.00025)
+      printf("  too high.  Check cabling.\n");
+    else
+      printf("\n")}'
+
+  )
+}
+
+##################################################
+# check network - works for SUNOS 4.x
+##################################################
+check_network1() {
+   echo " time     inpkts   inerrs   outpkts   outerrs  colls"
+  netstat -i -I $interface $interval | (
+    (line ; line ; line) > /dev/null
+    t_inpkts=0	 			# initialize counter
+    t_inerrs=0				# initialize counter
+    t_outpkts=0				# initialize counter
+    t_outerrs=0				# initialize counter
+    t_colls=0				# initialize counter
+    i=0
+    while test $i -lt $count  ; do	# for each of the lines
+      time=`date +%T`
+      /bin/echo -n $time  
+      set -- `line`			# get the line
+      echo "     $1       $2         $3        $4        $5"
+      t_inpkts=`expr $1 + $t_inpkts`	# accumulate in packets
+      shift
+      t_inerrs=`expr $1 + $t_inerrs`	# accumulate in errors
+      shift
+      t_outpkts=`expr $1 + $t_outpkts`	# accumulate out packets
+      shift
+      t_outerrs=`expr $1 + $t_outerrs`	# accumulate out errors
+      shift
+      t_colls=`expr $1 + $t_colls`	# accumulate collisions
+      i=`expr $i + 1 `
+    done
+    echo -n "total       " 
+    echo -n "$t_inpkts       $t_inerrs        $t_outpkts       "
+    echo " $t_outerrs       $t_colls"
+# now check error and collision rate. 
+# Use awk to get floating point accuracy
+    echo  $t_colls $t_outpkts $t_inerrs $t_inpkts | awk '$2 != 0 { 
+    collision_rate = $1 / $2;
+    printf("\n\ncollision rate ( %g %% )", (collision_rate * 100.0));
+    if ( collision_rate > 0.05 ) 
+      printf("  too high. Add subnets.\n");
+    else
+      printf("\n")}
+    $4 != 0 {
+    error_rate = $3 / $4;
+    printf("    error rate ( %g %% )", (error_rate * 100.0));
+    if (error_rate > 0.00025)
+      printf("  too high.  Check cabling.\n");
+    else
+      printf("\n")}'
+
+  )
+}
+
+########################################################
+# establish file partition -> disk device mapping for solaris
+# how do I do this for other platforms?
+########################################################
+do_discs()
+{
+df -F ufs
+df -F ufs | cut -f1 -d: | awk '{print $2}' | sed 's/(//' |\
+            sed 's/)//' > /tmp/lll
+for i in `cat /tmp/lll` 
+do
+  ls -l $i
+done
+rm /tmp/lll
+cat /etc/path_to_inst
+}
+
+########################################################
+# calculate the size (in bytes) of all VOB database on this host
+########################################################
+check_vobs()
+{
+if [  ! -f $ATRIAHOME/bin/cleartool ] ; then
+  echo this is not a ClearCase host
+  exit
+fi
+# list  all vobs on this host and extract the
+# VOB storage directory. 
+$ATRIAHOME/bin/cleartool lsvob -host $HOST 
+$ATRIAHOME/bin/cleartool lsvob -host $HOST | \
+awk '$1 == "*" {print $3  } \
+     $1 != "*" {print $2  }' >/tmp/list.$$
+# count the vobs
+vobs=`wc -l /tmp/list.$$ | awk '{print $1}'`
+echo "Number of vobs    : $vobs"
+if [ $vobs = 0 ] ; then
+  return
+fi
+# now count all the bytes in the database data and key files
+for i in `cat /tmp/list.$$`
+do
+  cd $i/db
+  $LSL vob_db.d0? vob_db.k0? | \
+  awk 'BEGIN {sum=0} \
+  {sum = sum + $5} \
+  END {printf "%12d\t", sum}'  
+  echo `basename $i` 
+done | tee -a  /tmp/list1.$$
+
+awk 'BEGIN {sum=0} \
+{sum = sum + $1} \
+END {printf "%12d\tTOTAL", sum}'  < /tmp/list1.$$
+
+rm /tmp/list.$$ /tmp/list1.$$
+}
+
+########################################################
+# check the view characteristics
+########################################################
+check_views()
+{
+if [  ! -f $ATRIAHOME/bin/cleartool ] ; then
+  echo this is not a ClearCase host
+  exit
+fi
+$ATRIAHOME/bin/cleartool lsview -host $HOST | \
+awk '$1 == "*" {print $3,$2  } \
+     $1 != "*" {print $2,$1  }' >/tmp/list.$$
+# count the views
+views=`wc -l /tmp/list.$$ | awk '{print $1}'`
+echo "Number of views    : $views"
+if [ $views = 0 ] ; then
+  return
+fi
+cat /tmp/list.$$ | (
+i=1
+while [ $i -le  $views ]
+do
+   set -- `line`;
+   size=`grep -s cache $1/.view | awk '{print $2}'`
+   if [ a$size = a ]; then
+      size=default
+   fi
+   echo "$size $2" | awk '{printf "%8s\t%-16s\n", $1, $2}'
+   i=`expr $i + 1`
+done
+)
+rm /tmp/list.$$
+}
+
+########################################################
+# check the MVFS cache on this system
+########################################################
+check_mvfs()
+{
+/usr/atria/etc/mvfsstat -iclrh 2>&1
+}
+
+########################################################
+# check clearcase things
+########################################################
+check_cc()
+{
+ATRIAHOME=${ATRIAHOME:-/usr/atria}
+  show "VOB sizes" check_vobs
+  show "Views" check_views
+  show "MVFS" check_mvfs
+  show "Cleartool Version" $ATRIAHOME/bin/cleartool -ver
+}
+
+########################################################
+# obtain mvs parameters
+########################################################
+
+get_mvfs_sun4()
+{
+adb -k /var/adm/atria/vmunix_mvfs /dev/mem <<!
+=n"MVFS parameters"
+physmem/D
+mvfs_mnmax/D
+mvfs_vobfreemax/D
+mvfs_cvpfreemax/D
+mvfs_dncdirmax/D
+mvfs_dncregmax/D
+mvfs_dncnoentmax/D
+mvfs_largeinit/D
+!
+}
+
+get_mvfs_sun5()
+{
+adb -k /dev/ksyms /dev/mem <<!
+=n"MVFS parameters"
+physmem/D
+mvfs_mnmax/D
+mvfs_vobfreemax/D
+mvfs_cvpfreemax/D
+mvfs_dncdirmax/D
+mvfs_dncregmax/D
+mvfs_dncnoentmax/D
+mvfs_largeinit/D
+!
+}
+
+get_mvfs_hp9()
+{
+adb -k /hp-ux /dev/mem <<!
+=n"MVFS parameters"
+physmem/D
+mvfs_mnmax/D
+mvfs_vobfreemax/D
+mvfs_cvpfreemax/D
+mvfs_dncdirmax/D
+mvfs_dncregmax/D
+mvfs_dncnoentmax/D
+mvfs_largeinit/D
+bufpages/D
+nbuf/D
+ninode/D
+fs_async/D
+!
+}
+
+get_mvfs_hp10()
+{
+adb -k /stand/vmunix /dev/mem <<!
+=n"MVFS parameters"
+physmem/D
+mvfs_mnmax/D
+mvfs_vobfreemax/D
+mvfs_cvpfreemax/D
+mvfs_dncdirmax/D
+mvfs_dncregmax/D
+mvfs_dncnoentmax/D
+mvfs_largeinit/D
+bufpages/D
+nbuf/D
+ninode/D
+fs_async/D
+!
+}
+
+get_mvfs_osf1()
+{
+
+dbx -k /vmunix /dev/mem  2>/dev/null <<!
+printf "physmem %d", physmem
+printf "mvfs_mnmax %d", mvfs_mnmax
+printf "mvfs_vobfreemax %d", mvfs_vobfreemax
+printf "mvfs_cvpfreemax %d", mvfs_cvpfreemax
+printf "mvfs_dncdirmax %d", mvfs_dncdirmax
+printf "mvfs_dncregmax %d", mvfs_dncregmax
+printf "mvfs_dncnoentmax %d", mvfs_dncnoentmax
+printf "mvfs_largeinit %d", mvfs_largeinit
+puit
+!
+}
+
+
+############################
+# ENTRY POINT FOR SCRIPT
+############################
+
+if [ $# -ne 0 ] ; then
+   echo "usage: scs"
+   exit
+fi
+
+if [ ! -w /etc/passwd ] ; then
+        echo "Please run $0 as root."
+        exit 1
+fi
+
+interval=1
+count=20
+
+SYS=`uname -m`
+OS=`uname -s`
+OSVER=`uname -r`
+HOST=`uname -n`
+LSL="ls -l"
+
+echo system is `uname -a`
+echo "SCS script version 96/06/21 1.26 run at `date`"
+
+case $OS in
+
+#AIX
+AIX   )  aix
+         lans=`/bin/netstat -i | grep -v none | \
+            awk '{print $1}' | grep -v lo0 | grep -v Name `
+         for interface in $lans 
+         do
+            show "Network snapshop - $interface" check_network
+         done 
+         check_cc
+         ;;
+
+
+#Sun 
+SunOS )  case $OSVER in
+         # SUN SunOS 4.x (Solaris 1.x) operating system
+        4.1*  ) sunos
+                LSL="ls -lg"
+                lans=`/usr/ucb/netstat -i | grep -v none | \
+                  awk '{print $1}' | grep -v lo0 | grep -v Name `
+                for interface in $lans 
+                do
+                   show "Network snapshop - $interface" check_network1
+                done 
+                check_cc
+                show "MVFS parameters" get_mvfs_sun4
+                show "License Host" cat /var/adm/atria/config/license_host
+                show "Registry Host and Region" cat /var/adm/atria/rgy/rgy*.conf
+                ;;
+        # SUN SunOS 5.x (Solaris 2.x) operating system
+        5.*   ) solaris
+                lans=`/bin/netstat -i | grep -v none | \
+                  awk '{print $1}' | grep -v lo0 | grep -v Name `
+                for interface in $lans 
+                do
+                   show "Network snapshop - $interface" check_network
+                done 
+                show "Disk Utilization " do_discs
+                check_cc
+                show "MVFS parameters" get_mvfs_sun5
+                show "License Host" cat /var/adm/atria/config/license_host
+                show "Registry Host and Region" cat /var/adm/atria/rgy/rgy*.conf
+                ;;
+        esac
+        ;;
+#HP
+HP-UX)  case $OSVER in 
+        # HP HP-UX operating system
+        A.09.*) model=`uname -m | cut -d'/' -f 2`
+                if [ `expr $model` -gt 800 ] ; then
+                    hpux98
+                elif [ `expr $model` -gt 700 ] ; then
+                    hpux97
+                else
+                    hpux
+                fi
+                lans=`/usr/bin/netstat -i | grep -v none | \
+                  awk '{print $1}' | grep -v lo0 | grep -v Name `
+                for interface in $lans 
+                do
+                   show "Network snapshop - $interface" check_network
+                done 
+                check_cc
+                show "MVFS parameters" get_mvfs_hp9
+                show "License Host" cat /usr/adm/atria/config/license_host
+                show "Registry Host and Region" cat /usr/adm/atria/rgy/rgy*.conf
+                ;;
+        *.10.*) hpux10
+                lans=`/bin/netstat -i | grep -v none | \
+                  awk '{print $1}' | grep -v lo0 | grep -v Name `
+                for interface in $lans 
+                do
+                   show "Network snapshop - $interface" check_network
+                done 
+                check_cc
+                show "MVFS parameters" get_mvfs_hp10
+                show "License Host" cat /var/adm/atria/config/license_host
+                show "Registry Host and Region" cat /var/adm/atria/rgy/rgy*.conf
+                ;;
+        esac
+        ;;
+#SGI
+IRIX)  case $OSVER in
+        # IRIX 5.x operating system
+        # IRIX 5.x operating system
+        5.*   ) irix
+                lans=`/usr/etc/netstat -i | grep -v none | \
+                  awk '{print $1}' | grep -v lo0 | grep -v Name `
+                for interface in $lans 
+                do
+                   show "Network snapshot - $interface" check_network
+                done 
+                check_cc
+                ;;
+        #other
+        * ) echo "$prog": unknown operating system: $OS $CPUOS
+            exit ;;
+        esac
+        ;;
+
+#Digital Unix
+OSF1)      osf1
+           lans=`/usr/sbin/netstat -i | grep -v none | \
+              awk '{print $1}' | grep -v lo0 | grep -v Name `
+            for interface in $lans 
+            do
+               show "Network snapshot - $interface" check_network
+            done 
+           check_cc
+           show "MVFS parameters" get_mvfs_osf1
+           show "License Host" cat /var/adm/atria/config/license_host
+           show "Registry Host and Region" cat /var/adm/atria/rgy/rgy*.conf
+           ;;
+
+#Unixware
+UNIX_SV)   unixware
+           lans=`/bin/netstat -i | grep -v none | \
+             awk '{print $1}' | grep -v lo0 | grep -v Name `
+           for interface in $lans 
+           do
+              show "Network snapshop - $interface" check_uw_network
+           done 
+           check_cc
+           ;;
+
+#other
+* ) echo "$prog": unknown operating system: $OS $CPUOS
+    exit ;;
+esac
+
+

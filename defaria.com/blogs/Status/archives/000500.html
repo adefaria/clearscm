@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: cvsims/SCM global area/ccase-rmna-4 issues</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000499.html" title="BinRebase/ccase-rmna-4 problems" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000501.html" title="Bugs/Integrating cvsims/PQA problems" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000499.html">&laquo; BinRebase/ccase-rmna-4 problems</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000501.html">Bugs/Integrating cvsims/PQA problems &raquo;</a>
+                     </p>
+
+                     <a id="a000500"></a>
+                     <div class="entry" id="entry-500">
+                        <h3 class="entry-header">cvsims/SCM global area/ccase-rmna-4 issues</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed cvsims to use new global area</li>
+
+  <li>Created document for <a href="http://intranet.broadcom.com/~adefaria/CVS/IMS.php">CVS/IMS Connector</a></li>
+
+  <li>Created new global area</li>
+
+  <lI>Working on another users problems with accessing ccase-rmna-4</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>Global File System Area - SCM</h2>
+
+<p>I'm just trying to understand a little bit better about global paths, replication and DFS here at Broadcom. I ask because I see that this new SCM directory that I created over in Irvine is not at other sites as I would have expected it. For example:</p>
+
+<div class="code"><pre>
+ccase-rmna-3:ls -d /projects/ccase/SCM
+ls: /projects/ccase/SCM: No such file or directory
+ccase-rmna-3:ls /projects/ccase | wc -l
+     17
+</pre></div>
+
+<p>and</p>
+
+<div class="code"><pre>
+ccase-sj1-1:ls -d /projects/ccase/SCM
+ls: /projects/ccase/SCM: No such file or directory
+ccase-sj1-1:ls /projects/ccase | wc -l
+     16
+</pre></div>
+
+<p>However</p>
+
+<div class="code"><pre>
+x-irva-01:ls -d /projects/ccase/SCM                                           
+/projects/ccase/SCM/
+x-irva-01:ls /projects/ccase | wc -l                                          
+      24
+</pre></div>
+
+<p>So then the SCM directory exists in Irvine but not in SJ nor Richmond. I suspect that it's merely that something needs to replicate it and maybe I just need to wait until that happens. Still such a delay in replication is a side effect we must bear in mind when we are pushing out changes... Also, notice the different directory counts at the three sites above...</p>
+
+<p>WRT Windows and DFS, my Z drive is mapped to \\brcm-sj\dfs and I therefore do not have a Z:\projects\ccase\SCM directory there either:</p>
+
+<div class="code"><pre>
+Local:ls -d /dev/z/projects/ccase/SCM
+ls: /dev/z/projects/ccase/SCM: No such file or directory
+Local:ls /dev/z/projects/ccase | wc -l
+16
+</pre></div>
+
+<p>I suspect this correlates to ccase-sj1-1:/projects/ccase/SCM and whenever that directory gets populated so will my Z drive.</p>
+
+<p>Again, it might be that replication will eventually happen or that it need to be set up. But we must understand that pushing something to some "global" place in Irvine, SJ or Richmond has a built in prorogation delay.</p>
+
+<p>Finally, it seems to me that the intent of the projects automount map is to provide a well known path to global file space that exists on filers at the various sites and that replication between the filers happens on some known schedule. Scripts or other processes should "reach out" to the filer storage area they they know (e.g. \\brcm-irv\dfs\projects\ccase...) rather they should use the automount map (i.e. /projects/ccase) so as to avoid having to go out on the WAN to get stuff. For Unix this is pretty simplified in that the automounter and the projects automount map normalizes this to just /projects/<project>/<etc>. But can it be said that the same is true under Windows for the Z drive and DFS? By that I mean can I rely on Z:\projects\ccase\SCM to be the right place? If so then I will change my Perl code to set $lib_path = "Z:\\projects\\ccase\\SCM\\lib".</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on December 20, 2005  5:27 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000500.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+#!/bin/bash
+# Upgrade Clearcase or Clearquest
+me=$(basename $0)
+rational_network_install_area="//sons-clearcase/Rational/Clearcase LT/install"
+rational_network_install_area2="//sons-clearcase/Rational"
+errorlog="$(cygpath -w $TMP)/error.log"
+
+function usage {
+  echo "Usage $me [clearcase | clearcaselt | clearquest]"
+  exit 1
+} # usage
+
+if [ $# -ne 1 ]; then
+  usage
+fi
+
+product=$(echo $1 | tr [:upper:] [:lower:])
+
+if [ "$product" != "clearcase"  -a \
+     "$product" != "clearquest" -a \
+     "$product" != "clearcaselt" ]; then
+  usage
+fi
+
+if [ "$product" = "clearcase" ]; then
+  rational_network_install_area="$rational_network_install_area2"
+fi
+  
+
+echo "$product upgrade"
+echo
+echo "WARNING: Installation of this software requires a reboot!"
+echo "Please make sure that you save any data before proceeding!"
+echo
+
+response=""
+while [ "$response" != "y" -a "$response" != "n" ]; do
+  echo -e "Continue with installation (Y/n)? \c"
+  read response
+  response=$(echo $response | tr [:upper:] [:lower:])
+done
+
+if [ "$response" = "y" ]; then
+  install_dir="$rational_network_install_area"
+  if [ "$product" != "clearcase" ]; then
+    install_dir="$install_dir/setup"
+  fi
+  if [ ! -d "$install_dir" ]; then
+    echo "Error: Unable to find installation area: $install_dir"
+    exit 1
+  fi
+  cd "$install_dir"
+  echo "Performing silent installation of $product..."
+  if [ "$product" = "clearcase" ]; then
+    setup /noccdoc /s /f1.\\$product.iss /f2"$errorlog"
+  else
+    rssetup -silent -response:.\\$product.ini
+  fi
+else
+  echo "Installation of $product aborted"
+fi

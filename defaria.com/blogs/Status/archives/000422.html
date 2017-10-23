@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Binary Merge/CVS/Clearquest Web</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000421.html" title="CQ/Triggers/Binary merge/CVS" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000423.html" title="Evil Twin/Performance" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000421.html">&laquo; CQ/Triggers/Binary merge/CVS</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000423.html">Evil Twin/Performance &raquo;</a>
+                     </p>
+
+                     <a id="a000422"></a>
+                     <div class="entry" id="entry-422">
+                        <h3 class="entry-header">Binary Merge/CVS/Clearquest Web</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Inveistigated binary merge problem</li>
+
+  <li>Worked with Mukund regarding CVS access</li>
+
+  <li>Helped Shivdutt with a Clearquest Web problem. User reports that Clearquest Web not working in IE! Suspect the problem is due to configuration issues, specifically JRE. Did some research and sent URLs to user</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Binary Merge</h3>
+
+<p>Clearcase's diffmerge utility has understandable problems attempting to merge files that are binary (Clearcase searches for NUL characters \000 in the file to determine if it is binary). Sometimes Clearcase can merge such files, if it determines that the merge merely entails a wholesale replace of one version with another. But in non trival merges this is not possible.</p>
+
+<p>Developers and managers here use a series of Perl scripts to help automate common trasks, one of which is to merge to and from different branches. The problem is when delivering a large set of changes there is a chance that some of the files will be binary and that it will not be possible to automatically merge them. Often a developer will start a merge and let it run over night. Sometimes, somewhere in the middle, the merge will prompt with a dialog box saying that it cannot merge this binary file. The result is that the merge is 1/2 done!</p>
+
+<p>The Perl script uses cleartool findmerge to find and merge both directories and files. It also uses the -merge option to say "automatically merge things". Unfortunately when it hits a non trival binary file merge it cannot continue.</p>
+
+<p>We propose to modify the Perl script to call findmerge without the -merge option then obtain the list of files that needs merging and itterate through the list calling cleartool merge for each file with a -abort. This tells merge to automatically merge things if it can, otherwise not to merge and return a status code that that merge was not possible in an automatic mode.</p>
+
+<p>The script would then collect the names of all the files that could not be automatically merged and store that in a file somewhere.<p>
+
+<p>We believe there are 3 possible ways to merge a non trival merge of a binary file (this assumes a simple merge between two different versions of a binary file. A merge with multiple contributors would obviously present N+1 possibilities...):
+
+<ol type="A">
+  <li>Result of merge is a copy of the first contributor</li>
+
+  <li>Result of merge is a copy of the second contributor</li>
+
+  <li>Binary file needs to be rebuilt combining both A and B</li>
+</ol>
+
+<p>A process could be written to read the saved file of non automatic binary merges and present the user with the choices listed above. The user then selects which choice is appropriate. The process then performs the necessary actions to accomplish what the user requested (i.e. if they select A then a merge arrow is drawn from B -> the checked out copy of A. If they select B then a merge arrow is drawn from A to the checked out copy of B). If any C options are choosen then the file remains unmerged.</p>
+
+<p>In this way when the user performs his normal merge, upon completion, if merge conflicts exist in binary files the user is presented, <b>at the end of merging everything else</b> a dialog box allowing them to resolve the binary merge problems right now. The benefit here is that all of the other merging has already been completed and they are only dealing with the <i>problem</i> merges now. If they do not wish to correct these now they can always correct them later (issues about where this saved file will reside and how to restart the binary merge resolver are still open).</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 15, 2005  6:31 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000422.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

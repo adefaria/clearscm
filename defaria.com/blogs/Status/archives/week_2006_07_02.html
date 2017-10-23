@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: July  2, 2006 - July  8, 2006 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2006_06_25.html" title="June 25, 2006 - July  1, 2006" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2006_07_09.html" title="July  9, 2006 - July 15, 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2006_06_25.html">&laquo; June 25, 2006 - July  1, 2006</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2006_07_09.html">July  9, 2006 - July 15, 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">July  7, 2006</h2>
+                     <a id="a000558"></a>
+                     <div class="entry" id="entry-558">
+                        <h3 class="entry-header">Remove Empty Branch</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Documented problems with empty branches</li>
+</ul>
+                              
+                              <h2>Empty branches and the mess they create</h2>
+
+<p>Did you know that we have been creating empty branches that then cause unnecessary and additional work for Clearcase when rebasing or delivering as well as unnecessarily clutter version trees? What is an empty branch you ask? Well when working on a stream (or a simply a branch in base Clearcase terms) if a user checks out a file a branch is created (e.g. defaria_osaka) and a copy of the current element is made the 0 version on the new branch, then that 0 version is checked out. It looks like this:</p>
+
+<img alt="Empty Branch with Checkout" src="EmptyBranchCheckout.jpg" border="2">
+
+<p>But if the user decided not to change anything and cancels the checkout (which can also happen if the user cancels a rebase or delivery) then Clearcase will cancel the checkout but the view will remain focused on the 0 version (e.g. defaria_osaka/0):</p>
+
+<img alt="Empty Branch" src="EmptyBranch.jpg" border="2">
+
+<p>This version is essentially useless as it is the same as the version it branched from (e.g. osaka_strm/1) however this 0 version can be labeled (i.e. have a baseline applied to it) and that starts making it seem more important than it really is.</p>
+
+<p>But what's worse is that if development continues on osaka_strm, producing osaka_strm/2 or 3, etc., then rebase then needs to merge this new osaka_strm version to defaria_osaka thus producing defaria_osaka/1. Essentially at this time osaka_strm/2 == defaria_osaka/1. Still a new
+version is produced on defaria_osaka thus creating more meta data for Clearcase to retain, manage and display in things like the <i>Version Tree Browser</i>, etc. So, for example:</p>
+
+<img alt="Unnecessary Versions" src="CreatingUnnecessaryVersions.jpg" border="2">
+
+<p>Here is an example of an empty branch growing into a useless rebase. At osaka_strm/1 a checkout was done to defaria_osaka creating defaria_osaka/0 and a checkout. Later the checkout was canceled making defaria_osaka/0 - an empty branch. At this point osaka_strm/1 and defaria_osaka/0 are the same.</p>
+
+<p>Then osaka_strm marched onward producing versions 2, 3 and 4. When rebasing Clearcase noticed the defaria_osaka/0 was old compared to the new osaka_strm/4 so it merged it producing defaria_osaka/1. Now defaria_osaka/1 is the same as osaka_strm/4. But there has been no development on my defaria_osaka view with respect to this element! Why then do I have or need anything on a defaria_osaka branch for this element? And why am I producing more versions for something I'm not touching? For a rebase that I'm doing I have hundreds of these...</p>
+
+<p>This effect causes Clearcase to consider more elements when rebasing and delivering. Also version trees are needlessly more cluttered. Finally users can be confused when they rebase or deliver because they are seeing many elements and activities involved in the rebase or deliver that, as far as they are concerned, they had nothing to do with.</p>
+
+<p>These empty branches and subsequently created versions are non-essential as none of them represent new work, carry along extra meta data, cause additional work for Clearcase and confuse users.</p>
+
+<p>Normally I suggest and implement a <a  href="/Resume/Clearcase/RemoveEmptyBranch.php"><i>remove empty branch</i></a> trigger.
+This trigger is fired on the rmbranch and uncheckout events. It checks to see if the uncheckout would result in an empty branch and if so it removes the branch thus eliminating all the problems mentioned above.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:23 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000558.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

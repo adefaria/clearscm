@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: More fun with SQL ANYWHERE</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000539.html" title="Build bugs, Test suite still not runing nightly" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000541.html" title="Production User Database Migrated" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000539.html">&laquo; Build bugs, Test suite still not runing nightly</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000541.html">Production User Database Migrated &raquo;</a>
+                     </p>
+
+                     <a id="a000540"></a>
+                     <div class="entry" id="entry-540">
+                        <h3 class="entry-header">More fun with SQL ANYWHERE</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <h3>Attempting to transfer databases using MS Access</h3>
+
+<p>OK, trying this methodology:</p>
+
+<ul>
+  <li>Used installutil copyschemarepo command to copy schema.db -&gt;
+schema.mdb</li>
+  <li>Moved schema.mdb to new server</li>
+  <li>Used installutil copyuserdb command to copy salira_test.db -&gt;
+test.db.</li>
+  <li>Moved test.db to new server</li>
+  <li>Tried several times to use installutil command to copy
+salira_bugs.db (the production database) -&gt; bugs2.db. System aborted
+several times. Not sure if this is due to bad disk blocks or not. This
+is a major problem as this is the data we care about.</li>
+</ul>
+
+<p>Back on the new server:</p>
+
+<ul>
+  <li>If I do Connection: New and point to the schema.mdb file it wants
+to overwrite it! Instead I did File: Import Profile of a profile of the
+old databases. Of course these say SQL_ANYWHERE. I change this to
+MS_ACCESS and point to the schema.mdb file and this seems to work.</li>
+  <li>Attempt to do Schema Repository: Move. In doing so I set the
+Physical Database Name by browsing to the folder via the ellipsis
+button. This leaves me with D:\Clearquest\schema.db. Clicking on Finish
+give ms:<br>
+    <blockquote>The filename you have specified is not a Share. If
+other users will need access to this database, you should browse
+through "Network Neighborhood" to place is in a share. Continue with
+this name?<br>
+    </blockquote>
+I select No because I do want other users to be able to access this
+database. Next I change the D:\Clearquest\salira.db -&gt;
+\\sons-sc-cc\Clearquest\schema.db and click Finish. At this point I get
+a error dialog stating that it was "Unable to connect to the database
+server". After much scratching of the head I realize that I should use
+D:\Clearquest\schema.db, ignore the warning, then go back in and set
+the Physical Database Name to \\sons-sc-cc\Clearquest\schema.db.<br>
+    <br>
+Oh, a side issue: After failing using a Physical Database Name of
+\\sons-sc-cc\Clearquest\schema.db the Rational Clearquest Maintenance
+Tool still creates a schema.db file. If you go Back and correct the
+Physical Database Name to a local path and click Finish you'll get a
+database I/O error. Turns out you have to remove this schema.db file
+first. These two (what else could I call them but) BUGS caused me to
+lose many hours of sleep.<br>
+    <br>
+Managed to move the schema.mdb -&gt; schema.db.</li>
+  <li>Switching to the Clearquest Designer now to Database: Update User
+Database Properties. As I only have the test.mdb file to convert I
+change the user database properties for the test database.</li>
+  <li>Now I select Database: Move User Database to move the test user
+database to SQL_ANYWHERE</li>
+</ul>
+
+<p>At this point I'd like to run Clearquest Designer and do Test Work so I
+can at at least verify that I can access the converted to SQL_ANYWHERE
+test.db. Unfortunately there is a checked out version of the schema in
+the schema database that I copied over and I'm not the owner of that
+checked out schema. And I can't login as that user.</p>
+
+<p>By chance I tried Schema Repository: Upgrade: Selected connection in
+the Clearquest Maintenance Tool and in stepping through those dialog
+boxes it say "The schema repository that you want to upgrade has
+checked-out schemas. If you continue the upgrade process, the checked
+out schema versions cannot be upgraded and will be deleted from the
+system". I continue onward and manage to "upgrade" the schema and test
+database. I proceed into Clearquest Designer and manage to Test Work
+and viola! I got it up. I am nothing if not tenacious!</p>
+
+<p><b>Total Time:</b> 2 hours</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 12, 2006 10:50 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000540.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

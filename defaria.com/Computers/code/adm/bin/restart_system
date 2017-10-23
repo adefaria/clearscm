@@ -1,0 +1,45 @@
+#!/bin/bash
+################################################################################
+#
+# File:         restart_system
+# Description:  A script to restart a system. Used for at jobs mainly.
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Apr 16 14:14:17 PDT 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Who do notify about the restart
+notify=${notify:-$LOGNAME}
+
+if is_not_root; then
+  error "This script must be run as root" 1
+fi
+
+message="Restarting $(hostname) ($(uname -s)) via $me"
+info $message
+#mailx -s "$message" $notify <<!EOF
+#$message
+#!EOF
+
+cd /
+
+if [ $(uname -s) = "HP-UX" ]; then
+  /etc/shutdown -yr 0
+else
+  /etc/shutdown -yg 0 -i 6
+fi

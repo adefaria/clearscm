@@ -1,0 +1,946 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: August 2007 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2007_07.html" title="July 2007" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2007_09.html" title="September 2007" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2007_07.html">&laquo; July 2007</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2007_09.html">September 2007 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000670"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/57"
+    dc:title="Building Oracle 10.x for Linux"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000670"
+    dc:subject="General Dynamics"
+    dc:description=" Managed to get a 10.2 sqlplus client to talk to our 9.2 database server from Solaris. Regular expressions, however, do not work. Since there is no 9.2 Oracle 64 bit client for Linux I decided to attempt to get..."
+    dc:creator=""
+    dc:date="2007-08-30T14:35:08-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 30, 2007</h2>
+                     <a id="a000670"></a>
+                     <div class="entry" id="entry-670">
+                        <h3 class="entry-header">Building Oracle 10.x for Linux</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Managed to get a 10.2 sqlplus client to talk to our 9.2 database server from Solaris. Regular expressions, however, do not work.</li>
+
+  <li>Since there is no 9.2 Oracle 64 bit client for Linux I decided to attempt to get the 10.2 Oracle 64 bit client installed. Managed to get a 10.2 sqlplus client to talk to our 9.2 database server from Linux! Went to build the Qt OCI portion and failed.</li>
+</ol>
+                              
+                              <h2>Building Qt OCI</h2>
+
+<p>Pat, I managed to install the Oracle Client 10.x for Linux - Will
+had gotten a 64 bit version. I even managed to use sqlplus to connect
+to RANCQ_RANDBS from Linux!</p>
+
+<p>Now it's time to build Qt's OCI interface so that I can ultimately
+build the Linux version of ucmwb.</p>
+
+<p>Trolltech, makers of Qt, state:</p>
+
+<blockquote>
+  <h3>How to Build the OCI Plugin on Unix and Mac OS X</h3>
+
+  </p>For Oracle 10g, all you need is the "Instant Client Package -
+  Basic" and "Instant Client Package - SDK". For Oracle prior to 10g,
+  you require the standard Oracle client and the SDK packages.</p>
+
+  <p>Oracle library files required to build the driver:</p>
+
+  <ul>
+    <li>libclntsh.so (all versions)</li>
+
+    <li>libwtc9.so (only Oracle 9)</li>
+  </ul>
+
+  <p>Tell qmake where to find the Oracle header files and shared
+  libraries and run make:</p>
+
+  <h3>For Oracle version 9:</h3>
+
+  <pre>
+cd $QTDIR/src/plugins/sqldrivers/oci
+qmake -o Makefile "INCLUDEPATH+=$ORACLE_HOME/rdbms/public $ORACLE_HOME/rdbms/demo" "LIBS+=-L$ORACLE_HOME/lib -lclntsh -lwtc9" oci.pro
+make
+  </pre>
+
+  <p>For Oracle version 10, we assume that you installed the RPM
+  packages of the Instant Client Package SDK (you need to adjust the
+  version number accordingly):</p>
+
+  <pre>
+cd $QTDIR/plugins/src/sqldrivers/oci
+qmake -o Makefile "INCLUDEPATH+=/usr/include/oracle/10.1.0.3/client/" "LIBS+=-L/usr/lib/oracle/10.1.0.3/client/lib" oci.pro
+make
+  </pre>
+</blockquote>
+
+<p>Unfortunately, after installing the Oracle client I didn't have a
+/usr/include/oracle... And I didn't have a /usr/lib/oracle either. Nor
+did I see an include directory under where I installed the Oracle
+client (/opt/oracle). Before I ask Trolltech support what the
+appropriate paths should be I thought I'd ask you. Perhaps I have not
+properly installed a portion of Oracle...</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000670.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000670.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000669"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/56"
+    dc:title="Installing... err... I mean building Oracle"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000669"
+    dc:subject="General Dynamics"
+    dc:description=" Started building cqtalk, a Perl process to interact with Clearquest Spent time attempting to install/build Oracle client for Linux..."
+    dc:creator=""
+    dc:date="2007-08-29T16:13:56-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 29, 2007</h2>
+                     <a id="a000669"></a>
+                     <div class="entry" id="entry-669">
+                        <h3 class="entry-header">Installing... err... I mean building Oracle</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Started building cqtalk, a Perl process to interact with Clearquest</li>
+
+  <li>Spent time attempting to install/build Oracle client for Linux</li>
+</ul>
+                              
+                              <h2>Installing/Building Oracle</h2>
+
+<p>We have an application, ucmwb, which uses Oracle to talk directly
+to our Clearquest databases. This application runs on Solaris and
+hopefully soon Linux. In particular it talks to RANCQ on
+RANDBS. AFAICT RANDBS is an Oracle 9.2 server.</p>
+
+<p>I would love to go to Oracle 10.x because with 10.x comes regexs
+and they would help ucmwb tremendously. However I can't get a 10.x
+client to talk to this 9.x server.</p>
+
+<p>Working on the Solaris side for now, I can use the 9.2 version of
+sqlplus to connect to our RANCQ database:</p>
+
+<div class=code><pre>
+<b><font color="#3366ff">Randws016:</font></b><u>echo $ORACLE_HOME</u>
+/usr/local/oracle/product/9.2
+<b><font><b><font color="#3366ff">Randws016:</font></b></font></b><u>$ORACLE_HOME/bin/sqlplus RAN_WB/RAN_WB@RANCQ_RANDBS</u>
+SQL*Plus: Release 9.2.0.1.0 - Production on Wed Aug 29 14:46:53 2007
+
+Copyright (c) 1982, 2002, Oracle Corporation.  All rights reserved.
+
+Connected to:
+Oracle9i Enterprise Edition Release 9.2.0.6.0 - Production
+With the Partitioning, OLAP and Oracle Data Mining options
+JServer Release 9.2.0.6.0 - Production
+
+SQL&gt;
+</pre></div>
+
+<p>but I cannot use the 10.2 version of sqlplus to connect to RANCQ:</p>
+
+<div class=code><pre>
+<b><font><b><font><b><font><b><font color="#3366ff">Randws016:</font></b></font></b></font></b></font></b><u>echo $ORACLE_HOME</u>
+/home/p6258c/Solaris/10.2.0.3/instantclient_10_2
+<b><font><b><font><b><font><b><font color="#3366ff">Randws016:</font></b></font></b></font></b></font></b><u>$ORACLE_HOME/sqlplus RAN_WB/RAN_WB@RANCQ_RANDBS</u>
+SQL*Plus: Release 10.2.0.3.0 - Production on Wed Aug 29 14:48:21 2007
+
+Copyright (c) 1982, 2006, Oracle.  All Rights Reserved.
+
+ERROR:
+ORA-12154: TNS:could not resolve the connect identifier specified
+
+Enter user-name:
+</pre></div>
+
+<p>Will had stated that he thought that 10.2 clients could talk to 9.2
+servers. Is that true? If so why can't I run sqlplus and connect to
+RANCQ?</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:13 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000669.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000669.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000668"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/55"
+    dc:title="backBench.pl"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000668"
+    dc:subject="General Dynamics"
+    dc:description=" Added link and createWor to backBench.pl..."
+    dc:creator=""
+    dc:date="2007-08-28T15:55:40-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 28, 2007</h2>
+                     <a id="a000668"></a>
+                     <div class="entry" id="entry-668">
+                        <h3 class="entry-header">backBench.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added link and createWor to backBench.pl</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000668.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000668.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000667"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/54"
+    dc:title="UCMWB: rebase/deliver cancelled"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000667"
+    dc:subject="General Dynamics"
+    dc:description=" UCMWB assumes rebases/deliveries are completed. If not it gets confused. Implemented a way for UCMWB to determine such situations...."
+    dc:creator=""
+    dc:date="2007-08-24T15:53:46-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 24, 2007</h2>
+                     <a id="a000667"></a>
+                     <div class="entry" id="entry-667">
+                        <h3 class="entry-header">UCMWB: rebase/deliver cancelled</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>UCMWB assumes rebases/deliveries are completed. If not it gets confused. Implemented a way for UCMWB to determine such situations.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:53 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000667.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000667.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000666"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/53"
+    dc:title="UCMWB Assistant"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000666"
+    dc:subject="General Dynamics"
+    dc:description=" Rebuilt Qt 4.2.2 for Solaris to test Assistant..."
+    dc:creator=""
+    dc:date="2007-08-23T15:52:23-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 23, 2007</h2>
+                     <a id="a000666"></a>
+                     <div class="entry" id="entry-666">
+                        <h3 class="entry-header">UCMWB Assistant</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Rebuilt Qt 4.2.2 for Solaris to test Assistant</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:52 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000666.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000666.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000665"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/52"
+    dc:title="ucmwb 1.2.3"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000665"
+    dc:subject="General Dynamics"
+    dc:description=" Fixed all ucmwb issues except for the Linux port - still waiting for Oracle Client Libraries and SDK for Linux..."
+    dc:creator=""
+    dc:date="2007-08-21T13:46:16-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 21, 2007</h2>
+                     <a id="a000665"></a>
+                     <div class="entry" id="entry-665">
+                        <h3 class="entry-header">ucmwb 1.2.3</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed all ucmwb issues except for the Linux port - still waiting for Oracle Client Libraries and SDK for Linux</li>
+</ul>
+                              
+                              <h3>UCMWB 1.2.3</h3>
+
+<p>I've fixed several issues with ucmwb and feel that it might be time to release a new ucmwb. This has caused me to look into how ucmwb works <i>out in the wild</i>.. From what I can tell there are the following "bits":</p>
+
+<ul>
+  <li>ucmwb is invoked via /usr/local/bin/ucmwb, which is a simple tcsh script that calls /prj/muosran/bin/ucmwb<br>
+    <br>
+    <div class=code><pre>
+ #! /usr/bin/tcsh
+
+/prj/muosran/bin/ucmwb&amp;
+
+exit</pre>
+    </pre></div>
+  </li>
+
+  <li>/prj/muosran/bin/ucmwb is a symlink to <br>
+/cleartrig/ent/SNSD/muos/ccadm_tools/vobs/ranccadm/devtools/ucmWorkbench/build/ucmwb</li>
+</ul>
+
+<p>With the advent of ucmwb for Linux we need to change things so that the script at /usr/local/bin/ucmwb is smart enough to invoke the correct executable. First I propose that we name the executable as ucmwb.$(uname -s). Next we replace  /usr/local/bin/ucmwb with the following script:</p>
+
+<div class=code><pre>
+#!/usr/bin/env bash
+dir=/prj/muosran/bin
+arch=$(uname -s)
+ucmwb=$dir/ucmwb.$arch
+
+if [ -x $ucmwb ]; then
+  exec $ucmwb $@
+else
+  echo "Unable to find ucmwb for $arch"
+  exit 1
+fi
+</pre></div>
+
+<p>The following tickets have been addressed in this release:</p>
+
+<table align="center" border="1" cellpadding="2" cellspacing="0" width="95%">
+  <tbody>
+    <tr>
+      <th bgcolor="#004e98" valign="top"><font color="#ffffff">#</font></th>
+      <th bgcolor="#004e98" valign="top"><font color="#ffffff">ID</font></th>
+      <th bgcolor="#004e98" valign="top"><font color="#ffffff">Headline</font></th>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#ffffd7" valign="middle"><font color="#804040">1</font></td>
+      <td align="center" bgcolor="#ffffd7" valign="middle"><font  color="#804040">RANCQ00014268</font></td>
+      <td bgcolor="#ffffd7" valign="middle"><font color="#804040">UCMWB Save Activity List improvements</font></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#ece9d8" valign="middle"><font  color="#004e98">2</font></td>
+      <td align="center" bgcolor="#ece9d8" valign="middle"><font
+ color="#004e98">RANCQ00014402</font></td>
+      <td bgcolor="#ece9d8" valign="middle"><font color="#004e98">UCMWB
+should unset activity before deleting the view
+      </font></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#ffffd7" valign="middle"><font color="#804040">3</font></td>
+      <td align="center" bgcolor="#ffffd7" valign="middle"><font
+ color="#804040">RANCQ00013782</font></td>
+      <td bgcolor="#ffffd7" valign="middle"><font color="#804040">ucmwb
+defect - does not delete view when rebase pending</font></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#ece9d8" valign="middle"><font
+ color="#004e98">4</font></td>
+      <td align="center" bgcolor="#ece9d8" valign="middle"><font
+ color="#004e98">RANCQ00012828</font></td>
+      <td bgcolor="#ece9d8" valign="middle"><font color="#004e98">Fix
+shared stream view creation from UCM Workbench.</font></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#ffffd7" valign="middle"><font
+ color="#804040">5</font></td>
+      <td align="center" bgcolor="#ffffd7" valign="middle"><font
+ color="#804040">RANCQ00011424</font></td>
+      <td bgcolor="#ffffd7" valign="middle"><font color="#804040">UCM
+Workbench doesn't create the correct stream for Target WORs</font></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#ece9d8" valign="middle"><font
+ color="#004e98">6</font></td>
+      <td align="center" bgcolor="#ece9d8" valign="middle"><font
+ color="#004e98">RANCQ00011414</font></td>
+      <td bgcolor="#ece9d8" valign="middle"><font color="#004e98">UCMWB
+create view with common target dev WOR incorrectly creates new stream</font></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#ffffd7" valign="middle"><font
+ color="#804040">7</font></td>
+      <td align="center" bgcolor="#ffffd7" valign="middle"><font
+ color="#804040">RANCQ00010523</font></td>
+      <td bgcolor="#ffffd7" valign="middle"><font color="#804040">UCM
+Workbench - View Browser - Copy View Privates - Preserve Modification
+Times</font></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#ece9d8" valign="middle"><font
+ color="#004e98">8</font></td>
+      <td align="center" bgcolor="#ece9d8" valign="middle"><font
+ color="#004e98">RANCQ00013592</font></td>
+      <td bgcolor="#ece9d8" valign="middle"><font color="#004e98">Execute
+'cade' command when opening Unix prompt from WorkBench</font></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#ffffd7" valign="middle"><font
+ color="#804040">9</font></td>
+      <td align="center" bgcolor="#ffffd7" valign="middle"><font
+ color="#804040">RANCQ00010457</font></td>
+      <td bgcolor="#ffffd7" valign="middle"><font color="#804040">Suggestion
+to improve UCM workbench to help with Rebase activity</font></td>
+    </tr>
+    <tr>
+      <td align="center" bgcolor="#ece9d8" valign="middle"><font color=#004e98">10</font></td>
+      <td align=center bgcolor="#ece9d8" valign="middle"><font color="#004e98">RANCQ00014267</font></td>
+      <td bgcolor="#ece9d8" valign="middle"><font color="#004e98">UCMWB
+should save Clearquest password so it doesn't need to be constantly
+specified</font></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+
+<h3>Notes:</h3>
+
+<ol>
+  <li><b>RANCQ00014268:</b> Only part of Save Activities is fixed. If the user cancels the dialog box it no longer complains about not being able to write to a file. The part about adding .html is more problematic than initially anticipated.</li>
+
+  <li><b>RANCQ00013782:</b> When deleting a view, stderr from the cleartool rmview is now displayed if there were any errors. This covers both the rebase problem and deliver problem...</li>
+
+  <li><b>RANCQ00013592: </b>Decided not to implement this</li>
+
+  <li><b>RANCQ00010457:</b> This would be better handled by Tom's rebase trigger.</li>
+
+  <li><b>RANCQ00014267:</b> Clearquest password is saved for the duration of the ucmwb session. Storing the Clearquest password in preferences might be a security concern.</li>
+
+</ol>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:46 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000665.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000665.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000664"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/51"
+    dc:title="ucmwb/Purify"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000664"
+    dc:subject="General Dynamics"
+    dc:description=" Implemented several ucmwb fixes Spoke with Chad regarding Purify issues..."
+    dc:creator=""
+    dc:date="2007-08-17T18:04:03-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 17, 2007</h2>
+                     <a id="a000664"></a>
+                     <div class="entry" id="entry-664">
+                        <h3 class="entry-header">ucmwb/Purify</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Implemented several ucmwb fixes</li>
+
+  <li>Spoke with Chad regarding Purify issues</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:04 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000664.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000664.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000663"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/50"
+    dc:title="Shared Stream View Creation"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000663"
+    dc:subject="General Dynamics"
+    dc:description=" Investigated problem with Shared Stream View Creation Investigated problems with Purify. Seems we&apos;re getting a little versionist......"
+    dc:creator=""
+    dc:date="2007-08-15T18:25:48-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 15, 2007</h2>
+                     <a id="a000663"></a>
+                     <div class="entry" id="entry-663">
+                        <h3 class="entry-header">Shared Stream View Creation</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Investigated problem with Shared Stream View Creation<li>
+
+  <li>Investigated problems with Purify. Seems we're getting a little versionist...</li>
+</ul>
+                              
+                              <h3>Shared Stream View Creation</h3>
+
+<p>Here in GD the process is very driven off of WOR (Work Order Request). There are <i>Collector</i> WORs and <i>Worker</i> WORs (basically parent and child records). Additionally any one of the Worker WORs can be designated as the common development WOR. This means that while views can be made for any Worker WORs, only the common development WOR will have a stream and all Worker WORs will share that stream, hence the "shared stream" portion of Shared Stream View Creation.</p>
+
+<p>Now this is all handled by the createView.pl script that creates views and Clearquest, having a Create View action, calls createView.pl properly when there is a hierarchy of WORs. But <b>ucmwb</b> does not sense this and thus, while it calls createView.pl for view creation, it fails to specify the "Target WOR" (AKA common development WOR).</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000663.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000663.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000662"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/49"
+    dc:title="ucmwb/Qt and other issues"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000662"
+    dc:subject="General Dynamics"
+    dc:description=" Working with Anne Tsirfa of Trolltech and Troltech support Working with Kevin Landers regarding ucmwb Managed to implement fix to helpdesk ticket involving setting access/modify times on view private files copied outside of a view by ucmwb Looked into..."
+    dc:creator=""
+    dc:date="2007-08-14T13:10:58-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 14, 2007</h2>
+                     <a id="a000662"></a>
+                     <div class="entry" id="entry-662">
+                        <h3 class="entry-header">ucmwb/Qt and other issues</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Working with  Anne Tsirfa of Trolltech and Troltech support</li>
+
+  <li>Working with Kevin Landers regarding ucmwb</li>
+
+  <li>Managed to implement fix to helpdesk ticket involving setting access/modify times on view private files copied outside of a view by ucmwb</li>
+
+  <li>Looked into issue with RoseRT versions selected as per switchConf.pl</li>
+
+  <li>Resolved ucmwb not displaying icons helpdesk ticket</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:10 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000662.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000662.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000661"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/48"
+    dc:title="ucmwb issues/Purify"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000661"
+    dc:subject="General Dynamics"
+    dc:description=" Working with Kevin and others to resolve Qt issues. Submitted PMR with IBM regarding usage of Purify and why it&apos;s taking so long to run..."
+    dc:creator=""
+    dc:date="2007-08-08T17:25:19-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  8, 2007</h2>
+                     <a id="a000661"></a>
+                     <div class="entry" id="entry-661">
+                        <h3 class="entry-header">ucmwb issues/Purify</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Working with Kevin and others to resolve Qt issues.</li>
+
+  <li>Submitted PMR with IBM regarding usage of Purify and why it's taking so long to run</li>
+</ul>
+                              
+                              <h2>ucmwb issues</h2>
+
+<p>There are a number of issues WRT ucmwb running on Linux:</p>
+
+  <ul>
+    <li>Whether to build 32-bit or 64-bit. 32-bit would be LCD yet I don't have a 32-bit Linux machine to build on</li>
+
+    <li>Differences in architectures (i.e. Intel vs. Opteron). I've seen differences WRT this...</li>
+
+    <li>Whether to build static or shared. Static would be better because then we wouldn't have to worry about getting the right shared libraries and the correct LD_LIBRARY_PATH setting</li>
+
+    <li>Connection to Oracle. In order for ucmwb to connect to Oracle directly it needs OCI. In order to have OCI one needs the commercial version of Qt. Got that. But also we need an Oracle Client (Development?) Installation in order to have the appropriate .h and .a files to build. With Oracle on Linux (which doesn't exist) we also need to address the appropriate 64 vs 32 bit'ness, Intel vs. Opteron, static vs. shared WRT Oracle itself...</li>
+  </ul>
+
+<h2>Purify</h2>
+
+<p>Only a little is known at this time but it seems some development group is concerned because running Purify on 7500 had not finished in 10 days of running. Opened IBM/Rational PMR on this. IBM/Rational tells me that using Purify can slow the process by 15-20 times! Makes sense since the instrumented code is doing so much additional work. Need to find out how long the tests would take sans Purify</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000661.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000661.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000660"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/47"
+    dc:title="QT"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000660"
+    dc:subject="General Dynamics"
+    dc:description=" Built ucmwb on Solaris Downloaded, built and installed Qt-4.2.2 for Linux Built ucmwb for Linux 64 bit! Doesn&apos;t connect to Clearquest properly yet..."
+    dc:creator=""
+    dc:date="2007-08-07T18:53:46-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  7, 2007</h2>
+                     <a id="a000660"></a>
+                     <div class="entry" id="entry-660">
+                        <h3 class="entry-header">QT</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Built ucmwb on Solaris</liI>
+
+  <li>Downloaded, built and installed Qt-4.2.2 for Linux</li>
+
+  <li>Built ucmwb for Linux 64 bit! Doesn't connect to Clearquest properly yet</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:53 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000660.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000660.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000659"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/46"
+    dc:title="ssh"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000659"
+    dc:subject="General Dynamics"
+    dc:description=" Helped Aaron with ssh..."
+    dc:creator=""
+    dc:date="2007-08-03T17:56:27-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  3, 2007</h2>
+                     <a id="a000659"></a>
+                     <div class="entry" id="entry-659">
+                        <h3 class="entry-header">ssh</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Helped Aaron with ssh</li>
+</ul>
+                              
+                              <h2>Adding ssh actions to CDE</h2>
+
+<p>Secure SHell or ssh is a more modern and secure way to access a remote system. You can add ssh actions to CDE by doing the following:</p>
+
+<p>Add the following to ~/.dt/types:</p>
+
+<div class=code><pre>
+ACTION Ssh
+{
+  LABEL           Secure shell
+  ICON            Dtterm
+  ARG_COUNT       0
+  TYPE            COMMAND
+  WINDOW_TYPE     NO_STDIO
+  EXEC_STRING     ksh -c 'export _title="%"Starbase?"%";	  \
+    /usr/dt/bin/dtterm -name $_title                              \
+    -title "Opening hailing frequencies to starbase $_title..."   \
+    -e ksh -c "ssh $_title; sleep 5;";'
+  DESCRIPTION     The Secure shell action prompts the user for    \
+                  the name of a system, opens a dtterm terminal   \
+                  emulator window, and then performs an ssh to    \
+                  that system.
+}
+
+ACTION SshUser
+{
+  LABEL           Secure shell
+  ICON            Dtterm
+  ARG_COUNT       0
+  TYPE            COMMAND
+  WINDOW_TYPE     NO_STDIO
+  EXEC_STRING     ksh -c 'export _title="%"Starbase?"%";          \
+    export _user="%"Username"%";                                  \
+    /usr/dt/bin/dtterm -name $_title                              \
+    -title                                                        \
+      "Opening hailing frequencies to starbase $_user@$_title..." \
+    -e ksh -c "ssh $_user@$_title; sleep 5;";'
+  DESCRIPTION     The Secure shell action prompts the user for    \
+                  the name of a system and a username and opens   \
+                  a dtterm terminal emulator window, and then     \
+                  performs an ssh to that system.
+}
+</pre></div>
+
+<p>Then invoke the actions with:</li>
+
+<div class=code><pre>
+$ dtaction Ssh
+$ dtaction SshUser
+</pre></div>
+
+<p>or better yet put it into your Dtwm menus like:</p>
+
+<div class=code><pre>
+    Menu Terminals
+    {
+      "Terminals"           f.title
+      "Terminal"            f.action Dtterm
+      "Remote Terminal"     f.action Ssh
+      "Remote Terminal (user)"      f.action SshUser
+      "X Terminal"          f.action Xterm
+    }
+</pre></div>
+
+<h2>Configuring ssh for passwordless but secure public key authentication</h2>
+
+<p>In order to do public key authentication you need to first generate a public key. You do this for ssh with ssh-keygen:</p>
+
+<div class=code><pre>
+$ ssh-keygen -t rsa
+</pre></div>
+
+<p>Note you can also do -t dsa. There are RSA keys and DSA keys. I forget what the prompts are, something about a passphrase, etc. Enter no passphrase.</p>
+
+<p>This should create a directory ~/.ssh with files in it. For example:</p>
+
+<div class=code><pre>
+<b><font color="#3333ff">$</font></b> <u>ssh-keygen -t rsa</u>
+Enter file in which to save the key(/home/p6258c/.ssh/id_rsa):
+Generating public/private rsa key pair.
+Enter passphrase(empty for no passphrase): 
+<b><font color="#3333ff">$</font></b> <u>ls -l ~/.ssh</u>
+total 32
+-rw-------    1 p6258c   ccusers       226 Jun 15 13:28 authorized_keys
+-rw-------    1 p6258c   ccusers       887 Jun 15 13:27 id_rsa
+-rw-rw-r--    1 p6258c   ccusers       226 Jun 15 13:27 id_rsa.pub
+-rw-r--r--    1 p6258c   ccusers      4082 Jul 31 15:05 known_hosts
+<b><font color="#3333ff">$</font></b> <u>ls -ld .</u>
+drwxr-xr-x   43 p6258c   ccusers      2048 Aug  3 10:28 ./
+<b><font color="#3333ff">$</font></b>
+</pre></div>
+
+<p>Then the task is to get the ~/.ssh/id_rsa.pub key added to the authorized_keys file (creating it if you need to). Here in GD that is easy. Siimply:</p>
+
+<div class=code><pre>
+<b><font color="#3333ff">$</font></b> <u>cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys</u>
+</pre></div>
+
+<p>Now, since all GD machines in the RAN subnet share your same home directory (automounted from the same common location) viola! You now have passwordless ssh access using public key authentication through the RAN (note this does not cross from RAN -&gt; GD network due to firewall issues). Whenever you ssh to a new machine it will bother you about adding it to the known_hosts file but after that it should not prompt again.</p>
+
+<p>Also note that if this were a different situation you'd have to get the contents of ~/.ssh/id_rsa.pub over to the remote machine. For example, I could generate my keys as described above then email the ~/.ssh/id_rsa.pub from here to my home Linux system, append it to my ~/.ssh/authorized_keys on my home Linux system then I could ssh from here to home. Normally I configure my house to <b>only</b> allow public key authenticated logins from the outside world. I can't do it here from GD because the firewall prohibits it (which is odd)!</p>
+
+<p>Final note: Sometimes, if ssh is configured to by strict about permissions, you need to change your home directory to be 755 as shown above. Normally I'm a sharing kinda guy so I have my home directory set to 775 but with ssh strict permissions that'll cause passwordless ssh to not work anymore.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000659.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000659.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000658"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/45"
+    dc:title="ranlin0[2|3] released"
+    dc:identifier="http://defaria.com/blogs/Status/archives/2007_08.html#entry-000658"
+    dc:subject="General Dynamics"
+    dc:description=" After resolving issue with cleartrig and fonts, released ranlin0[2|3] to production..."
+    dc:creator=""
+    dc:date="2007-08-01T13:04:27-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  1, 2007</h2>
+                     <a id="a000658"></a>
+                     <div class="entry" id="entry-658">
+                        <h3 class="entry-header">ranlin0[2|3] released</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>After resolving issue with cleartrig and fonts, released ranlin0[2|3] to production</li>
+</ul>
+                              
+                              <h3>New Linux workstations ranlin02 & 03 now ready</h3>
+
+<p>The new Linux workstations ranlin02 and ranlin03 are now ready for use. Clearcase and Clearquest have been installed on them and they have been properly configured into the RAN network.</p>
+
+<p>There is a slight issue regarding problems with Clearquest and clearprompt (a dialog box tool used by our tools) and fonts. Sometimes this leads to dialog boxes that lack any text due to font rendering problems.</p>
+
+<p>A fix had been implemented. For users who will be using these new Linux boxes (especially if they use Solaris desktops, will be remotely logging into these Linux boxes and displaying things back to their Solaris boxes running CDE) simply add the following "source" to their
+~/.cshrc:</p>
+
+<div class=code><pre>
+#ident  "@(#)local.cshrc        1.2     00/05/01 SMI"
+umask 002
+set path=(/bin /usr/bin /usr/ucb /etc /usr/sbin /usr/atria/etc
+/usr/atria/bin /usr/openwin/bin /usr/dt/bin /usr/local/bin
+/opt/hpnpl/bin .)
+if ( $?prompt ) then
+   set history=64              # previous commands to remember.
+   set savehist=64             # number to save across sessions.
+   setenv system `hostname`     # set hostname
+   set prompt="[$system`pwd`] " # set prompt
+   alias       cd      'cd \!*; set prompt="[$system`pwd`] "'
+endif
+alias ct /usr/atria/bin/cleartool
+alias ll 'ls -l'
+alias la 'ls -a'
+alias cdd 'cd ..'
+alias cddd 'cd ../..'
+#alias shello /vobs/cello/civ/test_utilities/scripts/shello
+source /prj/muosran/config/.cshrc.muosran
+<b><u><font color="#ff0000">source /prj/muosran/config/.cshrc.linux</font></u></b>
+</pre></div>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:04 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000658.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000658.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

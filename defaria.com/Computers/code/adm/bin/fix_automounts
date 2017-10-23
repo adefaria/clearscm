@@ -1,0 +1,91 @@
+#!/bin/bash
+################################################################################
+#
+# File:         fix_automounts
+# Description:  Remounts exported file systems from a machine
+# Author:       Andrew DeFaria (defaria@cup.hp.com)
+# Language:     Korn Shell
+# Created:      Tue Apr 21 11:59:57 PDT 1998
+# Status:       Experimental (Do Not Distribute)
+# Modifications: Removed the grep "(everyone)". In the past file systems were
+#               exported to everyone and that is no longer the case. This does
+#               mean that this script might attempt to mount things it can't
+#               but there is no easy way to ascertain if the current machine
+#               is allowed to mount given showmount -e output, especially if
+#               that output is a netgroup. I could check this via ypmatch
+#               but that'll take yet more smarts...
+#               Andrew@DeFaria.com
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+if [ $(id -u) -ne 0 ]; then
+  print -u2 "$me: Error: You must be root to execute this command!"
+  exit 1
+fi
+
+if [[ "$OS" = "10" ]] ; then
+  mount=/usr/sbin/mount
+else
+  mount=/etc/mount
+fi
+
+if [ $# -lt 1 ]; then
+  print -u2 "Usage: <remote machine> [ <remote machine> ]"
+  exit 1
+fi
+
+function remount_filesystem {
+  machine=$1
+  mount_directory=$2
+  mount_over_directory=/tmp_mnt/net/$machine$2
+  if [ ! -d $mount_over_directory ]; then
+    print Making $mount_over_directory
+    mkdir -p $mount_over_directory
+  fi
+
+  if [ ! -d $mount_over_directory/lost+found ]; then
+    print Mounting $machine:$mount_directory to $mount_over_directory
+    $mount $machine:$mount_directory $mount_over_directory
+    status=$?
+    if [ $status -ne 0 ]; then
+      print -u2 "Warning: Unable to mount $machine:$mount_directory
+$mount_over_directory (Status: $?)"
+    fi
+  fi
+} # remount_filesystem
+
+function kick_automounter {
+  automount_pid=$(ps -ef | grep automount | grep -v "grep automount" | grep -v "fix_automounts" | awk '{print $2}')
+
+  print Kicking automounter \($automount_pid\)
+  kill -HUP $automount_pid
+} # kick_automounter
+
+if [ "$OS" = "10" ]; then
+  showmount=/usr/sbin/showmount
+else
+  showmount=/usr/etc/showmount
+fi
+
+for remote in "$@"; do
+  exported_filesystems=$($showmount -e $remote | grep -v "export list" |
+    cut -f1 -d' ')
+  for filesystem in $exported_filesystems; do
+    remount_filesystem $remote $filesystem
+  done
+done
+
+kick_automounter

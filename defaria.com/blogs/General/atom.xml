@@ -1,0 +1,771 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>General</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/" />
+    <link rel="self" type="application/atom+xml" href="http://defaria.com/blogs/General/atom.xml" />
+    <id>tag:defaria.com,2017-07-10:/blogs/General//1</id>
+    <updated>2017-07-10T19:01:20Z</updated>
+    
+    <generator uri="http://www.sixapart.com/movabletype/">Movable Type 5.2.3</generator>
+
+<entry>
+    <title>What are the essential duties for a technical recruiter?</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2017/07/what-are-the-es.html" />
+    <id>tag:defaria.com,2017:/blogs/General//1.2006</id>
+
+    <published>2017-07-10T16:39:43Z</published>
+    <updated>2017-07-10T19:01:20Z</updated>
+
+    <summary>I think it&apos;s odd that most recruiters do not seem to know what they essential duties are. Just looking at it quickly one would think that a recruiter&apos;s job is to find qualified candidates. In the field of computers this...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>I think it's odd that most recruiters do not seem to know what they essential
+duties are. Just looking at it quickly one would think that a recruiter's job
+is to find <strong>qualified</strong> candidates. In the field of computers
+this often means looking at buzzwords and matching them up. But it's more than
+buzzword matching (http://jobscan.co can do that for you). It's really knowing
+the technologies behind the buzzwords to know that, for example, <a 
+href="https://en.wikipedia.org/wiki/Jenkins_(software)">Jenkins</a> is
+essentially the same as <a 
+href="https://en.wikipedia.org/wiki/Electric_Cloud">Electric Commander</a>
+whereas <a href="https://www.mysql.com/">MySQL</a> is not really at all like
+<a href="https://www.mongodb.com/">MongoDB</a> though they do share the characteristic of both being databases, 
+one uses SQL and the other is No SQL.</p>
+
+<p>I get way too many "offers" by recruiters - typically Indian recruiters -
+for positions that I would have thought I was not qualified for. For example,
+the client will say that 3+ years experience with AWS is <strong>required</strong>
+and I do not have any AWS experience yet (I've played around with it at home
+and have taken some online courses but it's clear the client wants 3+ years
+of actual experience not classroom experience). But the recruiter will 
+contact me nonetheless. Or a recruiter will approach me for a Salesforce
+developer job. The word Salesforce appeared on my resume once. I helped the
+Salesforce team integrate into JIRA via a plugin. I configured the plugin and
+verified that Salesforce was talking to JIRA. I did absolutely nothing in
+Salesforce itself. I would think that a Salesforce developer would know
+Salesforce in depth. This is a waste of my time and their time and really
+a waste of the client's time.</p>
+
+<p>I realize that the recruiter may be thinking "Hey, I'm not sure that this
+particular guy is totally qualified but I do see Salesforce on his resume. 
+I'll reach out to him and ask questions". Then I would think he email, rather
+than being just a form email, would be something like this:</p>
+
+<blockquote>
+Hi, my name is &lt;name&gt;. I saw your resume says you've had some Salesforce
+exposure but it's not clear to me how much experience you actually have. I have
+a Salesforce developer position described below. Can you tell me if you have
+enough experience and if you are comfortable with the job requirements?...
+</blockquote>
+
+<p>But they don't do that.</p>
+
+<p>I have toyed with the idea of faking experience so as to compel the 
+recruiter to get me an interview and then go in there and simply say 
+"I don't know any of that stuff and I don't know what Mr. Recruiter said I
+did" just to discredit the recruiter to show their clients that this
+particular recruiter is not properly screening (or screening at all for that
+matter). Something needs to be done, IMHO!</p>
+
+<p>Case in point: Working with one <a 
+href="mailto:arvind.alagapalli@araucariatechnologies.com">Arvind Kumar</a> 
+of <a href="http://araucariatechnologies.com">Araucaria Technologies</a>,
+he approached me for an AWS Cloud Engineer position that has the following:</p>
+
+<blockquote>
+<h2>Qualifications:</h2>
+
+<ul>
+  <li>5+ years of progressive experience with large, complex information systems</li>
+  <li>3+ years of experience provisioning, operating, and managing AWS 3+ environments</li>
+  <li>Vast experience with transitioning physical plant to AWS environments</li>
+  <li>Must have strong LAMP & Tomcat Java experience.</li>
+  <li>Experience in automation and testing via scripting/programming.</li>
+  <li>Strong experience with Ansible. Experience with SVN and Github (preferred)</li>
+  <li>B.S. in Computer Science or equivalent (preferred)</li>
+</ul>
+</blockquote>
+
+<p>Yet nowhere on my <a href="http://clearscm.com/resume">resume</a> would
+you find 3_ years of AWS experience, nor transitioning physical plant to AWS environment. Have no experience with
+Ansible, nor SVN or Github. This is not to say I couldn't excel at these
+technologies as I pick up things quickly. And I do have experience with
+things like Clearcase, Perforce and git (just not Github or SVN). And I have
+taken some AWS courses but I would not claim to have 3+ years of experience
+or even 1 year of experience because my experience is at home, not at a client's
+site in a production situation.</p>
+
+<p>As a result, why would anybody trust Arvind's word at all? Why would 
+anybody work with Arvind or other recruiters at Araucaria Technologies knowing
+that their quality control is very sub par?</p>
+
+<p>Recently I found this Tech Recruiter job on DICE. Some of the essential 
+duties include:</p>
+
+<ul>
+  <li>Identify the client's business and cultural nuances, as well as define 
+  the position, its functions, challenges selling points, and viability. 
+  <b><u>Uncover the necessary knowledge, skills and abilities of the ideal 
+  candidate</u></b>.</li>
+
+  <li>Coordinate with Program Managers and Account Managers to <b><u>ensure quality delivery to client's requisitions</u></b>. Work with sales team 
+  on account development and account management.</li>
+
+  <li>Actively market <b><u>qualified candidates</u></b> to new and existing
+  clients. Utilize sales techniques to expand business through research and 
+  prospecting and turning client inquiries into job requisitions.</li>
+
+  <li>Assist with the design of a sourcing strategy to uncover both passive 
+  and active candidates through existing and new sources in order to 
+  maintain an <b><u>effective pool of candidates</u></b>. Utilize 
+  electronic process in recruiting and placement to <b><u>maximize 
+  efficiency and time saving</u></b>.</li>
+
+  <li><b><u>Target the most qualified candidates and screen resumes to
+  identify potential matches</u></b>.</li>
+
+  <li>Present opportunity to candidate and conduct in-depth interview to 
+  <b><u>determine suitability and interest of candidate. Identify, evaluate,
+  and summarize relevant technical experience, knowledge, hard and soft 
+  skills, and abilities in relation to job requirements</u></b>.</li>
+
+  <li><b><u>Submit qualified candidates</u></b> and respond to client 
+  concerns.</li>
+</ul>
+
+<p>So as you can see recruiters should be qualifying people 
+before emailing candidate who incompetent recruiters such as Arvind
+obviously have not qualified.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Dealing with Recruiters</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2017/04/dealing-with-re-1.html" />
+    <id>tag:defaria.com,2017:/blogs/General//1.2003</id>
+
+    <published>2017-04-25T04:29:08Z</published>
+    <updated>2017-04-25T04:44:40Z</updated>
+
+    <summary>Sorry, I guess I need to vent. One of my biggest complaints as of late is so called &quot;professionalism&quot;. You know, you call up some support group and you&apos;re trying to get things straightened out, frustrated from being on hold...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>Sorry, I guess I need to vent. One of my biggest complaints as of late is so<br />
+called "professionalism". You know, you call up some support group and you're<br />
+trying to get things straightened out, frustrated from being on hold for 20-30<br />
+minutes navigating the voice mail call menus (there are apps to assist for that<br />
+so this is not just me!), trying to fix a problem that was basically caused<br />
+because company A fucked up and you're now fixing their problem. You utter <br />
+something like "Fuck you mean I need to wait for 4-6 weeks for this to be fixed!!!"<br />
+and they retort with something like "Sir, please! Be professional". You know what<br />
+asshole! Being professional is about actions not words. Your actions were <br />
+unprofessional thus causing me strife and frustrating resulting in me blowing<br />
+off steam and uttering the word "FUCK", which you've heard a million times before<br />
+and you know what is going on here. Look if you were fucking squeaky clean then,<br />
+and only then, you might have a point but you don't.</p>
+
+<p>Recruiters are the worse - especially Indian recruiters fresh off the boat! Typical<br />
+things that I encounter are things like a recruiter will call me up, apparently <br />
+not be able to hear me well (or so they claim) then they hang up. Literally hang<br />
+up on me. Do they call me back? No. Do they call and leave a message? No. Can I<br />
+call them up? Sometimes. Other times I get a message saying "This Magic Jack <br />
+subscriber is not here" or it's a general number and I need to know their <br />
+extension. Well I don't know their extension BECAUSE THEY DIDN'T FUCKING BOTHER<br />
+TO LEAVE A DAMN MESSAGE! Or I get to their voice mail and their mailbox is full.</p>
+
+<p>Think about this - a business who depends on being able to communicate with<br />
+the candidates and they do not have a way to take a fucking message, they do<br />
+not have the professional business courtesy to leave a fucking message nor <br />
+insure that they can be contacted. They've left a dead end trail. No, I'm not<br />
+the fucking unprofessional one - you are.</p>
+
+<p>Then you have things like this <a href="https://www.ziprecruiter.com/ojob/50feb857b4c56bcc613b9be1e535ea5d?u=e7ATHjqi_6u95ZN3U9gF0g6mRifuYqBUz5OyYrWniZFfLFZpVOjIYxvIrn3V5bbxh3D_ZfKFxtfuhAgb5vEK717KnZEl5uhByVZ5pc99N6Lk58ZMMJq6OaB25SIcnKu3CSJGBKUV4nfZlRGT0qEqfFKebeQVN7IdPZEiQ3u1sbPgsgn0lAYnI0UCO2Pd3yoRLXeA0Px6kFJZAcupDvN4rvhNdNrbcqAzAKdXBxGevqKbQhv2JFOGy7fxHPB0vBUMcPhtHdkMFDM2SRWENeHtZ7zkKPh2wo2ZgOIyWQ0tW70nLywu_K3G8uj3j5_7--gYIZjKGOJfkrlnzrqrifwGnp4879-i6Hph8TI7pymWeCPZAKAGHSrhKA-gHf8gShNoguOxGZdowM_FlUZfgaXAcTUjNabDaFhUfZcvRHrZmENF8OXMve7VgPAhl1OO7lhZwum7zPdYOtJrQWMphj_J0RAz72s2Eqz-Gmftljk2GLVuuNsWMmlDxaFS12FGO4J9n9vVPLndiUTp38EJ1r2pzenI9gt6A0kQPKR35E9bCFojNYvVBj4PgDhUJxppz9dsQyAvsNjEqPRnAMCOMxnGkunuxl4zi72QIB-4ZatpMN1_pZSFkLmWBS081xoxoC55oho609CANvPjFJxDrrlDEESMrplEJg16xtwqp1_GlgoaQ4_0u1o7Lr88IrP6nuY1GsdDvCkM-arKf353dkjQQo5fz21mbFWNERkQoW_TNELSPIfejwjyUMtt7AZtBANItZibcipdOCi3Nl0DqcP3Ku2cGyhomXQW6RiXh6w9A_vnJc5aOhBOGxS_f25eDskUs8NkhUROBUdrYg97CaaoZJx1RG25rNZoRPa-W68_q2am-Gx5pGLPhs6WDqMg3S5UiVASgguJQAH1iTb15A5Z__utwvpH08CgSY-zrg1gBWIpUNoN4zisUSmxPjEKfUM6TixfEd2RqXZ3Qqr-o9u3G8GlSZO3liyi72JUzb8k-oLTyeJX574GoRaKU1UzJnlGY6A5ppLfB5udxqyh6kSwPYaaJIDH7CBvgKt4qQV0I2VzeYKuMf1ZHx_mk3rGvgFeNq1-WyeotMFq3S_rzd5Vyg" title="Zip Recruiter Link">Zip Recruiter link</a>, <br />
+which sends you to <a href="http://www.tillster.com/careers/?p=job/owq84fwS&__jvst=Career%20Site&nl=1" title="here">here</a>, which sends you <a href="http://www.tillster.com/careers/?p=job%2Fowq84fwS%2Fapply&__jvst=Career%20Site&nl=1" title="here">here</a>, <br />
+which now requires you to fill out forms. Other places require a login and<br />
+even a series of 4-10 pages to "fill out your profile" with an account that<br />
+hell I don't even want!</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>New Banking Partner</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2016/11/new-banking-par.html" />
+    <id>tag:defaria.com,2016:/blogs/General//1.2002</id>
+
+    <published>2016-11-22T04:32:16Z</published>
+    <updated>2016-11-22T05:30:09Z</updated>
+
+    <summary>Sorry I&apos;ve been taking my time responding. Truth be told the reason is, although you might not believe me, I don&apos;t actually like complaining! I&apos;d much rather have nothing to complain about. But my personality type is also that I...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>Sorry I've been taking my time responding. Truth be told the reason is,
+although you might not believe me, I don't actually like complaining! I'd
+much rather have nothing to complain about. But my personality type is 
+also that I will not sit idly by when I have problems I shouldn't have to
+and/or can see improvements that can be made.</p>
+
+<p>I have been making a list and I've decided to keep it on my server so 
+I can amend and update it as time goes by.</p><p>However, the following is 
+something I'd like to have taken care of quickly (it was #4 on my list but 
+that may shift around a bit when I finally publish):</p>
+
+<ol>
+  <li value="4">I've had a problem logging into this centresuite.com - 
+a totally separate website to manage my one business credit card. My 
+account had been locked. I called up and complained. I was told that 
+somebody - perhaps you - was supposed to get back to me to resolve the 
+issue. It's been <u><b>almost 3 weeks</b></u> now, no followup, no phone 
+calls, no email, nothing!</li>
+</ol>
+
+<p>Basically I've had not been able to log in to that site to pay my 
+business visa. Please fix, contact me or whatever as my next invoice is 
+about to be paid and my plan was to pay that off then.</p>
+
+<p>See "Continued reading" for the real skinny!</p>
+
+<p><b>Note:</b> You do not want to become like my last bank
+<a href="/WF">Wells Fargo</a></p>]]>
+        <![CDATA[<p>Problems with CNB website and/or mobile app:</p>
+<ol>
+  <li>Often I can't simply log into the website instead receiving very
+uninformative error messages like:
+
+<br>
+<img src="/blogs/images/cnb.png">
+<br>
+
+When speaking to support they cluelessly tell me to "clear my cookies 
+and cache". This never works and if you wrote a web app that requires 
+you clear cookies or cache - then you wrote the website incorrectly.</li>
+
+  <li>I signed up to get email alerts when my personal checking account 
+is &lt; $500.00. I often do not get them in time. For example, on 11/06 I
+had a balance of $529.48. Today my balance is at $160.39. There are 
+several "In Process" transactions. It's 6 Pm on 11/07. Now I'm aware many
+banks post things at the close of the day. Fine. However don't cha think 
+I should be notified that if the current outstanding transaction are 
+legit I'll be under my $500.00 minimum balance? What if the total "In 
+Process" transactions brought my balance below zero? I'd like to be told
+ahead of time! Otherwise the alert is worthless!</li>
+
+  <li>Having to go to multiple sites to manage different accounts
+that I have with you, including business and profession is dumb! I want 
+my total financial picture - not a limited set. Nor do I wish to 
+maintain several bookmarks of where to go as well as usernames and 
+passwords and stupid security questions.</li>
+
+<li>I've had a problem logging into this centresuite.com - a totally 
+separate website to manage my one business credit card. My account had 
+been locked. I called up and complained. I was told that somebody - 
+perhaps you - was supposed to get back to me to resolve the issue. It's 
+been almost a week now, no followup, no phone calls, no email, 
+nothing!</li>
+
+  <li>I should be allowed to simply transfer funds from say my Personal 
+checking account into my Personal visa and have it effectively make a 
+payment instead of having to search for the one link that allows me to 
+pay a credit card.</li>
+
+  <li>I would like to be able to set my business visa card to autopay 
+every month. Can't seem to figure out how to do that.</li>
+
+<li>City National Mobile login does not work when using a service like 
+LastPass. I have over 400 sites in my LastPass. It stores the username 
+and passwords of the sites I visit. I've generated a unique 16 character
+password for just about all of my sites containing uppercase, lowercase,
+special characters, etc. I'm serious about security and want my bank to 
+also be serious about security but not asinine about it! IOW use security
+practices that make sense and enhance security not those that don't make
+sense and detract from true security. Having this many passwords requires
+having a password manager. LastPass is setup such that it can fill in 
+the username and password for you. On Mobile that means it uses 
+"accessibility' options to effectively "type" for the user. City National
+Bank's mobile app does something wonky causing LastPass not to work. 
+<b>No other app in the some 100 apps I use has this problem!!!</b> I've 
+posted in LastPass's forum about this issue and they've confirmed that 
+the CNB app is using the accessibility options incorrectly and they are
+eager to help your guys to resolve the issue. But for the life of me I
+cannot seem to get simply contact information for the app guys in CNB. 
+Look if you need to go through your internal system then fine - go 
+through your internal system. But please do not stop me or your 
+developers for working together to resolve problems! <b>MAKE THAT PATH 
+EASILY AVAILABLE TO YOUR CUSTOMERS!!! NO MORE EXCUSES!!!</b></li>
+
+  <li>When I write a check for my rent I want to see that deduction
+reflected in my online account so I know that that money is earmarked
+for somebody else and I really don't have that in my account!!! To my 
+knowledge your website doesn't do that. Now on the new website it still 
+doesn't do that. This is essential information for anybody! I need to
+know that I wrote a check for rent and not be writing any more checks or
+taking out any money that would cause that check to bounce. It's 
+IMPORTANT! Worse case - make this an option that I can toggle on and 
+others can toggle off if they don't like the way I'm proposing!</li>
+
+  <li>If you ever prompt in your phone menuing system, for the user's
+account number, credit card number and you FORCE him to comply and enter
+that number before he can go forward, then good gawd man, let not the 
+first question that comes out of the tech support's mouth when he finally
+gets a human on the line to be "What's your account number?" ARGH! How 
+frustrating!</li>
+
+  <li>If you're asking for a number who's length is known (i.e. 16 digit
+credit card number) then don't require that they type # to end the 
+number! You know it ended! You know the length and the user entered in 
+16 digits. What is the purpose of requiring the "#"???</li>
+
+  <li>I'm constantly being asked security questions even then I've
+registered my computer... Speaking of security questions - they're dumb!
+Many people besides myself know my mother's maiden name or the city 
+where I was born. These are not secure! As such I answer such security 
+questions with odd answers. Then I need to keep track of those odd 
+answers per site. To add insult to injury I cannot reveal my security 
+answer as I type it to insure that I typed it OK. Many sites allow you
+to show the password. You look over your shoulder, make sure nobody else
+is around then reveal the password so you know you typed it right. Is 
+that too much ask?</li>
+
+  <li>You should REQUIRE whoever is running this call center, I mean the
+directory of the call center themselves, that they have to call in at 
+least once a month without disclosing who they are and actually be a 
+customer of their own call center. This would go miles towards making 
+service better!</li>
+
+  <li>For grins I attempted to deposit a check using the mobile app.
+This time, unlike others, I purposely did not sign the back of the check.
+To my surprise the software said it could not find my signature. So I 
+signed it - "You mean you needed this?". IMNSHO if a signature of "You 
+mean you needed this?" was enough to "qualify" as my signature then 
+signatures are totally bogus and should not be insisted upon.</li>
+</ol>]]>
+    </content>
+</entry>
+
+<entry>
+    <title>Southbound Silicon Beach</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2016/05/southbound-sili.html" />
+    <id>tag:defaria.com,2016:/blogs/General//1.2001</id>
+
+    <published>2016-05-04T05:15:15Z</published>
+    <updated>2016-05-04T06:16:31Z</updated>
+
+    <summary>Looks like I&apos;m moving to LA! Or more precisely Marina del Rey. I have a new contract with ICANN (International Corporation for Assigned Names and Numbers - the people who hand out internet IPs and DNS). That&apos;s exciting! Silicon Beach...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>Looks like I'm moving to LA! Or more precisely Marina del Rey. I have a<br />
+new contract with ICANN (International Corporation for Assigned Names <br />
+and Numbers - the people who hand out internet IPs and DNS). That's <br />
+exciting! Silicon Beach as they say. And I'll be closer to San Diego, <br />
+my guitar playing and non-guitar playing friends out there. Perhaps <br />
+Randal and I can ride share to Mexico on occasion. Shout out to my <br />
+friends in Mexico! Hey Ed! You zombie chaser you! And Charles...</p>
+
+<p>Marina del Rey seems to be a wonderful place - right by Venice Beach, <br />
+Santa Monica as well as other beach communities. And my new place looks<br />
+fantastic with ocean views...</p>
+
+<p><br />
+Right by the marina:</p>
+
+<p>My mother always said she envisioned me living by the beach. Well Mom,<br />
+this is as close as I've come so far! Miss you Mom! It's the <i>Wild, <br />
+Wild West... Doing my best</i>!</p>
+
+<p>Everybody take care and have a great summer!</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Contractor Pay Rate vs Company Bill Rate</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2016/03/contractor-pay-.html" />
+    <id>tag:defaria.com,2016:/blogs/General//1.1997</id>
+
+    <published>2016-03-17T19:23:45Z</published>
+    <updated>2016-03-17T19:38:29Z</updated>
+
+    <summary>If a recruiter is telling you he&apos;s only making like $10-$15/hr above the rate he&apos;s offering you then he&apos;s probably lying. The industry standard is anywhere from 20-75% markup. This means that for a rate of $90/hr the staffing firm...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>If a recruiter is telling you he's only making like $10-$15/hr above the rate he's offering you then he's probably lying. The industry standard is anywhere from 20-75% markup. This means that for a rate of $90/hr the staffing firm is billing the client anywhere from $108/hr to $150/hr.&lt;/&gt;</p>
+<p>From <a class="moz-txt-link-freetext" href="http://peopleticker.com/bill-rate">http://peopleticker.com/bill-rate</a></p>
+<blockquote><span>Typical markups range from as low as <span style="text-decoration: underline;"><b>20% to 50%</b></span> or more<br /> </span></blockquote>
+<p>From <a class="moz-txt-link-freetext" href="http://www.entrepreneur.com/article/234665">http://www.entrepreneur.com/article/234665</a></p>
+<blockquote><span>In general, niche markets (e.g., IT) produce higher markups than do traditional staffing markets (e.g., clerical). Veigele notes that occasionally her firm's markup can approach <span style="text-decoration: underline;"><b>75 percent for a computer company client</b></span>.</span></blockquote>
+<p><span></span>From <a class="moz-txt-link-freetext" href="http://www.eremedia.com/fordyce/heres-how-to-set-your-contract-staffing-rates/">http://www.eremedia.com/fordyce/heres-how-to-set-your-contract-staffing-rates/</a></p>
+<blockquote>
+<p>Once you have an hourly pay rate for the contractor, you can use an average multiplier to calculate the hourly bill rate for the company. The location of the contract assignment can affect what multiplier you use. If you are placing someone in New York the multiplier would be higher than Michigan. <b><span style="text-decoration: underline;">Multipliers usually range between 1.5 and 1.8</span></b>, but they can go much higher for healthcare professionals and hard-to-fill positions.</p>
+<p>Our tracking shows that the current average multiplier for technical and professional contract staffing throughout the United States is 1.60. For the past 10 years it has ranged from an average of 1.51 to 1.67. (Excluding healthcare contract placements.)</p>
+<p><strong>Note</strong>: The multiplier is defined as the quotient of the company bill rate divided by the employee pay rate. A simple example of a 1.5 multiplier would be a scenario where the bill rate is $60 per hour and the pay rate is $40 per hour. The common term for multiplier is also "mark-up."</p>
+</blockquote>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>One to watch out for</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2015/10/one-to-watch-ou.html" />
+    <id>tag:defaria.com,2015:/blogs/General//1.1995</id>
+
+    <published>2015-10-05T14:22:18Z</published>
+    <updated>2015-10-05T14:50:44Z</updated>
+
+    <summary> Lalaine 7:17 AM Sent from EXPLORE the BAY Kindly delete my pic pls Andrew DeFaria 7:19 AM OK. Sorry. Didn&apos;t mean to &quot;steal your soul&quot;... Lalaine 7:31 AM The picture is not a good thing to display buz it...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p><img src="/blogs/General/Picture.jpg"></p>
+<p><a href="http://www.meetup.com/members/188262992/">Lalaine</a> 7:17 AM<br>
+Sent from EXPLORE the BAY<br>
+Kindly delete my pic pls</p>
+
+<p><a href="http://www.meetup.com/members/10426135/">Andrew DeFaria</a> 7:19 AM</p>
+<p>OK. Sorry. Didn't mean to "steal your soul"...</p>
+
+<p><a href="http://www.meetup.com/members/188262992/">Lalaine</a> 7:31 AM</p></p>
+
+<p>The picture is not a good thing to display buz it looks like I was annoyed with you or with the event, but I was not. I was just caught off guard.</p>
+
+<p>If the pic did not show that kind of expression, then I would not mind nor would I request that you delete it. I wish you had asked my permission first when posting this 'kind' of picture. The concern is, not only it got posted and it's in everyone's emails, which such picture can be misjudged.</p>
+
+<p>Please also ensure to delete every copy of this in your mobile gallery or any postings you've made on other sites (if any...). I trust that you'd respect my wishes. Thank you and have a good day.</p>
+
+<p><a href="http://www.meetup.com/members/10426135/">Andrew DeFaria</a> 8:14 AM</p>
+
+<p>But you were annoyed at me for taking that picture. That's why you looked that way.</p>
+
+<p><a href="http://www.meetup.com/members/188262992/">Lalaine</a> 8:31 AM</p>
+
+<p>I was not annoyed. Pls reread my email, I was caught off guard. I did still talk with you even after - remember? Did you see any annoyance in that. You've joined us quite a few times after and I was still talking with you cordially. My attitude did not change. Besides, I did not know that you actually took it cuz I started walking away and did not expect that you would post it either - if you did take it. I assumed wrong. I'm not comfortable when men are taking a 'solo' pic of me and esp a stolen pic. Yeah, it made me so uncomfortable that's why I showed that expression... Hope it does not happen again.</p>
+
+<p><a href="http://www.meetup.com/members/10426135/">Andrew DeFaria</a> 8:47 AM</p>
+
+<p>What I said was exactly and literally true. You were annoyed at me - <b>for taking that picture</b>. Not you were annoyed at me personally and would never speak to me again. You just didn't like that I took that picture. That's all I was saying. And it was why I still talked to you and hung out with you. I found you "exotic" and lovely which is why I took the picture. I thought you were a bit pouty in the picture but I thought it looked cute nonetheless so I posted it. Sorry it bothered you. I removed it and I can assure you I will take no more pictures of you.</p>
+
+<p><a href="http://www.meetup.com/members/188262992/">Lalaine</a> 9:51 AM</p>
+
+<p>I was just really uncomfortable. I find it rather odd. See, I had bad experiences from a few men before who stalked me. A while back I had to file unwanted harassment even at work and it all started by men taking a stolen solo pic of me. I'm not saying ur gonna be like that, but I'm traumatized...   We can all take pics in a group. Thanks for the compliments. God bless.</p>
+
+<p><a href="http://www.meetup.com/members/10426135/">Andrew DeFaria</a> 9:55 AM</p>
+
+<p>Thanks for thinking of me as a stalker first before thinking of me as just a nice man. Made me day!</p>
+
+<hr>
+
+<p>The bitch then proceeded to attempt to get me thrown out of the group. My opinion: Seems like she's has issues and should not be approached. Smells like a Fatal Attraction to me. Beware!</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Dealing with recruiters</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2015/01/dealing-with-re.html" />
+    <id>tag:defaria.com,2015:/blogs/General//1.1990</id>
+
+    <published>2015-01-22T00:33:25Z</published>
+    <updated>2015-02-03T20:30:32Z</updated>
+
+    <summary>I get a lot of calls from recruiters. Many are not that professional. Many don&apos;t have anything to offer me of worth. How do deal with such people? Here&apos;s my system. If you&apos;ve been redirected here then you&apos;ve failed the...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>I get a lot of calls from recruiters. Many are not that professional. Many don't have anything to offer me of worth. How do deal with such people? Here's my system. If you've been redirected here then you've failed the test.</p>
+
+<p>What's the test? Well recruiters work with a script - so I have my own. My first line of defense is to direct them to email me the job requirements. I do this for a few reasons:<br />
+<ol><br />
+  <li>To have a record of it</li><br />
+  <li>To see if the recruiter is blacklisted</li><br />
+  <li>To see if the recruiter is responsive enough to deal with simple instructions</li><br />
+</ol></p>
+
+<p>You see I have my own spam filters that I've used for well over a decade now. I filter based on From address. Anybody who is not in my system gets a bounce back message telling the sender how to register with MAPS - my home grown spam filters. If the sender is on my blacklist it means that I have not had good results with this person and thus I will no longer do business with them.</p>
+
+<p>Now most recruiters can't figure out this simple system that quite frankly my 85 year old aunt has no problem with! At first I thought that my bounce back message was being filtered into the recruiter's spam folder. But lately I believe that it's probably in their inbox but unread. If you've ever seen the typical Outlook user they have thousands of messages in their inbox and hundreds of them are unread. So this tells me that if I were to do business with this recruiter and I had say a problem with invoicing or receiving payment I might have my email in their inbox unread for days. I don't do business with people who are unresponsive and effectively are ignoring people. Sorry if you have a workload - I do too. And I manage to manage mine. Learn to manage your own.</p>
+
+<p>If the recruiter figures it out and simply clicks and types in their name to register with MAPS the email will be delivered and I will promptly respond with my standard response asking them to quote me a rate. IFF the rate is acceptable I'll talk with the recruiter.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Passing the Bluetooth torch</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2015/01/passing-the-blu.html" />
+    <id>tag:defaria.com,2015:/blogs/General//1.1989</id>
+
+    <published>2015-01-09T18:48:27Z</published>
+    <updated>2015-01-09T19:11:47Z</updated>
+
+    <summary>I have many problems with Bluetooth not working correctly. The problem is that when it does work it&apos;s great. But when it screws up it&apos;s extremely frustrating. This should not be as hard as it is!!! Here&apos;s my biggest problem:...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>I have many problems with Bluetooth not working correctly. The problem is that when it does work it's great. But when it screws up it's extremely frustrating. This should not be as hard as it is!!!</p>
+
+<p>Here's my biggest problem: I have a pair of <a href="http://www.lg.com/us/cell-phone-accessories/lg-HBS730">LG HBS-730's</a> that I use all the time. I also have Bluetooth in my 2013 Camaro. Finally I have a Galaxy Note 3 phone running Android. As I approach my car I'm often listening to something on my headset. I get in the car and start it up. Now I want to "pass the Bluetooth torch" from the headset to the car.</p>
+
+<p>The problem is if I start up my car but I forget to disconnect the headset form Bluetooth then the car will connect to Bluetooth but only the Phone profile - not the Media profile. At this point I cannot get the car's Media profile to connect to the phone no matter what I try! If I hit the Media profile to connect it it flashes for a second then stops. I will not connect. I can turn off Bluetooth and turn it back on. Nada. Same problem. I can put the phone into airplane mode - same problem. I could turn off the radio... turn off the car. Nothing.</p>
+
+<p>Then I discovered that when I turn off the car <b>and</b> open the door, at that precise moment the Bluetooth connection to my phone and the Phone profile disconnects. Great. So I'll just close the door, turn on the car and I should be set right? No! Instead, in order to get my phone to connect to the Bluetooth Media profile if I committed the sin of forgetting to power off my headset <b>before</b> the car attempts to connect I have to turn off the car, open the door at least briefly to have the Bluetooth drop then wait anywhere between 1-3 minutes before turning the car on! This is <b>extremely</b> frustrating! At that point, when I turn the car back on, if the radio displays the splash screen I know it's re-initialized the Bluetooth driver such that it will connect. UGH!</p>
+
+<p>Now I'd love to say to Chevy, "Hey your Bluetooth implementation sucks. Fix it!" but I have little hope that the dealer's mechanic jocks really know anything about this nor will they be able to fix it. So I've tried to get around this by using Tasker and setting a profile for "Near Bluetooth" to quickly turn off my headset so that the car can connect. The problem is Near Bluetooth and the car itself both are polling some amount of seconds looking for Bluetooth devices. So if Tasker is gonna poll in 20 seconds from now but the car is in it's polling cycle and has only 10 seconds left then the car will attempt the connection, fail and be in the bad state described above. But it Tasker is in it's cycle and is going to poll in 10 seconds and the car's gonna poll in 20 seconds then it'll work.</p>
+
+<p>I've also experimented with <a href="https://play.google.com/store/apps/details?id=a2dp.Vol" title="A2DP Volume">A2DP Volume</a>, which seems to handle this a bit better but I still experience times when it messes up.</p>
+
+<p>Has anybody experienced this and has come up with a more reliable workaround?</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Installing and using Yubikey Neo Manager on Ubuntu 14.04</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2014/11/installing-and-.html" />
+    <id>tag:defaria.com,2014:/blogs/General//1.1988</id>
+
+    <published>2014-11-15T05:58:58Z</published>
+    <updated>2014-11-15T06:00:40Z</updated>
+
+    <summary>I only run Ubuntu @Home. So I need to have my Yubikey Neo work @Home. Follow my thought process here...I go to your website and find https://www.yubico.com/faq/enable-u2f-linux/. I download it an extract it. There are absolutely no instructions about how...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>I only run Ubuntu @Home. So I need to have my Yubikey Neo work @Home. Follow my thought process here...<br><br>I go to your website and find https://www.yubico.com/faq/enable-u2f-linux/. I download it an extract it. There are absolutely no instructions about how to install this! There is a setup.py file however it doesn't run. Hey have you heard of this great invention called the shebang line? Google it. It'll flip you out! <br><br>Sticking "python" in front of that script I get this wonderful error message:<br><br><blockquote><tt>Earth:python setup.py <br>no previously-included directories found matching 'doc/.build'<br><br>Installed /tmp/yubikey-neo-manager-0.2.5/nose-1.3.4-py2.7.egg<br>usage: setup.py [global_opts] cmd1 [cmd1_opts] [cmd2 [cmd2_opts] ...]<br>&nbsp;&nbsp; or: setup.py --help [cmd1 cmd2 ...]<br>&nbsp;&nbsp; or: setup.py --help-commands<br>&nbsp;&nbsp; or: setup.py cmd --help<br><br>error: no commands supplied<br></tt></blockquote>Gee, what am I to make of that? Should I explore the depths of this setup.py or... Wait, there's a README... Let's look:<br><blockquote><tt>=== Installation</tt><tt><br></tt><tt>The recommended way to install this software including dependencies is by using</tt><tt><br></tt><tt>the provided precompiled binaries for your platform. For Windows and OS X,</tt><tt><br></tt><tt>there are installers available for download</tt><tt><br></tt><tt>https://developers.yubico.com/yubikey-neo-manager/Releases/[here].</tt><tt><br></tt></blockquote>Wondering why a README file for a Linux installation would be talking about Windows and MAC at all!...<br><blockquote><tt>For Ubuntu we have a custom PPA with a package for it</tt><tt><br></tt><tt>https://launchpad.net/~yubico/+archive/ubuntu/stable[here].</tt><tt><br></tt></blockquote>OK, wait a sec! Didn't I just download what I needed to install this? What's this "and now go download this from here..." crap? Further on in this README file is talk about Windows installation and Mac OS/X crap but nothing else about Linux. <br><br>OK so what's this https://lanchpad.net/~yubico/+archive/ubuntu/stable thing? A ppa. Alright. So I set that up. Now what do I do?!? Dead end. Instructions lead to a dead end.<br><br>OK so back to that setup.py. I learn I can do python setup.py install. After doing so, what? What am I supposed to do?!?<br><br>Needless to say your Linux installation leave a hellofva lot to be desired!</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>DevOps - combining 3 jobs into 1 and paying only once for it</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2014/02/devops---combin.html" />
+    <id>tag:defaria.com,2014:/blogs/General//1.1982</id>
+
+    <published>2014-02-25T06:31:27Z</published>
+    <updated>2014-02-25T06:36:39Z</updated>
+
+    <summary>Lately the trend is to combine traditional SCM position with your Unix/Linux administrator and Automation/Helpdesk work, call it &quot;DevOps&quot; and pay only one salary. They&apos;re asking for the world and paying for a cityblock. They are asking for a jack...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>Lately the trend is to combine traditional SCM position with your Unix/Linux administrator and Automation/Helpdesk work, call it "DevOps" and pay only one salary. They're asking for the world and paying for a cityblock. They are asking for a jack of all trades who is a master of no trade specifically and what they get are burnt out engineers trying to please everybody and failing miserably. </p>
+
+<p>Witness a recent post to the job board DICE: <a href="http://www.dice.com/jobsearch/servlet/JobSearch?op=2006" title="DevOps Engineer">DevOps Engineer</a> to which I respond:</p>
+
+<p>I suspect that this is an example of the kinds of assignments we would be shooting for however let me point out a thing or two.</p>
+
+<p>First, this is supposedly W2 only. As such this supposedly would not be open to our business at all...</p>
+
+<p>Secondly there's a statement of "This is an excellent opportunity to work on the latest technologies used by the big software/web companies while maintaining a great work/life balance" however anybody knowing all of this stuff clearly has no room on their calendar for any kind of work/life balance unless you define work as working at work and life balance as working at home!</p>
+
+<p>Finally, in order to quote/unquote "qualify" for this assignment you'd need to know Linux, Windows, Agile Envs, Ruby and Java web apps, Perl, Python, Bash, Awk, PHP, Elastic Cloud (probably Electric Cloud but the recruiter got it wrong), ESXi, EC2, Rackspace Cloud, Hypervisor, KVM, Xen, VDI, Jenkins, Hudson (which is merely the old name for Jenkins), Cruise Control, Electric Commander (yes all of the CI web based platforms... 'cept BuildForge, of course...), Chef, Puppet, Cfengine (cause you can't know just one), Babushka, Knife, Mcollective, Func, Kickstart, PXE, MySQL, Oracle, MongDB, HBase, Cassandra, Hadoop, Junit, Phpunit (is that real?), Rspec, Cucumber, MQ, CDN, Varnish, MemcacheD, Redis, haproxy, Global Traffic Management, GeoDNS, Failable Architecture (I would venture to guess the non-failable architecture too), SDLC, Nagios, Gangila, CollectD, Graphite, Aptitude, dpkg, Yum and RPM (what no setup.exe or Install Shield?), Single Sign on, LDAP, Kerberos, OpenDirectory, PAM, NFS, NTP, APache, nginx, IPTables, Nessus, nmap, F5 BIG-IP, Viprion, REST, XML, JSON and if you can add it on - HBase. Oh and walk on water, turn that water into wine, in high heels, backwards and if it were not too much trouble - with a smile . On and exhibit all you're wonderful skills in a mere 6 months.</p>
+
+<p>Is this for real? I would bet my entire year's salary that a person who knows all of this does not exist in America! Like my subject says: Basically: Looking for Jesus!</p>
+
+<p>Can you say unrealistic? Sure you can.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>W2 vs. C2C</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2014/01/w2-vs-c2c.html" />
+    <id>tag:defaria.com,2014:/blogs/General//1.759</id>
+
+    <published>2014-01-22T18:46:13Z</published>
+    <updated>2014-02-17T21:34:51Z</updated>
+
+    <summary>I&apos;m a consultant and have been for quite some time now. In April of 2007 I finally incorporated and I have been successfully paying myself a paycheck ever since. There are many benefits to me to be in business including...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>I'm a consultant and have been for quite some time now. In April of 2007 I finally incorporated and I have been successfully paying myself a paycheck ever since. There are many benefits to me to be in business including business write offs, the ability to put away more money in my IRA, etc. I have my own benefits and do not wish to give them up.</p>
+
+<p>I have also worked on a W2 basis in the past. However I got to thinking that I have never ever been placed a second time by the same recruiting firm. In other words, I may be working through a consulting firm on a W2 basis. And at times I've been extended on the same contract. But when that assignment ends the consulting firm does not place me somewhere else. So whatever consulting firm I go to next I'll have to renew my benefits there. I probably will not be at the first consulting firm long enough to get vested in their 401(k) plan so I'll have to roll it over, etc. I also do not benefit from the benefits offered because I don't have the wife and kids (my child is an adult now) to utilize the benefits offered. It used to be that the consulting firm would pay you a reduced salary when you were between contracts, and that was their incentive to get you placed at the next assignment quickly, but they don't do that anymore. Instead you're out the door on your own to find your next assignment.</p>
+
+<p>So what's the point of being somebody else's employee? Just so they can process payroll for me and take out taxes? You know Wells Fargo does that for me and it costs me less than $0.15/hour to do this. Yet W2 employees are offered rates that are between $20-$30/hr less than true independent consultant working on a 1099 or C2C basis. You can calculate what benefits cost and it's not that much in terms of $/hour - like $10/hr tops. And bare in mind that most of them offer pretty minimal benefits and the new rage is "W2 without benefits"! If you come across one of those ask them how many consultants they have on W2. If it's > 50 then the must offer benefits!</p>
+
+<p>Also, when you employ a person as a business you must pay the other side of the payroll taxes. This is currently about 7.5% or on a $100K income that's $7,500 AKA $3.75/hr.</p>
+
+<p>The usual arrangement for my contracts is that I am working for the client through a consulting firm. I bill the consulting firm and they bill the client. The consulting firm often has consultants that are on a W2 basis (IOW they are employed by the consulting firm), maybe some consultants on a 1099 basis (meaning they have their own business like a sole proprietorship) and perhaps some working on a C2C basis (same as 1099 except the consultant has formed a corporation).</p>
+
+<p>I've found many recruiters state that the client insists that the consultant is paid on a W2 basis. However this makes no sense. I've often asked but have yet to hear a valid business reason for the client to insist that the consultant is paid on a W2 basis. In fact it's really none of their business how the consulting firm wishes to engage with the consultant be it on a W2, 1099 or C2C basis. As we can see above it's better and cheaper for the consulting firm to just pay the 1099 or C2C consultant directly. In such situations the consultant assumes all of the liabilities for paying his own taxes, benefits and insurance requirements. The consulting firm does not have to offer, pay for nor administer any benefits nor do they need to pay the 7.5% of the payroll taxes. Why is it only in the IT consulting field that this is an issue?</p>
+
+<p>When I'm faced with a "the client wants W2 only" situation I ask them the following question: Have you ever hired a plumber/electrician/carpet cleaner do to work at your house? If so did you bother to call the phone number on his truck to insure that the person who showed up was being paid on a W2 basis? None of them have and if they are at all intelligent they get where I'm coming from. It's of no concern to them and likewise should be of no concern to the client in my situation.</p>
+
+<p>So then why do client's insist on W2 only? I can't be sure (because recruiters never even think about this let alone have put forth a rational answer to the question "What is the business reason why the client insists on W2?") but I have some theories:</p>
+
+<ul>
+  <li>W2 contractors are more like the sheeple of employees out there. They aren't true consultants trying to run a successful business and perhaps build it up. Most likely they are or wish to be employees because they assume that that's more secure and they don't want to be bothered with running their own business. The best they could find was a consulting job and being on W2 is comfortable and familiar to them. Clients like such tame, go along with the crowd, workers.</li>
+
+<p>  <li>Clients often want so called "contract to hire" where at the end of assignment an offer of permanent employment will be made. True consultants running their own businesses get paid a lot better than permanent employees or W2 employees. The "sticker shock" that results when clients attempt to convert their consultants to perms is often too much for the consultant to lose. Paying W2 employees less to start with lessons this sticker shock (and we already know the W2 consultant is more likely to want to be perm as they are already an employee of somebody else - they're not independent).</li></p>
+
+<p><li>Many consulting firms offer consultants who need H1B visas. I believe in such situations the H1B visa holder needs to be employed on a permanent basis. Why it should be the concern of the client how the consulting firm employs their consultants is still beyond me however as it would seem to me that the consulting firm should be free to engage non H1B visa consultants on a C2C basis.</li></p>
+
+<p><li>I think some clients believe that they lesson the likelihood that the consultant will be considered their employee when they are obviously an employee of another firm. There was a big brew ha ha back in the day with some Microsoft consultants being found to be Microsoft's employees and not consultants. Microsoft was forced to pay them a bunch of money because of this (see <a href="http://en.wikipedia.org/wiki/Permatemp#Vizcaino_v._Microsoft">Vizcaino v. Microsoft</a>).</li><br />
+</ul></p>
+
+<p>However one should note from that same Wikipedia page:</p>
+
+<blockquote>The IRS definition of a common law employee rests on whom actually controls the work done by the leased employee. IRS Publication 15A explains "Under Common Law Rules anyone who performs services for you is generally your employee if you have the right to control what will be done and how it will be done..."</blockquote>
+
+<p>As such many if not most (or even all) IT consultants that I know are told not only what will be done but how it will be done. Of course, the client has the right to define the work to be done, but how to do it? Think of this as you would if you hired a lawyer. You would tell him what you would want to see happen, but you would not tell him how to do his job. Additionally truly independent workers often bring their own tools. Now tell me the last time you saw an independent IT consultant come on the job site and say "Here's my laptop - hook it up to your intranet. Oh and I'll be re-writing that code in a language of my own choosing"....]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>California</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2011/03/california.html" />
+    <id>tag:defaria.com,2011:/blogs/General//1.746</id>
+
+    <published>2011-03-10T10:09:44Z</published>
+    <updated>2011-03-10T07:10:22Z</updated>
+
+    <summary>OK, so I&apos;m back in California. I must say it&apos;s good to be back. I find California to be much more laid back than Virgina, where I came from. The job (at Tellabs) is good - so much better than...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>OK, so I'm back in California. I must say it's good to be back. I find California to be much more laid back than Virgina, where I came from. The job (at Tellabs) is good - so much better than the more stuck up companies that I've been working at - it's much easier to connect to my web services like my email at home and calendars, etc. - much less paranoid that other clients I've been at lately. The job seems cool with interesting assignments and just a general laid back feeling as is what I remember from California. That coupled with a yearning to be productive from months of waiting for a gig and life it good. That plus my apartment is pretty kickass too - I can't wait really for spring and summertime and to get back out to the trails in California hiking and just enjoying the wonderfully weather and diverse topology of California as I remember it. That plus a cool job, money in the bank and what's not to love? Oh I must head out to Napa soon too...</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Point people more directly</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2010/11/point-people-mo.html" />
+    <id>tag:defaria.com,2010:/blogs/General//1.745</id>
+
+    <published>2010-11-01T18:55:34Z</published>
+    <updated>2010-11-01T15:55:34Z</updated>
+
+    <summary>Why do people write stuff like: For more information, sign on to your Bill Pay service, click Help at the top of any Bill Pay screen, click the &quot;How Do I...&quot; tab and select &quot;How do I change the payment...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>Why do people write stuff like:</p>
+
+<blockquote>
+For more information, sign on to your Bill Pay service, click Help at the top of any Bill Pay screen, click the "How Do I..." tab and select "How do I change the payment option for one of my current payees?"
+</blockquote>
+
+<p>Instead of "For information about how to change your payment options click <a href="https://billpay.wellsfargo.com/billpay/ws/howdoi/payoptions.html">here</a>" or "<a href="https://billpay.wellsfargo.com/billpay/ws/howdoi/payoptions.html">How do I change the payment option for one of my current payees?</a>""? I mean why do they insist on leading you through a maze to get to the answer?!?</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>Comcast speed</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2010/10/comcast-speed.html" />
+    <id>tag:defaria.com,2010:/blogs/General//1.744</id>
+
+    <published>2010-10-20T14:26:51Z</published>
+    <updated>2010-10-20T14:43:42Z</updated>
+
+    <summary> I mean wow! Remember speed kills! Now if I can just get my static IP assigned....</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p><img src="/blogs/General/Speed.png"><br />
+<p>I mean wow! Remember speed kills!</p></p>
+
+<p>Now if I can just get my static IP assigned.</p>]]>
+        
+    </content>
+</entry>
+
+<entry>
+    <title>More Playon Fun</title>
+    <link rel="alternate" type="text/html" href="http://defaria.com/blogs/General/archives/2010/06/more-playon-fun-2.html" />
+    <id>tag:defaria.com,2010:/blogs/General//1.739</id>
+
+    <published>2010-06-18T09:08:17Z</published>
+    <updated>2010-06-18T09:08:17Z</updated>
+
+    <summary>On 06/17/2010 11:25 PM, PlayOn Support (Michael) wrote: Andrew, Your PS3 can&apos;t communicate with your router the way you want it to. That can neither be caused by nor solved by PlayOn. It is a completely independent problem between two...</summary>
+    <author>
+        <name></name>
+        <uri>http://defaria.com</uri>
+    </author>
+    
+    
+    <content type="html" xml:lang="en" xml:base="http://defaria.com/blogs/General/">
+        <![CDATA[<p>On 06/17/2010 11:25 PM, PlayOn Support (Michael) wrote:</p>
+
+<blockquote type=cite>
+Andrew,
+  
+Your PS3 can't communicate with your router the way you want it to.  That can neither be caused by nor solved by PlayOn.  It is a completely independent problem between two devices you bought from other companies.  You need to consult with them how to fix it.  Just because our product/business relies on your network does not make us responsible for maintaining it.  Similarly, if the power outlet which your PS3 was plugged into was not supplying the PS3 power, we would not be able to help you there either.
+  
+If you choose to respond again with profanity on this matter, you will no longer receive any replies or support from us at all, on any matter.
+</blockquote>
+
+<p>My right to "profane" is protected by the 1st amendment to the US Constitution. Now you also have the right to refuse to deal with me but I would not base that on "profanity". IMNSHO that would be unwise to do so. My profanity is a sign of extreme frustration. Now if you wish to blow off customers just because they are extremely frustrated at you I would suggest to you that that would be a very unwise move. Take it for what you want I guess.</p>
+
+<p>Meantime I will do everything in my power to insure that everybody I come in contact with knows that MediaMall is not a company they want to do business with. Now is that what you really want? I would hope not. Or can we civilly work together? Your choice.</p>
+]]>
+        
+    </content>
+</entry>
+
+</feed>

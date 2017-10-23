@@ -1,0 +1,231 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         cmplab
+# Description:  This script will produce listing of the delta between two 
+#		different labels
+# Author:       Andrew@DeFaria.com
+# Created:      Thu May 23 13:41:05  2002
+# Modified:
+# Language:     Perl
+#
+# (c) Copyright 2002, Salira Optical Network Systems, all rights reserved.
+#
+################################################################################
+$me = substr ($0, rindex ($0, "/") + 1);
+
+# The view and vob to perform the work in.
+$view='\\\\sons-clearcase\views\official';
+$vob="$view\\salira";
+
+sub usage {
+  print "Usage: $me: [-g] <label 1> <label 2>\n";
+  print "\nWhere:\n";
+  print "\n\t-g\t\tGenerate lists - otherwise <label 1>.list and\n";
+  print "\t\t\t<label 2>.list files in the current directory are\n";
+  print "\t\t\tsearched. If the file is not found then a list file\n";
+  print "\t\t\tis generated.\n";
+  print "\t<label 1>\tClearcase label to compare from\n";
+  print "\t<label 2>\tClearcase label to compare to\n";
+  exit 1;
+} # usage
+
+sub ProduceListFile {
+  # This subroutine will simply produce a file listing all Clearcase elements
+  # elements into a file.
+  my ($label) = shift;
+
+  # Produce listing into array
+  print "Producing a list of elements labeled $label...\n";
+  `cleartool find -all -version "lbtype($label)" -print > $cwd/$label.list`;
+} # ProduceListFile
+
+sub PrintArray {
+  # This subroutine merely prints the array passed to it.
+  foreach (@_) {
+    print "$_\n";
+  } # foreach
+} # PrintArray
+
+sub CheckLabel {
+  # This subroutine checks to see if the label passed is a Clearcase label.
+  my ($label) = shift;
+
+  return system ("cleartool lstype lbtype:$label > /dev/null 2>&1");
+} # CheckLabel
+
+sub ProduceLists {
+  # This subrourtine produces a list of all files labeled by each label. This
+  # lists are placed into arrays and saved as files for future runs.
+  if ($dynamic eq 1) {
+    ProduceListFile ($lab1);
+    ProduceListFile ($lab2);
+  } else {
+    if (! -f "$cwd/$lab1.list") {
+      ProduceListFile ($lab1);
+    } # if
+    if (! -f "$cwd/$lab2.list") {
+      ProduceListFile ($lab2);
+    } # if
+  } # if
+
+  # Load up arrays from listing files
+  open (LAB1OUT, "<$cwd/$lab1.list") || die "Unable to open $cwd/$lab1.list\n";
+  @lab1out = <LAB1OUT>;
+
+  open (LAB2OUT, "<$cwd/$lab2.list") || die "Unable to open $cwd/$lab2.list\n";
+  @lab2out = <LAB2OUT>;
+
+  # Now ensure their in sorted order
+  @lab1out = sort (@lab1out);
+  @lab2out = sort (@lab2out);
+} # ProduceLists
+
+sub ProcessLists {
+  # This subroutine will process the two list arrays producing the report.
+  # Now enter a loop comparing items
+  $lab1line = shift (@lab1out);
+  $lab2line = shift (@lab2out);
+
+  if (!$lab1line && !$lab2line) {
+    print "$me: Warning: No elements found for either label $lab1 nor $lab2\n";
+    print "Nothing to compare!\n";
+    exit;
+  } # if
+
+  if (!$lab1line) {
+    print "$me: Warning: No elements found for label $lab1\n";
+    $lab1line = " ";
+  } # if
+
+  if (!$lab2line) {
+    print "$me: Warning: No elements found for label $lab2\n";
+    $lab2line = " ";
+  } # if
+
+  while ($lab1line && $lab2line) {
+    # Extract versions and elements
+    $version_start = rindex ($lab1line, "@") + 1;
+    $version1      = substr ($lab1line, $version_start);
+    $element1      = substr ($lab1line, 0, $version_start - 2);
+    $version_start = rindex ($lab2line, "@") + 1;
+    $version2      = substr ($lab2line, $version_start);
+    $element2      = substr ($lab2line, 0, $version_start - 2);
+
+    # Change "\"'s to "/"'s
+    $element1 =~ s/\\/\//g;
+    $version1 =~ s/\\/\//g;
+    $element2 =~ s/\\/\//g;
+    $version2 =~ s/\\/\//g;
+
+    # Remove leading vob pathname
+    $element1 =~ s/$vob\///;
+    $element2 =~ s/$vob\///;
+
+    # Remove trailing carriage return and linefeed
+    chop ($version1); chop ($version1);
+    chop ($version2); chop ($version2);
+
+    # Compare element names
+    if ($element1 eq $element2) {
+      # Element has both labels
+      if ($version1 ne $version2) {
+	# Element has different version
+	push (@diffs, "$element1 $version1 -> $version2");
+      } # if
+
+      # Get next element/version
+      $lab1line = shift (@lab1out);
+      $lab2line = shift (@lab2out);
+    } else {
+      # Elements names are different
+      if (!$element1) {
+	# Element 1 is blank indicating there are no items in lab1out array
+	# Push all of element 2
+	push (@lab2only, $element2 . " " . $version2);
+	$lab2line = shift (@lab2out);
+      } elsif (!$element2) {
+	# Element 2 is blank indicating there are no items in lab1out array
+	# Push all of element 1
+	push (@lab1only, $element1 . " " . $version1);
+	$lab1line = shift (@lab1out);
+      } elsif ($element1 lt $element2) {
+	# Element 1 is less so get next element 1
+	push (@lab1only, $element1 . " " . $version1);
+	$lab1line = shift (@lab1out);
+      } else {
+	# Element 2 is less so get next element 2
+	push (@lab2only, $element2 . " " . $version2);
+	$lab2line = shift (@lab2out);
+      } # if
+    } # if
+  } # while
+
+  # Output comparison listing
+  print "Comparison of $lab1 -> $lab2\n";
+
+  if ($#diffs ne -1) {
+    $nbrelements = $#diffs + 1;
+    if ($nbrelements eq 1) {
+      print "\nThe following $nbrelements element have both labels:\n\n";
+    } else {
+      print "\nThe following $nbrelements elements have both labels:\n\n";
+    } # if
+    PrintArray (@diffs);
+  } # if
+
+  if ($#lab1only ne -1) {
+    $nbrelements = $#lab1only + 1;
+    if ($nbrelements eq 1) {
+      print "\nThe following element only has the $lab1 label:\n\n";
+    } else {
+      print "\nThe following $nbrelements elements only have the $lab1 label:\n\n";
+    } # if
+    PrintArray (@lab1only);
+  } # if
+
+  if ($#lab2only ne -1) {
+    $nbrelements = $#lab2only + 1;
+    if ($nbrelements eq 1) {
+      print "\nThe following element only has the $lab2 label:\n\n";
+    } else {
+      print "\nThe following $nbrelements elements only have the $lab2 label:\n\n";
+    } # if
+    PrintArray (@lab2only);
+  } # if
+} # ProcessLists
+
+# Get options...
+if ($ARGV[0] eq "-g") {
+  shift (@ARGV);
+  $dynamic = 1;
+} else {
+  $dynamic = 0;
+} # if
+
+usage if $ARGV [0] eq "" || $ARGV [1] eq "";;
+
+$lab1=$ARGV[0];
+$lab2=$ARGV[1];
+
+$cwd = $ENV {PWD};
+
+chdir ($vob) or die "Unable to chdir to $vob\n";
+
+if (CheckLabel ($lab1)) {
+  print "$me: Error: $lab1 is not a label\n";
+  exit 1;
+} # if
+
+if (CheckLabel ($lab2)) {
+  print "$me: Error: $lab2 is not a label\n";
+  exit 1;
+} # if
+
+# Change backslashes to slashes as perl seems to have oddities with 
+# backslashes
+$vob =~ s/\\/\//g;
+
+ProduceLists;
+ProcessLists;
+

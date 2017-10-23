@@ -1,0 +1,63 @@
+#!/bin/bash
+################################################################################
+#
+# File:         site_parms
+# Description:  Displays the site's parameters
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Jul 31 19:06:47 PDT 2003
+# Language:     bash
+#
+# (c) Copyright 2001-2003, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+display "$SITE_NAME_LONG ($SITE_NAME) Site's parameters:\n"
+display "Administrator:\t\t$SITE_ADMIN <$SITE_ADMIN_EMAIL>"
+display "Home Path:\t\t//$SITE_HOME_SERVER/$SITE_HOME_SHARENAME"
+display "Anonymous FTP:\t\t$SITE_ANON_FTP_SERVER"
+
+display "\nRelease area(s):\n"
+
+declare -i i=1
+for site_release_server in $SITE_RELEASE_SERVER; do
+  site_release_server[$i]=$site_release_server
+  ((i++))
+done
+
+i=1
+
+for site_release_path in $SITE_RELEASE_PATH; do
+  site_release_path[$i]=$site_release_path
+  ((i++))
+done
+
+i=1
+while [[ ! -z ${site_release_server[$i]} ]]; do
+  display "\t\t\t//${site_release_server[$i]}/${site_release_path[$i]}"
+  ((i++))
+done
+
+display "\nClearcase parameters\n"
+display "Build Server\t\t$SITE_BUILD_SERVER"
+display "Region:\t\t\t$SITE_REGION"
+display "VOB server:\t\t$SITE_VOB_SERVER"
+display "View Server:\t\t$SITE_VIEW_SERVER"
+display "View Sharename:\t\t$SITE_VIEW_SHARENAME"
+display "View Storage:\t\t$SITE_VIEW_STORAGE"
+display "Snapshot View Pathname:\t$SITE_SNAPSHOT_VIEW_PATH"
+display "Dynamic View Pathname:\t$SITE_DYNAMIC_VIEW_PATH"
+display "Official View:\t\t$SITE_OFFICIAL_VIEW"
+display "Tools VOB:\t\t$SITE_TOOLS_VOB"
+display "Tools View:\t\t$SITE_TOOLS_VIEW"
+display "Tools Path:\t\t$SITE_TOOLS_PATH"

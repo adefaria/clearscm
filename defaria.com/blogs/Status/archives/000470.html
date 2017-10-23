@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: check_attachments</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000467.html" title="bin_merge" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000471.html" title="More on attachments" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000467.html">&laquo; bin_merge</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000471.html">More on attachments &raquo;</a>
+                     </p>
+
+                     <a id="a000470"></a>
+                     <div class="entry" id="entry-470">
+                        <h3 class="entry-header">check_attachments</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked out a plan for how to perform the PQA Merge this weekend</li>
+
+  <li>Concerned about the size discrepancy in the database I wrote a little utility, check_attachments, to total up the size of all attachments in all the databases. This turned up a bug in pqamerge which I fixed. Reperforming pqamerge</li>
+
+  <li>There is a problem with using clearprompt to prompt for list input for bin_merge - You can only have one line of prompting text and only 50 characters in that line. It's gonna be hard to describe a binary merge situation in 50 characters or less. Investigated making a PerlTk list dialog. In theory it can be done as ccperl does support PerlTk.</li>
+
+  <li>Discussed with Naga the <i>email link</i> issue with PQA</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>TransferAttachments</h3>
+
+<p>I knew there was a good reason why this was eating at me. There is indeed a bug. My attachments transfer routine was not getting called at all for Prod! I wrote a small Perl script to check this and it yielded:<p>
+
+<div class="code"><pre>
+$ cqperl check_attachments
+Totaling attachments in TO...
+Totaling</span> attachments in Prod...
+Totaling</span> attachments in Cont...
+Total attachment size for TO = 272253137
+Total attachment size for Prod = 2683569547
+Total attachment size for Cont = 272253137
+</pre></div>
+
+<p>Notice that the size of the attachments for TO matches the size of attachments for Cont! IOW no Prod attachments got transferred at all!</p>
+
+<p>Turns out I was only calling TransferAttachments when the field name was AttachmentsBRCM (and TransferAttachments then did all the attachments - both Attachments and AttachmentsBRCM). However, in Prod the field is named AttachmentBRCM - note the
+singularity here! I tell ya my eyes are going.</p>
+
+<p>I'm changing my code not be dependent on the field name and to just call TransferAttachments for each record. TransferAttachments doesn't need to know the field name - it just does all of them.</p>
+
+<p>Unfortunately this means that I have to delete all of the records currently in the Cont database on p4test. And it also means that the approximate 4 hour running time will probably increase. However this does explain the discrepancy in the database sizes.</p>
+
+<h3>Out of Disk Space</h3>
+
+Shivdutt Jha wrote:
+<blockquote type=cite>
+Good job Andrew, another mystery is solved.
+</blockquote>
+
+<p>What is more telling is that we have 2.6 Gig of attachments!</p>
+
+<p>In any event my merge failed with out of disk space. The pqamerge script uses the current directory to temporarily hold the attachments as the are transfered from one DB to the other. Turns out that Prod00010818 has two very large attachments, one 328485466 bytes and another 219095209 bytes. Unfortunately I was running in ~vobadm/My Documents and that disk filled. So another lesson learned - run pqamerge in a directory on a disk with lots of disk space! Alas this means I have to start this process over again (I'm trying to get a clean run and a timing of how long to expect the merge to run. pqamerge outputs how long it takes to do it work).</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on November  7, 2005  6:54 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000470.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

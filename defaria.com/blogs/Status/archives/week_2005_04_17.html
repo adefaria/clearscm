@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: April 17, 2005 - April 23, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_04_10.html" title="April 10, 2005 - April 16, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_04_24.html" title="April 24, 2005 - April 30, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_04_10.html">&laquo; April 10, 2005 - April 16, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_04_24.html">April 24, 2005 - April 30, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">April 22, 2005</h2>
+                     <a id="a000341"></a>
+                     <div class="entry" id="entry-341">
+                        <h3 class="entry-header">Bluecat/Bluecat</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Building of BC 5.3 on RH 6.1 failed in step 7. Apparently I had /mnt/cdrom already mounted. Picked up from step 8...</li>
+
+  <li>Building of BC 5.2 on RH 8.0 got along farther - to step 3.7! - but failed due to lack of uudecode. Installed and proceeding</li>
+</ul>
+                              
+                              <h3>BC 5.2 on RH 8.0</h3>
+
+<p> Building BC 5.3 on RH 8.0 failed in step 3 with the following in build_ncurses.log:</p>
+
+<div class="code"><pre>
++ zcat /build/bluecat/build/20050319/cdt/src/bluecat/SOURCES/patch-5.3-20021231.sh.gz
++ sh
+sh: line 2196: uudecode: command not found
+gzip: ncurses-5.3-20021231.patch.gz: No such file or directory
++ echo 'Patch #2 (ncurses-5.3-20030105.patch.gz):'
++ /bin/gzip -dc /build/bluecat/build/20050319/cdt/src/bluecat/SOURCES/ncurses-5.3-20030105.patch.gz
++ patch -p1 -s
+patch: **** aborted
+error: Bad exit status from /build/bluecat/build/20050319/var/tmp/rpm-tmp.56417 (%prep)
+    Bad exit status from /build/bluecat/build/20050319/var/tmp/rpm-tmp.56417 (%prep)
+</pre></div>
+
+<p>Turns out uudecode is part of sharutils-4.2.1-12 which I downloaded and installed. This should be added to the required package list.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:46 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000341.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 21, 2005</h2>
+                     <a id="a000340"></a>
+                     <div class="entry" id="entry-340">
+                        <h3 class="entry-header">BC Builds/CVS Corruption</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Recieved hack to continue on with RH8.0 build. Proceeded to build that on Europa</li>
+
+  <li>Recieved instructions from Sasha regarding building BC 5.3 on RH 6.1. Proceeded to build that on Jaguar</li>
+
+  <li>Finished fixing CVS corruption with Vinnie's help</li>
+</ul>
+                              
+                              <h3>RH 8.0 BC Build</h3>
+
+<p>Sasha's only advice was to uncomment a line in the glibc_cdt.spec file that gunzip's these info files. I had seen that before. I did this and restarted a stepwise build @ step 3. I suspect, however, that were I to backtrack to step 1 or so this hack would be overwritten</p>
+
+<h3>BC 5.3 build on RH 6.1</h3>
+
+<p>Meantime BC development goes on to BC 5.3. Sasha sent a PDF file with instructions for building. Looks like they've incorporated some of the changes I suggested (fixing mktools to be part of step one as well as the patch spec). Unfortunately they have not incorporated the fix for RH 8.0 to the do_it script.</p>
+
+<p>Still the build is progressing fairly nicely and it looks as if they've also reduced the number of steps from 17 -> 13 (though do_it still described steps > 13).</p>
+
+<p>I had made a change or two to do_it essentially removing the su $BUILD_CMD_USER as that causes me problems and utilizing sudo around the mount commands in steps 7 and 11. I have configured Europa such that int has passwordless sudo privileges.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:05 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000340.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 20, 2005</h2>
+                     <a id="a000339"></a>
+                     <div class="entry" id="entry-339">
+                        <h3 class="entry-header">Rebuilding glibc RH 8.0</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Rebuild glibc on RH 8.0 in order to obtain static .a files for libnss_dns and libnss_files.</li>
+</ul>
+                              
+                              <h3>Rebuilding glibc</h3>
+
+<p>According to Sasha I downloaded a copy of glibc-2.2.93.5.src.rpm. Next I modified the spec file to include --enable-static-nss=yes. In attempting to rebuild using rpmbuild -bb I received notice that I had to get and install gd-devel-1.8.4-9.i386.rpm and libpng-devel-1.2.2-8.i386.rpm. After that the rpmbuild worked OK and I copied the libraries like so:</p>
+
+<div class="code"><pre>
+$ cp /usr/src/redhat/BUILD/glibc-2.2.93/build-i386-linux/resolv/libnss_dns.a /usr/lib/libnss_dns.a
+$ cp /usr/src/redhat/BUILD/glibc-2.2.93/build-i385-linux/nss/libnss_files.a /usr/lib/libnss_files.a
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:44 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000339.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 19, 2005</h2>
+                     <a id="a000338"></a>
+                     <div class="entry" id="entry-338">
+                        <h3 class="entry-header">BC Step 3 still broke</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Trying to resolve problems in BC build step 3</li>
+</ul>
+                              
+                              <p>The build is still failing in step3. Specifically I see lines like the following at the end of build_glibc.log:</p>
+
+<div class="code"><pre>
+rpm-tmp.51419 line 27:cp -pr documentation/ChangeLog.1.gz documentation/ChangeLog.10.gz documentation/ChangeLog.11.gz documentation/ChangeLog.12.gz documentation/ChangeLog.13.gz documentation/ChangeLog.2.gz documentation/ChangeLog.3.gz documentation/ChangeLog.4.gz documentation/ChangeLog.5.gz documentation/ChangeLog.6.gz documentation/ChangeLog.7.gz documentation/ChangeLog.8.gz documentation/ChangeLog.9.gz documentation/ChangeLog.gz documentation/ChangeLog.threads.gz documentation/Changes.threads documentation/FAQ-threads.html documentation/README.threads documentation/README.timezone documentation/README.ufc-crypt documentation/examples.threads /build/bluecat/build/20050319/var/tmp/glibc-2.3.2-root/usr/share/doc/glibc_cdt-common-2.3.2
+rpm-tmp.51419 line 28:exit 0
+   File not found: /build/bluecat/build/20050319/var/tmp/glibc-2.3.2-root/cdt/share/info/libc.info
+   File not found: /build/bluecat/build/20050319/var/tmp/glibc-2.3.2-root/cdt/share/info/libc.info-1
+   File not found: /build/bluecat/build/20050319/var/tmp/glibc-2.3.2-root/cdt/share/info/libc.info-10
+   File not found: /build/bluecat/build/20050319/var/tmp/glibc-2.3.2-root/cdt/share/info/libc.info-11
+   File not found: /build/bluecat/build/20050319/var/tmp/glibc-2.3.2-root/cdt/share/info/libc.info-12
+...
+</pre></div>
+
+<p>When I look to see what's in that path I do see libc.info files (libc.info, libc.info-1, libc.info-10, etc.) but they are all gzipped (i.e. libc.info -> libc.info.gz, libc.info-10 -> libc.info-10.gz). My only suspicion is that something in this process changed to use gzip files and some other portion of this process is looking for the unzipped files.</p>
+
+<p>As this appears to be dynamically created, I cannot simply unzip these files and continue on from this point. What should I do?</p>
+
+<p>I have also been trying to perform the rpmbuild in steps (-bp, -bc, etc) to no avail. I've even tried to keep these .gz files around and place them in place so that the build/install can continue but then down the line I get problems like:</p>
+
+<div class="code"><pre>
++ install -m 644 /build/bluecat/build/20050319/cdt/src/bluecat/SOURCES/nsswitch.conf /build/bluecat/build/20050319/var/tmp/glibc-2.3.2-root/cdt/etc/nsswitch.conf
+install: cannot stat `/build/bluecat/build/20050319/cdt/src/bluecat/SOURCES/nsswitch.conf': No such file or directory
+error: Bad exit status from /build/bluecat/build/20050319/var/tmp/rpm-tmp.44405 (%install)
+</pre></div>
+
+<p>This is obviously not the right way to do this. I should wait from word from Moscow before preceeding.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000338.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">April 18, 2005</h2>
+                     <a id="a000337"></a>
+                     <div class="entry" id="entry-337">
+                        <h3 class="entry-header">Bluecat Response</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Installed autoconf-2-13 on Europa. Restarting Bluecat build</li>
+</ul>
+                              
+                              <p>Received a response from Alexander. Seems Bluecat relies on autoconf-2.13. Found a package on the web and installed it.</p>
+
+<p>Sasha also speaks of rebuilding glibc in order to get an archive version of libnss_dns and libnss_files. I've already copied these from Jaguar (RH 6.1).</p>
+
+<p>Restarted Bluecat build in a non stepwise fashion. This should be interesting.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:09 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000337.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

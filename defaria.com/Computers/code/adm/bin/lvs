@@ -1,0 +1,33 @@
+#!/bin/bash
+################################################################################
+#
+# File:         lvs
+# RCS:          $Header: lvs,v 1.1 97/04/08 15:27:22 defaria Exp $
+# Description:  A script to list the LVM's and their disk devices
+# Author:       Jeff Bralley (Contrator), California Language Labs
+# Created:      Tue Apr  8 14:35:00 PDT 1997
+# Modified:     Tue Apr  8 15:11:13 PDT 1997 Andrew DeFaria (defaria@cup.hp.com)
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+print "Mount Point\tLogical Volume\t\tPhysical Volume"
+echo '--------------- ----------------------- ---------------'
+
+vgdisplay               |
+  grep '^VG Name'       |
+  awk '{print $3}'      |
+  while read vgName; do
+    for volumeName in $vgName/*; do
+      if [ ! -b $volumeName ]; then
+        continue
+      fi
+      pd=$(lvdisplay -v $volumeName | grep '^[         ]*/dev/dsk' | awk '{print $1}')
+      mp=$(bdf $volumeName 2> /dev/null | grep -v Filesystem | awk '{print $NF}')
+      if [ "$mp" = "" ]; then
+        mp=swap
+      fi
+      print "$mp\t\t$volumeName\t\t$pd"
+    done
+done

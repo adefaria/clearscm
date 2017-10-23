@@ -1,0 +1,59 @@
+#!/bin/bash
+################################################################################
+#
+# File:         display
+# Description:  Display functions for Korn Shell Scripts
+# Author:       Andrew@DeFaria.com
+# Created:      Tue Apr 15 14:20:02 PDT 1997
+# Modified:
+# Language:     Bash Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+function error {
+  declare -i errornbr=$2
+
+  if [ $errornbr -ne 0 ]; then
+    echo -e "$me: Error: $1 (Error: $2)"
+    exit $2
+  else
+    echo -e "$me: Error: $1"
+  fi
+} # error
+
+function warning {
+  declare -i warningnbr=$2
+
+  if [ $warningnbr -eq 0 ]; then
+    echo -e "$me: Warning: $1"
+  else
+    echo -e "$me: Warning: $1 (Warning: $2)"
+  fi
+} # warning
+
+function display {
+  echo -e "$@"
+} # display
+
+function display_stderr {
+  echo -e "$@"
+} # display_stderr
+
+function info {
+  display "$me: Info: $@"
+} # info
+
+unset info
+
+function verbose {
+  if [ ! -z "$verbose" ]; then
+    display "$@"
+  fi
+} # verbose
+
+function debug {
+  if [ ! -z "$debug" ]; then
+    echo -e "$@"
+  fi
+} # debug

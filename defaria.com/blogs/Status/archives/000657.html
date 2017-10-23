@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: CC/CQ on Linux</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000656.html" title="Clearquest on Linux" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000658.html" title="ranlin0[2|3] released" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000657.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/44"
+    dc:title="CC/CQ on Linux"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000657.html"
+    dc:subject="General Dynamics"
+    dc:description=" Fixed problem with cleartrig for the Linux clients Investigated and found a work around to font problems between Linux and Sun Met with development/test teams regarding documentation visibility. Also worked out the differences in the documents between builds 1,..."
+    dc:creator=""
+    dc:date="2007-07-31T17:25:51-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000656.html">&laquo; Clearquest on Linux</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000658.html">ranlin0[2|3] released &raquo;</a>
+                     </p>
+
+                     <a id="a000657"></a>
+                     <div class="entry" id="entry-657">
+                        <h3 class="entry-header">CC/CQ on Linux</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed problem with cleartrig for the Linux clients</li>
+
+  <li>Investigated and found a work around to font problems between Linux and Sun</li>
+
+  <li>Met with development/test teams regarding documentation visibility. Also worked out the differences in the documents between builds 1, 2 and 3</li.
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Cleartrig and font problems on Linux clients</h3>
+
+<p>I hit a few problems when attempting to verify proper execution of Clearcase/Clearquest and our WOR integration on Linux machines.</p>
+
+<h3>Cleartrig problems</h3>
+
+<p>The first problem was that the Linux installation of Cleartrig (remotely accessible through /cleartrib/bin) was missing execute permissions for group and other. The solution to this was to add execute permissions.</p>
+
+<h3>Font Problems</h3>
+
+<p>his is running under the assumption that:</p>
+
+<ol>
+  <li>The user is on a Solaris box and running CDE and</li>
+
+  <li>The user is remotely logged into a Linux box (currently only ranlin02 and ranlin03) and displaying back to his/her Solaris machine</li>
+</ol>
+
+<p>The user may see dialog boxes with no text or other errors relating to fonts. Since most engineers use Solaris and CDE many X Font Resources are set to fonts only available on CDE supported systems<sup>1</sup>. For example, executing xrdb -q | grep -i font may result in the
+following:</p>
+
+<div class=code><pre>
+*Font:             -dt-interface user-medium-r-normal-s*-*-*-*-*-*-*-*-*
+*FontList:         -dt-interface user-medium-r-normal-s*-*-*-*-*-*-*-*-*
+*labelFontList:    -dt-interface user-medium-r-normal-s*-*-*-*-*-*-*-*-*
+...
+</pre></div>
+
+<p>Needless to say these "dt" fonts are not known in the Linux world and this causes Clearcase/Clearquest some problems when running remotely displayed to an X server using such font. The solution is to use more universally acceptable fonts such as fixed. The following set of X Font Resources seems to work:</p>
+
+<div class=code><pre>
+*Font:                  fixed
+*FontList:              fixed
+*labelFontList:         fixed
+*buttonFontList:        fixed
+*textFontList:          fixed
+*DtEditor*textFontList: fixed
+*systemFont:            fixed
+*XmText*FontList:       fixed
+*FontSet:               fixed
+*XmTextField*FontList:  fixed
+*fontGroup:             Courier
+</pre></div>
+
+<p>If you are experiencing problems with X Fonts when running from a Linux machine add the above lines to a file, say ~/.fonts then do</p>
+
+<div class=code><pre>
+$ xrdb -m ~/.fonts
+</pre></div>
+
+<h4>Notes:</h4>
+<ol>
+  <li><a name="note1"></a>These "dt" fonts are often set into CDE's environment when say using the Style Manager to change your font settings.</li>
+</ol>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on July 31, 2007  5:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000657.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/44</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

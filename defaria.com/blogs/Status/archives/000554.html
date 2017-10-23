@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Osaka Builds on Windows</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000553.html" title="More woes with 2003 Server and sshd" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000555.html" title="Vob corruption/Email/Chmaster" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000553.html">&laquo; More woes with 2003 Server and sshd</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000555.html">Vob corruption/Email/Chmaster &raquo;</a>
+                     </p>
+
+                     <a id="a000554"></a>
+                     <div class="entry" id="entry-554">
+                        <h3 class="entry-header">Osaka Builds on Windows</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked with Zoran to resolve merge issues from RISS15_Integration -> osaka_strm</li>
+
+  <li>Documented how to build development views on Tiburon for the L2 and Base components</li>
+
+  <li>Assisted engineer on problems with view and installer_cmp</li>
+
+  <li>Changed RISS15_Integration to not do testing all the time</li>
+
+  <li>Worked more on osaka_strm build scripts</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>I've made some progress converting the osaka_strm* scripts from .bat -&gt; .sh. There are still some problems:</p>
+
+<ul>
+  <li>I'm getting permission denied for several files when attempting to write to the E drive (from //pacifica/devenv) and also to TheCity (i.e. //thecity/releaseArchive/...). Here are the error messages:
+
+<div class=code><pre>
+Could not open E:\/build-osaka_strm.log for appending: Permission denied
+</pre></div>
+    
+<p>In the past we fixed this by doing chmod on the files/directories over on Pacifica however:</p>
+
+<div class=code><pre>
+Pacifica:ll build-osaka_strm.log 
+-rw-rw-r--&nbsp; 1 build hp-cc 3707 May 25 10:30 build-osaka_strm.log
+Pacifica:ll -n build-osaka_strm.log 
+-rw-rw-r--&nbsp; 1 10000 213 3707 May 25 10:30 build-osaka_strm.log
+</pre></div>
+
+<p>Yet from build-win1:</p>
+
+<div class=code><pre>
+Build-win1:id
+uid=1151(defaria) gid=213(hp-cc)
+groups=0(root),544(Administrators),545(Users),039186($22DV00-RLFVIG81PFDK),999028($4R5U00-TTIJJ61TLD20),1156949(CC-ADMIN),213hp-cc),525633(ESSDCC),1156950(HP-CC),457005(ORG-NSS-SOFTWARE),1143096(SERVICE-RS-MSRA)<br>
+</pre></div>
+
+<p>I seem to be in the hp-cc group (213) on build-win1 and should have write permissions on that file.</p>
+
+<p>More concerning is the following:<br>
+
+<div class=code><pre>
+Unable to open
+\\thecity\releaseArchive\osaka\install\build-CCInstaller-osaka-20060329_0928\install/tools/patches/active/patches/patches.info.new
+for write: Permission denied
+No file written
+</pre></div>
+
+<p>Even though:</p>
+
+<div class=code><pre>
+Thecity:cd
+/mnt/hp/releaseArchive/osaka/install/build-CCInstaller-osaka-20060329_0928/install/tools/patches/active/patches<br>
+Thecity:ll patches.info 
+-rw-rw-rw-&nbsp; 1 build hp-cc 362 Mar 29 12:41 patches.info
+</pre></div>
+  </li>
+
+  <li>Running of osaka_strm_build.sh calls osaka_Domino_build.sh which does:
+
+<div class=code><pre>
+verbose "Performing build..."
+mkdir Domino
+cp -rp platform/mailserver/domino/* Domino
+</pre></div>
+
+<p>But this fails because in the view it is using (rollet_osaka_snap_int) there is no platform/mailserver/domino to copy from. I double checked this by running  osaka_Domino_build.bat and it fails the same way. I think the solution is to simply ct update -add platform/mailserver/domino to the rollet_osaka_snap_int view.</p>
+  </li>
+
+  <li>I've converted osaka_strm_build_D2R.bat -&gt; osaka_strm_build_D2R.sh. It used to call /home/build/buildD2R.sh which simply did a perl streamBuild.pl so I eliminated that call and just put the call to perl in osaka_strm_build_D2R.sh. Part of this script attempts to ct update -overwrite d2riss however as we seen before d2riss is not in Clearcase. Again I double checked this by running the .bat file and it likewise fails. There is much more work to be done here as there were a ton of set statements and a very long and odd PATH setting so I'm not sure if my translation worked yet.</li>
+</ul>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on May 30, 2006  5:58 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000554.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

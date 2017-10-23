@@ -1,0 +1,40 @@
+Subcommands for show:
+
+ 8021pmap                      - Display Global 8021p QoS map info
+ ace                           - Show all aces
+ acl                           - Display ACL list
+ activeacl                     - Show all ACL attached to a given OLC or ONU
+ alarm                         - Display alarm logged in the system
+ board                         - Display board information
+ channel                       - Display DS3 channel configuration
+ fdb                           - Display static/dynamic FDB information
+ image                         - Display system image information
+ interface                     - Display interface configuration
+ l2switch                      - Display L2 switch configuration
+ logevent                      - Display event logged in the system
+ maintenance                   - Display maintenance command configuration or ma                                 intenance command history
+ module                        - Display ONU module information
+ onu                           - Display ONU configuration
+ onubw                         - Display ONU bandwidth distribution info
+ path                          - Display sonet path configuration
+ pon                           - Display OLC PON port information
+ ponbw                         - Display PON bandwidth distribution info
+ services                      - Display services information
+ snmp                          - Display SNMP configuration
+ stats                         - Display statistic data for PON, TDM, ether and 
+                                 VLAN 
+ stp                           - Display STP PON switch/port information
+ subscribers                   - Display subscribers information
+ switchport                    - Display switchport information
+ system                        - Display system configuration
+ this                          - Display information about current object
+ tosmap                        - Display TOS QoS map information
+ user                          - Display user account configuration
+ vdslconfig                    - Display VDSL port configuation
+ vdslphy                       - Display VDSL port physical states
+ vdslvalidrates                - Display all valid VDSL rates combinations
+ vlan                          - Display specific VLAN information
+ vlaninfo                      - Display overall VLAN information within this OL                                 T device
+ vlanmap                       - Display VLAN QoS map information 
+ vtds1                         - Display sonet vc_ds1 configuration
+ xconnect                      - Display crossconnect configuration

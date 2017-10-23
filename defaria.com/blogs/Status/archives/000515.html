@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Stglocs/replicating perftest</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000514.html" title="Getting log_activity/stats and pulse to work" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000517.html" title="Clearcase Merging/CQ Time Stamp problem/CQ Help problem" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000514.html">&laquo; Getting log_activity/stats and pulse to work</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000517.html">Clearcase Merging/CQ Time Stamp problem/CQ Help problem &raquo;</a>
+                     </p>
+
+                     <a id="a000515"></a>
+                     <div class="entry" id="entry-515">
+                        <h3 class="entry-header">Stglocs/replicating perftest</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Investigated stglocs</li>
+
+  <li>Replicated /vobs/perftest and set up log_activity, stats and pulse for all of:</li>
+    <ul>
+      <li>ccase-rmna-3</li>
+
+      <li>ccase-sj1-1</li>
+
+      <li>ccase-sj1-2</li>
+
+      <li>ccase-irva-2</li>
+    </ul>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>Chris, if you can spare a Windows machine to host the views (meaning to run the view_server processes on) then I believe the following stgloc would be your best answer:</p>
+
+<div class="code"><pre>
+$ your_filer=&lt;your_filer&gt;
+$ your_share=&lt;your_share&gt;
+$ your_windows_view_server=&lt;your_windows_view_server&gt;
+$ p=\\\\$your_filer\\$your_share\\viewstore
+$ cleartool mkstgloc -view -force -host $your_windows_view_server \
+&gt; -hpath $p -gpath $p viewstore $p
+</pre></div>
+
+<p>This would create a "stgloc" which can be used in mkview:</p>
+
+<div class="code"><pre>
+$ cleartool mkview -tag &lt;tag&gt; -stgloc viewstore (or -auto)
+</pre></div>
+
+<p>Users can also select this stgloc in the Clearcase Explorer GUI. Views will be placed on $your_filer and served by $your_windows_view_server (meaning view_server processes will run there and that that machine should have a static IP).</p>
+
+<p>Views can be cross tagged into the Linux region with:</p>
+
+<div class="code"><pre>
+$ cleartool mktag -view -tag defaria2 -host 10.136.65.5 -hpath \\\\fs-rmna-01\\ccstgloc-cabu\\viewstore\\BROADCOM\\adefaria\\defaria2.vws -gpath /projects/ccstgloc-cabu/viewstore/BROADCOM/adefaria/defaria2.vws
+/projects/ccstgloc-cabu/viewstore/BROADCOM/adefaria/defaria2.vws
+cleartool: Warning: Storage pathname "/projects/ccstgloc-cabu/viewstore/BROADCOM/adefaria/defaria2.vws"
+may not reside on host "10.136.65.5".
+</pre></div>
+
+<p><b>Notes:</b></p>
+
+<ul>
+  <li>I specified host as an IP address because the test "server" I was using was using DHCP (IOW nslookup pcrmna-ccrmt02 doesn't work from Unix)</li>
+
+  <li>Backslashes are doubled because bash collapses them</li>
+
+  <li>The host path (-hpath) must be a valid path <b>from the host's point of view</b>. The host (pcrmna-ccrmt02 in this case) is a Windows box thus a UNC style path is used for -hpath.</li>
+
+  <li>The global path (-gpath) must be a valid path <b>from the client's point of view</b>. Since we are cross tagging to Linux the path is a Unix style path (in the automount map) of /projects/ccstgloc-cabu/viewstore... You're directory under /projects would be different.</li>
+
+  <li>View creation and serving on Windows machines is Windows domain aware. What they do is create a directory for the domain (e.g. BROADCOM) then a directory for the user (e.g. adefaria) then the view directory is created (defaria2) with an  appended .vws. This is Windows specific behavior, hence you see and additional
+.../BROADCOM/adefaria/defaria2.vws.</li>
+
+  <li>You need not use the name or directory "viewstore". This is just an example. I've seen others user the directory name of say vws. Also the stgloc need not be named viewstore - you might use bt-filer-views or whatever.</li>
+</ul>
+
+<p>Now you can similarly create a Unix oriented stgloc if you want:</p>
+
+<div class="code"><pre>
+$ your_share=&lt;your_share&gt;
+$ your_linux_view_server=&lt;your_linux_view_server&gt;
+$ p=/projects/$your_share/viewstore
+$ cleartool <span>mkstgloc</span> -view -force -host $your_linux_view_server \
+&gt; -hpath $p -gpath $p viewstore $p
+</pre></div>
+
+<p>And then your users can cross tag them into the Windows region using the Region Synchronize tool (Note: It will fail initially as it cannot determine what the UNC path needs to be so the users will have to specify that) or by the command line:</p>
+
+<div class="code"><pre>
+$ your_filer=&lt;your_filer&gt;
+$ your_share=&lt;your_share&gt;
+$ your_linux_view_server=&lt;your_windows_linux_server&gt;
+$ p=\\\\$your_filer\\$your_share\\viewstore
+$ cleartool mktag -view -tag adefaria_linux -host $your_linux_view_server \
+&gt; -hpath /projects/$your_share/viewstore/adefaria_linux.vws \
+&gt; -gpath $p\\adefaria_linux.vws $p\\adefaria_linux.vws
+</pre></div>
+
+<p>The advantages here are:</p>
+<ul>
+  <li>Your Linux server bears the brunt of serving views since the view_server processes run there</li>
+</ul>
+
+<p>The disadvantages are:</p>
+
+<ul>
+  <li>Users can't create views using this stgloc from Windows</li>
+
+  <li>Users must cross tag views to their Windows region</li>
+
+  <li>Windows users don't like the command line.</li>
+</ul>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on January 11, 2006  3:01 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000515.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

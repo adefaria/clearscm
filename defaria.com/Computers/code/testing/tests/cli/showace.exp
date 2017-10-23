@@ -1,0 +1,44 @@
+#!/usr/bin/expect --
+################################################################################
+#
+# File:         showace.exp
+# Description:  Tests show ace command
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Jun  6 15:37:15 PDT 2003
+# Language:     Expect
+# Test Class:	CLI
+#
+# (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Source in the Testing package
+set test_base "/dview/defaria_default/Tools/testing"
+
+source "$test_base/bin/TestPkg.tcl"
+
+catch {namespace import Test::*}
+
+proc Setup {} {
+  Start "show ace"
+}
+
+proc Run {} {
+  set Test::result 1
+
+  send "show ace\r"
+
+  expect {
+    $Test::success {
+      set Test::result 0
+    }
+  }
+}
+
+proc CleanUp {} {
+  End
+}
+
+# Main
+Setup
+Run
+CleanUp

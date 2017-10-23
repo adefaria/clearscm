@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: JVM Stack/Heap Sizes</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000570.html" title="OMAPS.pm bug" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000575.html" title="Load Balancing Redirection" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000570.html">&laquo; OMAPS.pm bug</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000575.html">Load Balancing Redirection &raquo;</a>
+                     </p>
+
+                     <a id="a000574"></a>
+                     <div class="entry" id="entry-574">
+                        <h3 class="entry-header">JVM Stack/Heap Sizes</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Looked into JVM stack and heap sizes on dfls83-85</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>As you know there have been service interruptions in CQWeb. I keep looking at the logs for clues. About the only consistent thing is an error similar to this:</p>
+
+<div class=code><pre>
+2006-09-28 00:10:20 Ajp13Processor[8009][15] process: invoke
+java.net.SocketException: Connection reset by peer: socket write error
+        at java.net.SocketOutputStream.socketWrite0(Native Method)
+        at java.net.SocketOutputStream.socketWrite(Unknown Source)
+        at java.net.SocketOutputStream.write(Unknown Source)
+        at org.apache.ajp.Ajp13.send(Ajp13.java:525)
+        at org.apache.ajp.RequestHandler.finish(RequestHandler.java:495)
+        at org.apache.ajp.Ajp13.finish(Ajp13.java:395)
+        at org.apache.ajp.tomcat4.Ajp13Response.finishResponse(Ajp13Response.java:196)
+        at org.apache.ajp.tomcat4.Ajp13Processor.process(Ajp13Processor.java:464)
+        at org.apache.ajp.tomcat4.Ajp13Processor.run(Ajp13Processor.java:551)
+        at java.lang.Thread.run(Unknown Source)
+</pre></div>
+
+<p>Now "Connection reset by peer" could be an error that the process gets because the service has stopped so this could be more of a symptom than a cure. However searching for "Ajp13Processor socket write error" points me to <a href="http://mail-archives.apache.org/mod_mbox/tomcat-users/200203.mbox/%3C751828609.20020327090907@e-box.dk%3E">this
+post</a> which suggests increasing the stack and heap sizes for the JVM. Problems that are intermittent can be consistent with running out of stack or heap size.<./p>
+
+<p>According to the Clearquest Web Administration Guide:</p>
+
+<blockquote>
+  <hr size="2" width="100%">
+  <h3>Controlling Java VM Memory Consumption </h3>
+
+  <p>You can configure the memory consumption of Java processes used by New ClearQuest Web by adjusting the parameters in property files under the various components.</p>
+
+  <h4>Windows </h4>
+
+  <p>This section describes the configuration changes for New ClearQuest Web Java VM memory consumption for processes running on Microsoft Windows. To specify the VM memory consumption:</p>
+
+  <ol>
+    <li>Open the appropriate configuration file for the New ClearQuest Web component whose memory consumption you want to reconfigure. For the ClearQuest Web application:
+
+      <table border="1" cellpadding="2" cellspacing="0" width="100%">
+        <tbody>
+          <tr>
+            <th align="left" valign="top">Component</th>
+            <th align="left" valign="top">Configuration file</th>
+          </tr>
+          <tr>
+            <td valign="top">Apache Tomcat Server</td>
+            <td valign="top">C:\Program
+Files\Rational\Common\rwp\bin\jk_service2.in.properties</td>
+          </tr>
+          <tr>
+            <td valign="top">Rational Web Platform</td>
+            <td valign="top">C:\Program
+Files\Rational\Common\rwp\bin\jk_service2.properties</td>
+          </tr>
+        </tbody>
+      </table>
+      <br>
+    <p>For the ClearQuest server:</p>
+      <table border="1" cellpadding="2" cellspacing="0" width="100%">
+        <tbody>
+          <tr>
+            <th align="left" valign="top">Component</th>
+            <th align="left" valign="top">Configuration file</th>
+          </tr>
+          <tr>
+            <td valign="top">ClearQuest Request Manager</td>
+            <td valign="top">C:\Program
+Files\Rational\ClearQuest\cqweb\cqserver\requestmgr_service.properties</td>
+          </tr>
+          <tr>
+            <td valign="top">ClearQuest Registry Server</td>
+            <td valign="top">C:\Program
+Files\Rational\ClearQuest\cqweb\cqregsvr\cqregsvr_service.properties</td>
+          </tr>
+        </tbody>
+      </table>
+    </li>
+    <li>Modify the section shown below:<br>
+      <br>
+    <div class=code><pre>
+# # JVM Options #
+# Useful Options:
+# -Xms2m = Initial heap size, modify for desired size
+# -Xmx256m = Maximum heap size, modify for desired size
+# -Xrs = Available in Jdk1.3.1 to avoid JVM termination during logoff
+#
+wrapper.jvm.options=-Xrs -Xms2m -Xmx256m
+    </pre></div></li>
+  </ol>
+  <hr size="2" width="100%">
+</blockquote>
+
+<p>I looked at these config files on the three machines (dfls83-85) and they were pretty much set to the default:</p>
+
+<div class=code><pre>
+<font color=blue><b>Ltx0062320:</b></font><u>for server in 83 84 85; do grep
+wrapper.jvm.options= //dfls$server/Rational/Common/rwp/bin/jk_service2*properties
+//dfls$server/Rational/ClearQuest/cqweb/cqserver/requestmgr_service.properties
+//dfls
+$server/Rational/ClearQuest/cqweb/cqregsvr/cqregsvr_service.properties;
+done</u>
+//dfls83/Rational/Common/rwp/bin/jk_service2.default.properties:wrapper.jvm.options=-Xrs
+-Xms2m -Xmx256m<br>
+//dfls83/Rational/Common/rwp/bin/jk_service2.in.properties:wrapper.jvm.options=-Xrs
+-Xms2m -Xmx256m<br>
+//dfls83/Rational/Common/rwp/bin/jk_service2.properties:wrapper.jvm.options=-Xrs
+-Xms2m -Xmx256m<br>
+//dfls83/Rational/ClearQuest/cqweb/cqserver/requestmgr_service.properties:wrapper.jvm.options=-Xrs<br>
+//dfls83/Rational/ClearQuest/cqweb/cqregsvr/cqregsvr_service.properties:wrapper.jvm.options=-Xrs<br>
+//dfls84/Rational/Common/rwp/bin/jk_service2.default.properties:wrapper.jvm.options=-Xrs
+-Xms2m -Xmx256m<br>
+//dfls84/Rational/Common/rwp/bin/jk_service2.in.properties:wrapper.jvm.options=-Xrs
+-Xms2m -Xmx256m<br>
+//dfls84/Rational/Common/rwp/bin/jk_service2.properties:wrapper.jvm.options=-Xrs
+-Xms2m -Xmx256m<br>
+//dfls84/Rational/ClearQuest/cqweb/cqserver/requestmgr_service.properties:wrapper.jvm.options=-Xrs<br>
+//dfls84/Rational/ClearQuest/cqweb/cqregsvr/cqregsvr_service.properties:wrapper.jvm.options=-Xrs<br>
+//dfls85/Rational/Common/rwp/bin/jk_service2.default.properties:wrapper.jvm.options=-Xrs
+-Xms2m -Xmx256m<br>
+//dfls85/Rational/Common/rwp/bin/jk_service2.in.properties:wrapper.jvm.options=-Xrs
+-Xms2m -Xmx256m<br>
+//dfls85/Rational/Common/rwp/bin/jk_service2.properties:wrapper.jvm.options=-Xrs
+-Xms2m -Xmx256m<br>
+//dfls85/Rational/ClearQuest/cqweb/cqserver/requestmgr_service.properties:wrapper.jvm.options=-Xrs<br>
+//dfls85/Rational/ClearQuest/cqweb/cqregsvr/cqregsvr_service.properties:wrapper.jvm.options=-Xrs<br>
+ </pre></div>
+
+</blockquote>
+  <p>All these machines have 2 gig of main memory and largely just serve CQWeb. Indeed the CQWeb service processes are consuming most of the memory:</p>
+
+<div align="center"><img title="dfls83"  src="/blogs/Status/images/dfls83.jpg" alt="" height="541"  width="524">
+<b>dfls83</b><br>
+<img title="dfls84" src="/blogs/Status/images/dfls84.jpg" alt=""  height="545" width="525">
+<b>dfls84</b>
+<br>
+<img title="dfls85" src="/blogs/Status/images/dfls85.jpg" alt="" height="577" width="528">
+<b>dfls85</b>
+</div>
+
+<p>I think we should try setting at least the following:</p>
+
+<div class=code><pre>
+wrapper.jvm.options=-Xrs -Xms128m -Xmx512m
+</pre></div>
+
+<p>A restart of all CQ Web services would probably be needed for the changes to become effective. The above settings start off the jvm @ 128m for all 4 processes thus a total memory footprint of 512 Meg and limit each process to 512 Meg max for a total footprint of 2 Gig (when full). We might want to bounce this idea off IBM/Rational support to see if all 4 process should have the same settings or if we show vary
+them.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 28, 2006 11:53 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000574.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

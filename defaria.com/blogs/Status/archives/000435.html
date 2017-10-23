@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Clearcase Deliver problem</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000432.html" title="Code Page/rgy_switchover" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000436.html" title="UCM: Rebase project to parent &amp; Deliver between projects" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000432.html">&laquo; Code Page/rgy_switchover</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000436.html">UCM: Rebase project to parent & Deliver between projects &raquo;</a>
+                     </p>
+
+                     <a id="a000435"></a>
+                     <div class="entry" id="entry-435">
+                        <h3 class="entry-header">Clearcase Deliver problem</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Helped Darren Edamura with a Clearcase problem</li>
+
+  <li>Started looking into Binary Merge problem</li>
+
+  <li>Added FixChar subroutine to CheckCodePage</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Clearcase Deliver Failiure Leaves Corrupted Version</h3>
+
+<p>Worked with Darren Edamura on a problem he had during delivery. He says that he was working in a snapshot view and had inadvertantly had 2 hijaked files. When he wanted to deliver he had to do a rebase operation. Rebase noted the hijaked files and offered to check them in. He said he had checked them out. At this point he was left with a file version that had no activity associated with it. Right clicking that version in the version tree and selecting properties yielded:</p>
+
+<img src="cc_corruption.jpg">
+
+<p>Darren continued onward by checking out version 4 and checking in identical to create version 6 then delievered that.</p>
+
+<p>In attempting to clean up version 5 we decided to remove that version. However doing so yielded:</p>
+
+<img src="rmver_failure.jpg">
+
+<p>Refreshing the version tree after that error revealed the activity on version 5 and now it all seems to be OK. I guess the rmver action cleared up the problem!</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 28, 2005  2:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000435.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+#!/bin/bash
+################################################################################
+#
+# File:         setup_ssmtp
+# Description:  This script sets up ssmtp mail configuration
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Jan  9 12:57:13  2002
+# Language:     Bash Shell
+# Modifications:<modifications>
+#
+# (c) Copyright 2002, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Setup /etc/ssmtp config directory
+ssmtp_dir=/etc/ssmtp
+
+mkdir -p $ssmtp_dir
+chmod 700 $ssmtp_dir
+
+# Make some simple aliases. Alias $USER to the proper email address and then
+# alias root, Administrator and postmaster to the user's address thus making
+# the user "god" of smtp on this machine only.
+cat > $ssmtp_dir/revaliases <<EOF
+# sSMTP aliases
+# 
+# Format:       local_account:outgoing_address:mailhub
+#
+# Example: root:your_login@your.domain:mailhub.your.domain:[port]
+# where [port] is an optional port number that defaults to 25.
+$USER:$USER@salira.com:sons-exch02.salira.com:25
+root:$USER@salira.com:sons-exch02.salira.com:25
+Administrator:$USER@salira.com:sons-exch02.salira.com:25
+postmaster:$USER@salira.com:sons-exch02.salira.com:25
+EOF
+
+# Get a downshifted hostname
+hostname=$(hostname | tr '[:upper:]' '[:lower:]')
+
+# Make ssmtp.conf
+cat > $ssmtp_dir/ssmtp.conf <<EOF
+# ssmtp.conf: Config file for Cygwin's sstmp sendmail
+#
+# The person who gets all mail for userids < 10
+root=postmaster
+# The place where the mail goes. The actual machine name is required
+# no MX records are consulted. Commonly mailhosts are named mail.domain.com
+# The example will fit if you are in domain.com and you mailhub is so named.
+mailhub=sons-exch02.salira.com
+# Where will the mail seem to come from?
+#rewriteDomain=$USER.salira.com
+# The full hostname
+hostname=$hostname.salira.com
+# Set this to never rewrite the "From:" line (unless not given) and to
+# use that address in the "from line" of the envelope.
+#FromLineOverride=YES
+EOF
+

@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 3.2" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Shared home dir, samba workgroups and ssh</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000579.html" title="Improved gpdp_add_project" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000581.html" title="gpdb_add_project.pl using gpdb user and Nice" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000579.html">&laquo; Improved gpdp_add_project</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000581.html">gpdb_add_project.pl using gpdb user and Nice &raquo;</a>
+                     </p>
+
+                     <a id="a000580"></a>
+                     <div class="entry" id="entry-580">
+                        <h3 class="entry-header">Shared home dir, samba workgroups and ssh</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Here's the story. I use Cygwin on my XP desktop. I like having a home directory on Windows that is the same home directory on Unix/Linux machines. Often companies offer access to your Unix/Linux home directory via Samba. Also, often companies do not bother to set up a Samba server wish participates in a domain, so the Samba server is configured as being in a workgroup.</p>
+
+<p>Now for a long time I struggled with this. I would map //&lt;samba server&gt;/&lt;home share&gt; -&gt; my H drive then mount the H drive as /home and make sure my Cygwin /etc/password referred to my home directory of /home/$USER. All is great.</p>
+
+<p>But when dealing with Samba servers who are configured into workgroups innocuous activities in Cygwin would elicit permission denied messages. For example, touching a file in the home directory and indeed even vi'ing a file, etc. Creating a file within Windows Explorer or using
+other Windows oriented tools would work just fine. Files created on the Unix/Linux side would also work fine but when looked at from Cygwin on the PC would have odd (read "nobody") ownerships and permissions.</p>
+
+<p>Of course as Cygwin is often not supported by the typical company's IT department and because many people do not attempt to utilize Cygwin fully often requests for assistance and change fell on deaf ears...</p>
+
+<p>Eventually I figured out that my Windows SID in /etc/passwd is the SID of my domain user and since the Samba server was not in the domain my SID does not authenticate properly. Then I had a break through in that I realized that I was using SMBNTSEC as well as NTSEC in my Cygwin environment. I figured "Yeah I want to use the same Windows security for SMB mounted drives too". This is where my problem lies and it's because the Samba server configured by the client does not participate in the Windows domain from which I've logged in. </p>
+
+<p>Now I'm pretty sure that Samba could be configured properly into a Windows domain as Samba can be configured as a PDC or a BDC, but many clients don't bother to go that far. So why is Windows able to deal with this but not Cygwin?</p>
+
+<p>I believe that this is because within Samba a very basic approach is kept towards storing of user identification information. Indeed basic Samba just has an smbpasswd file which is much like your typical Unix/Linux /etc/passwd file and it is not designed to carry extra information about users and machine accounts as well as multiple groups and trust associations, etc. Even Samba documents talks about hooking Samba up to either LDAP or what they call a Trivial DataBase (TDB) in order to store such additional Windows only information.</p>
+
+<p>So I thought the simple solution was to remove SMBNTSEC from my Cygwin environment and all would be fine. And indeed it is! Well almost...</p>
+
+<p>Along comes ssh... So I like to use ssh to log into various Unix/Linux systems as I work. And again I share my home directory between Windows and Unix/Linux. Finally I like setting up passwordless public key ssh login as I'm not one of those who likes having to type in his password hundreds of times a day. But ssh's is picky about permissions of your ~/.ssh and ~/.ssh/id_&lt;type&gt; key files. When ssh'ing from Cygwin to a Unix/Linux box I am now receiving the following:</p>
+
+<div class=code><pre>
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Permissions 0644 for '/home/x0062320/.ssh/id_rsa' are too open.
+It is recommended that your private key files are NOT accessible by others.
+This private key will be ignored.
+bad permissions: ignore key: /home/x0062320/.ssh/id_rsa
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Permissions 0644 for '/home/x0062320/.ssh/id_dsa' are too open.
+It is recommended that your private key files are NOT accessible by others.
+This private key will be ignored.
+bad permissions: ignore key: /home/x0062320/.ssh/id_dsa
+x0062320@stashu's password:
+</pre></div>
+
+<p>And, of course, I need to type in my password again! What I believe is happening is that because my home directory is SMB mounted and SMBNTSEC is off then Cygwin reports that files like ~/.ssh/id_rsa are 0644 even if I change them on Unix/Linux to 0600. So, for example:</p>
+
+<div class=code><pre>
+&lt;unix box&gt;$ ls -l ~/.ssh/id_rsa
+-rw-------  1 x0062320 generic 887 Aug 31 16:43 /home/x0062320/.ssh/id_rsa
+</pre></div>
+
+<p>While:</p>
+
+<div class=code><pre>
+&lt;cygwin&gt;$ ls -l ~/.ssh/id_rsa
+-rw-r--r-- 1 x0062320 Domain Users 887 Aug 31 16:43 /home/x0062320/.ssh/id_rsa
+</pre></div>
+
+<p>Is there any way to work around this problem (short of reconfiguring the Samba server)?</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by Andrew DeFaria on October 13, 2006 11:11 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000580.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

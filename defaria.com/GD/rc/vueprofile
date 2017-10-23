@@ -1,0 +1,2 @@
+export VUE=true
+. $HOME/.profile

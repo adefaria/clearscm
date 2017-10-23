@@ -1,0 +1,160 @@
+#!/bin/bash
+################################################################################
+#
+# File:         makehome
+# Description:  Makes a users home directory
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Jun  3 17:21:24 PDT 1999
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+function usage {
+  display "$me: Usage: makehome [ -v|erbose ] [ -d|ebug ] -username
+<username>
+\t\t\t  -uid <uid>"
+
+  exit 1
+} # usage
+
+function prompt_for_field {
+  fieldname="$1"
+  fieldvalue=
+
+  while [ ! -n "$fieldvalue" ]; do
+    display "Enter the value for $fieldname:\c"
+    read fieldvalue
+
+    if [ ! -n "$fieldvalue" ]; then
+      error "Must specify $fieldname!"
+    fi
+  done
+} # prompt_for_field
+
+function show_parms {
+  display "$me"
+  display "-------------------------------------"
+  display "username  = $username"
+  display "uid       = $uid"
+  display "homedrive = $homedrive"
+  display "devdrive  = $devdrive"
+  display "homepath  = $homepath"
+  display "devpath   = $devpath"
+  display
+  display "Command line equivalent:"
+  display
+  display "$me -username $username -uid $uid"
+  display
+  display "Are the parameters correct [Y|n]?\c"
+  read answer
+  case "$answer" in
+    Y|y)
+      : OK!
+      ;;
+    *)
+      exit
+      ;;
+  esac
+} # show_parms
+
+if is_not_root; then
+  error "You must be root to use this command" 1
+fi
+
+case "$(hostname)" in
+  dreamcicle|fudgecicle)
+    ;;
+
+  *)
+    error "Must be running on either dreamcicle or fudgecicle to execute
+this command" 2
+  ;;
+
+esac
+
+# Get options
+debug=
+verbose=
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -u|usage)
+      usage
+      ;;
+
+    -v|-verbose)
+      verbose=yes
+      ;;
+
+    -d|-debug)
+      debug=yes
+      ;;
+
+    -username)
+      if [ $# -le 1 ]; then
+        error "Username not specified!" 0
+        usage
+      fi
+      shift
+      username="$1"
+      ;;
+
+    -uid)
+      if [ $# -le 1 ]; then
+        error "UID not specified!" 0
+        usage
+      fi
+      shift
+      uid="$1"
+      ;;
+
+    *)
+      error "Unknown option \"$1\" encountered" 0
+      usage
+      ;;
+
+  esac
+  shift
+done
+
+if [ "$username" = "" ]; then
+  prompt_for_field "Username"
+  username=$fieldvalue
+fi
+
+if [ "$uid" = "" ]; then
+  prompt_for_field "UID"
+  uid=$fieldvalue
+fi
+
+homedrive=home1
+devdrive=dev1
+homepath=/netapp/dvd/$homedrive/$username
+devpath=/netapp/dvd/$devdrive/$username
+
+show_parms
+
+mkdir -p $homepath
+chown $uid:cdseng $homepath
+chmod 775 $homepath
+mkdir -p $devpath
+chown $uid:cdseng $devpath
+chmod 775 $devpath
+
+if [ ! -h $homepath/dev ]; then
+  ln -s /auto/dev/$username $homepath/dev
+fi

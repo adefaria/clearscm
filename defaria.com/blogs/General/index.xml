@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+   <channel>
+      <title>General</title>
+      <link>http://defaria.com/blogs/General/</link>
+      <description></description>
+      <language>en</language>
+      <copyright>Copyright 2014</copyright>
+      <lastBuildDate>Wed, 22 Jan 2014 10:46:13 -0600</lastBuildDate>
+      <generator>http://www.sixapart.com/movabletype/?v=3.2</generator>
+      <docs>http://blogs.law.harvard.edu/tech/rss</docs> 
+
+            <item>
+         <title>W2 vs. C2C</title>
+         <description><![CDATA[<p>I'm a consultant and have been for quite some time now. In April of 2007 I finally incorporated and I have been successfully paying myself a paycheck ever since. There are many benefits to me to be in business including business write offs, the ability to put away more money in my IRA, etc. I have my own benefits and do not wish to give them up.</p>
+
+<p>I have also worked on a W2 basis in the past. However I got to thinking that I have never ever been placed a second time by the same recruiting firm. In other words, I may be working through a consulting firm on a W2 basis. And at times I've been extended on the same contract. But when that assignment ends the consulting firm does not place me somewhere else. So whatever consulting firm I go to next I'll have to renew my benefits there. I probably will not be at the first consulting firm long enough to get vested in their 401(k) plan so I'll have to roll it over, etc. I also do not benefit from the benefits offered because I don't have the wife and kids (my child is an adult now) to utilize the benefits offered. It used to be that the consulting firm would pay you a reduced salary when you were between contracts, and that was their incentive to get you placed at the next assignment quickly, but they don't do that anymore. Instead you're out the door on your own to find your next assignment.</p>
+
+<p>So what's the point of being somebody else's employee? Just so they can process payroll for me and take out taxes? You know Wells Fargo does that for me and it costs me less than $0.15/hour to do this. Yet W2 employees are offered rates that are between $20-$30/hr less than true independent consultant working on a 1099 or C2C basis. You can calculate what benefits cost and it's not that much in terms of $/hour - like $10/hr tops. And bare in mind that most of them offer pretty minimal benefits and the new rage is "W2 without benefits"! If you come across one of those ask them how many consultants they have on W2. If it's > 50 then the must offer benefits!</p>
+
+<p>Also, when you employee a person as a business you must pay the other side of the payroll taxes. This is currently about 7.5% or on a $100K income that's $7,500 AKA $3.75/hr.</p>
+
+<p>The usual arrangement for my contracts is that I am working for the client through a consulting firm. I bill the consulting firm and they bill the client. The consulting firm often has consultants that are on a W2 basis (IOW they are employed by the consulting firm), maybe some consultants on a 1099 basis (meaning they have their own business like a sole proprietorship) and perhaps some working on a C2C basis (same as 1099 except the consultant has formed a corporation).</p>
+
+<p>I've found many recruiters state that the client insists that the consultant is paid on a W2 basis. However this makes no sense. I've often asked but have yet to hear a valid business reason for the client to insist that the consultant is paid on a W2 basis. In fact it's really none of their business how the consulting firm wishes to engage with the consultant be it on a W2, 1099 or C2C basis. As we can see above it's better and cheaper for the consulting firm to just pay the 1099 or C2C consultant directly. In such situations the consultant assumes all of the liabilities for paying his own taxes, benefits and insurance requirements. The consulting firm does not have to offer, pay for nor administer any benefits nor do they need to pay the 7.5% of the payroll taxes. Why is it only in the IT consulting field that this is an issue?</p>
+
+<p>When I'm faced with a "the client wants W2 only" situation I ask them the following question: Have you ever hired a plumber/electrician/carpet cleaner do to work at your house? If so did you bother to call the phone number on his truck to insure that the person who showed up was being paid on a W2 basis? None of them have and if they are at all intelligent they get where I'm coming from. It's of no concern to them and likewise should be of no concern to the client in my situation.</p>
+
+<p>So then why do client's insist on W2 only? I can't be sure (because recruiters never even think about this let alone have put forth a rational answer to the question "What is the business reason why the client insists on W2?") but I have some theories:</p>
+
+<ul>
+  <li>W2 contractors are more like the sheeple of employees out there. They aren't true consultants trying to run a successful business and perhaps build it up. Most likely they are or wish to be employees because they assume that that's more secure and they don't want to be bothered with running their own business. The best they could find was a consulting job and being on W2 is comfortable and familiar to them. Clients like such tame, go along with the crowd, workers.</li>
+
+<p>  <li>Clients often want so called "contract to hire" where at the end of assignment an offer of permanent employment will be made. True consultants running their own businesses get paid a lot better than permanent employees or W2 employees. The "sticker shock" that results when clients attempt to convert their consultants to perms is often too much for the consultant to lose. Paying W2 employees less to start with lessons this sticker shock (and we already know the W2 consultant is more likely to want to be perm as they are already an employee of somebody else - they're not independent.</li></p>
+
+<p><li>Many consulting firms offer consultants who need H1B visas. I believe in such situations the H1B visa holder needs to be employed on a permanent basis. Why it should be the concern of the client how the consulting firm employees their consultants is still beyond me however as it would seem to me that the consulting firm should be free to engage non H1B visa consultants on a C2C basis.</li></p>
+
+<p><li>I think some clients believe that they lesson the likelihood that the consultant will be considered their employee when they are obviously an employee of another firm. There was a big brew ha ha back in the day with some Microsoft consultants being found to be Microsoft's employees and not consultants. Microsoft was forced to pay them a bunch of money because of this (see <a href="http://en.wikipedia.org/wiki/Permatemp#Vizcaino_v._Microsoft">Vizcaino v. Microsoft</a>).</li><br />
+</ul></p>
+
+<p>However one should note from that same Wikipedia page:</p>
+
+<blockquote>The IRS definition of a common law employee rests on whom actually controls the work done by the leased employee. IRS Publication 15A explains "Under Common Law Rules anyone who performs services for you is generally your employee if you have the right to control what will be done and how it will be done...</blockquote>
+
+<p>As such many if not most (or even all) IT consultants that I know are told not only what will be done but how it will be done. Of course, the client has the right to define the work to be done, but how to do it? Think of this as you would if you hired a lawyer. You would tell him what you would want to see happen, but you would not tell him how to do his job. Additionally truly independent workers often bring their own tools. Now tell me the last time you saw an independent IT consultant come on the job site and say "Here's my laptop - hook it up to your intranet. Oh and I'll be re-writing that code in a language of my own choosing"....]]></description>
+         <link>http://defaria.com/blogs/General/archives/000759.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000759.html</guid>
+         <category></category>
+         <pubDate>Wed, 22 Jan 2014 10:46:13 -0600</pubDate>
+      </item>
+            <item>
+         <title>California</title>
+         <description><![CDATA[<p>OK, so I'm back in California. I must say it's good to be back. I find California to be much more laid back than Virgina, where I came from. The job (at Tellabs) is good - so much better than the more stuck up companies that I've been working at - it's much easier to connect to my web services like my email at home and calendars, etc. - much less paranoid that other clients I've been at lately. The job seems cool with interesting assignments and just a general laid back feeling as is what I remember from California. That coupled with a yearning to be productive from months of waiting for a gig and life it good. That plus my apartment is pretty kickass too - I can't wait really for spring and summertime and to get back out to the trails in California hiking and just enjoying the wonderfully weather and diverse topology of California as I remember it. That plus a cool job, money in the bank and what's not to love? Oh I must head out to Napa soon too...</p>]]></description>
+         <link>http://defaria.com/blogs/General/archives/000746.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000746.html</guid>
+         <category></category>
+         <pubDate>Thu, 10 Mar 2011 02:09:44 -0600</pubDate>
+      </item>
+            <item>
+         <title>Point people more directly</title>
+         <description><![CDATA[<p>Why do people write stuff like:</p>
+
+<blockquote>
+For more information, sign on to your Bill Pay service, click Help at the top of any Bill Pay screen, click the "How Do I..." tab and select "How do I change the payment option for one of my current payees?"
+</blockquote>
+
+<p>Instead of "For information about how to change your payment options click <a href="https://billpay.wellsfargo.com/billpay/ws/howdoi/payoptions.html">here</a>" or "<a href="https://billpay.wellsfargo.com/billpay/ws/howdoi/payoptions.html">How do I change the payment option for one of my current payees?</a>""? I mean why do they insist on leading you through a maze to get to the answer?!?</p>]]></description>
+         <link>http://defaria.com/blogs/General/archives/000745.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000745.html</guid>
+         <category></category>
+         <pubDate>Mon, 01 Nov 2010 11:55:34 -0600</pubDate>
+      </item>
+            <item>
+         <title>Comcast speed</title>
+         <description><![CDATA[<p><img src="/blogs/General/Speed.png"><br />
+<p>I mean wow! Remember speed kills!</p></p>
+
+<p>Now if I can just get my static IP assigned.</p>]]></description>
+         <link>http://defaria.com/blogs/General/archives/000744.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000744.html</guid>
+         <category></category>
+         <pubDate>Wed, 20 Oct 2010 07:26:51 -0600</pubDate>
+      </item>
+            <item>
+         <title>More Playon Fun</title>
+         <description><![CDATA[<p>On 06/17/2010 11:25 PM, PlayOn Support (Michael) wrote:</p>
+
+<blockquote type=cite>
+Andrew,
+  
+Your PS3 can't communicate with your router the way you want it to.  That can neither be caused by nor solved by PlayOn.  It is a completely independent problem between two devices you bought from other companies.  You need to consult with them how to fix it.  Just because our product/business relies on your network does not make us responsible for maintaining it.  Similarly, if the power outlet which your PS3 was plugged into was not supplying the PS3 power, we would not be able to help you there either.
+  
+If you choose to respond again with profanity on this matter, you will no longer receive any replies or support from us at all, on any matter.
+</blockquote>
+
+<p>My right to "profane" is protected by the 1st amendment to the US Constitution. Now you also have the right to refuse to deal with me but I would not base that on "profanity". IMNSHO that would be unwise to do so. My profanity is a sign of extreme frustration. Now if you wish to blow off customers just because they are extremely frustrated at you I would suggest to you that that would be a very unwise move. Take it for what you want I guess.</p>
+
+<p>Meantime I will do everything in my power to insure that everybody I come in contact with knows that MediaMall is not a company they want to do business with. Now is that what you really want? I would hope not. Or can we civilly work together? Your choice.</p>
+]]></description>
+         <link>http://defaria.com/blogs/General/archives/000739.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000739.html</guid>
+         <category></category>
+         <pubDate>Fri, 18 Jun 2010 02:08:17 -0600</pubDate>
+      </item>
+            <item>
+         <title>How not to run a company</title>
+         <description><![CDATA[<p>I'm a guy who believes in giving credit where credit is due and the flip side of giving blame where blame is due. I like MediaMall and their product - Playon. In general I think they have a good idea. It's not many companies that I will actually buy software from, let alone shell out $40. However they have gone downhill and quite frankly are no long worth spending money on. I actually used to actively tout their product, Playon, to people. I no longer do that precisely because of the support, or lack thereof, that they offer. Seriously don't buy their product. You've been warned.</p>
+
+<p>Here's a recent exchange:</p>
+
+<p>In the interim here I just want to say - All I ask for is for this software to perform *reasonable* well. I want to be able to sit and relax in my easy chair and watch videos and entertainment on my device *AS PROMISED* by MediaMall in their agreement with me. Look I'm a reasonable guy and willing work with you and actually put out enormous amounts of effort and cooperation with you trying to help everyone in the process. But there comes a point at times when even I feel like I'm being abused and dumped on as if this is my problem with no help whatsoever being offered by your side to come up with a resolution to such problems. Like a trapped animal I will strike back if treated unfairly (and I believe I'm being treated unfairly). I will become your worst enemy. If you wish to resolve this privately then email me. Otherwise the public fight is on. I will not rest until I receive satisfaction. Enough is enough and I am tired of being treated like the enemy here.</p>
+
+<p>Response from Playon support:</p>
+
+<blockquote>Your PS3 can't communicate with your router the way you want it to.  That can neither be caused by nor solved by PlayOn.</blockquote>
+
+<p>Of course it can. You can make suggestions and offer work arounds. Surely you are not lacking that much foresight are you?</p>
+
+<blockquote>It is a completely independent problem between two devices you bought from other companies.</blockquote>
+
+<p>I.E. we're about to pass the buck here...</p>
+
+<blockquote>You need to consult with them how to fix it.</blockquote>
+
+<p>You know what? Last week it was working just find. You know what else? For the last 2 frigging years (like how frigging is not considered profanity yet we all know it's merely a substitute) it's also been working fine. It was not until you guys were suggesting that I run these funky networking programs that it suddenly broke. Gee, imagine that....</p>
+
+<blockquote>Just because our product/business relies on your network does not make us responsible for maintaining it.</blockquote>
+
+<p>I'm not asking to maintain it - I'm asking for help. It's you who are refusing to offer help, instead choosing to pass the buck onto somebody else - namely me.</p>
+
+<blockquote>Similarly, if the power outlet which your PS3 was plugged into was not supplying the PS3 power, we would not be able to help you there either.</blockquote>
+
+<p>Really? I mean really?!? You could not say "Hey plug it in?!?" Man are you missing the boat here!</p>
+ 
+<blockquote>If you choose to respond again with profanity on this matter, you will no longer receive any replies or support from us at all, on any matter.</blockquote>
+
+<p>The profanity is a sign of extreme frustration. Need I point that out to you?!? Your support sucks! You blame your customers for things and refuse to offer assistance. You constantly pass the buck and blame your customers for problems you refuse to assist on. I am not the only customer that has pointed this out to you. When will you start listening? I can put you down without profanity but unlike you I am able to use the full vocabulary of the language to express myself including what you call profanity (which is BTW protected by the 1st amendment of the US Constitution) to not only express your incompetence but express my frustration in what may be called a short hand that you full well intuitively understand and know as I assume you are 1) human and 2) relatively intelligent adults thus comprehending not only "adult language" but also understanding it's common usage and expression. Yet you are about to use it as your scapegoat to refuse to deal with this issue because truth be known, you don't wish to deal with it. What exactly does that say to your current customers and potential customers? I leave you to ponder that.</p>
+
+<p>But here's the real deal. You have a product that often does not work and that people are simply dropping you off as yet another company who does not know what the "F" you're doing (and who are we kidding here - everybody knows what I meant by "F" so lets stop kidding around and start really acting like adults. Ain't nobody being fooled by what "F" means. Your protestations about "profanity" are silly!). I would think if you were smart you would be working with such people - especially such people who were 1) technically inclined and 2) tenuous at working solutions such as I am rather than blowing them off with the "Hey you said a dirty word" excuse.</p>
+
+<p>OK, fine, I didn't say what was politically correct so you'll just censor me in order to attempt to maintain a pristine reputation (though I'll just capture this over on <a href="">my blog</a> which you cannot censor) rather than deal with the real issues. Great. Give me my f**#$in $40 back and I'll go away. I'm sick of dealing with your screwed up company! I tried to help you but you refused the help so I give up!</p>]]></description>
+         <link>http://defaria.com/blogs/General/archives/000736.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000736.html</guid>
+         <category></category>
+         <pubDate>Fri, 18 Jun 2010 01:51:54 -0600</pubDate>
+      </item>
+            <item>
+         <title>How to get your mic working on Ubuntu 9.10</title>
+         <description><![CDATA[<p>I've been having a hell of a time trying to get my mic to work on my Ubuntu 9.10 machines. Part of the solution I believe is to get the latest ALSA libs, utils and driver and build it. The other part has to do with damn Linux guys often label things funny and provide options that are not really useful or at least are not documented.</p>
+
+<p>Here's the deal, if I run pavucontrol (Pulse Audio Volume Control) and go to the Configuration tab there's a drop down for my Internal Audio. I had it set to Audio Stereo Output. Seemed to make sense to me. But my mic appeared as greyed out in the Input Devices tab. If, however I change it to Audio Stereo Duplex then the mic starts working. I guess it makes sense now that "duplex" means "goes both ways - in an out" but what doesn't make sense really is why would I want the option of making it so that my mic doesn't work (i.e. Audio Stereo Output)?!? I mean if I don't want my mic to be active there's already a mute button!</p>
+
+<p>And on my desktop, which has a 5.1 sound card (and yes I have a 5.1 speaker setup) the option to get my mic working there is to select "Analog Surround 5.1 Output + Analog Stereo Input. Now all I have to do is go out and buy another mic for my desktop - I seem to have lost the last one.</p>
+
+<p>Still haven't gotten HDMI working under Ubuntu 9.1 but I have some things to try out from the Ubuntu forums.</p>
+]]></description>
+         <link>http://defaria.com/blogs/General/archives/000734.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000734.html</guid>
+         <category></category>
+         <pubDate>Fri, 02 Apr 2010 23:37:37 -0600</pubDate>
+      </item>
+            <item>
+         <title>Cell phones - Not up to snuff!</title>
+         <description><![CDATA[<p>What is it with cell phones anyway. It's primary function, while I admit is not a function I do that frequently compared to other things, it can't do all that well. I mean calls but I don't mean hard to hear connections and dropped calls. Those are problems too however just the mechanism of placing the call...</p>
+
+<p>First off - <b>never make a fucking phone dialing app that is incapable of accepted a paste of a phone number!!!</b> You'd think that'd be a no brainer but way too many phone dialers do not allow paste. So you find a number in a web page or an email or you put it in a file - whatever. You select the phone number and you go to the phone app and want to paste it in. There's no paste. Stupid phone!</p>
+
+<p>Secondly you would think that a phone application would be, oh, I don't know.... <b>RESPONSIVE PERHAPS</b>. Many play back those button tones we all know and love. But most phones can't keep up with even the slowest of typists. How hard is this to sense the button was pushed and <b>immediately</b> (I mean right away, with out hesitation - IMMEDITATELY!!! - did I say immediately?) play the fucking tone and be ready for the next button push. Come on folks, this is not rocket science nor is this a lot of work that the phone needs to do in order to accomplish this minor fucking miracle - yet on both Windows Mobile based phones and now my Android based phone this constantly happens. Is it hardware related? Again, how much hardware is needed?!? My old land line never seemed to have an issue accomplishing this task - why can't my $$$ phone do it?!? Write the damn phone app in assembler and make it (and the tones for that matter) memory resident so you have no excuses WRT speed! Really is this too much to ask?!?</p>
+
+<p>And another thing about phones - why is it that the most common things I do require push and hold in order to work. Not just phones, sometimes accessories. For example, my Bluetooth headset of choice (Sony Ericson HBH-980) has a recessed power button and you must hold for a few seconds to turn on. Now I understand the concept of requiring such a delay to distinguish between a real turn on/off event and an inadvertent one but trust me you would not be inadvertently hitting this power button.</p>
+
+<p>And why is it that I must always wrestle with Bluetooth to get it to work right. My BT headset can handle both "Media audio" (from the media player) and "Phone audio" from say and incoming all. Why the distinction? I don't care. Just call it audio. You don't know how many time I try to connect my BT headset and only the phone audio gets connected. No media audio. So I try to connect again. No go. Try powering off the BT headset and back on. Nope. Try turning off BT on the phone and back on No go. Then the phone hangs. Bluetooth is the only thing that seems to have the power to hang my phone, requiring me to open the case and yank the battery in order to reboot!</p>
+
+<p>And then when listening to Bluetooth often I'll get gaps of silence, especially when starting a new song or podcast, as if it needs to buffer stuff or whatever. It's real annoying. Why is Bluetooth so hard, flunky and trouble ridden?!?</p>]]></description>
+         <link>http://defaria.com/blogs/General/archives/000729.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000729.html</guid>
+         <category></category>
+         <pubDate>Sat, 06 Mar 2010 19:24:39 -0600</pubDate>
+      </item>
+            <item>
+         <title>Stupid is as stupid does</title>
+         <description><![CDATA[<p>OK so I've moved up to Seattle and need to get my business and personal bank accounts all settled in. So I stopped into my local Wells Fargo branch to introduce myself. He said he could save me some money but unfortunately I need to get new accounts. With the new accounts come plain old boring cards. I had personalized my cards before. Now I have new plain cards I need to reactivate, only to have to re-personalize them again!</p>
+
+<p>So I go to activate one of them and they ask for my 17 gillion digit card number then <b>the last 4 numbers of my business checking account number</b>. Well I don't know that so I need to go to the Wells Fargo bank site to get that. While I'm doing that it keeps saying "Sorry I didn't get that" and eventually I exceed my limit of retries. <b>Hey I was just trying to get to your slow web site!!!</b>.</p>
+
+<p>Of course I'm dumped into the tech support queue where some ditzy blonde answers the phone. She tells me that she'll need to have <b>my full business account number</b>. I tell her I don't have that. I only have the last 4 because that's all your web page gives me. Normally I have to open up statement to get the full account number but I can't do that because this account is too new and doesn't have any statements. "Well you could just look at your checks..." to which I quickly interject "Listen sweetheart I haven't used checks in 18 years!". Then she tells me that she could help me but I'd need to give not one, nor two, nor even three but <b>four forms of identification</b> in order for her to help me! I told her that in no way would I be comfortable with that because everybody knows you don't achieve real security until after 20 forms of ID are presented and hung up!</p>
+
+<p>OK stop and think here for a second... Why can the automated phone system validate me with just the mere last four digits of my account number, which is probably pretty damn easy to obtain, but the human needs the whole account number and/or 4 forms of ID?!?</p>
+
+<p>Bottom line: Since I'm now at the web site I hang up on the dtiz and simply go back around and punch in my 4 digits and I'm validated. Stupid is as stupid does - and I ain't stupid - but I do see it all the time!</p>]]></description>
+         <link>http://defaria.com/blogs/General/archives/000728.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000728.html</guid>
+         <category></category>
+         <pubDate>Sat, 06 Mar 2010 19:05:38 -0600</pubDate>
+      </item>
+            <item>
+         <title>Priority Queues...</title>
+         <description><![CDATA[<p>Many IT departments run long running and intensive processes on the various PCs throughout their organizations. For example, virus scanners (are evil but that's another rant), defragmentation and disk cleanup stuff. Is it really too much to ask for them to put such background tasks in the <b>LOW PRIORITY QUEUE!!!</b>. Do they know what the low priority queue even is or that it exists? I have yet to see anybody, other than myself, think ahead far enough to say "Gee this would interrupt interactive performance. I know! I'll put this in the low priority queue instead of being rude". I wonder what the thought process is for the IT guys or even if there is a thought process...</p>
+
+<p>And then processes spawned from the original process go in the normal queue, so even if you put the first process in the low queue, the next process pops out in the normal queue. The correct way to do this is to have the original process, the parent process, in the low queue and have it insure any children created are also in the low queue!</p>]]></description>
+         <link>http://defaria.com/blogs/General/archives/000723.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000723.html</guid>
+         <category></category>
+         <pubDate>Mon, 01 Mar 2010 13:35:55 -0600</pubDate>
+      </item>
+            <item>
+         <title>Broken DNS</title>
+         <description><![CDATA[<p>This seems to be the trend now a days in Corporate IT. Is it just Windows related? I don't know. It used to be that you could rely on DNS. Now you can't. Case in point - people hear talk about a machine known as "seacase". Others use the name usseacase. Whicih is correct? Well an educated guess would be they are one in the same and a DNS alias exists between them. IOW seacase is just a "pretty" name for usseacase.</p>
+
+<p>Now I used to be that you could verify that with DNS, in particular you could use nslookup to find each of the names and see they have the same IP address. But more and more, Corporate IT DNS stuff is screwed up, perhaps in the name of security, such that they don't always resolve:</p>
+
+<div class=code>$ nslookup usseacase
+Non-authoritative answer:
+Server:  &lt;dns server>
+Address:  13.230.100.200
+
+<p>Name:    usseacase.&lt;domain>.com<br />
+Address:  13.230.100.74<br />
+</div></p>
+
+<p>So we can look that one up but we can't lookup the other:</p>
+
+<div class=code>$ nslookup seacase
+*** &lt;dns server> can't find seacase: Non-existent domain
+Server:  &lt;dns server>
+Address:  13.230.100.200
+</div>
+
+<p>However ping works! And verifies that this is the same machine. So why doesn't DNS know about this?</p>
+
+<div class=code>$ ping seacase
+PING seacase (13.230.100.74): 56 data bytes
+64 bytes from 13.230.100.74: icmp_seq=0 ttl=127 time=230 ms
+64 bytes from 13.230.100.74: icmp_seq=1 ttl=127 time=0 ms
+
+<p>----seacase PING Statistics----<br />
+2 packets transmitted, 2 packets received, 0.0% packet loss<br />
+round-trip (ms)  min/avg/max/med = 0/115/230/115<br />
+</div></p>
+
+<p>Another pet peave of mine is people using either IP addresses instead of names (Do you refer to your friends by their cell phone numbers?) or using fully qualified machine names all the time when you don't need to...</p>]]></description>
+         <link>http://defaria.com/blogs/General/archives/000722.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000722.html</guid>
+         <category></category>
+         <pubDate>Mon, 01 Mar 2010 11:48:16 -0600</pubDate>
+      </item>
+            <item>
+         <title>Making it way harder than it needs to be</title>
+         <description><![CDATA[<p>Why do people do the following: A user is having difficulty performing a task so they submit a ticket. Attached there's a zip file that contains a Word document of 5 pages, 4 of which are entire desktop screen shots showing each steps in it's huge glory taking up tons of space where screen shot 4 has the error dialog that I need! Further, page 5 has the textual representation, which is really all I needed and is copy and pastable!</p>
+
+<p>Now before you say "Well they didn't know and they were trying to be helpful providing you with all the information" consider this: What the hell was the zip file for? There was only 1 file in it. Why zip it? "Well Andy, you hard ass, at least they are saving space because the zip file will compress it". Well then, riddle me this batman, why then capture the entire damn screen probably in the wasteful bmp format! And if you just wished to send me a bunch of screen captures why didn't you put only those in a zip file instead of having to call Word - and all it's inefficiencies - into play?</p>
+
+<p>The end result is that they do it in the most inefficient and complicated way they can find!</p>]]></description>
+         <link>http://defaria.com/blogs/General/archives/000721.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000721.html</guid>
+         <category></category>
+         <pubDate>Fri, 26 Feb 2010 15:36:29 -0600</pubDate>
+      </item>
+            <item>
+         <title>More support crap</title>
+         <description><![CDATA[<p>Do people think at all how they come off to other people? Case in point - I want to set my Unix password but for some reason they've disabled the passwd(1) command. Off to the help desk it is for me! Apparently I have not paid enough penance.</p>
+
+<p>So the conversation goes as follows:</p>
+
+<div class=code>Helpdesk dude ...hi Andrew how are you doing today<br>
+1:33:39 PM◄want to talk to you please ping me,regarding unix<br>
+2:30:50 PM Andrew DeFaria And your number is... <br>
+2:31:24 PM Helpdesk dude ...i am mazhar from the helpdesk  <br>
+2:31:28 PM ◄andrew <br>
+2:32:09 PM ◄as you called in for unix password setup  <br>
+2:32:17 PM Andrew DeFaria Yes. <br>
+2:32:37 PM Helpdesk dude ...you already logged in however you want to setup a password  <br>
+2:33:37 PM Andrew DeFaria Yes, why doesn't the passwd(1) command work? <br>
+2:34:30 PM Helpdesk dude ...please give me one minute<br>
+2:39:23 PM Andrew DeFaria Times up! <br>
+2:40:23 PM Helpdesk dude ...sorry for that working on it  <br>
+2:41:03 PM ◄contact with XXXXX  to confirm <br>
+◄who worked on the time zone of unix system XXXXXXXX  <br>
+2:42:40 PM◄the case you raised through idm  <br>
+2:42:53 PM Andrew DeFaria Jessie's the only guy I  <br>know who has an underbar in his name!   <br>
+2:43:52 PM Helpdesk dude ...yes exactly  <br>
+2:44:46 PM Andrew DeFaria I find it hard to believe that I'm unique in wanting to set my Unix password...  <br>
+2:45:51 PM Helpdesk dude ...do not worry sir we will try our best to fix thix issue  <br>
+2:46:04 PM Andrew DeFaria Did I say I was worried?  <br>
+2:46:35 PM Helpdesk dude ...i really appologize for that   <br>
+2:46:39 PM Andrew DeFaria  That's OK, this is making a great blog entry...  <br>
+</div>
+
+<p>Aside from the atrocious English spelling and grammar of this supposed College educated support tech... First off, why's he explaining my problem back to me? I know my problem - I'm not stupid.</p>
+
+<p>Secondly, maybe ya should come to the party prepared! I mean the problem here is simple - a user simply wants to set his password. Have you read the trouble ticket? Do you understand the issues involve? Great <b>then</b> contact the user. But here clearly he state "please give me one minute" - Then clearly takes several! Shouldn't he have the solution in hand?</p>]]></description>
+         <link>http://defaria.com/blogs/General/archives/000719.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000719.html</guid>
+         <category></category>
+         <pubDate>Wed, 24 Feb 2010 16:43:11 -0600</pubDate>
+      </item>
+            <item>
+         <title>Insisting on breaking links</title>
+         <description><![CDATA[<p>The reluctance to use HTML in email (and news groups for that matter) is astonishing! Instead people insist on using plain text and inevitably paste long links that break due to stupid clients badly wrapping the URL. For example:</p>
+
+<div class=code>
+http://gisclarifyweb.somewhere.com/eSupport/eSupportjsp/MenuSystem/CaseViewMS.j^M
+sp?casenum=G03519757
+</div>
+
+<blockquote><b>Note:</b> "^M" included to indicate where the line wrap occurs as this blog software will wrap it differently</blockquote>
+<p>Email clients then linkify the first part (http://gisclarifyweb.somewhere.com/eSupport/eSupportjsp/MenuSystem/CaseViewMS.j) but fail to include the second part (sp?casenum=G03519757) resulting in the link not working and making the recipient have to do the work of piecing the URL back together. And with some humongous URLs (and you've seen them) this can be quite an effort. Move this to your small cell phone in a bumping bus ride and this is next to impossible!</p>
+
+<p> So this has spawned an entire industry most notably tinyurl.com and friends. But why? Why not instead simple think up a meaning few words to describe the link and make a proper anchor href. For example, the above is talking about a Clarity case number of G03519757. So that should be the link text. Viola you have <a href="http://gisclarifyweb.somewhere.com/eSupport/eSupportjsp/MenuSystem/CaseViewMS.jsp?casenum=G03519757">G03519757</a>. This magic is achieved in Thunderbird - my mailer of choice - simply by highlighting the link text, typing Ctrl-L for link and pasting in the proper URL (In Outlock you select <b>Insert: Hyperlink</b>). There! You're done. Was that <b>that</b> hard? You've not only made it much easier on the receiver of your email by providing a simple - and attractive - link that will not break by being wrapped by any email client capable of rendering HTML (i.e. most of them) and for any incapable, they'll see the link in all its ugly glory and improper and broken wrapping they they must be accustomed to by now anyway!</p>
+
+<p>So why don't people do this regularly? I'm not sure but my guesses run neck and neck between lazy and ignorant. What's your guess?</p>]]></description>
+         <link>http://defaria.com/blogs/General/archives/000718.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000718.html</guid>
+         <category></category>
+         <pubDate>Wed, 24 Feb 2010 13:59:36 -0600</pubDate>
+      </item>
+            <item>
+         <title>Names should not be hard</title>
+         <description><![CDATA[<p>Another in a series of rants about things I see and how backward they are...</p>
+
+<p>Why is it that organizations use Outlook at all? And then when they do they have their address books set up for &lt;lastname>, &lt;firstname>? That's not how I think of people - by their last name first! And to add injury to insult, often looking up people as &lt;firstname> &lt;lastname> fails!</p>
+
+<p>I use Thunderbird and one of the first things I set up is an LDAP directory in the address book for the organization. Often this involves getting the secret LDAP info like server name and most importantly baseDN. Surprisingly I have been successful in getting this information most of the time! Once connected I have access to that elusive Outlook Global Address Book because essentially it's just and LDAP implementation. And my &lt;firstname> &lt;lastname> searches automagically start working directly in Thunderbird. Yippie!</p>
+
+<p>Still there are broken search tools like SameTime's Add New Contact dialog which fails if you &lt;firstname &lt;lastname> search. Coupled with organizations propensity to use &lt;lastname>, &lt;firstname> is "Jessie Scott" "Jessie Scott" or "Scott Jessie"?</p>
+
+<p><big><b?ARGH!</b></big></p>]]></description>
+         <link>http://defaria.com/blogs/General/archives/000717.html</link>
+         <guid>http://defaria.com/blogs/General/archives/000717.html</guid>
+         <category></category>
+         <pubDate>Wed, 24 Feb 2010 13:22:15 -0600</pubDate>
+      </item>
+      
+   </channel>
+</rss>

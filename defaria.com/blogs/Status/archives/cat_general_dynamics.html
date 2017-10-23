@@ -1,0 +1,3218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: General Dynamics Archives</title>
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000709"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/93"
+    dc:title="CPAN Bundles and PREFIX"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000709"
+    dc:subject="General Dynamics"
+    dc:description="One can maintain a list of CPAN Perl modules that they wanted installed by using Bundles. Then you can use cpan(1) to install them and use PREFIX to install them to an alternate location, like a vob, so that they..."
+    dc:creator=""
+    dc:date="2009-04-20T15:58:40-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">April 20, 2009</h2>
+                     <a id="a000709"></a>
+                     <div class="entry" id="entry-709">
+                        <h3 class="entry-header">CPAN Bundles and PREFIX</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>One can maintain a list of CPAN Perl modules that they wanted installed by using <a href="http://search.cpan.org/dist/CPAN/lib/CPAN.pm#Bundles">Bundles</a>. Then you can use <a href="http://www.manpagez.com/man/1/cpan/">cpan(1)</a> to install them and use <a href="http://www.perlmonks.org/?node_id=398722">PREFIX</a> to install them to an alternate location, like a vob, so that they can be more easily shared.</p>
+
+<p>Here's an example of a bundle:</p>
+
+<div class=code><pre>
+package Bundle::MyBundle;
+use strict;
+use vars qw($VERSION);
+$VERSION = '1.000'; # use 3 digits to minimize confusion with the
+                    # other CPAN.pm
+
+1;
+
+__END__
+
+=head1 NAME
+
+Bundle::MyBundle - Bundle of CPAN modules that I  use
+
+=head1 SYNOPSIS
+
+ perl -MCPAN -e 'install Bundle::MyBundle'
+
+=head1 CONTENTS
+
+Algorithm::Diff
+Algorithm::Permute
+AppConfig
+Archive::Any
+...
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:58 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000709.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000709.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000705"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/92"
+    dc:title="Pre-shared ssh keys"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000705"
+    dc:subject="General Dynamics"
+    dc:description="Issue Gantry mentioned that we are still having issues with pre-shared key access to various systems using pswit as the log in. This email will serve to document how pre-share key access works, how we are using it here and..."
+    dc:creator=""
+    dc:date="2008-07-30T17:25:01-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">July 30, 2008</h2>
+                     <a id="a000705"></a>
+                     <div class="entry" id="entry-705">
+                        <h3 class="entry-header">Pre-shared ssh keys</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <h3>Issue</h3>
+
+<p>Gantry mentioned that we are still having issues with pre-shared key access to various systems using pswit as the log in. This email will serve to document how pre-share key access works, how we are using it here and how the process is breaking down. We could attempt to script it but there are challenges and issues with that, specifically the
+gathering of ssh keys requires root access. Or we could simply learn how it works and follow a process, which I'll suggest.</p>
+
+<h3>How pre-shared ssh access works</h3>
+
+<p>In order to ssh to another machine as another user (or any user including yourself) using a pre-shared key you eed have a key to share. Therefore you need to generate an ssh key. We tend to use DSA keys as they are stronger. The process of generating an ssh key will not be discussed here but if you have one then in your home directory you'll have a file name id_dsa.pub under your .ssh directory.</p>
+
+<p>The contents of this file needs to be placed into the "receiving" user's ~/.ssh/authorized_keys file. The act of doing this specifically states "I know &lt;x&gt; and I will allow him to ssh into this machine as me". So if I (p6258c) want to ssh to seast1 as pswit I need to get my DSA key (~p6258c/.ssh/id_dsa.pub) into pswit's authorized_keys file (~pswit/.ssh/authorized_keys).</p>
+
+<h3>NIS domain/Windows considerations</h3>
+
+<p>An additional complication here is that pswit in the RAN NIS domain != pswit in the RANTEST NIS domain. So If I wanted to be able to ssh as pswit to ranray I'd need to <b>also</b> get my DSA key (generated on the RAN NIS domain) into ~pswit/.ssh/authorized_keys. remember pswit's home directory on ranray != pswit's home directory on seast1. Both entities (the pswit user ID in RAN and the pswit user ID in RANTEST) are distinct and different users.</p>
+
+<p>A further complication is that pswit on the 11 Windows machines are all local users to those Windows machines. The Windows machines are in the set (rantm50[1..7], sim[1..4]).</p>
+
+<h3>Gathering ssh keys and building a combined authorzied_keys file</h3>
+
+<p>So we need to collect ssh keys from multiple users, in multiple Unix NIS domains to multiple machines. In the past what I did was to gather all of the ssh keys for the users on the RAN side into an authorized_keys file named ran and then gathered all of the ssh keys for the users on the RANTEST side in an authorized_keys file named east. Normally an ssh key would say "&lt;user&gt;@&lt;machine&gt;" where &lt;machine&gt; is the machine which ssh-keygen was run. To avoid confusion I changed the comment at the end of each key to say "&lt;user&gt;@ran" or "&lt;user&gt;@east" in the respective files. Then I would concatenate the two files, ran and east, to one authorized keys file. This file was then checked into Clearcase under rantest_auto/config.</p>
+
+<h3>Dissemination</h3>
+
+<p>Since the home directory for pswit is always the same home directory for all machines in the RAN domain, and since the same is true in the RANTEST domain, we need only set authorized_keys twice, once in RAN and once in RANTEST, for the Unix side. However we need to also disseminate keys to 11 Windows boxes. Here's, effectively, how I do that.</p>
+
+<div class="code">
+<pre>$ machines="\
+&gt;  ranray\
+&gt;  seast1\
+&gt;  rantm501\
+&gt;  rantm502\
+&gt;  rantm503\
+&gt;  rantm504\
+&gt;  rantm505\
+&gt;  rantm506\
+&gt;  rantm507\
+&gt;  sim1\
+&gt;  sim2\
+&gt;  sim3\
+&gt;  sim4\
+&gt; "
+
+$for machine in $machines; do
+  scp -q authorized_keys <a class="moz-txt-link-abbreviated" href="mailto:pswit@$machine:.ssh">pswit@$machine:.ssh</a>
+done
+</pre>
+</div>
+
+<p>This disseminates the authorized_keys file to all the appropriate machines.</p>
+
+<h3>Current state</h3>
+
+<p>Currently, gathering up all authorized_keys files in a reverse fashion to the above, we have:</p>
+
+<table align="center" border="1" cellpadding="2" cellspacing="0"
+ width="75%">
+  <tbody>
+    <tr>
+      <th bgcolor="teal" valign="top"><font color="#ffffff">Region/Machine<br>
+      </font></th>
+      <th bgcolor="teal" valign="top"><font color="#ffffff"># of Entries<br>
+      </font></th>
+      <th bgcolor="teal" valign="top"><font color="#ffffff">Comments<br>
+      </font></th>
+    </tr>
+    <tr>
+      <td align="center" valign="top">master<br>
+      </td>
+      <td align="center" valign="top">92<br>
+      </td>
+      <td valign="top">Master authorized_keys file from Clearcase<br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">ran<br>
+      </td>
+      <td align="center" valign="top">95<br>
+      </td>
+      <td valign="top">authorized_keys file from RAN<br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">rantm501<br>
+      </td>
+      <td align="center" valign="top">92<br>
+      </td>
+      <td valign="top"><br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">rantm502</td>
+      <td align="center" valign="top">92</td>
+      <td valign="top"><br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">rantm503</td>
+      <td align="center" valign="top">92</td>
+      <td valign="top"><br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">rantm504</td>
+      <td align="center" valign="top">92</td>
+      <td valign="top"><br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">rantm505</td>
+      <td align="center" valign="top">92</td>
+      <td valign="top"><br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">rantm506</td>
+      <td align="center" valign="top">92</td>
+      <td valign="top"><br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">rantm507</td>
+      <td align="center" valign="top">92</td>
+      <td valign="top"><br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">seast1<br>
+      </td>
+      <td align="center" valign="top">97</td>
+      <td valign="top">authorized_keys file from RANTEST<br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">sim1<br>
+      </td>
+      <td align="center" valign="top">93<br>
+      </td>
+      <td valign="top"><br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">sim2<br>
+      </td>
+      <td align="center" valign="top">92<br>
+      </td>
+      <td valign="top"><br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">sim3<br>
+      </td>
+      <td align="center" valign="top">92<br>
+      </td>
+      <td valign="top"><br>
+      </td>
+    </tr>
+    <tr>
+      <td align="center" valign="top">sim4<br>
+      </td>
+      <td align="center" valign="top">92<br>
+      </td>
+      <td valign="top"><br>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The way to have pre-shared ssh key access working the best is for each Region/Machine to have the same amount of entries (actually the exact same authorized_keys file). But we can see that people are indiscriminately changing the authorized_keys file only in certain places causing confusion and causing the process to break down.</p>
+
+<h3>Suggested process</h3>
+
+<p>When somebody reports that they are having a problem with ssh access using a pre-shared key to become pswit on another machine they should submit a help desk ticket. The way to resolve the help desk ticket is to:</p>
+
+<ol>
+  <li>Generate this user's DSA ssh key (if required) on both the RAN
+and the RANTEST NIS domains</li>
+  <li>Change the host name associated with the key to "ran" or "east"
+as appropriate</li>
+  <li>Open a WOR in the RANTEST_Auto project and create a view</li>
+  <li>Checkout the rantest_tools/config/authorized_keys file and edit
+it appending the two DSA ssh keys</li>
+  <li>Checkin and deliver the WOR</li>
+  <li>Either execute the above code to disseminate the new
+authorized_keys file or perhaps we could write a simple script to do it.<br>
+  </li>
+</ol>
+
+<p>Comments?</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000705.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000705.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000704"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/91"
+    dc:title="RantestDB"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000704"
+    dc:subject="General Dynamics"
+    dc:description=" Implemented new rantest database Changed RantestDB.pm to deal with new rantest database. Created many more methods to handle internal database structure as well as 3 log type methods: logSuiterun, logTestrun and logSteprun Change rantest to use new RantestDB methods..."
+    dc:creator=""
+    dc:date="2008-05-07T11:33:39-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">May  7, 2008</h2>
+                     <a id="a000704"></a>
+                     <div class="entry" id="entry-704">
+                        <h3 class="entry-header">RantestDB</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Implemented new rantest database</li>
+
+  <li>Changed RantestDB.pm to deal with new rantest database. Created many more methods to handle internal database structure as well as 3 log type methods: logSuiterun, logTestrun and logSteprun</li>
+
+  <li>Change rantest to use new RantestDB methods</li>
+
+  <li>Made new script, rrun, in order to run an arbitrary command remotely and get it's true status and output</li>
+
+  <li>Documented domsh on Wiki</li>
+
+  <li>Working getting cppemu on rancpp10</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:33 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000704.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000704.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000703"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/90"
+    dc:title="Rantest 0.9.2"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000703"
+    dc:subject="General Dynamics"
+    dc:description=" Announces itself if -verbose is on. Fixed to not include test options in the logfile name if specified. Now sets exit code to the number of failed test cases. Changed to run properly under cron. Now renames logfile tars..."
+    dc:creator=""
+    dc:date="2008-04-02T16:49:10-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">April  2, 2008</h2>
+                     <a id="a000703"></a>
+                     <div class="entry" id="entry-703">
+                        <h3 class="entry-header">Rantest 0.9.2</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Announces itself if -verbose is on.</li>
+
+  <li>Fixed to not include test options in the logfile name if specified.</li>
+
+  <li>Now sets exit code to the number of failed test cases.</li>
+
+  <li>Changed to run properly under cron.</li>
+
+  <li>Now renames logfile tars so as not to overwrite them. Instead it tacks on the file's time stamp.</li>
+
+  <li>Supports -script, an arbitrary script to do post test case analysis.</li>
+
+  <li>Implemented hack to get around non-standard asynchronous output from start_east_auto.</li>
+
+  <li>Changed to reset certain options stored in the East object when running tests repeatedly as such options should be re-evaluated for each new test run.</li>
+
+  <li>Defaulting testbed option to "$type$unit".</li>
+
+  <li>Fixed order of options as per Ross' request.</li>
+
+  <li>Implemented rendezvous more fully.</li>
+
+  <li>Implemented internal functions for _checkOutElement, _checkInElement, _makeTar to ease coding of saveLogFiles method.</li>
+
+  <li>saveLogFiles now creates and saves EASTLogs.tgz as well as properly handles TM500Logs.tgz and NMSLogs.tgz. Note that EASTLogs.tgz is a new file name (has been pluralized) and is now created at the "logs/" level.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:49 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000703.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000703.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000702"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/89"
+    dc:title="Migrating colocated views from 6.0 -&gt; 7.0"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000702"
+    dc:subject="General Dynamics"
+    dc:description="I performed a test of my snapshot view p6258c_SIMCQ00000392_intview. This view is a colocated view and exists in my home directory (~p6258c). Clearcase administration of the registry can be tricky - you need to get several things correct before it..."
+    dc:creator=""
+    dc:date="2008-03-28T15:44:47-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 28, 2008</h2>
+                     <a id="a000702"></a>
+                     <div class="entry" id="entry-702">
+                        <h3 class="entry-header">Migrating colocated views from 6.0 -> 7.0</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>I performed a test of my snapshot view p6258c_SIMCQ00000392_intview.
+This view is a colocated view and exists in my home directory
+(~p6258c). Clearcase administration of the registry can be tricky - you
+need to get several things correct before it will work.</p>
+
+<p>Here's what the view looks like:</p>
+
+<div class=code><pre>
+$ ct lsview -l -full -properties
+p6258c_SIMCQ00000392_intview 
+  Tag: p6258c_SIMCQ00000392_intview
+   Global path: <b>/net/cclinux/export/home/p6258c/p6258c_SIMCQ00000392_intview/.view.stg</b>
+   Server host: <b>seast1</b>
+   Region: cclinux
+   Active: NO
+   View tag uuid:90c8b0d3.d9c311dc.92fe.00:09:3d:14:f4:70
+  View on host: <b>seast1</b>
+  View server access path: <b>/home/p6258c/p6258c_SIMCQ00000392_intview/.view.stg</b>
+  View uuid: 90c8b0d3.d9c311dc.92fe.00:09:3d:14:f4:70
+  View attributes: snapshot,ucmview
+  View owner: rantest/p6258c
+
+  Created 2008-02-12T16:31:00-07 by p6258c.cclinux@ranlin04
+  Last modified 2008-03-28T13:53:02-07 by p6258c.cclinux@raneast
+  Last accessed 2008-03-28T13:53:02-07 by p6258c.cclinux@raneast
+  Last read of private data 2008-03-28T13:53:02-07 by
+p6258c.cclinux@raneast
+  Last config spec update 2008-03-28T13:22:18-07 by
+p6258c.cclinux@raneast
+  Last view private object update 2008-03-28T13:53:02-07 by
+p6258c.cclinux@raneastText mode: unix
+  Properties: snapshot ucmview readwrite
+  Owner: rantest/p6258c : rwx (all)
+  Group: rantest/cclinux : r-x (read)
+  Other: : r-x (read)
+  Additional groups: rantest/east
+</pre></div>
+
+<p>Here's what I did</p>
+
+<ul>
+  <li>cd'ed into this snapshot view
+~p6258c/p6258c_SIMCQ00000392_intview/vobs/simdev/bin</li>
+
+  <li>Checked out a script named east.</li>
+
+  <li>cd'ed out of the snapshot view to my home directory.</li>
+</ul>
+
+<p>We now have a colocated snapshot view created on CC 6.0 and hosted by
+seast1. The storage (my home directory) oddly enough is served by
+cclinux...</p>
+
+<ul>
+  <li>Moved the view database over to cclinux under it's gdviews
+partition:
+
+<div class=code><pre>
+<font color="#ff6600"><b>Cclinux:</b></font><u>mv /home/p6258c/p6258c_SIMCQ00000392_intview/.view.stg \</u>
+&gt; <u>/gdviews/p6258c/p6258c_SIMCQ00000392_intview.vws</u>
+</pre></div>
+
+  <b>Note:</b>
+    <ul>
+      <li>In the above command we also renamed .view.stg -&gt;
+&lt;viewname&gt;.vws.</li>
+      <li>We did a mv instead of cp. I suspect that if you are in the
+snapshot view storage area and you perform a Clearcase operation,
+cleartool will notice the .view.stg directory at the snapshot view's
+root and not bother to attempt to contact the registry server to find
+out where the view database is. Instead it just says "Well the view
+database is right here". This would allow a disconnected, but colocated
+snapshot view to be able to perform Clearcase operations while
+disconnected.</li>
+    </ul>
+  </li>
+
+  <li>Reregistered the view:
+
+<div class=code><pre>
+<font color="#ff6600"><b>Cclinux:</b></font><u>ct register -view -replace -host cclinux \</u>
+&gt; <u>-hpath /gdviews/p6258c/p6258c_SIMCQ00000392.vws \</u>
+&gt; <u>/net/cclinux/gdviews/p6258c/p6258c_SIMCQ00000392.vws</u>
+</pre></div>
+
+    <b>Note:</b>
+
+    <ul>
+      <li>The -host changed from seast1 -&gt; cclinux</li>
+
+      <li>The -hpath changed to be relative to /gdviews (where we moved
+the .view.stg)</li>
+  </ul>
+
+  <li>Retaged the view:</li>
+
+<div class=code><pre>
+<font color="#ff6600"><b>Cclinux:</b></font><u>ct mktag -replace -view -tag p6258c_SIMCQ00000392_intview \</u>
+&gt; <u>-host cclinux \</u>
+&gt; <u>-gpath /net/cclinux/gdviews/p6258c/p6258c_SIMCQ00000392_intview.vws \</u>
+&gt; </tt><u>/net/cclinux/gdviews/p6258c/p6258c_SIMCQ00000392_intview.vws</u>
+</pre></div>
+    <b>Note:</b>
+  <ul>
+    <li>Again the -host changed from seast1 -&gt; cclinux</li>
+    <li>The -gpath changed to a global path to /gdviews<br>
+      <br>
+    </li>
+  </ul>
+  <li>Stop the view server:</li>
+
+<div class=code><pre>
+<font color="#ff6600"><b>Cclinux:</b></font><u>ct endview -server p6258c_SIMCQ00000392_intview</u>
+</pre></div>
+  </li>
+
+  <li>Set the config spec to current since the compiled config spec
+still thinks it's on the old server. Note this will involve a ct update
+too. Also, we need to cd to the snapshot view storage area:</li>
+
+<div class=code><pre>
+<font color="#ff6600"><b>Cclinux:</b></font><u>cd ~/p6258c_SIMCQ00000392_intview</u>
+<font color="#ff6600"><b>Cclinux:</b></font><u>ct setcs -current &gt; /dev/null 2&gt;&amp;1</u>
+</ul>
+
+<p>Now we have the following view:</p>
+
+<div class=code><pre>
+$ ct lsview -l -full -properties p6258c_SIMCQ00000392_intview
+  Tag: p6258c_SIMCQ00000392_intview
+   Global path: <b>/net/cclinux/gdviews/p6258c/p6258c_SIMCQ00000392_intview.vws</b>
+   Server host: <b>cclinux</b>
+   Region: cclinux
+   Active: NO
+   View tag uuid:90c8b0d3.d9c311dc.92fe.00:09:3d:14:f4:70
+  View on host: <b>cclinux</b>
+  View server access path:
+/gdviews/p6258c/p6258c_SIMCQ00000392_intview.vws
+  View uuid: 90c8b0d3.d9c311dc.92fe.00:09:3d:14:f4:70
+  View attributes: snapshot,ucmview
+  View owner: rantest/p6258c
+
+  Created 2008-02-12T16:31:00-07 by p6258c.cclinux@ranlin04
+  Last modified 2008-03-28T14:32:44-07 by p6258c.cclinux@ranlin04
+  Last accessed 2008-03-28T14:32:44-07 by p6258c.cclinux@ranlin04
+  Last read of private data 2008-03-28T14:32:44-07 by
+p6258c.cclinux@ranlin04
+  Last config spec update 2008-03-28T14:32:42-07 by
+p6258c.cclinux@ranlin04
+  Last view private object update 2008-03-28T14:32:44-07 by
+p6258c.cclinux@ranlin04
+  Text mode: unix
+  Properties: snapshot ucmview readwrite
+  Owner: rantest/p6258c : rwx (all)
+  Group: rantest/cclinux : r-x (read)
+  Other: : r-x (read)
+  Additional groups: rantest/east<br>
+
+</pre></div>
+
+<p>Which is clearly on cclinux now.</p>
+
+<p>Further, we can see that east is still checked out, we can modify it and even unco thus showing that our newly relocated snapshot view on cclinux works, from seast1, like it did before:</p>
+
+<div class=code><pre>
+<font color="#3333ff"><b>[p6258c@seast1 p6258c]$</b></font> <u>cd p6258c_SIMCQ00000392_intview/vobs/simdev/bin</u>
+<b><font color="#3333ff">[p6258c@seast1 bin]$</font></b> <u>ct ls east</u>
+  east@@/main/simdev_integration/east_scripts_build1_integration/CHECKEDOUT from
+/main/simdev_integration/east_scripts_build1_integration/0               Rule: CHECKEDOUT
+  <b><font color="#3333ff">[p6258c@seast1 bin]$</font></b> <u>echo "A change" &gt;&gt; east</u>
+  <b><font color="#3333ff">[p6258c@seast1 bin]$</font></b> <u>ct unco east</u>
+  Save private copy of "east"?  [yes]
+  Private version of "east" saved in "east.keep".
+  Loading "vobs/simdev/bin/east" (353 bytes).
+  ClearTrigger removing empty branch
+"/home/p6258c/p6258c_SIMCQ00000392_intview/vobs/simdev/bin/east@@/main/simdev_integration/east_scripts_build1_integration"...Updating
+web view with
+(/home/p6258c/p6258c_SIMCQ00000392_intview/vobs/simdev/bin/east)...
+  Loading "vobs/simdev/bin/east" (353 bytes).
+  Done loading "/vobs/simdev/bin/east" (1 objects, copied 0 KB).
+  Checkout cancelled for "east".
+  <b><font color="#3333ff">[p6258c@seast1 bin]$</font></b>
+</pre></div>
+
+<p>It would not be that difficult to cook up a script to migrate all snapshot views...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:44 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000702.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000702.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000701"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/88"
+    dc:title="EAST Automation"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000701"
+    dc:subject="General Dynamics"
+    dc:description="What&apos;s been done The EAST test automation tool rantest currently can run properly formated EAST tests. By properly formated we mean that they 1) run to completion and 2) report a status in their log file. Logfile collection for EAST..."
+    dc:creator=""
+    dc:date="2008-03-27T10:30:05-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 27, 2008</h2>
+                     <a id="a000701"></a>
+                     <div class="entry" id="entry-701">
+                        <h3 class="entry-header">EAST Automation</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <h3>What's been done</h3>
+
+<ul>
+  <li>The EAST test automation tool rantest currently can run <i>properly
+formated</i> EAST tests. By <i>properly formated</i> we mean that they
+1) run to completion and 2) report a status in their log file.</li>
+
+  <li>Logfile collection for EAST tests is performed and a tar file,
+EASTLogs.tgz, is created and if run for record (-rfr) specified that
+log file will be checked in (coded but untested - see below).</li>
+
+  <li>Many tests can be run in succession using the -file option and
+specifying multiple tests in the file (See <a
+ href="http://ranweb/dokuwiki/doku.php?id=ran:rantest">rantest</a> wiki
+page).</li>
+
+  <li>A rudimentary conditional test execution facility exists. For
+example, testers can name tests then refer to them in a subsequent test
+with an "if" statement so as to say "run this test if &lt;named
+test&gt; passed (See <a
+ href="http://ranweb/dokuwiki/doku.php?id=ran:rantest">rantest</a> wiki
+page).</li>
+
+  <li>A facility for running test in the background has been
+implemented as some EAST test script must run in the background while
+other tests run simultaneously.</li>
+
+  <li>A crude rendezvous system has been implemented such that rantest
+will poll the logfile looking for a rendezvous string that will
+indicate to rantest that the backgrounded test has reached a certain
+point and it's OK to proceed with other tests.</li>
+
+  <li>Logging of what rantest does has been implemented.</li>
+
+  <li>A crude -script test option has been implemented that allows
+rantest to "farm out" the verification of a test for tests that
+require more complex verification. Any script can be coded. The only
+requirement is that it reports success or failure through it's exit
+status.</li>
+
+  <li>Worked on learning moshell as some verifications require
+moshell.</li>
+
+  <li>Implemented a simple case of verifying that a cell is set up (a
+manual verification step for Sim Cell Setup of preSWIT).</li>
+
+  <li>Ngan has created test profiles and Ross Wilson says that we are
+going to run these test profiles through rantest this afternoon.</li>
+
+  <li>Documented most of <a
+ href="http://ranweb/dokuwiki/doku.php?id=ran:rantest">rantest</a>'s
+usage on the wiki.</li>
+
+  <li>Ross and Gantry have created Perl scripts and TPL's such that an
+EAST test can drive a TM500. While rantest can run such tests it needs
+to be taught how to gather the TM500 log files produced.</li>
+</ul>
+
+<h3>What we're impeded on</h3>
+
+<ul>
+  <li>I believe many of the SWIT tests are not currently properly
+formatted. Such tests will need to be altered before they can be truly
+automated through rantest</li>
+
+  <li>WRT preSWIT testing, I need Leslie to modify her tests to
+properly write rendezvous strings in SIM Cell Setup so that rendezvous
+can work and sanity/preSWIT testing can proceed.</li>
+
+  <li>Gather tests from Ngan (and others) </li>
+
+  <li>We often don't have time on the various RNC's/etc. to perform
+testing. Some tests, i.e. SIM Cell Setup, are interruptive of other
+EAST engineer's work.</li>
+
+  <li>Moshell is crude, picky and buggy and... not supported by Ericson!</li>
+</ul>
+
+<h3>What's next</h3>
+
+<ul>
+  <li>Create run for record view and test out -rfr checkin
+functionality.</li>
+
+  <li>Get EAST/TM500 test to work (currently failing) so as to
+check/modify TM500 logfile creation</li>
+
+  <li>Get EAST/NMS test to work (currently non-existant?) so as to
+check/modify NMS logfile creation.</li>
+
+  <li>Implement XML parsing to determine whether or not we have TM500
+logs or NMS logs to collect. Either that or get Gantry to change the
+format of the message indicating where the logfile is to include what
+type of logfile it is.</li>
+
+  <li>Once Leslie modifies tests for rendezvous, attempt sanity again
+and add in the -script "IsCellUp &lt;machine&gt; &lt;cell&gt;"
+verification.</li>
+
+  <li>Bob wants us to write a simple and a complex example of test
+verification. Based on Doug Elder's <i>How to Analyze rnc</i>
+document, implement it's verification steps which get progressively
+more complex. The IsCellUp script can also serve as an example
+verification script.</li>
+</ul>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:30 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000701.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000701.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000700"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/87"
+    dc:title="Sharable vs Non-sharable derived objects"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000700"
+    dc:subject="General Dynamics"
+    dc:description=" Resolved Helpdesk ticket involving non-sharable derived objects..."
+    dc:creator=""
+    dc:date="2008-03-17T15:40:07-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 17, 2008</h2>
+                     <a id="a000700"></a>
+                     <div class="entry" id="entry-700">
+                        <h3 class="entry-header">Sharable vs Non-sharable derived objects</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Resolved Helpdesk ticket involving non-sharable derived objects</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000700.html#more">Continue reading "Sharable vs Non-sharable derived objects" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:40 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000700.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000700.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000699"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/86"
+    dc:title="Santity Progress"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000699"
+    dc:subject="General Dynamics"
+    dc:description=" Spoke with Tom regarding making a rantools, or perhaps ran_swit_tools and ran_preswit_tools vob. Tom got the helpdesk ticket from Chris English regarding making a preswit vob. I added on the swit vob and discussed with Tom how to best..."
+    dc:creator=""
+    dc:date="2008-03-05T11:33:58-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March  5, 2008</h2>
+                     <a id="a000699"></a>
+                     <div class="entry" id="entry-699">
+                        <h3 class="entry-header">Santity Progress</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Spoke with Tom regarding making a rantools, or perhaps ran_swit_tools and ran_preswit_tools vob. Tom got the helpdesk ticket from Chris English regarding making a preswit vob. I added on the swit vob and discussed with Tom how to best do this.</li>
+
+  <li>Re-ported changes from Rexec version of easter -> non-Rexec version. Looks like we will be having a rantools vob replicated to cclinux. In any event, easter has been redesigned to run locally on seast1.</li>
+
+  <li>Figured out the problem with Rexec (and Expect for that matter). Turns out the Expect problem is the same Expect problem it always seems to be. Expecting a certain string and not seeing it. The twist is that this is indeterministic due to timing and stems from the odd way that start_auto_east operates. You see after executing start_auto_east control gets returned to you, thus you get a prompt, however background processes are also started and they write to the terminal, sometimes interrupting the prompt! This is not good. In general background processes should not be writing to the screen. I need to see if they can turn this off.</li>
+
+  <li>Learned that specifying "-run -log" will run the test but <b>not</b> turn on logging! You must do "-log -run"! In the past sometimes log files would not appear. They would appear if logging was turned on in the profile but not appear if it wasn't. IOW -log was not working because of option ordering! Fixed</li>
+
+  <li>Added rendezvous method and option to that we can run something in the background and then rendezvous with it by searching for a string in the produced logfile.</li>
+
+  <li>Learned that the logfile's presence is not immediate. IOW we start a configuration task, running it in the background, then call rendezvous in order to search the logfile for the message stating it's ready. However the logfile does not exist at this moment. So we must wait. Currently rendezvous uses timeout to wait. It does so by trying then taking 1/10 of timeout and sleeping, proceeding 10 times and then timing out. I need to include the locating of the logfile in this timeout cycle.</li>
+
+  <li>Moved stackOptions and -name, -if and -renedezvous into East.pm and process options using GetOptions. The problem was that I'm coming from a string, the test name followed by test options, and with -if and -rendezvous there's a good chance that the user wants to specify a quoted string. Yet GetOptions only works on @ARGV. So how to get a $str -> @ARGV taking into account that if you hit a quote you need to combine all tokens until the closing quote? Well that's what stackOptions does. So now this is all handled in East.pm. Additionally the test results hash needed to be passed to exec so that exec could do conditional test execution. This makes us pass two hashes and thus need to use references. All this is working now. Need to check to make sure that test results hash is updating in exec and that conditional test execution is working</li>
+
+  <li>Fixed problem in getting logfile name in that $self->{testName} was not getting set properly. Now it is and logfile names are being found</li>
+
+  <li>Still am not seeing what I'm expecting to see in the logfiles for rendezvous. Need to do testing by hand again and save the logfiles to show Leslie/Jonathan.</li>
+
+  <li>Changed to use a hash for all statistics. Added stats for skipped tests and rendezvous tests. This method is much more flexible and counters can be easily added</li>
+
+  <li>Added hack to get around Expect problems</li>
+
+  <li>Determined that messages seen in the text logfile are not already shown in the binary logfile</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000699.html#more">Continue reading "Santity Progress" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:33 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000699.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000699.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000698"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/85"
+    dc:title="New easter options"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000698"
+    dc:subject="General Dynamics"
+    dc:description=" Added source command to easter. This is the interactive equivalent of the -file option Changed history to log a -file &amp;lt;file&amp;gt; as a &quot;source &amp;lt;file&amp;gt;&quot; into the history file Changed prompt to &quot;easter&gt;&quot; Documented easter on the wiki Added..."
+    dc:creator=""
+    dc:date="2008-02-28T14:02:34-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">February 28, 2008</h2>
+                     <a id="a000698"></a>
+                     <div class="entry" id="entry-698">
+                        <h3 class="entry-header">New easter options</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added source command to easter. This is the interactive equivalent of the -file option</li>
+
+  <li>Changed history to log a -file &lt;<em>file</em>&gt; as a "source &lt;<em>file</em>&gt;" into the history file</li>
+
+  <li>Changed prompt to <li>"easter>"</li>
+
+  <li>Documented easter on the wiki</li>
+
+  <li>Added rudimentary set/get commands to add things to the global $_optis hash. This allows the interactive user to set options like activecalls or displaylevel interactively for the during of the easter run. Note, there is no checking to insure the option if valid (i.e. set foo=bar is perfectly acceptable even though there is no "foo" option) nor is proper checking of balancing/mismatching of quotes (e.g. The results of set foo = "unbalanced or mismatched quotes' are undefined).</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:02 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000698.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000698.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000697"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/84"
+    dc:title="For immediate release"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000697"
+    dc:subject="General Dynamics"
+    dc:description="For immediate release... Recently Gantry mentioned the following problem: Error Prone Deliveries: Another problem is that Reinaldo&apos;s private files have to be merged manually. Ross, Andrew, and I are in a similar situation now where we have to take a..."
+    dc:creator=""
+    dc:date="2008-02-20T14:49:49-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">February 20, 2008</h2>
+                     <a id="a000697"></a>
+                     <div class="entry" id="entry-697">
+                        <h3 class="entry-header">For immediate release</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <h2>For immediate release...</h2>
+
+<p>Recently Gantry mentioned the following problem:</p>
+
+<blockquote type=cite>
+  <p>Error Prone Deliveries:</p>
+
+  <p>Another problem is that Reinaldo's private files have to be merged
+manually.</p>
+
+  <p>Ross, Andrew, and I are in a similar situation now where we have to
+take a snapshot of directories in a view over to seast1 in order to do
+development, then remember what we changed and copy them back in and
+deliver.</p>
+
+  <p>We have already made several mistakes. </p>
+</blockquote>
+
+<p>The problem here is that we have two different Clearcase registry
+regions and subnets, code is developed in one region and run in the
+other. Gantry proposed a solution of writing more script to maintain
+that will essentially copy things between systems. I would like to
+propose an alternative...</p>
+
+<h2>Release process</h2>
+
+<p>What if we instead had a release process such that we deliver our
+development to the feature stream that is then automatically seen over
+on the cclinux region? Code is developed through the WOR process on the
+RAN and delivered to the feature stream. This stream has an official
+view which is exported to the cclinux region where it is mounted
+directly into place<a href="#note_1"><sup>1</sup></a>. Since all
+processes that utilize these scripts do so through this base they are
+all automatically and immediately updated when the view is updated.
+Additionally code is developed cognizant of this base such that an
+alternate base can easily be set allowing one to test the release
+before making it official.</p>
+
+<h2>Solution proposed</h2>
+
+<h3>Exporting a view</h3>
+
+<p>Clearcase has the ability to export a view/vob path from a view
+server to any other machine. This allows you to "access Clearcase from
+a machine which does not have Clearcase" (see ct man export_mvfs). In
+order to do this a systems administrator adds a line to
+/etc/exports.mvfs on the view server where the view resides using the
+format of:</p>
+
+<div class=code><pre>
+/view/&lt;<i>view_name</i>&gt;/vobs/&lt;<i>vobpath</i>&gt;&lt;<i>netgroup or machine</i>&gt;
+</pre></div>
+
+<p>And executes the /opt/rational/clearcase/etc/export_mvfs -a
+command.  Additionally &lt;<i>view_name</i>&gt; should be started<a
+href="#note_2"><sup>2</sup></a>.</p>
+
+<h3>Official view</h3>
+
+<p>Additionally, as noted above, a view must be utilized. I suggest using
+what I like to call <i>official views</i> for this. An <i>official
+view</i> is merely a view not associated with any particular person
+(e.g. maybe ccadm) that serves in an official capacity. This view
+usually has a simple config spec such as the following:</p>
+
+<div class=code><pre>
+element * REL_1.0 -nocheckout
+</pre></div>
+
+<p>thereby limiting what was seen through the view as only that which is
+labeled with REL_1.0. The release process therefore consisted of
+applying the REL_1.0 label and poof! Automatically and immediately the
+new version was available. Updating to say a REL_1.1 release would
+involve then simply a ct setcs and a changing of REL_1.0 to REL_1.1.</p>
+
+<p>For UCM based views, translate the above to applicable baselines...</p>
+
+<h3>Importing the view</h3>
+
+<p>On the client machine, importing the view is simply a mount
+command.  The suggestion here is to mount directly to our base,
+/usr/local/east:</p>
+
+<div class=code><pre>
+$ mount view1:/views/&lt;<i>official view</i>&gt;/vobs/rantest /usr/local/east
+</pre></div>
+
+<p>(Actually this should be added to /etc/fstab for automatic, at boot
+time, mounting).</p>
+
+<h3>Security and visibility</h3>
+
+<p>There is concern regarding exposing too much visibility of vob
+elements in the cclinux region. Since /etc/exports.mvfs allows us to
+specify an exacting path of what is exported we can insure that we are
+only exporting the .../vobs/rantest portion or even a subdirectory(s)
+under rantest. This should sufficiently limit the scope of what's
+exposed.</p>
+
+<h2>Notes</h2>
+
+<ol>
+  <li><small><a name="note_1"></a>This assumes that we adopt a concept
+of a base variable from which everything emanates (e.g. /usr/local/east)</small></li>
+  <li><small><a name="note_2"></a>At HP I devised a simply script
+solution to insure that views listed in /etc/views_to_start would be
+started at boot up on the view servers.</small></li>
+</ol>
+
+<p>Comments? Concerns?</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:49 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000697.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000697.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000696"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/83"
+    dc:title="Rexec"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000696"
+    dc:subject="General Dynamics"
+    dc:description="Rexec Complications Rexec is a Perl module written by me. There are several things that Rexec provides but at it&apos;s core it essentially provides an object oriented interface to a remote command line. Rexec attempts to provide functionality by handling..."
+    dc:creator=""
+    dc:date="2008-02-12T14:24:24-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">February 12, 2008</h2>
+                     <a id="a000696"></a>
+                     <div class="entry" id="entry-696">
+                        <h3 class="entry-header">Rexec</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <h2>Rexec Complications</h2>
+
+<p>Rexec is a Perl module written by me. There are several things that Rexec provides but at it's core it essentially provides an object oriented interface to a remote command line. Rexec attempts to provide functionality by handling the details in nominal cases however it's basic paradigm is that it expects to be able to execute a command on the remote system, for that command to block and for the command to finish and to properly set the exit status. Rexec accomplishes this by using Expect. When instantiated, Rexec attempts to log into the remote machine using a cascading fallback of ssh, rsh and telnet (unless the caller has explicitly requested a particular protocol). User name and password can be supplied or passwordless login must be configured for Rexec to succeed to connect to the remote system.</p>
+
+<p>Thereafter the caller calls the exec method to execute the remote command. Rexec wraps that command with two echo statements that mark the beginning and ending of the command's output as well as the status of the command. Rexec then gathers up the output lines and status, storing them in the object, and returning the output lines as an array (and the status obtainable using the status method). The caller can then proceed accordingly.</p>
+
+<p>But the above does assume that commands are of the nature that they block while operating and that they set the exit code properly. No effort is made to do any output redirection, nor are any assumptions made about the command being executed.</p>
+
+<p>The first problem arises when the caller has a need to "background" a task. Normally in Unix this means adding a "&" to the end of the line to indicate to put the command in the background. In such a case we run into two problems that the normal shell also has to deal with, that being how to handle asynchronous I/O and how to handle the exit status, which can come at any time. So far no functionality has been added to handle any asynchronous I/O - the answer here is <b>don't do that!!!</b>, at least, for now.</p>
+
+<p>Exit status is also not gracefully handled in that it is not attempted to be captured at all.</p>
+
+<p>What Rexec does normally is to add an <tt>echo &lt;<i>unique start string</i>&gt;</tt> to the front of the command and an <tt>echo &lt;<i>unique end string with status</i>&gt;</tt>. Then Rexec scans the output for the start and ending strings and knows that the strings inbetween must have resulted from the output from the command. Rexec also gathers the exit status from the later echo statement. Of course, this assume the command blocks and properly sets the exit status.</p>
+
+<p>Now, if Rexec finds a "&" at the end of the command it will treat it as nonblocking. It does not add the start nor the ending echoes and makes no attempt at gathering neither output nor exit status from this command. Another potential problem are commands which do not indicate their desire to be backgrounded (by specifying the trailing "&" character) but background themselves nonetheless.</p>
+
+<p>Another, odd problem was also discovered when the remote command ended up doing yet another ssh to another system. Such a command also does not return, or at least not right away. Worse yet, there is a good possibility that that 2nd remote ssh will result in a prompt that will be mistaken for the 1st session's prompt by Rexec! No easy way around this either!</p>
+
+<p>Finally, other commands will likewise have a problem when executed remotely. For example: "vi /tmp/foo". But then again, even Expect has problems with this. So we can't be all things to all people but that doesn't mean we cannot be helpful nonetheless.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:24 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000696.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000696.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000695"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/82"
+    dc:title="easter: Indecision is the key to flexibility!"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000695"
+    dc:subject="General Dynamics"
+    dc:description="Easter Paged usage Added logfile analysis Added Timeout detection Added environment variable support Changed to use GetConfig for -file..."
+    dc:creator=""
+    dc:date="2008-01-30T17:55:37-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">January 30, 2008</h2>
+                     <a id="a000695"></a>
+                     <div class="entry" id="entry-695">
+                        <h3 class="entry-header">easter: Indecision is the key to flexibility!</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <h2>Easter</h2>
+
+<ul>
+  <li>Paged usage</li>
+
+  <li>Added logfile analysis</li>
+
+  <li>Added Timeout detection</li>
+
+  <li>Added environment variable support</li>
+
+  <li>Changed to use GetConfig for -file</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000695.html#more">Continue reading "easter: Indecision is the key to flexibility!" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000695.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000695.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000694"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/81"
+    dc:title="East.pm"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000694"
+    dc:subject="General Dynamics"
+    dc:description=" Initial coding of East.pm Added parameters to testeast script Changed Rexec to handle timeouts better Opened WOR for Rexec work..."
+    dc:creator=""
+    dc:date="2008-01-23T13:32:00-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">January 23, 2008</h2>
+                     <a id="a000694"></a>
+                     <div class="entry" id="entry-694">
+                        <h3 class="entry-header">East.pm</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Initial coding of East.pm</li>
+
+  <li>Added parameters to testeast script</li>
+
+  <li>Changed Rexec to handle timeouts better</li>
+
+  <li>Opened WOR for Rexec work</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000694.html#more">Continue reading "East.pm" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:32 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000694.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000694.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000692"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/79"
+    dc:title="UCMWB 1.2.4 &amp; new comptree (IPC)"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000692"
+    dc:subject="General Dynamics"
+    dc:description=" Released UCMWB 1.2.4 Added exec call to Clearcase.pm which uses IPC rather than constantly invoking cleartool. Tests show an 8 fold increase in performance!..."
+    dc:creator=""
+    dc:date="2007-11-20T19:58:08-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">November 20, 2007</h2>
+                     <a id="a000692"></a>
+                     <div class="entry" id="entry-692">
+                        <h3 class="entry-header">UCMWB 1.2.4 & new comptree (IPC)</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Released UCMWB 1.2.4</li>
+
+  <li>Added exec call to Clearcase.pm which uses IPC rather than constantly invoking cleartool. Tests show an 8 fold increase in performance!</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000692.html#more">Continue reading "UCMWB 1.2.4 & new comptree (IPC)" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:58 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000692.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000692.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000691"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/78"
+    dc:title="rancppXX/RNC General"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000691"
+    dc:subject="General Dynamics"
+    dc:description=" Assisted Kirk with Clearquest installation on rancpp01 Got UCMWB working on rancppXX machines Fixed several minor annoyances in UCMWB uncovered by Erik Working with Darren re: getting the proper toolsets for RNC General Changed comptree to support checking of..."
+    dc:creator=""
+    dc:date="2007-11-14T14:25:11-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">November 14, 2007</h2>
+                     <a id="a000691"></a>
+                     <div class="entry" id="entry-691">
+                        <h3 class="entry-header">rancppXX/RNC General</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Assisted Kirk with Clearquest installation on rancpp01</li>
+
+  <li>Got UCMWB working on rancppXX machines</li>
+
+  <li>Fixed several minor annoyances in UCMWB uncovered by Erik</li>
+
+  <li>Working with Darren re: getting the proper toolsets for RNC General</li>
+
+  <li>Changed comptree to support checking of symlinks and better error reporting</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000691.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000691.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000690"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/77"
+    dc:title="UCMWB 1.2.4"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000690"
+    dc:subject="General Dynamics"
+    dc:description=" Releasing ucmwb 1.2.4 for a test drive..."
+    dc:creator=""
+    dc:date="2007-11-02T18:11:09-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">November  2, 2007</h2>
+                     <a id="a000690"></a>
+                     <div class="entry" id="entry-690">
+                        <h3 class="entry-header">UCMWB 1.2.4</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Releasing ucmwb 1.2.4 for a test drive</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000690.html#more">Continue reading "UCMWB 1.2.4" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000690.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000690.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000689"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/76"
+    dc:title="Blocking/Modal cqtool/Perl statndards"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000689"
+    dc:subject="General Dynamics"
+    dc:description=" With the help of some GD folks who know Qt, got a modal/blocking cqtool working. Had to subclass the QProcess class and interject an eventloop, returning on the cqtool process terminating only. Attempting to get cqtool running in the..."
+    dc:creator=""
+    dc:date="2007-10-17T18:09:13-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">October 17, 2007</h2>
+                     <a id="a000689"></a>
+                     <div class="entry" id="entry-689">
+                        <h3 class="entry-header">Blocking/Modal cqtool/Perl statndards</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>With the help of some GD folks who know Qt, got a modal/blocking cqtool working. Had to subclass the QProcess class and interject an eventloop, returning on the cqtool process terminating only.</li>
+
+  <li>Attempting to get cqtool running in the background and feeding it commands. This will require changing the CQProcess eventloop to look for the end of a cqtool command and it's prompt. It will also need to handle returning output.</li>
+
+  <li>Attended meeting regarding Perl standards</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:09 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000689.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000689.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000688"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/75"
+    dc:title="UCMWB enhancements/Helpdesk Tickets"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000688"
+    dc:subject="General Dynamics"
+    dc:description=" Added CreateWOR button and hooked it so that we can now create WORs in UCMWB (from File: Create New WOR or the Create WOR toolbar button) Added multiselection to View browser Enhanced Delete View to be Delete View(s) and..."
+    dc:creator=""
+    dc:date="2007-10-12T17:25:07-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">October 12, 2007</h2>
+                     <a id="a000688"></a>
+                     <div class="entry" id="entry-688">
+                        <h3 class="entry-header">UCMWB enhancements/Helpdesk Tickets</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added CreateWOR button and hooked it so that we can now create WORs in UCMWB (from <b>File: Create New WOR</b> or the Create WOR toolbar button)</li>
+
+  <li>Added multiselection to View browser</li>
+
+  <li>Enhanced Delete View to be Delete View(s) and to iterate over the selected views deleting them. Need to clean up the display of change sets and view private files when more than one view is selected.</li>
+
+  <li>Worked with Judy regarding <b>RANCQ00017440:</b> Update RanSimcello Switcher config spec for P4.0.24</li>
+
+  <li>Closed tickets:</li>
+
+    <ul>
+      <li><b>RANCQ00016665:</b> UEH Tools Based on 4.0.6 versus 4.0.24 Config Spec</li>
+
+      <li><b>RANCQ00016964:</b> RoseRT does not open</li>
+    </ul>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000688.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000688.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000687"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/74"
+    dc:title="cqtool"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000687"
+    dc:subject="General Dynamics"
+    dc:description=" Sent cqtool out for code review..."
+    dc:creator=""
+    dc:date="2007-10-10T15:08:55-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">October 10, 2007</h2>
+                     <a id="a000687"></a>
+                     <div class="entry" id="entry-687">
+                        <h3 class="entry-header">cqtool</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Sent cqtool out for code review</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000687.html#more">Continue reading "cqtool" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:08 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000687.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000687.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000686"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/73"
+    dc:title="cqtalk"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000686"
+    dc:subject="General Dynamics"
+    dc:description=" Fixed issue with clone. Was core dumping cqperl. Should not be calling cloneWor unless the WOR is in a closed state. Changed code to check that the WOR is closed before attempting call to FireRecordScript for cloneWor. Resolved issues..."
+    dc:creator=""
+    dc:date="2007-10-09T19:14:26-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">October  9, 2007</h2>
+                     <a id="a000686"></a>
+                     <div class="entry" id="entry-686">
+                        <h3 class="entry-header">cqtalk</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed issue with clone. Was core dumping cqperl. Should not be calling cloneWor unless the WOR is in a closed state. Changed code to check that the WOR is closed before attempting call to FireRecordScript for cloneWor.</li>
+
+  <li>Resolved issues with cqtalk's createwor and createhd Perl/Tk apps. They used to blow up when run a second time. Turns out you need to make sure you destroy and undef all global objects first.</li>
+
+  <li>Fixed issue with link option. Turns out that if we hit an error say getting an entity, because it was provided to use incorrectly (say typo), then even though we are using eval to trap this error, internal state of the session variable gets screwed up. The workaround is to re-establish the session by closing and re-opening the database. Time consuming but it works.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:14 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000686.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000686.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000685"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/72"
+    dc:title="CreateWOR: Subclassing TextUndo"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000685"
+    dc:subject="General Dynamics"
+    dc:description=" Added onChange like callbacks to CreateWOR&apos;s text field and text widget. This required subclassing the TextUndo class and properly handling the call back...."
+    dc:creator=""
+    dc:date="2007-10-03T11:17:48-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">October  3, 2007</h2>
+                     <a id="a000685"></a>
+                     <div class="entry" id="entry-685">
+                        <h3 class="entry-header">CreateWOR: Subclassing TextUndo</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added onChange like callbacks to CreateWOR's text field and text widget. This required subclassing the TextUndo class and properly handling the call back.</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000685.html#more">Continue reading "CreateWOR: Subclassing TextUndo" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:17 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000685.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000685.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000684"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/71"
+    dc:title="CreateWOR"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000684"
+    dc:subject="General Dynamics"
+    dc:description=" Created CreateWOR Perl/Tk application. This will be used by UCMWB Checked in and symlinked the switch config area in /prj/muosran. Investigating other symlinks such that our /prj/muosran area is using what&apos;s checked into Clearcase...."
+    dc:creator=""
+    dc:date="2007-10-02T11:15:22-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">October  2, 2007</h2>
+                     <a id="a000684"></a>
+                     <div class="entry" id="entry-684">
+                        <h3 class="entry-header">CreateWOR</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created CreateWOR Perl/Tk application. This will be used by UCMWB</li>
+
+  <li>Checked in and symlinked the switch config area in /prj/muosran.</li>
+
+  <li>Investigating other symlinks such that our /prj/muosran area is using what's checked into Clearcase.</li>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:15 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000684.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000684.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000683"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/70"
+    dc:title="doc_vis"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000683"
+    dc:subject="General Dynamics"
+    dc:description=" Altered comptree, which used to compare file trees to and formulate a report that was then emailed, to instead produce the report into an html file which would then be visible through ranweb Worked with Darren and Chad regarding..."
+    dc:creator=""
+    dc:date="2007-09-27T17:08:03-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 27, 2007</h2>
+                     <a id="a000683"></a>
+                     <div class="entry" id="entry-683">
+                        <h3 class="entry-header">doc_vis</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Altered comptree, which used to compare file trees to and formulate a report that was then emailed, to instead produce the report into an html file which would then be visible through ranweb</li>
+
+  <li>Worked with Darren and Chad regarding RoseRT version issues. Seems PURIFYOPTIONS are set in cshrc.muosran. They would like us to implement hierarchical cshrc scripts by supporting project oriented cshrc scripts (e.g. cshrc.&lt;<em>project</em>&gt;)</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:08 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000683.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000683.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000682"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/69"
+    dc:title="comptree2"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000682"
+    dc:subject="General Dynamics"
+    dc:description=" Updated comptree2 to handle other specifying of opts on the command line properly Re-running comptree2 for UEH and the cade and cade_struct vobs..."
+    dc:creator=""
+    dc:date="2007-09-26T12:08:38-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 26, 2007</h2>
+                     <a id="a000682"></a>
+                     <div class="entry" id="entry-682">
+                        <h3 class="entry-header">comptree2</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Updated comptree2 to handle other specifying of opts on the command line properly</li>
+
+  <li>Re-running comptree2 for UEH and the cade and cade_struct vobs</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:08 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000682.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000682.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000681"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/68"
+    dc:title="Improvements to comptree2"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000681"
+    dc:subject="General Dynamics"
+    dc:description=" Changed comptree2 to use GetConfig Spoke with John regarding Release Records vs. Switch Config specs..."
+    dc:creator=""
+    dc:date="2007-09-25T12:04:08-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 25, 2007</h2>
+                     <a id="a000681"></a>
+                     <div class="entry" id="entry-681">
+                        <h3 class="entry-header">Improvements to comptree2</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Changed comptree2 to use GetConfig</li>
+
+  <li>Spoke with John regarding Release Records vs. Switch Config specs</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000681.html#more">Continue reading "Improvements to comptree2" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:04 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000681.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000681.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000680"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/67"
+    dc:title="RoseRT/Purify"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000680"
+    dc:subject="General Dynamics"
+    dc:description=" Created new switchConfig.pl config spec for UEH Wrote Perl process to validate this new config spec..."
+    dc:creator=""
+    dc:date="2007-09-20T11:50:11-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 20, 2007</h2>
+                     <a id="a000680"></a>
+                     <div class="entry" id="entry-680">
+                        <h3 class="entry-header">RoseRT/Purify</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created new switchConfig.pl config spec for UEH</li>
+
+  <li>Wrote Perl process to validate this new config spec</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:50 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000680.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000680.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000679"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/66"
+    dc:title="Helpdesk Tickets"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000679"
+    dc:subject="General Dynamics"
+    dc:description=" Resolved two Helpdesk tickets for Christine and Patrick..."
+    dc:creator=""
+    dc:date="2007-09-19T16:14:38-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 19, 2007</h2>
+                     <a id="a000679"></a>
+                     <div class="entry" id="entry-679">
+                        <h3 class="entry-header">Helpdesk Tickets</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Resolved two Helpdesk tickets for Christine and Patrick</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:14 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000679.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000679.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000678"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/65"
+    dc:title="comptree/libs"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000678"
+    dc:subject="General Dynamics"
+    dc:description=" Implemented comptree in cron Submitted Perl Modules to General Dynamics Resolved help desk ticket regarding Ericson config spec Site prepped Windows release area. Handed Tia&apos;s hanging problem off to Will..."
+    dc:creator=""
+    dc:date="2007-09-18T17:03:56-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 18, 2007</h2>
+                     <a id="a000678"></a>
+                     <div class="entry" id="entry-678">
+                        <h3 class="entry-header">comptree/libs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Implemented comptree in cron</li>
+
+  <li>Submitted Perl Modules to General Dynamics</li>
+
+  <li>Resolved help desk ticket regarding Ericson config spec</li>
+
+  <li>Site prepped Windows release area. Handed Tia's hanging problem off to Will</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:03 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000678.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000678.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000677"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/64"
+    dc:title="ucmwb 1.2.3 release/Perl&apos;isms"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000677"
+    dc:subject="General Dynamics"
+    dc:description=" Released ucmwb 1.2.3..."
+    dc:creator=""
+    dc:date="2007-09-14T12:51:03-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 14, 2007</h2>
+                     <a id="a000677"></a>
+                     <div class="entry" id="entry-677">
+                        <h3 class="entry-header">ucmwb 1.2.3 release/Perl'isms</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Released ucmwb 1.2.3</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000677.html#more">Continue reading "ucmwb 1.2.3 release/Perl'isms" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:51 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000677.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000677.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000676"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/63"
+    dc:title="UCMWB su bug"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000676"
+    dc:subject="General Dynamics"
+    dc:description=" Fixed an issue with ucmwb running after su&apos;ed to another user Addressed some issues about PC running CC in the RAN network..."
+    dc:creator=""
+    dc:date="2007-09-13T11:28:07-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 13, 2007</h2>
+                     <a id="a000676"></a>
+                     <div class="entry" id="entry-676">
+                        <h3 class="entry-header">UCMWB su bug</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed an issue with ucmwb running after su'ed to another user</li>
+
+  <li>Addressed some issues about PC running CC in the RAN network</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000676.html#more">Continue reading "UCMWB su bug" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:28 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000676.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000676.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000675"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/62"
+    dc:title="UCMWB/Document Visibility"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000675"
+    dc:subject="General Dynamics"
+    dc:description=" Fixed a few problems with UCMWB&apos;s help facility. Previously help didn&apos;t work at all on Linux. Now it works and About identifies the proper version numbers and which architecture. Created baselines for the documentation visibility WORs..."
+    dc:creator=""
+    dc:date="2007-09-12T18:07:32-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 12, 2007</h2>
+                     <a id="a000675"></a>
+                     <div class="entry" id="entry-675">
+                        <h3 class="entry-header">UCMWB/Document Visibility</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed a few problems with UCMWB's help facility. Previously help didn't work at all on Linux. Now it works and About identifies the proper version numbers and which architecture.</li>
+
+  <li>Created baselines for the documentation visibility WORs</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:07 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000675.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000675.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000674"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/61"
+    dc:title="Import.pl"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000674"
+    dc:subject="General Dynamics"
+    dc:description=" Performed merge for build 1-&gt; build 2 and build 2 -&gt; build 3 Resolved RoseRT issue Code reviewed Tom&apos;s changes to createView.pl..."
+    dc:creator=""
+    dc:date="2007-09-11T12:25:55-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 11, 2007</h2>
+                     <a id="a000674"></a>
+                     <div class="entry" id="entry-674">
+                        <h3 class="entry-header">Import.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Performed merge for build 1-> build 2 and build 2 -> build 3</li>
+
+  <li>Resolved RoseRT issue</li>
+
+  <li>Code reviewed Tom's changes to createView.pl</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000674.html#more">Continue reading "Import.pl" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000674.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000674.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000673"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/60"
+    dc:title="Building Qt/UCMWB officially"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000673"
+    dc:subject="General Dynamics"
+    dc:description=" Got the license key for Qt, 4.2.3 this time, so I&apos;m building it again, officially Rebuilding ucmwb with debug turned off Fixed problem with backspace not working in vim..."
+    dc:creator=""
+    dc:date="2007-09-10T14:44:10-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September 10, 2007</h2>
+                     <a id="a000673"></a>
+                     <div class="entry" id="entry-673">
+                        <h3 class="entry-header">Building Qt/UCMWB officially</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Got the license key for Qt, 4.2.3 this time, so I'm building it again, officially</li>
+
+  <li>Rebuilding ucmwb with debug turned off</li>
+
+  <li>Fixed problem with backspace not working in vim</li>
+</ul>
+
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000673.html#more">Continue reading "Building Qt/UCMWB officially" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:44 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000673.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000673.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000672"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/59"
+    dc:title="import.pl/uncoall/qt"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000672"
+    dc:subject="General Dynamics"
+    dc:description=" Created a script to do the importation of the documents for the Documentation Visibility tickets Found out that there&apos;s no easy way to unco all checkouts. Created uncoall Issue: Need to get Qt licensed..."
+    dc:creator=""
+    dc:date="2007-09-06T17:41:23-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September  6, 2007</h2>
+                     <a id="a000672"></a>
+                     <div class="entry" id="entry-672">
+                        <h3 class="entry-header">import.pl/uncoall/qt</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created a script to do the importation of the documents for the Documentation Visibility tickets</li>
+
+  <li>Found out that there's no easy way to unco all checkouts. Created uncoall</li>
+
+  <li>Issue: Need to get Qt licensed</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000672.html#more">Continue reading "import.pl/uncoall/qt" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:41 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000672.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000672.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000671"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/58"
+    dc:title="UCMWB 1.2.3"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000671"
+    dc:subject="General Dynamics"
+    dc:description=" Sent out UCMWB 1.2.3 for review before release..."
+    dc:creator=""
+    dc:date="2007-09-04T10:48:56-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">September  4, 2007</h2>
+                     <a id="a000671"></a>
+                     <div class="entry" id="entry-671">
+                        <h3 class="entry-header">UCMWB 1.2.3</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Sent out UCMWB 1.2.3 for review before release</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000671.html#more">Continue reading "UCMWB 1.2.3" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:48 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000671.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000671.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000670"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/57"
+    dc:title="Building Oracle 10.x for Linux"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000670"
+    dc:subject="General Dynamics"
+    dc:description=" Managed to get a 10.2 sqlplus client to talk to our 9.2 database server from Solaris. Regular expressions, however, do not work. Since there is no 9.2 Oracle 64 bit client for Linux I decided to attempt to get..."
+    dc:creator=""
+    dc:date="2007-08-30T14:35:08-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 30, 2007</h2>
+                     <a id="a000670"></a>
+                     <div class="entry" id="entry-670">
+                        <h3 class="entry-header">Building Oracle 10.x for Linux</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Managed to get a 10.2 sqlplus client to talk to our 9.2 database server from Solaris. Regular expressions, however, do not work.</li>
+
+  <li>Since there is no 9.2 Oracle 64 bit client for Linux I decided to attempt to get the 10.2 Oracle 64 bit client installed. Managed to get a 10.2 sqlplus client to talk to our 9.2 database server from Linux! Went to build the Qt OCI portion and failed.</li>
+</ol>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000670.html#more">Continue reading "Building Oracle 10.x for Linux" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000670.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000670.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000669"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/56"
+    dc:title="Installing... err... I mean building Oracle"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000669"
+    dc:subject="General Dynamics"
+    dc:description=" Started building cqtalk, a Perl process to interact with Clearquest Spent time attempting to install/build Oracle client for Linux..."
+    dc:creator=""
+    dc:date="2007-08-29T16:13:56-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 29, 2007</h2>
+                     <a id="a000669"></a>
+                     <div class="entry" id="entry-669">
+                        <h3 class="entry-header">Installing... err... I mean building Oracle</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Started building cqtalk, a Perl process to interact with Clearquest</li>
+
+  <li>Spent time attempting to install/build Oracle client for Linux</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000669.html#more">Continue reading "Installing... err... I mean building Oracle" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:13 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000669.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000669.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000668"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/55"
+    dc:title="backBench.pl"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000668"
+    dc:subject="General Dynamics"
+    dc:description=" Added link and createWor to backBench.pl..."
+    dc:creator=""
+    dc:date="2007-08-28T15:55:40-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 28, 2007</h2>
+                     <a id="a000668"></a>
+                     <div class="entry" id="entry-668">
+                        <h3 class="entry-header">backBench.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added link and createWor to backBench.pl</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000668.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000668.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000667"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/54"
+    dc:title="UCMWB: rebase/deliver cancelled"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000667"
+    dc:subject="General Dynamics"
+    dc:description=" UCMWB assumes rebases/deliveries are completed. If not it gets confused. Implemented a way for UCMWB to determine such situations...."
+    dc:creator=""
+    dc:date="2007-08-24T15:53:46-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 24, 2007</h2>
+                     <a id="a000667"></a>
+                     <div class="entry" id="entry-667">
+                        <h3 class="entry-header">UCMWB: rebase/deliver cancelled</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>UCMWB assumes rebases/deliveries are completed. If not it gets confused. Implemented a way for UCMWB to determine such situations.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:53 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000667.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000667.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000666"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/53"
+    dc:title="UCMWB Assistant"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000666"
+    dc:subject="General Dynamics"
+    dc:description=" Rebuilt Qt 4.2.2 for Solaris to test Assistant..."
+    dc:creator=""
+    dc:date="2007-08-23T15:52:23-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 23, 2007</h2>
+                     <a id="a000666"></a>
+                     <div class="entry" id="entry-666">
+                        <h3 class="entry-header">UCMWB Assistant</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Rebuilt Qt 4.2.2 for Solaris to test Assistant</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:52 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000666.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000666.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000665"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/52"
+    dc:title="ucmwb 1.2.3"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000665"
+    dc:subject="General Dynamics"
+    dc:description=" Fixed all ucmwb issues except for the Linux port - still waiting for Oracle Client Libraries and SDK for Linux..."
+    dc:creator=""
+    dc:date="2007-08-21T13:46:16-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 21, 2007</h2>
+                     <a id="a000665"></a>
+                     <div class="entry" id="entry-665">
+                        <h3 class="entry-header">ucmwb 1.2.3</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed all ucmwb issues except for the Linux port - still waiting for Oracle Client Libraries and SDK for Linux</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000665.html#more">Continue reading "ucmwb 1.2.3" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:46 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000665.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000665.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000664"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/51"
+    dc:title="ucmwb/Purify"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000664"
+    dc:subject="General Dynamics"
+    dc:description=" Implemented several ucmwb fixes Spoke with Chad regarding Purify issues..."
+    dc:creator=""
+    dc:date="2007-08-17T18:04:03-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 17, 2007</h2>
+                     <a id="a000664"></a>
+                     <div class="entry" id="entry-664">
+                        <h3 class="entry-header">ucmwb/Purify</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Implemented several ucmwb fixes</li>
+
+  <li>Spoke with Chad regarding Purify issues</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:04 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000664.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000664.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000663"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/50"
+    dc:title="Shared Stream View Creation"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000663"
+    dc:subject="General Dynamics"
+    dc:description=" Investigated problem with Shared Stream View Creation Investigated problems with Purify. Seems we&apos;re getting a little versionist......"
+    dc:creator=""
+    dc:date="2007-08-15T18:25:48-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 15, 2007</h2>
+                     <a id="a000663"></a>
+                     <div class="entry" id="entry-663">
+                        <h3 class="entry-header">Shared Stream View Creation</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Investigated problem with Shared Stream View Creation<li>
+
+  <li>Investigated problems with Purify. Seems we're getting a little versionist...</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000663.html#more">Continue reading "Shared Stream View Creation" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000663.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000663.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000662"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/49"
+    dc:title="ucmwb/Qt and other issues"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000662"
+    dc:subject="General Dynamics"
+    dc:description=" Working with Anne Tsirfa of Trolltech and Troltech support Working with Kevin Landers regarding ucmwb Managed to implement fix to helpdesk ticket involving setting access/modify times on view private files copied outside of a view by ucmwb Looked into..."
+    dc:creator=""
+    dc:date="2007-08-14T13:10:58-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August 14, 2007</h2>
+                     <a id="a000662"></a>
+                     <div class="entry" id="entry-662">
+                        <h3 class="entry-header">ucmwb/Qt and other issues</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Working with  Anne Tsirfa of Trolltech and Troltech support</li>
+
+  <li>Working with Kevin Landers regarding ucmwb</li>
+
+  <li>Managed to implement fix to helpdesk ticket involving setting access/modify times on view private files copied outside of a view by ucmwb</li>
+
+  <li>Looked into issue with RoseRT versions selected as per switchConf.pl</li>
+
+  <li>Resolved ucmwb not displaying icons helpdesk ticket</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:10 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000662.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000662.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000661"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/48"
+    dc:title="ucmwb issues/Purify"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000661"
+    dc:subject="General Dynamics"
+    dc:description=" Working with Kevin and others to resolve Qt issues. Submitted PMR with IBM regarding usage of Purify and why it&apos;s taking so long to run..."
+    dc:creator=""
+    dc:date="2007-08-08T17:25:19-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  8, 2007</h2>
+                     <a id="a000661"></a>
+                     <div class="entry" id="entry-661">
+                        <h3 class="entry-header">ucmwb issues/Purify</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Working with Kevin and others to resolve Qt issues.</li>
+
+  <li>Submitted PMR with IBM regarding usage of Purify and why it's taking so long to run</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000661.html#more">Continue reading "ucmwb issues/Purify" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000661.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000661.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000660"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/47"
+    dc:title="QT"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000660"
+    dc:subject="General Dynamics"
+    dc:description=" Built ucmwb on Solaris Downloaded, built and installed Qt-4.2.2 for Linux Built ucmwb for Linux 64 bit! Doesn&apos;t connect to Clearquest properly yet..."
+    dc:creator=""
+    dc:date="2007-08-07T18:53:46-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  7, 2007</h2>
+                     <a id="a000660"></a>
+                     <div class="entry" id="entry-660">
+                        <h3 class="entry-header">QT</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Built ucmwb on Solaris</liI>
+
+  <li>Downloaded, built and installed Qt-4.2.2 for Linux</li>
+
+  <li>Built ucmwb for Linux 64 bit! Doesn't connect to Clearquest properly yet</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:53 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000660.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000660.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000659"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/46"
+    dc:title="ssh"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000659"
+    dc:subject="General Dynamics"
+    dc:description=" Helped Aaron with ssh..."
+    dc:creator=""
+    dc:date="2007-08-03T17:56:27-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  3, 2007</h2>
+                     <a id="a000659"></a>
+                     <div class="entry" id="entry-659">
+                        <h3 class="entry-header">ssh</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Helped Aaron with ssh</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000659.html#more">Continue reading "ssh" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:56 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000659.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000659.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000658"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/45"
+    dc:title="ranlin0[2|3] released"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000658"
+    dc:subject="General Dynamics"
+    dc:description=" After resolving issue with cleartrig and fonts, released ranlin0[2|3] to production..."
+    dc:creator=""
+    dc:date="2007-08-01T13:04:27-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">August  1, 2007</h2>
+                     <a id="a000658"></a>
+                     <div class="entry" id="entry-658">
+                        <h3 class="entry-header">ranlin0[2|3] released</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>After resolving issue with cleartrig and fonts, released ranlin0[2|3] to production</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000658.html#more">Continue reading "ranlin0[2|3] released" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  1:04 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000658.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000658.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000657"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/44"
+    dc:title="CC/CQ on Linux"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000657"
+    dc:subject="General Dynamics"
+    dc:description=" Fixed problem with cleartrig for the Linux clients Investigated and found a work around to font problems between Linux and Sun Met with development/test teams regarding documentation visibility. Also worked out the differences in the documents between builds 1,..."
+    dc:creator=""
+    dc:date="2007-07-31T17:25:51-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">July 31, 2007</h2>
+                     <a id="a000657"></a>
+                     <div class="entry" id="entry-657">
+                        <h3 class="entry-header">CC/CQ on Linux</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed problem with cleartrig for the Linux clients</li>
+
+  <li>Investigated and found a work around to font problems between Linux and Sun</li>
+
+  <li>Met with development/test teams regarding documentation visibility. Also worked out the differences in the documents between builds 1, 2 and 3</li.
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000657.html#more">Continue reading "CC/CQ on Linux" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000657.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000657.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000656"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/43"
+    dc:title="Clearquest on Linux"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000656"
+    dc:subject="General Dynamics"
+    dc:description=" Worked with Kirk on getting Clearquest working on ranlin02/03..."
+    dc:creator=""
+    dc:date="2007-07-27T14:35:37-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">July 27, 2007</h2>
+                     <a id="a000656"></a>
+                     <div class="entry" id="entry-656">
+                        <h3 class="entry-header">Clearquest on Linux</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked with Kirk on getting Clearquest working on ranlin02/03</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000656.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000656.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000655"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/42"
+    dc:title="PHP Web/Clearquest install/cq_setup.csh"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000655"
+    dc:subject="General Dynamics"
+    dc:description=" Finished recoding RAN web using PHP, better HTML coding and CSS Documented new PHP Web Copied large CC &amp; CQ install image over to RAN. Tried running Clearquest. Was receiving error Learned that we have a copy of cq_setup.csh..."
+    dc:creator=""
+    dc:date="2007-07-25T18:46:41-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">July 25, 2007</h2>
+                     <a id="a000655"></a>
+                     <div class="entry" id="entry-655">
+                        <h3 class="entry-header">PHP Web/Clearquest install/cq_setup.csh</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Finished recoding RAN web using PHP, better HTML coding and CSS</li>
+
+  <li>Documented new PHP Web</li>
+
+  <li>Copied large CC & CQ install image over to RAN. Tried running Clearquest. Was receiving error</li>
+
+  <li>Learned that we have a copy of cq_setup.csh that is sourced by the csh startup scripts. But it uses a Sun version. This obviously causes problems for Linux machines</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000655.html#more">Continue reading "PHP Web/Clearquest install/cq_setup.csh" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:46 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000655.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000655.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000654"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/41"
+    dc:title="Automating Clearcase Installs"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000654"
+    dc:subject="General Dynamics"
+    dc:description=" Created auto install script for Linux..."
+    dc:creator=""
+    dc:date="2007-07-19T16:40:48-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">July 19, 2007</h2>
+                     <a id="a000654"></a>
+                     <div class="entry" id="entry-654">
+                        <h3 class="entry-header">Automating Clearcase Installs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created auto install script for Linux</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000654.html#more">Continue reading "Automating Clearcase Installs" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:40 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000654.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000654.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000653"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/40"
+    dc:title="Deliver build changes"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000653"
+    dc:subject="General Dynamics"
+    dc:description=" Delivered changed to build (removing checking out of Clearcase elements during build) Investigated how ranweb is set up and documented differences in the menus Wrote RAN.php which could be used to do the menus in a a consistent form..."
+    dc:creator=""
+    dc:date="2007-07-19T11:12:02-06:00" />
+</rdf:RDF>
+-->
+
+
+                     
+                     <a id="a000653"></a>
+                     <div class="entry" id="entry-653">
+                        <h3 class="entry-header">Deliver build changes</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Delivered changed to build (removing checking out of Clearcase elements during build)</li>
+
+  <li>Investigated how ranweb is set up and documented differences in the menus</li>
+
+  <li>Wrote RAN.php which could be used to do the menus in a a consistent form</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:12 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000653.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000653.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000652"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/39"
+    dc:title="Help Desk Cleanup"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000652"
+    dc:subject="General Dynamics"
+    dc:description=" Cleaned up and closed several help desk tickets Delivered and closed RAX_LMC WOR Worked with Kirk on installing Clearcase on Linux servers...."
+    dc:creator=""
+    dc:date="2007-07-18T16:25:16-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">July 18, 2007</h2>
+                     <a id="a000652"></a>
+                     <div class="entry" id="entry-652">
+                        <h3 class="entry-header">Help Desk Cleanup</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Cleaned up and closed several help desk tickets</li>
+
+  <li>Delivered and closed RAX_LMC WOR</li>
+
+  <li>Worked with Kirk on installing Clearcase on Linux servers.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000652.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000652.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000650"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/38"
+    dc:title="View space/Locked stream"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000650"
+    dc:subject="General Dynamics"
+    dc:description=" Resolved a ticket where the user was unable to deliver due to lock on activity - which is really a lock on the stream Did an analysis of view disk space usage Assisted Kirk and Tom with Clearcase 7.0.1.0..."
+    dc:creator=""
+    dc:date="2007-07-11T17:11:16-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">July 11, 2007</h2>
+                     <a id="a000650"></a>
+                     <div class="entry" id="entry-650">
+                        <h3 class="entry-header">View space/Locked stream</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Resolved a ticket where the user was unable to deliver due to lock on activity - which is really a lock on the stream</li>
+
+  <li>Did an analysis of view disk space usage</li>
+
+  <li>Assisted Kirk and Tom with Clearcase 7.0.1.0 installation on Linux</li>
+
+  <li>Fixed problem with ssh public key authentication</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000650.html#more">Continue reading "View space/Locked stream" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000650.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000650.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000649"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/37"
+    dc:title="Removed views/documented customizing Unix environments"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000649"
+    dc:subject="General Dynamics"
+    dc:description=" Worked with Tom and Bryce to remove views from p57707 Wrote a document describing how to customize your Unix CDE environment..."
+    dc:creator=""
+    dc:date="2007-07-10T16:17:52-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">July 10, 2007</h2>
+                     <a id="a000649"></a>
+                     <div class="entry" id="entry-649">
+                        <h3 class="entry-header">Removed views/documented customizing Unix environments</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked with Tom and Bryce to remove views from p57707</li>
+
+  <li>Wrote a document describing how to customize your Unix CDE environment</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000649.html#more">Continue reading "Removed views/documented customizing Unix environments" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:17 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000649.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000649.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000648"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/36"
+    dc:title="Fun with IT in GD"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000648"
+    dc:subject="General Dynamics"
+    dc:description="OK so today I get an obvious phishing attempt email at GD: andrew.defaria: Maybe some mistake in your medcare form(attachment), please check it. Before your open it,rename medicare.vvv to medicare.mdb if you find some problem in you medcare ,please reply..."
+    dc:creator=""
+    dc:date="2007-07-05T10:35:30-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">July  5, 2007</h2>
+                     <a id="a000648"></a>
+                     <div class="entry" id="entry-648">
+                        <h3 class="entry-header">Fun with IT in GD</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>OK so today I get an obvious phishing attempt email at GD:</p>
+
+<div class=code><pre>
+andrew.defaria:
+Maybe some mistake in your medcare form(attachment), please check it.
+Before your open it,rename medicare.vvv to medicare.mdb
+if you find some problem in you medcare ,please reply to me
+Tel:(877) 449-07010
+</pre></div>
+
+<p>along with an attachment of medicare.vvv. So, being a good, conscientious citizen I figured I'd report the incident in order to help others down the road. I asked around and was told that I need submit a help desk ticket and that I need to first contact the help desk to do so. Funny, I'd thought this would just be a "forward the email to &lt;x&gt;" and I'd be done with it. So I'm directed to a web page which has the number for the help desk. I call that number (it's 9:40 Am mind you) and I get voice mail saying "I'm sorry but nobody's here to take your call" and to leave a message. So, wanting to dispose of this issue rather than have it remain, I decided to go back to the web site and see if there was an answer to the question. I searched for "report phishing attempts" and "report spam" and there was nothing found! Oh well I tried but does this frustrate anybody else as much as it does me?</p>
+
+<p>Oh and if click on the Contact Us link you'll start and email that will be returned to you undeliverable!</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:35 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000648.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000648.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000647"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/35"
+    dc:title="Help desk tickets"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000647"
+    dc:subject="General Dynamics"
+    dc:description="Worked on the following WORs/Helpdesk Ticket RANCQ00011450 Alter makefiles in DCHSR project to remove checkouts during builds (Done) RANCQ00011131 Migrate makefiles in RAX_LMC project to remove checkouts during builds - 1.7c -&gt; 2 (Done) RANCQ00011428 Remove unnecessary vob elements for..."
+    dc:creator=""
+    dc:date="2007-06-29T16:40:08-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">June 29, 2007</h2>
+                     <a id="a000647"></a>
+                     <div class="entry" id="entry-647">
+                        <h3 class="entry-header">Help desk tickets</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Worked on the following WORs/Helpdesk Ticket</p>
+
+<ul>
+  <li><b>RANCQ00011450</b> Alter makefiles in DCHSR project to remove checkouts during builds (Done)</li>
+
+  <li><b>RANCQ00011131</b> Migrate makefiles in RAX_LMC project to remove checkouts during builds - 1.7c -> 2	(Done)</li>
+
+  <li><b>RANCQ00011428</b> Remove unnecessary vob elements for RA (Done)</li>
+
+  <li><b>RANCQ00011351</b> Removing unnecesary vob elements for RA (Done)</li>
+
+  <li><b>RANCQ00011589</b> Can not deliver WOR # 9358 (Waiting for response from submitter)</li>
+
+  <li><b>RANCQ00011566</b> Had failure during rebase - unable to continue with deliver (Waiting for response from submitter)</li>
+
+  <li><b>RANCQ00011330</b> ROAM PM Testing files missing in GD vobs (Labeled Ericsson vob and requested a re-replication from Julie. Almost done.)</li>
+
+  <li><b>RANCQ00010740</b> TOOL FAILURE : "You must deliver your changes before you complete this WOR!!!"	(Was able to deliver myself. Waiting for response from requester)</li>
+
+  <li><b>RANCQ00010651</b> Cannot checkout files in RoseRT (Showed submitter that this WOR was rejected and thus you cannot check out. Waiting for response from requester.<)</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:40 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000647.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000647.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000646"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/34"
+    dc:title="csh vs. tcsh status"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000646"
+    dc:subject="General Dynamics"
+    dc:description="Jim, it is apparently a csh&apos;ism that $? is not available but $status is: Randws035:csh [randws035/vobs/rnc/rrt/rlib] ls /non/existant /non/existant: No such file or directory [randws035/vobs/rnc/rrt/rlib] echo $status 2 [randws035/vobs/rnc/rrt/rlib] ls /non/existant /non/existant: No such file or directory [randws035/vobs/rnc/rrt/rlib] echo $?..."
+    dc:creator=""
+    dc:date="2007-06-25T14:26:32-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">June 25, 2007</h2>
+                     <a id="a000646"></a>
+                     <div class="entry" id="entry-646">
+                        <h3 class="entry-header">csh vs. tcsh status</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Jim, it is apparently a csh'ism that $? is not available but $status is:</p>
+
+<div class=code><pre>
+<font color="#3333ff"><b>Randws035:</b></font><u>csh</u>
+<font color="#cc6600"><b>[randws035/vobs/rnc/rrt/rlib]</b></font> <u>ls /non/existant</u>
+/non/existant: No such file or directory
+<font color="#cc6600"><b>[randws035/vobs/rnc/rrt/rlib]</b></font> <u>echo $status</u>
+2
+<font color="#cc6600"><b>[randws035/vobs/rnc/rrt/rlib]</b></font> <u>ls /non/existant</u>
+/non/existant: No such file or directory
+<font color="#cc6600"><b>[randws035/vobs/rnc/rrt/rlib]</b></font> <u>echo $?</u>
+Variable syntax
+</pre></div>
+
+<p>Whereas in tcsh:</p>
+
+<div class=code><pre>
+<font color="#3333ff"><b>Randws035:</b></font><u>tcsh</u>
+<font color="#cc6600"><b>[randws035/vobs/rnc/rrt/rlib]</b></font> <u>ls /non/existant</u>
+/non/existant: No such file or directory
+<font color="#cc6600"><b>[randws035/vobs/rnc/rrt/rlib]</b></font> <u>echo $status</u>
+2
+<font color="#cc6600"><b>[randws035/vobs/rnc/rrt/rlib]</b></font> <u>ls /non/existant</u>
+/non/existant: No such file or directory
+<font color="#cc6600"><b>[randws035/vobs/rnc/rrt/rlib]</b></font> <u>echo $?</u>
+2
+</pre></div>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:26 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000646.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000646.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000645"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/33"
+    dc:title="ClearReplica"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000645"
+    dc:subject="General Dynamics"
+    dc:description=" Worked on fixing ticket # 11330 for Bill Davies..."
+    dc:creator=""
+    dc:date="2007-06-22T17:22:02-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">June 22, 2007</h2>
+                     <a id="a000645"></a>
+                     <div class="entry" id="entry-645">
+                        <h3 class="entry-header">ClearReplica</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked on fixing ticket # 11330 for Bill Davies</li>
+</ul>
+                              
+                              <p class="entry-more-link">
+                                 <a href="http://defaria.com/blogs/Status/archives/000645.html#more">Continue reading "ClearReplica" &raquo;</a>
+                              </p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:22 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000645.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000645.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000644"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/32"
+    dc:title="First productive day"
+    dc:identifier="http://defaria.com/blogs/Status/archives/cat_general_dynamics.html#entry-000644"
+    dc:subject="General Dynamics"
+    dc:description=" Worked with Chris Burns to cancel a few checkouts. This allowed me to remove a few binary files from one of the builds. These binary files were being checked out and built in the build process then checked back..."
+    dc:creator=""
+    dc:date="2007-06-11T18:25:11-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">June 11, 2007</h2>
+                     <a id="a000644"></a>
+                     <div class="entry" id="entry-644">
+                        <h3 class="entry-header">First productive day</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked with Chris Burns to cancel a few checkouts. This allowed me to remove a few binary files from one of the builds. These binary files were being checked out and built in the build process then checked back in. It was determined that we ought not version control such files and instead let them remain derived files.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000644.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000644.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

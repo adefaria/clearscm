@@ -1,0 +1,43 @@
+#!/bin/bash
+################################################################################
+#
+# File:         unmount_nfs
+# RCS:          $Header:$
+# Description:  A script to unmount all nfs mounts. Note if the automounter is
+#               running then this script will first shutdown the automounter.
+#               This script returns 0 for success or non zero if it was unable
+#               to umount all nfs mounts. This script must run as root.
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Fri Jun  6 10:31:51 PDT 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+export me=`basename $0`
+export OS=$(/bin/uname -r | /usr/bin/cut -f2 -d.)
+
+if [ $(id -u) -ne 0 ]; then
+  print -u2 "$me: Error: You must be root to use this command"
+  exit 1
+fi
+
+# First try to mount any nfs mounts listed in /etc/checklist
+print "Re-establishing all static NFS mounts..."
+if [ "$OS" = "10" ]; then
+  /usr/sbin/mount -aQF nfs
+else
+  /etc/mount -at nfs
+fi
+
+# Restart automounter if necessary
+if [ -f /etc/automounter_was_here ]; then
+  print "Restarting automounter..."
+  if [ "$OS" = "10" ]; then
+    /usr/sbin/automount -f /etc/auto_master
+  else
+    /usr/etc/automount -f /etc/auto_master
+  fi
+  rm -f /etc/automounter_was_here
+fi

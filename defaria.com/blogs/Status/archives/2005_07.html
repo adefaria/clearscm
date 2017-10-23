@@ -1,0 +1,1151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: July 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/2005_06.html" title="June 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/2005_08.html" title="August 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/2005_06.html">&laquo; June 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/2005_08.html">August 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">July 29, 2005</h2>
+                     <a id="a000395"></a>
+                     <div class="entry" id="entry-395">
+                        <h3 class="entry-header">verifycrs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Created a script, verifycrs, which when given a lot of parameters will insure that the file revisions associated with a set of CRs (or ECRs) has been properly migrated into another CVS repository</li>
+</ul>
+                              
+                              <h3>verifycrs</h3>
+
+<p>The verifycrs script verify that the files associated with a list
+of [E]CRs from one CVS repository are present in another CVS repository.</p>
+
+<p>Odd as it seems we have a situation here where CVS repositories have to remain separate due to contract concerns. Nevertheless code is routinely exported from one repository to the other. Then it is needed to verify that a set of [E]CRs have successfully made it into the other repository.</p>
+
+<p>The plan here is simple: Checkout both repositories as per a base tag to a temporary area. Then update the "from" repository by utilizing files4[e]cr in update mode. At this point we are sure that the from repository is correct.</p>
+
+<p>The "to" repository - also checked out via a tag - should be already up to date (IOW we use a to tag of the resultant build). Then all that is needed is to compare the list of files associated with the [E]CRs being imported.</p>
+
+<p>In order to minimize false diffs, checkouts are down without keywords (i.e. -kk).</p>
+
+<div class="code"><pre>
+Usage: verifycrs [-u] [-v] [-d]
+        -fcvsroot &lt;CVSROOT&gt; -fmod &lt;CVS module&gt; -ftag &lt;tag&gt;
+        -tcvsroot &lt;CVSROOT&gt; -tmod &lt;CVS module&gt; -ttag &lt;tag&gt;
+        [-c &lt;CRs...&gt;|-e &lt;ECRs...&gt;]
+
+Where:
+
+        -u              Display usage
+        -v              Turn on verbose mode
+        -d              Turn on debug mode
+        -fcvsroot       CVSROOT specification for from repository
+        -fmod           CVS module (e.g. los178)
+        -ftag           From tag (e.g. DEV_LOS178_3p0p0_ppc_20050704)
+        -tcvsroot       CVSROOT specification for to repository
+        -tmod           CVS module (e.g. los178)
+        -ttag           To tag (e.g. DEV_HYBRIDOS_3p0p0_ppc_20050707)
+        &lt;CRs&gt;           CR numbers included in this export/import
+        &lt;ECRs&gt;          ECR numbers included in this export/import
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000395.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July 27, 2005</h2>
+                     <a id="a000394"></a>
+                     <div class="entry" id="entry-394">
+                        <h3 class="entry-header">complogs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Downloaded a Perl compatible Diff module from <a href="http://perl.plover.com/diff">Perl Diff</a> and adapted it for use with complogs</li>
+
+  <li>Created complogs to compare two log files and print out their differences in terms of warnings</li>
+</ul>
+                              
+                              <h3>complogs</h3>
+
+<p>I have developed a script to compare two logfile and print out the differences in terms of warnings. First of all this script leans on a prior script, <i>check</i>, (which should be in /int/bin and /int/bin should be in your path. BTW: That's where complogs is also).</p>
+
+<p>Secondly it attempts to be semi intelligent WRT comparing warnings. In order to do this I had downloaded a <a href="http://perl.plover.com/diff/">Perl Diff module</a> and adapted it for use with complogs. Normally one would install a Perl module into the system library. But I cannot tell where complog will be run Side note: At a previous company we compiled a version of Perl and placed it on a network accessible area like /int. We also altered it to look at a network path for Perl modules. This meant that one need only install a new Perl module once in the network area and the networked Perl would automatically see it. Lacking that I've installed this Diff.pm into /int/lib.</p>
+
+<p>This Diff.pm module allows me to diff two arrays and provide a function for determining equality. Thus I have the following function:</p>
+
+<div class="code"><pre>
+    sub hash {
+      # Return the line possibly removing any line number. For example, a
+      # line such as the following:
+      #
+      # syscall_switch.c:14: warning: initialization from incompatible pointer type
+      #
+      # has a line number (14) in it. A subsequent compile of
+      # syscall_switch.c may generate the same warning but the line number
+      # may change (e.g. 16). It's the same warning so we will remove the
+      # string ":\d*:" from the output. This is a bit kludgy.
+      my $line = shift;
+
+      return $line =~ s/(\w*\.[ch]):\d*:( warning:)/$1$2/;
+    } # hash
+</pre></div>
+
+<p>This helps cut down on warnings that have only changed line numbers.</p>
+
+<p>I've tested this with a few install.log's that I've found. For example:</p>
+
+<div class="code"><pre>
+    saturn:complogs 20050718.install.log 20050722.install.log
+    ----------------------------------------------------------------------
+    Warnings removed:
+    ----------------------------------------------------------------------
+    1439    bsp_pcibus.c:783: warning: unused variable `bus'
+    1440    bsp_pcibus.c:784: warning: unused variable `dev'
+    1441    bsp_pcibus.c:785: warning: unused variable `func'
+    1442    bsp_pcibus.c:150: warning: 'pci_bridge_init' defined but not used
+    1443    bsp_reboot.c:168: warning: implicit declaration of function `hw_local_reset'
+    1444    bsp_reboot.c:171: warning: implicit declaration of function `stopcpu'
+    ----------------------------------------------------------------------
+    TOTAL:  6
+    ----------------------------------------------------------------------
+    Warnings added:
+    ----------------------------------------------------------------------
+    1881    /usr/los178/3.0.0/ppc_dev/sys/include/kernel/kernel.h:94:1: warning: this is the location of the previous definition
+    3378    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3379    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3380    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3381    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3382    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3383    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3384    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3385    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3386    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3387    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3388    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3389    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3390    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3391    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3392    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3393    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3394    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3395    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3396    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3397    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3398    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3399    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3400    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3401    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3403    regex.h:39:1: warning: "RE_DUP_MAX" redefined
+    3404    /usr/los178/3.0.0/ppc_dev/usr/include/limits.h:162:1: warning: this is the location of the previous definition
+    3412    regex.c:4825: warning: passing arg 2 of `bcmp_translate' discards qualifiers from pointer target type
+    3415    ../tar-1.11.2/getdate.y:807: warning: static declaration of 'getdate_yylex' follows non-static declaration
+    3416    bison.simple:332: warning: previous implicit declaration of 'getdate_yylex' was here
+    3419    /usr/los178/3.0.0/ppc_dev/usr/include/wait.h:58:2: warning: #warning Using <sys/wait.h> instead of <wait.h>
+    3421    pipesize.h:8:1: warning: "PIPESIZE" redefined
+    3422    /usr/los178/3.0.0/ppc_dev/usr/include/conf.h:76:1: warning: this is the location of the previous definition
+    3424    display.c:1155: warning: comparison is always true due to limited range of data type
+    3425    malloc.c:521: warning: conflicting types for built-in function 'malloc'
+    3426    malloc.c:798: warning: conflicting types for built-in function 'calloc'
+    3427    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3428    ../ex/ex_cd.c:75: warning: assignment from incompatible pointer type
+    3429    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3430    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3431    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3432    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3433    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3434    ../vi/getc.c:63: warning: passing arg 3 of `db_eget' from incompatible pointer type
+    3435    ../vi/getc.c:193: warning: passing arg 4 of `db_get' from incompatible pointer type
+    3436    ../common/key.c:159: warning: comparison is always true due to limited range of data type
+    3437    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3438    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3439    ../common/recover.c:368: warning: assignment from incompatible pointer type
+    3440    ../vi/v_txt.c:2184: warning: comparison of distinct pointer types lacks a cast
+    3441    ../vi/v_txt.c:2202: warning: comparison of distinct pointer types lacks a cast
+    3442    ../vi/v_ulcase.c:130: warning: passing arg 4 of `db_get' from incompatible pointer type
+    3443    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3444    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3445    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3446    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3447    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3448    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3449    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3450    /usr/los178/3.0.0/ppc_dev/usr/include/sys/uio.h:21:2: warning: #warning Using <uio.h> instead of <sys/uio.h>
+    3451    /usr/los178/3.0.0/ppc_dev/usr/include/sys/param.h:21:2: warning: #warning Using <param.h> instead of <sys/param.h>
+    3452    /usr/los178/3.0.0/ppc_dev/usr/include/cdefs.h:21:2: warning: #warning Using <sys/cdefs.h> instead of <cdefs.h>
+    3453    /usr/los178/3.0.0/ppc_dev/usr/include/cdefs.h:21:2: warning: #warning Using <sys/cdefs.h> instead of <cdefs.h>
+    ----------------------------------------------------------------------
+    TOTAL:  63
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  6:00 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000394.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July 26, 2005</h2>
+                     <a id="a000393"></a>
+                     <div class="entry" id="entry-393">
+                        <h3 class="entry-header">CVS Adm Web App Prototype</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Added CVSCommit to CVSAdm.pm and changed it so that CVS commits are now happening when changes happen to the file</li>
+
+  <li>Finished up CVS Adm Web App Prototype</li>
+</ul>
+                              
+                              <h3>CVS Adm Web App Tutorial</h3>
+
+<p>To access this web app go to http://saturn.lynx.com and select CVS Adm from the menu on the left.</p>
+
+<p>Notice that there are several servers in the drop down list (controlled by a cvsadm.conf file). Select penguin and click on <b>Select</b>. Note you could select other servers and see other repositories but any attempts to modify files will result in CVS commit failures. We have not set up CVS access for these other repositories yet.</p>
+
+<p>The next screen will show you the repositories available for that server. Penguin has only one - andrew-cvs - which is a test cvs repository. Click on <b>Select</b>.</p>
+
+<p>At this point you're at the <i>Login</i> screen for this server, this repository. For now let's be cvsroot and test some of it's capabilities. The cvsroot user password for this test repository is "cvsroot123". Enter cvsroot user and cvsroot123 for the password and click <b>Login</b>.</p>
+
+<p>You are now at the <i>Edit User</i> screen. Since you are cvsroot you will see an <b>Admin</b> button. Also as an admin you are presented with a drop down for <b>System User</b> that allows you to modify the system user for a CVS user. Admins are also presented with only a <b>New Password</b> field. This is so that an admin can re/set the password for another user.</p>
+
+<p><b>Fullname</b> and <b>Email</b> are required fields. Many user entries do not have these fields filled in yet but will be required to enter them when/if they edit their entry. Additionally we've added the concept of groups which are listed below <b>Email</b>.</p>
+
+<p>Next the repository and read/write access is listed. Finally you have a <b>Submit</b> and a <b>Logout</b> button.</p>
+
+<p>To edit another user or perform any of the other administrative task select the <b>Admin</b> button. You are now at the <i>Maintenance Menu</i>. This screen presents users, groups and sysusers as drop downs and corresponding Edit/Delete/Create buttons. Let's add a new user - <i>testuser</i>. Select <b>Create User</b>. The <i>Add New User</i> screen is presented. Here you can create a new <b>Username</b> (<i>testuser</i>), assign him to a <b>System User</b>, <b>Password</b>, <b>Fullname</b>, <b>Email</b> as well as assign him to specific groups and set the read/write access to this repository for the user. Then Select <b>Add User</b>.</p>
+
+<p>After adding <i>testuser</i> click <b>OK</b> and you will be back at the <i>Add New User</i> screen. If you are done adding users select <b>Admin</b> to return to the <i>Maintenance Menu</i>. Notice that <i>testuser</i> is now in the users drop down menu. Select testuser and then select <b>Edit User</b> to edit <i>testuser</i>'s fields.</p>
+
+<p>Return to the <i>Maintenance Menu</i> and select <i>testuser</i> in the users drop down menu then <b>Delete User</b> to delete this user.</p>
+
+<p>Try creating a new group <i>men</i> and another new group <i>women</i>. Use <b>Edit User</b> to edit pre-existing users. Notice the new groups of <i>men</i> and <i>women</i> are now listed (but unchecked). Find some men and assign them to be in the <i>men</i> group then click on the <b>Submit</b> button to update their records. Similarly find some women and mark them as such.</p>
+
+<p>Now return to the <i>Maintenance Menu</i> and select the <i>men</i> group and delete it. CVSAdm will not only remove the <i>men</i> group but it will clear off the group <i>men</i> from the individual entries in the passwd file.</p>
+
+<p>Now select the <i>women</i> group and then <b>Edit Group</b> and change <i>women</i> -> <i>wonderwomen</i>. CVSAdm will update the groups file as well as the passwd file changing <i>women</i> -> <i>wonderwomen</i>.</p>
+
+<p>Try adding a system user of say <i>superuser</i>. It now becomes available under the <b>System User</b> drop down.</p>
+
+<p>Edit a user who's password you do not know as cvsroot to a known password. Now <b>Logout</b> and login as that user using the newly assigned password. Unless you had assign this user to the special group cvsadm you will notice that you are not able to change groups or read/write access to the repository as a normal user.</p>
+
+<p>The group cvsadm is a special group. It's used to allow another user to be cvsroot-like. Users in the cvsadm group for the server/repository are able to edit/delete/create other users on the <i>Maintenance Menu</i>. They are not allowed to edit/delete/create groups or system users but they are allows to assign other users to groups and/or system users. Only cvsroot can edit/delete/create groups and system users.</p>
+
+<p>The group <i>cvsadm</i> and the system user <i>cvsroot</i> are protected from being deleted.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 12:23 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000393.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July 22, 2005</h2>
+                     <a id="a000392"></a>
+                     <div class="entry" id="entry-392">
+                        <h3 class="entry-header">Porting Perl -> LOS178</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Started implementing a CVS Checkout/Update in CVSAdm</li>
+
+  <li>Jas asked me to look into porting Perl -> LOS178 3.0.0</li>
+</ul>
+                              
+                              <h3>Porting Perl -> LOS178 3.0.0</h3>
+
+<p>I was asked to attempt to port Perl (latest version - 5.8.7) to LOS178 (latest version - 3.0.0 20050719). Here's what I attempted:</p>
+
+<ul>
+  <li>Downloaded perl-5.8.7 from perl.com (http://www.perl.com/download.csp#stable)</li>
+
+  <li>Extracted to europa:/build/perl-5.8.7</li>
+
+  <li>Extracted from 20050719:
+
+  <ul>
+    <li>3000-04.los178_rsc_src.tar.gz</li>
+
+    <li>3001-05.los178_src.tar.gz</li>
+
+    <li>3013-05.los178_dev.tar.gz</li>
+
+    <li>3015-04.los178_rsc_dev.tar.gz</li>
+  </ul>
+
+  to /build/3.0.0/los178</li>
+
+  <li>Extracted ppc.cdklinux.tar.gz from bin-image (DEV_LOS178_3p0p0_ppc_20050719)</li>
+
+  <li>Sourced SETUP.bash</li>
+</ul>
+
+<p>Next I went to /build/perl-5.8.7 and ran Configure. I was supprised to see that it had a selection for lynxos! Unfortunately this is not the way to go.</p>
+
+<p>Spoke with Ed Mooring, who happens to be a Perl porter and who had previously ported Perl 5.6 to LynxOS 4.0. He suggested I attempt to run Configure natively on a LynxOS 4.0 machine to get config.sh to be generated. I could then use that in conjunction with reading about the <i>Perl Patch Pumpkin</i> (Apparently a guide about patching and porting) in an attempt to figure out what needs to be done to that config.sh to get a cross build to LOS178 3.0.0. (Note that I used a LynxOS 5.0 machine not a LynxOS 4.0 machine)</p>
+
+<p>After going through the long Configure process and hopefully answering questions properly Ed said I should attempt a native build anyway. Build failed with:</p>
+<div class="code"><pre>
+    `sh  cflags "optimize='-O'" mg.o`  mg.c
+              CCCMD =  gcc -DPERL_CORE -c -DEXTRA_F_IN_SEMUN_BUF -D__NO_INCLUDE_WARN__ -fno-strict-aliasing -pipe -I/usr/local/include -O  -Wall
+    mg.c:74: conflicting types for `setegid'
+    /usr/include/unistd.h:410: previous declaration of `setegid'
+    /usr/include/netinet/in.h:512: warning: `ntohs' declared `static' but never defined
+    /usr/include/netinet/in.h:514: warning: `ntohl' declared `static' but never defined
+    make: *** [mg.o] Error 1
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:03 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000392.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July 21, 2005</h2>
+                     <a id="a000391"></a>
+                     <div class="entry" id="entry-391">
+                        <h3 class="entry-header">Ants and Docs</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Spent most of the day dealing with ants and documenting the LOS178 2.1.0 Build Procedure</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:52 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000391.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July 20, 2005</h2>
+                     <a id="a000390"></a>
+                     <div class="entry" id="entry-390">
+                        <h3 class="entry-header">CVS Adm Web App Conf</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>CVS Adm Web App now uses files under &lt;DocumentRoot&gt;/cvsadm/&lt;cvs_server&gt;/&lt;repository&gt;/CVSROOT</li>
+
+  <li>CVS Adm Web App now uses a cvsadm.conf file to configure the servers and repositories it will consider working on.</li>
+
+  <li>Need to implement the cvs checkout of CVSROOT</li>
+</ul>
+                              
+                              <h3>New File Store</h3>
+
+<p>Instead of relying on network access to a file store under /&lt;cvs_server&gt;-cvs/&lt;repository&gt;/CVSROOT/etc... we now instead rely on it directly under &lt;DocumentRoot&gt;/cvsadm. This also will allow us to create/refresh that area using cvs checkout CVSROOT instead. The checkout portion has not yet been implemented because currently I cannot checkout CVSROOT due to lack of permissions. I have asked Vinnie to create a test repository so I can play with this and not damage anybody.</p>
+
+<h3>cvsadm.conf</h3>
+
+<p>Also, instead of having a simple list of CVS servers and hoping that /&lt;cvs_server&gt;-cvs is a network path to that server's CVS repositories a scheme was designed to use a configuration file. Soon cvs checkout CVSROOT will be used to populate a different file store to work on and when files are modified cvs commit's will commit them to the actual CVS repositories. This also has the effect of defining and perhaps limiting exactly which servers and repositories CVS Adm Web App is even allowed to work on.</p>
+
+<p>The format of the config file is simple. Here's an example:</p>
+
+<div class="code"><pre>
+################################################################################
+#
+# File:         cvsadm/cvsadm.conf
+# Description:  Identifies the CVS servers and repositories per server
+# Author:       Andrew@DeFaria.com
+# Created:      Thu Jul  7 16:54:07 PDT 2005
+# Modified:
+# Language:     Perl
+#
+# (c) Copyright 2005, LynuxWorks Inc., all rights reserved.
+#
+################################################################################
+# Format: &lt;host&gt; &lt;respository&gt;
+rock    los178-cvs
+t3      X-cvs
+t3      bootloader-cvs
+t3      gcc-cvs
+t3      lynxos-cvs
+t3      results-cvs
+t3      spyker-cvs
+t3      tst-cvs
+t3      yaboot-cvs
+tomcat  hybrid-os-cvs
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:35 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000390.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July 19, 2005</h2>
+                     <a id="a000389"></a>
+                     <div class="entry" id="entry-389">
+                        <h3 class="entry-header">CVS Adm Web App Prototype</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Finished up on a CVS Adm Web App prototype. Still need to adapt this to real CVS repositories on web server</li>
+</ul>
+                              
+                              <p>Vinnie So wrote:</p>
+
+<blockquote type=cite>
+Andrew,
+
+I just cook up the information on what we need to get the cvs user administration project requirement going. Please review and add/modify what you think is necessary. Also, add the information you need.
+
+--Vinnie
+
+<hr>
+<ul>
+  <li>CVS Passwd file format:
+
+  <div class="code"><pre>
+CVS User Name:Encrypted Password:System User:User Real Name:User Email:Groups</pre></div>
+<p>Example of passwd file:</p>
+  <div class="code"><pre>
+adefaria:88ZHm.yYFgFyI:lynxuser:Andrew DeFaria:adefaria@lnxw.com:int,cvsadmin
+jdoe:78WHm.yYFgFyI:toolsuser:John Doe:jdoe@lnxw.com:tools
+hyow:78WHm.yYFgFyI::Harry Yow:hyow@lnxw.com:test</pre></div></li>
+
+  <li>Writers file format: This file contains CVS User Name listing who has write only permission access to the CVS repository. One CVS User Name per line.
+
+<br>Example of writers file:
+
+  <div class="code"><pre>
+adefaria
+vso</pre></div></li>
+
+  <li>Readers file format: This file contains CVS User Name listing who has read only permission access to the CVS repository . One CVS User Name per line.
+
+<br>Example of readers file:
+
+  <div class="code"><pre>
+int
+anoncvs</pre></div>
+</ul>
+</blockquote>
+
+<p>Readers/Writers file formats and their interaction is not that clearly defined in the CVS manual. I've attempted to document that <a href="000384.html#more">here</a>. Worse yet, it's even harder to ascertain after the fact from a web application. For example, if the web application is told that user john has only read access to repository X, which of the 5 cases (#2, #5, #7, #8 or #9) should the backend update the readers and writers files to look like?</p>
+
+<p>Here's my simplification:</p>
+
+<div class="code"><pre>
+      # CVS readers and writers files are a little weird. We will attempt
+      # to simplify here. If a user has read only access to a repository
+      # then we will explicitly list them in the readers file and make
+      # sure they are not in the writers file. If they have write access
+      # (thus implying read access) then we will arrange for them to be in
+      # the writers file and absent from the readers file as CVS treats
+      # users who are in both files as read only.
+      my $user    = $user_record {userid};
+      my $access  = $user_record {$repository};
+
+      if ($access eq "r") {
+        Remove $cvs_server, $repository, "writers", $user;
+        Add    $cvs_server, $repository, "readers", $user;
+      } elsif ($access eq "rw") {
+        Remove $cvs_server, $repository, "readers", $user;
+        Add    $cvs_server, $repository, "writers", $user;
+      } else {
+        Remove $cvs_server, $repository, "readers", $user;
+        Remove $cvs_server, $repository, "writers", $user;
+      } # if
+</pre></div>
+
+<blockquote type=cite>
+<p># The GUI Interface requirement:</p>
+
+<p>CVS User cvsroot can to the following once authentication passed:</p>
+
+<ul>
+  <li>Administer the GUI interface</li>
+</ul>
+</blockquote>
+
+<p>I don't know what that means.</p>
+
+<blockquote type=cite>
+<ul>
+  <li>Add/delete attributes list
+  <p>For example:</p>
+  <div class="code"><pre>
+group - int, csadmin, ce, engr, tools
+system users - lynxuser, gduser, toolsuser</pre></div></li>
+</ul>
+
+<p>CVS User belonging to group "cvsadmin" shall be able to do the following once authentication passed:</p>
+
+<ul>
+  <li>Add user</li>
+
+  <li>Delete user</li>
+
+  <li>Modify user's attributes</li>
+
+  <li>Change user's permission to the cvs repository by modifying writer or readers files.</li>
+</ul>
+
+<p>CVS User not belonging to group "cvsadmin" shall be able to do the following once authentication passed:</p>
+
+<ul>
+  <li>Change its own password</li>
+</ul>
+</blockquote>
+
+<p>Well a prototype is up and running at http://saturn/cvsadm. First select a server then a repository. All files (passwd, groups, sysusers, readers, writers) are kept at the repository level and world write access is current required to the files. Locally I have set the cvsroot password to cvsroot123 (that is the CVS user's password not the system cvsroot user's password) so you can login as cvsroot then use Admin to edit other users, etc. Users who are members of the group cvsadm are considered no different than cvsroot themselves as they can add/change/delete users, groups and sysusers (the group cvsadm and the sysuser cvsroot cannot be deleted). Play around with it and let me know what you think.</p>
+
+<p>Note, if a cvsroot user deletes a group the web app is smart enough to go back through the passwd file and remove the removed group from the users lists. So, for example, if vso is a member of int,badgroup,tools those groups will be listed in his passwd entry. If the cvsroot user deletes badgroup then vso's passwd entry will be adjusted to just int,tools. Also, if the cvsroot user edits tools to change it to toolchain then vso's passwd entry will then read int,toolchain.</p>
+
+<p>With sysusers it's a little different. Technically sysusers should equate to bona fide Unix usernames. Yet there is no easy way to insure this. For one, how would the web server gain access to /etc/passwd on a remote machine? Also, sysusers are stored in a file in the repository's CVSROOT directory and can easily become out of date WRT that server's /etc/passwd file. So no checks are made to insure that a sysuser is indeed a Unix userid.</p>
+
+<p>Finally, while if cvsroot edits say the sysuser lynxuser -> lynuxosuser, the passwd file will be modified by also changing all lynxuser's -> lynxosuser's. However if cvsroot deletes sysuser lynxuser the passwd file is not changed to remove the sysuser from the passwd lines. Doing so changes the meaning of the user entirely.</p>
+
+<p>The backend, however, will need to change to properly handle the security of the various files as well as to properly use CVS to maintain a history (i.e. check out admin files, change them and check them in). The current thought is to set up the apache user as having login rights for cvsroot from the web server only.</p>
+
+<p>In order for this to work we need to:</p>
+
+<ul>
+  <li>Create groups and sysusers files for each &lt;host&gt;:&lt;repository&gt;</li>
+
+  <li>Add groups and sysusers files to checkoutlist so that CVS considers them part of the administrative files set.</li>
+
+  <li>Have cvsroot perform a cvs -d :pserver:cvsroot@&lt;host&gt;:&lt;repository&gt; login for each and every host:repository combination as whatever the apache user will be on the web server</li>
+</ul>
+
+<p>Then the web app has to change to use a file store created by issuing a cvs co CVSROOT for the host/repository it is working on (and/or possibly a cvs update). Finally the web app needs to change to perform the necessary commit after a file (groups, sysusers, readers or writers - passwd will be handled differently - see <a href="http://www.network-theory.co.uk/docs/cvsmanual/cvs_30.html">http://www.network-theory.co.uk/docs/cvsmanual/cvs_30.html</a> - bottom of the page) has been changed with an appropriate checkin comment. Still at issue is how to handle the passwd file.</p>
+
+<p>This should be done (setup) on the web server instead of my desktop. We should, perhaps, create a dummy repository for testing.</p>
+
+<p>Let me know when this is available so I can start testing there.</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:54 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000389.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July 15, 2005</h2>
+                     <a id="a000388"></a>
+                     <div class="entry" id="entry-388">
+                        <h3 class="entry-header">CVS Adm Web App - per repository</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Vinnie and I decided that it's best to place the passwd, groups (new), sysusers (new) files in the repository under CVSROOT</li>
+
+  <li>Started changing web app to handle this new change and added new <i>Select Server</i> and <i>Select Repository</i> screens. Much of the code now needs to pass along $cvs_server and $repository to the API</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:05 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000388.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July 14, 2005</h2>
+                     <a id="a000384"></a>
+                     <div class="entry" id="entry-384">
+                        <h3 class="entry-header">DOORS/LOS178 Build Procedure</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Managed to install DOORS. Turns out that using Tomcat for FlexLM requires port 19360 <b>not</b> port 19353</li>
+
+  <li>Exported the HybridOS Build Procedure document to create the LOS178 2.1.0 Build Procedure document</li>
+
+  <li>Attempting to document exactly what CVS access is given for a username in the readers/writers files depending on whether or not either file exists for the CVSAdm web app</li>
+</ul>
+                              
+                              <h3>Determining CVS Read/Write Access</h3>
+
+<p>CVS decides read/write access based on the presence of the user name in the files readers and writers in the repository. Additionally either or both of these files may be missing.</p>
+
+<p>The CVS Manual says:</p>
+
+<blockquote><i>
+<p>If <tt>readers</tt> exists, and this user is listed in it, then the user gets read-only access. Or if <tt>writers</tt> exists, and this user is <b>not</b> listed in it, then they also get read-only access (this is true even if <tt>readers</tt> exists but they are not listed there). Otherwise, she gets full read-write access.</p>
+
+<p>Of course there is a conflict if the user is listed in both files. This is resolved in the more conservative way, it being	better to protect the repository too much than too little: such a user gets read-only access.</p>
+</i></blockquote>
+
+<p>Based on that the following describe the access granted to a user.</p>
+
+<center>
+<table border=1 cellspacing=0 cellpadding=2>
+  <tbody>
+    <tr>
+      <th bgcolor="teal"><font color="white">Case</font></th>
+      <th bgcolor="teal"><font color="white">Readers</font></th>
+      <th bgcolor="teal"><font color="white">Writers</font></th>
+      <th bgcolor="teal"><font color="white">Read Access</font></th>
+      <th bgcolor="teal"><font color="white">Write Access</font></th>    </tr>
+    <tr align="center">
+      <td>1</td>
+      <td>No File</td>
+      <td>No File</td>
+      <td>No</td>
+      <td>No</td>
+    </tr>
+    <tr align="center">
+      <td>2</td>
+      <td>No File</td>
+      <td>Not Present</td>
+      <td>Yes</td>
+      <td>No</td>
+    </tr>
+    <tr align="center">
+      <td>3</td>
+      <td>No File</td>
+      <td>Present</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr align="center">
+      <td>4</td>
+      <td>Not Present</td>
+      <td>No File</td>
+      <td>No</td>
+      <td>No</td>
+    </tr>
+    <tr align="center">
+      <td>5</td>
+      <td>Not Present</td>
+      <td>Not Present</td>
+      <td>Yes</td>
+      <td>No</td>
+    </tr>
+    <tr align="center">
+      <td>6</td>
+      <td>Not Present</td>
+      <td>Present</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr align="center">
+      <td>7</td>
+      <td>Present</td>
+      <td>No File</td>
+      <td>Yes</td>
+      <td>No</td>
+    </tr>
+    <tr align="center">
+      <td>8</td>
+      <td>Present</td>
+      <td>Not Present</td>
+      <td>Yes</td>
+      <td>No</td>
+    </tr>
+    <tr align="center">
+      <td>9</td>
+      <td>Present</td>
+      <td>Present</td>
+      <td>Yes</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+</center>
+
+<ol>
+  <li>A strict intepretation of the CVS manual might lead you to
+believe that since readers does not exist and writers does not exist then it would fall into the "Otherwise" statement at the end of the first paragraph. However an argument can be made that the user is also not listed in the writers file because the writers file is not present. But I believe that no access should be granted.</li>
+
+  <li>Readers does not exist and the user is not listed in writers
+so read only access.</li>
+
+  <li>Readers does not exist but the user is listed in writers. So
+the user has write access. Does this imply read access? Does write-only access exist?</li>
+
+  <li>User is not listed in the readers file and there is no writers
+file. This case is not covered by the CVS manual. My assumption is therefore no access. Again a strict interpretation might argue the "Otherwise" clause but I think not.</li>
+
+  <li>User is not listed in the readers file nor in the writers file
+therefore read only access.</li>
+
+  <li>User is not listed in the readers file but is listed in the
+writers file. User gets read/write access.</li>
+
+  <li>User is listed in the readers file but there is no writers
+file. Read only access.</li>
+
+  <li>User is listed in the readers file but not present in writers
+file. Read only access.</li>
+
+  <li>User is listed in the readers file and the writers file. This
+is the conflict. Resolve the conflict by only providing read access.</li>
+</ol>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:13 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000384.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July 13, 2005</h2>
+                     <a id="a000387"></a>
+                     <div class="entry" id="entry-387">
+                        <h3 class="entry-header">CVS Adm Web App</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Got password updating working</li>
+
+  <li>Got it working such that the cookie setting code is working</li>
+
+  <li>Implemented Admin mode for cvsroot user only. This allows the cvsroot user to manage other users, groups and sysusers</li>
+
+  <li>Also when in admin mode the cvsroot user can set another persons password to something new without having to know the old password (i.e. password reset)</li>
+
+  <li>Also when in admin mode the sysuser is exposed as a drop down - allowing cvsroot to change a sysuser for a user</li>
+
+  <li>Still need to workout read/write access properly, other security issues (possibly a setuid script allowing the apache user to become cvsroot to re-write and/or check out and in files like passwd, readers and writers for repositories).</li>
+
+  <li>Another issue is what to do as far as for paranoia checking. For example, what should happen if cvsroot attempts to remove say the "int" group and there are still users associated with the int group?</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:59 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000387.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July 12, 2005</h2>
+                     <a id="a000386"></a>
+                     <div class="entry" id="entry-386">
+                        <h3 class="entry-header">CVS Adm Web App</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Managed to get logging in working</li>
+
+  <li>Moved common code to CVSAdm.pm Perl module</li>
+
+  <li>Changed to handle multiple groups</li>
+
+  <li>Changed to use global groups and sysusers files</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:44 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000386.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July 11, 2005</h2>
+                     <a id="a000385"></a>
+                     <div class="entry" id="entry-385">
+                        <h3 class="entry-header">CVS Adm Web App</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Vinnie told me of a CVS Administration Web App he wants so I started developing it</li>
+
+  <li>Working on the basic login screen and parsing of files like passwd and repository readers/writers files. Borrowing heavily from my MAPS application at home where I have done this before.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:23 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000385.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July  7, 2005</h2>
+                     <a id="a000383"></a>
+                     <div class="entry" id="entry-383">
+                        <h3 class="entry-header">CDK Packaging</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>The CDK was not properly packaged before. Here's what needs to be done. Because we built GDB we need to get the GDB client software into the LOS178 CDK area. This is done by performing a make package-gdb in toolchain to obtain a tarball for GDB. This process also creates a toolchain source tarball, which takes quite some time and space and it largely not needed.</p>
+
+<p>Then you need to unpack this GDB tarball into the LOS178 CDK area. Then you can tar up the CDK (for Linux and Windows) or use package.sh (Solaris).</p>
+
+<div class="note">There is a problem with make package-gdb on Solaris. It uses tar naked and also uses -z. Unfortunately Solaris' tar doesn't support -z. Aliasing tar=gnutar didn't work either. I had to, temporarily, modify the Makefile to use gnutar.</div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:50 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000383.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July  6, 2005</h2>
+                     <a id="a000382"></a>
+                     <div class="entry" id="entry-382">
+                        <h3 class="entry-header">Building LOS178 2.1.0 on Windows</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>In order to build LOS178 2.1.0 on Windows the following steps were performed:</p>
+
+<h4>Create LOS178 build area</h4>
+
+<ul>
+  <li>In /build the directory 2.1.0/los178 was created</li>
+
+  <li>From a successful build on Rock the tar images: 
+
+   <ul>
+      <li>2000-00.los178_rsc_src.tar.gz</li>
+
+      <li>2001-00.los178_src.tar.gz</li>
+
+      <li>2013-00.los178_dev.tar.gz</li>
+
+      <li>2015.los178_rsc_dev.tar.gz</li>
+    </ul>
+
+    were extracted into /build/2.1.0/los178.</li>
+
+    <li>2032-00.cdkwin32.tar.gz was obtaind from t3:/export/dev_archive/los178/2p1p0/20050622/solaris/media/ppc and extracted into /build/2.1.0/los178</li>
+</ul>
+
+<h4>Compile cdk</h4>
+
+<ul>
+  <li>Sourced SETUP.bash</li>
+
+  <li>cd'ed into src/cdk</li>
+
+  <li>make install > install.log 2>&1</li>
+
+  <li>The install.log was checked for errors</li>
+</ul>
+
+<h4>Build GDB</h4>
+
+<ul>
+  <li>The toolchain was exported, tarred, copied and extracted to /build/2.1.0/toolchain and fixup.sh was run</li>
+
+  <li>In order for GDB to compile successfully the liblcsapi.a library was extracted from t3:/export/rel_archive/archive-lcs-1.0.0/052703/10001.lcs_host.tar.gz tarball into the host environment ($ENV_PREFIX/lib, a directory that has to be made first) </li>
+
+  <li>The GDB module was compiled with make install-gdb > install.log 2>&1</li>
+
+  <li>The install.log was checked for errors</li>
+
+  <li>Move install-powerpc178/cdk/sunos-xcoff-ppc/usr/bin/gdbserver (and gdbserver-lcs) to $ENV_PREFIX/bin.</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:22 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000382.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">July  5, 2005</h2>
+                     <a id="a000381"></a>
+                     <div class="entry" id="entry-381">
+                        <h3 class="entry-header">Building LOS178 2.1.0 on Linux</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>In order to build LOS178 2.1.0 on Linux the following steps were performed:</p>
+
+<h4>Create LOS178 build area</h4>
+
+<ul>
+  <li>In /build the directory 2.1.0/los178 was created</li>
+
+  <li>From a successful build on Rock the tar images: 
+
+   <ul>
+      <li>2000-00.los178_rsc_src.tar.gz</li>
+
+      <li>2001-00.los178_src.tar.gz</li>
+
+      <li>2013-00.los178_dev.tar.gz</li>
+
+      <li>2015.los178_rsc_dev.tar.gz</li>
+    </ul>
+
+    were extracted into /build/2.1.0/los178.</li>
+
+  <li>A copy of bin-image was checked out using the DEV_LOS178_2p1p0_ppc_20050705 tag to /build/2.1.0</li>
+
+  <li>The bin-image/ppc.cdklinux.tar.gz was extracted into /build/2.1.0/los178</li>
+</ul>
+
+<h4>Compile cdk</h4>
+
+<ul>
+  <li>Sourced SETUP.bash</li>
+
+  <li>cd'ed into src/cdk</li>
+
+  <li>make install > install.log 2>&1</li>
+
+  <li>The install.log was checked for errors</li>
+
+  <div class="note">There was an error with disasm_mips.c under elflook but I remember Vinnie reporting that elflook was not compiling completely. I assume that this error is acceptable</div>
+</ul>
+
+<h4>Build GDB</h4>
+
+<ul>
+  <li>The toolchain was checked out to /build/2.1.0/toolchain and fixup.sh was run</li>
+
+  <li>In order for GDB to compile successfully the liblcsapi.a library was extracted from t3:/export/rel_archive/archive-lcs-1.0.0/052703/10001.lcs_host.tar.gz tarball into the host environment ($ENV_PREFIX/lib, a directory that has to be made first) </li>
+
+  <li>The GDB module was compiled with make install-gdb > install.log 2>&1</li>
+
+  <li>The install.log was checked for errors</li>
+
+  <li>Move install-powerpc178/cdk/sunos-xcoff-ppc/usr/bin/gdbserver (and gdbserver-lcs) to $ENV_PREFIX/bin.</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  8:01 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000381.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     
+                     <a id="a000380"></a>
+                     <div class="entry" id="entry-380">
+                        <h3 class="entry-header">Test build of LOS178 2.1.0</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Rebuilt LOS178 2.1.0 in preparation for release of LOS178 2.1.0</li>
+</ul>
+                              
+                              <h3>Building LOS178</h3>
+
+<h4>Solaris</h4>
+
+<p>Use /int/bin/build_los178 which performs all the necessary steps. Solaris builds have not changed</p>
+
+<h4>Linux</h4>
+
+<p>There is no need to build LOS178 on Linux but there is a need to build the CDK since what is in the bin-image tarball is not complete. There's also a need to build gdb client portions.</p>
+
+<p>"Building" of LOS178 on Linux therefore consists of:</p>
+
+<ol>
+  <li>Creating a "build" area</li>
+
+  <li>Extracting sources from 2000-00.los178_rsc_src.tar.gz and 2001-00.los178_src.tar.gz</li>
+</ol>
+
+<h4>Windows</h4>
+
+<p>Similarly there is no need to build LOS178 on Windows but there is a need to build the CDK since what is in the bin-image tarball is not complete. There's also a need to build gdb client portions.</p>
+
+<p>"Building" of LOS178 on Windows therefore consists of:</p>
+
+
+<ol>
+  <li>Setup PC with Cygwin properly (if not already set up)</li>
+
+  <li>Start a cmd shell and execute the VCVARS32.bat file</li>
+
+  <li>Execute the cygnus.bat script to enter Cygwin</li>
+
+  <li>Create build area</li>
+
+  <li>Extract sources from 2000-00.los178_rsc_src.tar.gz and 2001-00.los178_src.tar.gz (May also need 2013-00.los178_dev.tar.gz and 2015-00.los178_rsc_dev.tar.gz)</li>
+</ol>
+
+<h3>Building CDK</h3>
+
+<h4>Solaris</h4>
+
+<p>There is no CDK to build on Solaris as it is contained in the ppc.cdksol.tar.gz</p>
+
+<h4>Linux</h4>
+
+<p>For Linux, cd to your build area and:</p>
+
+<ol>
+  <li>SETUP.bash</li>
+
+  <li>cd src/cdk and make install. This builds parts of the CDK not contained in bin-image.</li>
+</ol>
+
+<h4>Windows</h4>
+
+<p>Make sure you have a proper setup:</p>
+
+<ol>
+  <li>Setup PC with Cygwin properly (if not already set up)</li>
+
+  <li>Start a cmd shell and execute the VCVARS32.bat file</li>
+
+  <li>Execute the cygnus.bat script to enter Cygwin</li>
+
+  <li>SETUP.bash</li>
+
+  <li>cd src/cdk and make install. This builds parts of the CDK not contained in bin-image.</li>
+</ol>
+
+<h3>Packaging CDK</h3>
+
+<p>The CDKs for all of Solaris, Linux and Windows need to be properly packaged for the customer. Currently package.sh is designed to handle both cdksol and cdklinux. Thus after building CDK on Linux one can tar it up and deposit it into the Solaris build area and use package.sh to create the proper packaging.</p>
+
+<p>The rename.sh also handles renaming cdk[sol|linux|win32] tarballs it finds with the proper package #.</p>
+
+<p>So the remaining issue is how to deal with the oddball win32... The issue is that it was thought that the cdk could not be easily tarred up and moved over because symlinks in the tar would be messed up. This does not appear to be the case as a little test shows that Cygwin's B20 tar will properly store the symlink on the Windows side and the Unix/Linux tar will properly unpack it.</p>
+
+<h3>GDB Madness</h3>
+
+<p>GDB, which consists of a gdbserver part that needs to eventually be put into $ENV_PREFIX/bin as it is built into a different area (why isn't a make install-gdb putting it in the right place) and some client parts (Just gdb in install-powerpc178/cdk/sunos-xcoff-ppc/usr/bin? Or do we include the other files like insight, tclsh8.4 and wish8.4?). These parts need to be placed in the build area.</p>
+
+<p>So, for example, for Linux one needs to follow the above and then:</p>
+
+<ul>
+  <li>Check out the toolchain from CVS (tag: DEV_LOS178_2p1p0_ppc_20050705)</li>
+
+  <li>Run fixup.sh</li>
+
+  <li>Source SETUP.bash from a LOS178 area
+
+<div class="note">
+Remember: You need to use SETUP.bash from a dev area build. Using pdn will result in an error as the build is unable to find libbsd.a!
+</div>
+
+<p></p>
+
+<div class="note">
+Also: Install the liblcsapi.a library from the t3:/export/rel_archive/archive-lcs-1.0.0/052703/10001.lcs_host.tar.gz tarball into the host environment ($ENV_PREFIX/lib).
+</div>
+
+</li>
+
+  <li>make install-gdb > install.log 2>&1</li>
+
+  <li>Check for errors and if successful, make package.</li>
+</ul>
+
+<p>With the build of gdb successful:</p>
+
+<ul>
+  <li>Move install-powerpc178/cdk/sunos-xcoff-ppc/usr/bin/gdbserver (and gdbserver-lcs) to $ENV_PREFIX/bin.
+
+<div class="note"><b>Note:</b> Since $ENV_PREFIX is set to dev then this means that gdbserver goes to dev. Should it also be put in pdn?</div>
+
+</li>
+
+</ul>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:24 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000380.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

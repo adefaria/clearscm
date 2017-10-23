@@ -1,0 +1,75 @@
+#!/bin/bash
+################################################################################
+#
+# File:         setup
+# RCS:          $Header: setup,v 1.2 99/02/15 20:35:58 root Exp $
+# Description:  This script will setup the necessary links for the AppServer.
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Thu May 16 09:51:15 PDT 1996
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# First determine where/how the appserver is mounted on local machine
+if [ -d "/net/bismol" ]; then
+  MOUNTPOINT=/net
+  export APPSERVER=bismol
+elif [ -d "/net/hpclbis" ]; then
+  MOUNTPOINT=/net
+  export APPSERVER=hpclbis
+elif [ -d "/nfs/bismol" ]; then
+  MOUNTPOINT=/nfs
+  export APPSERVER=bismol
+elif [ -d "/nfs/hpclbis" ]; then
+  MOUNTPOINT=/nfs
+  export APPSERVER=hpclbis
+fi
+
+# Export APPROOT properly
+export APPROOT=$MOUNTPOINT/$APPSERVER
+
+function make_symlink {
+  if [ ! -h "$1" ]; then
+    ln -sf $APPROOT$1 $1
+  fi
+} # make_symlink
+
+make_symlink /etc/socks.conf
+make_symlink /usr/lib/font
+make_symlink /usr/local/lib/emacs
+make_symlink /usr/local/etc/newsdomain
+make_symlink /usr/local/hindsight_4.0
+
+# Create ispell directory if not there already
+mkdir -p /usr/local/lib/ispell
+
+make_symlink /usr/local/lib/ispell/english.hash
+
+# Create import directory if not there already.
+mkdir -p /usr/vue/config/import
+
+# Special symlink
+ln -sf $APPROOT/usr/vue/config/export/tools /usr/vue/config/import/tools
+ln -s /app/mh /usr/local/bin/mh
+ln -s /app/mh-lib /usr/local/lib/mh
+
+# Xsession stuff
+
+# Check that Xsession is indeed a link
+if [ -f /usr/vue/config/Xsession ]; then
+  if [ ! -h /usr/vue/config/Xsession ]; then
+    mv /usr/vue/config/Xsession /usr/vue/config/Xsession.old
+    ln -sf $APPROOT/usr/vue/config/export/Xsession /usr/vue/config/Xsession
+  fi
+fi
+
+# Turned off as per Mark Keil's request
+#if [ ! -h /usr/softbench ]; then
+#  ln -sf $APPROOT/aspirin/softbench /usr/softbench
+#fi
+
+# Fix ups for SURF
+mkdir -p /opt/surf
+make_symlink /opt/surf/newconfig

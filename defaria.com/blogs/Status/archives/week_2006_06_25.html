@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: June 25, 2006 - July  1, 2006 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2006_06_18.html" title="June 18, 2006 - June 24, 2006" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2006_07_02.html" title="July  2, 2006 - July  8, 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2006_06_18.html">&laquo; June 18, 2006 - June 24, 2006</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2006_07_02.html">July  2, 2006 - July  8, 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">June 27, 2006</h2>
+                     <a id="a000557"></a>
+                     <div class="entry" id="entry-557">
+                        <h3 class="entry-header">Salira Vob Corruption</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Cleaned up Multisite Packets</li>
+
+  <li>Cleaned up sons-sc-cc:/Windows/temp and sons-clearcase salira vob cleartext pools due to disk space crunch</li>
+
+  <li>Ran dbcheck on salira vob to fix corruption</li>
+
+  <li>Tested changing mastership of a test branch</li>
+</ul>
+
+<p><b>Time spend:</b> 7 hours</p>
+                              
+                              <h3>Cleaning up Multisite Packets</h3>
+
+<p>First order of business was to attempt to clean up multisite packets that reside in the shipping bays for both sons-clearcase and sons-sc-cc as much as possible. As per my prior work there seems to be huge sync packets to sync, which takes time. I wanted to attempt a chmaster on an older branch to see how that changes from sons-clearcase -&gt; sons-sc.cc.  Part of the chmaster involves informing the other replica of the change. This happens through the normal multisite syncreplica. If the bays are full of huge packets then I need to process them first. One problem I hit was running out of space on sons-sc-cc. Normally this is not a problem as there is enough space on the C drive where the vobs reside. But with these huge packets going back and forth I was running out of space. Cleaned up some space and attempt to import all packets on sons-sc-cc. I also attempted to scrub the cleartext pool on sons-clearcase, which has grown to 4 gig! The cleartext pool is a caching mechanism thus since Clearcase can reconstruct the cleartext pool at any time (cleartext is mutable) I figured I could save 4 gig.</p>
+
+<h3>Testing chmaster</h3>
+
+<p>Tested out that I cannot check out, and back in, and element on the rel_1.0 branch from a view on sons-sc-cc. I then attempted to transfer mastership of the rel_1.0 branch -&gt;  sons-sc-cc but received the following error:<br>
+
+<div class=code><pre>
+<b>[ccadmin] sons-clearcase:</b><u>ct chmaster SantaClara brtype:rel_1.0@\\salira</u>
+cleartool: Error: Branch type "rel_1.0" has branches (with default mastership) that have outstanding checkouts.
+</pre></div>
+
+<p>Actually there are still checkout on the rel_1.0 branch in, for example, the view YXiu_view_desktop (e.g. salira/neopon/build/makefile).</p>
+
+<h3>Ran dbcheck on salira vob to fix corruption</h3>
+
+<p><b>10:40 Pm:</b> Decided to give up on the testing of chmaster and get the vob fixed. Locked salira vob. Started copy of db</p>
+
+<p><b>:10:43 Pm:</b> Dtarted keybuild procedure. Keybuild failed with:</p>
+
+<div class=code><pre>
+db_VISTA Version 3.20
+Key File Build Utility
+Copyright (C) 1985-1990 Raima Corporation, All Rights Reserved
+
+initializing key file: vob_db.k01
+initializing key file: vob_db.k02
+initializing key file: vob_db.k03
+initializing key file: vob_db.k04
+processing data file: vob_db.d01, total records = 3555277
+ record:       9000
+ record:      19000
+ record:      29000
+ record:      39000
+ record:      49000
+ record:      59000
+ record:      69000
+ record:      79000
+ record:      89000
+ record:      99000
+ record:     109000
+ record:     119000
+ record:     129000
+ record:     139000
+ record:     149000
+ record:     159000
+</pre></div>
+ 
+<p>keybuild failed with an exit code of 58. Ran keybuild again... This seems to be going better... Did d01 file. Proceeded to work on the d02 file then (11:07 Pm):</p>
+
+<div class=code><pre>
+record:   863000<br>
+*** db_VISTA database error -901 - system error
+
+Bad read  863475
+    863474processing data file vob_db.d02, total records = 1
+
+ record:       1
+
+key file rebuild completed
+</pre></div>
+
+<p>Hmmm... Doesn't seem like the key file rebuild was really completed. I wonder... Should I try again? Trying again...</p>
+
+<p>Third times a charm they say! keybuild ran to completion but for a while it was touch and go as sons-clearcase was not responding. Now, however, I can import the packets that were stuck... Well most of them:</p>
+
+<div class=code><pre>
+Applied sync. packet sync_SantaClara_26-Jun-06.02.00.01_5308 to VOB \\sons-clearcase\VOBs\salira.vbs
+Multitool.exe: Error: Database identifier (dbid) not found in database: "\salira".
+Multitool.exe: Error: Could not get oplog entry with order:2886884 from replica:
+China with oplog_id:376595: reference to non-existent ClearCase object.
+Multitool.exe: Error: Could not check oplog entry for divergence: reference to non-existent ClearCase object.
+Multitool.exe: Error: Cannot apply sync. packet sync_China_26-Jun-06.16.32.42_3292_1 to VOB replica \\sons-clearcase\VOBs\salira.vbs: reference to non-existent ClearCase object
+</pre></div>
+
+<p>Damn. Ran syncreplica -import again and everything got processed. I'm glad it's processed but I can't help but wonder why I hit these errors...</p>
+
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 11:18 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000557.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">June 26, 2006</h2>
+                     <a id="a000556"></a>
+                     <div class="entry" id="entry-556">
+                        <h3 class="entry-header">dbcheck</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Ran dbcheck on salira vob</li>
+</ul>
+
+<p><b>Time spent:</b> 2 hours</p>
+                              
+                              Frank W O'Keefe wrote:<br>
+<blockquote type="cite">
+<p>Hello Andrew,</p>
+
+<p>For the error: 06/23/06 07:48:04 db_server(10104): Error: db_server.exe(10104): Error: Database identifier 427883 not foundin "../db__obj.c" line 731.</p>
+
+<p>This could possibly mean there is an issue with the VOBs database. Unfortunately I cannot determine which VOB this is for? I would need you to run a "dbcheck" on the VOB that is reporting this error. Unfortunately I was seeing this error many times in the logs so I cannot tell for which VOB it is reporting this on.</p>
+
+<p>(10104) in the error is the process id that is/was running. This may help in finding the VOB. </p>
+</blockquote>
+
+<p>I'm pretty sure I know the vob in question - their main vob (\salira).</p>
+
+<blockquote type="cite">
+<p>The following URL is to the instructions on running dbcheck. <a href="http://www-1.ibm.com/support/docview.wss?uid=swg21122748">http://www-1.ibm.com/support/docview.wss?uid=swg21122748</a></p>
+</blockquote>
+
+<p>I tried following that by using the method of lock vob, copy the vob database files, unlock vob, dbcheck the copy. Everytime I got a -4 error so I went back to do lock vob, dbcheck, unlock vob.</p>
+
+<p>I was surprised to see some stuff come out on stderr:</p>
+
+<div class=code><pre>
+<b><font color=blue>[ccadmin] sons-clearcase:</font></b><u>/apps/Rational/ClearCase/etc/utils/dbcheck -r1 -a -k -p8192 vob_db &gt; C:\\cygwin\\tmp\\dbcheck.txt</u>
+
+Processing delete chain:  75 nodes on delete chain.
+Processing nodes:
++++....
+</pre></div>
+
+<p>Eventually it finished stating:</p>
+
+<div class=code><pre>
+Database consistency check completed
+
+169 errors were encountered in 167 records/nodes
+</pre></div>
+
+<blockquote type="cite">
+<p>Also, I am going to send you a URL to a technote about this PC's heap size. I see messages indicating that you may need to adjust the heap settings for this host.</p>
+
+<a href="http://www-1.ibm.com/support/docview.wss?uid=swg21142584">http://www-1.ibm.com/support/docview.wss?uid=swg21142584</a></p>
+
+<p>Depending on the dbcheck output, we may need to get a copy of the VOB's db directory but I rather hold off on that request until we see what the dbcheck reports.<p>
+
+<p>I"ve attached the dbcheck output.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:17 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000556.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

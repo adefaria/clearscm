@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Migrating colocated views from 6.0 -> 7.0</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000701.html" title="EAST Automation" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000703.html" title="Rantest 0.9.2" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000702.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/89"
+    dc:title="Migrating colocated views from 6.0 -&gt; 7.0"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000702.html"
+    dc:subject="General Dynamics"
+    dc:description="I performed a test of my snapshot view p6258c_SIMCQ00000392_intview. This view is a colocated view and exists in my home directory (~p6258c). Clearcase administration of the registry can be tricky - you need to get several things correct before it..."
+    dc:creator=""
+    dc:date="2008-03-28T15:44:47-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000701.html">&laquo; EAST Automation</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000703.html">Rantest 0.9.2 &raquo;</a>
+                     </p>
+
+                     <a id="a000702"></a>
+                     <div class="entry" id="entry-702">
+                        <h3 class="entry-header">Migrating colocated views from 6.0 -> 7.0</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>I performed a test of my snapshot view p6258c_SIMCQ00000392_intview.
+This view is a colocated view and exists in my home directory
+(~p6258c). Clearcase administration of the registry can be tricky - you
+need to get several things correct before it will work.</p>
+
+<p>Here's what the view looks like:</p>
+
+<div class=code><pre>
+$ ct lsview -l -full -properties
+p6258c_SIMCQ00000392_intview 
+  Tag: p6258c_SIMCQ00000392_intview
+   Global path: <b>/net/cclinux/export/home/p6258c/p6258c_SIMCQ00000392_intview/.view.stg</b>
+   Server host: <b>seast1</b>
+   Region: cclinux
+   Active: NO
+   View tag uuid:90c8b0d3.d9c311dc.92fe.00:09:3d:14:f4:70
+  View on host: <b>seast1</b>
+  View server access path: <b>/home/p6258c/p6258c_SIMCQ00000392_intview/.view.stg</b>
+  View uuid: 90c8b0d3.d9c311dc.92fe.00:09:3d:14:f4:70
+  View attributes: snapshot,ucmview
+  View owner: rantest/p6258c
+
+  Created 2008-02-12T16:31:00-07 by p6258c.cclinux@ranlin04
+  Last modified 2008-03-28T13:53:02-07 by p6258c.cclinux@raneast
+  Last accessed 2008-03-28T13:53:02-07 by p6258c.cclinux@raneast
+  Last read of private data 2008-03-28T13:53:02-07 by
+p6258c.cclinux@raneast
+  Last config spec update 2008-03-28T13:22:18-07 by
+p6258c.cclinux@raneast
+  Last view private object update 2008-03-28T13:53:02-07 by
+p6258c.cclinux@raneastText mode: unix
+  Properties: snapshot ucmview readwrite
+  Owner: rantest/p6258c : rwx (all)
+  Group: rantest/cclinux : r-x (read)
+  Other: : r-x (read)
+  Additional groups: rantest/east
+</pre></div>
+
+<p>Here's what I did</p>
+
+<ul>
+  <li>cd'ed into this snapshot view
+~p6258c/p6258c_SIMCQ00000392_intview/vobs/simdev/bin</li>
+
+  <li>Checked out a script named east.</li>
+
+  <li>cd'ed out of the snapshot view to my home directory.</li>
+</ul>
+
+<p>We now have a colocated snapshot view created on CC 6.0 and hosted by
+seast1. The storage (my home directory) oddly enough is served by
+cclinux...</p>
+
+<ul>
+  <li>Moved the view database over to cclinux under it's gdviews
+partition:
+
+<div class=code><pre>
+<font color="#ff6600"><b>Cclinux:</b></font><u>mv /home/p6258c/p6258c_SIMCQ00000392_intview/.view.stg \</u>
+&gt; <u>/gdviews/p6258c/p6258c_SIMCQ00000392_intview.vws</u>
+</pre></div>
+
+  <b>Note:</b>
+    <ul>
+      <li>In the above command we also renamed .view.stg -&gt;
+&lt;viewname&gt;.vws.</li>
+      <li>We did a mv instead of cp. I suspect that if you are in the
+snapshot view storage area and you perform a Clearcase operation,
+cleartool will notice the .view.stg directory at the snapshot view's
+root and not bother to attempt to contact the registry server to find
+out where the view database is. Instead it just says "Well the view
+database is right here". This would allow a disconnected, but colocated
+snapshot view to be able to perform Clearcase operations while
+disconnected.</li>
+    </ul>
+  </li>
+
+  <li>Reregistered the view:
+
+<div class=code><pre>
+<font color="#ff6600"><b>Cclinux:</b></font><u>ct register -view -replace -host cclinux \</u>
+&gt; <u>-hpath /gdviews/p6258c/p6258c_SIMCQ00000392.vws \</u>
+&gt; <u>/net/cclinux/gdviews/p6258c/p6258c_SIMCQ00000392.vws</u>
+</pre></div>
+
+    <b>Note:</b>
+
+    <ul>
+      <li>The -host changed from seast1 -&gt; cclinux</li>
+
+      <li>The -hpath changed to be relative to /gdviews (where we moved
+the .view.stg)</li>
+  </ul>
+
+  <li>Retaged the view:</li>
+
+<div class=code><pre>
+<font color="#ff6600"><b>Cclinux:</b></font><u>ct mktag -replace -view -tag p6258c_SIMCQ00000392_intview \</u>
+&gt; <u>-host cclinux \</u>
+&gt; <u>-gpath /net/cclinux/gdviews/p6258c/p6258c_SIMCQ00000392_intview.vws \</u>
+&gt; </tt><u>/net/cclinux/gdviews/p6258c/p6258c_SIMCQ00000392_intview.vws</u>
+</pre></div>
+    <b>Note:</b>
+  <ul>
+    <li>Again the -host changed from seast1 -&gt; cclinux</li>
+    <li>The -gpath changed to a global path to /gdviews<br>
+      <br>
+    </li>
+  </ul>
+  <li>Stop the view server:</li>
+
+<div class=code><pre>
+<font color="#ff6600"><b>Cclinux:</b></font><u>ct endview -server p6258c_SIMCQ00000392_intview</u>
+</pre></div>
+  </li>
+
+  <li>Set the config spec to current since the compiled config spec
+still thinks it's on the old server. Note this will involve a ct update
+too. Also, we need to cd to the snapshot view storage area:</li>
+
+<div class=code><pre>
+<font color="#ff6600"><b>Cclinux:</b></font><u>cd ~/p6258c_SIMCQ00000392_intview</u>
+<font color="#ff6600"><b>Cclinux:</b></font><u>ct setcs -current &gt; /dev/null 2&gt;&amp;1</u>
+</ul>
+
+<p>Now we have the following view:</p>
+
+<div class=code><pre>
+$ ct lsview -l -full -properties p6258c_SIMCQ00000392_intview
+  Tag: p6258c_SIMCQ00000392_intview
+   Global path: <b>/net/cclinux/gdviews/p6258c/p6258c_SIMCQ00000392_intview.vws</b>
+   Server host: <b>cclinux</b>
+   Region: cclinux
+   Active: NO
+   View tag uuid:90c8b0d3.d9c311dc.92fe.00:09:3d:14:f4:70
+  View on host: <b>cclinux</b>
+  View server access path:
+/gdviews/p6258c/p6258c_SIMCQ00000392_intview.vws
+  View uuid: 90c8b0d3.d9c311dc.92fe.00:09:3d:14:f4:70
+  View attributes: snapshot,ucmview
+  View owner: rantest/p6258c
+
+  Created 2008-02-12T16:31:00-07 by p6258c.cclinux@ranlin04
+  Last modified 2008-03-28T14:32:44-07 by p6258c.cclinux@ranlin04
+  Last accessed 2008-03-28T14:32:44-07 by p6258c.cclinux@ranlin04
+  Last read of private data 2008-03-28T14:32:44-07 by
+p6258c.cclinux@ranlin04
+  Last config spec update 2008-03-28T14:32:42-07 by
+p6258c.cclinux@ranlin04
+  Last view private object update 2008-03-28T14:32:44-07 by
+p6258c.cclinux@ranlin04
+  Text mode: unix
+  Properties: snapshot ucmview readwrite
+  Owner: rantest/p6258c : rwx (all)
+  Group: rantest/cclinux : r-x (read)
+  Other: : r-x (read)
+  Additional groups: rantest/east<br>
+
+</pre></div>
+
+<p>Which is clearly on cclinux now.</p>
+
+<p>Further, we can see that east is still checked out, we can modify it and even unco thus showing that our newly relocated snapshot view on cclinux works, from seast1, like it did before:</p>
+
+<div class=code><pre>
+<font color="#3333ff"><b>[p6258c@seast1 p6258c]$</b></font> <u>cd p6258c_SIMCQ00000392_intview/vobs/simdev/bin</u>
+<b><font color="#3333ff">[p6258c@seast1 bin]$</font></b> <u>ct ls east</u>
+  east@@/main/simdev_integration/east_scripts_build1_integration/CHECKEDOUT from
+/main/simdev_integration/east_scripts_build1_integration/0               Rule: CHECKEDOUT
+  <b><font color="#3333ff">[p6258c@seast1 bin]$</font></b> <u>echo "A change" &gt;&gt; east</u>
+  <b><font color="#3333ff">[p6258c@seast1 bin]$</font></b> <u>ct unco east</u>
+  Save private copy of "east"?  [yes]
+  Private version of "east" saved in "east.keep".
+  Loading "vobs/simdev/bin/east" (353 bytes).
+  ClearTrigger removing empty branch
+"/home/p6258c/p6258c_SIMCQ00000392_intview/vobs/simdev/bin/east@@/main/simdev_integration/east_scripts_build1_integration"...Updating
+web view with
+(/home/p6258c/p6258c_SIMCQ00000392_intview/vobs/simdev/bin/east)...
+  Loading "vobs/simdev/bin/east" (353 bytes).
+  Done loading "/vobs/simdev/bin/east" (1 objects, copied 0 KB).
+  Checkout cancelled for "east".
+  <b><font color="#3333ff">[p6258c@seast1 bin]$</font></b>
+</pre></div>
+
+<p>It would not be that difficult to cook up a script to migrate all snapshot views...</p>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on March 28, 2008  3:44 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000702.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/89</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

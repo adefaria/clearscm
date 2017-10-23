@@ -1,0 +1,49 @@
+#!/bin/bash
+################################################################################
+#
+# File:         rootmail
+# RCS:          $Header: rootmail,v 1.1 97/04/21 14:27:10 defaria Exp $
+# Description:  Lists who receives root mail for a particular machine
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Mon Nov 13 16:14:30 1995
+# Modified:     Mon Nov 13 16:16:56 1995 (Andrew DeFaria) defaria@spock
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+if [ -x /app/appserver ]; then
+  . /app/appserver
+fi
+
+me=$(basename $0)
+
+function usage {
+  print -u2 "Usage: $me: hostname"
+  exit 1
+} # usage
+
+# Get parameters
+if [ $# -eq 0 ]; then
+  host=
+elif [ $# -eq 1 ]; then
+  host="/nfs/$1"
+else
+  usage
+fi
+
+path=usr/lib
+if [ "_$host" = "_" ]; then
+  if [ "$OS" = "10" ]; then
+    path=etc/mail
+  fi
+fi
+
+alias_file=$host/$path/aliases.local
+
+if [ ! -f $alias_file ]; then
+  print -u2 "$me: Unable to find local alias file: $alias_file" 
+  exit 1
+fi
+
+grep "^root" $alias_file

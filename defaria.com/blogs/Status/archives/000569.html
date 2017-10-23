@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: CQ log files</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000568.html" title="CQ: DMD Date changes" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000570.html" title="OMAPS.pm bug" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000568.html">&laquo; CQ: DMD Date changes</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000570.html">OMAPS.pm bug &raquo;</a>
+                     </p>
+
+                     <a id="a000569"></a>
+                     <div class="entry" id="entry-569">
+                        <h3 class="entry-header">CQ log files</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Looked into yet another hang up with CQ web servers</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h2>CQ Web logs</h2>
+
+<p>We get a lot of errors in the logs of the form:</p>
+
+<div class=code><pre>
+[Tue Sep 26 11:08:51 2006] [error] [client 128.247.39.85] File does not exist: 
+C:/Program Files/Rational/Common/rwp/webapps/cqweb/dct/html/images, referer: 
+http://dfls85.itg.ti.com/cqweb/dct/html/download_en.html
+[Tue Sep 26 11:08:51 2006] [error] [client 128.247.39.85] File does not exist:
+C:/Program Files/Rational/Common/rwp/webapps/cqweb/dct/html/images, referer:
+http://dfls85.itg.ti.com/cqweb/dct/html/download_en.html
+</pre></div>
+
+These errors are not a big deal except they cloud the log files with meaningless stuff that you need to skip over all the time. I decided to look into this and see where they were coming from. In the file .../rwp/webapps/wre/common/script/common.js there appeared the following code:
+
+<div class=code><pre>
+var arrowOff=new Image();
+     arrowOff.src="images/shim.gif";
+var arrowOn=new Image();
+      arrowOn.src="images/arrow_red.gif" ;
+</pre></div>
+
+<p>This appears to be causing the problem so I updated that JavaScript to:</p>
+
+<div class=code><pre>
+var arrowOff=new Image();
+    arrowOff.src="/wre/common/images/shim.gif";
+var arrowOn=new Image();
+        arrowOn.src="/wre/common/images/arrow_red.gif" ;
+</pre></div>
+
+<p>I'm not sure if this is a Rational problem or something that TI has done but with the above fix the error seems to go away. Well at least for me. I suspect others are still generating the error because JavaScript is cached by the browser. Hopefully as people restart there browsers this will go away.</p>
+
+<p>Additionally the following error is still appearing in the logs:</p>
+
+<div class=code><pre>
+[Mon Sep 25 20:31:06 2006] [error] [client 172.24.80.20] File does not exist:
+C:/Program Files/Rational/Common/rwp/htdocs/favicon.ico
+</pre></div>
+
+<p>I've put a favicon.ico in the proper area on dfls85. The error seems to have diminished however I don't see a favicon in the browser so I'm not sure if this is working.</p>
+
+<p>The two "fixes" above will need to be replicated to the other servers (dfls83 and 84) at some time.</p>
+
+<p>Finally another error shows up:</p>
+
+<div class=code><pre>
+[Tue Sep 26 18:31:18 2006] [error] [client 128.247.39.85] [Tue Sep 26 18:31:18 2006] create.pl: 
+Useless use of concatenation (.) or string in void context at OMAPS.pm line 318, <CNF> line 139.
+</pre></div>
+
+<p>This seems to be an error in CSSD's code which is located under .../Rational/cgi-bin. Going to <a href="http://dfls85/cgi-bin/create.pl">http://dfls85/cgi-bin/create.pl</a> first redirects me to TI's authentication web page but then back to, in my case, <a href="http://dfls85/cgi-bin/create.pl?stoken=nJAROWWcvXf2s4lwHoGETsko1vphx%2fLqHxNu7IU4L6axrg6DrEJiVoIi8ACLnoycJTlPsGJlCDLr3MhbcRx4DXgvut4ea6d%2bU%2bWzQR3oBpa6NsxSH7EPctkp96%2b9UkgIHfwh%2fWYSI0pO1wu6uHVcGgpT5tAuSpF0a3vBMgRZN8hoU0TPYJEQ9z6nNI99fKhjRh6SRNDmDdM%3d">here</a>. Going to that page generates this error in the error log everytime.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 26, 2006  4:32 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000569.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

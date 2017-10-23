@@ -1,0 +1,195 @@
+#!/bin/bash
+################################################################################
+#
+# File:         setup.new.system2
+# RCS:          $Header:$
+# Description:  This script sets up a new system.
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Tue Apr 15 14:20:02 PDT 1997
+# Modified:
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Logfile
+logfile=/tmp/setup.new.system2.log
+
+# Redirect all output to setup.new.system.log
+exec | tee -a $logfile > /dev/tty 2>&1
+
+## Set global env variables
+# Set me
+me=${0##*/}
+
+# Set OS
+OS=$(uname -r | cut -c3-)
+
+# Set step_nbr
+integer step_nbr=0
+
+function error {
+  print -u2 "$me: Error: $1"
+} # error
+
+function warning {
+  print -u2 "$me: Warning: $1"
+} # warning
+
+function display {
+  print "$1"
+} # display
+
+function info {
+  display "$me: Info: $1"
+} # info
+
+function verbose {
+  if [ ! -z "$verbose" ]; then
+    display "$1"
+  fi
+} # verbose
+
+function debug {
+  if [ ! -z "$debug" ]; then
+    print -u2 "$1"
+  fi
+} # debug
+
+function usage {
+  display "$ME -c/learcase [-v|verbose] [-d|debug] [-usage]"
+  display "     -c/learcase     Perform ClearCase installation"
+  display "        -v|verbose:     Turns on verbose mode"
+  display "        -d|debug:       Turns on debug mode"
+  display "        -usage:         Print this usage message"
+
+  error "$1"
+  exit 1
+} # usage
+
+function step {
+  let step_nbr=step_nbr+1
+  display "Step #$step_nbr: $@"
+} # step
+
+function install_clearcase {
+  license_host=wampus
+  registry_host=wampus
+  registry_region=cll
+  log_file=/tmp/ClearCase.install_log
+  os=$(print "$OS" | cut -c1-2)
+
+  if [ "$os" = "09" ]; then
+    os="9"
+  fi
+
+  case "$(uname -m)" in
+    9000/712|9000/715)
+      model=link
+      ;;
+    9000/829|9000/849)
+      model=full
+      ;;
+
+    *)
+      model=standard
+      ;;
+  esac
+
+  case "$clearcase" in
+    2.1)
+
+clearcase_release_area=/net/bismol/aspirin/cc_v$clearcase/clearcase_v$clearcase/hp${os}_pa
+      cd $clearcase_release_area/install
+      ./install_release                         \
+                -model $model                   \
+                -to /usr/atria                  \
+                -from $clearcase_release_area   \
+                -lh $license_host               \
+                -rh $registry_host              \
+                -rr $registry_region            \
+                -mvfs                           \
+                -log $log_file                  \
+                -local                          \
+                -no_query >> $logfile
+      ;;
+
+    3.0)
+
+
+clearcase_release_area=/net/wampus/opt/ccase_rls/clearcase_v$clearcase/hp${os}_pa
+      cd $clearcase_release_area/install
+      ./install_release                         \
+                -model $model                   \
+                -to /usr/atria                  \
+                -from $clearcase_release_area   \
+                -lh $license_host               \
+                -rh $registry_host              \
+                -rr $registry_region            \
+                -mvfs                           \
+                -log $log_file                  \
+                -local                          \
+                -comp
+atria_install,atria_base,CC_base,atria_X11_base,atria_hlp_viewer,atria_server,CC_client,atria_cplus_base,atria_gui,CC_doc,CC_vob_svr,CC_bld_client,CC_view_svr,CC_int_client,CC_gui_client,CC_cnv_client,CC_MIN_STD,CC_ONLY_SERVER,CC_FULL
+\
+                -nlog                           \
+                -level 5                        \
+                -no_query >> $logfile
+      ;;
+
+    *)
+      usage "Unknown ClearCase version $clearcase"
+      ;;
+  esac
+} # install_clearcase
+
+# Set initial parm values
+clearcase=
+verbose=
+debug=
+
+# Get parameters
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+      ;;
+
+    -v|-verbose)
+      verbose=yes
+      ;;
+
+    -d|-debug)
+      debug=yes
+      ;;
+
+    -c|-clearcase)
+      if [ $# -le 1 ]; then
+        usage "ClearCase version not specified!"
+      fi
+      shift
+      clearcase="$1"
+      ;;
+
+    *)
+      usage "Unrecognized parameter $1"
+      ;;
+  esac
+  shift
+done
+
+if [ $(id -u) -ne 0 ]; then
+  error "Must be root to execute this command"
+  exit 1
+fi
+
+if [ "_$clearcase" = "_" ]; then
+  usage "ClearCase version not specified!"
+else
+  step "Installing ClearCase Version $clearcase"
+  display "This step will reboot the machine"
+  install_clearcase
+  # Preceeding step should reboot the system. If we get here then there
+  # is something definitely wrong!
+  error "Unable to install ClearCase Version $clearcase!"
+fi

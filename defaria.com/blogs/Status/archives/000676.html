@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: UCMWB su bug</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000675.html" title="UCMWB/Document Visibility" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000677.html" title="ucmwb 1.2.3 release/Perl'isms" />
+
+   <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/000676.html"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/63"
+    dc:title="UCMWB su bug"
+    dc:identifier="http://defaria.com/blogs/Status/archives/000676.html"
+    dc:subject="General Dynamics"
+    dc:description=" Fixed an issue with ucmwb running after su&apos;ed to another user Addressed some issues about PC running CC in the RAN network..."
+    dc:creator=""
+    dc:date="2007-09-13T11:28:07-06:00" />
+</rdf:RDF>
+-->
+
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000675.html">&laquo; UCMWB/Document Visibility</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000677.html">ucmwb 1.2.3 release/Perl'isms &raquo;</a>
+                     </p>
+
+                     <a id="a000676"></a>
+                     <div class="entry" id="entry-676">
+                        <h3 class="entry-header">UCMWB su bug</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed an issue with ucmwb running after su'ed to another user</li>
+
+  <li>Addressed some issues about PC running CC in the RAN network</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <h3>Stupid coding</h3>
+
+<p>It never ceases to amaze me what some programmers do that when I look at it seem to be just foolish things. Here's today's example:</p>
+
+<p>In ucmwb a bug was discovered when a user first su's to some other user then runs ucmwb (in this case the user is su'ing to ccadm). The while the main window dutifully displays the list of WORs for the su'ed user, the view browser does not. Instead it displays the list of views for the original user. Turns out that there was specific code for Solaris to call cuserid instead of getenv("USER"). So Linux was working but Solaris failed. Why the difference?</p>
+
+<p>But along with that I noticed the following code:</p>
+
+<div class=code><pre>
+    QSting homePath = QDir::homePath();
+
+    if (homePath.isEmpty()) {
+      qDebug() << "homePath is empty!";
+      // Note the following is a Unix'ism and non portable!
+      homePath = QString("/home/") + appUsername;
+    }
+
+    qDebug() << "homePath = " << homePath;
+    QString settingsFilename = QDir::homePath() + QString("/.ucmwbrc");
+    QString settingsDirname  = QDir::homePath() + QString("/.ucmwb.d");
+    QString filterFilename   = settingsDirname + QString("/filters");
+</pre></div>
+
+<p>OK so first ask yourself what do you see wrong here.....?</p>
+
+<p>Pencils down!</p>
+
+<p>Here's my questions:</p>
+
+<ol>
+  <li>Why go through the effort of getting the user's homePath, check to see if it's empty and then compose one with "/home" + appUsername only then to totally ignore all that work and get it again for settingsFilename?</li>
+
+  <li>Why then do this operation of obtaining homePath yet again to set settingsDirname?</li>
+
+  <li>If homePath were determined to be empty, aren't you ignoring what you set it to?</li>
+</ol>
+
+<p>Naturally I fixed this to be:</p>
+
+<div class=code><pre>
+    QSting homePath = QDir::homePath();
+
+    if (homePath.isEmpty()) {
+      // Note the following is a Unix'ism and non portable!
+      homePath = QString("/home/") + appUsername;
+    }
+
+    QString settingsFilename = homePath + QString("/.ucmwbrc");
+    QString settingsDirname  = homePath + QString("/.ucmwb.d");
+    QString filterFilename   = settingsDirname + QString("/filters");
+</pre></div>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on September 13, 2007 11:28 AM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000676.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+                     <div class="trackbacks">
+                        <h3 id="trackback" class="trackbacks-header">TrackBack</h3>
+                        <div id="trackbacks-info">
+                           <p>TrackBack URL for this entry:<br />http://defaria.com/mt/mt-tb.cgi/63</p>
+                        </div>
+                        <div class="trackbacks-content">
+                           
+                        </div>
+                     </div>
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

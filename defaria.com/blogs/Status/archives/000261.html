@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Improving fix_copyright.pl</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000260.html" title="LOS178 Build/5.0.0 native toolchain build" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000262.html" title="Fixing fix_copyright.pl" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000260.html">&laquo; LOS178 Build/5.0.0 native toolchain build</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000262.html">Fixing fix_copyright.pl &raquo;</a>
+                     </p>
+
+                     <a id="a000261"></a>
+                     <div class="entry" id="entry-261">
+                        <h3 class="entry-header">Improving fix_copyright.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Still unable to build 3.2.2/5.0.0 natively</li>
+
+<li>Worked on improving algorithm for copyright replacement</li>
+
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>I'm finding it very difficult to develop a hueristic algorithm to find what I call "LynuxWorks copyright blocks" in existing source files. The problem is that the input data is not necessarily consistant. Sure we can go for the 80% fix and hand fix the rest (in fact, that's what I did before) however those 20% often cause compiler errors during the build. What's potential worse is that it is possible that some files will be altered in such a way as to not produce a compiler error but rather to change behavior of the resulting code.</p>
+
+<p>My current algorithm attempts to do the following:</p>
+
+<ul>
+  <li>Locate the start of a C comment (i.e. "/*"). This comment must be at the beginning of the line (for now I am not considering inline comments as the chances of these containing a bona fide copyright statement is unlikely).</il>
+
+  <li>Scan until the enclosing end comment (i.e. "*/"). Again this must appear at the end of a line ($).</li>
+
+  <li>Take those lines and examine them for the works "(C) Copyright" and "LynuxWorks" (additionally I found some files that had "LynuxWork,").</li>
+
+  <li>If found then the comment block it throw out (to be replaced by the new, more consistent copyright block.</li>
+
+</ul>
+
+<p>Currently the "official" copyright block is of the form:</p>
+
+<div class="code">
+<pre>
+    /* vi: ts=4 sw=4
+    *************************************************************
+    (C) Copyright $copy
+    LynuxWorks, Inc.
+    San Jose, CA
+    All rights reserved.
+
+    $Date: $Date$
+    $Revision: $Revision$
+    $Source: $Source$
+    ************************************************************/
+</pre>
+</div>
+
+<p>The "$copy" is replaced by the copyright date found in the file. Dates of the form <year> are changed to <year>-<current year> (unless <year> == <current year>. Dates of the form <year1>, <year2>, <year3> are changed to <year1>-<curernt year>. In order to make finding such copyright information eaiser in the future I would suggest changing the above format to:</p>
+
+<div class="code">
+<pre>
+    /* Start Copyright ******************************************
+    vi: ts=4 sw=4
+    (C) Copyright $copy LynuxWorks, Inc.
+    San Jose, CA
+    All rights reserved.
+
+    $Date: $Date$
+    $Revision: $Revision$
+    $Source: $Source$
+    * End Copyright *********************************************/
+</pre>
+</div>
+
+<p>This would 1) retain the "vi: ts=4 sw=4" annotation that I assume is for vi users, 2) group both the copyright string ("(C) Copyright") along with the company name of LynuxWorks on the same line. This makes it easier to grep for in the future considering some files have Rockwell copyrights. 3) Clearly delineates the start and stop of the copyright block.</p>
+
+<p>The problems that I'm having is that I'm seeing copyright blocks of the following forms:</p>
+
+<div class="code">
+<pre>  /************************************************************
+    (C) Copyright 1987-2000
+    Lynx Real-Time Systems, Inc.
+    San Jose, CA
+    All rights reserved.
+
+    $Date: 2003/11/14 22:44:44 $
+    $Revision: 1.1 $
+    ************************************************************/
+</pre>
+</div>
+
+<p>(Does not contain LynuxWorks, rather Lynx Real-Time Systems)</p>
+
+<div class="code">
+<pre>
+    /*
+    .FP
+    ***********************************************************************
+     Revision History
+     See ClearCase
+     Version:
+    ***********************************************************************
+    *
+    * EXPORT NOTICE:
+    *
+    *   INFORMATION SUBJECT TO EXPORT CONTROL LAWS
+    *
+    * Subject to local country rules and laws when applicable, you
+    * must comply with the following:
+    *
+    * These commodities, technology, or software were exported from
+    * the United States in accordance with the Export Administration
+    * Regulations.  Diversion contrary to U. S. law and other relevant
+    * export controls is prohibited.   They may not be re-exported to
+    * any of the following destinations without authorization; Cuba,
+    * Iran, Iraq, Libya, North Korea, Sudan or any other country to
+    * which shipment is prohibited; nor to end-use(r)s involved in
+    * chemical, biological, nuclear, or missile weapons activity.
+    *
+    * COPYRIGHT NOTICE:
+    *   (C) Copyright 2001 Rockwell Collins, Inc.  All rights reserved.
+    *
+    * FILE NAME:
+    *   df.c
+    *
+    * PURPOSE:
+    *   utility to display disk usage
+    *
+    * NOTES:
+    *
+    * ABBREVIATIONS/ACRONYMS:
+    *
+    *****************************************************************
+    .FP END
+    */
+    /************************************************************
+    (C) Copyright 1987-1996
+    Lynx Real-Time Systems, Inc.
+    San Jose, CA
+    All rights reserved.
+
+    $Date: 2003/09/10 15:24:57 $
+    $Revision: 1.1.1.1 $
+    ************************************************************/
+</pre>
+</div>
+
+<p>Contains multiple "(C) Copyright" strings, one being ours and the other being Rockwell's. Should both exist in the resultant file?</p>
+
+<div class="code">
+<pre>
+    /*
+    .FP
+     **********************************************************************
+     *
+     * FILE NAME:
+     *   hm_load_header.c
+     *
+     * PURPOSE:
+     *    Performs the integrity check of the program and data files
+     *    in the CPR read only file system.
+     *
+     * ABBREVIATIONS/ACRONYMS: (optional)
+     *
+     * NOTES: none
+     *
+     * COPYRIGHT NOTICE:
+     *   (C) Copyright 2001-2002 Rockwell Collins, Inc.  All rights reserved.
+     *       Proprietary and confidential material.  Distribution,
+     *       use, and disclosure restricted by Rockwell Collins, Inc.
+     *    Copyright (c) 2003-2004, LynuxWorks, Inc. All Rights Reserved.
+     *
+     ***********************************************************************
+    .FP END
+    */
+</pre>
+</div>
+
+<p>Contains multiple "(C) Copyright" strings, one being ours and the other being Rockwells, in the same comment block! Also notice the inconsistant form of one bying "(C) Copyright" while the other being "Copyright (C)". How should this case be handled?</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on December 20, 2004  5:55 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000261.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

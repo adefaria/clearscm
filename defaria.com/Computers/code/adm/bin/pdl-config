@@ -1,0 +1,446 @@
+#!/usr/bin/ksh
+################################################################################
+#
+# File:         pdl-config
+# Description:  ADL system configuration script
+#               To run this script you must have the pdl-config.src parameter
+#               file located in root. It is important that the source parameter
+#               file be read and understood before running the script.
+#               See below for useful comments.
+# Author:       Kevin Lister - kel@cup.hp.com
+# Date          3.11.99
+# Language:     Korn Shell
+#
+# (c) Copyright 1991, Hewlett-Packard Company, all rights reserved.
+#
+# Revision History
+# 3.25.99 kel  Changed the name of the Clearcase install script in shell
+#              archive, so it had to be changed here as well. Added an
+#              eclipse install script to the shell archive, so a line to
+#              to remove it if Clearcase is not installed had to be added
+#              here as well.
+# 4.1.99  kel  Added code to determine if the installed system is going to have
+#              a graphics console. If yes, then the /etc/dt/config/Xservers
+#              file needs to have the console server line uncommented.
+#              Also added absolute paths to the unix commands.
+# 6.22.99 kel  Added "bufpages 0" to the kernel config function. This is
+#              required if dynamic buffer cache sizes are being used.
+#
+################################################################################
+# Useful (hopefully) Comments Section
+#
+# This script will configure a system to operate nicely in the ADL
+# infrastructure. This script requires the pdl-config.src file in order to
+# run. The pdl-config.src file contains variables that determine exactly
+# what type of optional software to install, which patch bundle to install,
+# configures various system files, etc.
+#
+# Here is a brief description of what this script will do:
+#
+#  1) Check that the script is run as root
+#  2) Check that the architecture is correct. The script will run on most
+#     hardware. The architecture is really only important when trying to
+#     determine which 100Mbit drivers to install.
+#  3) Sources the input parameter source file.
+#  4) Determine if script is run intereactive or not.
+#  5) Determine if 100Mbit drivers are to be installed
+#  6) If intereactive, greet the user and display the parameter settings.
+#  7) Modify the kernel system file located in /stand/system
+#  8) Download the shell archive file from the anonymous ftp server and unpack.
+#     The shell archive contains many files and symlinks and will not be
+#     listed here. See the README in the ahell archive build area and the shell
+#     archive itself for more details. One can also look through the "root"
+#     directory that is used to build the archive to see which files and
+#     symlinks are included.
+#  9) Modify the /etc/rc.config.d files. (turn off unused stuff)
+# 10) Modify the /etc/issue, /etc/gettydefs and /etc/motd files.
+# 11) Modify miscellaneous files.
+# 12) Perform miscellaneous setup procedures:
+#     a) Run /net/bismol/App/admin/bin/setup
+#     b) Run /usr/local/bin/ninstall -h bismol lp adm net3
+#     c) Run /usr/adm/netdist/netdaemon.dy
+#     d) Run /usr/sbin/catman -w
+# 13) Set the system up for ClearCase installation upon automatic reboot.
+# 14) Install optional software and patches from the specified depot server.
+#
+# END of Useful Comments Section
+################################################################################
+#
+##
+### Variables
+##
+#
+
+SRC_FILE=/pdl-config.src
+
+BASE=${0##*/}
+HOST=`/bin/uname -n`
+ARCH=`/bin/uname -m`
+OS=`/bin/uname -r | /usr/bin/cut -c 3-4`
+integer INDEX=0
+
+#
+##
+### Functions
+##
+#
+
+function error {
+  print -u2 "\t$BASE: Error: $1"
+}
+
+function warning {
+  print -u2 "\t$BASE: Warning: $1"
+}
+
+function display {
+  print "\t$1"
+}
+
+function usage {
+  display "\t$BASE [-usage]"
+  display "        -usage:         Print this usage message"
+  display " "
+  error "$1"
+  exit 1
+}
+
+function step {
+  let INDEX=INDEX+1
+  display "\tStep #$INDEX: $@"
+}
+
+function get_shar {
+step "Get shell archive from ftp server and unpack"
+  cd /
+  ftp -n $FTP_SERVER <<@EOD
+user $FTP_USER $FTP_PASSWD
+cd $SHAR_DIR
+get $SHAR_FILE
+quit
+@EOD
+if [ $? -ne 0 ]; then
+  error "Unable to ftp $SHAR_FILE from $FTP_SERVER"
+  exit 1
+fi
+sh $SHAR_FILE >> $LOGFILE 2>&1
+if [ $? -ne 0 ]; then
+  error "Cannot unpack shell archive."
+  exit 1
+fi
+/bin/rm -f $SHAR_FILE
+}
+
+function clearcase_setup {
+  if [ "$CLEARCASE" = "no" ]; then
+    /bin/rm -f /sbin/rc3.d/S998install_clearcase
+    /bin/rm -f /sbin/rc3.d/S999install_eclipse
+  fi
+}
+
+function chk_uid {
+  if [ $(id -u) -ne 0 ]; then
+    error "Must be root to execute this command... Exiting!"
+    exit 1
+  fi
+}
+
+function chk_arch {
+  case $ARCH in
+    9000/7[1-3]*|9000/755|9000/7[7-8]*|9000/8**)
+      continue
+    ;;
+
+    *)
+      warning "\tUnknown machine type $ARCH, Exiting!"
+      exit 1
+    ;;
+  esac
+}
+
+function read_src {
+  if [ -a $SRC_FILE ]; then
+    . $SRC_FILE
+    case "$CLEARCASE" in
+      y|Y|yes|YES|Yes|1)
+        CLEARCASE=yes
+        ;;
+      *)
+        CLEARCASE=no
+        ;;
+    esac
+    case "$SWINSTALL" in
+      y|Y|yes|YES|Yes|1)
+        SWINSTALL=yes
+      ;;
+      *)
+        SWINSTALL=no
+     ;;
+    esac
+  else
+    error "Source file does not exist!"
+    exit 1
+  fi
+}
+
+function set_mode {
+  case "$INTERACTIVE" in
+    y|Y|yes|YES|Yes|1)
+      INTERACTIVE=yes
+    ;;
+    *)
+      INTERACTIVE=no
+    ;;
+  esac
+}
+
+function fast_enet {
+  if [ "_$ENET_DRVRS" = "_" ]; then
+    FAST_ENET=no
+  else
+    FAST_ENET=yes
+  fi
+}
+
+function mod_kernel {
+  step "Modify /stand/system file."
+  grep -v -E 'maxswapchunks|default_disk_ir|nstrpty' /stand/system \
+  > /stand/system.new
+  /bin/mv /stand/system /stand/system.orig
+  /bin/mv /stand/system.new /stand/system
+
+  case $ARCH in
+    9000/7[1-5]*)
+      echo "bufpages         0" >> /stand/system
+      echo "create_fastlinks 1" >> /stand/system
+      echo "dbc_max_pct     25" >> /stand/system
+      echo "default_disk_ir 1" >> /stand/system
+      echo "fs_async        1" >> /stand/system
+      echo "maxdsiz         (256*1024*1024)" >> /stand/system
+      echo "maxfiles        256" >> /stand/system
+      echo "maxfiles_lim    2048" >> /stand/system
+      echo "maxssiz         (80*1024*1024)" >> /stand/system
+      echo "maxswapchunks   4096" >> /stand/system
+      echo "maxuprc         500" >> /stand/system
+      echo "maxusers        150" >> /stand/system
+      echo "netmemmax       0" >> /stand/system
+      echo "nfile           7000" >> /stand/system
+      echo "nflocks         400" >> /stand/system
+      echo "ninode          20000" >> /stand/system
+      echo "nproc           1500" >> /stand/system
+      echo "npty            512" >> /stand/system
+      echo "nstrpty         512" >> /stand/system
+      echo "semmns          200" >> /stand/system
+      if [ "$OS" = "10" ]; then
+        echo "large_ncargs_enabled 1" >> /stand/system
+      fi
+    ;;
+
+    9000/7[7-8]*|9000/8**)
+      echo "bufpages         0" >> /stand/system
+      echo "create_fastlinks 1" >> /stand/system
+      echo "dbc_max_pct     25" >> /stand/system
+      echo "default_disk_ir 1" >> /stand/system
+      echo "fs_async        1" >> /stand/system
+      echo "maxdsiz         (512*1024*1024)" >> /stand/system
+      echo "maxfiles        256" >> /stand/system
+      echo "maxfiles_lim    2048" >> /stand/system
+      echo "maxssiz         (80*1024*1024)" >> /stand/system
+      echo "maxswapchunks   4096" >> /stand/system
+      echo "maxuprc         1000" >> /stand/system
+      echo "maxusers        256" >> /stand/system
+      echo "netmemmax       0" >> /stand/system
+      echo "nfile           14000" >> /stand/system
+      echo "nflocks         800" >> /stand/system
+      echo "ninode          40000" >> /stand/system
+      echo "nproc           3000" >> /stand/system
+      echo "npty            512" >> /stand/system
+      echo "nstrpty         512" >> /stand/system
+      echo "semmns          400" >> /stand/system
+      if [ "$OS" = "10" ]; then
+        echo "large_ncargs_enabled 1" >> /stand/system
+      fi
+    ;;
+
+    *)
+      warning "Unknown machine model $ARCH!"
+      warning "Leaving kernel parameters as default"
+      /bin/mv /stand/system.orig /stand/system
+    ;;
+  esac
+} # mod_kernel
+
+function greet {
+  display "\tADL System Configuration script."
+  display
+  display "\tYou are about to install and modify various system files,"
+  display "\tinstall system patches, install optional software and,"
+  display "\tif you elected to do so, install ClearCase 3.2."
+  display
+  display "\tIf you wish to modify the parameters below exit the install"
+  display "\tand modify the parameters in the $SRC_FILE file."
+  display
+  display "\tMachine Name:\t\t\t$MACHINE_NAME"
+  display "\tMachine Usage:\t\t\t$MACHINE_USAGE"
+  display "\tMacine Location:\t\t$LOCATION"
+  display "\tOwner's Fullname:\t\t$OWNER_NAME"
+  display "\tOwner's Email:\t\t\t$OWNER_EMAIL"
+  display "\tOwner's Extension:\t\t$OWNER_EXTENSION"
+  display "\tInstall ClearCase?:\t\t$CLEARCASE"
+  display "\tInstall 100Mbit Drivers?:\t$FAST_ENET"
+  if [ "$SWINSTALL" = "yes" ]; then
+    display "\tThe following products will be installed from $DEPOT:"
+    display "\t$PRODUCTS"
+    display
+  else
+    display
+  fi
+  if [ "$INTERACTIVE" = "yes" ]; then
+    display "\tContinue installation with these parameters (Y|n)?\c"
+    display
+    answer=y
+    read answer
+    case "$answer" in
+      y|Y|yes|Yes|YES|"")
+        continue
+      ;;
+      *)
+        display
+        display "\tYou have chosen NOT to run the $BASE setup script...
+Exiting"
+        exit 1
+      ;;
+    esac
+  fi
+} # greet
+
+function mod_rc_files {
+  /usr/sbin/ch_rc -ap AUDIO_SERVER=0 >> $LOGFILE 2>&1
+  /usr/sbin/ch_rc -ap LIST_TEMPS=0 >> $LOGFILE 2>&1
+  /usr/sbin/ch_rc -ap CLEAR_TMP=1 >> $LOGFILE 2>&1
+  /usr/sbin/ch_rc -ap HPARRAY_START_STOP=0 >> $LOGFILE 2>&1
+  /usr/sbin/ch_rc -ap NIS_CLIENT=1 >> $LOGFILE 2>&1
+  /usr/sbin/ch_rc -ap NIS_DOMAIN=pdl >> $LOGFILE 2>&1
+  /usr/sbin/ch_rc -ap START_LLBD=0 >> $LOGFILE 2>&1
+  /usr/sbin/ch_rc -ap NTPDATE_SERVER=cupertino.ntp.hp.com >> $LOGFILE 2>&1
+  /usr/sbin/ch_rc -ap XNTPD=1 >> $LOGFILE 2>&1
+  /usr/sbin/ch_rc -ap NETTL=0 >> $LOGFILE 2>&1
+  /usr/sbin/ch_rc -ap NUM_NFSIOD=16 >> $LOGFILE 2>&1
+  /usr/sbin/ch_rc -ap VTDAEMON_START=0 >> $LOGFILE 2>&1
+  if [ "$OS" = "10" ]; then
+    /usr/sbin/ch_rc -ap WAIT_FOR_NIS_SERVER=FALSE >> $LOGFILE 2>&1
+  fi
+}
+
+function mod_etc_files {
+  step "/etc files setup"
+  print "+auto.master" > /etc/auto_master
+  /bin/chmod 644 /etc/auto_master
+  /bin/chown root:root /etc/auto_master
+
+  sed "s/GenericSysName/$MACHINE_NAME/" /etc/issue > /etc/issue-new
+  /bin/mv /etc/issue /etc/issue-orig
+  /bin/mv /etc/issue-new /etc/issue
+
+  sed "s/Console Login:/$MACHINE_NAME Console Login:/" /etc/gettydefs \
+    > /etc/gettydefs-new
+  /bin/mv /etc/gettydefs /etc/gettydefs-orig
+  /bin/mv /etc/gettydefs-new /etc/gettydefs
+
+  /bin/banner $MACHINE_NAME > /etc/motd
+  /bin/uname -a >> /etc/motd
+  cat >> /etc/motd <<:END
+
+*******************************************************************************
+* This is a private system operated for the Hewlett-Packard Company
+business. *
+* Authorization from HP management is required to use this system.
+*
+* Use by unauthorized persons is prohibited.
+*
+
+*******************************************************************************
+For System Support: Mon-Fri 8:00-5:00 Email (site-ux@cup.hp.com)
+Phone: t-447-1212 After hours/weekend Pre-arrange: t-447-0629
+
+-------------------------------------------------------------------------------
+Usage:    $MACHINE_USAGE
+Owner:    $OWNER_NAME ($OWNER_EMAIL) Phone: $OWNER_EXTENSION
+Location: $LOCATION
+
+-------------------------------------------------------------------------------
+:END
+
+  sed "s/Root user/Root\@$HOST/" /etc/passwd > /tmp/passwd-new
+  /bin/mv /tmp/passwd-new /etc/passwd
+} # mod_etc_files
+
+function mod_misc_files {
+  step "Miscellaneous file setup"
+  /bin/rm -f /var/adm/cron/at.allow
+  /bin/rm -f /var/adm/cron/cron.allow
+  /bin/chmod 644 /dev/lan*
+  case "$WORKSTATION" in
+    y|Y|yes|YES|Yes|1)
+      WORKSTATION=yes
+    ;;
+    *)
+      WORKSTATION=no
+    ;;
+  esac
+  if [ "$WORKSTATION" = "yes" ]; then
+    /bin/sed -e "s/#  \*/   \*/" Xservers > /tmp/Xservers-new
+    /bin/mv /tmp/Xservers-new /etc/dt/config/Xservers
+    /bin/chmod 444 /etc/dt/config/Xservers
+    /bin/chown root:other /etc/dt/config/Xservers
+  fi
+}
+
+function misc_setup {
+  step "Setup Application Server"
+  /net/bismol/App/admin/bin/setup >> $LOGFILE 2>&1
+
+  step "Ninstalling lp, adm and net3 packages"
+  /usr/local/bin/ninstall -h bismol lp adm net3 >> $LOGFILE 2>&1
+
+  step "Run netdaemon.dy"
+  /usr/adm/netdist/netdaemon.dy >> $LOGFILE 2>&1
+
+  step "Create the whatis database"
+  /usr/sbin/catman -w >> $LOGFILE 2>&1
+}
+
+function inst_sw {
+  if [ "$SWINSTALL" = "yes" ]; then
+    step "Installing Patches and Optional Software, be patient!"
+    /usr/sbin/swinstall -s $DEPOT -x $OPTIONS $PRODUCTS $ENETDRVR >>
+$LOGFILE 2>&1
+  else
+    step "Rebuilding kernel with new parameters."
+    /usr/sbin/mk_kernel -v -o /stand/vmunix >> $LOGFILE 2>&1
+    step "Rebooting the system..."
+    cd /
+    /usr/sbin/shutdown -ry 0
+  fi
+}
+
+#
+##
+### Main
+##
+#
+
+chk_uid
+chk_arch
+read_src
+set_mode
+fast_enet
+greet
+mod_kernel
+get_shar
+mod_rc_files
+mod_etc_files
+mod_misc_files
+misc_setup
+clearcase_setup
+inst_sw

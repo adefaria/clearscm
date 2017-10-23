@@ -1,0 +1,294 @@
+#!/bin/bash
+################################################################################
+#
+# File:         build
+# Description:  Perform building in parallel
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Jun  2 11:19:46 PDT 2003
+# Language:     bash
+# Modification: 6/2/2003 AD: Added code to handle new cards (if present)
+#		6/11/2003 AD: Added -nomonitor option to pop up monitor windows 
+#		(default). Added -sequential option to build sequentially 
+#		instead of parallel per card. Default off. Added -wait option
+#		to wait for all jobs to complete. Default off.
+#		6/17/2003 AD: Changed 2310_onu to onu2310 as the card directory
+#		has changed.
+#
+# (c) Copyright 2001-2003, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Commands used
+make="$SITE_TOOLS_PATH/bin/smake"
+
+# Get cards definition
+. $SITE_TOOLS_PATH/adm/etc/cards
+
+# Positioning for geometry parameter
+declare -i xpos=10
+declare -i ypos=10
+declare -i yinc=175
+declare -i index=1
+
+# Because of a problem with the make system we must stagger the parallel
+# makes to avoid collisions with .d dependency files. Here we set the
+# sleep interval between builds.
+declare -i sleep_interval=${sleep_interval:-35}
+
+function usage {
+  if [ ! -z "$1" ]; then
+    error "$1\n"
+  fi
+  display "Usage: $me: [-cle|an | -clo|bber] [-n|omonitor] [-w|ait] [-s|equential]"
+  display "\t      [-q|uiet] [-t|ee <filename>] [-v|erbose] [-d|ebug] [-u|sage]"
+  display "\t      [card...]"
+  display
+  display "Where:"
+  display "\t-clean:\t\tPerform make clean before building"
+  display "\t-clobber:\tPerform make clobber before building"
+  display "\t-nomonitor:\tDo not put up monitor windows"
+  display "\t-wait:\t\tWait for all builds to complete before"
+  display "\t\t\treturning to the shell"
+  display "\t-sequential:\tPerform builds sequentially (not parallel by card)"
+  display "\t-quiet:\t\tBe quiet"
+  display "\t-tee:\t\tAppend build.log to <filename>"
+  display "\t-verbose:\tTurn on verbose mode"
+  display "\t-debug:\t\tTurn on debug mode"
+  display "\t-usage:\t\tDisplay usage"
+  display "\t<card>\t\tBuild only for these individual card(s)"
+  exit 1
+} # usage
+
+# Get parameters
+clean="no"
+clobber="no"
+monitor="yes"
+wait="no"
+sequential="no"
+quiet="no"
+teefile=""
+cards_passed_in=""
+
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -u|-usage)
+      usage
+    ;;
+
+    -cle|-clean)
+      clean="yes"
+    ;;
+
+    -clo|-clobber)
+      clobber="yes"
+    ;;
+
+    -n|-nomonitor)
+      monitor="no"
+    ;;
+
+    -s|-sequential)
+      sequential="yes"
+    ;;
+
+    -w|-wait)
+      wait="yes"
+    ;;
+
+    -q|-quiet)
+      quiet="yes"
+    ;;
+
+    -v|-verbose)
+      verbose="yes"
+    ;;
+
+    -d|-debug)
+      debug="yes"
+    ;;
+
+    -t|-tee)
+      if [ $# -le 1 ]; then
+        usage "Tee filename is mmissing"
+      else
+	shift
+        teefile="$1"
+      fi
+    ;;
+
+    *)
+      cards_passed_in="$cards_passed_in $(echo $1 | tr [:upper:] [:lower:])"
+      ;;
+  esac
+  shift
+done
+
+# Check to see if they specified both clean AND clobber!
+if [ $clean = "yes" -a $clobber = "yes" ]; then
+  usage "Cannot specify both clean and clobber!"
+fi
+
+# If cards were passed in, make sure that they are all on the list
+# and replace the standard definition of cards:
+if [ ! -z "$cards_passed_in" ]; then
+  for card_passed_in in $cards_passed_in; do
+    match="no"
+
+    for card in $cards; do
+      if [[ $card_passed_in = $card ]]; then
+        # If we match then set flag and break out of this for loop
+        match="yes"
+	break
+      fi
+    done
+
+    # If we've fallen through with no match then we error out
+    if [[ $match = "no" ]]; then
+      error "The card specified, $card_passed_in, is an unknown card!" 10
+    fi
+  done
+
+  # Now replace $cards    
+  cards="$cards_passed_in"
+fi
+
+# Check if we are in a view and if we are in the build area
+view=$(cleartool pwv -short)
+
+if [[ $view = "** NONE **" ]]; then
+  error "Not in a view!" 1
+fi
+
+# Check to see if we are in the proper build directory
+current_dir=$(basename $(pwd))
+
+if [ "$current_dir" != "build" ]; then
+  error "Not in $view's build directory!" 2
+fi
+
+# Clean if requested
+if [ $clean = "yes" ]; then
+  verbose "Cleaning up..."
+  if [ $quiet = "yes" ]; then
+    if [ -z "$teefile" ]; then
+      $make clean > /dev/null 2>&1
+    else
+      $make clean >> $teefile
+    fi
+  else
+    if [ -z "$teefile" ]; then
+      $make clean
+    else
+      $make clean 2>&1 | tee -a $teefile
+    fi
+  fi
+fi
+      
+# Clobber if requested
+if [ $clobber = "yes" ]; then
+  verbose "Clobbering old build..."
+  if [ $quiet = "yes" ]; then
+    if [ -z "$teefile" ]; then
+      $make clobber > /dev/null 2>&1
+    else
+      $make clobber >> $teefile
+    fi
+  else
+    if [ -z "$teefile" ]; then
+      $make clobber
+    else
+      $make clobber 2>&1 | tee -a $teefile
+    fi
+  fi
+fi
+      
+declare -i build_status=0
+declare -i overall_status=0
+
+# Now perform a build for each card
+for card in $cards; do
+  # Check to see if card's build directory is present
+  if [ "$card" = "scc" ]; then
+    card_dirname="sc"
+  else
+    card_dirname=$card
+  fi
+
+  if [ -d "$card_dirname" ]; then
+    if [ "$quiet" = "no" -a -z "$teefile" ]; then
+      echo -n "Starting build job for $card..."
+    fi
+
+    # Clear out build log file
+    rm -f $card.build.log
+
+    # Start make
+    if [ "$sequential" = "yes" ]; then
+      if [ ! -z "$teefile" ]; then
+        $make $card.sf 2>&1 | tee -a $teefile > $card.build.log
+	# Note: Need to grab the status of make from the PIPESTATUS
+	#       array, otherwise the return status of a pipe is the
+	#	same as the status of the last command in the pipe,
+	#	in this case the tee! For a pipe, ${PIPESTATUS[0]}
+	#	is the return status of the first command in the pipe,
+	#	${PIPESTATUS[1]} is the status of the second command
+	#	and so on.
+        build_status=${PIPESTATUS[0]}
+	let overall_status=overall_status+build_status
+      else
+        $make $card.sf > $card.build.log 2>&1
+        build_status=$?
+	let overall_status=overall_status+build_status
+      fi
+    else 
+      $make $card.sf > $card.build.log 2>&1 &
+
+      if [ "$monitor" = "yes" ]; then
+        # Put up a monitor window
+        rxvt \
+          -title "Monitoring build of $card - type Control-C to close window" \
+          -geometry 80x10+$xpos+$ypos \
+          -e tail -f $card.build.log &
+
+        # Adjust positions and index
+        let ypos=ypos+yinc
+        let index=index+1
+      fi
+
+      # Sleep to avoid .d dependency file collisions
+      if [ "$quiet" = "no" ]; then
+        echo " Sleeping for $sleep_interval seconds..."
+      fi
+      sleep $sleep_interval
+
+      # This disown is required or else when this script exits it will send
+      # SIGHUPs to all jobs stated from this script.
+      disown -h
+    fi
+  fi
+done
+
+if [ "$wait" = "yes" ]; then
+  wait
+  overall_status=$?
+fi
+
+exit $overall_status

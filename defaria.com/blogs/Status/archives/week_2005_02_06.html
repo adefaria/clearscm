@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: February  6, 2005 - February 12, 2005 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2005_01_30.html" title="January 30, 2005 - February  5, 2005" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2005_02_13.html" title="February 13, 2005 - February 19, 2005" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2005_01_30.html">&laquo; January 30, 2005 - February  5, 2005</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2005_02_13.html">February 13, 2005 - February 19, 2005 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">February 11, 2005</h2>
+                     <a id="a000298"></a>
+                     <div class="entry" id="entry-298">
+                        <h3 class="entry-header">More int_tools changes</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Implemented the -XX addition to product numbers</li>
+</ul>
+                              
+                              <p>The solution was simple but it was also not ideal. The expect scripts currently merely fill a few arrays with numbers from ranges like 18000-18999, 19000-19999, etc. Then, later on they just grab a number from the array.</p>
+
+<p>The idea of adding "-xx" to the end of the product numbers is to allow for different versions down the road. So one might have 18000-00.devos.tar.gz and 18001-00.other.package.tar.gz. Other times there might be 18000-00.devos.tar.gz and 18001-01.other.package.tar.gz. IOW different "-xx"'s in the product range. Unfortunately the way the expect scripts are coded this is not easy to do.</p>
+
+<p>So for now we are just implementing this by adding -00 to the end. IOW all -xx's must be the same, for now...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:31 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000298.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February  9, 2005</h2>
+                     <a id="a000297"></a>
+                     <div class="entry" id="entry-297">
+                        <h3 class="entry-header">ECR 23248 Toolchain build failure</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked with Adam to retag the toolchain and rebuild. Build failed. Filed ECR 23248</li>
+
+  <li>Went on to get the int_tools to work after modifying them to take into account recent changes in tagging and build directory names</li>
+</ul>
+                              
+                              <p>ECR 23248: Toolchain build fails due to problem in LynxOS header file:</p>
+
+<p>In attempting to build top of the gcc_3_2_2-branch gdb fails to build
+with the following:</p>
+
+<div class="code"></pre>
+gcc -x c -P -E -dM -nostdinc -g -O2  -D__Lynx__   -I.  /config
+-I/export/build1/LYNXOS_500/work_area/toolchain/3.2.2/toolchain/src/gdb
+-I/export/build1/LYNXOS_500/work_area/toolchain/3.2.2/toolchain/src/gdb
+-I/export/build1/LYNXOS_500/work_area/toolchain/3.2.2/toolchain/src/gdb
+-I/export/build1/LYNXOS_500/work_area/toolchain/3.2.2/toolchain/src/gdb-DHAVE_CONFIG_H /../include/opcode /../readline/.. -I../bfd /../bfd
+-I/export/build1/LYNXOS_500/work_area/toolchain/3.2.2/toolchain/src/gdb/../include -I../intl /../intl -DGDBTK -DCROSS_DEBUGGER -idirafter
+/export/build1/LYNXOS_500/build/lynxos/20050207/x86/sys/include/kernel
+/export/build1/LYNXOS_500/build/lynxos/20050207/x86/sys/include/family/-idirafter `echo i386-lynx-lynxos | sed -e 's/-.*//' -e 's/i.86/x86/'
+-e 's/powerpc/ppc/'` -idirafter
+/export/build1/LYNXOS_500/build/lynxos/20050207/x86/usr/include -I
+/export/build1/LYNXOS_500/build/lynxos/20050207/x86/usr/include -I
+/export/build1/LYNXOS_500/build/lynxos/20050207/x86/sys/include/kernel
+/export/build1/LYNXOS_500/build/lynxos/20050207/x86/sys/include/family/-I `echo i386-lynx-lynxos | sed -e 's/-.*//' -e 's/i.86/x86/' -e
+'s/powerpc/ppc/'` tm-lynx.th-rn || exit 2; \<br>
+  echo; echo "#endif /* $guard */" ) > tm-lynx.ti<br>
+In file included from /export/build1/LYNXOS_500/build/lynxos/20050207/x86/usr/include/stdint.h:15,<br>
+                 from /export/build1/LYNXOS_500/build/lynxos/20050207/x86/sys/include/family/x86/arch_mem.h:15,<br>
+                 from /export/build1/LYNXOS_500/work_area/toolchain/3.2.2/toolchain/src/gdb/config/tm-lynx.th:6:<br>
+/export/build1/LYNXOS_500/build/lynxos/20050207/x86/usr/include/sys/cdefs.h:432:2: #error "Unsupported size of long double"<br>
+make[2]: *** [tm-lynx.ti] Error 1<br>
+rm tm-lynx.th-rn<br>
+make[2]: Leaving directory `/export/build1/LYNXOS_500/build/toolchain/3.2.2/20050207/build-i386/gdb'<br>
+make[1]: *** [all-gdb] Error 2<br>
+make[1]: Leaving directory `/export/build1/LYNXOS_500/build/toolchain/3.2.2/20050207/build-i386'<br>
+make: *** [stamp-all-i386] Error 2<br>
+</pre></div>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  4:19 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000297.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February  8, 2005</h2>
+                     <a id="a000296"></a>
+                     <div class="entry" id="entry-296">
+                        <h3 class="entry-header">CVS Tag Problems</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Spent most of the day attempting to build the TOB Toolchain by first tagging it with DEV_LYNXOS_3P2P2_ALL_20050207. The tagging operation has some problems and I suspect not everything that needed to get tagged got tagged.</p>
+
+<p>Have been hunting down and tagging things hopefully appropriately in order to get things to build but I'm still having some problems.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:28 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000296.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">February  7, 2005</h2>
+                     <a id="a000295"></a>
+                     <div class="entry" id="entry-295">
+                        <h3 class="entry-header">cvs_report.pl</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Changed cvs_report.pl to:</p>
+
+<ul>
+  <li>Properly handle branches</li>
+
+  <li>Create/use a data file instead of writing out an HTML file.</li>
+
+  <li>Not create a data file is it has not changed since the last report</li>
+</ul>
+
+<p>Changed http://saturn.lynx.com/cvsr to generate HTML from the above datafiles.</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:52 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000295.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

@@ -1,0 +1,354 @@
+/* LCARS
+   Stylesheet for http://jemimap.freeshell.org/moveabletype/ 
+   based on MT's Clean.  Voyager LCARS colors taken from 
+   http://www.cbcn-online.com/archive/lcars/alt.startrek.lcars_main.html
+
+  Colors:
+  #000000: black
+  #FFCC99, FFCC66, CCCC99: yellows
+  #FF9900: orange
+  #FF9966: peach
+  #CC6666: salmon
+  #CC6699: dk. lavender
+  #CC99CC: lavender
+  #9999FF, 9999CC, 99CCFF: blue
+  
+  Values: top right bottom left
+*/
+
+	body {
+		margin: 0px 0px 20px 20px;
+		background: #000000;
+		color: #CCCCFF;
+		}
+
+	A 		{ color: #FFCC99; text-decoration: none; }
+	A:link		{ color: #FFCC66; text-decoration: none; }
+	A:visited	{ color: #FFCC99; text-decoration: none; }
+	A:active	{ color: #FF9966;  }
+	A:hover		{ color: #CC6666;
+			  text-decoration: none;
+			  padding-left: 3px;
+			  padding-right: 3px; 
+			  border: 1px solid #CC6666; 
+			  -moz-border-radius: 10px;
+			  }
+
+	h1, h2, h3 {
+		margin: 0px;
+		padding: 0px;
+	}
+
+	#banner {
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		color: #CCCC99;
+		font-size: large;
+		font-weight: normal;	
+		text-transform: uppercase;
+  		padding: 15px;
+		padding-left: 25px;
+		border-left: 30px solid #FFCC66;
+                border-bottom: 12px solid #FFCC66;
+		-moz-border-radius-bottomleft: 90px;
+		}
+
+	#banner a,
+        #banner a:link,
+        #banner a:visited,
+        #banner a:active,
+        #banner a:hover {
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		color: #FFCC99;
+		font-size: x-large;
+		font-weight: lighter;
+		text-transform: uppercase;
+		letter-spacing: .2em;
+		padding: 0px;  
+		text-decoration: none;
+		border: none;
+		}
+
+	.description {
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		color: #CC99CC;
+		font-size: small;
+  		text-transform: uppercase;
+		letter-spacing: .2em;	
+		}
+				
+	#content {
+		position: absolute;
+		background: #000000;
+		margin-right: 0px;
+		margin-left: 195px;
+		margin-bottom: 20px;
+		}
+
+	#container {
+		background: #000000;
+		}
+
+	#links {
+	        margin-top: 25px;	
+		padding-top: 10px;				
+		padding-right: 30px;	
+		width: 170px;
+		color: #CCCCFF;
+		}
+
+	#links A {color: #CCCCFF; text-transform: uppercase;}
+	#links A:link {color: #CCCCFF; text-transform: uppercase;}
+	#links A:visited {color: #9999CC; text-transform: uppercase;}
+	#links A:active {color: #9999FF; text-transform: uppercase;}
+	#links A:hover {color: #99CCFF;
+			text-decoration: none;
+			padding-left: 3px;
+			padding-right: 3px; 
+			text-transform: uppercase;
+			border: 1px solid #99CCFF; 
+			-moz-border-radius: 10px;
+			}
+		
+	.blog {
+  		padding-left: 0px;
+		padding-top: 20px;
+		padding-bottom: 5px;
+		background: #000000; 
+		}
+
+	.blogbody {
+		font-family: Futura, Arial, "Trebuchet MS", sans-serif;
+		color: #FFFFCC;
+		font-size: small;
+		font-weight: normal;
+  		background: #000000;
+  		line-height: 200%;
+		padding-top: 10px;
+		padding-right: 10px;
+		padding-left: 15px;
+		border-left: 30px solid #9999CC;
+                border-top: 12px solid #9999CC;
+		-moz-border-radius-topleft: 70px;
+		}
+
+	.blogbody a,
+	.blogbody a:link,
+	.blogbody a:visited,
+	.blogbody a:active {
+		font-weight: normal;
+		text-decoration: underline;
+	}
+	.blogbody a:hover {
+		font-weight: normal;
+		text-decoration: none;
+	}
+
+	.title	{
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		font-size: medium;
+		font-weight: lighter;
+		text-transform: uppercase;
+		text-align: right;
+		padding-right: 10px;
+		color: #CC6666;
+		}			
+
+	#menu {
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		font-size: medium;
+		font-weight: lighter;
+		text-transform: uppercase;
+		text-align: right;
+		padding-left: 35px;
+		padding-right: 10px;
+		color: #FFCC99;
+  		margin-bottom: 0px;
+		text-align: left;
+		background: #000000;
+		}		
+
+	.date	{ 
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif; 
+		font-size: x-large;
+		font-weight: lighter;
+		letter-spacing: .2em; 
+		color: #CCCCCC;
+		margin-bottom: 10px;
+		margin-top: 15px;
+		padding-right: 10px;
+		text-transform: uppercase;
+		text-align: right;
+		}			
+		
+	.posted	{ 
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		font-size: small;
+		text-transform: uppercase; 
+		color: #CC6666; 
+		margin-bottom: 25px;
+		}
+
+	.posted A, 
+	.posted A:link, 
+	.posted A:visited, 
+	.posted A:active, 
+	.posted A:hover {text-decoration: none;}
+		
+	
+	.side {
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		color: #FFCC99;
+		font-size: smaller;
+		font-weight: normal;
+		text-transform: uppercase;
+  		background: #000000;
+  		line-height: 140%;
+  		padding: 2px;
+		padding-left: 10px;
+		margin-bottom: 20px;				
+		}
+
+	.calendar {
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		font-size: x-small;
+		color: #FFCC99;
+  		background: #000000;
+  		line-height: 140%;
+  		padding: 2px;
+		}	
+		
+	.sidetitle, .calendarhead {
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		font-size: small;
+		font-weight: normal;
+  		padding: 2px;
+  		margin-top: 10px;
+		margin-bottom: 10px;
+		letter-spacing: .3em;
+  		color: #000000;
+  		text-transform: uppercase;
+		text-align: center;		
+		background: #CC99CC;
+		-moz-border-radius: 14px;
+		}		
+	
+	.syndicate {
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		font-size: small;
+		padding-right: 30px;	
+  		line-height: 140%;
+  		padding: 2px;
+		padding-left: 10px;
+  		margin-top: 15px;
+		color: #FFCC99;
+  		background: #000000; 
+ 		}	
+		
+	.powered {
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		color: #CC6666;
+		font-size: small;		
+		line-height: 140%;
+		text-align: center;
+		text-transform: uppercase; 
+		padding: 2px;
+		margin-top: 30px;
+		letter-spacing: .2em;					
+  		background: #000000;		
+		border: 3px solid #CC6666;
+		-moz-border-radius: 50px; 
+		}	
+		
+	
+	.comments-body {
+		font-family: Futura, Arial, "Trebuchet MS", sans-serif;
+		color: #FFFFCC;
+		font-size: small;
+		font-weight: normal;
+  		background: #000000;
+  		line-height: 140%;
+ 		padding: 10px 10px 5px 15px;
+		margin-bottom: 15px;
+		border-left: 25px solid #9999CC;
+                border-top: 10px solid #9999CC;
+		-moz-border-radius-topleft: 40px;		
+		}		
+
+	.comments-post {
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		color: #CC6666;
+		font-size: small;
+		font-weight: normal;
+		text-transform: uppercase;
+  		background: #000000;		
+		}	
+			
+	
+	.trackback-url {
+		font-family: Futura, Arial, "Trebuchet MS", sans-serif;
+		color: #CC6666;
+		font-size: small;
+		font-weight: normal;
+  		background: #000000;
+  		line-height: 140%;
+ 		padding: 5px 10px 5px 20px;
+		text-align: right;
+		}
+
+
+	.trackback-body {
+		font-family: Futura, Arial, "Trebuchet MS", sans-serif;
+		color: #FFFFCC;
+		font-size: small;
+		font-weight: normal;
+  		background: #000000;
+  		line-height: 140%;
+ 		padding: 10px 10px 5px 15px;
+		margin-bottom: 15px;
+		margin-top: 10px;
+		border-left: 25px solid #9999CC;
+                border-top: 10px solid #9999CC;
+		border-bottom: 10px solid #9999CC;
+		-moz-border-radius-topleft: 40px;
+		-moz-border-radius-bottomleft: 40px;
+		}		
+
+	.trackback-post {
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		color: #CC6666;
+		font-size: small;
+		font-weight: normal;
+		text-transform: uppercase;
+  		background: #000000;		
+		}	
+
+		
+	.comments-head	{ 
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		font-size: large;
+		font-weight: lighter;  
+		color: #CCCCCC; 
+		margin-top: 5px;
+  		background: #000000;		
+		text-transform: uppercase;
+		text-align: right;
+		letter-spacing: .1em;
+		margin-bottom: 5px;
+		padding-right: 5px;
+		}		
+
+	#banner-commentspop {
+		font-family: "Futura Condensed", "Arial Narrow", Futura, Arial, "Trebuchet MS", sans-serif;
+		color: #FFCC99;
+		font-size: x-large;
+		font-weight: lighter;
+		text-transform: uppercase;
+		letter-spacing: .1em;
+  		background: #000000;
+  		padding: 10px 15px 15px 15px;
+		border-left: 25px solid #FFCC66;
+                border-bottom: 10px solid #FFCC66;
+		-moz-border-radius-bottomleft: 40px;
+		}
+
+

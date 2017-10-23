@@ -1,0 +1,39 @@
+#!/bin/bash
+################################################################################
+#
+# File:         viewservers
+# RCS:          $Header: viewservers,v 1.1 98/01/27 22:31:42 defaria Exp $
+# Description:  A script to execute a command on all view servers.
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Wed Mar  5 16:31:13 PST 1997
+# Modified:     Fri Jan 16 13:56:05 PST 1998
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+PATH=/adm/bin:$PATH
+
+if [ "$1" = "-r" ]; then
+  root=yes
+  shift
+fi
+
+for viewserver in $(get_info server_names viewserver); do
+  # Execute command. Note if no command is given then the effect is to
+  # rlogin to each machine.
+  print "$viewserver:$@"
+  if [ $# -gt 0 ]; then
+    if [ -z "$root" ]; then
+      remsh $viewserver -n "$@"
+    else
+      root remsh $viewserver -n "$@"
+    fi
+  else
+    if [ -z "$root" ]; then
+      remsh $viewserver
+    else
+      root remsh $viewserver
+    fi
+  fi
+done

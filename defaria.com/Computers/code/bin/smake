@@ -1,0 +1,117 @@
+#!/bin/bash
+################################################################################
+#
+# File:         smake
+# Description:  Salira make: Builds on the build server
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Dec  7 18:45:20  2001
+# Language:     bash
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Source /etc/site_parms
+if [ -f /etc/site_parms ]; then
+  . /etc/site_parms
+else
+  echo "$me: WARNING: /etc/site_parms does not exist!"
+fi
+
+# Set adm_base
+adm_base="$SITE_TOOLS_PATH/adm"
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Define the build_server
+build_server=$SITE_BUILD_SERVER
+
+# Get my host's name
+myhost=$(hostname | tr [:upper:] [:lower:])
+
+# Some simple checks. First are we in a build directory?
+parent_dir=$(echo ${PWD%/*})
+parent_parent_dir=$(echo ${PWD%/*/*})
+parent_parent_parent_dir=$(echo ${PWD%/*/*/*})
+current_dir=$(basename $PWD)
+
+if [ ! -z "$parent_dir" ]; then
+  parent_dir=$(basename $parent_dir)
+else
+  parent_dir=.
+fi
+
+if [ ! -z "$parent_parent_dir" ]; then
+  parent_parent_dir=$(basename $parent_parent_dir)
+else
+  parent_parent_dir=.
+fi
+
+if [ ! -z "$parent_parent_parent_dir" ]; then
+  parent_parent_parent_dir=$(basename $parent_parent_parent_dir)
+else
+  parent_parent_parent_dir=.
+fi
+
+if [  $parent_dir != "build" -a $parent_parent_dir != "build" -a $current_dir != "build" -a $parent_parent_parent_dir != "build" ]; then
+  echo "$me: Error: You are not currently in a build/target directory!"
+  echo "       Current working directory is $PWD"
+  exit 1
+fi
+
+# Now let's check to see that this directory is visible on the $build_server
+#rsh $build_server ls -d $PWD > /dev/null 2>&1
+
+#if [ $? -ne 0 ]; then
+#  echo "$me: Error: I cannot see $PWD from $build_server"
+#  echo "       This might be because your view is local"
+#fi
+
+# Now let's check to see if this file system is local
+filesystem=$(df . 2>/dev/null | grep -v ^Filesystem | /bin/head -1 | cut -f1 -d' ' | tr '\\' '/')
+
+if [ "$filesystem" = "${filesystem#//*}" -a $myhost != $build_server ]; then
+  echo "$me: Warning: You're on a local file system!"
+  echo "Build server: $myhost View: $(cleartool pwv -short) [local]"
+  echo "User: $USER Dir: $PWD"
+  echo "Performing build locally on $myhost"
+  echo "$myhost:make $@"
+  if [ $myhost = "sons-clearcase" ]; then
+    export TOOLS_ROOT=E:/Tools && nice make -e "$@"
+  elif [ $myhost = "sons-cc" -o $myhost = "sonsbld1" ]; then
+    export TOOLS_ROOT=C:/Tools && nice make -e "$@"
+  else
+    nice make "$@"
+  fi
+else
+  if [ $myhost = $build_server ]; then
+    # No need to rsh!
+    echo "Build server: $myhost View: $(cleartool pwv -short) [local]"
+    echo "User: $USER Dir: $PWD"
+    echo "Performing build locally on $myhost"
+    echo "$myhost:make $@"
+    if [ $myhost = "sons-clearcase" ]; then
+      export TOOLS_ROOT=E:/Tools && nice make -e "$@"
+    elif [ $myhost = "sons-cc" -o $myhost = "sonsbld1" ]; then
+      export TOOLS_ROOT=C:/Tools && nice make -e "$@"
+    else
+      nice make "$@"
+    fi
+  else
+    echo "Build machine: $build_server View: $(cleartool pwv -short) [remote]"
+    echo "Launched from: $myhost by $USER"
+    echo "Dir: $PWD"
+    echo "$build_server:make $@"
+    if [ $build_server = "sonsbld1" ]; then
+      rsh -n $build_server "cd $(pwd) && export TOOLS_ROOT=C:/Tools && nice make -e $@"
+    else
+      rsh -n $build_server "cd $(pwd) && export TOOLS_ROOT=E:/Tools && nice make -e $@"
+    fi
+  fi
+fi

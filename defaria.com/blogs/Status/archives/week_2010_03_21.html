@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: March 21, 2010 - March 27, 2010 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2010_03_14.html" title="March 14, 2010 - March 20, 2010" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2010_03_28.html" title="March 28, 2010 - April  3, 2010" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2010_03_14.html">&laquo; March 14, 2010 - March 20, 2010</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2010_03_28.html">March 28, 2010 - April  3, 2010 &raquo;</a>
+                     </p>
+                     
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2010_03_21.html#entry-000732"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/104"
+    dc:title="QC work/mktriggers progress/sync from Tandem issues
+"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2010_03_21.html#entry-000732"
+    dc:subject="General Electric"
+    dc:description=" Detailed which fields are currently getting QC Synchronized Updated vbs scripts to be more Unix like, accepting parameters, etc. and to be able to update the status both backwards and forwards, as well as have a -noexec mode. Met..."
+    dc:creator=""
+    dc:date="2010-03-26T19:18:23-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 26, 2010</h2>
+                     <a id="a000732"></a>
+                     <div class="entry" id="entry-732">
+                        <h3 class="entry-header">QC work/mktriggers progress/sync from Tandem issues
+</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Detailed which fields are currently getting QC Synchronized</li>
+
+  <li>Updated vbs scripts to be more Unix like, accepting parameters, etc. and to be able to update the status both backwards and forwards, as well as have a -noexec mode.</li>
+
+  <li>Met with ??? regarding QC synchronization</li>
+
+  <li>Worked a lot with Randy on Evil Twin issues for Polaris</li>
+
+  <li>Documented duplicate code problems</li>
+
+  <li>Documented how to use dynamic views in Eclipse</li>
+
+  <li>Working on trying to compare files from the pathway for SDDLS</li>
+
+  <li>Worked on getting mktriggers.pl finished.</li>
+</ul>
+                              
+                              <h2>Issues with getsysid.pl</h2>
+
+<p>There is a script called getsysid.pl which will get stuff from the Tandem and ftp it locally. The hope was that we could just get stuff back from the Tandem and then use something like diff -r to compare things. There are some issue with that:</p>
+
+<ol>
+  <li>Since files are coming off the Tandem their extensions are lost. Therefore while it may be foo.c when in Clearcase, it's just foo when it gets to the Tandem and thus when it comes back from the Tandem it's also just foo. diff -r will not be matching up foo and foo.c</li>
+
+  <li>Typically views on Windows in <i>transparent</i> mode retain their CRLF characteristics. In other words they are in "DOS" mode. Files come back from the Tandem however are in "Unix" mode. This makes every line report as different from diff!</li>
+
+  <li>There's the issue of these "squiggle" lines where version information is encoded in Clearcase and filled in on the Tandem (or visa versa). This lines, of course, will compare differently. Ugh!</li>
+</ol>
+
+<p>Perhaps a tool that can take these differences into account...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  7:18 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000732.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000732.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     <!--
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rdf:Description
+    rdf:about="http://defaria.com/blogs/Status/archives/week_2010_03_21.html#entry-000731"
+    trackback:ping="http://defaria.com/mt/mt-tb.cgi/103"
+    dc:title="SDDLS progress/m_pPerl != 0 fix/Merging directories"
+    dc:identifier="http://defaria.com/blogs/Status/archives/week_2010_03_21.html#entry-000731"
+    dc:subject="General Electric"
+    dc:description=" Updated documentation on UCM Batch Delivery to describe how to use user selectors on BF Release Power Point presentation about SDDLS component Found out that the m_pPerl != 0 bug is fixed by install package on SCM Tools page..."
+    dc:creator=""
+    dc:date="2010-03-24T14:25:10-06:00" />
+</rdf:RDF>
+-->
+
+
+                     <h2 class="date-header">March 24, 2010</h2>
+                     <a id="a000731"></a>
+                     <div class="entry" id="entry-731">
+                        <h3 class="entry-header">SDDLS progress/m_pPerl != 0 fix/Merging directories</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Updated documentation on UCM Batch Delivery to describe how to use user selectors on BF</li>
+
+  <li>Release Power Point presentation about SDDLS component</li>
+
+  <li>Found out that the m_pPerl != 0 bug is fixed by install package on SCM Tools page</li>
+
+  <li>Went through exercise with Randy of merging directories to allow backporting of code to an earlier release. General procedure is to use the Version Tree to select the appropriate parent directory, right click, merge to... and select the current view's version. Merge everything from the current view <b>except</b> the files that are to be backported. THis gets you an empty copy of the right OID. Then the user needs to do the same procedure with the individual files to get the content.</li>
+
+  <li>Made some progress with mktriggers.pl</li>
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  2:25 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000731.html">Permalink</a>
+                                 
+                                 | <a href="http://defaria.com/blogs/Status/archives/000731.html#trackback">TrackBacks (0)</a>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

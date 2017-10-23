@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: August 27, 2006 - September  2, 2006 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2006_07_09.html" title="July  9, 2006 - July 15, 2006" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2006_09_10.html" title="September 10, 2006 - September 16, 2006" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2006_07_09.html">&laquo; July  9, 2006 - July 15, 2006</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2006_09_10.html">September 10, 2006 - September 16, 2006 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">September  1, 2006</h2>
+                     <a id="a000562"></a>
+                     <div class="entry" id="entry-562">
+                        <h3 class="entry-header">Lost Packet</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Fixed Multisite problems</li>
+</ul>
+
+<p><b>Time spent:</b> 2 hours</p>
+                              
+                              <p>I looked on sons-sc-cc first for multisite errors. In /apps/Rational/Clearcase/var/logs there are logs regarding multisite. Some of the log files pointed me to look in the Event Viewer. In the Event Viewer I saw things like:</p>
+
+<div class="code"><pre>
+Event Type:        Error
+Event Source:      ClearCase
+Event Category:    Shipping_server
+Event ID:          1024
+Date:              7/15/2006
+Time:              10:59:43 AM
+User:              SALIRA\ccadmin
+Computer:          SONS-SC-CC
+Description:
+    shipping_server.exe(4448): Error: unable to contact the
+    albd on host 'sons-cc': timed out trying  to communicate
+    with ClearCase remote server
+Data:
+    0000: 60 11 00 00               `...   
+</pre></div>
+
+<p>I remember problems with sons-cc occasionally having its albd_server go whacky and taking up 50% of the CPU. Doesn't seem to be the case this time. Then again, the RDP session you have on adefaria -> sons-cc died. Perhaps the rebooted sons-cc. It's been up for about a day now.</p>
+
+<p>I RDPed to sons-cc and CC Doctor complained about a version incompatibility between CC and CQ. Looked around on sons-cc - there's no CQ installed there! Why was it removed?</p>
+
+<p>Hmmm... I RDPed to sons-clearcase. Seems it's only been up 3 hours! Must have been recently rebooted....</p>
+
+<p>It seems that a packet was lost somewhere. This is the complicated to do and complicated to explain procedure of setting epoch numbers back in time so as to replay the transactions and get everyone in the replica family on the same page...</p>
+
+<p>I think I got it all straightened out now...</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:08 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000562.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

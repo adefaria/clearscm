@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml"$>" />
+
+   <title>Status for Andrew DeFaria: May  2, 2004 - May  8, 2004 Archives</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/week_2004_04_25.html" title="April 25, 2004 - May  1, 2004" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/week_2004_05_09.html" title="May  9, 2004 - May 15, 2004" />
+</head>
+<body class="layout-one-column">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+                     
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/week_2004_04_25.html">&laquo; April 25, 2004 - May  1, 2004</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/week_2004_05_09.html">May  9, 2004 - May 15, 2004 &raquo;</a>
+                     </p>
+                     
+                     
+                     
+
+                     <h2 class="date-header">May  7, 2004</h2>
+                     <a id="a000174"></a>
+                     <div class="entry" id="entry-174">
+                        <h3 class="entry-header">ASAP_BUS_REQ</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<p><li>Responded to ASAP's request to move their vob in order to allow read only access to another group</li></p>
+
+<p><li>Packed...</li></p>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at 10:36 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000174.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">May  6, 2004</h2>
+                     <a id="a000173"></a>
+                     <div class="entry" id="entry-173">
+                        <h3 class="entry-header">ASAP_BUS_REQ/Flex LM</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Worked on ASAP_BUS_REQ request to set up a read only group</li>
+
+<li>Worked on Steve Nameroff's request to set up FlexLM monitoring</li>
+
+</ul>
+                              
+                              <h3>ASAP_BUS_REQ</h3>
+
+<p>I spoke with Rational (PMR # 32008999) regarding how to set it up so that one group (CC-ASAP-BUS) has read/write and another group (CC-ASAP-BUS-RO) has read only access to the ASAP_BUS_REQ vob while all others have no access. The problem is this: While there may be multiple groups associated with a vob there is only one group Read/Write/eXecute mask that is shared by all groups on the vob group list. So if CC-ASAP-BUS and CC-ASAP-BUS-RO are on the vob group list and the mask is Read/Write and execute then both the members of CC-ASAP-BUS and CC-ASAP-BUS-RO will have Read/Write and Execute access.</p>
+
+<p>There is a work around but it involves moving the ASAP_BUS_REQ vob to it's own share, setting ASAP_BUS_REQ to 774, thereby enabling Read access for "Other" then controlling access to this vob through the share permissions. This, unfortunately cannot be done today and you would need to enter a Paragrine ticket as well as schedule this. </p>
+
+<h3>FlexLM monitoring</h3>
+
+Steve wanted me to turn on FlexLM monitoring. According to Mike Hrenko:
+
+<blockquote>
+<p>You will need an options file on the license server to create the report log. In the options file you will add a REPORTLOG line to create a report log.</p>
+
+<p>For example: REPORTLOG +c:\flexlm\reportlog.rl</p>
+
+<p>The plus sign appends new information to the existing report log when you restart the license server. You must restart server to initiate reportlog.</p>
+</blockquote>
+
+<p>However, according to <a href="http://www.globetrotter.com/chap5.htm#wp894762">5.2.15 REPORTLOG</a> one only need to add the REPORTLOG [+]report_log_path to the proper options file. Further, according to <a href="http://www.globetrotter.com/chap5.htm#wp894762">5.1 Creating an Options File</a> one can create an option file anywhere. So I did. Called it Rational.opt. Restarted FlexLM but nothing. It says to add the path to the options file to the license file but I have not managed to locate a license file. Even searched the entire D drive for things like "VENDER Rational" to no avail.</p>
+
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:50 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000173.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">May  5, 2004</h2>
+                     <a id="a000172"></a>
+                     <div class="entry" id="entry-172">
+                        <h3 class="entry-header">Test web</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>Spend most of my time setting up a test environment for the web pages. Problem is that the web server (Apache) cannot see the M drive when started as a service so it must refer to a snapshot view. Created webview for this purpose. But how does on test when in order to do so would require to publish your changes?</p>
+
+<p>So I created another view, webtest. But how does Apache reference two different DocumentRoot's? We don't have the power of aliasing, and there's the two web servers to consider: c09-272-a and rtnlprod02.</p>
+
+<p>Ended up configuring Apache to listen on two different ports at the same time using VirtualHosts on both servers.</p>
+
+<p>Then I hit a problem with snapshot views not honoring symlinks properly - it copies the elements instead - and difficulty in updating such things. You see I was attempting to share css and images folders by means of a symlink. Abandoned that idea. Still need to hammer out where I have full URL's and pay attention to the different ports, etc...</p>
+
+<p>Emailed Rory Valle regarding backups, he says they are being done. Also prodded James Portugal again about LDAP access. Finally attended the CM Staff meeting</p>
+
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  5:45 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000172.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">May  4, 2004</h2>
+                     <a id="a000171"></a>
+                     <div class="entry" id="entry-171">
+                        <h3 class="entry-header">Core_automation and web pages</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Worked hard with the TTE group to try to resolve the problem with comparing versions. Reproduced problem in a snapshot view. Seems there is still some permissions problem lurking. Can compare in dynamic view. Can compare in an ASCII fashion. Cannot compare in a GUI fashion with any other version than version 0 (or other empty data container. Tried fix_prot. Tried vob_sidwalk. Nothing is working. Contacted Rational. Working with Rational on this problem.</li>
+
+<li>Moved web pages into CM_DOCS vob. Reconfigured web servers to point there. Changed LicenseMonitoring to work in this new context. Created webview snapshot view to access this with. Would like to use a dynamic view but Apache can't seem to see the M drive (Probably because it's running as a service).</li>
+
+</ul>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  8:59 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000171.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                     
+
+                     <h2 class="date-header">May  3, 2004</h2>
+                     <a id="a000170"></a>
+                     <div class="entry" id="entry-170">
+                        <h3 class="entry-header">Core_automation</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+
+<li>Helped Bruce Durbin create a dynamic view</li>
+
+<li>Worked with Loren Gifford on a problem he was having comparing elements</li>
+
+<li>Eventually needed to create new vob and import Core_automation to it</li>
+
+<li>Went to get cell phone.</li>
+
+<li>Wrote findview to search for views in all regions</li>
+
+</ul>
+                              
+                              <p>Bruce et. al. seem to be against using dynamic views. Apparently they want all there views to be centered at C:\QA. Also, test machine doesn't have Clearcase so they use snapshot views for that. Suggested they install Clearcase on the test machine and make their test automation work from a base.</p>
+
+<p>Re-created a snapshot view for him but was still unable to perform compares. Things are odd in that if I <b>Compare to another version</b> then I can compare the checked out version with it's predessor but if I did <b>Compare to previous</b> it fails with an error message of "Error while doing compare". Ended up asking Timmie to reinstall Clearcase. Not sure if this fixed his problem</p>
+
+<p>Users still reported problems with things like comparing versions. Mike determined through checkvob that there were still permissions problems on storage containers so we decided to create a new vob and clearexport_ccase/clearimport things. Unfortunately vobadm is not included in the CC-TTE group (nor the CC-EDA group) so I temporarily switched group ownership of this vob to CC-PMO, which vobadm is a member of, to do the import, then cleartool protectvob -chgrp back to CC-TTE</p>
+                              
+                              <p class="entry-footer">
+                                 <span class="post-footers">Posted by  at  3:09 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000170.html">Permalink</a>
+                                 
+                                 
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

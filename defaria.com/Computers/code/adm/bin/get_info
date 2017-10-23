@@ -1,0 +1,257 @@
+#! /bin/ksh
+#
+#   Usage       get_info { all_projects         |
+#                          all_members          |
+#                          all_project_members  |
+#                          member_project     { asok | dgross } |
+#                          project_attribute  { Codegen vwstation} |
+#                          member_attribute   { asok phone }    |
+#                          server_names       {
+#                                               buildserver |
+#                                               mailserver  |
+#                                               viewserver |
+#                                               virtualws  |
+#                                               vobserver  |
+#                                               webserver  } |
+#                          is_project
+#                          emit_error   { error_code returned by get_info()
+}
+#                        }
+#
+#
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-//sonscentral/Corporate/Software/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Set machines
+machines=${machines:-$adm_base/data/machines}
+
+# Source functions
+. $adm_fpath/common
+
+DBDIR=$adm_base/data/db/get_info
+alias grep='grep -i'
+
+#
+trap "cleanup"  1 2 3 8 15
+
+#######  Begin error message catalog. #############
+typeset MSG
+MSG[0]="get_info:LDAP CONNECTION SUCCESSFUL"
+MSG[1]="get_info:LDAP OPERATIONS ERROR"
+MSG[2]="get_info:LDAP PROTOCOL ERROR"
+MSG[3]="get_info:LDAP TIMELIMIT EXCEEDED"
+MSG[4]="get_info:LDAP SIZELIMIT EXCEEDED"
+MSG[5]="get_info:LDAP COMPARE FALSE"
+MSG[6]="get_info:LDAP COMPARE TRUE"
+MSG[7]="get_info:LDAP STRONG AUTH NOT SUPPORTED"
+MSG[8]="get_info:LDAP STRONG AUTH REQUIRED"
+MSG[9]="get_info:LDAP PARTIAL RESULTS"
+
+MSG[16]="get_info:LDAP NO SUCH ATTRIBUTE"
+MSG[17]="get_info:LDAP UNDEFINED TYPE"
+MSG[18]="get_info:LDAP INAPPROPRIATE MATCHING "
+MSG[19]="get_info:LDAP CONSTRAINT VIOLATION "
+MSG[20]="get_info:LDAP TYPE OR VALUE EXISTS "
+MSG[21]="get_info:LDAP INVALID SYNTAX "
+
+MSG[32]="get_info:LDAP NO SUCH OBJECT "
+MSG[33]="get_info:LDAP ALIAS PROBLEM "
+MSG[34]="get_info:LDAP INVALID DN SYNTAX "
+MSG[35]="get_info:LDAP IS LEAF "
+MSG[36]="get_info:LDAP ALIAS DEREF PROBLEM "
+MSG[37]="NAME ERROR(n) ((n & 0xf0) == 0x20)"
+
+MSG[48]="get_info:LDAP INAPPROPRIATE AUTH "
+MSG[49]="get_info:LDAP INVALID CREDENTIALS "
+MSG[50]="get_info:LDAP INSUFFICIENT ACCESS "
+MSG[51]="get_info:LDAP BUSY "
+MSG[52]="get_info:LDAP UNAVAILABLE "
+MSG[53]="get_info:LDAP UNWILLING TO PERFORM "
+MSG[54]="get_info:LDAP LOOP DETECT "
+
+MSG[64]="get_info:LDAP NAMING VIOLATION "
+MSG[65]="get_info:LDAP OBJECT CLASS VIOLATION "
+MSG[66]="get_info:LDAP NOT ALLOWED ON NONLEAF "
+MSG[67]="get_info:LDAP NOT ALLOWED ON RDN "
+MSG[68]="get_info:LDAP ALREADY EXISTS "
+MSG[69]="get_info:LDAP NO OBJECT CLASS MODS "
+MSG[70]="get_info:LDAP RESULTS TOO LARGE "
+
+MSG[80]="get_info:LDAP OTHER "
+MSG[81]="get_info:LDAP SERVER DOWN "
+MSG[82]="get_info:LDAP LOCAL ERROR "
+MSG[83]="get_info:LDAP ENCODING ERROR "
+MSG[84]="get_info:LDAP DECODING ERROR "
+MSG[85]="get_info:LDAP TIMEOUT "
+MSG[86]="get_info:LDAP AUTH UNKNOWN "
+MSG[87]="get_info:LDAP FILTER ERROR "
+MSG[88]="get_info:LDAP USER CANCELLED "
+MSG[89]="get_info:LDAP PARAM ERROR "
+MSG[90]="get_info:LDAP NO MEMORY "
+MSG[91]="get_info:LDAP CONNECT ERROR "
+#
+# errors related to remsh or OS interface.
+MSG[201]="get_info:ERROR while fixing .rhosts file in preparation for
+remsh."
+MSG[202]="get_info:ERROR remsh failed while invoking get_info on CLLWEB"
+MSG[203]="get_info:ERROR uname returned un-supported OS."
+#
+#   User interface errors while using get_info()
+MSG[210]="get_info:ERROR insufficient arguments to get_info()"
+MSG[211]="get_info:ERROR requested member project not found in data-base."
+MSG[212]="get_info:ERROR requested project not found in data-base."
+MSG[213]="get_info:ERROR database directory not found."
+MSG[214]="get_info:ERROR gven member not found in data-base."
+#
+#
+MSG[500]="get_info:ERROR BAD/un-implemented Error number"
+#######  End error message catalog. #############
+
+print_error_msg()
+{
+[ -z "${MSG[$1]}" ] && echo ${MSG[500]} || echo ${MSG[$1]}
+exit 0
+}
+
+function cleanup
+{
+exit $1
+}
+
+#######################################################
+# Start processing questions . . .
+# Get member project name for a given member name.
+# usage# save_get_info member_project amitp
+#
+#  This function will save information from data-base in
+#  a temporary file, so that cleanup can prefix this
+#  output with error code. This is done to pass error
+#  code returned by the command passed to remsh.
+#
+#  Ex: remsh "get_info member_project amitp"
+#
+#    remsh returns status of itself(remsh) not the status
+#    of "get_info".
+#
+save_get_info()
+{
+case "$1" in
+all_project_members)
+        # Get all members for a given project.
+        [ $# -ne 2 ] && cleanup 210
+        [ ! -f $2.proj ] && cleanup 212
+        RESULT=`grep "^project:$2" *.mem | awk -F. '{print $1}'`
+        ;;
+
+member_project)
+        # Get member project name for a given member name.
+        [ $# -ne 2 ] && cleanup 210
+        [ ! -f $2.mem ] && cleanup 214
+        RESULT=`grep "^project:" $2.mem | awk -F: '{print $2}'`
+        ;;
+
+project_attribute)
+        # Get project attribute for a given project name.
+        [ ! -f $2.proj ] && cleanup 212
+        [ $# -eq 3 ] && RESULT=`grep "^$3:" $2.proj | awk -F: '{print $2}'`
+|| RESULT=`awk -F: '{printf "%s= %s\n", $1, $2}' $2.proj`
+        ;;
+
+member_attribute)
+        # Get member attribute for a given member name.
+        [ ! -f $2.mem ] && cleanup 212
+        [ $# -eq 3 ] && RESULT=`grep "^$3:" $2.mem | awk -F: '{print $2}'`
+|| RESULT=`awk -F: '{printf "%s = %s\n", $1, $2}' $2.mem`
+        ;;
+
+machine_attribute)
+        # Get machine attribute for a given machine name.
+        [ ! -f $2.mach ] && cleanup 212
+        [ $# -eq 3 ] && RESULT=`grep "^$3:" $2.mach | awk -F: '{print $2}'`
+|| RESULT=`awk -F: '{printf "%s = %s\n", $1, $2}' $2.mach`
+        ;;
+
+is_project)
+        # Get project attribute for a given project name.
+        [ $# -ne 2 ] && cleanup 210
+        [ ! -f $2.proj ] && cleanup 212
+        RESULT=`grep "^project:" $2.proj | awk -d: '{print $2}'`
+        ;;
+
+all_projects)
+        RESULT=`/bin/ls *.proj | awk -F. '{print $1}'`
+        ;;
+
+all_members)
+        RESULT=`/bin/ls *.mem | awk -F. '{print $1}'`
+        ;;
+
+server_names)
+        [ $# -ne 2 ] && cleanup 210
+        case $2 in
+                buildserver)
+                grepfor="Build Server"
+                ;;
+                mailserver)
+                grepfor="Mail Server"
+                ;;
+                viewserver)
+                grepfor="View Server"
+                ;;
+                virtualws)
+                grepfor="Virtual Workstation"
+                ;;
+                vobserver)
+                grepfor="Vob Server"
+                ;;
+                webserver)
+                grepfor="Web Server"
+                ;;
+                *)
+                cleanup 210
+                ;;
+        esac
+#       RESULT=`grep "^server:$2" *.mach | awk -F. '{print $1}'`
+        RESULT=`grep -v "^#" $machines | grep ":Infrastructure:" | grep
+"$grepfor" | awk -F: '{print $1}'`
+        ;;
+*)
+        # Error in input argument.
+        cleanup 210
+        ;;
+esac
+}
+
+########################  Main starts here ############
+#
+
+case $1 in
+-qldap)
+        shift
+        typeset integer MULTILINE=1
+        ;;
+noloop)
+        shift
+        # old version compatibility
+        ;;
+
+emit_error)
+        [ $# -eq 2 ] && print_error_msg $2 || exit 210 # Incorrect argument
+list.
+        ;;
+*)
+        # go to processing  outside case block
+        ;;
+esac
+
+[ ! -d $DBDIR ] && cleanup 213
+cd $DBDIR
+save_get_info $@
+[ $MULTILINE ] && echo "$RESULT" || echo $RESULT
+cleanup 0

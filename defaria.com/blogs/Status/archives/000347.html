@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: BC 5.3 20050429 drup</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000346.html" title="GD Packaging" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000348.html" title="BC Build &amp; LOS178 2.1.0 TOB" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000346.html">&laquo; GD Packaging</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000348.html">BC Build & LOS178 2.1.0 TOB &raquo;</a>
+                     </p>
+
+                     <a id="a000347"></a>
+                     <div class="entry" id="entry-347">
+                        <h3 class="entry-header">BC 5.3 20050429 drup</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked on building the 20050429 drop of BC 5.3</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>I was told to rebuild BC 5.3 as there have been changes that have been checked in. In talking with Sasha I learned that I should login as root and run the do_it script. Sasha said I can specify -h int@t3 to use the int user for CVS checkouts. The do_it script should su to the appropriate users at the appropriate times, etc...</p>
+
+<p>One issue that I found before is one that I found where step 7 had a problem with /mnt/cdrom being already mounted, so I su'ed to root and umounted it. As this build procedure is so long I do not want to get through steps 1-6 only to hit a problem at step 7. I think, however, that step 7 should be enhanced to handle the possibility that /mnt/cdrom is already mounted or the instructions updated to reflect that /mnt/cdrom should not be mounted before starting the build script.</p>
+
+<p>The next problem I had was that do_it su's to bin and attempts to create directories under archive and build for the date but it can't because these parent directories were previously created by int. Changed the owner to bin:bin.</p>
+
+<p>Now I have a problem in that apparently the syntax of -t int@t3 does not work! Although do_it accepts this syntax and it does set CVSROOT to int@t3:/cm/CVS it then executes step 1 which su's to root (!) and eventually does a cvs export -r R_5_3_ppc_20050429 eng/int which fails because root cannot rsh to t3 without a password. Furthermore step 1 is a series of commands, the next of which executes bc_build_host_gnutools.sh which I suspect should be executed as root.</p>
+
+<p>Switch back to starting do_it as the user int is no good because do_it first attempts to su to bin to create directories. int cannot su passwordless to bin. Catch 22!</p>
+
+<p>To address this problem I changed the do_it script:</p>
+
+<div class="code"><pre>
+BUILD_CVS_OWNER=int
+ ...
+STEP1_CMD="cd $BC_SRC_PREFIX; su $BUILD_CVS_OWNER -c \"cvs export -r $BC_CVS_TAG eng/int\"; \
+           $SCRIPTS_PREFIX/bc_build_host_gnutools.sh; \
+           su $BUILD_CVS_OWNER -c \"$SCRIPTS_PREFIX/bc_cvs.sh\""
+</pre></div>
+
+<p>This addresses the cvs export command in STEP1_CMD however there's another problem: bc_build_host_gnutools.sh also issues CVS commands and they similarly fail with "permission denied" errors.</p>
+
+<p>I believe the basic problem is this: BC utilizes CVS' :ext: method for accessing the repository. This method in turn utilizes the underlying transport mechanism of rsh (note that ssh can be used instead by setting CVS_RSH=ssh and, of course, you must have ssh installed - which jaguar does not). In order to use rsh as a transport you must have passwordless login via rsh as the user who executed the CVS command - not the user specification in CVSROOT!!! The Cederqvist seems to bear this out under it's troubleshooting section:</p>
+
+<table border="0" cellpadding="2" cellspacing="0" width="100%">
+    <tbody>
+      <tr>
+        <td valign="middle" width="100">:ext:</td>
+        <td valign="top">Try running the rsh program from the command
+line. For example: "rsh servername cvs -v" should print cvs version
+information. If this doesn&#8217;t work, you need to fix it before you can
+worry about cvs problems.</td>
+      </tr>
+    </tbody>
+  </table>
+
+<p>So even though CVSROOT says :ext:int@t3:/cm/CVS when a CVS command is run as the user root then the user root needs to be able to rsh to the server without specifying a password. This is a good argument for BC to be set up to use :pserver: instead of :ext: access to the CVS repository.</p>
+
+<p>Changing step 1 to be executed entirely by BUILD_CVS_OWNER:</p>
+
+<div class="code"><pre>
+  STEP1_CMD="su $BUILD_CVS_OWNER -c \"cd $BC_SRC_PREFIX; \
+             cvs export -r $BC_CVS_TAG eng/int; \
+             $SCRIPTS_PREFIX/bc_build_host_gnutools.sh; \
+             $SCRIPTS_PREFIX/bc_cvs.sh\""
+</pre></div>
+
+<p>Argh! That's not gonna work because bc_build_host_gnutools.sh wants to write out files to directories owned by bin!</p>
+
+<p>I think I'm gonna go back to my stepwise method for now. Still this stepwise method produces RPMs that have ownership problems (files in RPMs are owned by int:staff instead of bin:bin).</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on May  2, 2005  2:57 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000347.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

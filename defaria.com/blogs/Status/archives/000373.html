@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: The Quest to build 3.0.0 from 3.4.3</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000372.html" title="Rebuild 2.1.0/GDB 6.0" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000374.html" title="2.1.0 GDB Build" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000372.html">&laquo; Rebuild 2.1.0/GDB 6.0</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000374.html">2.1.0 GDB Build &raquo;</a>
+                     </p>
+
+                     <a id="a000373"></a>
+                     <div class="entry" id="entry-373">
+                        <h3 class="entry-header">The Quest to build 3.0.0 from 3.4.3</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Worked to build 3.0.0 from 3.4.3</li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              Andrew DeFaria wrote:
+
+<blockquote type=cite>
+<p>Performed the following actions:</p>
+
+<h3>Change packaging by hand:</h3>
+
+<ol>
+  <li>cd /build/toolchain/install-powerpc178/cdk/linux-elf-ppc</li>
+
+  <li>mkdir bin</li>
+
+  <li>cd bin</li>
+
+  <li>Created symlinks for the following: ar, as, byacc, c++, cc, cmp, diff, diff3, expect, flex, gcc, ld, make, nm, ranlib, size, strip to link to ../usr/bin (exception: cc -> ../usr/bin/gcc). <b>Note:</b> byacc, c++, cmp, diff, diff3 and expect do not exist in ../usr/bin! Removed symlinks</li>
+
+  <li>cd ../..</li>
+
+  <li>mkdir lib</li>
+
+  <li>Copied cdk/linux-elf-ppc/usr/lib/gcc/powerpc-lynx-lynxos178/3.4.3/libgcc.a -> lib <b>Note:</b> Unable to find any libstdc++.a's!</li>
+
+  <li>Created linux-elf-ppc.tar.gz with tar -zcvf ../linux-elf-ppc.tar.gz .</li>
+</ol>
+
+<h3>Removing libgcc from LOS178:</h3>
+
+<ol>
+  <li>cd /build/los178/src/lib/libgcc</li>
+
+  <li>rm Makefile</li>
+
+  <li>cvs delete Makefile</li>
+
+  <li>cd ..</li>
+
+  <li>Editted Makefile to remove libgcc from SUBCOMPONENTS</li>
+
+  <li>cd /build/los178/src/cdk/common/bison-1.19</li>
+
+  <li>rm Makefile</li>
+
+  <li>cvs delete Makefile (<b>Note:</b> there are many other files here. Should they be likewise removed?)</li>
+
+  <li>cd ../links</li>
+
+  <li>rm Makefile</li>
+
+  <li>cvs delete Makefile</li>
+
+  <li>cd /build/los178/src/cdk</li>
+
+  <li>Editted Makefile to remove references to bison-1.19 and links</li>
+
+  <li>Editted Makefile to add -0.9.6 to "openssl".</li>
+</ol>
+
+<p>The following is the result of building src/cdk:</p>
+
+<ul>
+  <li>coffcorrupt - for test <font color="green">PASSED</font></li>
+
+  <li>cofflook - for inspecting coff object <font color="green">PASSED</font></li>
+
+  <li>config - needed <font color="green">PASSED</font></li>
+
+  <li>crc - append script uses this <font color="green">PASSED</font></li>
+
+  <li>elflook - for inspecting elf object <font color="red">FAILED</font></li>
+
+  <li>install - use for installation <font color="green">PASSED</font></li>
+
+  <li>m4-1.4 - needed for config.tbl <font color="red">Didn't find anything about this!</font></li>
+
+  <li>man2html - html man page utility <font color="red">Didn't find anything about this!</font></li>
+
+  <li>mkbootprep - use by vmpc <font color="green">PASSED</font></li>
+
+  <li>mkimage - maybe need to be update to support elf kernel? <font color="green">PASSED</font></li>
+
+  <li>mktimestamp - needed for kernel timestamp <font color="green">PASSED</font></li>
+
+  <li>prepend-crc - mkboot178 uses this <font color="green">PASSED</font></li>
+
+  <li>gzip-1.2.4 - only for solaris host <font color="green">PASSED</font></li>
+
+  <li>tar-1.11.2 - only for solaris host <font color="red">FAILED</font></li>
+
+  <li>vctchk - use for checking vct <font color="red">FAILED</font></li>
+
+  <li>openssl <font color="red">(Failed to build saying it couldn't find /build/los178/cdk/linux-elf-ppc/bin/make)</font></li>
+</ul>
+
+<p>I will try to pick this up from home but I have been having some connectivity issues lately...</p>
+</blockquote>
+
+<p>Picking up...</p>
+
+<h3>Building LOS178 after sections I & II above completed:</h3>
+
+<ol>
+  <li>Logged in as int</li>
+
+  <li>Exported toolchain source -> /build/toolchain.src (via tag DEV_LOS178_3p0p0_ppc_20050607)</li>
+
+  <li>Instructions say to package source yet Makefile's package target does not include fixup.sh so performed this by hand.</li>
+
+  <li>Stored previously successfully built toolchain -> t3:/export/dev_archive/los178/3p0p0/toolchain/20050607</li>
+
+  <li>Checked that europa:/build/los178 had TOT. Only differences were the changes to the Makefile(s) describe above and the cvs deletes that I did.</li>
+
+  <li>rm sys/miscgcc/*.o</li>
+
+  <li>tar -zxvf /build/bin-image/ppc.cdksol.tar.gz sys/miscgcc</li>
+
+  <li>tar -zxpf/build/1033-00.cdklinux.tar.gz</li>
+
+  <li>Sourced SETUP.bash</li>
+
+  <li>make DEVELOPMENT=yes install > install.log 2>&1</li>
+
+  <li>make failed due to lack of crc (and a syntax error I introduced in the src/lib/Makefile - missed a "\"!). The crc was missing because I skipped a step, the make install in src/cdk. Turns out I skipped this step because I thought we had performed this yesterday - and we did - but we had some problems there and Vinnie helped me to get that to work. Unfortunately we were using make all during that time and failed to to the make install portion).</li>
+
+  <li>make failed with the following:<p>
+
+<div class="code"><pre>
+      europa:check -t -v install.log
+      ERRORS:
+      make[3]: *** No rule to make target `_udivdi3.o', needed by `archive_step'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      make[3]: *** No rule to make target `install'.  Stop.
+      /build/los178/cdk/linux-xcoff-ppc/bin/ld: cannot open -lmiscgcc: No such file or directory
+      make[4]: *** [common_all] Error 1
+      make[3]: *** [re_all] Error 2
+      /build/los178/cdk/linux-xcoff-ppc/bin/ld: cannot open -lmiscgcc: No such file or directory
+      make[4]: *** [a.out] Error 1
+      make[3]: *** [re_all] Error 2
+      make[2]: *** [real] Error 2
+      make[1]: *** [install] Error 2
+      make[3]: *** [gunzip] Error 1
+      make[3]: *** [nohup] Error 1
+      make[3]: *** [install_common] Error 1
+      make[3]: *** [install] Error 1
+      make[2]: *** [real] Error 2
+      make[1]: *** [install] Error 2
+      File: install.log Errors: 20 Warnings: 2545
+</pre></div>
+  <p>The issues here boil down to the _udivd3.o problem mostly (the No rule to make target `install' are the csp.x86, ibm440ep stuff and there are few permissions problems with chmod since this build was done as int this time). The _udivd3.o problem results from a new .o file introduced by Gilbert and CR #542 and a corresponding change to the Makefile. The miscgcc .o files are gotten from ppc.cdksol.tar.gz but there is no _udivd3.o in ppc.cdksol.tar.gz.</p>
+
+  <p>After discussing this with Vinnie we determined that Gilbert had checked in these .o files when what really needs to be done is for us to include this new .o file into the ppc.cdk[sol|linux].tar.gz images in bin-image.</p>
+
+  <li>After building the following errors remain:</p>
+
+  <ol>
+    <li>5 "No rule to make target `install`" remains for devices.ibm440ep, drivers.ibm440ep, csp.440, csp.x86 and bsp.ibm440ep. These are known problems.</li>
+
+    <li>Various permissions problems dealing with the fact that I had initially built things as adefaria and switched to building as int.</li>
+  </ol>
+</ol>
+
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on June 16, 2005  4:17 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000373.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

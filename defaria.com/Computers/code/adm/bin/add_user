@@ -1,0 +1,497 @@
+#!/bin/bash
+################################################################################
+#
+# File:         add_user
+# Description:  This script adds a user
+# Author:       Andrew DeFaria
+# Language:	Korn Shell
+# Modified:
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Parameters
+employeenumber=
+employeetype=
+fullname=
+groupname=
+manager=
+phone=
+username=
+workstation=
+shell=
+hostname=
+homeserver=
+displayname=
+
+# fieldvalue is used when prompting for non-supplied fields
+fieldvalue=
+
+# Logfile
+logfile=$TMPDIR/add_user.$$.log
+
+## Set global env variables
+# Set me
+me=${0##*/}
+
+function error {
+  print -u2 "$me: Error: $1"
+} # error
+
+function warning {
+  print -u2 "$me: Warning: $1"
+} # warning
+
+function display {
+  print "$1"
+} # display
+
+function info {
+  display "$me: Info: $1"
+} # info
+
+function verbose {
+  if [ ! -z "$verbose" ]; then
+    display "$1"
+  fi
+} # verbose
+
+function debug {
+  if [ ! -z "$debug" ]; then
+    print -u2 "$me: Debug: $1"
+  fi
+} # debug
+
+function usage {
+  display "$me [-v|verbose] [-d|debug] [-usage]"
+  display "        -v|verbose:     Turns on verbose mode"
+  display "        -d|debug:       Turns on debug mode"
+  display "        -usage:         Print this usage message"
+  display
+  display "The following options will be prompted for if not supplied on the"
+  display "command line. If any command line parameter has spaces in it then"
+  display "you need to surround it in quotes (e.g. -owners_fullname"
+  display "\"Andrew DeFaria\". Note: Do NOT use quotes when responding to"
+  display "prompts for missing information."
+  display
+  display "     -employeenumber         Specify the Employee \#"
+  display "     -employeetype           One of Employee, SEED or Contractor"
+  display "     -fullname               The employee's full name"
+  display "     -groupname              Synchronize group name"
+  display "     -manager                Full name of manager"
+  display "     -phone                  In the format of 7-XXXX (the t-44 will"
+  display "                             be prepended)"
+  display "     -username               Unix/NT username for this new user"
+  display "     -workstation            One of Unix|X Terminal|Win NT"
+  display "     -shell                  One of ksh|sh|csh|tcsh"
+  display "     -hostname               Name of workstation host or X Terminal"
+  display "                             server"
+  display "     -homeserver             Name of machine where \$HOME will be"
+  display "                             created"
+  display "     -displayname            Name of DISPLAY"
+
+  error "$1"
+  exit 1
+} # usage
+
+function prompt_for_field {
+  fieldname="$1"
+  fieldvalue=
+
+  while [ ! -n "$fieldvalue" ]; do
+    display "Enter the value for $fieldname:\c"
+    read fieldvalue
+
+    if [ ! -n "$fieldvalue" ]; then
+      error "Must specify $fieldname!"
+    fi
+  done
+} # prompt_for_field
+
+function display_parms {
+  display "New user:"
+  display "------------------------------------------------------"
+  display "employeenumber       = $employeenumber"
+  display "employeetype = $employeetype"
+  display "fullname     = $fullname"
+  display "groupname    = $groupname"
+  display "manager              = $manager"
+  display "phone                = $phone"
+  display "username     = $username"
+  display "workstation  = $workstation"
+  display "shell                = $shell"
+  display "hostname     = $hostname"
+  display "homeserver   = $homeserver"
+  display "displayname  = $displayname"
+  display
+  display "Command line equivalent:"
+  display
+  display "$me -employeenumber $employeenumber \\"
+  display " -employeetype $employeetype \\"
+  display " -fullname \"$fullname\" \\"
+  display " -groupname $groupname \\"
+  display " -manager \"$manager\" \\"
+  display " -phone $phone \\"
+  display " -username $username \\"
+  display " -workstation $workstation \\"
+  display " -shell $shell \\"
+  display " -hostname $hostname \\"
+  display " -homeserver $homeserver \\"
+  display " -displayname $displayname"
+  display "Are the parameters correct [Y|n]?\c"
+  read answer
+  case "$answer" in
+    Y|y)
+      : OK!
+      ;;
+    *)
+      exit
+  esac
+} # display_parms
+
+# Get parameters
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+      ;;
+
+    -v|-verbose)
+      verbose=yes
+      ;;
+
+    -d|-debug)
+      debug=yes
+      ;;
+
+    -employeenumber)
+      if [ $# -gt 1 ]; then
+        shift
+        employeenumber="$1"
+      fi
+      ;;
+
+    -employeetype)
+      if [ $# -gt 1 ]; then
+        shift
+        employeetype="$1"
+      fi
+      ;;
+
+    -fullname)
+      if [ $# -gt 1 ]; then
+        shift
+        fullname="$1"
+      fi
+      ;;
+
+    -groupname)
+      if [ $# -gt 1 ]; then
+        shift
+        groupname="$1"
+      fi
+      ;;
+
+    -manager)
+      if [ $# -gt 1 ]; then
+        shift
+        manager="$1"
+      fi
+      ;;
+
+    -phone)
+      if [ $# -gt 1 ]; then
+        shift
+        phone="$1"
+      fi
+      ;;
+
+    -username)
+      if [ $# -gt 1 ]; then
+        shift
+        username="$1"
+      fi
+      ;;
+
+    -workstation)
+      if [ $# -gt 1 ]; then
+        shift
+        workstation="$1"
+      fi
+      ;;
+
+    -shell)
+      if [ $# -gt 1 ]; then
+        shift
+        shell="$1"
+      fi
+      ;;
+
+    -hostname)
+      if [ $# -gt 1 ]; then
+        shift
+        hostname="$1"
+      fi
+      ;;
+
+    -homeserver)
+      if [ $# -gt 1 ]; then
+        shift
+        homeserver="$1"
+      fi
+      ;;
+
+    -displayname)
+      if [ $# -gt 1 ]; then
+        shift
+        displayname="$1"
+      fi
+      ;;
+
+    *)
+      usage "Unrecognized parameter $1"
+      ;;
+  esac
+  shift
+done
+
+if [ "_$employeenumber" = "_" ]; then
+  verbose "Employee Number was not specified!"
+  prompt_for_field "Employee Number"
+  employeenumber="$fieldvalue"
+fi
+
+if [ "_$employeetype" = "_" ]; then
+  verbose "Employee Type was not specified!"
+  prompt_for_field "Employee Type"
+  employeetype="$fieldvalue"
+fi
+
+while true; do
+  case "$employeetype" in
+    Employee|SEED|Contractor)
+      break
+      ;;
+
+    *)
+      error "Employee Type was not one of \"Employee\", \"SEED\" or \"Contractor\"!"
+      prompt_for_field "Employee Type"
+      employeetype="$fieldvalue"
+      ;;
+  esac
+done
+
+if [ "_$fullname" = "_" ]; then
+  verbose "Employee Name was not specified!"
+  prompt_for_field "Employee Name"
+  fullname="$fieldvalue"
+fi
+
+if [ "_$groupname" = "_" ]; then
+  verbose "Project Name was not specified!"
+  prompt_for_field "Project Name"
+  groupname="$fieldvalue"
+fi
+
+while true; do
+  if [ -f "/net/cllapp/opt/synchronize/db/GroupTemplates/$groupname" ];
+  then
+    break
+  else
+    verbose "Project name \"$groupname\" is not valid!"
+    display
+    display "Valid Project names are:"
+    cd /net/cllapp/opt/synchronize/db/groups/Projects
+    ls *
+    cd $OLDPWD
+    display
+    prompt_for_field "Project Name"
+    groupname="$fieldvalue"
+  fi
+done
+
+if [ "_$manager" = "_" ]; then
+  verbose "Project Manager was not specified!"
+  prompt_for_field "Project Manager"
+  manager="$fieldvalue"
+fi
+
+if [ "_$phone" = "_" ]; then
+  verbose "Phone was not specified!"
+  prompt_for_field "Phone"
+  phone="$fieldvalue"
+fi
+
+if [ "_$username" = "_" ]; then
+  verbose "Username was not specified!"
+  prompt_for_field "Username"
+  username="$fieldvalue"
+fi
+
+if [ "_$workstation" = "_" ]; then
+  verbose "Workstation was not specified!"
+  prompt_for_field "Workstation"
+  workstation="$fieldvalue"
+fi
+
+while true; do
+  case "$workstation" in
+    Unix|"X Terminal"|"Win NT")
+      break
+      ;;
+
+    *)
+      error "Workstation was not one of Unix|X Terminal|Win NT!"
+      prompt_for_field "Workstation"
+      workstation="$fieldvalue"
+      ;;
+  esac
+done
+
+if [ "_$shell" = "_" ]; then
+  verbose "Shell was not specified!"
+  prompt_for_field "Shell"
+  shell="$fieldvalue"
+fi
+
+while true; do
+  case "$shell" in
+    ksh|sh|csh|tcsh)
+      break
+      ;;
+
+    *)
+      error "Shell was not one of ksh, sh, csh or tcsh!"
+      prompt_for_field "Shell"
+      shell="$fieldvalue"
+      ;;
+  esac
+done
+
+if [ "_$hostname" = "_" ]; then
+  verbose "Hostname was not specified!"
+  prompt_for_field "Hostname"
+  hostname="$fieldvalue"
+fi
+
+if [ "$workstation" != "Win NT" ]; then
+  if [ "_$homeserver" = "_" ]; then
+    verbose "Home Server was not specified!"
+    prompt_for_field "Home Server"
+    homeserver="$fieldvalue"
+  fi
+fi
+
+if [ "$workstation" = "Unix" ]; then
+  if [ "_$displayname" = "_" ]; then
+    displayname=$hostname
+  fi
+elif [ "$workstation" = "X Terminal" ]; then
+  if [ "$displayname" = "$hostname" ]; then
+    verbose "Display name cannot be the same as hostname for an X Terminal"
+    prompt_for_field "Display name"
+    displayname="$fieldvalue"
+  fi
+  if [ "_$displayname" = "_" ]; then
+    prompt_for_field "Display name"
+    displayname="$fieldvalue"
+  fi
+fi
+
+display_parms
+
+export PATH=$PATH:/app/admin/bin
+
+print "Add MOA Entry (Y/n)?\c"
+read answer
+answer=$(print "$answer" | tr [:upper:] [:lower:])
+
+case $answer in
+  y|yes)
+    add_moa -username $username \
+        -fullname "$fullname" \
+        -phone $phone \
+        -homeserver $homeserver \
+        -shell $shell
+    ;;
+  *)
+    print "$fullname not added to MOA"
+    ;;
+esac
+
+if [ "$employeetype" != "Contractor" ]; then
+  print "Add Synchronize Entry (Y/n)?\c"
+  read answer
+  answer=$(print "$answer" | tr [:upper:] [:lower:])
+
+  case $answer in
+    y|yes)
+      add_synchronize -username $username \
+          -fullname "$fullname" \
+          -groupname $groupname
+      ;;
+    *)
+      print "$fullname not added to Synchronize"
+      ;;
+  esac
+fi
+
+print "Add Postnote Entry (Y/n)?\c"
+read answer
+answer=$(print "$answer" | tr [:upper:] [:lower:])
+
+case $answer in
+  y|yes)
+    add_postnote -username $username \
+        -fullname "$fullname" \
+        -phone $phone \
+        -hostname $hostname \
+        -displayname $displayname
+    ;;
+  *)
+    print "$fullname not added to Postnote"
+    ;;
+esac
+
+print "Add Shared/X Entry (Y/n)?\c"
+read answer
+answer=$(print "$answer" | tr [:upper:] [:lower:])
+
+case $answer in
+  y|yes)
+    add_sharedx -username $username \
+        -fullname "$fullname" \
+        -phone $phone \
+        -hostname $hostname \
+        -displayname $displayname
+    ;;
+  *)
+    print "$fullname not added to Shared/X"
+    ;;
+esac
+
+print "Send request for email account for $fullname (Y/n)?\c"
+read answer
+answer=$(print "$answer" | tr [:upper:] [:lower:])
+
+case $answer in
+  y|yes)
+    if [ "$employeetype" != "Contractor" ]; then
+      add_email -username $username \
+          -fullname "$fullname" \
+          -employeetype $employeetype \
+          -employeenumber $employeenumber \
+          -manager "$manager" \
+          -mailserver cllmail
+    else
+      add_email -username $username \
+          -fullname "$fullname" \
+          -employeetype $employeetype \
+          -manager "$manager" \
+          -mailserver cllmail
+    fi
+    ;;
+  *)
+    print "$fullname not added to email"
+    ;;
+esac

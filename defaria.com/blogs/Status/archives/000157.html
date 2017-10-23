@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: The new servers have arrived!</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000156.html" title="VIP Imports" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000158.html" title="Clearcase &amp; Clearquest Web" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000156.html">&laquo; VIP Imports</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000158.html">Clearcase & Clearquest Web &raquo;</a>
+                     </p>
+
+                     <a id="a000157"></a>
+                     <div class="entry" id="entry-157">
+                        <h3 class="entry-header">The new servers have arrived!</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <p>The new servers have arrived and I have been testing them today. Here's what I managed to do:</p>
+
+<ul>
+
+<li>Installed Clearcase server software on new machines.</li>
+<li>Configured storage locations for vobs/views</li>
+<li>Practiced moving a vob and view over to the new servers. The view even had a checked out file.</li>
+<li>Once set up on the new servers accessed the view and insured that I could access it and that the checked out element was still accessible.</li>
+
+</ul>
+
+<p>In setting up prodfix01 as a the vob server I encountered some problems attempting to set the storage location. The default wizard was not the right way to go. Instead I had to:</p>
+
+<div class="code">
+cleartool> mkstgloc -vob -host prodfix01 -hpath D:\vobstore -gpath \\prodfix01\vobstore vobstore \\prodfix01\vobstore
+</div>
+
+<p>Naturally this will not due as this machine will eventually be renamed as rtnlprod01, not prodfix01. This will need to be adjusted during the downtime.
+Just some notes from my testing session:</p>
+
+<blockquote>
+
+<p>After setting up the servers I had to create the storage locations as above. I called them vobstore and viewstore instead of ccvobstg/ccviewstg. Personally I find the former more descriptive.</p>
+
+<p>I tried to simply mktag for the vob and view on the new server but that would not work. Instead I had to:</p>
+
+<div class="code">
+cleartool register -replace -view \\path\to\view<br>
+cleartool register -replace -vob \\path\to\vob<br>
+cleartool mktag -replace -view -tag <viewtag> \\path\to\view<br>
+cleartool mktag -replace -vob -tag <vobtag> \\path\to\vob<br>
+cleartool startview <viewtag><br>
+cleartool mount <vobtag><br>
+</div>
+
+<p>Again, if we slide the server into place after changing the DNS/Machine name <-> IP address mapping this should not be an issue.</p>
+
+</blockquote>
+
+<p>We should be ready to go, perhaps this coming Thursday evening (sometime after 7 Pm). What we would need to do is:</p>
+
+<ol>
+
+<li>Announce to the Clearcase community that Clearcase will be down for a few hours Thursday night (7 Pm - 9 Pm)</li>
+<li>At 7 Pm stop Clearcase on rtnlprod01 and rtnlprod02</li>
+<li><tt>xcopy <rtnlprod01:/vobstore> <prodfix01:/vobstore> /e /i /f /h /k /x > C:\vobstore_xcopy.log 2>&1</tt></li>
+<li><tt>xcopy <rtnlprod02:/viewstore> <prodfix02:/viewstore> /e /i /f /h /k /x > C:\viewstore_xcopy.log 2>&1</tt></li>
+<li>Shutdown rtnlprod01 and rtnlprod02</li>
+<li>Switch DNS so that prodfix01 -> rtnlprod01 and prodfix02 -> rtnlprod02</li>
+<li>Test vob/view access from desktop clients.</li>
+</ol>
+                           </div>
+                           <div id="more" class="entry-more">
+                              
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on April 13, 2004  6:11 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000157.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>

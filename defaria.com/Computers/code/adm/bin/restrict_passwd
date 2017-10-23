@@ -1,0 +1,161 @@
+#!/bin/bash
+################################################################################
+#
+# File:         restrict_passwd
+# Description:  This script will convert /etc/passwd to a "restricted" passwd 
+#		file. There is a list of "special" users such as system users 
+#		like anon, ftp, etc as well as some administrative engineers. 
+#		These users have their passwd entries passed through 
+#		unmodified. All other users get either a restricted shell 
+#		(sorry just rksh) and are homed to /home/vumover (this was 
+#		done for the purposes of migrating views to the new view 
+#		servers and may be changed at some time in the future). 
+#
+#		If -mailmode is specified then the only change to the original
+#		passwd line is that shell is set to /bin/false. This is to
+#		prevent user logins to the mail server.
+#
+#		Note that all su users are conciously not written to the new 
+#		passwd file unless they appear in the special users list. 
+#
+#		Finally, users from MLL are skipped.
+#			
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Fri Oct 17 09:06:46 PDT 1997
+# Modified:     
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+
+function error {
+  print -u2 "$me: Error: $1"
+} # error
+
+function info {
+  print -u2 "$1"
+}
+
+function verbose {
+  if [ ! -z "$VERBOSE" ]; then
+    info "$1"
+  fi
+} # verbose
+
+function debug {
+  if [ ! -z "$DEBUG" ]; then
+    info "$1"
+  fi
+} # debug
+
+function usage {
+  info "$me [-v] [-d] [-m] [-o file] [-u]"
+  info "	-v:		Turns on verbose mode"
+  info "	-d:		Turns on debug mode"
+  info "        -m:		Generate passwd file for mail server"
+  info "        -o file:	Specify file to place output into"
+  info "	-u:		Print this usage message"
+  info ""
+  info "$me reads password entries from stdin and writes a restricted version"
+  info "of the password entry to stdout. Some users are special and are"
+  info "unaltered. Root (su) users are skipped and not written out."
+  exit
+} # usage
+
+## Main body
+
+# Get parameters
+while getopts ":dmo:vu" options; do
+  case $options in
+    u)
+      usage
+      ;;
+
+    v)
+      VERBOSE=yes
+      ;;    
+
+    d)
+      DEBUG=yes
+      ;;    
+
+    m)
+      mailmode=yes
+      ;;
+
+    o)
+      outfile=$OPTARG
+      ;;
+
+    *)
+      usage
+      ;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+IFS=: 
+
+while read user pass uid gid geos home shell; do
+  case "$user" in 
+anon|\
+dts|\
+bin|\
+daemon|\
+ftp|\
+gridmgr0|\
+gridmgr1|\
+jun|\
+junsu|\
+lp|\
+stevew|\
+stevewsu|\
+sync|\
+tftp|\
+uucp|\
+vobadm|\
+root)
+      verbose "****> User $user is \"special\""
+      print "$user:$pass:$uid:$gid:$geos:$home:$shell"
+      ;;
+
+    *)
+      # In mail mode change shell to /bin/false. Otherwise use a restricted
+      # shell and also set the home directory to /home/vumover.
+      if [ ! -z "$mailmode" ]; then
+	shell=/bin/false
+      else
+	shell=/usr/bin/rksh
+	home=/home/vumover
+      fi
+
+      # Change MoA marking to Restricted
+      geos="$(print "$geos" | sed 's/_MoA_/_Restricted_/')"
+
+      # Allow no other uid 0 users other than those listed above
+      if [ $uid -eq 0 ]; then
+	verbose "****> User $user is in uid 0 - skipping..."
+  	continue
+      fi
+
+      # Skip users from MLL
+      print $home | grep "\.ch\.apollo" > /dev/null 2>&1 
+      if [ $? -eq 0 ]; then
+        verbose "****> User $user is from Apollo - skipping..."
+        continue
+      fi
+
+      print "$user:$pass:$uid:$gid:$geos:$home:$shell"
+      ;;
+  esac
+done < /etc/passwd > /tmp/passwd.$$
+
+if [ "_$outfile" = "_" ]; then
+  mv /etc/passwd /etc/passwd.old
+  mv /tmp/passwd.$$ /etc/passwd
+  chmod 444 /etc/passwd 
+else
+  mv /tmp/passwd.$$ $outfile
+fi

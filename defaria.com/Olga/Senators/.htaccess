@@ -1,0 +1,4 @@
+AuthName "Restricted Area"
+AuthType Basic
+AuthUserFile /etc/apache2/users/legal_users
+Require user valid-user

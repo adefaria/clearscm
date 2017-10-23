@@ -1,0 +1,39 @@
+#!/bin/bash
+################################################################################
+#
+# File:         monitor_taskbroker
+# Description:  Quick script to monitor the taskbroker/build pool
+# Author:       Andrew DeFaria (defaria@cup.hp.com)
+# Language:     Korn Shell
+# Modified::
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+me=$(basename $0)
+
+integer day_of_week=$(date +%w)
+integer sleep_time=5*60
+
+talktotaskbroker=/usr/eclipse/etc/talktotaskbroker
+logfile=/tmp/taskbroker$day_of_week.log
+
+function get_status {
+  print "At $(date)"
+  $talktotaskbroker mstatus
+} # get_status
+
+rm -f $logfile
+
+print "$me started"
+while true; do
+  if [ $day_of_week -ne $(date +%w) ]; then
+    day_of_week=$(date +%w)
+    logfile_old=$logfile
+    logfile=/tmp/taskbroker$day_of_week.log
+    print "Continuing in $logfile..." >> $logfile_old
+  fi
+
+  get_status >> $logfile
+  sleep $sleep_time
+done &

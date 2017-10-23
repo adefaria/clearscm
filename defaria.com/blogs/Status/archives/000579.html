@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <meta name="generator" content="Movable Type 5.2.3" />
+
+   <link rel="stylesheet" href="http://defaria.com/blogs/Status/styles-site.css" type="text/css" />
+   <link rel="alternate" type="application/atom+xml" title="Atom" href="http://defaria.com/blogs/Status/atom.xml" />
+   <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="http://defaria.com/blogs/Status/index.xml" />
+
+   <title>Status for Andrew DeFaria: Improved gpdp_add_project</title>
+
+   <link rel="start" href="http://defaria.com/blogs/Status/" title="Home" />
+   <link rel="prev" href="http://defaria.com/blogs/Status/archives/000578.html" title="Rexec" />
+   <link rel="next" href="http://defaria.com/blogs/Status/archives/000581.html" title="gpdb_add_project.pl using gpdb user and Nice" />
+
+   
+
+   
+
+   <script type="text/javascript" src="http://defaria.com/blogs/Status/mt-site.js"></script>
+</head>
+<body class="layout-one-column" onload="individualArchivesOnLoad(commenter_name)">
+   <div id="container">
+      <div id="container-inner" class="pkg">
+
+         <div id="banner">
+            <div id="banner-inner" class="pkg">
+               <h1 id="banner-header"><a href="http://defaria.com/blogs/Status/" accesskey="1">Status for Andrew DeFaria</a></h1>
+               <h2 id="banner-description">Searchable status reports and work log</h2>
+            </div>
+         </div>
+
+         <div id="pagebody">
+            <div id="pagebody-inner" class="pkg">
+               <div id="alpha">
+                  <div id="alpha-inner" class="pkg">
+
+                     <p class="content-nav">
+                        <a href="http://defaria.com/blogs/Status/archives/000578.html">&laquo; Rexec</a> |
+                        <a href="http://defaria.com/blogs/Status/">Main</a>
+                        | <a href="http://defaria.com/blogs/Status/archives/000581.html">gpdb_add_project.pl using gpdb user and Nice &raquo;</a>
+                     </p>
+
+                     <a id="a000579"></a>
+                     <div class="entry" id="entry-579">
+                        <h3 class="entry-header">Improved gpdp_add_project</h3>
+                        <div class="entry-content">
+                           <div class="entry-body">
+                              <ul>
+  <li>Checked in improved gpdb_add_project.pl script</li>
+
+  <li> Started investigating Dave Smith's <i>Monthly Matrix</i></li>
+</ul>
+                           </div>
+                           <div id="more" class="entry-more">
+                              <p>I've gotten Michael's copy of gpdb_add_project.pl, which he placed into the cmtools/src vob, working now. Here's some of the changes:</p>
+
+<ul>
+  <li>Resolved all problems so that "use strict" could be used</li>
+
+  <li>Fixed bugs with tests for right spaced filled tests for siteName (e.g. $siteName eq "Dallas&nbsp;&nbsp; ")</li>
+
+  <li>Changed code so that failure to contact a remote site simply reports a warning and moves on to the next site (previously it would die after the first failure).</li>
+
+  <li>Changed reading of gpdb_site_list.txt file so that it reads from the correct location.</li>
+
+  <li>Added Protocol, Username and Password columns to gpdb_site_list.txt (and reading of site file).</li>
+
+  <li>Changed all rsh calls to call an "Rexec" function that takes a hash of the site line in gpdb_site_list.txt. This is to allow alternate username/password per site<sup>1</sup></li>
+</ul>
+
+<p>Note that Rexec currently only supports the rsh protocol and the return code from this Rexec is the same as the return code for the rsh command itself, not the return code from the command that rsh is executing on the remote machine.</p>
+
+<p>The thought with the Protocol column in the site file is to support additional protocols, notably ssh and telnet, in the future.</p>
+
+<p>However, "rsh &lt;machine&gt; -l &lt;user&gt; command" doesn't prompt for password and you cannot supply password on the command line either<sup>1</sup> 
+ssh will prompt for a password. Telnet, of course, does not offer the ability to add a command. Finally specifying a password in a file is not very secure.</p>
+
+<p>I've spent a little time coming up with a Perl module (strangely named Rexec) to implement remote command execution. Currently it is an object oriented approach that uses telnet and Expect to open a channel to the remote machine and execute commands returning the remotely executed command's status and output. I plan on extending it to first try ssh then rlogin and finally telnet. For the first protocol, if passwordless access is set up then no password is required. If it can't connect that way then it can fall back to rlogin or telnet and use Expect to drive the login and command execution (or optionally fail if no password is given). In general I think this would be a useful module to have for
+all.</p>
+
+<p>Another benefit would be that the usage would be such that you establish a connection, execute potentially hundreds of commands, then destroy the connection - which would be a lot faster than say hundreds of ssh/rsh's which each need to login, do the command and logout.</p>
+
+<p>Another optimization I see for gpdb_add_project.pl would be to have the remote machine cut down the amount of data needed to be sent over the network connection. For example, gpdb_add_project.pl uses a remote connection to essentially niscat the auto_data automount map, returning hundreds of lines (6395 lines or 622559 bytes). Then it loops through that array looking for lines that say "sync_custom" (actually it first
+sorts them - for no particular reason!). I propose that it instead does something like "niscat auto_data.org_dir | grep sync_custom" returning only 2 lines or 126 bytes and remove the needless sort(s).</p>
+
+<p>Architecturally I think that what gpdb_add_project.pl does is interface between the outside world (in this case DesignSync) and GPDB. GPDB has a nice Perl module to allow consistent programmatic access to the output - GPDB (Thanks Michael). What would be nice is a Perl module that gathers all DesignSync info (which is what gpdb_add_project.pl does) allowing a consistent programmatic access to DesignSync info (and down the road - Clearcase). Then gpdb_add_project.pl could be greatly simplified to simply talk to these two architected interfaces.</p>
+                           </div>
+                        </div>
+                        <p class="entry-footer">
+                           <span class="post-footers">Posted by  on October 10, 2006  3:50 PM</span> <span class="separator">|</span> <a class="permalink" href="http://defaria.com/blogs/Status/archives/000579.html">Permalink</a>
+                        </p>
+                     </div>
+
+                     
+
+                     
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</body>
+</html>
