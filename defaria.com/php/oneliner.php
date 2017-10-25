@@ -1,6 +1,6 @@
 <?php 
 function oneliner ($list) {
-  $sigs = $_SERVER["DOCUMENT_ROOT"] . "/signatures";
+  $sigs = $_SERVER["DOCUMENT_ROOT"] . "/Misc/signatures";
 
   srand ();
 
