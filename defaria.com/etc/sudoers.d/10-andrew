@@ -1,2 +1,0 @@
-# User rules for centos
-andrew ALL=(ALL) NOPASSWD:ALL

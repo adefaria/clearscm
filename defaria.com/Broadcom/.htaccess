@@ -1,4 +1,0 @@
-AuthType Basic
-AuthName "Keep out"
-AuthUserFile /etc/apache2/users/me
-Require valid-user
