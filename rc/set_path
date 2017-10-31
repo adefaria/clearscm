@@ -88,6 +88,7 @@ path_dirs="$path_dirs\
   /bin\
   /sbin\
   /usr/bin\
+  /usr/games\
   /usr/X11R6/bin\
   /usr/bin/X11\
   /usr/dt/bin\
