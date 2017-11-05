@@ -33,9 +33,9 @@ sub Today2SQLDatetime;
 sub FormatDate {
   my ($date) = @_;
 
-  return substr $date, 5, 2  . '/' .
-         substr $date, 8, 2  . '/' .
-         substr $date, 0, 4;
+  return substr ($date, 5, 2)  . '/' .
+         substr ($date, 8, 2)  . '/' .
+         substr ($date, 0, 4);
 } # FormatDate
 
 sub FormatTime {
@@ -141,9 +141,9 @@ sub SubtractDays {
     $month = '0' . $month;
   } # if
 
-  # Prefix days with  0 if necessary
-  if ($days eq 0) { 
-      $days = '01';
+  # Prefix days with 0 if necessary
+  if ($days == 0) { 
+     $days = '01';
   } elsif ($days < 10) {
     $days = '0' . $days;
   } # if  
