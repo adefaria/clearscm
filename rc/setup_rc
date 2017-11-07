@@ -54,6 +54,8 @@ if [ ! -d $HOME/.rc ]; then
 fi
 
 # Check to see if we were already setup
+symlink=$(stat -c %N ~/.bashrc | awk '{print $2}')
+
 if [ "$symlink" = "->" ]; then
   to=$(stat -c %N ~/.bashrc | awk '{print $NF}')
 
