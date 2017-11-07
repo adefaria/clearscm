@@ -53,16 +53,23 @@ if [ ! -d $HOME/.rc ]; then
   exit 1
 fi
 
+cat /dev/null > /tmp/debug.log
+
 # Check to see if we were already setup
 symlink=$(stat -c %N ~/.bashrc | awk '{print $2}')
 
 if [ "$symlink" = "->" ]; then
+  echo "DEBUG: ~/.bashrc is a symlink" >> /tmp/debug.log
   to=$(stat -c %N ~/.bashrc | awk '{print $NF}')
 
   if [[ "$to" =~ .rc\/bash_login ]]; then
-    echo "Already setup"
+    echo "DEBUG: Already setup" >> /tmp/debug.log
     exit
+  else
+    echo "DEBUG: Not setup yet" >> /tmp/debug.log
   fi
+else
+  echo "DEBUG: ~/.bashrc is not a symlink. Must setup" >> /tmp/debug.log
 fi
 
 ReplaceFile "$HOME/.Xdefaults"	  "$HOME/.rc/Xdefaults"
