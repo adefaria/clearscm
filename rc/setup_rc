@@ -2,11 +2,11 @@
 ################################################################################
 #
 # File:         $RCSfile: setup_rc,v $
-# Revision:	$Revision: 1.6 $
+# Revision:     $Revision: 1.6 $
 # Description:  This script sets up my rc scripts
 # Author:       Andrew@DeFaria.com
 # Created:      Thu Feb 16 07:34:32 PST 2006
-# Modified:	$Date: 2011/12/14 22:28:59 $
+# Modified:     $Date: 2011/12/14 22:28:59 $
 # Language:     bash
 #
 # (c) Copyright 2006, Andrew@DeFaria.com, all rights reserved
@@ -26,6 +26,7 @@ function ReplaceFile {
   fi
 
   if [ ! -h "$dest" ]; then
+    echo "Linking $source -> $dest"
     ln -s "$source" "$dest"
   fi
 } # ReplaceFile
@@ -44,6 +45,7 @@ function ReplaceDir {
   fi
 
   if [ ! -h "$dest" ]; then
+    echo "Linking $source -> $dest"
     ln -s "$source" "$dest"
   fi
 } # ReplaceDir
@@ -51,25 +53,6 @@ function ReplaceDir {
 if [ ! -d $HOME/.rc ]; then
   echo "No $HOME/.rc directory found"
   exit 1
-fi
-
-cat /dev/null > /tmp/debug.log
-
-# Check to see if we were already setup
-symlink=$(stat -c %N ~/.bashrc | awk '{print $2}')
-
-if [ "$symlink" = "->" ]; then
-  echo "DEBUG: ~/.bashrc is a symlink" >> /tmp/debug.log
-  to=$(stat -c %N ~/.bashrc | awk '{print $NF}')
-
-  if [[ "$to" =~ .rc\/bash_login ]]; then
-    echo "DEBUG: Already setup" >> /tmp/debug.log
-    exit
-  else
-    echo "DEBUG: Not setup yet" >> /tmp/debug.log
-  fi
-else
-  echo "DEBUG: ~/.bashrc is not a symlink. Must setup" >> /tmp/debug.log
 fi
 
 ReplaceFile "$HOME/.Xdefaults"	  "$HOME/.rc/Xdefaults"
