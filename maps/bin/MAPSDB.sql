@@ -88,9 +88,9 @@ create table log (
 ); -- log
 
 -- Create users
---grant all privileges 
---  on MAPS.* to mapsadmin@"%"  identified by "mapsadmin";
---grant select
---  on MAPS.* to mapsreader@"%" identified by "reader";
---grant insert, select, update, delete
---  on MAPS.* to mapswriter@"%" identified by "writer";
+grant all privileges 
+  on MAPS.* to mapsadmin@"%"  identified by "mapsadmin";
+grant select
+  on MAPS.* to mapsreader@"%" identified by "reader";
+grant insert, select, update, delete
+  on MAPS.* to mapswriter@"%" identified by "writer";
