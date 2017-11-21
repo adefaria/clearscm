@@ -27,7 +27,7 @@ create table user (
   email				varchar (128)	not null,
   password			tinytext	not null,
   primary key (userid)
-) type=innodb; -- user
+); -- user
 
 -- useropts: User's options are stored here
 create table useropts (
@@ -36,7 +36,7 @@ create table useropts (
   value				varchar (128),
   key user_index (userid),
   foreign key (userid) references user (userid) on delete cascade
-) type=innodb; -- useropts
+); -- useropts
 
 -- email: Table that holds the email
 create table email (
@@ -48,7 +48,7 @@ create table email (
   key user_index (userid),
   foreign key (userid) references user (userid) on delete cascade,
   key sender_index (sender)
-) type=innodb; -- email
+); -- email
 
 -- whitelist: Table holds the users' whitelists
 create table list (
@@ -64,7 +64,7 @@ create table list (
   key user_listtype (userid, type),
   unique (userid, type, sequence),
   foreign key (userid) references user (userid) on delete cascade
-) type=innodb; -- list
+); -- list
 
 -- log: Table to hold log information
 create table log (
@@ -85,7 +85,7 @@ create table log (
   message			varchar (255)	not null,
   key user_index (userid),
   foreign key (userid) references user (userid) on delete cascade
-) type=innodb; -- log
+); -- log
 
 -- Create users
 --grant all privileges 
