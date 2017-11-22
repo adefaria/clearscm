@@ -17,7 +17,6 @@
   include "MAPS.php";
   MAPSHeader ();
   $next = (isset ($_GET ["next"])) ? $_GET ["next"] : 0;
-//  $prev;
   $type = $_GET ["type"];
   if (isset($_GET['message'])) {
     $message = $_GET["message"];
@@ -73,7 +72,7 @@ $this_page = $next / $lines + 1;
     print "<input type=hidden name=type value=$type>";
     print "<input type=hidden name=next value=$next>";
     print "Page: <select name=page onChange=\"ChangePage(this.value,'$type','$lines');\"";
-    for ($i = 1; $i <= $last_page; $i++) {
+    for ($i = 0; $i <= $last_page; $i++) {
       if ($i == ($this_page - 1)) {
         print "<option selected>$i</option>";
       } else {
@@ -81,7 +80,8 @@ $this_page = $next / $lines + 1;
       } // if
     } // for
     print "</select>";
-    print "&nbsp;of $last_page";
+    print "&nbsp;of <a href=\"/maps/php/list.php?type=$type&next=" . 
+          $last_page * $lines . "\">$last_page</a>";
   ?>
   </div>
   <div class="toolbar" align="center">
