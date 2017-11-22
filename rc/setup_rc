@@ -55,13 +55,27 @@ if [ ! -d $HOME/.rc ]; then
   exit 1
 fi
 
+function CopyFile {
+  dest=$1
+  source=$2
+
+  if [ -f "$dest" ] then
+    echo "Saving your old $dest as $dest.save..."
+    mv "$dest" "$dest.cave"
+  fi
+
+  cp "$source" "$dest"
+} # CopyFile
+
 ReplaceFile "$HOME/.Xdefaults"	  "$HOME/.rc/Xdefaults"
 ReplaceFile "$HOME/.bash_login"	  "$HOME/.rc/bash_login"
 ReplaceFile "$HOME/.bashrc"	      "$HOME/.rc/bash_login"
 ReplaceFile "$HOME/.inputrc"	    "$HOME/.rc/inputrc"
 ReplaceFile "$HOME/.vimrc"	      "$HOME/.rc/vimrc"
 ReplaceDir  "$HOME/.xemacs"	      "$HOME/.rc/xemacs"
-ReplaceFile "$HOME/.ssh/config"	  "$HOME/.rc/sshconfig"
 ReplaceFile "$HOME/.perlcriticrc" "$HOME/.rc/perlcriticrc"
 ReplaceFile "$HOME/.perltidyrc"   "$HOME/.rc/perltidyrc"
 ReplaceFile "$HOME/.gitconfig"    "$HOME/.rc/gitconfig"
+
+# Ssh is picky about the ownership of this file so copy it.
+CopyFile "$HOME/.ssh/config"	  "$HOME/.rc/sshconfig"
