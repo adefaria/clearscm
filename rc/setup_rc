@@ -61,7 +61,7 @@ function CopyFile {
 
   if [ -f "$dest" ]; then
     echo "Saving your old $dest as $dest.save..."
-    mv "$dest" "$dest.cave"
+    mv "$dest" "$dest.save"
   fi
 
   cp "$source" "$dest"
