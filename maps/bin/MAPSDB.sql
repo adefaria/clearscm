@@ -89,8 +89,4 @@ create table log (
 
 -- Create users
 grant all privileges 
-  on MAPS.* to mapsadmin@"localhost"  identified by "mapsadmin";
-grant select
-  on MAPS.* to mapsreader@"localhost" identified by "reader";
-grant insert, select, update, delete
-  on MAPS.* to mapswriter@"localhost" identified by "writer";
+  on MAPS.* to maps@"localhost"  identified by "spam";

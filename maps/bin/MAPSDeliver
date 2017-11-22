@@ -64,7 +64,7 @@ die 'Msgfile not specified' unless $msgfile;
 my $err  = DeliverMail $userid, $msgfile;
 
 if ($err) {
-  OpenDB 'mapsadmin', 'mapsadmin';
+  OpenDB 'maps', 'spam';
 
   MAPSDB::SetContext $userid;
 

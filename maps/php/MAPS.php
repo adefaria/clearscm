@@ -44,7 +44,7 @@ function DBError($msg, $statement) {
 } // DBError
 
 function OpenDB() {
-  $db = mysql_connect("localhost", "mapsadmin", "mapsadmin")
+  $db = mysql_connect("localhost", "maps", "spam")
     or DBError("OpenDB: Unable to connect to database server", "Connect");
 
   mysql_select_db("MAPS")

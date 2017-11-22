@@ -139,8 +139,8 @@ sub UserExists;
 sub Whitelist;
 
 BEGIN {
-  my $MAPS_username = "mapsadmin";
-  my $MAPS_password = "mapsadmin";
+  my $MAPS_username = "maps";
+  my $MAPS_password = "spam";
 
   OpenDB $MAPS_username, $MAPS_password;
 } # BEGIN
