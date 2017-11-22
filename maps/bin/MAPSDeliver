@@ -2,11 +2,11 @@
 ################################################################################
 #
 # File:         $RCSfile: MAPSDeliver,v $
-# Revision:	$Revision: 1.1 $
+# Revision:     $Revision: 1.1 $
 # Description:  This script simply delivers the mail. It is separated out so
-#		it can be the only portion that is setgid to the group mail
-#		for the purposes of being able to deliver the mail to the users
-#		maildrop
+#	              it can be the only portion that is setgid to the group mail
+#               for the purposes of being able to deliver the mail to the users
+#               maildrop
 # Author:       Andrew@DeFaria.com
 # Created:      Fri Nov 29 14:17:21  2002
 # Modified:     $Date: 2013/06/12 14:05:47 $
@@ -18,19 +18,9 @@
 use strict;
 use warnings;
 
-use English;
 use FindBin;
 
-# Untaint $FindBin::Bin
-my $lib;
-
-BEGIN {
-  if ($FindBin::Bin =~ /^(.*)$/) {
-    $lib = $1;
-  } # if
-} # BEGIN
-
-use lib $lib;
+use lib $FindBin::Bin;
 
 use MAPSFile;
 use MAPSDB;
@@ -38,14 +28,6 @@ use MAPSLog;
 
 sub DeliverMail ($$) {
   my ($userid, $msgfileName) = @_;
-
-  # Switch to group mail
-  $EGID = getgrnam "mail";
-
-  # Untaint $userid
-  if ($userid =~ /^([-\@\w.]+)$/) {
-    $userid = $1;
-  } # if
 
   # Open maildrop file
   open my $maildrop, '>>', "/var/mail/$userid"
@@ -59,7 +41,7 @@ sub DeliverMail ($$) {
   Lock $maildrop;
 
   # Write msgfile -> $maildrop
-  print $maildrop "\n";
+  print $maildrop "\n\n";
   print $maildrop $_
     while (<$msgfile>);
 
@@ -74,11 +56,10 @@ sub DeliverMail ($$) {
 } # DeliverMail
 
 # Main
-die 'User id not specified' unless $ARGV [0];
-die 'Msgfile not specified' unless $ARGV [1];
+my ($userid, $msgfile) = @ARGV;
 
-my $userid  = shift @ARGV;
-my $msgfile = shift @ARGV;
+die 'User id not specified' unless $userid;
+die 'Msgfile not specified' unless $msgfile;
 
 my $err  = DeliverMail $userid, $msgfile;
 
@@ -90,5 +71,4 @@ if ($err) {
   Error $err;
 } # if
 
-exit 1 if $err;
-exit 0;
+exit $err ? 1 : 0;
