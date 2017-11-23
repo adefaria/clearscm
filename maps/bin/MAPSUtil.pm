@@ -17,6 +17,10 @@ package MAPSUtil;
 use strict;
 use vars qw (@ISA @EXPORT);
 
+BEGIN {
+  $ENV{TZ}='America/Los_Angeles';
+} # BEGIN
+
 @ISA = qw (Exporter);
 
 @EXPORT = qw (
@@ -42,6 +46,9 @@ sub FormatTime {
   my ($time) = @_;
 
   my $hours   = substr $time, 0, 2;
+
+  $hours = substr $hours, 1, 1 if $hours < 10;
+
   my $minutes = substr $time, 3, 2;
   my $seconds = substr $time, 6, 2;
   my $AmPm    = $hours > 12 ? 'Pm' : 'Am';
