@@ -49,7 +49,7 @@ if (($next - $lines) > 0) {
 
 $total = CountList ($type);
 $last = $next + $lines < $total ? $next + $lines : $total;
-$last_page = floor ($total / $lines);
+$last_page = floor ($total / $lines) + 1;
 $this_page = $next / $lines + 1;
 ?>
 </head>
@@ -73,15 +73,16 @@ $this_page = $next / $lines + 1;
     print "<input type=hidden name=next value=$next>";
     print "Page: <select name=page onChange=\"ChangePage(this.value,'$type','$lines');\"";
     for ($i = 0; $i <= $last_page; $i++) {
-      if ($i == ($this_page - 1)) {
+      if ($i == ($this_page)) {
         print "<option selected>$i</option>";
       } else {
         print "<option>$i</option>";
       } // if
     } // for
     print "</select>";
+    //print "next: $next last_page: $last_page";
     print "&nbsp;of <a href=\"/maps/php/list.php?type=$type&next=" . 
-          $last_page * $lines . "\">$last_page</a>";
+          ($last_page - 1) * $lines . "\">$last_page</a>";
   ?>
   </div>
   <div class="toolbar" align="center">

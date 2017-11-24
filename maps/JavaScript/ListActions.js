@@ -127,6 +127,6 @@ function CheckEntry (form) {
 } // CheckEntry
 
 function ChangePage (page, type, lines) {
-  window.location = "/maps/php/list.php" + "?type=" + type + "&next=" + page * lines;
+  window.location = "/maps/php/list.php" + "?type=" + type + "&next=" + (page - 1) * lines;
 } // ChangePage
 
