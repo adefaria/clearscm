@@ -2,7 +2,7 @@
 ################################################################################
 #
 # File:         $RCSfile: display.cgi,v $
-# Revision:	$Revision: 1.1 $
+# Revision:     $Revision: 1.1 $
 # Description:  Displays an email message
 # Author:       Andrew@DeFaria.com
 # Created:      Fri Nov 29 14:17:21  2002
@@ -30,10 +30,10 @@ use MIME::Parser;
 use MIME::Base64;
 use MIME::Words qw(:all);
 
-my $userid	= cookie ("MAPSUser");
-my $sender	= param ("sender");
-my $msg_nbr	= param ("msg_nbr");
-my $table_name	= "message";
+my $userid      = cookie('MAPSUser');
+my $sender      = param('sender');
+my $msg_nbr     = param('msg_nbr');
+my $table_name  = 'message';
 
 sub ParseEmail (@) {
   my (@header) = @_;
@@ -42,7 +42,7 @@ sub ParseEmail (@) {
 
   # First output the header information. Note we'll skip uninteresting stuff
   foreach (@header) {
-    last if ($_ eq "" || $_ eq "\cM");
+    last if ($_ eq '' || $_ eq "\cM");
 
     # Escape "<" and ">"
     s/\</\&lt\;/;
@@ -56,6 +56,8 @@ sub ParseEmail (@) {
       $header{date} = $1;
     } elsif (/^To:\s*(.*)/i) {
       $header{to} = $1;
+    } elsif (/^Content-Transfer-Encoding: base64/) {
+      $header{base64} = 1;
     } # if
   } # while
 
@@ -85,54 +87,56 @@ sub Body ($) {
   my %header = ParseEmail @{($entity->header)[0]};
 
   print p . "\n";
-    print start_table ({-align		=> "center",
-			-id		=> $table_name,
-			-border		=> 0,
-			-cellspacing	=> 0,
-			-cellpadding	=> 0,
-			-width		=> "100%"});
-    print start_table ({-align		=> "center",
-			-bgcolor	=> "#d4d0c8",
-			-border		=> 0,
-			-cellspacing	=> 2,
-			-cellpadding	=> 2,
-			-width		=> "100%"}) . "\n";
+    print start_table ({-align        => "center",
+                        -id           => $table_name,
+                        -border       => 0,
+                        -cellspacing  => 0,
+                        -cellpadding  => 0,
+                        -width        => "100%"});
+    print start_table ({-align        => "center",
+                        -bgcolor      => "#d4d0c8",
+                        -border       => 0,
+                        -cellspacing  => 2,
+                        -cellpadding  => 2,
+                        -width        => "100%"}) . "\n";
     print "<tbody><tr><td>\n";
-    print start_table ({-align		=> "center",
-			-border		=> 0,
-			-cellspacing	=> 0,
-			-cellpadding	=> 2,
-			-bgcolor	=> "#ece9d8",
-			-width		=> "100%"}) . "\n";
+    print start_table ({-align        => "center",
+                        -border       => 0,
+                        -cellspacing  => 0,
+                        -cellpadding  => 2,
+                        -bgcolor      => "#ece9d8",
+                        -width        => "100%"}) . "\n";
 
     foreach (keys (%header)) {
+      next if /base64/;
+
       my $str = decode_mimewords ($header{$_});
 
       print Tr ([
-	      th ({-align	=> "right",
-		   -bgcolor	=> "#ece9d8",
-		   -width	=> "8%"}, "$_:") . "\n" .
-	      td ({-bgcolor	=> "white"}, $str)
-	    ]);
+        th ({-align    => "right",
+             -bgcolor  => "#ece9d8",
+             -width    => "8%"}, "$_:") . "\n" .
+        td ({-bgcolor  => "white"}, $str)
+      ]);
     } # if
 
     print end_table;
     print "</td></tr>";
     print end_table;
 
-  print start_table ({-align		=> "center",
-		      -bgcolor		=> "black",
-		      -border		=> 0,
-		      -cellspacing	=> 0,
-		      -cellpadding	=> 2,
-		      -width		=> "100%"}) . "\n";
+  print start_table ({-align        => "center",
+                      -bgcolor      => "black",
+                      -border       => 0,
+                      -cellspacing  => 0,
+                      -cellpadding  => 2,
+                      -width        => "100%"}) . "\n";
   print "<tbody><tr><td>\n";
-  print start_table ({-align		=> "center",
-		      -border		=> 0,
-		      -cellspacing	=> 0,
-		      -cellpadding	=> 2,
-		      -bgcolor		=> "white",
-		      -width		=> "100%"}) . "\n";
+  print start_table ({-align        => "center",
+                      -border       => 0,
+                      -cellspacing  => 0,
+                      -cellpadding  => 2,
+                      -bgcolor      => "white",
+                      -width        => "100%"}) . "\n";
   print "<tbody><tr><td>\n";
 
   my @parts = $entity->parts;
@@ -147,22 +151,28 @@ sub Body ($) {
       # there exists at least one part that is text/html and we favor
       # that (since we're outputing to a web page anyway...
       if ($part->mime_type eq 'multipart/alternative') {
-	foreach my $subpart ($part->parts) {
-	  if ($subpart->mime_type eq 'text/html') {
-	    $subpart->print_body;
-	    last;
-	  } elsif ($subpart->mime_type eq 'multipart/related') {
-	    # This is stupid - multipart/related? When it's really just HTML?!?
-	    $subpart->print_body;
-	    last;
-	  } # if
-	} # foreach
+        foreach my $subpart ($part->parts) {
+          if ($subpart->mime_type eq 'text/html') {
+            # There should be an easier way to get this but I couldn't find one.
+            my $encoding = ${$subpart->{mail_inet_head}{mail_hdr_hash}{'Content-Transfer-Encoding'}[0]};
+            if ($encoding =~ /base64/) {
+              $subpart->bodyhandle->print();
+            } else {
+              $subpart->print_body;
+            } # if
+            last;
+          } elsif ($subpart->mime_type eq 'multipart/related') {
+            # This is stupid - multipart/related? When it's really just HTML?!?
+            $subpart->print_body;
+            last;
+          } # if
+        } # foreach
       } else {
-	if ($part->mime_type =~ /text/) {
-	  print '<pre>';
-	  $part->print_body;
-	  print '</pre>';
-	} # if
+        if ($part->mime_type =~ /text/) {
+          print '<pre>';
+          $part->print_body;
+          print '</pre>';
+        } # if
       } # if
     } # foreach
   } # if
@@ -175,11 +185,11 @@ sub Body ($) {
 } # Body
 
 $userid = Heading (
-  "getcookie",
-  "",
+  'getcookie',
+  '',
   "Email message from $sender",
   "Email message from $sender",
-  "",
+  '',
   $table_name,
 );
 
