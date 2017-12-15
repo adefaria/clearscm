@@ -67,7 +67,7 @@ my $security_logfile = '/var/log/auth.log';
 my $domain   = 'DeFaria.com';
 my $contact  = 'Andrew@DeFaria.com';
 my $location = 'Santa Clara, California, USA';
-my $UTC	     = 'UTC-8';
+my $UTC      = 'UTC-8';
 my $mailhost = $domain;
 # End customize these variables
 
@@ -90,10 +90,10 @@ sub AddToIPTables (@) {
   my $result = open my $ipfile, '<', $ipfilename;
 
   my (%ips, @oldips);
-  
+
   if ($result) {
     @oldips = <$ipfile>; 
-  
+
     close $ipfile if $ipfile;
 
     chomp @oldips;
@@ -101,24 +101,24 @@ sub AddToIPTables (@) {
 
   map { $ips{$_} = 1 } @oldips;
   map { $ips{$_} = 1 } <@ips>;
-  
+
   open $ipfile, '>', "$ipfilename"
     or error "Unable to open $ipfilename - $!", 1;
-  
+
   foreach (sort keys %ips) {
     print $ipfile "$_\n";
   } # foreach
-  
+
   close $ipfile;
 
   # Recreate the BICE chain
   `/sbin/iptables -F BICE`;
   `/sbin/iptables -X BICE`;
   `/sbin/iptables -N BICE`;
-  
+
   # Add all new @ips to iptables
   `/sbin/iptables -A BICE -s $_ -p tcp -j DROP` foreach (sort keys %ips);
-  
+
   return;
 } # AddToIPTables
 
@@ -149,9 +149,9 @@ sub GetEmailAddresses ($) {
 
     foreach (@lines) {
       my @fields = split /:/, $_;
-      
+
       $_ = $fields [@fields - 1];
-      
+
       if (/(\S+\@\S[\.\S]+)/) {
         $email_addresses{$1} = "";
       } # if
@@ -176,79 +176,79 @@ sub SendEmail ($$$$$) {
   } # if
 
   mail (
-    from	=> "BICE\@$domain",
-    to		=> $to,
-    #cc		=> $contact,
-    subject	=> $subject,
-    mode	=> 'html',
-    data	=> $message,
+    from    => "BICE\@$domain",
+    to      => $to,
+    #cc      => $contact,
+    subject => $subject,
+    mode    => 'html',
+    data    => $message,
   );
 } # SendEmail
 
 sub processLogfile () {
   my %violations;
-  
+
   # Note: Normally you must be root to open up $security_logfile
   open my $readlog, '<', $security_logfile
     or error "Unable to open $security_logfile - $!", 1;
-    
+
   flock $readlog, LOCK_EX
     or error "Unable to flock $security_logfile", 1;
-  
+
   my @lines;
-  
+
   while (<$readlog>) {
     my $newline = $_;
-    
+
     if (/^(\S+\s+\S+\s+\S+)\s+.*Invalid user (\w+) from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
       my %violation = $violations{$3} ? %{$violations{$3}} : %_;
-      
+
       push @{$violation{$2}}, $1;
 
       $violations{$3} = \%violation;
-      
+
       $newline =~ s/Invalid user/INVALID USER/;
     } elsif (/^(\S+\s+\S+\s+\S+)\s+.*authentication failure.*ruser=(\S+).*rhost=(\S+)/) {
       my %violation = $violations{$3} ? %{$violations{$3}} : %_;
-      
+
       push @{$violation{$2}}, $1;
 
       $violations{$3} = \%violation;
-      
+
       $newline =~ s/authentication failure/AUTHENTICATION FAILURE/;
     } elsif (/^(\S+\s+\S+\s+\S+)\s+.*Failed password for (\w+) from (\d{1,3}\.\d{1,3}\.d{1,3}\.d{1,3})/) {
       my %violation = $violations{$3} ? %{$violations{$3}} : %_;
-      
+
       push @{$violation{$2}}, $1;
 
       $violations{$3} = \%violation;
-      
+
       $newline =~ s/Failed password/FAILED PASSWORD/;
     } # if
 
     push @lines, $newline; 
   } # while
-  
+
   return %violations unless $update;
-  
+
   flock $readlog, LOCK_UN
     or error "Unable to unlock $security_logfile", 1;
-    
+
   close $readlog;
-  
+
   open my $writelog, '>', $security_logfile
     or error "Unable to open $security_logfile for writing - $!", 1;
-  
+
   flock $writelog, LOCK_EX
     or error "Unable to flock $security_logfile", 1;
-    
+
   print $writelog $_ foreach @lines;
-  
+
   flock $writelog, LOCK_UN
     or error "Unable to unlock $security_logfile", 1;
 
   close $writelog;
-  
+
   return %violations;
 } # processLogfile
 
@@ -257,7 +257,7 @@ sub ReportBreakins () {
   my %violations = processLogfile;
 
   my $nbrViolations = keys %violations;
-  
+
   if ($nbrViolations == 0) {
     verbose 'No violations found';
   } elsif ($nbrViolations == 1) {
@@ -265,14 +265,14 @@ sub ReportBreakins () {
   } else {
     verbose "$nbrViolations sites attempting to violate our perimeter";
   } # if
-  
+
   foreach (sort keys %violations) {
     my $ip = $_;
 
     my $attempts;
-    
+
     $attempts += @{$violations{$ip}{$_}} foreach (keys %{$violations{$ip}});
-    
+
     my @emails   = GetEmailAddresses $ip;
 
     unless (@emails) {
@@ -280,7 +280,7 @@ sub ReportBreakins () {
             . "attempts from IP $ip ($attempts breakin attempts)";
       next;
     } # unless
-    
+
     my $to      = join ',', @emails;
     my $subject = "Illegal attempts to break into $domain from your domain";
     my $message = <<"END";
@@ -311,20 +311,20 @@ END
     # Report users
     foreach my $user (sort keys %{$violations{$ip}}) {
       if (@{$violations{$ip}{$user}} == 1) {
-    	  $message .= "<li>The user <b>$user</b> attempted access on $violations{$ip}{$user}[0]</li>";
+        $message .= "<li>The user <b>$user</b> attempted access on $violations{$ip}{$user}[0]</li>";
       } else {
         $message .= "<li>The user <b>$user</b> attemped access on the following date/times:</li>"; 
         $message .= "<ol>";
         $message .= "<li>$_</li>" foreach (@{$violations{$ip}{$user}});
         $message .= "</ol>";
-    	} # if
+      } # if
     } # foreach
 
     $message .= '</ol><p>Your prompt attention to this matter is expected '
               . 'and will be appreciated.</p>';
     SendEmail $to, $subject, $message, $ip, $attempts;
   } # foreach
-  
+
   AddToIPTables keys %violations;
 } # ReportBreakins
 
