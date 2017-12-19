@@ -142,9 +142,13 @@ sub Body ($) {
   my @parts = $entity->parts;
 
   if (scalar @parts == 0) {
-    print '<pre>';
-    $entity->print_body;
-    print '</pre>';
+    if (${$entity->{mail_inet_head}{mail_hdr_hash}{'Content-Transfer-Encoding'}[0]} =~ /base64/) {
+      print $entity->{ME_Bodyhandle}{MBS_Data};
+    } else {
+      print '<pre>';
+      $entity->print_body;
+      print '</pre>';
+    } # if
   } else {
     foreach my $part ($entity->parts) {
       # We assume here that if this part is multipart/alternative then
