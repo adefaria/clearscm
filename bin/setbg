@@ -64,6 +64,7 @@ use lib "$FindBin::Bin/../lib";
 
 use DateUtils;
 use Display;
+use Logger;
 use Utils;
 
 my $VERSION  = '$Revision: 1.10 $';
@@ -71,6 +72,7 @@ my $VERSION  = '$Revision: 1.10 $';
 
 my $processes = new Proc::ProcessTable;
 my @imgDirs;
+my %totals;
 
 foreach my $process (@{$processes->table}) {
   if ($process->cmndline =~ /setbg/ and
@@ -81,18 +83,58 @@ foreach my $process (@{$processes->table}) {
   } # if
 } # foreach
 
+sub displayStats () {
+  my $statsFile = Logger->new(
+    name      => ".$FindBin::Script.stats",
+    path      => $ENV{HOME},
+    extension => '',
+  );
+
+  $statsFile->log('At ' . localtime());
+
+  Stats \%totals, $statsFile;
+
+  return;
+} # displayStats
+
 sub fillPictures () {
   my @images;
-  
+
   foreach (@imgDirs) {
     my @pics = `find "$_" -type f -name "*.jpg"`;
-    
+
     chomp @pics;
     push @images, @pics;
   } # foreach
 
-  return @images;  
+  $totals{images} = scalar @images;
+
+  displayStats;
+
+  return @images;
 } # fillPictures
+
+sub updateSetBG ($) {
+  my ($image) = @_;
+
+  open my $log, '>', "$ENV{HOME}/.$FindBin::Script"
+    or error "Unable to open $ENV{HOME}/.$FindBin::Script for writing - $!", 1;
+
+  display $image, $log;
+
+  close $log;
+
+  open $log, '>>', "$ENV{HOME}/.$FindBin::Script.hist"
+    or error "Unable to open $ENV{HOME}/.$FindBin::Script.hist for append - $!", 1;
+
+  my $msg = localtime() . ":$image";
+
+  display $msg, $log;
+
+  close $log;
+
+  return;
+} # updateSetBG
 
 $0 = "$FindBin::Script " . join ' ', @ARGV;
 
@@ -110,22 +152,23 @@ GetOptions (
 
 for (my $i = 0; $i < scalar @imgDirs; $i++) {
   error "$imgDirs[$i] is not a directory", 1 unless -d $imgDirs[$i];
-  
+
   $imgDirs[$i] = File::Spec->rel2abs ($imgDirs[$i]);
 } # foreach
 
 # Using gsettings
-my $setbg	    = "gsettings";
-my $setbgOpts	= "set org.gnome.desktop.background picture-uri \"file://";
+my $setbg     = "gsettings";
+my $setbgOpts= "set org.gnome.desktop.background picture-uri \"file://";
 
 my @images = fillPictures;
 
 Usage "No images to display. Must specify -bgdir" unless @images;
- 
+
 sub SwitchWallPaper {
   # We don't need to do anything here, just handle the interrupt and
   # let the while loop continue.
   debug 'SwitchWallPaper: Interrupt received';
+  displayStats;
 } # SwitchWallPaper
 
 $SIG{USR2} = \&SwitchWallPaper;
@@ -134,32 +177,31 @@ $SIG{USR1} = \&fillPictures;
 my $debugger = $DB::OUT;
 my $today;
 
+truncate "$ENV{HOME}/.$FindBin::Script.hist", 0;
+
 EnterDaemonMode unless defined $DB::OUT;
 
 while () {
   my $image = escapeHTML ($images[int (rand $#images)]);
-
-  open my $log, '>', "$ENV{HOME}/.$FindBin::Script"
-    or error "Unable to open $ENV{HOME}/.$FindBin::Script for writing - $!", 1;
-
-  display $image, $log;
 
   my $cmd = "$setbg $setbgOpts$image\" 2> /dev/null";
 
   my @output = `$cmd`;
 
   if ($? != 0) {
-    display "ERROR Trying to set background - command used \"$cmd\"", $log;
-    display "Output:";
-    display join "\n", @output, $log;
+    error "Trying to set background - command used \"$cmd\"\n\nOutput\n\n" . 
+      join "\n", @output;
+    $totals{errors}++;
+  } else {
+    $totals{'Images displayed'}++;
+
+    updateSetBG $image;
   } # if
-  
-  close $log;
-  
-  $today = YMD;  
-  
+
+  $today = YMD;
+
   sleep $sleep;
-  
+
   if ($today ne YMD){
     @images = fillPictures;
   } # if

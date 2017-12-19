@@ -88,7 +88,7 @@ my $me;
 BEGIN {
   # Extract relative path and basename from script name.
   $me = $FindBin::Script;
-  
+
   # Remove .pl for Perl scripts that have that extension
   $me =~ s/\.pl$//;
 } # BEGIN
@@ -164,10 +164,11 @@ Returns:
   my $disposition = $parms{disposition} ? $parms{disposition} : 'perm';
   my $timestamped = $parms{timestamped} ? $parms{timestamped} : 'FALSE';  
   my $append      = $parms{append}      ? '>>'                : '>';
-  my $extension   = $parms{extension}   ? $parms{extension}   : 'log';
   my $logfile;
 
-  $name = "$name.$extension";
+  if (defined $parms{extension}) {
+    $name .= ".$parms{extension}" unless $parms{extension} eq '';
+  } # if
 
   open $logfile, $append, "$path/$name"
     or error "Unable to open logfile $path/$name - $!", 1;
@@ -175,10 +176,8 @@ Returns:
   # Set unbuffered output
   $logfile->autoflush ();
 
-  set_verbose
-    if $ENV{VERBOSE};
-  set_debug
-    if $ENV{DEBUG};
+  set_verbose if $ENV{VERBOSE};
+  set_debug   if $ENV{DEBUG};
 
   return bless {
     path        => $path,
@@ -236,13 +235,13 @@ Returns:
   } # while
 
   close $file;
-  
+
   return;
 } # append
 
 sub name () {
   my ($self) = @_;
-  
+
 =pod
 
 =head3 name
@@ -280,7 +279,7 @@ Returns:
 
 sub fullname () {
   my ($self) = @_;
-  
+
 =pod
 
 =head3 fullname
@@ -359,9 +358,9 @@ Returns:
 =cut
 
   $self->log ($msg, $nolinefeed);
-  
+
   verbose $msg, undef, $nolinefeed;
-  
+
   return;
 } # msg
 
@@ -408,9 +407,9 @@ Returns:
 =cut
 
   $self->log ($msg, $nolinefeed);
-  
+
   display $msg, undef, $nolinefeed;
-  
+
   return;
 } # disp
 
@@ -452,13 +451,15 @@ Returns:
 =cut  
 
   $increment ||= 1;
-  
+
   $self->{errors} += $increment;
+
+  return;
 } # incrementErr
 
 sub err ($;$) {
   my ($self, $msg, $errno) = @_;
-  
+
 =pod
 
 =head3 err ($msg, $errno)
@@ -511,11 +512,11 @@ Returns:
   } # if
 
   $self->log ($msg);
-  
+
   $self->incrementErr;
-  
+
   exit $errno if $errno;
-  
+
   return;
 } # err
 
@@ -591,10 +592,10 @@ Returns:
     footing => $footing,
     data    => $logfile
   );
-  
+
   close $logfile
     or error "Unable to close logfile $log_filename", 1;
-    
+
   return;
 } # maillog
 
@@ -644,7 +645,7 @@ Returns:
   $msg = "$me: " . YMDHM . ": $msg" if $self->{timestamped};
 
   display $msg, $self->{handle}, $nolinefeed;
-  
+
   return;
 } # log
 
@@ -709,7 +710,7 @@ Returns:
 
 sub loglines () {
   my ($self) = @_;
-  
+
 =pod
 
 =head3 loglines
@@ -789,7 +790,7 @@ Returns:
 =cut
 
   warning $msg, $warnno;
-  
+
   if ($warnno) {
     $msg = "WARNING #$warnno: $msg";
   } else {
@@ -798,13 +799,13 @@ Returns:
 
   $self->log ($msg);
   $self->{warnings}++;
-  
+
   return;
 } # warn
 
 sub errors () {
   my ($self) = @_;
-  
+
 =pod
 
 =head3 errors ()
@@ -842,7 +843,7 @@ Returns:
 
 sub warnings () {
   my ($self) = @_;
-  
+
 =pod
 
 =head3 warnings ()
@@ -885,11 +886,11 @@ sub DESTROY () {
 
   if ($self->{disposition} eq 'temp') {
     if ($self->{errors}   == 0 and
-	    $self->{warnings} == 0) {
+      $self->{warnings} == 0) {
       unlink $self->fullname;
     } # if
   } # if
-  
+
   return;
 } # destroy
 

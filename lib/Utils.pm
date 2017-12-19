@@ -89,9 +89,9 @@ our @EXPORT = qw (
 sub _restoreTerm () {
   # In case the user hits Ctrl-C
   print "\nControl-C\n";
-  
+
   ReadMode 'normal';
-  
+
   exit;
 } # _restoreTerm
 
@@ -142,7 +142,7 @@ Returns:
   $errorlog ||= $NULL;
 
   my $file;
-  
+
   # Redirect STDIN to $NULL
   open STDIN, '<', $NULL
     or error "Can't read $NULL ($!)", 1;
@@ -169,7 +169,7 @@ Returns:
 
   # Now the parent exits
   exit if $pid;
-  
+
   # Write pidfile if specified
   if ($pidfile) {
     $pidfile =  File::Spec->rel2abs ($pidfile); 
@@ -178,14 +178,14 @@ Returns:
       or warning "Unable to open pidfile $pidfile for writing - $!";  
 
     print $file "$$\n";
-    
+
     close $file; 
   } # if
-  
+
   # Set process to be session leader
   setsid ()
     or error "Can't start a new session ($!)", 1;
-    
+
   return;
 } # EnterDaemonMode
 
@@ -240,7 +240,7 @@ STDOUT then do so in the $command passed in.
 
   my @output = `$cmd`;
   my $status = $?;
-  
+
   local $SIG{CHLD} = $sigchld;
 
   chomp @output;
@@ -349,20 +349,20 @@ Returns:
 
   
   $prompt ||= 'Password';
-  
+
   my $password;
-  
+
   local $| = 1;
-  
+
   print "$prompt:";
-  
+
   $SIG{INT} = \&_restoreTerm;
-  
+
   ReadMode 'cbreak';
 
   while () {
     my $key;
-    
+
     while (not defined ($key = ReadKey -1)) { }
 
     if ($key =~ /(\r|\n)/) {
@@ -372,14 +372,14 @@ Returns:
     } # if
 
     print '*';
-    
+
     $password .= $key;
   } # while
-  
+
   ReadMode 'restore'; # Reset tty mode before exiting.
 
   $SIG{INT} = 'DEFAULT';
-  
+
   return $password;
 } # GetPassword
 
@@ -468,16 +468,16 @@ In a scalar context just the 1 minute load average.
 
   # TODO: Make it work on Windows...
   return if $^O =~ /win/i;
-  
+
   open my $loadAvg, '/proc/loadavg'
     or croak "Unable to open /proc/loadavg\n";
-    
+
   my $load = <$loadAvg>;
-  
+
   close $loadAvg;
-  
+
   my @loadAvgs = split /\s/, $load;
-  
+
   if (wantarray) {
     return @loadAvgs;
   } else {
@@ -530,10 +530,10 @@ Returns:
 
   if ($existingPipe) {
     close $existingPipe;
-    
+
     open $existingPipe, '|-', $to
       or error "Unable to open pipe - $!", 1;
-      
+
     return $existingPipe;
   } else {
     open $pipe, '|-', $to
@@ -686,7 +686,7 @@ Returns:
   $pipeToStop ||= $pipe;
 
   close $pipeToStop if $pipeToStop;
-  
+
   return;
 } # StopPipe
 
@@ -739,7 +739,7 @@ Returns:
 
 sub RedirectOutput ($$@) {
   my ($to, $mode, @output) = @_;
-  
+
 =pod
 
 =head2 RedirectOutput ($to, @ouput)
@@ -788,7 +788,7 @@ Returns:
     chomp;
     print $out "$_\n";
   } # foreach
-  
+
   return; 
 } # RedirectOutput
 
@@ -835,27 +835,27 @@ Returns:
 
   open my $file, '<', $filename
     or error "Unable to open $filename ($!)", 1;
-    
+
   if (wantarray) {
     local $/ = "\n";
 
     my @lines = <$file>;
-  
+
     close $file
       or error "Unable to close $filename ($!)", 1;
-  
+
     my @cleansed_lines;
-  
+
     foreach (@lines) {
       chomp;
       chop if /\r/;
       push @cleansed_lines, $_ if !/^#/; # Discard comment lines
     } # foreach
-  
+
     return @cleansed_lines;
   } else {
     local $/ = undef;
-    
+
     return <$file>;
   } # if
 } # ReadFile
@@ -904,12 +904,12 @@ Returns:
 =cut
 
   my $msg = "$FindBin::Script Run Statistics:";
-  
+
   if ($log and ref $log eq 'Logger') {
     $total->{errors}   = $log->{errors};
     $total->{warnings} = $log->{warnings};
   } # if
-  
+
   if (keys %$total) {
     # Display statistics (if any)
     if ($log) {
@@ -920,7 +920,7 @@ Returns:
 
     foreach (sort keys %$total) {
       $msg = $total->{$_} . "\t $_";
-      
+
       if ($log) {
         $log->msg ($total->{$_} . "\t $_");
       } else {
@@ -928,7 +928,7 @@ Returns:
       } # if
     } # foreach
   } # if
-  
+
   return;
 } # Stats
 
