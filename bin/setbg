@@ -30,24 +30,43 @@ $Date: 2012/11/09 15:31:30 $
 
 =head1 SYNOPSIS
 
- Usage: setbg [-u|sage] [-ve|rbose] [-d|ebug] [-s|leep <n>] [-bgdir <bgdir>]
+ Usage: setbg [-u|sage] [-h|elp] [-ve|rbose] [-d|ebug] [-s|leep <n>]
+              [-bgdirs <bgdir> -bgdirs ...]
  
  Where:
 
  -u|sage:     Displays this usage
+ -h|elp:      Display full help
  -ve|rbose:   Be verbose
  -d|ebug:     Output debug messages
 
  -s|leep:     Number of minutes to sleep between setting the background
              (Default: 1 hour)
- -b|gdir:     Directory to scan for images (Default: /web/Pictures)
+ -b|gdirs:    Directories to scan for images
 
 =head1 DESCRIPTION
 
-This script sets the background image randomly based on images $imgDir. Note
-if this script is run again it senses that it was previously run and sends the
-previous script a SIGUSR2 which the script intrprets as "Change the background
-now", then exits.
+This script sets the background image randomly based on images found in bgdirs.
+Note if this script is run again it senses that it was previously run and sends
+the previous script a SIGUSR2 which the script intrprets as "Change the
+background now", then exits.
+
+Data is written to the following files:
+
+ ~/.setbg:      Contains the filename of the current background image
+ ~/.setbg.hist  Contains a history of all images displayed for this run
+ ~/.setbg.stats Contains statistical information for the current run
+
+Also note that this script will process a SIGUSR1 to mean "re-evaluate the
+contents of the bgdirs incase it has changed and display a new image". This is
+useful for script to be able to alert setbg that something has changed. For
+example, a script named rmbg might look at ~/.setbg to get the name of the
+current background image file and remove it then signal setbg with SIGUSR1 to
+have it re-evaluate the state of bgdirs. 
+
+Finally setbg will perform the this re-evaluation at midnight everyday. This is
+useful because we point setbg to look at -bgdirs from Dropbox where Camera 
+Uploads is included and new pictures can arrive everyday.
 
 =cut
 
@@ -62,26 +81,26 @@ use CGI qw/:standard/;
 
 use lib "$FindBin::Bin/../lib";
 
+use Pod::Usage;
+
 use DateUtils;
 use Display;
 use Logger;
 use Utils;
 
-my $VERSION  = '$Revision: 1.10 $';
+my $VERSION  = '$Revision: 1.11 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
-my $processes = new Proc::ProcessTable;
-my @imgDirs;
+my $processes = Proc::ProcessTable->new;
+my %opts = (
+  sleep   => 60,
+  usage   => sub { pod2usage },
+  help    => sub { pod2usage (-verbose => 2)},
+  verbose => sub { set_verbose },
+  debug   => sub { set_debug },
+);
+
 my %totals;
-
-foreach my $process (@{$processes->table}) {
-  if ($process->cmndline =~ /setbg/ and
-      $process->pid != $$) { 
-    kill 12, $process->pid;
-
-    exit 0;
-  } # if
-} # foreach
 
 sub displayStats () {
   my $statsFile = Logger->new(
@@ -91,6 +110,12 @@ sub displayStats () {
   );
 
   $statsFile->log('At ' . localtime());
+  $statsFile->log('Sleep: ' . $opts{sleep});
+  $statsFile->log('Image directories:');
+
+  for (my $i = 0; $i < scalar @{$opts{bgdirs}}; $i++) {
+    $statsFile->log("\t$opts{bgdirs}[$i]: $opts{bgdircnt}[$i]")
+  } # for
 
   Stats \%totals, $statsFile;
 
@@ -100,16 +125,20 @@ sub displayStats () {
 sub fillPictures () {
   my @images;
 
-  foreach (@imgDirs) {
+  $totals{bgdirs} = 0;
+
+  for (@{$opts{bgdirs}}) {
     my @pics = `find "$_" -type f -name "*.jpg"`;
 
     chomp @pics;
+
     push @images, @pics;
-  } # foreach
+    push @{$opts{bgdircnt}}, scalar @pics;
+
+    $totals{bgdirs}++;
+  } # for
 
   $totals{images} = scalar @images;
-
-  displayStats;
 
   return @images;
 } # fillPictures
@@ -117,44 +146,65 @@ sub fillPictures () {
 sub updateSetBG ($) {
   my ($image) = @_;
 
-  open my $log, '>', "$ENV{HOME}/.$FindBin::Script"
+  open my $setbg, '>', "$ENV{HOME}/.$FindBin::Script"
     or error "Unable to open $ENV{HOME}/.$FindBin::Script for writing - $!", 1;
 
-  display $image, $log;
+  display $image, $setbg;
 
-  close $log;
-
-  open $log, '>>', "$ENV{HOME}/.$FindBin::Script.hist"
-    or error "Unable to open $ENV{HOME}/.$FindBin::Script.hist for append - $!", 1;
+  close $setbg;
 
   my $msg = localtime() . ":$image";
 
-  display $msg, $log;
+  open my $hist, '>>', "$ENV{HOME}/.$FindBin::Script.hist"
+    or error "Unable to open $ENV{HOME}/.$FindBin::Script.hist for append - $!", 1;
 
-  close $log;
+  display $msg, $hist;
+
+  close $hist;
 
   return;
 } # updateSetBG
 
-$0 = "$FindBin::Script " . join ' ', @ARGV;
+sub SwitchWallPaper {
+  # We don't need to do anything here, just handle the interrupt and
+  # let the while loop continue.
+  debug 'SwitchWallPaper: Interrupt received';
+  displayStats;
 
+  return;
+} # SwitchWallPaper
+
+## Main
 verbose "$FindBin::Script v$VERSION";
 
-my $sleep  = 60 * 60;
+my @argvCopy = @ARGV;
 
 GetOptions (
-  'usage'   => sub { Usage },
-  'verbose' => sub { set_verbose },
-  'debug'   => sub { set_debug },
-  'sleep=i' => \$sleep,
-  'bgdir=s' => \@imgDirs,
+  \%opts,
+  'usage',
+  'help',
+  'verbose',
+  'debug',
+  'sleep=i',
+  'bgdirs=s@',
 ) || Usage;
 
-for (my $i = 0; $i < scalar @imgDirs; $i++) {
-  error "$imgDirs[$i] is not a directory", 1 unless -d $imgDirs[$i];
+local $0 = "$FindBin::Script " . join ' ', @argvCopy;
 
-  $imgDirs[$i] = File::Spec->rel2abs ($imgDirs[$i]);
-} # foreach
+for my $process (@{$processes->table}) {
+  if ($process->cmndline =~ /setbg/ and
+      $process->pid != $$) { 
+    kill 12, $process->pid;
+
+    exit 0;
+  } # if
+} # for
+
+for (my $i = 0; $i < scalar @{$opts{bgdirs}}; $i++) {
+  error "$opts{bgdirs}[$i] is not a directory", 1 unless -d $opts{bgdirs}[$i];
+
+  $opts{bgdirs}[$i] = File::Spec->rel2abs ($opts{bgdirs}[$i]);
+} # for
 
 # Using gsettings
 my $setbg     = "gsettings";
@@ -162,14 +212,7 @@ my $setbgOpts= "set org.gnome.desktop.background picture-uri \"file://";
 
 my @images = fillPictures;
 
-Usage "No images to display. Must specify -bgdir" unless @images;
-
-sub SwitchWallPaper {
-  # We don't need to do anything here, just handle the interrupt and
-  # let the while loop continue.
-  debug 'SwitchWallPaper: Interrupt received';
-  displayStats;
-} # SwitchWallPaper
+Usage "No images to display. Must specify -bgdirs" unless @images;
 
 $SIG{USR2} = \&SwitchWallPaper;
 $SIG{USR1} = \&fillPictures;
@@ -198,11 +241,15 @@ while () {
     updateSetBG $image;
   } # if
 
+  displayStats;
+
   $today = YMD;
 
-  sleep $sleep;
+  sleep $opts{sleep} * 60;
 
   if ($today ne YMD){
     @images = fillPictures;
+
+    displayStats;
   } # if
 } # while
