@@ -168,6 +168,8 @@ Returns:
 
   if (defined $parms{extension}) {
     $name .= ".$parms{extension}" unless $parms{extension} eq '';
+  } else {
+    $name .= '.log';
   } # if
 
   open $logfile, $append, "$path/$name"
