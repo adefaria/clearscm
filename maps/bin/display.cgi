@@ -142,7 +142,8 @@ sub Body ($) {
   my @parts = $entity->parts;
 
   if (scalar @parts == 0) {
-    if (${$entity->{mail_inet_head}{mail_hdr_hash}{'Content-Transfer-Encoding'}[0]} =~ /base64/) {
+    if ($entity->{mail_inet_head}{mail_hdr_hash}{'Content-Transfer-Encoding'} and
+        ${$entity->{mail_inet_head}{mail_hdr_hash}{'Content-Transfer-Encoding'}[0]} =~ /base64/) {
       print $entity->{ME_Bodyhandle}{MBS_Data};
     } else {
       print '<pre>';
