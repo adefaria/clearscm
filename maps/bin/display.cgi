@@ -174,9 +174,14 @@ sub Body ($) {
         } # foreach
       } else {
         if ($part->mime_type =~ /text/) {
-          print '<pre>';
-          $part->print_body;
-          print '</pre>';
+          my $encoding = ${$part->{mail_inet_head}{mail_hdr_hash}{'Content-Transfer-Encoding'}[0]};
+          if ($encoding =~ /base64/) {
+            $part->bodyhandle->print();
+          } else {
+            print '<pre>';
+            $part->print_body;
+            print '</pre>';
+          } # if
         } # if
       } # if
     } # foreach
