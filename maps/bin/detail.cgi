@@ -173,6 +173,19 @@ sub PrintTable {
     my @msgs = ReturnMessages $userid, $sender;
     my @msgs2 = @msgs;
 
+    my ($onlist, $rule);
+    $rule = 'none';
+
+    ($onlist, $rule) = OnNulllist $sender;
+
+    unless ($onlist) {
+      ($onlist, $rule) = OnBlacklist $sender;
+
+      unless ($onlist) {
+        ($onlist, $rule) = OnWhitelist $sender;
+      } # unless
+    } # unless
+
     $next++;
     print
       start_Tr {-valign => 'middle'};
@@ -180,7 +193,7 @@ sub PrintTable {
       td {-class => 'tableborder'}, small ($next,
         checkbox {-name  => "action$next",
                   -label => ''}),
-          hidden ({-name     => "email$next",
+          hidden ({-name    => "email$next",
                    -default => $sender});
     print
       start_td {-align => 'left'};
@@ -196,8 +209,12 @@ sub PrintTable {
           -valign  => 'middle',
           -width   => '40'}, 'Sender:',
       td {-class   => 'sender',
+          -valign  => 'middle',
+          -width   => '50%'},
+        a {-href   => "mailto:$sender?subject=$msgs2[0][0]"}, $sender,
+      td {
           -valign  => 'middle'},
-        a {-href   => "mailto:$sender?subject=$msgs2[0][0]"}, $sender;
+          $rule;
     print
       end_table;
 

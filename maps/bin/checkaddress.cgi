@@ -37,11 +37,11 @@ my $sender = param ("sender");
 
 sub Heading {
   print
-    header     (-title	=> "MAPS: Check Address"),
+    header     (-title  => "MAPS: Check Address"),
     start_html (-title  => "MAPS: Check Address",
-		-author	=> "Andrew\@DeFaria.com");
-    print h3 {-align	=> "center",
-	      -class	=> "header"},
+                -author => "Andrew\@DeFaria.com");
+    print h3 {-align => "center",
+              -class => "header"},
     "MAPS: Checking address $sender";
 } # Heading
 
@@ -65,23 +65,23 @@ sub Body {
   #
   # Finally, we handle return processing
   ($onlist, $rule) = OnWhitelist $sender;
-  
+
   if ($onlist) {
     print div {-align => "center"},
       font {-color => "green"},
         "Messages from", b ($sender), "will be", b ("delivered"), br, hr;
-   	print $rule;
+    print $rule;
   } else {
     ($onlist, $rule) = OnBlacklist $sender;
-    
+
     if ($onlist) {
       print div {-align	=> "center"},
-        	font {-color	=> "black"},
+           font {-color	=> "black"},
             "Messages from", b ($sender), "will be", b ("blacklisted"), br, hr;
       print $rule;
     } else {
       ($onlist, $rule) = OnNulllist $sender;
-  
+
       if ($onlist) {
         print div {-align	=> "center"},
           font {-color	=> "grey"},
@@ -96,9 +96,9 @@ sub Body {
   } # if
 
   print br div {-align	=> "center"},
-    submit (-name	=> "submit",
-	    -value	=> "Close",
-	    -onClick	=> "window.close (self)");
+    submit (-name    => "submit",
+            -value   => "Close",
+            -onClick => "window.close (self)");
 } # Body
 
 sub Footing {
