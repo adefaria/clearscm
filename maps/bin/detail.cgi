@@ -186,6 +186,19 @@ sub PrintTable {
       } # unless
     } # unless
 
+    if ($rule) {
+      $rule =~ s/Matching rule: \(//;
+      $rule =~ s/\)//;
+
+      if ($rule =~ /(\w+):(\d+)/) {
+        my $list     = $1;
+        my $sequence = $2 - 1;
+        my $link     = "<a href=\"/maps/php/list.php?type=$list&next=$sequence\">$list:$2</a>";
+
+        $rule =~ s/\w+:\d+/$link/;
+      } # if
+    } # if
+
     $next++;
     print
       start_Tr {-valign => 'middle'};
@@ -210,7 +223,7 @@ sub PrintTable {
           -width   => '40'}, 'Sender:',
       td {-class   => 'sender',
           -valign  => 'middle',
-          -width   => '50%'},
+          -width   => '40%'},
         a {-href   => "mailto:$sender?subject=$msgs2[0][0]"}, $sender,
       td {
           -valign  => 'middle'},
