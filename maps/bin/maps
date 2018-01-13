@@ -38,15 +38,14 @@ $Date: 2013/06/12 14:05:47 $
 
 =head1 SYNOPSIS
 
- 
  Usage maps: [-u|ser <username>] [-ve|rbose] [-deb|ug] [-e|xecute]
 
  Where:
    -u|ser <username>: Set context to this username
- 
+
    -v|erbose:         Be verbose
    -de|bug:           Output debug messages
-   
+
    -[no]e|xecute:     Set execute mode.         
 
 # (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
@@ -96,21 +95,6 @@ sub SaveStdin () {
   return $msgfile;
 } # SaveStdin
 
-sub save_msg {
-  my ($sender, $sender_long, $reply_to, $subject, $data) = @_;
-
-  open SAVED_MSG, '>>', "$logpath/$sender"
-    or die "Unable to open $logpath/$sender - $!\n";
-
-  print SAVED_MSG "Sender = $sender\n";
-  print SAVED_MSG "Sender long = $sender\n";
-  print SAVED_MSG "reply_to = $reply_to\n";
-  print SAVED_MSG "subject  = $subject\n";
-  print SAVED_MSG "data:\n\n";
-  print SAVED_MSG $data;
-  print SAVED_MSG "*** END OF DATA***\n";
-} # save_msg
-
 sub ValidDomainUser ($) {
   my ($sender) = @_;
 
@@ -152,9 +136,9 @@ sub ProcessMsgs ($$$) {
       #close $mail
         #or die "Unable to forward email to $forwardto - $!";      
     #} # if
-    
+
     my ($onlist, $rule, $sequence, $hit_count);
-    
+
     # Algorithm change: We now first check to see if the sender is not found
     # in the message and skip it if so. Then we handle if we are the sender
     # and that the from address is formatted properly. Spammers often use 
@@ -177,7 +161,7 @@ sub ProcessMsgs ($$$) {
       verbose "Sender not found in message or invalid";
       next;
     } # if
-    
+
     if ($sender eq $user_email and
             (lc ($sender_long) !~ lc ("\"$username\" <$user_email>") and
              lc ($sender_long) !~ lc ("$username <$user_email>"))) {
@@ -185,7 +169,7 @@ sub ProcessMsgs ($$$) {
       Nulllist $sender;
       next;
     } # if
-    
+
     # Check whitelist:
     ($onlist, $rule, $sequence, $hit_count) = OnWhitelist $sender;
 
@@ -197,10 +181,10 @@ sub ProcessMsgs ($$$) {
         verbose "Sender from this domain but user not found";
         Nulllist $sender;
       } # if
-      
+
       next;
     } # if
-    
+
     # Check blacklist:
     ($onlist, $rule, $sequence, $hit_count) = OnBlacklist $sender;
 

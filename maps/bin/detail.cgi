@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 #################################################################################
+#
 # File:         $RCSfile: detail.cgi,v $
 # Revision:     $Revision: 1.1 $
 # Description:  Displays list of email addresses based on report type.
@@ -176,13 +177,13 @@ sub PrintTable {
     my ($onlist, $rule);
     $rule = 'none';
 
-    ($onlist, $rule) = OnNulllist $sender;
+    ($onlist, $rule) = OnWhitelist $sender;
 
     unless ($onlist) {
       ($onlist, $rule) = OnBlacklist $sender;
 
       unless ($onlist) {
-        ($onlist, $rule) = OnWhitelist $sender;
+        ($onlist, $rule) = OnNulllist $sender;
       } # unless
     } # unless
 
