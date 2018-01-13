@@ -11,7 +11,8 @@
 #
 # (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
 #
-################################################################################use strict;
+################################################################################
+use strict;
 use warnings;
 
 use MIME::Words qw(:all);
@@ -177,13 +178,13 @@ sub PrintTable {
     my ($onlist, $rule);
     $rule = 'none';
 
-    ($onlist, $rule) = OnWhitelist $sender;
+    ($onlist, $rule) = OnWhitelist $sender, 0;
 
     unless ($onlist) {
-      ($onlist, $rule) = OnBlacklist $sender;
+      ($onlist, $rule) = OnBlacklist $sender, 0;
 
       unless ($onlist) {
-        ($onlist, $rule) = OnNulllist $sender;
+        ($onlist, $rule) = OnNulllist $sender, 0;
       } # unless
     } # unless
 
@@ -294,6 +295,7 @@ sub PrintTable {
 } # PrintTable
 
 # Main
+my $condition;
 my @scripts = ('ListActions.js');
 
 my $heading_date =$date ne '' ? ' on ' . FormatDate ($date) : '';

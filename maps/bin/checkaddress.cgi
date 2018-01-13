@@ -64,7 +64,7 @@ sub Body {
   # Then we process nulllist people.
   #
   # Finally, we handle return processing
-  ($onlist, $rule) = OnWhitelist $sender;
+  ($onlist, $rule) = OnWhitelist $sender, 0;
 
   if ($onlist) {
     print div {-align => "center"},
@@ -72,7 +72,7 @@ sub Body {
         "Messages from", b ($sender), "will be", b ("delivered"), br, hr;
     print $rule;
   } else {
-    ($onlist, $rule) = OnBlacklist $sender;
+    ($onlist, $rule) = OnBlacklist $sender, 0;
 
     if ($onlist) {
       print div {-align	=> "center"},
@@ -80,7 +80,7 @@ sub Body {
             "Messages from", b ($sender), "will be", b ("blacklisted"), br, hr;
       print $rule;
     } else {
-      ($onlist, $rule) = OnNulllist $sender;
+      ($onlist, $rule) = OnNulllist $sender, 0;
 
       if ($onlist) {
         print div {-align	=> "center"},
@@ -95,10 +95,10 @@ sub Body {
     } # if
   } # if
 
-  print br div {-align	=> "center"},
-    submit (-name    => "submit",
-            -value   => "Close",
-            -onClick => "window.close (self)");
+  print br div {-align => "center"},
+    submit (-name      => "submit",
+            -value     => "Close",
+            -onClick   => "window.close (self)");
 } # Body
 
 sub Footing {

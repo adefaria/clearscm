@@ -206,10 +206,12 @@ sub RecordHit ($$$) {
   return;
 } # RecordHit
 
-sub CheckOnList ($$) {
+sub CheckOnList ($$;$) {
   # CheckOnList will check to see if the $sender is on the $listfile.
   # Return 1 if found 0 if not.
-  my ($listtype, $sender) = @_;
+  my ($listtype, $sender, $update) = @_;
+
+  $update //= 1;
 
   my $status   = 0;
   my $rule;
@@ -264,7 +266,7 @@ sub CheckOnList ($$) {
       $rule  .= " - $comment" if $comment and $comment ne '';
       $status = 1;
 
-      RecordHit $listtype, $sequence, ++$hit_count;
+      RecordHit $listtype, $sequence, ++$hit_count if $update;
 
       last;
     } # if

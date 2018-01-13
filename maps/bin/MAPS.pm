@@ -439,26 +439,26 @@ sub Nulllist ($;$$) {
   Logmsg "nulllist", $sender, "Discarded message";
 } # Nulllist
 
-sub OnBlacklist ($) {
-  my ($sender) = @_;
+sub OnBlacklist ($;$) {
+  my ($sender, $update) = @_;
 
-  return CheckOnList "black", $sender;
+  return CheckOnList "black", $sender, $update;
 } # CheckOnBlacklist
 
-sub OnNulllist ($) {
-  my ($sender) = @_;
+sub OnNulllist ($;$) {
+  my ($sender, $update) = @_;
 
-  return CheckOnList "null", $sender;
+  return CheckOnList "null", $sender, $update;
 } # CheckOnNulllist
 
-sub OnWhitelist {
-  my ($sender, $userid) = @_;
+sub OnWhitelist ($;$) {
+  my ($sender, $userid, $update) = @_;
 
   if (defined $userid) {
     MAPSDB::SetContext $userid;
   } # if
 
-  return CheckOnList "white", $sender;
+  return CheckOnList "white", $sender, $update;
 } # OnWhitelist
 
 sub OptimizeDB () {
