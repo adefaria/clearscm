@@ -178,7 +178,7 @@ sub PrintTable {
     my ($onlist, $rule);
     $rule = 'none';
 
-    ($onlist, $rule) = OnWhitelist $sender, 0;
+    ($onlist, $rule) = OnWhitelist $sender, $userid, 0;
 
     unless ($onlist) {
       ($onlist, $rule) = OnBlacklist $sender, 0;

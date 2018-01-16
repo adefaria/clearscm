@@ -64,7 +64,7 @@ sub Body {
   # Then we process nulllist people.
   #
   # Finally, we handle return processing
-  ($onlist, $rule) = OnWhitelist $sender, 0;
+  ($onlist, $rule) = OnWhitelist $sender, $userid, 0;
 
   if ($onlist) {
     print div {-align => "center"},

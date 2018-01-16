@@ -451,7 +451,7 @@ sub OnNulllist ($;$) {
   return CheckOnList "null", $sender, $update;
 } # CheckOnNulllist
 
-sub OnWhitelist ($;$) {
+sub OnWhitelist ($;$$) {
   my ($sender, $userid, $update) = @_;
 
   if (defined $userid) {

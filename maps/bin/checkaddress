@@ -63,11 +63,11 @@ foreach (@ARGV) {
   # Finally, we handle return processing
   
   # Check whitelist
-  if (OnWhitelist $sender) {
+  if (OnWhitelist $sender, $username, 0) {
     display "Sender $sender would be whitelisted";
-  } elsif (OnBlacklist $sender) {
+  } elsif (OnBlacklist $sender, 0) {
     display "Sender $sender would be be blacklisted";
-  } elsif (OnNulllist $sender) {
+  } elsif (OnNulllist $sender, 0) {
     display "Sender $sender would be nulllisted"
   } else {
     display "Sender $sender would be returned"
