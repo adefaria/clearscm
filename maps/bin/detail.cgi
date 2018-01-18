@@ -174,17 +174,17 @@ sub PrintTable {
   foreach my $sender (ReturnSenders $userid, $type, $next, $lines, $date) {
     my @msgs = ReturnMessages $userid, $sender;
     my @msgs2 = @msgs;
+    my $onlist;
+    my $rule      = 'none';
+    my $hit_count = 0;
 
-    my ($onlist, $rule);
-    $rule = 'none';
-
-    ($onlist, $rule) = OnWhitelist $sender, $userid, 0;
+    ($onlist, $rule, $hit_count) = OnWhitelist $sender, $userid, 0;
 
     unless ($onlist) {
-      ($onlist, $rule) = OnBlacklist $sender, 0;
+      ($onlist, $rule, $hit_count) = OnBlacklist $sender, 0;
 
       unless ($onlist) {
-        ($onlist, $rule) = OnNulllist $sender, 0;
+        ($onlist, $rule, $hit_count) = OnNulllist $sender, 0;
       } # unless
     } # unless
 
@@ -195,7 +195,7 @@ sub PrintTable {
       if ($rule =~ /(\w+):(\d+)/) {
         my $list     = $1;
         my $sequence = $2 - 1;
-        my $link     = "<a href=\"/maps/php/list.php?type=$list&next=$sequence\">$list:$2</a>";
+        my $link     = "<a href=\"/maps/php/list.php?type=$list&next=$sequence\">$list:$2</a>/$hit_count";
 
         $rule =~ s/\w+:\d+/$link/;
       } # if

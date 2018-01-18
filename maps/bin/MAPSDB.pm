@@ -2,7 +2,7 @@
 #################################################################################
 #
 # File:         $RCSfile: MAPSDB.pm,v $
-# Revision:        $Revision: 1.1 $
+# Revision:     $Revision: 1.1 $
 # Description:  MAPS Database routines
 # Author:       Andrew@DeFaria.com
 # Created:      Fri Nov 29 14:17:21  2002
@@ -213,8 +213,8 @@ sub CheckOnList ($$;$) {
 
   $update //= 1;
 
-  my $status   = 0;
-  my $rule;
+  my $status = 0;
+  my ($rule, $hit_count);
 
   my $statement = "select pattern, domain, comment, sequence, hit_count from list where userid = '$userid' and type = '$listtype'";
 
@@ -227,7 +227,7 @@ sub CheckOnList ($$;$) {
   while (my @row = $sth->fetchrow_array) {
     last if !@row;
 
-    my $hit_count = pop (@row);
+       $hit_count = pop (@row);
     my $sequence  = pop (@row);
     my $comment   = pop (@row);
     my $domain    = pop (@row);
@@ -274,7 +274,7 @@ sub CheckOnList ($$;$) {
 
   $sth->finish;
 
-  return ($status, $rule);
+  return ($status, $rule, $hit_count);
 } # CheckOnList
 
 sub CleanEmail ($) {
