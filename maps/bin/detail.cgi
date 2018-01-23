@@ -174,17 +174,17 @@ sub PrintTable {
   foreach my $sender (ReturnSenders $userid, $type, $next, $lines, $date) {
     my @msgs = ReturnMessages $userid, $sender;
     my @msgs2 = @msgs;
-    my $onlist;
+    my ($onlist, $seq);
     my $rule      = 'none';
     my $hit_count = 0;
 
-    ($onlist, $rule, $hit_count) = OnWhitelist $sender, $userid, 0;
+    ($onlist, $rule, $seq, $hit_count) = OnWhitelist $sender, $userid, 0;
 
     unless ($onlist) {
-      ($onlist, $rule, $hit_count) = OnBlacklist $sender, 0;
+      ($onlist, $rule, $seq, $hit_count) = OnBlacklist $sender, 0;
 
       unless ($onlist) {
-        ($onlist, $rule, $hit_count) = OnNulllist $sender, 0;
+        ($onlist, $rule, $seq, $hit_count) = OnNulllist $sender, 0;
       } # unless
     } # unless
 
