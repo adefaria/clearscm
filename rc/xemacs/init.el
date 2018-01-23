@@ -33,7 +33,7 @@
 (c-set-offset 'case-label '+)
 
 ; Preload common modes
-(load-file "/usr/share/xemacs/xemacs-packages/lisp/sh-script/sh-script.el")
+;(load-file "/usr/share/xemacs/xemacs-packages/lisp/sh-script/sh-script.el")
 (load-file "~/.xemacs/clearcase.el")
 (load-file "~/.xemacs/visual-basic-mode.el")
 (autoload 'sh-mode		"sh-mode")
