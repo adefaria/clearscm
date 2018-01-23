@@ -214,7 +214,7 @@ sub CheckOnList ($$;$) {
   $update //= 1;
 
   my $status = 0;
-  my ($rule, $hit_count);
+  my ($rule, $sequence, $hit_count);
 
   my $statement = "select pattern, domain, comment, sequence, hit_count from list where userid = '$userid' and type = '$listtype'";
 
@@ -228,7 +228,7 @@ sub CheckOnList ($$;$) {
     last if !@row;
 
        $hit_count = pop (@row);
-    my $sequence  = pop (@row);
+       $sequence  = pop (@row);
     my $comment   = pop (@row);
     my $domain    = pop (@row);
     my $pattern   = pop (@row);
@@ -274,7 +274,7 @@ sub CheckOnList ($$;$) {
 
   $sth->finish;
 
-  return ($status, $rule, $hit_count);
+  return ($status, $rule, $sequence, $hit_count);
 } # CheckOnList
 
 sub CleanEmail ($) {

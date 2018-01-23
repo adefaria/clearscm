@@ -21,10 +21,10 @@ sub GetItems {
 
   my @items;
 
-  open FILE, $filename
+  open my $file, '<', $filename
     or error "Unable to open $filename - $!", 1;
 
-  while (<FILE>) {
+  while (<$file>) {
     my @fields = split;
     my %item;
 
@@ -33,10 +33,12 @@ sub GetItems {
     $item{pattern}   = $address[0];
     $item{domain}    = $address[1];
     $item{comment}   = $fields[1] ? $fields[1] : '';
-    $itme{hit_count} = $fields[2] ? $fields[2] : 0;
+    $item{hit_count} = $fields[2] ? $fields[2] : 0;
 
     push @items, \%item;
   } # while
+
+  close $file;
 
   return @items;
 } # GetItems
@@ -82,6 +84,8 @@ sub Add2List {
     } # if
     $nextseq++;
   } # while
+
+  return;
 } # Add2List
 
 # Main
