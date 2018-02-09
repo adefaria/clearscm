@@ -41,6 +41,57 @@ function stoptimer () {
   <?php
   include "clearscm.php";
   menu_css ();
+
+  // Record hit
+  $dir = dirname(__FILE__);
+
+  if (file_exists("$dir/.resumehits")) {
+    $resumeHit = fopen("$dir/.resumehits", 'r');
+
+    fscanf($resumeHit, "%d\n", $count);
+  } else {
+    $count = 0;
+  } // if
+
+  $count++;
+
+  fclose($resumeHit);
+
+  $resumeHit = fopen ('.resumehits', 'w');
+
+  fwrite($resumeHit, $count);
+  fclose($resumeHit);
+
+  $resumeHist = fopen('.resume.hist', 'a');
+  $date = date(DATE_RFC822);
+
+  fwrite($resumeHist, "$_SERVER[REMOTE_ADDR] read resume at $date\n");
+  fclose($resumeHist);
+
+  $msg  = '<html><body>';
+  $msg .= '<h1>Somebody just visited your resume.</h1>';
+  $msg .= "<p>Here's what I know about them:</p>";
+
+  foreach ($_SERVER as $key => $value) {
+   if (preg_match("/^REMOTE/", $key)) {
+    $msg .= "$key: $value<br>";
+
+    if ($key == 'REMOTE_ADDR') {
+     exec("whois $value", $output, $result);
+
+     foreach ($output as $line) {
+      $msg .= "$line<br>";
+     } // foreach
+    } // if
+   } // if
+  } // foreach
+
+  $msg     .= '</body></html>';
+  $headers  = "MIME-Version: 1.0\r\n";
+  $headers .= "Content-type: text/html; charset=iso-8859-1\r\n";
+  $headers .= "From: Andrew DeFaria <Andrew@DeFaria.com>";
+
+  mail("andrew@defaria.com", "Somebody visited your resume", $msg, $headers);
   ?>
 </head>
 

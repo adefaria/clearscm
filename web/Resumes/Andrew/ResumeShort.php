@@ -42,6 +42,32 @@ function stoptimer () {
   include "clearscm.php";
   menu_css ();
 
+  // Record hit
+  $dir = dirname(__FILE__);
+
+  if (file_exists("$dir/.resumehits")) {
+    $resumeHit = fopen("$dir/.resumehits", 'r');
+
+    fscanf($resumeHit, "%d\n", $count);
+  } else {
+    $count = 0;
+  } // if
+
+  $count++;
+
+  fclose($resumeHit);
+
+  $resumeHit = fopen ('.resumehits', 'w');
+
+  fwrite($resumeHit, $count);
+  fclose($resumeHit);
+
+  $resumeHist = fopen('.resume.hist', 'a');
+  $date = date(DATE_RFC822);
+
+  fwrite($resumeHist, "$_SERVER[REMOTE_ADDR] read resume at $date\n");
+  fclose($resumeHist);
+  
   $msg  = '<html><body>';
   $msg .= '<h1>Somebody just visited your resume.</h1>';
   $msg .= "<p>Here's what I know about them:</p>";
