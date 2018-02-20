@@ -4,7 +4,7 @@
 
 =head1 NAME $RCSfile: nag.pl,v $
 
-Nag: A progressively more agressive reminder program.
+Nag: A progressively more aggressive reminder program.
 
 =head1 VERSION
 
@@ -50,7 +50,7 @@ $Date: 2013/06/13 14:36:03 $
 
 =head1 DESCRIPTION
 
-This script read a file indicating who to remind. The format for this file is:
+This script reads a file indicating who to remind. The format for this file is:
 
  <email>|<subject>|<when>|<msgfile>|<sent>|<date>
 
@@ -72,6 +72,8 @@ Change MAPS to recognize when a message is returned from a nag message. Perhaps
 tag it with X-Nag: <nag id> (will this come back when the user replies?). MAPS 
 would then white list the sender and deliver the email as well as put the nag in
 a pending state.
+
+=back
 
 =cut
 
