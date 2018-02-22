@@ -17,7 +17,7 @@ use strict;
 use FindBin;
 local $0 = $FindBin::Script;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use Getopt::Long;
 use Pod::Usage;
@@ -28,7 +28,6 @@ use MAPSWeb;
 use CGI qw/:standard *table/;
 use CGI::Carp "fatalsToBrowser";
 
-my $type   =   param('type');
 my $userid =   cookie('MAPSUser');
    $userid //= $ENV{USER};
 my $Userid =   ucfirst $userid;
@@ -36,6 +35,7 @@ my $Userid =   ucfirst $userid;
 my %opts = (
   usage => sub { pod2usage },
   help  => sub { pod2usage (-verbose => 2)},
+  type  => param('type'),
   file  => param('file'),
 );
 
@@ -57,17 +57,19 @@ sub importList ($) {
     my $alreadyExists;
 
     if ($type eq 'white') {
-      $alreadyExists = OnWhitelist $pattern, $userid;
+      ($alreadyExists) = OnWhitelist($pattern, $userid);
     } elsif ($type eq 'black') {
-      $alreadyExists = OnBlacklist $pattern, $userid;
+      ($alreadyExists) = OnBlacklist($pattern, $userid);
     } elsif ($type eq 'null') {
-      $alreadyExists = OnNulllist $pattern, $userid;
+      ($alreadyExists) = OnNulllist($pattern, $userid);
     } # if
 
     unless ($alreadyExists) {
-      AddList ($type, $pattern, 0, $comment, $hit_count, $last_hit);
+      AddList($type, $pattern, 0, $comment, $hit_count, $last_hit);
 
       $count++;
+    } else {
+      print br "$pattern is already on your " . ucfirst($type) . 'list';
     } # unless
   } # while
 
@@ -77,31 +79,32 @@ sub importList ($) {
 } # importList
 
 # Main
-GetOptions (
+GetOptions(
   \%opts,
   'usage',
   'help',
   'verbose',
   'debug',
   'file=s',
+  'type=s',
 );
 
-pod2usage "Type not specified" unless $type;
+pod2usage "Type not specified" unless $opts{type};
 pod2usage '-file should be specified' unless $opts{file};
 pod2usage "Unable to read $opts{file}" unless -r $opts{file};
 
-$userid = Heading (
+$userid = Heading(
   'getcookie',
   '',
   'Import List',
   'Import List',
 );
 
-SetContext $userid;
+SetContext($userid);
 
-NavigationBar $userid;
+NavigationBar($userid);
 
-my $count = importList $type;
+my $count = importList($opts{type});
 
 if ($count == 1) {
   print br "$count list entry imported";

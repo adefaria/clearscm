@@ -2,8 +2,8 @@
 ################################################################################
 #
 # File:         $RCSfile: add2nulllist.cgi,v $
-# Revision:        $Revision: 1.1 $
-# Description:        Add an email address to the nulllist
+# Revision:     $Revision: 1.1 $
+# Description:  Add an email address to the nulllist
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Jan 16 20:25:32 PST 2006
 # Modified:     $Date: 2013/06/12 14:05:47 $
@@ -18,7 +18,7 @@ use warnings;
 use FindBin;
 $0 = $FindBin::Script;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSLog;
@@ -31,9 +31,9 @@ my $userid;
 my $Userid;
 my $type = 'null';
 
-sub Add2List {
+sub Add2List() {
   my $sender   = '';
-  my $nextseq  = MAPSDB::GetNextSequenceNo $userid, $type;
+  my $nextseq  = GetNextSequenceNo($userid, $type);
 
   while () {
     my $pattern   = param "pattern$nextseq";
@@ -46,33 +46,33 @@ sub Add2List {
 
     $sender = lc "$pattern\@$domain";
 
-    my ($status, $rule) = OnNulllist $sender;
+    my ($status, $rule) = OnNulllist($sender);
 
     if ($status != 0) {
       print br {-class => 'error'}, "The email address $sender is already on ${Userid}'s $type list";
     } else {
-      $hit_count ||= CountMsg $sender;
+      $hit_count ||= CountMsg($sender);
 
-      Add2Nulllist $sender, $userid, $comment, $hit_count;
+      Add2Nulllist($sender, $userid, $comment, $hit_count);
 
       print br "The email address, $sender, has been added to ${Userid}'s $type list";
 
       # Now remove this entry from the other lists (if present)
-      foreach my $otherlist ('white', 'black') {
+      for my $otherlist ('white', 'black') {
         my $sth = FindList $otherlist, $sender;
         my ($sequence, $count);
 
-        ($_, $_, $_, $_, $_, $sequence) = GetList $sth;
+        ($_, $_, $_, $_, $_, $sequence) = GetList($sth);
 
         if ($sequence) {
-          $count = DeleteList $otherlist, $sequence;
+          $count = DeleteList($otherlist, $sequence);
 
           print br "Removed $sender from ${Userid}'s " . ucfirst $otherlist . ' list'
             if $count > 0;
 
-          ResequenceList $userid, $otherlist;
+          ResequenceList($userid, $otherlist);
         } # if
-      } # foreach
+      } # for
     } # if
 
     $nextseq++;
@@ -80,32 +80,32 @@ sub Add2List {
 } # Add2List
 
 # Main
-$userid = Heading (
+$userid = Heading(
   'getcookie',
   '',
   'Add to Null List',
   'Add to Null List',
 );
 
-SetContext $userid;
+SetContext($userid);
 
-NavigationBar $userid;
+NavigationBar($userid);
 
 $Userid = ucfirst $userid;
 
 Add2List;
 
 print start_form {
-  -method        => 'post',
-  -action        => 'processaction.cgi',
-  -name          => 'list'
+  -method => 'post',
+  -action => 'processaction.cgi',
+  -name   => 'list'
 };
 
 print '<p></p><center>',
-  hidden ({-name        => 'type',
-           -default     => $type}),
-  submit ({-name        => 'action',
-           -value       => 'Add New Entry'}),
+  hidden ({-name    => 'type',
+           -default => $type}),
+  submit ({-name    => 'action',
+           -value   => 'Add New Entry'}),
   '</center>';
 
 Footing;

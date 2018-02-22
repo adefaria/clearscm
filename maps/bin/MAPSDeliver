@@ -20,13 +20,13 @@ use warnings;
 
 use FindBin;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPSFile;
-use MAPSDB;
+use MAPS;
 use MAPSLog;
 
-sub DeliverMail ($$) {
+sub DeliverMail($$) {
   my ($userid, $msgfileName) = @_;
 
   # Open maildrop file
@@ -42,8 +42,7 @@ sub DeliverMail ($$) {
 
   # Write msgfile -> $maildrop
   print $maildrop "\n\n";
-  print $maildrop $_
-    while (<$msgfile>);
+  print $maildrop $_ while (<$msgfile>);
 
   # Unlock the file
   Unlock $maildrop;
@@ -61,14 +60,16 @@ my ($userid, $msgfile) = @ARGV;
 die 'User id not specified' unless $userid;
 die 'Msgfile not specified' unless $msgfile;
 
-my $err  = DeliverMail $userid, $msgfile;
+my $err = DeliverMail($userid, $msgfile);
 
 if ($err) {
-  OpenDB 'maps', 'spam';
+  OpenDB('maps', 'spam');
 
-  MAPSDB::SetContext $userid;
+  SetContext($userid);
 
-  Error $err;
+  Error($err);
+
+  exit 1;
 } # if
 
-exit $err ? 1 : 0;
+exit 0;

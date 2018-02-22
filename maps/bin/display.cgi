@@ -18,7 +18,7 @@ use warnings;
 use FindBin;
 $0 = $FindBin::Script;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSWeb;
@@ -35,13 +35,13 @@ my $sender      = param('sender');
 my $msg_nbr     = param('msg_nbr');
 my $table_name  = 'message';
 
-sub ParseEmail (@) {
+sub ParseEmail(@) {
   my (@header) = @_;
 
   my %header;
 
   # First output the header information. Note we'll skip uninteresting stuff
-  foreach (@header) {
+  for (@header) {
     last if ($_ eq '' || $_ eq "\cM");
 
     # Escape "<" and ">"
@@ -59,12 +59,12 @@ sub ParseEmail (@) {
     } elsif (/^Content-Transfer-Encoding: base64/) {
       $header{base64} = 1;
     } # if
-  } # while
+  } # for
 
   return %header;
 } # ParseEmail
 
-sub Body ($) {
+sub Body($) {
   my ($count) = @_;
 
   $count ||= 1;
@@ -78,7 +78,7 @@ sub Body ($) {
     ($userid, $sender, $subject, $timestamp, $message) = GetEmail $handle;
   } # for
 
-  my $parser = new MIME::Parser;
+  my $parser = MIME::Parser->new();
 
   $parser->output_to_core (1);
 
@@ -151,12 +151,12 @@ sub Body ($) {
       print '</pre>';
     } # if
   } else {
-    foreach my $part ($entity->parts) {
+    for my $part ($entity->parts) {
       # We assume here that if this part is multipart/alternative then
       # there exists at least one part that is text/html and we favor
       # that (since we're outputing to a web page anyway...
       if ($part->mime_type eq 'multipart/alternative') {
-        foreach my $subpart ($part->parts) {
+        for my $subpart ($part->parts) {
           if ($subpart->mime_type eq 'text/html') {
             # There should be an easier way to get this but I couldn't find one.
             my $encoding = ${$subpart->{mail_inet_head}{mail_hdr_hash}{'Content-Transfer-Encoding'}[0]};
@@ -171,10 +171,14 @@ sub Body ($) {
             $subpart->print_body;
             last;
           } # if
-        } # foreach
+        } # for
       } else {
         if ($part->mime_type =~ /text/) {
-          my $encoding = ${$part->{mail_inet_head}{mail_hdr_hash}{'Content-Transfer-Encoding'}[0]};
+          my $encoding = '';
+
+          $encoding = ${$part->{mail_inet_head}{mail_hdr_hash}{'Content-Transfer-Encoding'}[0]}
+            if $part->{mail_inet_head}{mail_hdr_hash}{'Content-Transfer-Encoding'};
+
           if ($encoding =~ /base64/) {
             $part->bodyhandle->print();
           } else {
@@ -184,7 +188,7 @@ sub Body ($) {
           } # if
         } # if
       } # if
-    } # foreach
+    } # for
   } # if
 
   print "</td></tr>\n";
@@ -194,7 +198,7 @@ sub Body ($) {
   print end_table;
 } # Body
 
-$userid = Heading (
+$userid = Heading(
   'getcookie',
   '',
   "Email message from $sender",
@@ -203,9 +207,9 @@ $userid = Heading (
   $table_name,
 );
 
-SetContext $userid;
-NavigationBar $userid;
+SetContext($userid);
+NavigationBar($userid);
 
-Body $msg_nbr;
+Body($msg_nbr);
 
-Footing $table_name;
+Footing($table_name);

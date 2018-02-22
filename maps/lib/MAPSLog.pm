@@ -2,7 +2,7 @@
 #################################################################################
 #
 # File:         $RCSfile: MAPSLog.pm,v $
-# Revision:	$Revision: 1.1 $
+# Revision:     $Revision: 1.1 $
 # Description:  MAPS routines for logging.
 # Author:       Andrew@DeFaria.com
 # Created:      Fri Nov 29 14:17:21  2002
@@ -15,14 +15,14 @@
 package MAPSLog;
 
 use strict;
+use warnings;
 
 use FindBin;
 
-use lib $FindBin::Bin;
-
-use MAPSDB;
+use MAPS;
 use MAPSUtil;
-use vars qw (@ISA @EXPORT);
+
+use vars qw(@ISA @EXPORT);
 use Exporter;
 
 @ISA = qw (Exporter);
@@ -33,7 +33,6 @@ use Exporter;
   GetStats
   Info
   Logmsg
-  countlog
   getstats
   @Types
 );
@@ -47,23 +46,17 @@ our @Types = (
   'nulllist'
 );
 
-sub countlog (;$$) {
-  my ($condition, $type) = @_;
-
-  return MAPSDB::countlog $condition, $type;
-} # countlog
-
-sub nbr_msgs ($) {
+sub nbr_msgs($) {
   my ($sender) = @_;
 
-  return MAPSDB::FindEmail $sender;
+  return FindEmail($sender);
 } # nbr_msgs
 
-sub GetStats (;$$) {
+sub GetStats(;$$) {
   my ($nbr_days, $date) = @_;
 
-  $nbr_days	||= 1;
-  $date		||= Today2SQLDatetime
+  $nbr_days ||= 1;
+  $date     ||= Today2SQLDatetime();
 
   my %dates;
 
@@ -74,10 +67,12 @@ sub GetStats (;$$) {
 
     my %stats;
 
-    foreach (@Types) {
-      my $condition = "log.type=\'$_\' and (log.timestamp > \'$sod\' and log.timestamp < \'$eod\')";
-      $stats{$_} = countlog $condition, $_;
-    } # foreach
+    for (@Types) {
+      my $condition = "type=\'$_\' and (timestamp > \'$sod\' and timestamp < \'$eod\')";
+
+      # Not sure why I need to qualify countlog
+      $stats{$_} = MAPS::countlog($condition);
+    } # for
 
     $dates{$ymd} = \%stats;
 
@@ -88,28 +83,37 @@ sub GetStats (;$$) {
   return %dates
 } # GetStats
 
-sub Logmsg ($$$) {
+sub Logmsg($$$) {
   my ($type, $sender, $msg) = @_;
 
-  AddLog $type, $sender, $msg;
+  # Todo: Why do I need to specify MAPS:: here?
+  MAPS::AddLog($type, $sender, $msg);
+
+  return;
 } # logmsg
 
-sub Debug ($) {
+sub Debug($) {
   my ($msg) = @_;
 
-  Logmsg 'debug', '', $msg;
+  Logmsg('debug', '', $msg);
+
+  return;
 } # Debug
 
-sub Error ($) {
+sub Error($) {
   my ($msg) = @_;
 
-  Logmsg 'error', '', $msg;
+  Logmsg('error', '', $msg);
+
+  return;
 } # Error
 
-sub Info ($) {
+sub Info($) {
   my ($msg) = @_;
 
-  Logmsg 'info', '', $msg;
+  Logmsg('info', '', $msg);
+
+  return;
 } # info
 
 1;

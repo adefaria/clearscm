@@ -18,39 +18,39 @@ use warnings;
 use FindBin;
 $0 = $FindBin::Script;
 
-use lib $FindBin::New;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSWeb;
 
 use CGI qw (:standard);
 
-my $userid		= param ("userid");
-my $fullname		= param ("fullname");
-my $email		= param ("email");
-my $password		= param ("password");
-my $repeated_password	= param ("repeated_password");
-my $mapspop		= param ("MAPSPOP");
-my $history		= param ("history");
-my $days		= param ("days");
-my $dates		= param ("dates");
-my $tag_and_forward	= param ("tag_and_forward");
+my $userid            = param('userid');
+my $fullname          = param('fullname');
+my $email             = param('email');
+my $password          = param('password');
+my $repeated_password = param('repeated_password');
+my $mapspop           = param('MAPSPOP');
+my $history           = param('history');
+my $days              = param('days');
+my $dates             = param('dates');
+my $tag_and_forward   = param('tag_and_forward');
 my $message;
 
 sub MyError {
   my $errmsg = shift;
 
   $userid = Heading (
-    "getcookie",
-    "",
-    "Signup",
-    "Signup"
+    'getcookie',
+    '',
+    'Signup',
+    'Signup'
   );
 
   NavigationBar $userid;
 
-  print h2 {-align	=> "center",
-	    -class	=> "error"}, "Error: " . $errmsg;
+  print h2 {-align => 'center',
+            -class => 'error'}, 'Error: ' . $errmsg;
 
   Footing;
 
@@ -59,42 +59,42 @@ sub MyError {
 
 sub Body {
   # Check required fields
-  if ($userid eq "" ) {
-    MyError "You must specify a userid!";
+  if ($userid eq '' ) {
+    MyError 'You must specify a userid!';
   } # if
-  if ($email eq "" ) {
-    MyError "You must specify an email address!";
+  if ($email eq '' ) {
+    MyError 'You must specify an email address!';
   } # if
-  if ($password eq "") {
-    MyError "You must specify a password!";
+  if ($password eq '') {
+    MyError 'You must specify a password!';
   } # if
-  if ($fullname eq "") {
-    MyError "You must specify your full name!";
+  if ($fullname eq '') {
+    MyError 'You must specify your full name!';
   } # if
 
   # Password field checks
   if (length $password < 6) {
-    MyError "Password must be longer than 6 characters!";
+    MyError 'Password must be longer than 6 characters!';
   } # if
   if ($password ne $repeated_password) {
-    MyError "Passwords do not match";
+    MyError 'Passwords do not match';
   } # if
 
-  my $status = AddUser $userid, $fullname, $email, $password;
+  my $status = AddUser($userid, $fullname, $email, $password);
 
   if ($status ne 0) {
-    MyError "Username already exists";
+    MyError 'Username already exists';
   } # if
 
   my %options = (
-    "MAPSPOP"		=> $mapspop,
-    "History"		=> $history,
-    "Page"		=> $days,
-    "Dates"		=> $dates,
-    "Tag&Forward"	=> $tag_and_forward
+    MAPSPOP       => $mapspop,
+    History       => $history,
+    Page          => $days,
+    Dates         => $dates,
+    'Tag&Forward' => $tag_and_forward,
   );
 
-  my $status = AddUserOptions $userid, %options;
+  my $status = AddUserOptions($userid, %options);
 
   if ($status == 0) {
     print redirect ("/maps/?errormsg=User account \"$userid\" created.<br>You may now login");

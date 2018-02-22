@@ -119,13 +119,13 @@ $this_page = $next / $lines + 1;
 
   </table>
   <br>
+  </form>
   <div align=center>
     <a href="/maps/bin/exportlist.cgi?type=<?php echo $type?>">
     <input type=submit name=export value="Export List"></a>
     <a href="/maps/bin/importlist.cgi?type=<?php echo $type?>">
     <input type=submit name=import value="Import List"></a>
   </div>
-  </form>
   <?php copyright (2001)?>
 
 </body>

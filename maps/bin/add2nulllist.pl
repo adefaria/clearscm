@@ -4,7 +4,7 @@ use warnings;
 
 use FindBin;
 
-use lib $FindBin::Bin, '/opt/clearscm/lib';
+use lib "$FindBin::Bin/../lib", '/opt/clearscm/lib';
 
 use MAPS;
 use MAPSLog;
@@ -16,8 +16,8 @@ my $userid = $ENV{USER};
 my $Userid;
 my $type = "null";
 
-sub GetItems {
-  my $filename = shift;
+sub GetItems($) {
+  my ($filename) = @_;
 
   my @items;
 
@@ -28,7 +28,7 @@ sub GetItems {
     my @fields = split;
     my %item;
 
-    my @address = split /\@/, $fields [0];
+    my @address = split /\@/, $fields[0];
 
     $item{pattern}   = $address[0];
     $item{domain}    = $address[1];
@@ -43,13 +43,13 @@ sub GetItems {
   return @items;
 } # GetItems
 
-sub Add2List {
+sub Add2List(@) {
   my @items = @_;
 
-  my $sender  = "";
-  my $nextseq = MAPSDB::GetNextSequenceNo $userid, $type;
+  my $sender  = '';
+  my $nextseq = GetNextSequenceNo($userid, $type);
 
-  foreach (@items) {
+  for (@items) {
     my %item = %{$_};
 
     my $pattern   = $item{pattern};
@@ -64,24 +64,25 @@ sub Add2List {
 
     $sender = lc ("$pattern\@$domain");
 
-    if (OnNulllist $sender) {
-      display " Already on list";
+    if (OnNulllist($sender)) {
+      display ' Already on list';
     } else {
-      Add2Nulllist $sender, $userid, $comment, $hit_count;
-      display " done";
+      Add2Nulllist($sender, $userid, $comment, $hit_count);
+      display ' done';
 
       # Now remove this entry from the other lists (if present)
-      foreach my $otherlist ("white", "black") {
-        my $sth = FindList $otherlist, $sender;
+      for my $otherlist ('white', 'black') {
+        my $sth = FindList($otherlist, $sender);
         my ($sequence, $count);
 
-        ($_, $_, $_, $_, $_, $sequence) = GetList $sth;
+        ($_, $_, $_, $_, $_, $sequence) = GetList($sth);
 
         if ($sequence) {
-          $count = DeleteList $otherlist, $sequence;
+          $count = DeleteList($otherlist, $sequence);
         } # if
-      } # foreach
+      } # for
     } # if
+
     $nextseq++;
   } # while
 
@@ -91,16 +92,16 @@ sub Add2List {
 # Main
 my $filename;
 
-if ($ARGV [0]) {
+if ($ARGV[0]) {
   $filename = $ARGV[0];
 } else {
   error "Must specify a filename of addresses to null list", 1;
 } # if
 
-SetContext $userid;
+SetContext($userid);
 
 $Userid = ucfirst $userid;
 
-Add2List (GetItems $filename);
+Add2List(GetItems ($filename));
 
 exit;

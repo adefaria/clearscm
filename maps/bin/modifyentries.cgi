@@ -18,7 +18,7 @@ use warnings;
 use FindBin;
 $0 = $FindBin::Script;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSLog;
@@ -27,9 +27,9 @@ use MAPSWeb;
 use CGI qw/:standard/;
 use CGI::Carp 'fatalsToBrowser';
 
-my $userid = cookie ('MAPSUser');
-my $type   = param ('type');
-my $next   = param ('next');
+my $userid = cookie('MAPSUser');
+my $type   = param('type');
+my $next   = param('next');
 
 $userid ||= $ENV{USER};
 
@@ -37,11 +37,11 @@ sub ReturnSequenceNbrs {
   my @names = param;
   my @sequence_nbrs;
 
-  foreach (@names) {
+  for (@names) {
     if (/pattern(\d+)/) {
       push @sequence_nbrs, $1;
     } # if
-  } # foreach
+  } # for
 
   return @sequence_nbrs;
 } # ReturnSequenceNbrs
@@ -50,16 +50,17 @@ sub ReturnSequenceNbrs {
 my $i = 0;
 
 foreach (ReturnSequenceNbrs) {
-  UpdateList
+  UpdateList(
     $userid,
     $type,
-    param ("pattern$_"),
-    param ("domain$_"),
-    param ("comment$_"),
-    param ("hit_count$_"),
-    $_;
+    param("pattern$_"),
+    param("domain$_"),
+    param("comment$_"),
+    param("hit_count$_"),
+    $_,
+  );
   $i++;
-} # foreach
+} # for
 
 if ($i eq 0) {
   print redirect ("/maps/php/list.php?type=$type&next=$next&message=Unable to update entries");

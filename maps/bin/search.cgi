@@ -2,8 +2,8 @@
 ################################################################################
 #
 # File:         $RCSfile: search.cgi,v $
-# Revision:	$Revision: 1.1 $
-# Description:	Search by sender and subject
+# Revision:     $Revision: 1.1 $
+# Description:  Search by sender and subject
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Jan 16 20:25:32 PST 2006
 # Modified:     $Date: 2013/06/12 14:05:47 $
@@ -18,7 +18,7 @@ use warnings;
 use FindBin;
 $0 = $FindBin::Script;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSWeb;
@@ -26,14 +26,14 @@ use MAPSUtil;
 use CGI qw (:standard *table start_Tr start_td start_div end_Tr end_td end_div);
 use CGI::Carp "fatalsToBrowser";
 
-my $str		= param ("str");
-my $next        = param ("next");
-my $lines	= param ("lines");
+my $str   = param('str');
+my $next  = param('next');
+my $lines = param('lines');
 my $userid;
 my $prev;
 my $total;
 my $last;
-my $table_name = "searchresults";
+my $table_name = 'searchresults';
 
 sub MakeButtons {
   my $prev_button = $prev >= 0 ?
@@ -46,18 +46,18 @@ sub MakeButtons {
   my $buttons = $prev_button;
 
   $buttons = $buttons .
-    submit ({-name	=> "action",
-	     -value	=> "Whitelist Marked",
-       	     -onClick	=> "return CheckAtLeast1Checked (document.detail);"}) .
-    submit ({-name	=> "action",
-	     -value	=> "Blacklist Marked",
-       	     -onClick	=> "return CheckAtLeast1Checked (document.detail);"}) .
-    submit ({-name	=> "action",
-	     -value	=> "Nulllist Marked",
-       	     -onClick	=> "return CheckAtLeast1Checked (document.detail);"}) .
-    submit ({-name	=> "action",
-	     -value	=> "Reset Marks",
-	     -onClick	=> "return ClearAll (document.detail);"});
+    submit ({-name    => "action",
+             -value   => "Whitelist Marked",
+             -onClick => "return CheckAtLeast1Checked (document.detail);"}) .
+    submit ({-name    => "action",
+             -value   => "Blacklist Marked",
+             -onClick => "return CheckAtLeast1Checked (document.detail);"}) .
+    submit ({-name    => "action",
+             -value   => "Nulllist Marked",
+             -onClick => "return CheckAtLeast1Checked (document.detail);"}) .
+    submit ({-name    => "action",
+             -value   => "Reset Marks",
+             -onClick => "return ClearAll (document.detail);"});
 
   return $buttons . $next_button;
 } # MakeButtons
@@ -82,25 +82,25 @@ sub Body {
   print div {-align => "center"}, b (
     "(" . $current . "-" . $last . " of " . $total . ")");
   print start_form {
-    -method	=> "post",
-    -action	=> "processaction.cgi",
-    -name	=> "detail"
+    -method => "post",
+    -action => "processaction.cgi",
+    -name   => "detail"
   };
   my $buttons = MakeButtons;
-  print div {-align	=> "center",
-	     -class	=> "toolbar"}, $buttons;
-  print start_table ({-align		=> "center",
-		      -id		=> $table_name,
-		      -border		=> 0,
-		      -cellspacing	=> 0,
-		      -cellpadding	=> 0,
-		      -width		=> "100%"}) . "\n";
+  print div {-align => "center",
+             -class => "toolbar"}, $buttons;
+  print start_table ({-align       => "center",
+                      -id          => $table_name,
+                      -border      => 0,
+                      -cellspacing => 0,
+                      -cellpadding => 0,
+                      -width       => "100%"}) . "\n";
   print
     Tr [
       th {-class => "tableleftend"},
-      th {-class => "tableheader"},	"Sender",
-      th {-class => "tableheader"},	"Subject",
-      th {-class => "tablerightend"},	"Date"
+      th {-class => "tableheader"},   "Sender",
+      th {-class => "tableheader"},   "Subject",
+      th {-class => "tablerightend"}, "Date"
     ];
 
   foreach (@emails) {
@@ -116,17 +116,17 @@ sub Body {
 
     print Tr [
       td {-class => "tableleftdata",
-	  -align => "center"},
-	(checkbox {-name	=> "action$next",
-		   -label	=> ""}),
-        hidden ({-name		=> "email$next",
-		 -default	=> $sender}),
-      td {-class => "sender"}, 
-	a {-href => "mailto:$sender"}, $display_sender,
-      td {-class => "subject"},
-	a {-href => "display.cgi?sender=$sender"}, $subject,
-      td {-class => "dateright",
-	  -width => "115"},		SQLDatetime2UnixDatetime $date
+          -align => "center"},
+         (checkbox {-name  => "action$next",
+                    -label => ""}),
+          hidden ({-name   => "email$next",
+         -default  => $sender}),
+      td {-class   => "sender"}, 
+          a {-href => "mailto:$sender"}, $display_sender,
+      td {-class   => "subject"},
+          a {-href => "display.cgi?sender=$sender"}, $subject,
+      td {-class   => "dateright",
+          -width   => "115"}, SQLDatetime2UnixDatetime $date
     ];
   } # foreach
   print end_table;
@@ -150,12 +150,12 @@ NavigationBar $userid;
 
 DisplayError "No search string specified" if !defined $str;
 
-if (!defined $lines) {
+if (!$lines) {
   my %options = GetUserOptions $userid;
   $lines = $options{"Page"};
 } # if
 
-$total = MAPSDB::count "email",
+$total = count "email",
   "userid = \"$userid\" and (subject like \"%$str%\" or sender like \"%$str%\")";
 
 DisplayError "Nothing matching!" if $total eq 0;

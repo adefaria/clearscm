@@ -2,7 +2,7 @@
 ################################################################################
 #
 # File:         $RCSfile: register.cgi,v $
-# Revision:	$Revision: 1.1 $
+# Revision:     $Revision: 1.1 $
 # Description:	Register a MAPS user
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Jan 16 20:25:32 PST 2006
@@ -18,7 +18,7 @@ use warnings;
 use FindBin;
 $0 = $FindBin::Script;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSLog;
@@ -26,20 +26,21 @@ use MAPSWeb;
 
 use CGI qw/:standard/;
 
-my $fullname	= param ("fullname");
-my $sender	= lc (param ("sender"));
-my $userid	= param ("userid");
+my $fullname = param("fullname");
+my $sender   = lc(param("sender"));
+my $userid   = param("userid");
 
-sub MyFooting {
-  print div ({-align	=> "center"},
-    button (-name	=> "close",
-	    -value	=> "Close Window",
-	    -onClick	=> "window.close ()"));
+sub MyFooting() {
+  print div({-align  => "center"},
+    button (-name    => "close",
+            -value   => "Close Window",
+            -onClick => "window.close ()")
+  );
   print end_html;
 } # MyFooting
 
-sub MyError {
-  my $errmsg = shift;
+sub MyError($) {
+  my ($errmsg) = @_;
 
   print h3 ({-class => "error",
              -align => "center"}, "ERROR: " . $errmsg);
@@ -49,33 +50,33 @@ sub MyError {
   exit 1;
 } # MyError
 
-sub MyHeading {
+sub MyHeading() {
   print
-    header     (-title	=> "MAPS Registration"),
-    start_html (-title  => "MAPS Registration",
-		-author	=> "Andrew\@DeFaria.com",
-		-style	=> {-src	=> "/maps/css/MAPSPlain.css"});
+    header(-title  => "MAPS Registration"),
+    start_html(-title  => "MAPS Registration",
+                -author => "Andrew\@DeFaria.com",
+                -style  => {-src => "/maps/css/MAPSPlain.css"}
+    );
   print
-    h2 ({-class => "header",
-	 -align	=> "center"},
+    h2 ({-class     => "header",
+         -align     => "center"},
       font ({-class => "standout"}, 
-	    "MAPS"), "Registration Results");
+      "MAPS"), "Registration Results"
+	  );
 } # MyHeading
 
 # Main
 MyHeading;
 
-if ($sender eq "") {
-  MyError "Sender not specified!";
-}
+MyError("Sender not specified!") if $sender eq '';
 
-my $rule;
+my ($status, $rule) = OnWhitelist($sender, $userid, 0);
 
-if (OnWhitelist $sender, $userid) {
-  MyError "The email address $sender is already on ${userid}'s list"
+if ($status) {
+  MyError("The email address $sender is already on ${userid}'s list)");
 } # if
 
-my $messages = Add2Whitelist $sender, $userid, $fullname;
+my $messages = Add2Whitelist($sender, $userid, $fullname);
 
 print p "$fullname, your email address, $sender, has been added to ${userid}'s white list.";
 

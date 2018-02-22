@@ -14,10 +14,7 @@
 package MAPSWeb;
 
 use strict;
-
-use FindBin;
-
-use lib $FindBin::Bin;
+#use warnings;
 
 use MAPS;
 use MAPSLog;
@@ -38,19 +35,19 @@ use Exporter;
   NavigationBar
 );
 
-sub getquickstats {
-  my $date = shift;
+sub getquickstats($) {
+  my ($date) = @_;
 
   my %dates = GetStats (1, $date);
 
   for (@MAPSLog::Types) {
     $dates{$date}{processed} += $dates{$date}{$_};
-  } # foreach
+  } # for
 
   return %dates;
 } # getquickstats
 
-sub displayquickstats {
+sub displayquickstats() {
   # Quick stats are today only.
   my $today = Today2SQLDatetime;
   my $time  = substr $today, 11;
@@ -107,14 +104,16 @@ sub displayquickstats {
   } # foreach
   print end_table;
   print end_div;
+
+  return;
 } # displayquickstats
 
-sub Footing (;$) {
+sub Footing(;$) {
   my ($table_name) = @_;
 
   # General footing (copyright). Note we calculate the current year
   # so that the copyright automatically extends itself.
-  my $year = substr ((scalar (localtime)), 20, 4);
+  my $year = substr((scalar (localtime)), 20, 4);
 
   print start_div {-class => "copyright"};
   print "Copyright &copy; 2001-$year - All rights reserved";
@@ -129,15 +128,19 @@ sub Footing (;$) {
   print "<script language='JavaScript1.2'>AdjustTableWidth (\"$table_name\");</script>"
     if $table_name;
   print end_html;
+
+  return;
 } # Footing
 
-sub Debug ($) {
+sub Debug($) {
   my ($msg) = @_;
 
   print br, font ({ -class => 'error' }, 'DEBUG: '), $msg;
+
+  return;
 } # Debug
 
-sub DisplayError ($) {
+sub DisplayError($) {
   my ($errmsg) = @_;
 
   print h3 ({-class => 'error',
@@ -150,7 +153,7 @@ sub DisplayError ($) {
 
 # This subroutine puts out the header for web pages. It is called by
 # various cgi scripts thus has a few parameters.
-sub Heading ($$$$;$$@) {
+sub Heading($$$$;$$@) {
   my ($action,             # One of getcookie, setcookie, unsetcookie
       $userid,             # User id (if setting a cookie)
       $title,              # Title string
@@ -253,8 +256,8 @@ sub Heading ($$$$;$$@) {
   return $userid
 } # Heading
 
-sub NavigationBar {
-  my $userid = shift;
+sub NavigationBar($) {
+  my ($userid) = @_;
 
   print start_div {-id => 'leftbar'};
 

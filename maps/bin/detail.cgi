@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-#################################################################################
+################################################################################
 #
 # File:         $RCSfile: detail.cgi,v $
 # Revision:     $Revision: 1.1 $
@@ -19,19 +19,19 @@ use MIME::Words qw(:all);
 use FindBin;
 $0 = $FindBin::Script;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSLog;
 use MAPSUtil;
 use MAPSWeb;
-use CGI qw (:standard *table start_td end_td start_Tr end_Tr start_div end_div);
+use CGI qw(:standard *table start_td end_td start_Tr end_Tr start_div end_div);
 use CGI::Carp 'fatalsToBrowser';
 
-my $type   = param ('type');
-my $next   = param ('next');
-my $lines  = param ('lines');
-my $date   = param ('date');
+my $type   = param('type');
+my $next   = param('next');
+my $lines  = param('lines');
+my $date   = param('date');
 
 $date ||= '';
 
@@ -74,7 +74,7 @@ my %types = (
 );
 
 sub MakeButtons {
-  my $type = shift;
+  my ($type) = @_;
 
   my $prev_button = $prev >= 0 ?
     a ({-href      => "detail.cgi?type=$type;date=$date;next=$prev",
@@ -151,12 +151,12 @@ sub PrintTable {
     -action => 'processaction.cgi',
     -name   => 'detail'
   };
-  print start_table ({-align        => 'center',
-                      -id           => $table_name,
-                      -border       => 0,
-                      -cellspacing  => 0,
-                      -cellpadding  => 0,
-                      -width        => '100%'}) . "\n";
+  print start_table({-align        => 'center',
+                     -id           => $table_name,
+                     -border       => 0,
+                     -cellspacing  => 0,
+                     -cellpadding  => 0,
+                     -width        => '100%'}) . "\n";
 
   my $buttons = MakeButtons $type;
 
@@ -171,20 +171,22 @@ sub PrintTable {
     ];
   print end_div;
 
-  foreach my $sender (ReturnSenders $userid, $type, $next, $lines, $date) {
-    my @msgs = ReturnMessages $userid, $sender;
+  for my $sender (ReturnSenders($userid, $type, $next, $lines, $date)) {
+    my @msgs  = ReturnMessages($userid, $sender);
     my @msgs2 = @msgs;
+
     my ($onlist, $seq);
+
     my $rule      = 'none';
     my $hit_count = 0;
 
-    ($onlist, $rule, $seq, $hit_count) = OnWhitelist $sender, $userid, 0;
+    ($onlist, $rule, $seq, $hit_count) = OnWhitelist($sender, $userid, 0);
 
     unless ($onlist) {
-      ($onlist, $rule, $seq, $hit_count) = OnBlacklist $sender, 0;
+      ($onlist, $rule, $seq, $hit_count) = OnBlacklist($sender, 0);
 
       unless ($onlist) {
-        ($onlist, $rule, $seq, $hit_count) = OnNulllist $sender, 0;
+        ($onlist, $rule, $seq, $hit_count) = OnNulllist($sender, 0);
       } # unless
     } # unless
 
@@ -219,6 +221,10 @@ sub PrintTable {
                    -border      => 0,
                    -width       => '100%',
                    -bgcolor     => '#d4d0c8'};
+
+    # Get subject line
+    my $heading = $msgs2[0][0] || '';
+    $heading = "?subject=$heading" if $heading;
     print
       td {-class   => 'tablelabel',
           -valign  => 'middle',
@@ -226,7 +232,7 @@ sub PrintTable {
       td {-class   => 'sender',
           -valign  => 'middle',
           -width   => '40%'},
-        a {-href   => "mailto:$sender?subject=$msgs2[0][0]"}, $sender,
+        a {-href   => "mailto:$sender$heading"}, $sender,
       td {
           -valign  => 'middle'},
           $rule;
@@ -235,7 +241,7 @@ sub PrintTable {
 
     my $messages = 1;
 
-    foreach (@msgs) {
+    for (@msgs) {
       my $msg_date = pop @{$_};
       my $subject  = pop @{$_};
 
@@ -275,10 +281,10 @@ sub PrintTable {
               -valign  => 'middle'}, $msg_date
         ];
       print end_table;
-    } # foreach
+    } # for
     print end_td;
     print end_Tr;
-  } # foreach
+  } # for
 
   print start_div {-class => 'toolbar'};
   print
@@ -292,6 +298,8 @@ sub PrintTable {
   print end_div;
   print end_table;
   print end_form;
+
+  return;
 } # PrintTable
 
 # Main
@@ -300,7 +308,7 @@ my @scripts = ('ListActions.js');
 
 my $heading_date =$date ne '' ? ' on ' . FormatDate ($date) : '';
 
-$userid = Heading (
+$userid = Heading(
   'getcookie',
   '',
   (ucfirst ($type) . ' Report'),
@@ -312,11 +320,11 @@ $userid = Heading (
 
 $userid ||= $ENV{USER};
 
-SetContext $userid;
-NavigationBar $userid;
+SetContext($userid);
+NavigationBar($userid);
 
 unless ($lines) {
-  my %options = GetUserOptions $userid;
+  my %options = GetUserOptions($userid);
   $lines = $options{'Page'};
 } # unless
 
@@ -330,7 +338,7 @@ if ($date eq '') {
               . "and timestamp > '$sod' and timestamp < '$eod' ";
 } # if
 
-$total = MAPSDB::count_distinct ('log', 'sender', $condition);
+$total = count_distinct('log', 'sender', $condition);
 
 $next ||= 0;
 
@@ -339,11 +347,11 @@ $last = $next + $lines < $total ? $next + $lines : $total;
 if (($next - $lines) > 0) {
   $prev = $next - $lines;
 } else {
-  $prev = $next eq 0 ? -1 : 0;
+  $prev = $next == 0 ? -1 : 0;
 } # if
 
-PrintTable $type;
+PrintTable($type);
 
-Footing $table_name;
+Footing($table_name);
 
 exit;

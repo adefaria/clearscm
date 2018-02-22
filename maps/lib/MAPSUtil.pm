@@ -15,6 +15,8 @@
 package MAPSUtil;
 
 use strict;
+use warnings;
+
 use vars qw (@ISA @EXPORT);
 
 BEGIN {
@@ -125,10 +127,10 @@ sub SubtractDays {
   # Adjust if crossing year boundary
   if ($days <= 0) {
     $year--;
-    $days_in_year = (($year % 4) eq 0) ? 366 : 365;
+    $days_in_year = (($year % 4) == 0) ? 366 : 365;
     $days = $days_in_year + $days;
   } else {
-    $days_in_year = (($year % 4) eq 0) ? 366 : 365;
+    $days_in_year = (($year % 4) == 0) ? 366 : 365;
   } # if
 
   # Convert back
@@ -158,8 +160,8 @@ sub SubtractDays {
   return $year . '-' . $month . '-' . $days . substr $timestamp, 10;
 } # SubtractDays
 
-sub UnixDatetime2SQLDatetime {
-  my $datetime = shift;
+sub UnixDatetime2SQLDatetime($) {
+  my ($datetime) = @_;
 
   my $orig_datetime = $datetime;
   my %months = (
@@ -258,7 +260,7 @@ sub UnixDatetime2SQLDatetime {
 } # UnixDatetime2SQLDatetime
 
 sub Today2SQLDatetime {
-  return UnixDatetime2SQLDatetime scalar localtime;
+  return UnixDatetime2SQLDatetime(scalar localtime);
 } # Today2SQLDatetime
 
 1;

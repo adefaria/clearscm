@@ -2,7 +2,7 @@
 ################################################################################
 #
 # File:         $RCSfile: add2blacklist.cgi,v $
-# Revision:	$Revision: 1.1 $
+# Revision:   	$Revision: 1.1 $
 # Description:	Add an email address to the blacklist
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Jan 16 20:25:32 PST 2006
@@ -18,7 +18,7 @@ use warnings;
 use FindBin;
 $0 = $FindBin::Script;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSLog;
@@ -31,9 +31,9 @@ my $userid;
 my $Userid;
 my $type = 'black';
 
-sub Add2List {
-  my $sender	= '';
-  my $nextseq	= MAPSDB::GetNextSequenceNo $userid, $type;
+sub Add2List() {
+  my $sender  = '';
+  my $nextseq = GetNextSequenceNo($userid, $type);
 
   while () {
     my $pattern	= param "pattern$nextseq";
@@ -41,33 +41,33 @@ sub Add2List {
     my $comment	= param "comment$nextseq";
 
     last if ((!defined $pattern || $pattern eq '') &&
-	     (!defined $domain  || $domain  eq ''));
+             (!defined $domain  || $domain  eq ''));
 
     $sender = lc "$pattern\@$domain";
 
-    my ($status, $rule) = OnBlacklist $sender;
+    my ($status, $rule) = OnBlacklist($sender);
 
     if ($status != 0) {
       print br {-class => 'error'}, "The email address $sender is already on ${Userid}'s $type list";
     } else {
-      Add2Blacklist $sender, $userid, $comment;
+      Add2Blacklist($sender, $userid, $comment);
       print br "The email address, $sender, has been added to ${Userid}'s $type list";
 
       # Now remove this entry from the other lists (if present)
-      foreach my $otherlist ('white', 'null') {
-	my $sth = FindList $otherlist, $sender;
-	my ($sequence, $count);
+      for my $otherlist ('white', 'null') {
+        my $sth = FindList $otherlist, $sender;
+        my ($sequence, $count);
 
-	($_, $_, $_, $_, $_, $sequence) = GetList $sth;
+        ($_, $_, $_, $_, $_, $sequence) = GetList($sth);
 
-	if ($sequence) {
-	  $count = DeleteList $otherlist, $sequence;
-	  print br "Removed $sender from ${Userid}'s " . ucfirst $otherlist . ' list'
-	    if $count > 0;
+        if ($sequence) {
+          $count = DeleteList($otherlist, $sequence);
+          print br "Removed $sender from ${Userid}'s " . ucfirst $otherlist . ' list'
+            if $count > 0;
 
-	  ResequenceList $userid, $otherlist;
-	} # if
-      } # foreach
+          ResequenceList($userid, $otherlist);
+        } # if
+      } # for
     } # if
 
     $nextseq++;
@@ -75,7 +75,7 @@ sub Add2List {
 } # Add2List
 
 # Main
-$userid = Heading (
+$userid = Heading(
   'getcookie',
   '',
   'Add to Black List',
@@ -84,9 +84,9 @@ $userid = Heading (
 
 $Userid = ucfirst $userid;
 
-SetContext $userid;
+SetContext($userid);
 
-NavigationBar $userid;
+NavigationBar($userid);
 
 Add2List;
 
@@ -97,10 +97,10 @@ print start_form {
 };
 
 print '<p></p><center>',
-  hidden ({-name	=> 'type',
-	   -default	=> $type}),
-  submit ({-name	=> 'action',
-	   -value	=> 'Add New Entry'}),
+  hidden ({-name => 'type',
+     -default    => $type}),
+  submit ({-name => 'action',
+     -value      => 'Add New Entry'}),
   '</center>';
 
 Footing;

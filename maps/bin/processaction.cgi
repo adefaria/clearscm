@@ -18,7 +18,7 @@ use warnings;
 use FindBin;
 $0 = $FindBin::Script;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSWeb;
@@ -40,11 +40,11 @@ sub ReturnSequenceNbrs {
   my @names = param;
   my @sequence_nbrs;
 
-  foreach (@names) {
+  for (@names) {
     if (/action(\d+)/) {
       push @sequence_nbrs, $1;
     } # if
-  } # foreach
+  } # for
 
   return @sequence_nbrs;
 } # ReturnSequenceNbrs
@@ -57,13 +57,13 @@ sub DeleteEntries {
   my $count;
 
   foreach (@sequence_nbrs) {
-    $count += DeleteList $type, $_;
+    $count += DeleteList($type, $_);
   } # foreach
 
   if ($count == 0) {
-    DisplayError 'Nothing to delete!';
+    DisplayError('Nothing to delete!');
   } else {
-    ResequenceList $userid, $type;
+    ResequenceList($userid, $type);
 
     if ($count == 1) {
       print redirect ("/maps/php/list.php?type=$type&next=$next&message=Deleted entry");
@@ -89,7 +89,7 @@ sub PrintInputLine ($$$$$) {
       ($pattern, $domain) = split /\@/, $email;
     } # if
 
-    $hit_count = CountMsg $email;
+    $hit_count = CountMsg($email);
   } # if
 
   print Tr [
@@ -142,7 +142,7 @@ sub AddNewEntry {
   # empty, editable entries (possibly filled in) for the user to add
   # the new entry
   my $selected = @selected;
-  my $nextseq = MAPSDB::GetNextSequenceNo $userid, $type;
+  my $nextseq = GetNextSequenceNo($userid, $type);
   my $next = ($nextseq - $lines) + $selected - 1;
 
   $next = 0
@@ -150,7 +150,7 @@ sub AddNewEntry {
 
   my $Type = ucfirst $type;
 
-  Heading (
+  Heading(
     'getcookie',
     '',
     "Add to $Type List",
@@ -160,7 +160,7 @@ sub AddNewEntry {
     @scripts
   );
 
-  NavigationBar $userid;
+  NavigationBar($userid);
 
   # Now display table and new entry
   print start_form {
@@ -184,11 +184,11 @@ sub AddNewEntry {
     th {-class => 'tablerightend'}, 'Hit Count'
   ];
 
-  my @list = ReturnList $type, $next, $lines;
+  my @list = ReturnList($type, $next, $lines);
   my %record;
   my $i = 1;
 
-  foreach (@list) {
+  for (@list) {
     $i++;
 
     %record = %{$_};
@@ -214,20 +214,20 @@ sub AddNewEntry {
       td {-class  => 'tablerightdata',
           -align  => 'right'}, $hit_count,
     ];
-  } # foreach
+  } # for
 
   # Now the input line(s)
   if (@selected == 0) {
-    PrintInputLine $nextseq, undef, 'tablebottomleft', 'tablebottomdata',
-                                    'tablebottomright';
+    PrintInputLine($nextseq, undef, 'tablebottomleft', 'tablebottomdata',
+                                    'tablebottomright');
   } else {
-    foreach (@selected) {
+    for (@selected) {
       my $leftclass  = $i == $lines ? 'tablebottomleft'  : 'tableleftdata';
       my $dataclass  = $i == $lines ? 'tablebottomdata'  : 'tabledata';
       my $rightclass = $i == $lines ? 'tablebottomright' : 'tablerightdata';
       $i++;
-      PrintInputLine $nextseq++, $_, $leftclass, $dataclass, $rightclass;
-    } # foreach
+      PrintInputLine($nextseq++, $_, $leftclass, $dataclass, $rightclass);
+    } # for
   } # for
 
   print end_table;
@@ -252,7 +252,7 @@ sub ModifyEntries {
 
   my $Type = ucfirst $type;
 
-  Heading (
+  Heading(
     'getcookie',
     '',
     "Modify $Type List",
@@ -262,7 +262,7 @@ sub ModifyEntries {
     @scripts
   );
 
-  NavigationBar $userid;
+  NavigationBar($userid);
 
   # Redisplay the page but open up the lines that are getting modified
   print start_form {
@@ -293,20 +293,26 @@ sub ModifyEntries {
     th {-class => 'tablerightend'}, 'Hit Count',
   ];
 
-  my @list = ReturnList $type, $next, $lines;
+  # Corner case: If on the first page (i.e. $next=0) then being zero based, we
+  # will actually get 21 entries in @list (i.e. $next=0, $lines=20 - 21 $entries
+  # are retrieved). So in that case, and that case only, we will change $lines
+  # to $lines - 1.
+  --$lines if $next == 0;
+
+  my @list = ReturnList($type, $next, $lines);
   my %record;
   my $s = 0;
   my $i = 1;
 
-  foreach (@list) {
+  for (@list) {
     %record = %{$_};
 
     my $sequence = $record{sequence};
-    my $leftclass  = ($i eq $lines || $sequence eq $total) ?
+    my $leftclass  = ($i == @list || $sequence eq $total) ?
       'tablebottomleft'  : 'tableleftdata';
-    my $dataclass  = ($i eq $lines || $sequence eq $total) ?
+    my $dataclass  = ($i == @list || $sequence eq $total) ?
       'tablebottomdata'  : 'tabledata';
-    my $rightclass = ($i eq $lines || $sequence eq $total) ?
+    my $rightclass = ($i == @list || $sequence eq $total) ?
       'tablebottomright' : 'tablerightdata';
 
     $i++;
@@ -324,8 +330,8 @@ sub ModifyEntries {
       my $hit_count = $record{hit_count} ? $record{hit_count} : '';
 
       print
-        td {-class      => $dataclass,
-            -align      => 'right'},
+        td {-class               => $dataclass,
+            -align               => 'right'},
           (textfield {-class     => 'inputfield',
                       -style     => 'width:100%',
                       -align     => 'right',
@@ -333,9 +339,9 @@ sub ModifyEntries {
                       -maxlength => '255',
                       -name      => "pattern$sequence",
                       -value     => $pattern}),
-        td {-class      => $dataclass,
-            -align      => 'center'}, '@',
-        td {-class      => $dataclass},
+        td {-class               => $dataclass,
+            -align               => 'center'}, '@',
+        td {-class               => $dataclass},
           (textfield {-class     => 'inputfield',
                       -style     => 'width:100%',
                       -align     => 'left',
@@ -343,15 +349,15 @@ sub ModifyEntries {
                       -maxlength => '255',
                       -name      => "domain$sequence",
                       -value     => $domain}),
-        td {-class      => $dataclass},
-           (textfield {-class     => 'inputfield',
-                       -style     => 'width:100%',
-                       -align     => 'left',
-                       -size      => 25,
-                       -maxlength => '255',
-                       -name      => "comment$sequence",
-                       -value     => $comment}),
-        td {-class      => $rightclass},
+        td {-class               => $dataclass},
+          (textfield {-class     => 'inputfield',
+                      -style     => 'width:100%',
+                      -align     => 'left',
+                      -size      => 25,
+                      -maxlength => '255',
+                      -name      => "comment$sequence",
+                      -value     => $comment}),
+        td {-class               => $rightclass},
            (textfield {-class     => 'inputfield',
                        -style     => 'width:100%',
                        -align     => 'left',
@@ -380,7 +386,7 @@ sub ModifyEntries {
     } # if
 
     print end_Tr;
-  } # foreach
+  } # for
 
   print end_table;
   print br,
@@ -398,35 +404,34 @@ sub ModifyEntries {
 } # ModifyEntries
 
 sub WhitelistMarked {
-  AddNewEntry 'white', ReturnSequenceNbrs;
+  AddNewEntry('white', ReturnSequenceNbrs);
 } # WhitelistMarked
 
 sub BlacklistMarked {
-  AddNewEntry 'black', ReturnSequenceNbrs;
+  AddNewEntry('black', ReturnSequenceNbrs);
 } # BlacklistMarked
 
 sub NulllistMarked {
-  AddNewEntry 'null', ReturnSequenceNbrs;
+  AddNewEntry('null', ReturnSequenceNbrs);
 } # NulllistMarked
 
 # Main
 $userid ||= $ENV{USER};
 
-SetContext $userid;
+SetContext($userid);
 
-my %options = GetUserOptions $userid;
+my %options = GetUserOptions($userid);
 
 $lines = $options{'Page'};
 
-$total = MAPSDB::count 'list', "userid = \"$userid\" and type = \"$type\""
-  if $type;
+$total = count('list', "userid = \"$userid\" and type = \"$type\"") if $type;
 
 if ($action eq 'Add New Entry') {
-  AddNewEntry $type;
+  AddNewEntry($type);
 } elsif ($action eq 'Delete Marked') {
-  DeleteEntries $type;
+  DeleteEntries($type);
 } elsif ($action eq 'Modify Marked') {
-  ModifyEntries $type;
+  ModifyEntries($type);
 } elsif ($action eq 'Whitelist Marked') {
   WhitelistMarked;
 } elsif ($action eq 'Blacklist Marked') {
@@ -434,17 +439,17 @@ if ($action eq 'Add New Entry') {
 } elsif ($action eq 'Nulllist Marked') {
   NulllistMarked;
 } else {
-  Heading (
+  Heading(
     'getcookie',
     '',
     "Unknown action ($action)",
     "Unknown action ($action)"
   );
 
-  NavigationBar $userid;
-  DisplayError "Unknown action encountered ($action)";
+  NavigationBar($userid);
+  DisplayError("Unknown action encountered ($action)");
 } # if
 
-Footing $table_name;
+Footing($table_name);
 
 exit;

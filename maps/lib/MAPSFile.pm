@@ -2,7 +2,7 @@
 ################################################################################
 #
 # File:         $RCSfile: MAPSFile.pm,v $
-# Revision:	$Revision: 1.1 $
+# Revision:     $Revision: 1.1 $
 # Description:  File manipulation routines for MAPS.
 # Author:       Andrew@DeFaria.com
 # Created:      Fri Nov 29 14:17:21  2002
@@ -27,17 +27,19 @@ use Exporter;
   Unlock
 );
 
-sub Lock {
-  my $file = shift;
+sub Lock($) {
+  my ($file) = @_;
 
-  flock ($file, LOCK_EX);
+  flock($file, LOCK_EX);
+
   # and, in case someone appended while we were waiting...
   seek ($file, 0, 2);
 } # lock
 
-sub Unlock {
-  my $file = shift;
-  flock ($file,LOCK_UN);
+sub Unlock($) {
+  my ($file) = @_;
+
+  flock($file,LOCK_UN);
 } # unlock
 
 1;

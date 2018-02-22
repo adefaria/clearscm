@@ -1,9 +1,9 @@
 #!/usr/bin/perl
-#################################################################################
+################################################################################
 # File:         $RCSfile: mapsutil,v $
-# Revision:	$Revision: 1.1 $
+# Revision:     $Revision: 1.1 $
 # Description:  This script implements a small command interpreter to exercise
-#		MAPS functions.
+#               MAPS functions.
 # Author:       Andrew@DeFaria.com
 # Created:      Fri Nov 29 14:17:21  2002
 # Modified:     $Date: 2013/06/12 14:05:47 $
@@ -11,64 +11,68 @@
 #
 # (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
 #
-################################################################################use strict;
+################################################################################
+use strict;
 use warnings;
 
 use FindBin;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSLog;
+
 use Term::ReadLine;
 use Term::ReadLine::Gnu;
 use Term::ReadKey;
 
-sub EncryptPassword {
-  my $password = shift;
-  my $userid   = shift;
+my $maps_username;
+
+sub EncryptPassword($$) {
+  my ($password, $userid) = @_;
 
   my $encrypted_password = Encrypt $password, $userid;
 
   print "Password: $password = $encrypted_password\n";
+
+  return;
 } # EncryptPassword
 
-sub DecryptPassword {
-  my $password = shift;
-  my $userid   = shift;
+sub DecryptPassword($$) {
+  my ($password, $userid) = @_;
 
-  my $decrypted_password = Decrypt $password, $userid;
+  my $decrypted_password = Decrypt($password, $userid);
 
   print "Password: $password = $decrypted_password\n";
+
+  return;
 } # DecryptPassword
 
-sub Resequence {
-  my $userid	= shift;
-  my $type	= shift;
+sub Resequence($$) {
+  my ($userid, $type) = @_;
 
-  ResequenceList $userid, $type;
+  MAPS::ResequenceList($userid, $type);
 } # Resequence
 
-sub GetPassword {
+sub GetPassword() {
   print "Password:";
   ReadMode "noecho";
-  my $password = ReadLine (0);
+  my $password = ReadLine(0);
   chomp $password;
   print "\n";
   ReadMode "normal";
 
-  return $password
+  return $password;
 } # GetPassword
 
-sub Login2MAPS {
-  my $username = shift;
-  my $password = shift;
+sub Login2MAPS($;$) {
+  my ($username, $password) = @_;
 
-  if ($username ne "") {
+  if ($username ne '') {
     $password = GetPassword if !defined $password or $password eq "";
   } # if
 
-  while (Login ($username, $password) != 0) {
+  while (Login($username, $password) != 0) {
     print "Login failed!\n";
     print "Username:";
     $username = <>;
@@ -83,10 +87,10 @@ sub Login2MAPS {
   return $username;
 } # Login2MAPS
 
-sub LoadListFile {
+sub LoadListFile($) {
   # This function loads a ".list" file. This is to "import" our old ".list"
   # files. Note it assumes that the ".list" files have specific names.
-  my $listfilename = shift;
+  my ($listfilename) = @_;
 
   my $listtype;
 
@@ -101,22 +105,24 @@ sub LoadListFile {
     return;
   } # if
 
-  if (!open LISTFILE, "<$listfilename") {
+  my $listfile;
+
+  if (!open $listfile, '<', $listfilename) {
     print "Unable to open $listfilename\n";
     return;
   } # if
 
   my $sequence = 0;
 
-  Info "Adding $listfilename to $listtype list";
+  Info("Adding $listfilename to $listtype list");
 
-  while (<LISTFILE>) {
+  while ($listfile) {
     chomp;
     next if m/^#/ || m/^$/;
 
     my ($pattern, $comment) = split /\,/;
 
-    AddList $listtype, $pattern, 0, $comment;
+    AddList($listtype, $pattern, 0, $comment);
     $sequence++;
   } # while
 
@@ -129,30 +135,32 @@ sub LoadListFile {
   } # if
   print "from $listfilename\n";
 
-  close LISTFILE;
+  close $listfile;
 } # LoadListFile
 
-sub LoadEmail {
+sub LoadEmail($) {
   # This function loads an mbox file.
-  my $file = shift;
+  my ($filename) = @_;
 
-  if (!open FILE, "<$file") {
-    print "Unable to open \"$file\" - $!\n";
+  my $file;
+
+  if (!open $file, '<', $filename) {
+    print "Unable to open \"$filename\" - $!\n";
     return;
   } # if
 
-  binmode FILE;
+  binmode $file;
 
   my $nbr_msgs;
 
-  while (! eof FILE) {
-    my ($sender, $reply_to, $subject, $data) = ReadMsg (*FILE);
+  while (!eof $file) {
+    my ($sender, $reply_to, $subject, $data) = ReadMsg (*$file);
 
     $nbr_msgs++;
 
-    AddEmail $sender, $subject, $data;
+    AddEmail($sender, $subject, $data);
 
-    Info "Added message from $sender to email";
+    Info("Added message from $sender to email");
   } # while
 
   if ($nbr_msgs == 0) {
@@ -165,50 +173,53 @@ sub LoadEmail {
   print "from $file\n";
 } # LoadEmail
 
-sub DumpEmail {
+sub DumpEmail($) {
   # This function unloads email to a mbox file.
-  my $file = shift;
+  my ($filename) = @_;
 
-  if (!open FILE, ">$file") {
-    print "Unable to open \"$file\" - $!\n";
+  my $file;
+
+  if (!open $file, '>', $filename) {
+    print "Unable to open \"$filename\" - $!\n";
     return;
   } # if
 
-  binmode FILE;
+  binmode $file;
 
-  my $i = 0;
+  my $i      = 0;
   my $handle = FindEmail;
+  
   my ($userid, $sender, $subject, $timestamp, $message);
 
-  while (($userid, $sender, $subject, $timestamp, $message) = GetEmail $handle) {
-    print FILE $message;
+  while (($userid, $sender, $subject, $timestamp, $message) = GetEmail($handle)) {
+    print $file $message;
     $i++;
   } # while
 
   print "$i messages dumped to $file\n";
 
-  close FILE;
+  close $file;
 } # DumpEmail
 
-sub SwitchUser {
-  my $new_user = shift;
+sub SwitchUser($) {
+  my ($new_user) = @_;
 
-  if ($new_user = Login2MAPS $new_user) {
+  if ($new_user = Login2MAPS($new_user)) {
     print "You are now logged in as $new_user\n";
   } # if
 } # SwitchContext
 
-sub ShowSpace {
-  my $detail = shift;
+sub ShowSpace($) {
+  my ($detail) = @_;
 
   my $userid = GetContext;
 
-  if (defined $detail) {
-    my %msg_space = MAPS::Space $userid;
+  if ($detail) {
+    my %msg_space = Space($userid);
 
-    foreach (sort (keys (%msg_space))) {
-      my $sender	= $_;
-      my $size		= $msg_space {$_};
+    for (sort (keys (%msg_space))) {
+      my $sender = $_;
+      my $size   = $msg_space{$_};
       format PER_MSG=
 @######### @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 $size,$sender
@@ -217,8 +228,10 @@ $~ = "PER_MSG";
       write ();
     } # foreach
   } else {
-    my $total_space = MAPS::Space $userid;
+    my $total_space = Space($userid);
+
     $total_space = $total_space / (1024 * 1024);
+
     format TOTALSIZE=
 Total size @###.### Meg
 $total_space
@@ -228,12 +241,12 @@ $~ = "TOTALSIZE";
   } # if
 } # ShowSpace
 
-sub ShowUser {
-  print "Current userid is " . GetContext () . "\n";
+sub ShowUser() {
+  print "Current userid is " . GetContext() . "\n";
 } # ShowContext
 
-sub ShowUsers {
-  my $handle = FindUser;
+sub ShowUsers() {
+  my ($handle) = FindUser;
 
   my ($userid, $name, $email);
 
@@ -242,16 +255,16 @@ User ID: @<<<<<<<<< Name: @<<<<<<<<<<<<<<<<<<< Email: @<<<<<<<<<<<<<<<<<<<<<<<
 $userid,$name,$email
 .
 $~ = "USERLIST";
-  while (($userid, $name, $email) = GetUser $handle) {
+  while (($userid, $name, $email) = GetUser($handle)) {
     last if ! defined $userid;
-    write ();
+    write();
   } # while
 
   $handle->finish;
 } # ShowUsers
 
-sub ShowEmail {
-  my $handle = FindEmail;
+sub ShowEmail() {
+  my ($handle) = FindEmail;
 
   my ($userid, $sender, $subject, $timestamp, $message);
 
@@ -260,20 +273,20 @@ format EMAIL =
 $timestamp,$sender,$subject
 .
 $~ = "EMAIL";
-  while (($userid, $sender, $subject, $timestamp, $message) = GetEmail $handle) {
-    last if ! defined $userid;
-    write ();
+  while (($userid, $sender, $subject, $timestamp, $message) = GetEmail($handle)) {
+    last unless $userid;
+    write();
   } # while
 
   $handle->finish;
 } # ShowEmail
 
-sub ShowLog {
-  my $how_many = shift;
+sub ShowLog($) {
+  my ($how_many) = @_;
 
   $how_many = defined $how_many ? $how_many : -20;
 
-  my $handle = FindLog $how_many;
+  my $handle = FindLog($how_many);
 
   my ($userid, $timestamp, $sender, $type, $message);
 
@@ -283,15 +296,15 @@ $timestamp,$type,$sender,$message
 .
 $~ = "LOG";
   while (($userid, $timestamp, $sender, $type, $message) = GetLog $handle) {
-    last if ! defined $userid;
-    write ();
+    last unless $userid;
+    write();
   } # while
 
   $handle->finish;
 } # ShowLog
 
-sub ShowList {
-  my $type = shift;
+sub ShowList($) {
+  my ($type) = @_;
 
   my $lines = 10;
   my $next  = 0;
@@ -304,85 +317,88 @@ $record{sequence},$record{pattern},$record{domain},$record{comment}
 .
 $~ = "LIST";
 
-  while (@list = ReturnList $type, $next, $lines) {
-    foreach (@list) {
+  while (@list = ReturnList($type, $next, $lines)) {
+    for (@list) {
       %record = %{$_};
-      write ();
-    } # foreach
+      write();
+    } # for
     print "Hit any key to continue";
     ReadLine (0);
     $next += $lines;
   } # while
 } # ShowList
 
-sub ShowStats {
-  my $nbr_days	= shift;
+sub ShowStats($) {
+  my ($nbr_days) = @_;
 
-  $nbr_days = 1 if !defined $nbr_days;
+  $nbr_days ||= 1;
 
-  my %dates = GetStats $nbr_days;
+  my %dates = GetStats($nbr_days);
 
-  foreach my $date (keys (%dates)) {
-    foreach (keys (%{$dates{$date}})) {
+  for my $date (keys(%dates)) {
+    for (keys(%{$dates{$date}})) {
       print "$date $_:";
-        print "\t$dates{$date}{$_}\n";
-    } # foreach
-  } # foreach
+      print "\t$dates{$date}{$_}\n";
+    } # for
+  } # for
 } # ShowStats
 
-sub Deliver {
-  my $file = shift;
+sub Deliver($) {
+  my ($filename) = @_;
 
-  if (!open MESSAGE, "<$file") {
-    print "Unable to open message file $file\n";
+  my $message;
+
+  if (!open $message, '<', $filename) {
+    print "Unable to open message file $filename\n";
     return;
   } # if
 
   my $data;
-  while (<MESSAGE>) {
+
+  while ($message) {
     $data = $data . $_;
   } # while
 
   Whitelist "Andrew\@DeFaria.com", $data;
+
+  close $message;
+
+  return;
 } # Deliver
 
-sub ParseCommand {
-  # Crude parser...
-  my $cmd   = shift;
-  my $parm1 = shift;
-  my $parm2 = shift;
-  my $parm3 = shift;
-  my $parm4 = shift;
+sub ParseCommand($$$$$){
+  my ($cmd, $parm1, $parm2, $parm3,$parm4) = @_;
 
-  $_ = $cmd . " ";
+  $_ = $cmd . ' ';
+
   SWITCH: {
     /^$/ && do {
       last SWITCH
     };
 
     /^resequence / && do {
-      Resequence GetContext (), $parm1;
+      Resequence(GetContext(), $parm1);
       last SWITCH
     };
 
     /^encrypt / && do {
-      EncryptPassword $parm1, $parm2;
+      EncryptPassword($parm1, $parm2);
       last SWITCH
     };
 
     /^decrypt / && do {
-      my $password = UserExists (GetContext());
-      DecryptPassword $password;
+      my $password = UserExists(GetContext());
+      DecryptPassword($password, $maps_username);
       last SWITCH
     };
 
     /^deliver / && do {
-      Deliver $parm1;
+      Deliver($parm1);
       last SWITCH
     };
 
     /^add2whitelist / && do {
-      Add2Whitelist $parm1, GetContext (), $parm2;
+      Add2Whitelist($parm1, GetContext(), $parm2);
       last SWITCH
     };
 
@@ -392,56 +408,56 @@ sub ParseCommand {
     };
 
     /^adduser / && do {
-      AddUser $parm1, $parm2, $parm3, $parm4;
+      AddUser($parm1, $parm2, $parm3, $parm4);
       last SWITCH;
     };
 
     /^cleanemail / && do {
-      if ($parm1 eq "") {
-	$parm1 = "9999-12-31 23:59:59";
+      if ($parm1 eq '') {
+        $parm1 = "9999-12-31 23:59:59";
       } # if
-      my $nbr_entries = CleanEmail $parm1;
+      my $nbr_entries = CleanEmail($parm1);
       print "$nbr_entries email entries cleaned\n";
       last SWITCH;
     };
 
     /^deleteemail / && do {
-      my $nbr_entries = DeleteEmail $parm1;
+      my $nbr_entries = DeleteEmail($parm1);
       print "$nbr_entries email entries deleted\n";
       last SWITCH;
     };
 
     /^cleanlog / && do {
-      if ($parm1 eq "") {
+      if ($parm1 eq '') {
         $parm1 = "9999-12-31 23:59:59";
       } # if
-      my $nbr_entries = CleanLog $parm1;
+      my $nbr_entries = CleanLog($parm1);
       print "$nbr_entries log entries cleaned\n";
       last SWITCH;
     };
 
     /^loadlist / && do {
-      LoadListFile $parm1;
+      LoadListFile($parm1);
       last SWITCH;
     };
 
     /^loademail / && do {
-      LoadEmail $parm1;
+      LoadEmail($parm1);
       last SWITCH;
     };
 
     /^dumpemail / && do {
-      DumpEmail $parm1;
+      DumpEmail($parm1);
       last SWITCH;
     };
 
     /^log / && do {
-      Logmsg "info", "$parm1 $parm2", $parm3;
+      Logmsg("info", "$parm1 $parm2", $parm3);
       last SWITCH;
     };
 
     /^switchuser / && do {
-      SwitchUser $parm1;
+      SwitchUser($parm1);
       last SWITCH;
     };
 
@@ -456,22 +472,22 @@ sub ParseCommand {
     };
 
     /^showlog / && do {
-      ShowLog $parm1;
+      ShowLog($parm1);
       last SWITCH
     };
 
     /^showlist / && do {
-      ShowList $parm1;
+      ShowList($parm1);
       last SWITCH
     };
 
     /^space / && do {
-      ShowSpace $parm1;
+      ShowSpace($parm1);
       last SWITCH
     };
 
     /^showstats / && do {
-      ShowStats $parm1;
+      ShowStats($parm1);
       last SWITCH
     };
 
@@ -504,27 +520,20 @@ sub ParseCommand {
 
     print "Unknown command: $_";
 
-    print " ($parm1" if defined $parm1;
-    print ", $parm2" if defined $parm2;
-    print ", $parm3" if defined $parm3;
-    print ", $parm4" if defined $parm4;
-
-    if (defined $parm1) {
-      print ")\n";
-    } else {
-      print "\n";
-    } # if
+    print " ($parm1" if $parm1;
+    print ", $parm2" if $parm2;
+    print ", $parm3" if $parm3;
+    print ", $parm4" if $parm4;
+    print ")\n";
   } # SWITCH
 } # ParseCommand
 
-sub GetOpts {
-} # GetOpts
+$maps_username = $ENV{MAPS_USERNAME} ? $ENV{MAPS_USERNAME} : $ENV{USER};
 
-my $maps_username = $ENV{MAPS_USERNAME} ? $ENV{MAPS_USERNAME} : $ENV{USER};
-my $username = Login2MAPS $maps_username, $ENV{MAPS_PASSWORD};
+my $username   = Login2MAPS($maps_username, $ENV{MAPS_PASSWORD});
 
-if (defined $ARGV [0]) {
-  ParseCommand $ARGV [0], $ARGV [1], $ARGV [2], $ARGV [3];
+if ($ARGV[0]) {
+  ParseCommand($ARGV[0], $ARGV[1], $ARGV[2], $ARGV[3], $ARGV[4]);
   exit;
 } # if
 
@@ -534,15 +543,15 @@ my $term = new Term::ReadLine 'mapsutil';
 while (1) {
   $_ = $term->readline ("MAPSUtil:");
 
-  last if !defined $_;
+  last unless $_;
 
   my ($cmd, $parm1, $parm2, $parm3, $parm4) = split;
 
   last if ($cmd =~ /exit/i || $cmd =~ /quit/i);
 
-  ParseCommand $cmd, $parm1, $parm2, $parm3, $parm4 if defined $cmd;
+  ParseCommand($cmd, $parm1, $parm2, $parm3, $parm4) if defined $cmd;
 } # while
 
-print "\n" if !defined $_;
+print "\n" unless $_;
 
 exit;

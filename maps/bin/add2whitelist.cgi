@@ -18,7 +18,7 @@ use warnings;
 use FindBin;
 $0 = $FindBin::Script;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSLog;
@@ -31,9 +31,9 @@ my $userid;
 my $Userid;
 my $type = 'white';
 
-sub Add2List {
+sub Add2List() {
   my $sender  = '';
-  my $nextseq = MAPSDB::GetNextSequenceNo $userid, $type;
+  my $nextseq = GetNextSequenceNo($userid, $type);
 
   while () {
     my $pattern = param "pattern$nextseq";
@@ -45,12 +45,12 @@ sub Add2List {
 
     $sender = lc "$pattern\@$domain";
 
-    my ($status, $rule) = OnWhitelist $sender, $userid;
+    my ($status, $rule) = OnWhitelist($sender, $userid);
 
     if ($status != 0) {
       print br {-class => 'error'}, "The email address $sender is already on ${Userid}'s $type list";
     } else {
-      my $messages = Add2Whitelist $sender, $userid, $comment;
+      my $messages = Add2Whitelist($sender, $userid, $comment);
 
       print br "The email address, $sender, has been added to ${Userid}'s $type list";
       if ($messages > 0) {
@@ -66,20 +66,20 @@ sub Add2List {
       } # if
 
       # Now remove this entry from the other lists (if present)
-      foreach my $otherlist ('black', 'null') {
-        my $sth = FindList $otherlist, $sender;
+      for my $otherlist ('black', 'null') {
+        my $sth = FindList($otherlist, $sender);
         my ($sequence, $count);
 
-        ($_, $_, $_, $_, $_, $sequence) = GetList $sth;
+        ($_, $_, $_, $_, $_, $sequence) = GetList($sth);
 
         if ($sequence) {
-          $count = DeleteList $otherlist, $sequence;
+          $count = DeleteList($otherlist, $sequence);
           print br "Removed $sender from ${Userid}'s " . ucfirst $otherlist . ' list'
             if $count > 0;
 
-          ResequenceList $userid, $otherlist;
+          ResequenceList($userid, $otherlist);
         } # if
-      } # foreach
+      } # for
     } # if
 
     $nextseq++;
@@ -87,7 +87,7 @@ sub Add2List {
 } # Add2List
 
 # Main
-$userid = Heading (
+$userid = Heading(
   'getcookie',
   '',
   'Add to White List',
@@ -98,9 +98,9 @@ $userid ||= $ENV{USER};
 
 $Userid = ucfirst $userid;
 
-SetContext $userid;
+SetContext($userid);
 
-NavigationBar $userid;
+NavigationBar($userid);
 
 Add2List;
 

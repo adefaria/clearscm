@@ -2,7 +2,7 @@
 ################################################################################
 #
 # File:         $RCSfile: checkaddress.cgi,v $
-# Revision:	$Revision: 1.1 $
+# Revision:     $Revision: 1.1 $
 # Description:	Check an email address
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Jan 16 20:25:32 PST 2006
@@ -18,24 +18,24 @@ use warnings;
 use FindBin;
 $0 = $FindBin::Script;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 
-use CGI qw (:standard);
+use CGI qw(:standard);
 
 # Get MAPSUser from cookie
 my $userid;
 
 if (param "user") {
-  $userid = param "user";
+  $userid = param("user");
 } else {
-  $userid = cookie ("MAPSUser");
+  $userid = cookie("MAPSUser");
 } # if
 
-my $sender = param ("sender");
+my $sender = param("sender");
 
-sub Heading {
+sub Heading() {
   print
     header     (-title  => "MAPS: Check Address"),
     start_html (-title  => "MAPS: Check Address",
@@ -45,7 +45,7 @@ sub Heading {
     "MAPS: Checking address $sender";
 } # Heading
 
-sub Body {
+sub Body() {
   my ($onlist, $rule);
 
   # Algorithm change: We now first check to see if the sender is not found
@@ -64,7 +64,7 @@ sub Body {
   # Then we process nulllist people.
   #
   # Finally, we handle return processing
-  ($onlist, $rule) = OnWhitelist $sender, $userid, 0;
+  ($onlist, $rule) = OnWhitelist($sender, $userid, 0);
 
   if ($onlist) {
     print div {-align => "center"},
@@ -72,7 +72,7 @@ sub Body {
         "Messages from", b ($sender), "will be", b ("delivered"), br, hr;
     print $rule;
   } else {
-    ($onlist, $rule) = OnBlacklist $sender, 0;
+    ($onlist, $rule) = OnBlacklist($sender, 0);
 
     if ($onlist) {
       print div {-align	=> "center"},
@@ -80,7 +80,7 @@ sub Body {
             "Messages from", b ($sender), "will be", b ("blacklisted"), br, hr;
       print $rule;
     } else {
-      ($onlist, $rule) = OnNulllist $sender, 0;
+      ($onlist, $rule) = OnNulllist($sender, 0);
 
       if ($onlist) {
         print div {-align	=> "center"},
@@ -96,17 +96,17 @@ sub Body {
   } # if
 
   print br div {-align => "center"},
-    submit (-name      => "submit",
-            -value     => "Close",
-            -onClick   => "window.close (self)");
+    submit(-name      => "submit",
+           -value     => "Close",
+           -onClick   => "window.close (self)");
 } # Body
 
-sub Footing {
+sub Footing() {
   print end_html;
 } # Footing
 
 # Main
-SetContext $userid;
+SetContext($userid);
 Heading;
 Body;
 Footing;

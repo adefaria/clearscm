@@ -2,7 +2,7 @@
 ################################################################################
 #
 # File:         $RCSfile: checkaddress,v $
-# Revision:	$Revision: 1.1 $
+# Revision:     $Revision: 1.1 $
 # Description:	Check an email address
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Jan 16 20:25:32 PST 2006
@@ -17,12 +17,12 @@ use warnings;
 
 use FindBin;
 
-use lib $FindBin::Bin, '/opt/clearscm/lib';
+use lib "$FindBin::Bin/../lib", '/opt/clearscm/lib';
 
 use MAPS;
 use Display;
 
-error ("Must specify an email address to check", 1) 
+error("Must specify an email address to check", 1) 
   if !$ARGV[0] or $ARGV[0] eq "";
 
 foreach (@ARGV) {
@@ -41,7 +41,7 @@ foreach (@ARGV) {
   } # unless
 
   if ($domain eq "defaria.com" and $user ne $username) {
-    display "Nulllist - $sender is from this domain but is not from $username";
+    display"Nulllist - $sender is from this domain but is not from $username";
     next;
   } # if
 
@@ -63,11 +63,11 @@ foreach (@ARGV) {
   # Finally, we handle return processing
   
   # Check whitelist
-  if (OnWhitelist $sender, $username, 0) {
+  if (OnWhitelist($sender, $username, 0)) {
     display "Sender $sender would be whitelisted";
-  } elsif (OnBlacklist $sender, 0) {
+  } elsif (OnBlacklist($sender, 0)) {
     display "Sender $sender would be be blacklisted";
-  } elsif (OnNulllist $sender, 0) {
+  } elsif (OnNulllist($sender, 0)) {
     display "Sender $sender would be nulllisted"
   } else {
     display "Sender $sender would be returned"

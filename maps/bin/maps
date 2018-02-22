@@ -60,7 +60,7 @@ use FindBin;
 use File::Temp qw (tempfile);
 use Net::Domain qw (hostdomain);
 
-use lib $FindBin::Bin, '/opt/clearscm/lib';
+use lib "$FindBin::Bin/../lib", '/opt/clearscm/lib';
 
 use MAPS;
 use MAPSLog;

@@ -17,7 +17,7 @@ use strict;
 use FindBin;
 local $0 = $FindBin::Script;
 
-use lib $FindBin::Bin;
+use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSWeb;
@@ -25,18 +25,18 @@ use MAPSWeb;
 use CGI qw/:standard *table/;
 use CGI::Carp "fatalsToBrowser";
 
-my $type   =   param ("type");
-my $userid =   cookie ("MAPSUser");
+my $type     = param('type');
+my $userid   = cookie("MAPSUser");
    $userid //= $ENV{USER};
-my $Userid =   ucfirst $userid;
+my $Userid   = ucfirst $userid;
 
-sub PrintList {
-  my $type = shift;
+sub PrintList($) {
+  my ($type) = @_;
 
-  my $year = substr ((scalar (localtime)), 20, 4);
+  my $year = substr((scalar(localtime)), 20, 4);
 
   my ($pattern, $domain, $comment, $hit_count, $last_hit);
-  my $sth = FindList $type;
+  my $sth = FindList($type);
 
   print "\################################################################################\n";
   print "\#\n";
@@ -48,7 +48,7 @@ sub PrintList {
   print "\#\n";
   print "\################################################################################\n";
 
-  while (($_, $_, $pattern, $domain, $comment, $_, $hit_count, $last_hit) = GetList $sth) {
+  while (($_, $_, $pattern, $domain, $comment, $_, $hit_count, $last_hit) = GetList($sth)) {
     last if !(defined $pattern or defined $domain);
 
     $pattern //= '';
@@ -65,13 +65,13 @@ sub PrintList {
 } # PrintList
 
 # Main
-SetContext $userid;
+SetContext($userid);
 
-print header (
+print header(
   -type        => "application/octet-stream",
   -attachment  => "$type.list",
 );
 
-PrintList $type;
+PrintList($type);
 
 exit;
