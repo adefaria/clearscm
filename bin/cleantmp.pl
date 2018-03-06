@@ -64,7 +64,7 @@ use Getopt::Long;
 use Pod::Usage;
 use File::Monitor;
 use File::Spec;
-use File::Path;
+use File::Path qw/remove_tree/;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -115,7 +115,11 @@ sub FileCreated {
     next if $createdFile =~ /^\./; # Skip all hidden files
 
     for my $pattern (loadConfig) {
+      debug "Processing pattern $pattern";
+
       if ($createdFile =~ /$pattern/) {
+        debug "Matched $createdFile to $pattern";
+
         if (-d "$opts{tmp}/$createdFile") {
           remove_tree ("$opts{tmp}/$createdFile", {error => \my $err});
 
@@ -130,13 +134,13 @@ sub FileCreated {
               } # if
             } # for
           } else {
-            $log->msg(scalar localtime . " $opts{tmp}/$createdFile removed");
+            $log->msg("$opts{tmp}/$createdFile removed");
           } # if
         } else {
           unless (unlink "$opts{tmp}/$createdFile") {
             $log->err("Unable to remove $opts{tmp}/$createdFile - $!");
           } else {
-            $log->msg(scalar localtime . " $opts{tmp}/$createdFile removed");
+            $log->msg("$opts{tmp}/$createdFile removed");
           } # if
         } # if
 
@@ -162,9 +166,14 @@ GetOptions (
   'sleep=i'
 ) or pod2usage;
 
-$log = Logger->new(path => $opts{logpath});
+$log = Logger->new(path => $opts{logpath}, timestamped => 1);
 
-$log->msg(scalar localtime . ": Starting $FindBin::Script");
+$log->msg("Starting $FindBin::Script");
+
+# First run through whatever junk is in /tmp
+for (glob "$opts{tmp}/*") {
+  FileCreated($_);
+} # for
 
 my $monitor = File::Monitor->new;
 
@@ -176,7 +185,7 @@ $monitor->watch({
 
 set_debug if $DB::OUT;
 
-EnterDaemonMode unless $DB::OUT;
+EnterDaemonMode unless $DB::OUT or get_debug;
 
 while () {
   $monitor->scan;
