@@ -25,7 +25,7 @@ use Display;
 error("Must specify an email address to check", 1) 
   if !$ARGV[0] or $ARGV[0] eq "";
 
-foreach (@ARGV) {
+for (@ARGV) {
   my $sender = lc $_;
 
   my ($status, $rule);
@@ -61,15 +61,19 @@ foreach (@ARGV) {
   # Then we process nulllist people.
   #
   # Finally, we handle return processing
-  
-  # Check whitelist
-  if (OnWhitelist($sender, $username, 0)) {
+
+  # Check which list the sender is on. Note that these function calls return a
+  # list of scalars. But if we want to check to see that the first returned
+  # item is in the list we need to use a syntax of () = func(). If instead we
+  # just use if (func()) and func returns a list, then we will not see the first
+  # scalar returned as a boolen. Using () = func() does this for us.
+  if (() = OnWhitelist($sender, $username, 0)) {
     display "Sender $sender would be whitelisted";
-  } elsif (OnBlacklist($sender, 0)) {
+  } elsif (() = OnBlacklist($sender, 0)) {
     display "Sender $sender would be be blacklisted";
-  } elsif (OnNulllist($sender, 0)) {
+  } elsif (() = OnNulllist($sender, 0)) {
     display "Sender $sender would be nulllisted"
   } else {
     display "Sender $sender would be returned"
   } # if 
-} # foreach
+} # for
