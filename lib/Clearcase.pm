@@ -87,10 +87,10 @@ our $VOB_MOUNT      = 'vob';
 our $WIN_VOB_PREFIX = '\\';
 our $SFX            = $ENV{CLEARCASE_XN_SFX} ? $ENV{CLEARCASE_XN_SFX} : '@@';
 
-our $VOBTAG_PREFIX = ($ARCH eq 'windows' or $ARCH eq 'cygwin')
+our $VOBTAG_PREFIX = ($ARCHITECTURE eq 'windows' or $ARCHITECTURE eq 'cygwin')
                    ? $WIN_VOB_PREFIX
-                   : "/$VOB_MOUNT/";
-our $VIEWTAG_PREFIX = ($ARCH eq 'windows' or $ARCH eq 'cygwin')
+                   : "/$VOB_MOUNT";
+our $VIEWTAG_PREFIX = ($ARCHITECTURE eq 'windows' or $ARCHITECTURE eq 'cygwin')
                     ? "$VIEW_DRIVE:"
                     : "${SEPARATOR}view";
 
@@ -112,15 +112,15 @@ our @EXPORT_OK = qw (
 
 BEGIN {
   # Find executables that we rely on
-  if ($ARCH eq 'windows' or $ARCH eq 'cygwin') {
+  if ($ARCHITECTURE eq 'windows' or $ARCHITECTURE eq 'cygwin') {
     # Should really go to the registry for this...
 
     # We can go to the registry pretty easy in Cygwin but I'm not sure how to do
     # that in plain old Windows. Most people either have Clearcase installed on
     # the C drive or commonly on the D drive on servers. So we'll look at both.
-    $CCHOME = 'C:\\Program Files\\Rational\\Clearcase';
+    $CCHOME = 'C:\\IBMRational\\RationalSDLC\\Clearcase';
 
-    $CCHOME = 'D:\\Program Files\\Rational\\Clearcase'
+    $CCHOME = 'D:\\IBMRational\\RationalSDLC\\Clearcase'
       unless -d $CCHOME;
 
     error 'Unable to figure out where Clearcase is installed', 1
@@ -177,7 +177,7 @@ sub _formatOpts {
 sub _setComment ($) {
   my ($comment) = @_;
 
-  return !$comment ? '-nc' : '-c "' . quotameta $comment . '"';
+  return !$comment ? '-nc' : '-c "' . quotemeta $comment . '"';
 } # _setComment
 
 sub vobname ($) {
@@ -238,7 +238,7 @@ The unique part of the vob name
   if (substr ($tag, 0, 1) eq '\\') {
     $name = substr $tag, 1;
   } elsif (substr ($tag, 0, 1) eq '/') {
-    if ($tag =~ /${Clearcase::VOBTAG_PREFIX}(.+)/) {
+    if ($tag =~ /${Clearcase::VOBTAG_PREFIX}\/(.+)/) {
       $name = $1;
     } # if
   } # if
@@ -580,7 +580,7 @@ Array of output lines from the cleartool command execution.
   # run as a plain user who does not have cleartool in their path.
   my $cleartool;
   
-  if ($ARCH =~ /Win/ or $ARCH eq 'cygwin') {
+  if ($ARCHITECTURE =~ /Win/ or $ARCHITECTURE eq 'cygwin') {
     $cleartool = 'cleartool';
   } elsif (-x '/opt/rational/clearcase/bin/cleartool') {
     $cleartool = '/opt/rational/clearcase/bin/cleartool';
@@ -627,11 +627,52 @@ Array of output lines from the cleartool command execution.
   pop @output
     if @output and $output[$#output] eq '';
 
-  $self->{status} = $status;
-  $self->{output} = join "\n", @output;
+  $self->{lastcmd} = 'cleartool ' . $cmd;
+  $self->{status}  = $status;
+  $self->{output}  = join "\n", @output;
   
   return ($status, @output);
 } # execute
+
+sub lastcmd() {
+  my ($self) = @_;
+
+=pod
+
+=head2 lastcmd()
+
+Return last command attempted by execute
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item Last command attempted by execute
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  $self->{lastcmd} ||= '';
+
+  return $self->{lastcmd};
+} # lastcmd
 
 sub new {
   my ($class) = @_;

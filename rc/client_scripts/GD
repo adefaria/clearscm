@@ -27,9 +27,9 @@ export ORACLE_HOME="/usr/local/oracle/product/9.2"
 
 export CCASE_MAKE_COMPAT=gnu
 
-export CQ_HOME=/opt/rational/clearquest
 export CQ_HELP_BROWSER=firefox
 export CQ_PERLLIB=/opt/rational/common/lib/perl5/5.6.1/sun4-solaris-multi:/opt/rational/common/lib/perl5/5.6.1:/opt/rational/common/lib/perl5/site_perl/5.6.1/sun4-solaris-multi:/opt/rational/common/lib/perl5/site_perl/5.6.1:/opt/rational/common/lib/perl5/site_perl
+export PERL5LIB=/cleartrig/ent/SNSD/muos/ccadm_tools/vobs/ranccadm/scripts/lib:$PERL5LIB
 
 export TZ="US/Arizona"
 
@@ -37,7 +37,7 @@ alias xv=/prj/Synopsis/gccsparcOS5/ccss/utils/xv/xv
 
 export RSU_LICENSE_MAP="/prj/muosran/config/Rational_License_Map"
 
-export LM_LICENSE_FILE="flex2:1850@flex2:15280@ranadm2:19353@ranadm2:19355@ranadm2:2468@ranadm2:1717@flex2:1711@bartlett:1711@flex3:27000@ranadm2:28000@ranadm2:5270@flex2"
+export LM_LICENSE_FILE="1850@ma06app30:flex2:1850@flex2:15280@ranadm2:19353@ranadm2:19355@ranadm2:2468@ranadm2:1717@flex2:1711@bartlett:1711@flex3:27000@ranadm2:28000@ranadm2:5270@flex2"
 
 alias xemacs="ssh muosbldforge2 xemacs"
 
@@ -46,9 +46,17 @@ export EDITOR="ssh muosbldforge2 xemacs"
 if [ $(uname) = "SunOS" ]; then
   export QTDIR=/usr/local/Trolltech/Qt-4.2.2
   export ORACLE_HOME="/usr/local/oracle/product/9.2"
-  export CQ_HOME=/opt/rational/clearquest/
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/X11R6/lib:/usr/local/lib
 elif [ $(uname) = "Linux" ]; then
   export QTDIR=/usr/local/Trolltech/Qt-4.2.3
   export ORACLE_HOME="/usr/local/oracle/product/10.2.0"
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/X11R6/lib
 fi
+
+# Additional paths...
+append_to_path "/c/Program Files/IBM/RationalSDLC/common"
+append_to_path "/d/Program Files/IBM/RationalSDLC/common"
+append_to_path "/c/Program Files/IBM/RationalSDLC/Clearquest/cqcli/bin"
+append_to_path "/d/Program Files/IBM/RationalSDLC/Clearquest/cqcli/bin"
+append_to_path "/c/Program Files/IBM/RationalSDLC/ClearCase/bin"
+append_to_path "/d/Program Files/IBM/RationalSDLC/ClearCase/bin"

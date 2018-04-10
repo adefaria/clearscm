@@ -60,8 +60,9 @@ function title_bar {
   elif [ "$TERM" = "cygwin" -o \
          "$TERM" = "vt100"  -o \
          "$TERM" = "xterm"  -o \
+         "$TERM" = "xtermc" -o \
          "$TERM" = "xterm-256color" ]; then
-    PS1="\[\e]0;$prefix$current_dir\007\]\[$RED\]$ROOT\[$LIGHT_CYAN\]$SYSNAME:\[$WHITE\]"
+    PS1="\[\e]0;$prefix$current_dir\007\]$ROOT\[$B_YELLOW\]$SYSNAME:\[$B_WHITE\]"
   fi
 } # title_bar
 
@@ -89,9 +90,9 @@ function title {
 # view and a string to indicate that you are root.
 function set_title {
   if [ $($id -u) -eq 0 ]; then
-    ROOT="Wizard "
+    root="Wizard "
   else
-    ROOT=
+    root=
   fi
 
   view_name=$(scm pwv -short 2> /dev/null);
@@ -102,9 +103,9 @@ function set_title {
 
   if [[ $view_name = *NONE* ]]; then
     view_name=""
-    title_bar "$ROOT"
+    title_bar "$root"
   else
-    title_bar "${ROOT}View: $view_name: "
+    title_bar "${root}View: $view_name: "
   fi
 
   icon_name "${SYSNAME##*:}"
@@ -113,17 +114,18 @@ function set_title {
 # Sets prompt on terminals listed.
 function set_prompt {
   if [ $($id -u) -eq 0 ]; then
-    if [ "$TERM"   = "hpterm" -o \
-         "$TERM"   = "hp"     -o \
-         "$TERM"   = "2392A"  -o \
-         "$TERM"   = "dtterm" -o \
-         ! -z "$DTTERM" ]; then
-      ROOT="${RED}Wizard$NORMAL "
-    elif [ "$TERM" = "vt100"          -o \
-           "$TERM" = "xterm"          -o \
-           "$TERM" = "xterm-256color" -o \
-           "$TERM" = "vt220" ]; then
-      ROOT="${BOLD}${BLINK}Wizard$NORMAL "
+    if [ "$TERM" = "hpterm"         -o \
+         "$TERM" = "hp"             -o \
+         "$TERM" = "2392A"          -o \
+         "$TERM" = "dtterm"         -o \
+         "$TERM" = "vt100"          -o \
+         "$TERM" = "xterm"          -o \
+         "$TERM" = "xtermc"         -o \
+         "$TERM" = "xterm-256color" -o \
+         "$TERM" = "vt220" ]; then
+      ROOT="\[${ROOT_COLOR}\]Wizard\[$NORMAL\] "
+    else
+      ROOT="Wizard "
     fi
   else
     ROOT=""
@@ -131,9 +133,10 @@ function set_prompt {
 
   if [ "$TERM" = "vt100"          -o \
        "$TERM" = "xterm"          -o \
+       "$TERM" = "xtermc"         -o \
        "$TERM" = "xterm-256color" -o \
        "$TERM" = "vt220" ]; then
-    PS1="$ROOT$BOLD$SYSNAME:$NORMAL"
+    PS1="$ROOT\[$B_YELLOW\]$SYSNAME:\[$B_WHITE\]"
   else
     PS1="$ROOT$SYSNAME:"
   fi

@@ -85,6 +85,7 @@ path_dirs="$path_dirs\
   /usr/local/bin\
   /usr/afsws/bin\
   /usr/afsws\
+  /usr/xpg4/bin\
   /bin\
   /sbin\
   /usr/bin\
@@ -95,6 +96,7 @@ path_dirs="$path_dirs\
   /usr/openwin/bin\
   /usr/kerberos/bin\
   /opt/rational/clearcase/bin\
+  /opt/rational/clearquest/bin\
   /opt/ibm/rationalsdlc/clearcase/bin\
   /opt/ibm/rationalsdlc/clearcase/etc\
   /opt/ibm/rationalsdlc/clearquest/bin\

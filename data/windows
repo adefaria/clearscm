@@ -1,0 +1,24 @@
+################################################################################
+#
+# File: 	windows
+# Description:	Defintion of machines for allmach
+# Author:	Andrew@DeFaria.com
+#
+################################################################################
+# Column 1 Machine name
+# Column 2 Model
+# Column 3 OS Version
+# Column 4 ClearCase Version (if applicable)
+# Column 5 Owner (if known)
+# Column 6 Usage (if known)
+ranframe06:Microsoft:Windows Server 2003:2003.06.10+:ccadm:Frame Maker
+ranframe07:Microsoft:Windows Server 2003:2003.06.10+:ccadm:Frame Maker
+ranframe09:Microsoft:Windows Server 2003:2003.06.10+:ccadm:Frame Maker/Buildforge Console
+ranframe12:Microsoft:Windows Server 2003:2003.06.10+:ccadm:Frame Maker
+ranframe14:Microsoft:Windows Server 2003:7.0.1.7:ccadm:Frame Maker
+ranframe15:Microsoft:Windows Server 2003:2003.06.10+:ccadm:Frame Maker
+ranframe16:Microsoft:Windows Server 2003:2003.06.10+:ccadm:Frame Maker
+ranframe17:Microsoft:Windows Server 2003:2003.06.10+:ccadm:Frame Maker
+ranframe18:Microsoft:Windows Server 2003:2003.06.10+:ccadm:Frame Maker
+ranframe19:Microsoft:Windows Server 2003:2003.06.10+:ccadm:Frame Maker
+ranframe20:Microsoft:Windows Server 2003:2003.06.10+:ccadm:Frame Maker

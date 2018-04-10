@@ -1,2 +1,2 @@
 parse_options ('windowSize=20');
-parse_options ('HistFile=.perldb.hist');
+#parse_options ('HistFile=.perldb.hist');

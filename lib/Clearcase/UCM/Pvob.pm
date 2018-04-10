@@ -47,11 +47,14 @@ package Clearcase::UCM::Pvob;
 use strict;
 use warnings;
 
-use Clearcase;
-use Clearcase::UCM::Stream;
+# Would be better represented by use parent "Clearcase::Vob" but we're
+# working with old versions of Perl here...
+use base 'Clearcase::Vob';
+
+use Carp;
 
 sub new ($) {
-  my ($class, $name) = @_;
+  my ($class, $tag) = @_;
   
 =pod
 
@@ -65,7 +68,7 @@ Parameters:
 
 =over
 
-=item pvob name
+=item name
 
 Name of pvob
 
@@ -87,21 +90,25 @@ Returns:
 
 =cut  
 
-  my $self = bless {
-    name => $name,
+  croak 'Clearcase::UCM::Pvob: Must specify pvob tag' unless $tag;
+
+  $class = bless {
+    tag => $tag,
   }, $class; # bless
     
-  return $self; 
+  $class->updateVobInfo;
+
+  return $class; 
 } # new
   
-sub name () {
-  my ($self) = @_;
+sub create (;$$$%) {
+  my ($self, $host, $vbs, $comment, %opts) = @_;
 
 =pod
 
-=head2 name
+=head2 create
 
-Returns the name of the pvob
+Creates a pvob
 
 Parameters:
 
@@ -121,7 +128,47 @@ Returns:
 
 =over
 
-=item pvob's name
+=item none
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  $opts{ucmproject} = undef;
+
+  return $self->SUPER::create ($host, $vbs, $comment, %opts);
+} # create
+
+sub tag() {
+  my ($self) = @_;
+
+=pod
+
+=head2 tag
+
+Returns the tag of the pvob
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item tag
 
 =back
 
@@ -129,7 +176,12 @@ Returns:
 
 =cut
     
-  return $self->{name};
+  return $self->{tag};
+} # tag
+
+# Alias name to tag
+sub name() {
+  goto &tag;
 } # name
 
 sub streams () {
@@ -176,7 +228,7 @@ Returns:
   my @streams;
 
   push @streams, Clearcase::UCM::Stream->new ($_, $self->{name})
-    foreach ($Clearcase::CC->output);
+    for ($Clearcase::CC->output);
 
   return @streams;  
 } # streams

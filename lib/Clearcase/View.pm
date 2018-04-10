@@ -127,8 +127,8 @@ use warnings;
 use Clearcase;
 use Display; 
 
-sub new ($;$) {
-  my ($class, $tag, $region) = @_;
+sub new ($) {
+  my ($class, $tag) = @_;
 
 =pod
 
@@ -172,7 +172,7 @@ Returns:
 
   my $self = bless { tag => $tag }, $class;
 
-  $self->updateViewInfo ($region);
+  $self->updateViewInfo;
 
   return $self;
 } # new
@@ -1170,6 +1170,11 @@ Returns:
   return $self->{tag};
  } # tag
 
+# Alias name to tag
+sub name() {
+  goto &tag;
+} # name
+
 sub text_mode () {
   my ($self) = @_;
   
@@ -1363,7 +1368,7 @@ Returns:
 } # exists
 
 sub create (;$$$) {
-  my ($self, $host, $vws, $region) = @_;
+  my ($self, $host, $vws, $opts) = @_;
     
 =pod
 
@@ -1409,34 +1414,37 @@ Ouput from cleartool
 
 =cut
 
-  $region ||= $Clearcase::CC->region;
-
   if ($self->exists) {
-    $self->updateViewInfo ($region);
+    $self->updateViewInfo;
       
     return (0, ())
   } # if
 
   my ($status, @output);
     
+  $opts ||= '';
+
   if ($host && $vws) {
-    ($status, @output) = 
-      $Clearcase::CC->execute ("mkview -tag $self->{tag} -region $region "
-                          .    "-host $host -hpath $vws -gpath $vws $vws");
+    ($status, @output) = $Clearcase::CC->execute(
+      "mkview -tag $self->{tag} $opts " .
+      "-host $host -hpath $vws -gpath $vws $vws"
+    );
   } else {
     # Note this requires that -stgloc's work and that using -auto is not a 
     # problem.
-    ($status, @output) =
-       $Clearcase::CC->execute ("mkview -tag $self->{tag} -stgloc -auto");
+    ($status, @output) = $Clearcase::CC->execute(
+      "mkview -tag $self->{tag} $opts -stgloc -auto"
+    );
   } # if
 
-  $self->updateViewInfo ($region);
+  $self->updateViewInfo;
 
   return ($status, @output);
 } # create
   
+# TODO Is this used?
 sub createUCM ($$) {
-  my ($self, $stream, $pvob, $region) = @_;
+  my ($self, $stream, $pvob) = @_;
 
 =pod
 
@@ -1482,14 +1490,10 @@ Array of output
 
 =cut
 
-  $region ||= $Clearcase::CC->region;
-  
-  return (0, ())
-    if $self->exists;
+  return (0, ()) if $self->exists;
       
   # Update object members
-  $self->{stream} = $stream;
-  $self->{pvob}   = $pvob;
+  $self->{pvob} = $pvob;
     
   # Need to create the view
   my ($status, @output) = 
@@ -1499,7 +1503,7 @@ Array of output
   return ($status, @output)
     if $status;
       
-  $self->updateViewInfo ($region);
+  $self->updateViewInfo;
 
   return ($status, @output);
 } # createUCM
@@ -1545,12 +1549,13 @@ Ouput from cleartool
 
 =cut
 
-  return (0, ())
-    unless $self->exists;
+  return (0, ()) unless $self->exists;
       
   my ($status, @output);
 
   if ($self->dynamic) {
+    $self->stop;
+
     ($status, @output) = $Clearcase::CC->execute (
        "rmview -force -tag $self->{tag}"
      );
@@ -1744,13 +1749,11 @@ Ouput from cleartool
   return ($status, @output);
 } # set
 
-sub updateViewInfo ($$) {
-  my ($self, $region) = @_;
-
-  $region ||= $Clearcase::CC->region;
+sub updateViewInfo () {
+  my ($self) = @_;
 
   my ($status, @output) = $Clearcase::CC->execute (
-    "lsview -region $region -long -properties -full $self->{tag}"
+    "lsview -long -properties -full $self->{tag}"
   );
 
   # Assuming this view is an empty shell of an object that the user may possibly

@@ -49,30 +49,24 @@ use warnings;
 
 use Carp;
 
-use lib '../..';
-
-use Clearcase;
-use Clearcase::Element;
-use Clearcase::UCM::Activity;
-
-sub _processOpts (%) {
+sub _processOpts(%) {
   my ($self, %opts) = @_;
 
   my $opts;
   
-  foreach (keys %opts) {
+  for (keys %opts) {
     if ($_ eq 'cq' or $_ eq 'cqe' or $_ eq 'force' or $_ eq 'nc') {
       $opts .= "-$_ ";
     } elsif ($_ eq 'c' or $_ eq 'cfile') {
       $opts .= "-$_ $opts{$_}";
     } # if
-  } # foreach
+  } # for
   
   
   return $opts;
 } # _processOpts
 
-sub new ($$) {
+sub new($$) {
   my ($class, $baseline, $pvob) = @_;
 
 =pod
@@ -109,15 +103,15 @@ Returns:
 
 =cut
 
-  my $self = bless {
+  $class = bless {
     name => $baseline,
-    pvob => Clearcase::vobtag $pvob,
+    pvob => $pvob,
   }, $class; # bless
     
-  return $self;
+  return $class;
 } # new
 
-sub name () {
+sub name() {
   my ($self) = @_;
     
 =pod
@@ -155,7 +149,7 @@ Returns:
   return $self->{name};
 } # name
 
-sub pvob () {
+sub pvob() {
   my ($self) = @_;
   
 =pod
@@ -193,14 +187,14 @@ Returns:
   return $self->{pvob};
 } # pvob
   
-sub create ($$;$$) {
-  my ($self, $project, $pvob, $baseline, $opts) = @_;
+sub create($;$$$) {
+  my ($self, $view, $comment, $opts) = @_;
 
 =pod
 
 =head2 create
 
-Creates a new UCM Stream Object
+Creates a new UCM Baseline Object
 
 Parameters:
 
@@ -208,21 +202,9 @@ Parameters:
 
 =over
 
-=item UCM Project (required)
-
-UCM Project this stream belongs to
-
-=item PVOB (Required)
-
-Project Vob
-
-=item baseline
-
-Baseline to set this stream to
-
 =item opts
 
-Options: Additional options to use (e.g. -readonly)
+Options: Additional options to use
 
 =back
 
@@ -247,35 +229,18 @@ Ouput from cleartool
 =for html </blockquote>
 
 =cut
-
-  # Fill in object members
-  $self->{project}  = $project;
-  $self->{pvob}     = $pvob;
     
-  # Fill in opts   
   $opts ||= '';
-  $opts .= " -baseline $baseline"
-    if $baseline;  
       
-  $self->{readonly} = $opts =~ /-readonly/;
-  
-  # TODO: This should call the exists function
-  # Return the stream name if the stream already exists
-  my ($status, @output) = 
-    $Clearcase::CC->execute ('lsstream -short ' . $self->{name}); 
+  $comment = Clearcase::_setComment $comment;
 
-  return ($status, @output)
-    unless $status;
-    
-  # Need to create the stream
-  return $Clearcase::CC->execute 
-    ("mkstream $opts -in " . $self->{project} .
-     "\@"                  . $self->{pvob}    .
-     ' '                   . $self->{name});
+  return $Clearcase::CC->execute(
+    "mkbl $comment $opts -view " . $view->tag . ' ' . $self->{name}
+  );
 } # create
 
-sub remove (\%) {
-  my ($self, %opts) = @_;
+sub remove($) {
+  my ($self, $opts) = @_;
 
 =pod
 
@@ -315,14 +280,11 @@ Remember to check status method for error, and/or output method for output.
 
 =cut
 
-  my $opts = $self->_processOpts (%opts);
+  $opts ||= '';
   
-  my $pvob = Clearcase::vobtag ($self->{pvob});
-  
-  my ($status, @output) = $Clearcase::CC->execute 
-    ("rmbl $opts " . $self->{name} . '@' . $pvob);
-  
-  return;
+  return $Clearcase::CC->execute(
+    "rmbl $opts -force " . $self->{name} . '@' . $self->{pvob}->name
+  ):
 } # remove
 
 sub attributes () {
@@ -362,13 +324,13 @@ Hash of attributes for this baseline
 
 =cut
 
-  return $self->Clearcase::attributes (
+  return $self->Clearcase::attributes(
     'baseline',
-    "$self->{name}\@" . Clearcase::vobtag ($self->{pvob})
+    "$self->{name}\@" . $self->{pvob}->name
   );
 } # attributes
 
-sub diff ($;$$) {
+sub diff($;$$) {
   my ($self, $type, $baseline, %opts) = @_;
   
 =pod
@@ -448,7 +410,7 @@ value.
     $cmd .= " -predeccsor";
   } # if
   
-  $Clearcase::CC->execute ($cmd);
+  $Clearcase::CC->execute($cmd);
   
   return if $Clearcase::CC->status;
   
@@ -456,13 +418,13 @@ value.
 
   my %info;
     
-  foreach (@output) {
+  for (@output) {
     next unless /^(\>\>|\<\<)/;
     
     if (/(\>\>|\<\<)\s+(\S+)\@/) {
-      $info{$2} = Clearcase::UCM::Activity->new ($2, $self->{pvob});
+      $info{$2} = Clearcase::UCM::Activity->new($2, $self->{pvob});
     } # if
-  } # foreach
+  } # for
   
   return %info;
 } # diff

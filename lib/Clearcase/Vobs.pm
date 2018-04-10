@@ -113,7 +113,7 @@ Returns:
 
   # Strip $VOBTAG_PREFIX
   foreach (@output) {
-    if ($ARCH eq 'windows' or $ARCH eq 'cygwin') {
+    if ($ARCHITECTURE eq 'windows' or $ARCHITECTURE eq 'cygwin') {
       s/\\//;
     } else {
       s/$Clearcase::VOBTAG_PREFIX//;

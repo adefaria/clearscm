@@ -34,10 +34,10 @@ Provides access to information about Clearcase Activites.
  
  my @changeset = $activity->changeset;
  
- foreach my $element (@changeset) {
+ for my $element (@changeset) {
    display "Element name: "    . $element->pname;
    display "Element verison: " . $element->version;
- } # foreach
+ } # for
 
 =head1 DESCRIPTION
 
@@ -54,29 +54,24 @@ package Clearcase::UCM::Activity;
 use strict;
 use warnings;
 
-use lib '../..';
-
-use Clearcase;
-use Clearcase::Element;
-
 # We should really inherit these from a more generic super class... 
-sub _processOpts (%) {
+sub _processOpts(%) {
   my ($self, %opts) = @_;
 
   my $opts;
   
-  foreach (keys %opts) {
+  for (keys %opts) {
     if ($_ eq 'cq' or $_ eq 'cqe' or $_ eq 'force' or $_ eq 'nc') {
       $opts .= "-$_ ";
     } elsif ($_ eq 'c' or $_ eq 'cfile') {
       $opts .= "-$_ $opts{$_}";
     } # if
-  } # foreach
+  } # for
   
   return $opts;
 } # _processOpts
 
-sub new ($$) {
+sub new($$) {
   my ($class, $activity, $pvob) = @_;
   
 =pod
@@ -113,16 +108,16 @@ Returns:
 
 =cut
   
-  my $self = bless {
+  $class = bless {
     name => $activity,
-    pvob => Clearcase::vobtag ($pvob),
+    pvob => $pvob,
     type => $activity =~ /^(deliver|rebase)./ ? 'integration' : 'regular',
   }, $class; # bless
   
-  return $self;
+  return $class;
 } # new
   
-sub name () {
+sub name() {
   my ($self) = @_;
 
 =pod
@@ -160,7 +155,7 @@ Returns:
   return $self->{name};
 } # name
 
-sub pvob () {
+sub pvob() {
   my ($self) = @_;
   
 =pod
@@ -198,7 +193,7 @@ Returns:
   return $self->{pvob};
 } # pvob
 
-sub type () {
+sub type() {
   my ($self) = @_;
   
 =pod
@@ -236,7 +231,7 @@ Returns:
   return $self->{type};
 } # type
 
-sub contrib_acts () {
+sub contrib_acts() {
   my ($self) = @_;
 
 =pod
@@ -271,12 +266,12 @@ Returns:
 
 =cut
 
-  $self->updateActivityInfo () unless $self->{contrib_acts};
+  $self->updateActivityInfo() unless $self->{contrib_acts};
     
   return $self->{contrib_acts};
 } # crm_record
 
-sub crm_record_id () {
+sub crm_record_id() {
   my ($self) = @_;
 
 =pod
@@ -311,12 +306,12 @@ Returns:
 
 =cut
 
-  $self->updateActivityInfo () unless $self->{crm_record_id};
+  $self->updateActivityInfo() unless $self->{crm_record_id};
     
   return $self->{crm_record_id};
 } # crm_record_id
 
-sub crm_record_type () {
+sub crm_record_type() {
   my ($self) = @_;
   
 =pod
@@ -351,12 +346,12 @@ Returns:
 
 =cut
 
-  $self->updateActivityInfo () unless $self->{crm_record_type};
+  $self->updateActivityInfo() unless $self->{crm_record_type};
   
   return $self->{crm_record_type};
 } # crm_record_type
 
-sub crm_state () {
+sub crm_state() {
   my ($self) = @_;
   
 =pod
@@ -391,12 +386,12 @@ Returns:
 
 =cut
 
-  $self->updateActivityInfo () unless $self->{crm_state};
+  $self->updateActivityInfo() unless $self->{crm_state};
   
   return $self->{crm_state};
 } # crm_state
 
-sub headline () {
+sub headline() {
   my ($self) = @_;
   
 =pod
@@ -431,12 +426,12 @@ Returns:
 
 =cut
 
-  $self->updateActivityInfo () unless $self->{headline};
+  $self->updateActivityInfo() unless $self->{headline};
   
   return $self->{headline};
 } # headline
 
-sub name_resolver_view () {
+sub name_resolver_view() {
   my ($self) = @_;
   
 =pod
@@ -471,12 +466,12 @@ Returns:
 
 =cut
 
-  $self->updateActivityInfo () unless $self->{name_resolver_view};
+  $self->updateActivityInfo() unless $self->{name_resolver_view};
   
   return $self->{name_resolver_view};
 } # name_resolver_view
 
-sub stream () {
+sub stream() {
   my ($self) = @_;
   
 =pod
@@ -511,12 +506,12 @@ Returns:
 
 =cut
 
-  $self->updateActivityInfo () unless $self->{stream};
+  $self->updateActivityInfo() unless $self->{stream};
   
   return $self->{stream};
 } # stream
 
-sub changeset (;$) {
+sub changeset(;$) {
   my ($self, $recalc) = @_;
   
 =pod
@@ -559,7 +554,7 @@ Returns:
   
   my $cmd = "lsact -fmt \"%[versions]CQp\" $self->{name}\@$pvob";
 
-  my ($status, @output) = $Clearcase::CC->execute ($cmd);
+  my ($status, @output) = $Clearcase::CC->execute($cmd);
 
   return ($status, @output)
     if $status;
@@ -581,7 +576,7 @@ Returns:
   @output = split /\", \"/, $output[0]
     if $output[0];
   
-  foreach (@output) {
+  for (@output) {
     # Skip any cleartool warnings. We are getting warnings of the form:
     # "A version in the change set of activity "63332.4" is currently 
     # unavailable". Probably some sort of subtle corruption that we can ignore.
@@ -613,18 +608,28 @@ Returns:
     # Additionally we will set into the $element object the extended name. This
     # is the long pathname that we need to use from our current context to be
     # able to access the element.
-    #$element->setExtendedName ($_);
+    #$element->setExtendedName($_);
     
     push @changeset, $element;
-  } # foreach
+  } # for
   
   $self->{changeset} = \@changeset;
   
   return @changeset;  
 } # changeset
 
-sub create ($$$;$) {
-  my ($self, $stream, $pvob, $headline, $opts) = @_;
+sub exists() {
+  my ($self) = @_;
+
+  my ($status, @output) = $Clearcase::CC->execute(
+    'lsactivity ' . $self->{name} . '@' . $self->pvob->tag
+  );
+
+  return !$status;
+} # exists
+
+sub create($$$;$) {
+  my ($self, $stream, $headline, $opts) = @_;
 
 =pod
 
@@ -638,7 +643,7 @@ Parameters:
 
 =over
 
-=item UCM Stream (required)
+=item UCM Stream(required)
 
 UCM stream this activities is to be created on
 
@@ -674,34 +679,31 @@ Ouput from cleartool
 
 =cut
 
-  # Fill in members
-  $self->{stream}   = $stream;
-  $self->{pvob}     = $pvob;
-  
-  # TODO: Should quote $headline to protect from special characters
-  $self->{headline} = $headline;
-   
+  if ($self->exists) {
+    $self->updateActivityInfo;
+
+    return (0, ());
+  } # if
+
   # Fill in opts   
   $opts ||= '';
-  $opts .= " -headline '$headline'"
-    if $headline;  
-      
-  # TODO: This should call the exists function
-  # Return the stream name if the stream already exists
-  my ($status, @output) = 
-    $Clearcase::CC->execute ('lsact -short ' . $self->{name}); 
 
-  return ($status, @output)
-    unless $status;
-    
-  # Need to create the stream
+  if ($headline) {
+    $self->{headline} = $headline;
+
+    $opts .= " -headline '$headline'";
+  } # if
+      
+  $self->{stream} = Clearcase::UCM::Stream->new($stream, $self->{pvob});
+
   return $Clearcase::CC->execute 
-    ("mkactivity $opts -in " . $stream .
-     "\@"                    . $pvob   .
-     ' '                     . $self->{name});
+    ("mkactivity $opts -in " . $stream->{name}    .
+     '@'                     . $self->pvob->{tag} .
+     ' '                     . $self->{name}      .
+     '@'                     . $self->pvob->{tag});
 } # create
 
-sub remove () {
+sub remove() {
   my ($self) = @_;
 
 =pod
@@ -743,10 +745,10 @@ Ouput from cleartool
 =cut
 
   return $Clearcase::CC->execute 
-    ('rmactivity -f ' . $self->{name} . "\@" . $self->{pvob});
+    ('rmactivity -f ' . $self->{name} . "\@" . $self->{pvob}->name);
 } # remove
 
-sub attributes (;%) {
+sub attributes(;%) {
   my ($self, %newAttribs) = @_;
 
 =pod
@@ -783,14 +785,14 @@ Hash of attributes for this activity
 
 =cut
 
-  return $self->Clearcase::attributes (
+  return $self->Clearcase::attributes(
     'activity',
-    "$self->{name}\@" . Clearcase::vobtag ($self->{pvob}),
+    "$self->{name}\@" . $self->{pvob}->name,
     %newAttribs,
   );
 } # attributes
 
-sub updateActivityInfo () {
+sub updateActivityInfo() {
   my ($self) = @_;
 
   # Get all information that can be gotten using -fmt
@@ -806,8 +808,8 @@ sub updateActivityInfo () {
     $fmt  = '%[contrib_acts]CXp==';
   } # if
 
-  $Clearcase::CC->execute (
-    "lsactivity -fmt \"$fmt\" $self->{name}@" . Clearcase::vobtag ($self->{pvob})
+  $Clearcase::CC->execute(
+    "lsactivity -fmt \"$fmt\" $self->{name}@" . $self->{pvob}->name
   );
 
   # Assuming this activity is an empty shell of an object that the user may
@@ -829,9 +831,9 @@ sub updateActivityInfo () {
   $self->{contrib_acts}       = ();
 
   if ($self->type eq 'integration') {
-    foreach (split ', ', $fields[7]) {
-      push @{$self->{contrib_acts}}, Clearcase::UCM::Activity->new ($_);
-    } # foreach
+    for (split ', ', $fields[7]) {
+      push @{$self->{contrib_acts}}, Clearcase::UCM::Activity->new($_);
+    } # for
   } # if
 
   return;  

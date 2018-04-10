@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env cqperl
 use strict;
 use warnings;
 
@@ -118,27 +118,28 @@ use lib "$FindBin::Bin/../lib";
 
 use Clearquest;
 use Display;
+use Logger;
 use TimeUtils;
 use Utils;
 
-my ($cq, %opts);
+my ($cq, %opts, $log);
 
 sub displayRecord (%) {
   my (%record) = @_;
   
-  display '-' x 79;
+  $log->msg ('-' x 79);
   
-  foreach (keys %record) {
-    display_nolf "$_: ";
+  for (keys %record) {
+    $log->msg ("$_: ", 1);
   
     if (ref $record{$_} eq 'ARRAY') {
-      display join ", ", @{$record{$_}};
+      $log->msg (join ", ", @{$record{$_}});
     } elsif ($record{$_}) {
-      display $record{$_};
+      $log->msg ($record{$_});
     } else {
-      display "<undef>";
+      $log->msg ('<undef>');
     } # if
-  } # foreach
+  } # for
   
   return;
 } # displayRecord
@@ -149,7 +150,7 @@ sub displayResults (@) {
   if (@records) {
     displayRecord %$_ foreach (@records);
   } else {
-    display "Did not find any records";
+    $log->msg ('Did not find any records');
   } # if
   
   return;
@@ -160,11 +161,11 @@ sub testGetRecord ($$;@) {
   
   my $startTime = time;
   
-  display "Testing get table: $table key: $key";
+  $log->msg ("Testing get table: $table key: $key");
   
   displayRecord $cq->get ($table, $key, @fields);
   
-  display_duration $startTime;
+  display_duration $startTime, $log;
   
   return;
 } # testGetRecord
@@ -174,17 +175,17 @@ sub testFindRecord ($$;@) {
   
   my $startTime = time;
   
-  display "Testing find table: $table condition: $condition";
+  $log->msg ("Testing find table: $table condition: $condition");
   
   my ($result, $nbrRecs) = $cq->find ($table, $condition, @fields);
 
-  display "$nbrRecs records qualified";
+  $log->msg ("$nbrRecs records qualified");
 
-  while (my %record = $cq->getNext ($result)) {
+  while (my %record = $cq->getNext($result)) {
     displayRecord %record;
   } # while
   
-  display_duration $startTime;
+  display_duration $startTime, $log;
   
   return;
 } # testFindRecord
@@ -194,13 +195,13 @@ sub testModifyRecord ($$;%) {
   
   my $startTime = time;
   
-  display "Testing modify table: $table key: $key";
+  $log->msg ("Testing modify table: $table key: $key");
   
   $cq->modify ($table, $key, undef, \%update);
   
   $cq->checkErr;
   
-  display_duration $startTime;
+  display_duration $startTime, $log;
   
   return;
 } # testModifyRecord
@@ -226,13 +227,13 @@ sub testChangeState ($$) {
     $update{Stability_Issue} = 'Assert';
   } # if
   
-  display "Testing change state table: $table key: $key action: $action";
+  $log->msg ("Testing change state table: $table key: $key action: $action");
   
   $cq->modify ($table, $key, $action, \%update);
   
   $cq->checkErr;
   
-  display_duration $startTime; 
+  display_duration $startTime, $log; 
   
   return; 
 } # testChangeState
@@ -242,13 +243,13 @@ sub testAddRecord ($%) {
   
   my $startTime = time;
   
-  display "Testing adding table: $table";
+  $log->msg ("Testing adding table: $table");
   
-  $cq->add ($table, \%record, qw(Projects VersionStr));
+  $cq->add ($table, \%record);
   
   $cq->checkErr;
   
-  display_duration $startTime;  
+  display_duration $startTime, $log;
   
   return;
 } # testAddRecord
@@ -258,13 +259,13 @@ sub testDeleteRecord ($$) {
   
   my $startTime = time;
   
-  display "Testing deleting table: $table key: $key";
+  $log->msg ("Testing deleting table: $table key: $key");
   
   $cq->delete ($table, $key);
   
   $cq->checkErr;
 
-  display_duration $startTime;
+  display_duration $startTime, $log;
   
   return;
 } # testDeleteRecord
@@ -318,57 +319,61 @@ $opts{add}    = 1 if $opts{delete};
 
 my $startTime = time;
 
+$log = Logger->new;
+
 $cq = Clearquest->new (%opts);
 
-display_nolf 'Connecting to Clearquest database ' . $cq->connection;
+$log->msg ('Connecting to Clearquest database ' . $cq->connection, 1);
 
 unless ($cq->connect) {
-  $cq->checkErr ('Unable to connect to database ' . $cq->connection);
+  $cq->checkErr ('Unable to connect to database ' . $cq->connection, undef, $log);
   
   if ($cq->module eq 'client') {
-    display 'Unable to connect to server '
-          . $cq->server ()
-          . ':'
-          . $cq->port ();
+    $log->msg ('Unable to connect to server ' . $cq->server () . ':' . $cq->port ());
   } # if
   
   exit $cq->error;
 } else {
-  display '';
-  display_duration $startTime;
+  $log->msg ('');
+  display_duration $startTime, $log;
 } # unless
 
 $cq->setOpts (emptyStringForUndef => 1);
 
 if ($opts{get}) {
   # Get record by key
-  testGetRecord 'Project', 'Athena';
+  testGetRecord 'WOR', 'XTST100000019'; 
 
   # Get record by condition
-  testFindRecord 'VersionInfo', 'Deprecated = 1';
+  testFindRecord 'WOR', 'Owner = "ccadm"';
 
   # Get record by key with field list
-  testFindRecord 'VersionInfo', 'VersionStr = 1.0', ('VersionStr',   'Deprecated');
+  testFindRecord 'WOR', 'Owner = "ccadm"', ('id', 'Headline',   'Owner');
 
   # Get record by condition with field list
-  testFindRecord 'CategorySub', 'Category="Software"', ('Category', 'CategoryType', 'SubCategory');
+  testFindRecord 'WOR', 'Owner = "ccadm"', ('id', 'Headline', 'Owner');
 } # if
 
 if ($opts{add}) {
   # Add a record
-  testAddRecord    'VersionInfo', (
-    VersionStr => '2.0',
-    Projects   => ['Island', '21331', 'Hera'],
-    Visibility => 'Nokia Corporation',
+  testAddRecord    'Component', (
+    Name          => $FindBin::Script,
+    Description   => 'This is a test component',
   );
 } # if
 
 if ($opts{modify}) {
   # Modify a record
-  testModifyRecord ('VersionInfo', '1.0', (
-    Deprecated => 1,
-    Projects   => ['Island', 'Athena'],
-  ));
+  my $newDescription = 'This is a modified test component';
+
+  testModifyRecord ('Component', $FindBin::Script, (Description => $newDescription));
+
+  # Make sure the modification happened
+  my %component = $cq->get ('Component', $FindBin::Script, ('Description'));
+
+  if ($component{Description} ne $newDescription) {
+    $log->err ('Modification of Component.Description failed!');
+  } # if
 } # if
 
 if ($opts{change}) {
@@ -378,9 +383,9 @@ if ($opts{change}) {
 
 if ($opts{add}) {
   # Delete that record
-  testDeleteRecord 'VersionInfo', '2.0';
+  testDeleteRecord 'Component', $FindBin::Script;
 } # if
 
-display_nolf 'Total process time ';
+$log->msg ('Total process time ', 1);
 
-display_duration $processStartTime;
+display_duration $processStartTime, $log;

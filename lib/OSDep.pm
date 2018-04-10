@@ -32,14 +32,14 @@ This module seeks to isolate OS dependences by confining them to this
 module as well as provide convienent references and mechanisms for
 doing things that are different on different OSes.
 
- print "Running on $ARCH\n";
+ print "Running on $ARCHITECTURE\n";
  `$cmd > $NULL 2>&1`;
  my $filename = $app_base . $SEPARATOR . "datafile.txt";
 
 =head1 DESCRIPTION
 
 This module exports several variables that are useful to isolate OS
-dependencies. For example, $ARCH is set to "windows", "cygwin" or the
+dependencies. For example, $ARCHITECTURE is set to "windows", "cygwin" or the
 value of $^O depending on which OS the script is running. This allows
 you to write code that is dependant on which OS you are running
 on. Similarly, $NULL is set to the string "NUL" when running on
@@ -64,19 +64,19 @@ use warnings;
 
 use base 'Exporter';
 
-our $ARCH      = $^O =~ /MSWin/ 
-               ? 'windows'
-               : $^O =~ /cygwin/
-               ? "cygwin"
-               : $^O;
-our $NULL      = $^O =~ /MSWin/ ? 'NUL' : '/dev/null';
-our $SEPARATOR = $^O =~ /MSWin/ ? '\\'  : '/';
-our $TRUE      = 1;
-our $FALSE     = 0;
-our $ROOT      = $^O =~ /MSWin/ ? $ENV {SYSTEMDRIVE} . $SEPARATOR : "/";
+our $ARCHITECTURE = $^O =~ /MSWin/ 
+                  ? 'windows'
+                  : $^O =~ /cygwin/
+                  ? "cygwin"
+                  : $^O;
+our $NULL         = $^O =~ /MSWin/ ? 'NUL' : '/dev/null';
+our $SEPARATOR    = $^O =~ /MSWin/ ? '\\'  : '/';
+our $TRUE         = 1;
+our $FALSE        = 0;
+our $ROOT         = $^O =~ /MSWin/ ? $ENV {SYSTEMDRIVE} . $SEPARATOR : "/";
 
 our @EXPORT = qw (
-  $ARCH
+  $ARCHITECTURE
   $FALSE
   $NULL
   $SEPARATOR
@@ -135,7 +135,7 @@ Returns:
 
 =cut
 
-  if ($ARCH eq "windows" or $ARCH eq "cygwin") {
+  if ($ARCHITECTURE eq "windows" or $ARCHITECTURE eq "cygwin") {
     # Not sure how this relates to Windows/Cygwin environment so just
     # return false
     return $FALSE;
@@ -152,7 +152,7 @@ Returns:
 
 =over
 
-=item $ARCH
+=item $ARCHITECTURE
 
 Set to either "windows", "cygwin" or $^O.
 

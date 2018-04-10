@@ -1,7 +1,7 @@
 ################################################################################
 #
 # File:         $RCSfile: bash_login,v $
-# Revision:	    $Revision: 1.29 $
+# Revision:	$Revision: 1.29 $
 # Description:  bash startup file
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Aug 20 17:35:01  2001
@@ -48,12 +48,15 @@ else
   echo "Warning: Unknown architecture ($KERNEL)"
 fi
 
-# Architectual differences (AKA Silly Sun)
-if [ $ARCHITECTURE = "sun" ]; then
-  alias id=/usr/xpg4/bin/id
-  alias tr=/usr/xpg4/bin/tr
-  
-  export id=/usr/xpg4/bin/id
+# Hack: Just set TERM to xterm
+if [ $ARCHITECTURE = 'sun' ]; then
+  id=/usr/xpg4/bin/id
+  tr=/usr/xpg4/bin/tr
+  TERM=xtermc
+else
+  id=id
+  tr=tr
+  TERM=xterm
 fi
 
 # Set colors
@@ -88,14 +91,6 @@ if [ -f "$HOME/.rc/system" ]; then
 else
    echo "Warning ~/.rc/system does not exist!"
    export SYSNAME="*Unknown Systemname*:"
-fi
-
-# System dependencies
-# Note: I don't like doing this but an alias doesn't work...
-if [ $ARCHITECTURE = "sun" ]; then
-  id=/usr/xpg4/bin/id
-else
-  id=id
 fi
 
 umask 002
@@ -152,10 +147,14 @@ set -o monitor
 set +u
 
 # Shell options
-if [ $ARCHITECTURE != 'Darwin' ]; then
-  if ! grep -qP '5\.(6|7|8|9|10)' /etc/*release; then
-    shopt -s autocd   > /dev/null 2>&1
-    shopt -s dirspell > /dev/null 2>&1
+if [ $ARCHITECTURE != 'Darwin' -a $ARCHITECTURE != 'sun' ]; then
+  ls /etc/*release > /dev/null 2>&1
+
+  if [ $? = 0 ]; then
+    if ! grep -qP '5\.(6|7|8|9|10)' /etc/*release; then
+      shopt -s autocd   > /dev/null 2>&1
+      shopt -s dirspell > /dev/null 2>&1
+    fi
   fi
 fi
 
@@ -221,6 +220,7 @@ if [ "$TERM" = "hpterm"         -o \
      "$TERM" = "sun-color"      -o \
      "$TERM" = "vt100"          -o \
      "$TERM" = "vt220"          -o \
+     "$TERM" = "xtermc"         -o \
      "$TERM" = "xterm"          -o \
      "$TERM" = "xterm-256color" -o \
      "$TERM" = "cygwin" ]; then
@@ -304,6 +304,6 @@ HOME=$saved_home
 export GIT_SSH=/usr/bin/ssh
 
 # Now go home (in case we were not autmatically cd'ed there)
-if [ $(id -u) -ne 0 ]; then
+if [ $($id -u) -ne 0 ]; then
   cd
 fi

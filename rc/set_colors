@@ -30,28 +30,30 @@ if [ "$TERM" = "vt100" -o \
     echo -e "${INVERSE}Inverse$NORMAL"
   fi
 elif [ "$TERM" = "dtterm" -o \
-       "$TERM" = "xterm"     ]; then
-  NORMAL="$esc[39m"
-  RED="$esc[31m"
-  B_RED=$RED
-  GREEN="$esc[32m"
-  B_GREEN=$GREEN
-  YELLOW="$esc[33m"
-  B_YELLOW=$YELLOW
-  BLUE="$esc[34m"
-  B_BLUE=$BLUE
-  MAGENTA="$esc[35m"
-  B_MAGENTA=$MAGENTA
-  AQUA="$esc[36m"
-  B_AQUA=$AQUA
-  WHITE="$esc[36m"
-  B_WHITE=$WHITE
+       "$TERM" = "xterm"  -o \
+       "$TERM" = "xtermc"    ]; then
+  NORMAL="$esc[0;39m"
+  RED="$esc[0;31m"
+  B_RED="$esc[1;31m"
+  GREEN="$esc[0;32m"
+  B_GREEN="$esc[1;32m"
+  YELLOW="$esc[0;33m"
+  B_YELLOW="$esc[1;33m"
+  BLUE="$esc[0;34m"
+  B_BLUE="$esc[1;34m"
+  MAGENTA="$esc[0;35m"
+  B_MAGENTA="$esc[1;35m"
+  AQUA="$esc[0;36m"
+  B_AQUA="$esc[1;36m"
+  WHITE="$esc[0;37m"
+  B_WHITE="$esc[1;37m"
+  ROOT_COLOR="$esc[1;31m"
 
   if [ "$1" = "-v" ]; then
     echo    "Terminal: $TERM"
     echo -e "${RED}Red$NORMAL\t${B_RED}Bright red$NORMAL"
     echo -e "${GREEN}Green$NORMAL\t${B_GREEN}Bright green$NORMAL"
-    echo -e "${YELLOW}Yellow$NORMAL\t${B_YELLOW}Bright green$NORMAL"
+    echo -e "${YELLOW}Yellow$NORMAL\t${B_YELLOW}Bright yellow$NORMAL"
     echo -e "${BLUE}Blue$NORMAL\t${B_BLUE}Bright blue$NORMAL"
     echo -e "${MAGENTA}Magenta$NORMAL\t${B_MAGENTA}Bright magenta$NORMAL"
     echo -e "${AQUA}Aqua$NORMAL\t${B_AQUA}Bright aqua$NORMAL"
