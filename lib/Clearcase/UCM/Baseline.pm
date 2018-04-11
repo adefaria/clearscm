@@ -284,7 +284,7 @@ Remember to check status method for error, and/or output method for output.
   
   return $Clearcase::CC->execute(
     "rmbl $opts -force " . $self->{name} . '@' . $self->{pvob}->name
-  ):
+  );
 } # remove
 
 sub attributes () {
