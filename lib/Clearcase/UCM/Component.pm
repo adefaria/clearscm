@@ -280,7 +280,7 @@ Ouput from cleartool
 =cut
 
   return $Clearcase::CC->execute 
-    ('rmcomp -f ' . $self->{name} . '@' . $self->{pvob}->name);
+    ('rmcomp -f ' . $self->name . '@' . $self->pvob->tag);
 } # remove
 
 sub exists() {

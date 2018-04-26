@@ -56,7 +56,11 @@ if [ $ARCHITECTURE = 'sun' ]; then
 else
   id=id
   tr=tr
-  TERM=xterm
+  if [ $ARCHITECTURE = 'cygwin' ]; then
+    TERM=cygwin
+  else
+    TERM=xterm
+  fi
 fi
 
 # Set colors

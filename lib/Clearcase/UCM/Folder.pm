@@ -392,7 +392,7 @@ Output from cleartool
 =cut
 
   return $Clearcase::CC->execute(
-    'rmfolder -f ' . $self->{name} . "\@" . $self->{pvob});
+    'rmfolder -f ' . $self->{name} . "\@" . $self->{pvob}->tag);
 } # rmfolder
 
 sub updateFolderInfo () {

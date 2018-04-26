@@ -53,7 +53,7 @@ sub _processOpts(%) {
   my ($self, %opts) = @_;
 
   my $opts;
-  
+
   for (keys %opts) {
     if ($_ eq 'cq' or $_ eq 'cqe' or $_ eq 'force' or $_ eq 'nc') {
       $opts .= "-$_ ";
@@ -61,8 +61,7 @@ sub _processOpts(%) {
       $opts .= "-$_ $opts{$_}";
     } # if
   } # for
-  
-  
+
   return $opts;
 } # _processOpts
 
@@ -107,13 +106,13 @@ Returns:
     name => $baseline,
     pvob => $pvob,
   }, $class; # bless
-    
+
   return $class;
 } # new
 
 sub name() {
   my ($self) = @_;
-    
+
 =pod
 
 =head2 name
@@ -151,7 +150,7 @@ Returns:
 
 sub pvob() {
   my ($self) = @_;
-  
+
 =pod
 
 =head2 pvob
@@ -186,7 +185,7 @@ Returns:
 
   return $self->{pvob};
 } # pvob
-  
+
 sub create($;$$$) {
   my ($self, $view, $comment, $opts) = @_;
 
@@ -229,9 +228,9 @@ Ouput from cleartool
 =for html </blockquote>
 
 =cut
-    
+
   $opts ||= '';
-      
+
   $comment = Clearcase::_setComment $comment;
 
   return $Clearcase::CC->execute(
@@ -281,7 +280,7 @@ Remember to check status method for error, and/or output method for output.
 =cut
 
   $opts ||= '';
-  
+
   return $Clearcase::CC->execute(
     "rmbl $opts -force " . $self->{name} . '@' . $self->{pvob}->name
   );
@@ -332,7 +331,7 @@ Hash of attributes for this baseline
 
 sub diff($;$$) {
   my ($self, $type, $baseline, %opts) = @_;
-  
+
 =pod
 
 =head2 diff
@@ -390,11 +389,11 @@ value.
     croak "Type must be one of activities, versions or baselines in "
         . "Clearcase::UCM::Baseline::diff - not $type";
   } # unless
-  
+
   my $myBaseline = "$self->{name}\@$self->{pvob}";
-  
+
   my $cmd = "diffbl -$type";
-  
+
   if ($baseline) {
     if ($baseline =~ /(\S+):/) {
       unless ($1 eq 'baseline' or $1 eq 'stream') {
@@ -402,30 +401,30 @@ value.
             . "just <baseline>";
       } # unless
     } # if
-    
+
     $baseline .= "\@$self->{pvob}" unless $baseline =~ /\@/;
-    
+
     $cmd .= " $myBaseline $baseline";
   } else {
     $cmd .= " -predeccsor";
   } # if
-  
+
   $Clearcase::CC->execute($cmd);
-  
+
   return if $Clearcase::CC->status;
-  
+
   my @output = $Clearcase::CC->output;
 
   my %info;
-    
+
   for (@output) {
     next unless /^(\>\>|\<\<)/;
-    
+
     if (/(\>\>|\<\<)\s+(\S+)\@/) {
       $info{$2} = Clearcase::UCM::Activity->new($2, $self->{pvob});
     } # if
   } # for
-  
+
   return %info;
 } # diff
 

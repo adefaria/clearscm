@@ -58,7 +58,7 @@ use warnings;
 use Cwd;
 use FindBin;
 use Getopt::Long;
-use Term::ANSIColor qw(:constants);
+#use Term::ANSIColor qw(:constants);
 
 use lib "$FindBin::Bin/../lib";
 
@@ -89,8 +89,6 @@ use Utils;
 # Globals
 my $VERSION = '2.1';
 
-my (@ucmobjs, $order);
-
 my (
   $test_vob,
   $test_view,
@@ -106,7 +104,7 @@ my (
   $test_intview,
 );
 
-my ($vbs, $vws, %default_opts, %opts);
+my (%default_opts, %opts);
 
 my ($script) = ($FindBin::Script =~ /^(.*)\.pl/);
 
@@ -124,12 +122,12 @@ sub LogOpts() {
   for (sort keys %opts) {
     if (ref $opts{$_} eq 'ARRAY') {
       my $name = $_;
-      $log->msg("$name:\t$_") for (@{$opts{$_}});
+      $log->msg("$name:\t$_") for @{$opts{$_}};
     } else {
       $log->msg("$_:\t$opts{$_}");
     }  # if
   } # for
-  
+
   return;
 } # LogOpts
 
@@ -144,7 +142,7 @@ sub CreateVob($) {
 
   my ($status, @output) = $newvob->create($opts{vobhost}, "$opts{vobstore}/$vobname.vbs");
 
-  $log->log($_) for (@output);
+  $log->log($_) for @output;
 
   return ($status, $newvob);
 } # CreateVob
@@ -159,9 +157,7 @@ sub CreatePvob($) {
   #my ($status, @output) = $pvob->create($opts{vobhost}, "$opts{vobstore}/$vobname.vbs", 'A test Pvob');
   my ($status, @output) = $pvob->create($opts{vobhost}, "$opts{vobstore}/$vobname.vbs");
 
-  $log->log($_) for (@output);
-
-  push @ucmobjs, $pvob unless $status;
+  $log->log($_) for @output;
 
   return ($status, $pvob);
 } # CreatePvob
@@ -173,14 +169,14 @@ sub MountVob($) {
 
   # Create mount directory
   my ($status, @output);
-  
+
   ($status, @output) = Execute 'mkdir -p ' . $vob->tag . ' 2>&1' unless -d $vob->tag;
 
-  $log->log($_) for (@output);
+  $log->log($_) for @output;
 
   ($status, @output) = $vob->mount;
 
-  $log->log($_) for (@output);
+  $log->log($_) for @output;
 
   return $status;
 } # MountVob
@@ -200,7 +196,7 @@ sub DestroyVob($) {
 
   ($status, @output) = $vob->remove;
 
-  $log->log($_) for (@output);
+  $log->log($_) for @output;
 
   return $status;
 } # DestroyVob
@@ -214,7 +210,7 @@ sub CreateView($) {
 
   my ($status, @output) = $view->create($opts{viewhost}, "$opts{viewstore}/$tag.vws");
 
-  $log->log($_) for (@output);
+  $log->log($_) for @output;
 
   return ($status, $view);
 } # CreateView
@@ -226,7 +222,7 @@ sub SetView($) {
 
   my ($status, @output) = $view->set;
 
-  $log->log($_) for (@output);
+  $log->log($_) for @output;
 
   return $status;
 } # SetView
@@ -238,14 +234,14 @@ sub DestroyView($) {
 
   my ($status, @output) = $Clearcase::CC->execute('cd');
 
-  $log->log($_) for (@output);
+  $log->log($_) for @output;
 
   chdir $ENV{HOME}
     or $log->err("Unable to chdir $ENV{HOME}", 1);
 
   ($status, @output) = $view->remove;
 
-  $log->log($_) for (@output);
+  $log->log($_) for @output;
 
   return $status;
 } # DestroyView
@@ -267,7 +263,7 @@ sub CreateViewPrivateFiles(@) {
 
     close $file;
   } # for
-  
+
   return;
 } # CreateViewPrivateFiles
 
@@ -284,7 +280,7 @@ sub CheckOut($) {
 
       ($status, @output) = $newElement->checkout;
 
-      $log->log($_) for (@output);
+      $log->log($_) for @output;
 
       $log->err("Unable to check out $_", $status) if $status;
     } # for
@@ -295,11 +291,11 @@ sub CheckOut($) {
 
     ($status, @output) = $newElement->checkout;
 
-    $log->log($_) for (@output);
+    $log->log($_) for @output;
 
     $log->err("Unable to check out $element", $status) if $status;
   } # if
-  
+
   return;
 } # CheckOut
 
@@ -316,7 +312,7 @@ sub CheckIn($) {
 
       ($status, @output) = $newElement->checkin;
 
-      $log->log($_) for (@output);
+      $log->log($_) for @output;
 
       $log->err("Unable to check in $_", $status) if $status;
     } # for
@@ -327,11 +323,11 @@ sub CheckIn($) {
 
     ($status, @output) = $newElement->checkin;
 
-    $log->log($_) for (@output);
+    $log->log($_) for @output;
 
     $log->err("Unable to check in $element", $status) if $status;
   } # if
-  
+
   return;
 } # CheckIn
 
@@ -357,11 +353,11 @@ sub MakeElements(@) {
 
     my ($status, @output) = $newElement->mkelem;
 
-    $log->log($_) for (@output);
+    $log->log($_) for @output;
 
     $log->err("Unable to make $_ an element", $status) if $status;
   } # for
-  
+
   return;
 } # MakeElements
 
@@ -390,7 +386,7 @@ sub RunTests() {
   $log->msg("$script: Start Base Clearcase Tests");
   $log->msg('Removing test files');
 
-  unlink $_ for (@elements);
+  unlink $_ for @elements;
 
   $log->msg('Creating view private files');
 
@@ -443,31 +439,116 @@ sub Cleanup(;$$$) {
 } # Cleanup
 
 sub CleanupUCM() {
-  my $status = 0;
+  my ($rc, $status, @output);
 
-  # Need to remove UCM objects in the opposite order in which we created them
-  for (reverse @ucmobjs) {
-    my ($rc, @output);
+  $log->msg('Removing ' . $test_activity->name);
 
-    if (ref $_ eq 'Clearcase::UCM::Pvob') {
-      $log->msg('Removing Pvob ' . $_->tag);
+  ($rc, @output) = $test_activity->remove;
 
-      $status += DestroyVob $_;
-    } else {
-      $log->msg('Removing ' . ref ($_) . ' ' . $_->name);
+  $status += $rc;
+  
+  $log->log($_) for @output;
 
-      ($rc, @output) = $_->remove;
+  # Need to remove baselines from streams first using rebase (Devstream)
+  $log->msg('Rebasing ' . $test_devstream->name . ' to remove baseline');
 
-      $status += $rc;
-    } # if
-  } # for
+  $status += RebaseStream(
+    $test_devstream,
+    ' -dbaseline ' . $test_baseline->name . '@' . $test_baseline->pvob->tag .
+    ' -view '      . $test_devview->name  . ' -complete',
+  );
+
+  # Change intstream to not have a recommended baseline
+  $log->msg('Changing ' . $test_intstream->name . ' to remove recommended baseline');
+
+  ($rc, @output) = $test_intstream->nrecommended;
+
+  $status += $rc;
+
+  $log->log($_) for @output;
+
+  $status += DestroyView($test_devview);
+
+  $log->msg('Removing ' . $test_baseline->name);
+
+  ($rc, @output) = $test_baseline->remove;
+
+  $status += $rc;
+
+  $log->log($_) for @output;
+
+  $log->msg('Rebasing ' . $test_intstream->name . ' to remove INITIAL baseline');
+
+  $status += RebaseStream(
+    $test_intstream,
+    ' -dbaseline tc.component_INITIAL' . '@' . $test_intstream->pvob->tag .
+    ' -view ' . $test_intview->name    . ' -complete',
+  );
+
+  $log->msg('Removing ' . $test_component->name . ' from ' . $test_project->name);
+
+  ($rc, @output) = $test_project->change(
+    '-dmodcomp ' . $test_component->name . '@' . $test_project->pvob->tag
+  );
+
+  $status += $rc;
+
+  $log->log($_) for @output;
+
+  $log->msg('Removing ' . $test_component->name);
+
+  ($rc, @output) = $test_component->remove;
+
+  $status += $rc;
+
+  $log->log($_) for @output;
+
+  $status += DestroyView($test_intview);
+  
+  $log->msg('Removing '. $test_devstream->name);
+
+  ($rc, @output) = $test_devstream->remove;
+
+  $status += $rc;
+
+  $log->log($_) for @output;
+
+  $log->msg('Removing ' . $test_intstream->name);
+
+  ($rc, @output) = $test_intstream->remove;
+
+  $status += $rc;
+
+  $log->log($_) for @output;
+
+  $log->msg('Removing ' . $test_project->name);
+
+  ($rc, @output) = $test_project->remove;
+
+  $status += $rc;
+
+  $log->log($_) for @output;
+
+  $log->msg('Removing ' . $test_folder->name);
+
+  ($rc, @output) = $test_folder->remove;
+
+  $status += $rc;
+
+  $log->log($_) for @output;
+
+  $log->msg('Removing ' . $test_pvob->name);
+
+  ($rc, @output) = DestroyVob($test_pvob);
+
+  $log->log($_) for @output;
 
   return $status;
 } # CleanupUCM
 
 sub SetupTest($$) {
   my ($vob_tag, $view_tag) = @_;
-  
+
   my ($status, @output);
 
   $log->msg('Setup test environment');
@@ -514,7 +595,7 @@ sub SetupTest($$) {
   ($status, @output) = $Clearcase::CC->execute("cd $dir");
 
   if ($status != 0) {
-    $log->log($_) for (@output);
+    $log->log($_) for @output;
   } # if
 
   return $status;
@@ -526,23 +607,23 @@ sub SetupUCMTest() {
   $log->msg("Creating UCM Pvob $Clearcase::VOBTAG_PREFIX/tc.pvob");
 
   ($status, $test_pvob) = CreatePvob("$Clearcase::VOBTAG_PREFIX/tc.pvob"); 
-  
+
   return $status;
 } # SetupUCMTest
 
 sub CreateUCMProject() {
   # Get the root folder to put this project into (may create folders later)
-  my $folder = Clearcase::UCM::Folder->new('tc.folder', $test_pvob);
+  $test_folder = Clearcase::UCM::Folder->new('tc.folder', $test_pvob);
 
-  $test_project = Clearcase::UCM::Project->new('tc.project', $folder, $test_pvob);
+  $test_project = Clearcase::UCM::Project->new('tc.project', $test_folder, $test_pvob);
 
+  $test_project->remove if $test_project->exists;
+ 
   $log->msg('Creating UCM Project tc.project');
 
-  my ($status, @output) = $test_project->create();
+  my ($status, @output) = $test_project->create;
 
-  $log->log($_) for (@output);
-
-  push @ucmobjs, $test_project unless $status;
+  $log->log($_) for @output;
 
   return $status;
 } # CreateUCMProject
@@ -554,9 +635,7 @@ sub CreateUCMIntStream() {
 
   my ($status, @output) = $test_intstream->create($test_project, '-integration');
 
-  $log->log($_) for (@output);
-
-  push @ucmobjs, $test_intstream unless $status;
+  $log->log($_) for @output;
 
   return $status;
 } # CreateUCMIntStream
@@ -568,12 +647,10 @@ sub CreateUCMDevStream() {
 
   my ($status, @output) = $test_devstream->create($test_project);
 
-  $log->log($_) for (@output);
-
-  push @ucmobjs, $test_devstream unless $status;
+  $log->log($_) for @output;
 
   return $status;
-} # CreateUCMIntStream
+} # CreateUCMDevStream
 
 sub CreateUCMComponent() {
   $test_component = Clearcase::UCM::Component->new('tc.component', $test_pvob);
@@ -584,9 +661,7 @@ sub CreateUCMComponent() {
     "$Clearcase::VIEWTAG_PREFIX/" . $test_intview->tag . $test_vob->tag
   );
 
-  $log->log($_) for (@output);
-
-  push @ucmobjs, $test_component unless $status;
+  $log->log($_) for @output;
 
   return $status;
 } # CreateUCMComponent
@@ -597,7 +672,7 @@ sub AddModifiableComponent() {
     ' '                     . $test_project->name   . '@' . $test_pvob->tag
   );
 
-  $log->log($_) for (@output);
+  $log->log($_) for @output;
 
   return $status;
 } # AddModifiableCOmponent
@@ -612,9 +687,7 @@ sub CreateUCMIntView() {
     '-stream ' . $test_intstream->name . '@' . $test_pvob->tag
   );
 
-  $log->log($_) for (@output);
-
-  push @ucmobjs, $test_intview unless $status;
+  $log->log($_) for @output;
 
   $test_intview->start unless $status;
 
@@ -631,9 +704,7 @@ sub CreateUCMDevView() {
     '-stream ' . $test_devstream->name . '@' . $test_pvob->tag
   );
 
-  $log->log($_) for (@output);
-
-  push @ucmobjs, $test_devview unless $status;
+  $log->log($_) for @output;
 
   $test_devview->start unless $status;
 
@@ -647,9 +718,7 @@ sub CreateUCMBaseline() {
 
   my ($status, @output) = $test_baseline->create($test_intview, undef, '-identical');
 
-  $log->log($_) for (@output);
-
-  push @ucmobjs, $test_baseline unless $status;
+  $log->log($_) for @output;
 
   return $status;
 } # CreateUCMBaseline
@@ -661,29 +730,27 @@ sub CreateUCMActivity() {
 
   my ($status, @output) = $test_activity->create($test_devstream, 'A UCM Test Activity');
 
-  $log->log($_) for (@output);
-
-  push @ucmobjs, $test_activity unless $status;
+  $log->log($_) for @output;
 
   return $status;
 } # CreateUCMActivity
 
-sub RebaseStream($$;$) {
-  my ($stream, $baseline, $opts) = @_;
+sub RebaseStream($$) {
+  my ($stream, $opts) = @_;
 
-  my ($status, @output) = $stream->rebase($baseline, $opts);
+  my ($status, @output) = $stream->rebase($opts);
 
-  $log->log($_) for (@output);
+  $log->log($_) for @output;
 
   return $status;
 } # RebaseStream
 
-sub RecommendBaseline($) {
-  my ($baseline) = @_;
+sub RecommendBaseline($$) {
+  my ($stream, $baseline) = @_;
 
-  my ($status, @output) = $test_intstream->recommend($baseline);
+  my ($status, @output) = $stream->recommend($baseline);
 
-  $log->log($_) for (@output);
+  $log->log($_) for @output;
 
   return $status;
 } # RecommentBaseline
@@ -700,12 +767,13 @@ sub RunUCMTests() {
   $status += CreateUCMDevView;
   $status += CreateUCMComponent;
   $status += AddModifiableComponent;
-  $status += RebaseStream($test_intstream, 'tc.component_INITIAL', '-complete');
-  $status += RecommendBaseline('tc.component_INITIAL');
+  $status += RebaseStream($test_intstream, '-baseline tc.component_INITIAL -complete');
+  $status += RecommendBaseline($test_intstream, 'tc.component_INITIAL');
   $status += CreateUCMBaseline;
-  $status += RebaseStream($test_devstream, 'tc.baseline', '-complete');
+  $status += RebaseStream($test_devstream, '-baseline tc.baseline -complete');
+  $status += RecommendBaseline($test_devstream, 'tc.baseline');
   $status += CreateUCMActivity;
-  
+
   $log->msg("$script: End UCM Clearcase Tests");
 
   return $status;
@@ -785,7 +853,7 @@ if ($opts{ucm}) {
   } # if
 
   if ($status != 0) {
-    $log->err("$script Failed (UCM Clearcase)");
+    $log->err("$script: Failed (UCM Clearcase)");
   } else {
     $log->msg("$script: Passed (UCM Clearcase)");
   } # if

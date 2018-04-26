@@ -92,13 +92,13 @@ Returns:
     name => $name,
     pvob => $pvob,
   }, $class; # bless
-    
+
   return $class; 
 } # new
-  
+
 sub name () {
   my ($self) = @_;
-    
+
 =pod
 
 =head2 name
@@ -136,7 +136,7 @@ Returns:
 
 sub pvob () {
   my ($self) = @_;
-  
+
 =pod
 
 =head2 pvob
@@ -171,7 +171,7 @@ Returns:
 
   return $self->{pvob};
 } # pvob
-  
+
 sub create ($;$) {
   my ($self, $project, $opts) = @_;
 
@@ -276,7 +276,7 @@ Ouput from cleartool
 } # rmStream
 
 sub rebase($;$) {
-  my ($self, $baseline, $opts) = @_;
+  my ($self, $opts) = @_;
 
 =pod
 
@@ -324,8 +324,7 @@ Ouput from cleartool
 
   $opts ||= '';
 
-  $opts .= ' -baseline ' . $baseline  .
-           ' -stream '   . $self->name . '@' . $self->{pvob}->name;
+  $opts .= ' -stream '   . $self->name . '@' . $self->{pvob}->name;
 
   return $Clearcase::CC->execute("rebase $opts");
 } # rebase
@@ -378,6 +377,52 @@ Ouput from cleartool
   );
 } # recommend
 
+sub nrecommended() {
+  my ($self) = @_;
+
+=pod
+
+=head2 nrecommend
+
+Changes stream to not have a recommended baseline
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $status
+
+Status from cleartool
+
+=item @output
+
+Ouput from cleartool
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  return $Clearcase::CC->execute(
+    'chstream -nrecommended ' . $self->name . '@' . $self->{pvob}->tag
+  );
+} # nrecommended
+
 sub baselines () {
   my ($self) = @_;
 
@@ -416,19 +461,19 @@ An array of baseline objects for this stream
 =cut
 
   my $cmd = "lsbl -short -stream $self->{name}\@$self->{pvob}";
-  
+
   $Clearcase::CC->execute ($cmd); 
 
   return if $Clearcase::CC->status;
 
   my @baselines;
-  
+
   for ($Clearcase::CC->output) {
     my $baseline = Clearcase::UCM::Baseline->new ($_, $self->{pvob});
-    
+
     push @baselines, $baseline;
   } # for
-  
+
   return @baselines;
 } # baselines
 

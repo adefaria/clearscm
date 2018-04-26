@@ -80,7 +80,7 @@ use IPC::Open3;
 use OSDep;
 use Display;
 
-my ($clearpid, $clearin, $clearout, $oldHandler);
+my ($clearpid, $clearin, $clearout, $oldHandler, $cleartool);
 
 our $VIEW_DRIVE     = 'M';
 our $VOB_MOUNT      = 'vob';
@@ -578,13 +578,13 @@ Array of output lines from the cleartool command execution.
   # installed under /opt/rational/clearcase/bin. This is needed in case we wish
   # to use these Clearcase objects say in a web page where the server is often
   # run as a plain user who does not have cleartool in their path.
-  my $cleartool;
-  
-  if ($ARCHITECTURE =~ /Win/ or $ARCHITECTURE eq 'cygwin') {
-    $cleartool = 'cleartool';
-  } elsif (-x '/opt/rational/clearcase/bin/cleartool') {
-    $cleartool = '/opt/rational/clearcase/bin/cleartool';
-  } # if
+  unless ($cleartool) {
+    if ($ARCHITECTURE =~ /Win/ or $ARCHITECTURE eq 'cygwin') {
+      $cleartool = 'cleartool';
+    } elsif (-x '/opt/rational/clearcase/bin/cleartool') {
+      $cleartool = '/opt/rational/clearcase/bin/cleartool';
+    } # if
+  } # unless
 
   # TODO: Need to catch SIGCHILD here in case the user does something like hit
   # Ctrl-C. Such an action may interrupt the underlying cleartool process and

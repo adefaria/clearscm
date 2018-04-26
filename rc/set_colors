@@ -30,6 +30,7 @@ if [ "$TERM" = "vt100" -o \
     echo -e "${INVERSE}Inverse$NORMAL"
   fi
 elif [ "$TERM" = "dtterm" -o \
+       "$TERM" = "cygwin" -o \
        "$TERM" = "xterm"  -o \
        "$TERM" = "xtermc"    ]; then
   NORMAL="$esc[0;39m"

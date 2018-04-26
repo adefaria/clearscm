@@ -15,7 +15,10 @@
 #
 ################################################################################
 if [ $ARCHITECTURE = 'cygwin' ]; then
-  export CCHOME=$(cygpath -u "$(regtool get '/machine/SOFTWARE/Rational Software/RSINSTALLDIR' 2>/dev/null)"/Clearcase 2>/dev/null);
+  # The following should work but fails because they are using /c to mount
+  # the C drive and that messes things up.
+  export CCHOME=$(cygpath -u "$(regtool get '/machine/SOFTWARE/Atria/ClearCase/CurrentVersion/ProductHome' 2>/dev/null)" 2>/dev/null)
+  export CCHOME=/opt/rational/clearcase
 else 
   export CCHOME="/opt/rational/clearcase"
 fi

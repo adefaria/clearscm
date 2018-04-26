@@ -119,6 +119,7 @@ function set_prompt {
          "$TERM" = "2392A"          -o \
          "$TERM" = "dtterm"         -o \
          "$TERM" = "vt100"          -o \
+         "$TERM" = "cygwin"         -o \
          "$TERM" = "xterm"          -o \
          "$TERM" = "xtermc"         -o \
          "$TERM" = "xterm-256color" -o \
@@ -132,6 +133,7 @@ function set_prompt {
   fi
 
   if [ "$TERM" = "vt100"          -o \
+       "$TERM" = "cygwin"         -o \
        "$TERM" = "xterm"          -o \
        "$TERM" = "xtermc"         -o \
        "$TERM" = "xterm-256color" -o \

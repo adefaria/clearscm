@@ -270,8 +270,55 @@ Ouput from cleartool
 =cut
 
   return $Clearcase::CC->execute 
-    ('rmproject -f ' . $self->{name} . "\@" . $self->{pvob}->name);
-} # rmProject
+    ('rmproject -f ' . $self->{name} . "\@" . $self->{pvob}->tag);
+} # remove
+
+sub change($) {
+  my ($self, $opts) = @_;
+
+=pod
+
+=head2 change
+
+Changes UCM Project
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item opts
+
+Options
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $status
+
+Status from cleartool
+
+=item @output
+
+Ouput from cleartool
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  $opts ||= '';
+
+  return $Clearcase::CC->execute 
+    ("chproject $opts " . $self->{name} . "\@" . $self->{pvob}->name);
+} # change
 
 sub exists() {
   my ($self) = @_;

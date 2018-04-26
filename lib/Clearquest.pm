@@ -1344,6 +1344,8 @@ Last error
 
 =cut
   
+  # Watch here as $error can very well be 0 which "if $error" would evaluate
+  # to false leaving $self->{error} undefined
   $self->{error} = $error if defined $error;
 
   return $self->{error};
@@ -1846,8 +1848,6 @@ Hash of name/value pairs for all the fields in $table
   
   @fields = $self->_setFields ($table, @fields);
 
-  return if @fields;
-  
   my $entity;
   
   eval {$entity = $self->{session}->GetEntityByDbId ($table, $dbid)};
@@ -2312,7 +2312,9 @@ The $errmsg, if any, when performing the update (empty string for success)
 =cut
   $action ||= 'Modify';
   
-  my %values = %$values;
+  my %values = ();
+
+  %values = %$values if $values;
   
   my $entity;
 

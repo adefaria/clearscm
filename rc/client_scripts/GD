@@ -60,3 +60,6 @@ append_to_path "/c/Program Files/IBM/RationalSDLC/Clearquest/cqcli/bin"
 append_to_path "/d/Program Files/IBM/RationalSDLC/Clearquest/cqcli/bin"
 append_to_path "/c/Program Files/IBM/RationalSDLC/ClearCase/bin"
 append_to_path "/d/Program Files/IBM/RationalSDLC/ClearCase/bin"
+
+# Common CDPATHS
+CDPATH=$CDPATH:/vobs/ranccadm
