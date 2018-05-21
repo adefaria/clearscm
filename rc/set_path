@@ -112,7 +112,7 @@ path_dirs="$path_dirs\
   /tools/bin\
   $systemroot/System32\
   $systemroot\
-"  
+"
 
 manpath_dirs="\
   /usr/share/man\
@@ -126,7 +126,7 @@ manpath_dirs="\
   /opt/ssh/man\
   /opt/medusa/share/man\
   /usr/afsws/man\
-"  
+"
 
 PATH=
 for component in $path_dirs; do

@@ -43,6 +43,17 @@ $Date: 2011/01/09 01:01:32 $
    -[no]uc|m:       Perform UCM Clearcase tests (Default: noucm)
    -[no]clean:      Cleanup after yourself (Default: clean)
 
+if -ucm is specified then the following additional parameters should be set:
+
+    -username:      Username to connect to Clearquest with (Can set CQ_USERNAME)
+    -password:      Password to use to connect to Clearquest (CQ_PASSWORD)
+    -weburl:        Web URL to use for enabling Clearcase -> Clearquest 
+                    connection (CQ_WEBURL - Do not specify the trailing
+                    "/oslc")
+    -database:      Clearquest database to enable (CQ_DATABASE)
+    -dbset:         Clearquest DBSet (CQ_DBSET)
+    -provider:      Name of provider (Default: CQPROV)
+
 =head1 DESCRIPTION  
 
 Clearcase smoke tests. Perform simple Clearcase operations to validate that
@@ -58,7 +69,7 @@ use warnings;
 use Cwd;
 use FindBin;
 use Getopt::Long;
-#use Term::ANSIColor qw(:constants);
+use Pod::Usage;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -120,11 +131,20 @@ sub LogOpts() {
   );
 
   for (sort keys %opts) {
+    next if /help/ || /usage/ || /password/;
+
     if (ref $opts{$_} eq 'ARRAY') {
       my $name = $_;
-      $log->msg("$name:\t$_") for @{$opts{$_}};
+
+      for (@{$opts{$_}}) {
+        $log->msg("$name:\t$_") if $_;
+      } # for
     } else {
-      $log->msg("$_:\t$opts{$_}");
+      if ($opts{$_}) {
+        $log->msg("$_:\t$opts{$_}");
+      } else {
+        $log->msg("$_:\t<undef>");
+      } # if
     }  # if
   } # for
 
@@ -188,13 +208,27 @@ sub DestroyVob($) {
 
   ($status, @output) = $Clearcase::CC->execute('cd');
 
+  $log->err('Unable to perform cd command', 1) if $status;
+
   $log->msg('Unmounting vob ' . $vob->tag);
 
   ($status, @output) = $vob->umount;
 
+  if ($status) {
+    $log->err('Unable to unmount vob ' . $vob->tag);
+  } else {
+    $log->msg('Umounted vob ' . $vob->tag);
+  } # if
+
   $log->msg('Removing vob ' . $vob->tag);
 
   ($status, @output) = $vob->remove;
+
+  if ($status) {
+    $log->err("Failed to execute command " . 
+              $Clearcase::CC->lastcmd . "\n" .
+	      join "\t\n", @output);
+  } # if
 
   $log->log($_) for @output;
 
@@ -226,6 +260,18 @@ sub SetView($) {
 
   return $status;
 } # SetView
+
+sub StopView($) {
+  my ($view) = @_;
+
+  $log->msg('Stopping view ' . $view->tag);
+
+  my ($status, @output) = $view->stop;
+
+  $log->log($_) for @output;
+
+  return $status;
+} # StopView
 
 sub DestroyView($) {
   my ($view) = @_;
@@ -446,7 +492,7 @@ sub CleanupUCM() {
   ($rc, @output) = $test_activity->remove;
 
   $status += $rc;
-  
+
   $log->log($_) for @output;
 
   # Need to remove baselines from streams first using rebase (Devstream)
@@ -504,7 +550,7 @@ sub CleanupUCM() {
   $log->log($_) for @output;
 
   $status += DestroyView($test_intview);
-  
+
   $log->msg('Removing '. $test_devstream->name);
 
   ($rc, @output) = $test_devstream->remove;
@@ -594,19 +640,71 @@ sub SetupTest($$) {
 
   ($status, @output) = $Clearcase::CC->execute("cd $dir");
 
-  if ($status != 0) {
-    $log->log($_) for @output;
-  } # if
+  $log->log($_) for @output;
 
   return $status;
 } # SetupTest
 
+sub SetupAttributeTypes() {
+  my @CC_CMI_Types = qw(CONTEXT TASK PROVIDERS);
+
+  my $status = SetView($test_intview);
+
+  return $status if $status;
+
+  for (@CC_CMI_Types) {
+    my $cmd = "mkattype -nc -vtype string CC_CMI_$_";
+
+    my ($rc, @output) = $Clearcase::CC->execute($cmd);
+
+     $status += $rc;
+
+     $log->log($_) for @output;
+  } # for
+
+  return $status;
+} # SetupAttributeTypes
+
+sub CRMRegister() {
+  my $cmd = "crmregister add -database $opts{database} -connection RDE "
+          . "-url $opts{weburl} -username $opts{username} "
+          . "-password $opts{password}";
+
+  my ($status, @output) = Execute $cmd;
+
+  $log->log($_) for @output;
+
+  return $status;
+} # CRMRegister
+
+sub MakeCMProvider() {
+  my $cmd = 'mkcmprovider -vob ' . $test_pvob->tag 
+          . '-type cmcq -version V1_0 -description '
+          . '"RDE CMI CQ Provider" '
+          . '-connection baseurl:' . $opts{weburl} . " $opts{provider}";
+
+  my ($status, @output) = $Clearcase::CC->execute($cmd);
+
+  $log->log($_) for @output;
+
+  return $status;
+} # MakeCMProvider
+
 sub SetupUCMTest() {
   my $status;
 
-  $log->msg("Creating UCM Pvob $Clearcase::VOBTAG_PREFIX/tc.pvob");
+  $log->msg("Register RDE://$opts{username}\@$opts{database}");
 
-  ($status, $test_pvob) = CreatePvob("$Clearcase::VOBTAG_PREFIX/tc.pvob"); 
+  $status = CRMRegister;
+
+  $log->err("Unable to register RDE://$opts{username}\@$opts{database} - Check logfile", $status)
+    if $status;
+
+  $log->msg("Creating UCM Pvob ${Clearcase::VOBTAG_PREFIX}tc.pvob");
+
+  ($status, $test_pvob) = CreatePvob("${Clearcase::VOBTAG_PREFIX}tc.pvob"); 
+
+  MountVob $test_pvob;
 
   return $status;
 } # SetupUCMTest
@@ -618,7 +716,7 @@ sub CreateUCMProject() {
   $test_project = Clearcase::UCM::Project->new('tc.project', $test_folder, $test_pvob);
 
   $test_project->remove if $test_project->exists;
- 
+
   $log->msg('Creating UCM Project tc.project');
 
   my ($status, @output) = $test_project->create;
@@ -764,6 +862,7 @@ sub RunUCMTests() {
   $status += CreateUCMIntStream;
   $status += CreateUCMDevStream;
   $status += CreateUCMIntView;
+  $status += SetupAttributeTypes;
   $status += CreateUCMDevView;
   $status += CreateUCMComponent;
   $status += AddModifiableComponent;
@@ -784,8 +883,18 @@ my $startTime = time;
 my $conf_file = "$FindBin::Bin/$script.conf";
 my $status    = 0;
 
-$opts{base}  = 1;
-$opts{clean} = 1;
+$opts{help}     = sub { pod2usage };
+$opts{usage}    = sub { pod2usage (-verbose => 2)};
+$opts{base}     = 1;
+$opts{clean}    = 1;
+$opts{username} = $ENV{CQ_USERNAME};
+$opts{password} = $ENV{CQ_PASSWORD};
+$opts{weburl}   = $ENV{CQ_WEBURL};
+
+$opts{weburl}  .= $opts{weburl} ? "/oslc" : undef;
+$opts{database} = $ENV{CQ_DATABASE};
+$opts{dbset}    = $ENV{CQ_DBSET};
+$opts{provider} = $ENV{CQ_PROVIDER} || 'CQPROV';
 
 GetOptions(
   \%opts,
@@ -796,7 +905,11 @@ GetOptions(
   'base!',
   'ucm!',
   'clean!',
-) or Usage;
+  'username=s',
+  'database=s',
+  'dbset=s',
+  'provider',
+) || pod2usage;
 
 # Read the config file
 if (-f $conf_file) {
@@ -810,6 +923,13 @@ for (keys %default_opts) {
   $opts{$_} = $default_opts{$_} if !$opts{$_};
 } # for
 
+# Check CQ parameters
+if ($opts{ucm}) {
+  for ('username', 'password', 'weburl', 'database', 'dbset', 'provider') {
+    pod2usage "In UCM mode you must specify -$_" unless $opts{$_};
+  } # for
+} # if
+
 $log->msg("$script: Start");
 
 LogOpts;
@@ -817,10 +937,12 @@ LogOpts;
 # Since we are creating private vobs (to avoid complications with having to
 # know and code the registry password when making public vobs), we'll simply
 # change $Clearcase::VOBTAG_PREFIX
-$Clearcase::VOBTAG_PREFIX = $ENV{TMP} || '/tmp';
+if ($ARCHITECTURE !~ /win/i) {
+  $Clearcase::VOBTAG_PREFIX = $ENV{TMP} . '/' || '/tmp';
+} # if
 
 if ($opts{base}) {
-  $status = SetupTest "$Clearcase::VOBTAG_PREFIX/tc.vob", 'tc.view';
+  $status = SetupTest "${Clearcase::VOBTAG_PREFIX}tc.vob", 'tc.view';
 
   if ($status == 0) {
     $status += RunTests;
@@ -829,7 +951,7 @@ if ($opts{base}) {
   } # if
 
   # Note if we are doing UCM tests then we need the view and vob here...
-  $status += Cleanup($test_view, $test_vob) if $opts{clean} and !$opts{ucm};
+  $status += Cleanup($test_view, $test_vob) if $opts{clean} && !$opts{ucm};
 
   if ($status != 0) {
     $log->err("$script: Failed (Base Clearcase)");
@@ -885,11 +1007,9 @@ L<FindBin>
 
 L<Getopt::Long|Getopt::Long>
 
-L<Term::ANSIColor|Term::ANSIColor>
-
 =head2 ClearSCM Perl Modules
 
-=begin man 
+=begin man
 
  Clearcase
  Clearcase::Element

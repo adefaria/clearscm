@@ -35,11 +35,11 @@ $Date: 2013/03/14 23:39:39 $
 =head1 SYNOPSIS
 
  Usage: testclearquest.pl [-u|sage] [-v|erbose] [-d|ebug]
-                          [-get] [-add] [-modify] [-change] [-delete]                   
+                          [-get] [-add] [-modify] [-change] [-delete]
                           [-username <username>] [-password <password>]
                           [-database <dbname>] [-dbset <dbset>]
                           [-module] [-server <server>] [-port <port>]
-                  
+
  Where:
    -usa|ge:     Displays usage
    -v|erbose:   Be verbose
@@ -51,20 +51,13 @@ $Date: 2013/03/14 23:39:39 $
    -change:     Test change
    -delete:     Test delete
 
-   -use|rname:  Username to open database with (Default: from config file) 
-   -p|assword:  Password to open database with (Default: from config file) 
-   -da|tabase:  Database to open (Default: from config file)
-   -db|set:     Database Set to use (Default: from config file)
-   -m|odule:    Type of Clearquest module to use. Must be one of 'api', 
-                'client', or 'rest'. The 'api' module can only be used if
-                Clearquest is installed locally. The 'client' module can only
-                be successful if a corresponding server is running. And the 
-                'rest' module can only be used if a CQ Web server has been set
-                up and configured (Default: rest)
-   -s|erver:    For module = client or rest this is the name of the server that
-                will be providing the service
-   -p|ort:      For module = client, this is the point on the server to talk
-                through.
+   -use|rname:  Username to open database with (Default: CQ_USERNAME or from
+                config file)
+   -p|assword:  Password to open database with (Default: CQ_PASSWORD or from
+                config file)
+   -da|tabase:  Database to open (Default: CQ_DATABASE or from config file)
+   -db|set:     Database Set to use (Default: CQ_DBSET or from config file)
+
 
 
 =head1 Options
@@ -113,6 +106,7 @@ Database Set name (Default: From cq.conf)
 
 use FindBin;
 use Getopt::Long;
+use Pod::Usage;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -125,22 +119,23 @@ use Clearcase::UCM::Pvob;
 use DateUtils;
 use Display;
 use Logger;
+use OSDep;
 use TimeUtils;
 use Utils;
 
 my ($cq, %opts, $log, $createView, $test_pvob, $test_project);
 
-my $status = 0;
+my $status  = 0;
 my $project = 'tc.project';
 
 sub displayRecord(%) {
   my (%record) = @_;
-  
+
   $log->msg('-' x 79);
-  
+
   for (keys %record) {
     $log->msg("$_: ", 1);
-  
+
     if (ref $record{$_} eq 'ARRAY') {
       $log->msg(join ", ", @{$record{$_}});
     } elsif ($record{$_}) {
@@ -149,45 +144,45 @@ sub displayRecord(%) {
       $log->msg('<undef>');
     } # if
   } # for
-  
+
   return;
 } # displayRecord
 
 sub displayResults(@) {
   my (@records) = @_;
-  
+
   if (@records) {
     displayRecord %$_ foreach (@records);
   } else {
     $log->msg('Did not find any records');
   } # if
-  
+
   return;
 } # displayResults
 
 sub GetRecord($$;@) {
   my ($table, $key, @fields) = @_;
-  
+
   $log->msg("Gettng table: $table key: $key");
 
   my %record = $cq->get($table, $key, @fields);
- 
+
   if ($cq->checkErr) {
   	$log->err($cq->errmsg);
   } else {
     displayRecord %record;
   } # if
-  
+
   return $cq->error;
 } # GetRecord
 
 sub FindRecord($$;@) {
   my ($table, $condition, @fields) = @_;
-  
+
   my $status;
-  
+
   $log->msg("Finding table: $table condition: $condition");
-  
+
   my ($result, $nbrRecs) = $cq->find($table, $condition, @fields);
 
   $log->msg("$nbrRecs records qualified");
@@ -198,89 +193,89 @@ sub FindRecord($$;@) {
       $createView = $record{ws_cr_view} if $table eq 'Platform_Options';
 
       displayRecord %record;
-      
+
       $status += $cq->error;
     } # unless
   } # while
-  
+
   return $status
 } # FindRecord
 
 sub ModifyRecord($$;%) {
   my ($table, $key, %update) = @_;
-  
+
   $log->msg("Modifying table: $table key: $key");
-  
+
   $cq->modify($table, $key, undef, \%update);
-  
+
   $log->err($cq->errmsg) if $cq->checkErr;
-  
+
   return $cq->error;
 } # ModifyRecord
 
 sub AssignWOR($) {
   my ($key) = @_;
-  
+
   my %record = $cq->get('WOR', $key, ('State'));
-  
+
   return $cq->error if $cq->checkErr("Unable to find WOR where key = $key");
-  
+
   my ($action, %update);
-  
+
   if ($record{State} ne 'Submitted') {
     $log->err("Cannot assign $key - not in submitted state");
-  	
+
     return 1;
   } # if
 
   $action               = 'Assign';
   $update{PlannedStart} = Today2SQLDatetime;
   $update{ucm_project}  = $project;
-  
+
   $log->msg("Testing change WOR state of $key action: $action");
-  
+
   $cq->modify('WOR', $key, $action, \%update);
 
   $log->err($cq->errmsg) if $cq->checkErr;
-    
+
   return $cq->error;
 } # AssignWOR
 
 sub ActivateWOR($) {
   my ($key) = @_;
-  
+
   my %record = $cq->get('WOR', $key, ('State'));
-  
+
   return $cq->error if $cq->checkErr("Unable to find WOR where key = $key");
-  
+
   my ($action, %update);
-  
+
   if ($record{State} ne 'Assessing') {
     $log->err("Cannot activate $key - not in Assessing state");
-  	
+
     return 1;
   } # if
 
   $action = 'Activate';
-  
+
   $log->msg("Testing change WOR state of $key action: $action");
-  
+
   $cq->modify('WOR', $key, $action);
 
   $log->err($cq->errmsg) if $cq->checkErr;
-    
+
   return $cq->error;
 } # ActivateWOR
 
 sub AddRecord($$;$$) {
   my ($table, $record, $ordering, $returnField) = @_;
-  
+
   $returnField ||= 'id';
 
   $log->msg("Adding table: $table");
-  
+
   my $dbid = $cq->add($table, $record, @$ordering);
-  
+
   if ($cq->checkErr) {
     $log->err($cq->errmsg);
 
@@ -294,11 +289,11 @@ sub AddRecord($$;$$) {
 
 sub DeleteRecord($$) {
   my ($table, $key) = @_;
-  
+
   $log->msg("Deleting table: $table key: $key");
-  
+
   $cq->delete($table, $key);
-  
+
   $log->err($cq->errmsg) if $cq->checkErr;
 
   return $cq->error;
@@ -318,7 +313,7 @@ sub CreateWOR() {
     RCLC_name          => 'Test RCLC',
     Prod_Arch1         => 'testcode : N/A',
     work_product_name  => '10 - Software',
-    Engr_target        => 'Test Engineering Target',
+    #Engr_target        => 'Test Engineering Target',
     work_code_name     => 'RAN-RW2',
   );
 
@@ -393,32 +388,29 @@ sub Cleanup($) {
 ## Main
 GetOptions(
   \%opts,
-  usage   => sub { Usage },
+  usage   => sub { pod2usage },
+  help    => sub { pod2usage (-verbose => 2)},
   verbose => sub { set_verbose },
   debug   => sub { set_debug },
-  'verbose',
-  'debug',
-  'usage',
   'get',
   'add',
   'modify',
   'change',
   'delete',
-  'module=s',
   'username=s',
   'password=s',
   'database=s',
   'dbset=s',
-  'server=s',
-  'port=i',
-) || Usage;
+) || pod2usage;
 
 my $processStartTime = time;
 
 # Since we are creating private vobs (to avoid complications with having to
 # know and code the registry password when making public vobs), we'll simply
 # change $Clearcase::VOBTAG_PREFIX
-$Clearcase::VOBTAG_PREFIX = $ENV{TMP} || '/tmp';
+if ($ARCHITECTURE !~ /win/i) {
+  $Clearcase::VOBTAG_PREFIX = $ENV{TMP} || '/tmp';
+} # if
 
 local $| = 1;
 
@@ -457,11 +449,11 @@ $log->msg('Connecting to Clearquest database ' . $cq->connection . '...', 1);
 
 unless ($cq->connect) {
   $cq->checkErr('Unable to connect to database ' . $cq->connection, undef, $log);
-  
+
   if ($cq->module eq 'client') {
     $log->msg('Unable to connect to server ' . $cq->server() . ':' . $cq->port());
   } # if
-  
+
   exit $cq->error;
 } else {
   $log->msg('connected');
@@ -510,10 +502,10 @@ DeleteRecord 'Component', $FindBin::Script if $opts{add};
 
 $log->msg('Enable tc.project for integration with Clearquest');
 
-$test_pvob    = Clearcase::UCM::Pvob->new("$Clearcase::VOBTAG_PREFIX/tc.pvob");
+$test_pvob    = Clearcase::UCM::Pvob->new("${Clearcase::VOBTAG_PREFIX}tc.pvob");
 $test_project = Clearcase::UCM::Project->new('tc.project', 'tc.folder', $test_pvob);
 
-my ($rc, @output) = $test_project->change('-force -crmenable XTST1');
+my ($rc, @output) = $test_project->change("-force -crmenable $opts{CQ_DATABASE}");
 
 $status += $rc;
 
@@ -532,13 +524,23 @@ unless ($WORID) {
 } # unless
 
 if ($opts{change}) {
-  $status += AssignWOR   $WORID;
-  $status += ActivateWOR $WORID;
+  my $worStatus;
+
+  $worStatus += AssignWOR   $WORID;
+  $worStatus += ActivateWOR $WORID;
+
+  $status += $worStatus;
+
+  unless ($worStatus) {
+    # If we weren't able to assign and activate the WOR then there's no need
+    # to create the view and no need to clean up unless we created the view.
+    $worStatus = CreateView $WORID;
+
+    $status += Cleanup($WORID) unless $worStatus;
+
+    $status += $worStatus;
+  } # unless
 } # if
-
-$status += CreateView $WORID;
-
-$status += Cleanup($WORID);
 
 if ($status) {
   $log->err('Clearquest tests FAILED');
