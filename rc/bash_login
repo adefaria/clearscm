@@ -121,8 +121,11 @@ if [ -r /etc/bash_completion -a $ARCHITECTURE != "cygwin" ]; then
   source /etc/bash_completion
 fi
 
-if [ -x ~/.rc/logout ]; then
-  trap "~/.rc/logout" 0
+# We specify /home/$USER here so that when we sudo to another user 
+# we will only trap logout if that user also has a ~/.rc/logout
+# (doubtfull).
+if [ -x /home/$USER/.rc/logout ]; then
+  trap "/home/$USER/.rc/logout" 0
 fi
 
 # ClearCase Stuff
