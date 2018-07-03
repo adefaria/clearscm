@@ -102,7 +102,7 @@ Returns:
     
   return $class; 
 } # new
-  
+
 sub name () {
   my ($self) = @_;
     
@@ -178,7 +178,7 @@ Returns:
 
   return $self->{pvob};
 } # pvob
-  
+
 sub create (;$) {
   my ($self, $opts) = @_;
 

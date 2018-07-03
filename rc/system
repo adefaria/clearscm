@@ -26,4 +26,32 @@ case "$SYSNAME" in
   Az25jzhxkb2d)
     SYSNAME="Venus"
     ;;
+
+  Rdecc1-ldom)
+    SYSNAME="Server1"
+    ;;
+
+  Rdebf1-ldom)
+    SYSNAME="Server2"
+    ;;
+
+  Rdews-ldom)
+    SYSNAME="Server3"
+    ;;
+
+  Rdebf1)
+    SYSNAME="Rdebuild1"
+    ;;
+
+  Rdebf2)
+    SYSNAME="Rdebuild2"
+    ;;
+
+  Rdebf3)
+    SYSNAME="Rdebuild3"
+    ;;
+
+  Rdebf4)
+    SYSNAME="Rdebuild4"
+    ;;
 esac

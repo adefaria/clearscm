@@ -132,11 +132,11 @@ function lllock {
 # View related functions
 function setview {
   if [ $ARCHITECTURE = 'cygwin' ]; then
-  	if [[ $1 = -* ]]; then
-  	  echo "The setview command with options is not supported on Windows"
-  	  return
-  	fi
-  	 
+    if [[ $1 = -* ]]; then
+      echo "The setview command with options is not supported on Windows"
+      return
+    fi
+
     # Save off where we are
     back=$PWD
 
@@ -148,7 +148,7 @@ function setview {
     fi
 
     # Setup $VOBTAG_PREFIX
-    mount -f -o binary M:/$1 $LINUX_VOBTAG_PREFIX
+    mount -f -o binary $CLEARCASE_VIEW_DRIVE:/$1 $LINUX_VOBTAG_PREFIX
 
     # Start a bash shell
     bash
