@@ -64,11 +64,11 @@ function trap_intr {
 # Column 4 ClearCase Version (if applicable)
 # Column 5 Owner (if known)
 # Column 6 Usage (if known)
-#oldIFS=$IFS
-#IFS=":"
+oldIFS=$IFS
+IFS=":"
 declare -i nbr_of_machines=0
-#sed -e "/^#/d" $machines |
-while read machine; do
+IFS=:
+while read machine model os cc owner usage; do
   machines[nbr_of_machines]=$machine
   let nbr_of_machines=nbr_of_machines+1
 done < <(grep -v ^# $machines)
@@ -86,7 +86,7 @@ while [ $i -lt $nbr_of_machines ]; do
   export currmachine=${machines[i]}
   # Execute command. Note if no command is given then the effect is to
   # ssh to each machine.
-  echo -e "${CYAN}${machines[i]}$NORMAL\c"
+  echo -e "${B_AQUA}${machines[i]}$NORMAL\c"
   echo -e ":$cmd"
   if [ $# -gt 0 ]; then
     if [ "$root_ssh" = "true" ]; then

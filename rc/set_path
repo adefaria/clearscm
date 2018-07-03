@@ -85,6 +85,7 @@ path_dirs="$path_dirs\
   /usr/local/bin\
   /usr/afsws/bin\
   /usr/afsws\
+  /usr/xpg4/bin\
   /bin\
   /sbin\
   /usr/bin\
@@ -95,6 +96,7 @@ path_dirs="$path_dirs\
   /usr/openwin/bin\
   /usr/kerberos/bin\
   /opt/rational/clearcase/bin\
+  /opt/rational/clearquest/bin\
   /opt/ibm/rationalsdlc/clearcase/bin\
   /opt/ibm/rationalsdlc/clearcase/etc\
   /opt/ibm/rationalsdlc/clearquest/bin\
@@ -110,7 +112,7 @@ path_dirs="$path_dirs\
   /tools/bin\
   $systemroot/System32\
   $systemroot\
-"  
+"
 
 manpath_dirs="\
   /usr/share/man\
@@ -124,7 +126,7 @@ manpath_dirs="\
   /opt/ssh/man\
   /opt/medusa/share/man\
   /usr/afsws/man\
-"  
+"
 
 PATH=
 for component in $path_dirs; do

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env cqperl
 use strict;
 use warnings;
 

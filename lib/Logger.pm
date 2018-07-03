@@ -513,7 +513,7 @@ Returns:
     $msg = "ERROR: $msg";
   } # if
 
-  $self->log ($msg);
+  $self->msg($msg);
 
   $self->incrementErr;
 

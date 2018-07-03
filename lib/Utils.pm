@@ -156,7 +156,7 @@ Returns:
     or error "Can't write to $errorlog ($!)", 1;
 
   # Change the current directory to /
-  my $ROOT = $ARCH eq "windows" ? "C:\\" : "/";
+  my $ROOT = $ARCHITECTURE eq "windows" ? "C:\\" : "/";
   chdir $ROOT
     or error "Can't chdir to $ROOT ($!), 1";
 
@@ -232,16 +232,10 @@ STDOUT then do so in the $command passed in.
 
 =cut
 
-  # Save $SIG{CHLD} so we can set it to 'DEFAULT' and then restore it later.
-  # Helps when you are doing process handling.
-  my $sigchld = $SIG{CHLD};
-
   local $SIG{CHLD} = 'DEFAULT';
 
   my @output = `$cmd`;
   my $status = $?;
-
-  local $SIG{CHLD} = $sigchld;
 
   chomp @output;
 
@@ -363,7 +357,7 @@ Returns:
   while () {
     my $key;
 
-    while (not defined ($key = ReadKey -1)) { }
+   while (not defined ($key = ReadKey -1)) { }
 
     if ($key =~ /(\r|\n)/) {
        print "\n";

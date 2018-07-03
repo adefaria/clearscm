@@ -232,7 +232,7 @@ my $operatorRE = qr/
 
 END {
   # Insure all instaniated objects have been destroyed
-  $_->DESTROY foreach (@objects);
+  $_->DESTROY for (@objects);
 } # END
 
 # Internal methods
@@ -568,17 +568,17 @@ sub _setFields ($@) {
   } # if
 
   unless (@fields) {
-    # Always return dbid 
-    push @fields, 'dbid' unless grep {$_ eq 'dbid'} @fields;
-    
-    foreach (@{$entityDef->GetFieldDefNames}) {
+    for (@{$entityDef->GetFieldDefNames}) {
       unless ($self->{returnSystemFields}) {
         next if $entityDef->IsSystemOwnedFieldDefName ($_);
       } # unless
              
       push @fields, $_;
-    } # foreach
+    } # for
   } # unless 
+
+  # Always return dbid 
+  push @fields, 'dbid' unless grep {$_ eq 'dbid'} @fields;
 
   return @fields;  
 } # _setFields
@@ -616,11 +616,11 @@ sub _setFieldValue ($$$$) {
     # evaluate $fieldValue if $fieldValue is a simple number (e.g. 0, 1, etc.)
     $errmsg = $entity->SetFieldValue ($fieldName, "$fieldValue") if $fieldValue;
   } else {
-    foreach (@$fieldValue) {
+    for (@$fieldValue) {
       $errmsg = $entity->AddFieldValue ($fieldName, $_);
     
       return $errmsg unless $errmsg eq '';
-    } # foreach
+    } # for
   } # unless
   
   return $errmsg;
@@ -743,7 +743,7 @@ The DBID of the newly added record or undef if error.
   } # if
   
   # First process all fields in @ordering, if specified
-  foreach (@ordering) {
+  for (@ordering) {
     if ($values{$_}) {
       $self->{errmsg} = $self->_setFieldValue ($entity, $table, $_, $values{$_});
     } else {
@@ -751,18 +751,18 @@ The DBID of the newly added record or undef if error.
     } # if
     
     last unless $self->{errmsg} eq '';
-  } # foreach
+  } # for
   
   return unless $self->{errmsg} eq '';
   
   # Now process the rest of the values
-  foreach my $fieldName (keys %values) {
+  for my $fieldName (keys %values) {
     next if grep {$fieldName eq $_} @ordering;
 
     $self->{errmsg} = $self->_setFieldValue ($entity, $table, $fieldName, $values{$fieldName});
     
     last unless $self->{errmsg} eq '';
-  } # foreach
+  } # for
 
   $self->_setError ($self->{errmsg});
   
@@ -955,8 +955,8 @@ not the default DBSet as defined in cq.conf.
   return $connectionStr; 
 } # connection
 
-sub checkErr (;$$) {
-  my ($self, $msg, $die) = @_;
+sub checkErr (;$$$) {
+  my ($self, $msg, $die, $log) = @_;
   
 =pod
 
@@ -1009,9 +1009,14 @@ Returns 0 for no error, non-zero if error.
     } # if
 
     if ($die) {
-      croak $msg if $die;
+      $log->err ($msg) if $log;
+      croak $msg;
     } else {
-      print STDERR "$msg\n";
+      if ($log) {
+      	$log->err($msg);
+      } else {
+        print STDERR "$msg\n";
+      } # if
       
       return $self->{error};
     } # if
@@ -1339,6 +1344,8 @@ Last error
 
 =cut
   
+  # Watch here as $error can very well be 0 which "if $error" would evaluate
+  # to false leaving $self->{error} undefined
   $self->{error} = $error if defined $error;
 
   return $self->{error};
@@ -1402,9 +1409,9 @@ Fieldtype enum
 
   my $entityDef = $self->{session}->GetEntityDef ($table); 
 
-  foreach (@{$entityDef->GetFieldDefNames}) {
+  for (@{$entityDef->GetFieldDefNames}) {
     $FIELDS{$table}{$_} = $entityDef->GetFieldDefType ($_);
-  } # foreach 
+  } # for 
 
   if (defined $FIELDS{$table}{$fieldName}) {
     return $FIELDS{$table}{$fieldName}
@@ -1610,7 +1617,7 @@ is also returned.
     
   my $query = $self->{session}->BuildQuery ($table);
   
-  foreach (@fields) {
+  for (@fields) {
     eval {$query->BuildField ($_)};
     
     if ($@) {
@@ -1618,7 +1625,7 @@ is also returned.
       
       carp $@;
     } # if
-  } # foreach
+  } # for
 
   $self->_parseConditional ($query, $condition);
 
@@ -1762,7 +1769,7 @@ Hash of name/value pairs for all the fields in $table
   
   my %record;
 
-  foreach (@fields) {
+  for (@fields) {
     my $fieldType = $entity->GetFieldValue ($_)->GetType;
 
     if ($fieldType == $CQPerlExt::CQ_REFERENCE_LIST) {
@@ -1776,7 +1783,7 @@ Hash of name/value pairs for all the fields in $table
         $record{$_} = _UTC2Localtime ($record{$_});
       } # if
     } # if
-  } # foreach
+  } # for
 
   $self->_setError;
   
@@ -1841,8 +1848,6 @@ Hash of name/value pairs for all the fields in $table
   
   @fields = $self->_setFields ($table, @fields);
 
-  return if @fields;
-  
   my $entity;
   
   eval {$entity = $self->{session}->GetEntityByDbId ($table, $dbid)};
@@ -1855,7 +1860,7 @@ Hash of name/value pairs for all the fields in $table
   
   my %record;
 
-  foreach (@fields) {
+  for (@fields) {
     my $fieldType = $entity->GetFieldValue ($_)->GetType;
 
     if ($fieldType == $CQPerlExt::CQ_REFERENCE_LIST) {
@@ -1869,7 +1874,7 @@ Hash of name/value pairs for all the fields in $table
         $record{$_} = _UTC2Localtime ($record{$_});
       } # if
     } # if
-  } # foreach
+  } # for
 
   $self->_setError;
   
@@ -2004,15 +2009,16 @@ while () {
 
   # Format %record  
   while ($column <= $nbrColumns) {
-    my $value = $result->{result}->GetColumnValue ($column);
-    
-    $value ||= '' if $self->{emptyStringForUndef};
+    my $name  = $result->{result}->GetColumnLabel($column);
+    my $value = $result->{result}->GetColumnValue($column++);
 
     # Fix any UTC dates - _UTC2Localtime will only modify data if the data 
     # matches a UTC datetime.
-    $value = _UTC2Localtime ($value);
+    $value = _UTC2Localtime ($value) if $value;
     
-    $record{$result->{result}->GetColumnLabel ($column++)} = $value;
+    $value ||= '' if $self->{emptyStringForUndef};
+
+    $record{$name} = $value;
   } # while
 
   %{$result->{lastRecord}} = %record unless $result->{lastRecord};
@@ -2024,7 +2030,7 @@ while () {
     if ($result->{thisDBID} == $result->{lastDBID}) {
       # Since the dbid's are the same, we have at least one reference list field
       # and we need to compare all fields
-      foreach my $field (keys %record) {
+      for my $field (keys %record) {
         # If the field is blank then skip it
         next if $record{$field} eq '';
         
@@ -2049,7 +2055,7 @@ while () {
           push @{$result->{lastRecord}{$field}}, $record{$field}
             unless grep {/^$record{$field}$/} @{$result->{lastRecord}{$field}};
         } # if
-      } # foreach
+      } # for
     
       # Transfer %lastRecord -> %record
       %record = %{$result->{lastRecord}};      
@@ -2069,6 +2075,9 @@ while () {
   
   $self->_setError;
   
+  # Never return dbid...
+  delete $record{dbid};
+
   return %record;
 } # getNext
 
@@ -2303,7 +2312,9 @@ The $errmsg, if any, when performing the update (empty string for success)
 =cut
   $action ||= 'Modify';
   
-  my %values = %$values;
+  my %values = ();
+
+  %values = %$values if $values;
   
   my $entity;
 
@@ -2324,7 +2335,7 @@ The $errmsg, if any, when performing the update (empty string for success)
   } # if
      
   # First process all fields in @ordering, if specified
-  foreach (@ordering) {
+  for (@ordering) {
     if ($values{$_}) {
       $self->{errmsg} = $self->_setFieldValue ($table, $_, $values{$_});
     } else {
@@ -2332,18 +2343,18 @@ The $errmsg, if any, when performing the update (empty string for success)
     } # if
     
     last unless $self->{errmsg} eq '';
-  } # foreach
+  } # for
   
   return $self->{errmsg} unless $self->{errmsg} eq '';
   
   # Now process the rest of the values
-  foreach my $fieldName (keys %values) {
+  for my $fieldName (keys %values) {
     next if grep {$fieldName eq $_} @ordering;
 
     $self->{errmsg} = $self->_setFieldValue ($entity, $table, $fieldName, $values{$fieldName});
     
     last unless $self->{errmsg} eq '';
-  } # foreach
+  } # for
 
   $self->_setError ($self->{errmsg});
   

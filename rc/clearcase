@@ -15,7 +15,10 @@
 #
 ################################################################################
 if [ $ARCHITECTURE = 'cygwin' ]; then
-  export CCHOME=$(cygpath -u "$(regtool get '/machine/SOFTWARE/Rational Software/RSINSTALLDIR' 2>/dev/null)"/Clearcase 2>/dev/null);
+  # The following should work but fails because they are using /c to mount
+  # the C drive and that messes things up.
+  export CCHOME=$(cygpath -u "$(regtool get '/machine/SOFTWARE/Atria/ClearCase/CurrentVersion/ProductHome' 2>/dev/null)" 2>/dev/null)
+  export CCHOME=/opt/rational/clearcase
 else 
   export CCHOME="/opt/rational/clearcase"
 fi
@@ -4077,36 +4080,48 @@ function _object_selector () {
   fi
 } # _object_selector
 
-complete -o default -F _scm scm ct
+if [[ $BASH_VERSION = 2.05* || $BASH_VERSION = 4* ]]; then
+  complete -o default -F _scm scm ct
 
-complete -F _catcs       catcs
-complete -F _checkin     ci
-complete -F _deliver     deliver
-complete -F _endview     endview
-complete -F _lsactivity  lsact
-complete -F _lsbl        lsbl
-complete -F _lsproject   lsproj
-complete -F _lsfolder    lsfolder llfolder
-complete -F _lsstgloc    lsstgloc
-complete -F _lsstream    lsstream llstream
-complete -F _lsview      lsview llview
-complete -F _lsvob       lsvob llvob
-complete -F _merge       merge
-complete -F _mktag       mktag
-complete -F _mkview      mkview
-complete -F _rebase      rebase
-complete -F _rmtag       rmtag
-complete -F _rmview      rmview
-complete -F _setactivity setact
-complete -F _setcs       setcs
-complete -F _setview     setview
-complete -F _startview   startview
-complete -F _space       space
-complete -F _register    register
-complete -F _uncheckout  unco
-complete -F _unregister  unregister
-
-complete -F _object_selector -o nospace lstype
-complete -F _object_selector -o nospace lltype
-complete -F _object_selector -o nospace lslock
-complete -F _object_selector -o nospace lllock
+  complete -F _catcs       catcs
+  complete -F _checkin     ci
+  complete -F _deliver     deliver
+  complete -F _endview     endview
+  complete -F _lsactivity  lsact
+  complete -F _lsbl        lsbl
+  complete -F _lsproject   lsproj
+  complete -F _lsfolder    lsfolder llfolder
+  complete -F _lsstgloc    lsstgloc
+  complete -F _lsstream    lsstream llstream
+  complete -F _lsview      lsview llview
+  complete -F _lsvob       lsvob llvob
+  complete -F _merge       merge
+  complete -F _mktag       mktag
+  complete -F _mkview      mkview
+  complete -F _rebase      rebase
+  complete -F _rmtag       rmtag
+  complete -F _rmview      rmview
+  complete -F _setactivity setact
+  complete -F _setcs       setcs
+  complete -F _setview     setview
+  complete -F _startview   startview
+  complete -F _space       space
+  complete -F _register    register
+  complete -F _uncheckout  unco
+  complete -F _unregister  unregister
+else
+  : echo 'Clearcase command completion broken on old Sun Bash shells'
+fi
+  
+if [[ $BASH_VERSION = 4* ]]; then
+  complete -F _object_selector -o nospace lstype
+  complete -F _object_selector -o nospace lltype
+  complete -F _object_selector -o nospace lslock
+  complete -F _object_selector -o nospace lllock
+elif [[ $BASH_VERSION = 2.05* ]]; then
+  complete -F _object_selector lstype
+  complete -F _object_selector lltype
+  complete -F _object_selector lslock
+  complete -F _object_selector lllock
+  #echo 'Clearcase command completion partially broken on old Sun Bash shells'
+fi

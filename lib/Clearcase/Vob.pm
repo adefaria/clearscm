@@ -264,6 +264,10 @@ Returns:
   return $self->{shost};
 } # shost
 
+# Alias name to tag
+sub name() {
+  goto &tag;
+} # name
 sub access () {
   my ($self) = @_;
   
@@ -1177,8 +1181,8 @@ Returns:
   return !$status;
 } # exists
 
-sub create (;$$$) {
-  my ($self, $host, $vbs, $comment) = @_;
+sub create (;$$$%) {
+  my ($self, $host, $vbs, $comment, %opts) = @_;
 
 =pod
 
@@ -1232,20 +1236,26 @@ Ouput from cleartool
 
   return (0, ()) if $self->exists;
 
-  $comment = Clearcase::setComment $comment;
+  $comment = Clearcase::_setComment $comment;
 
   my ($status, @output);
 
+  my $additionalOpts = '';
+
+  for (keys %opts) {
+    $additionalOpts .= "-$_ ";
+    $additionalOpts .= "$opts{$_} " if $opts{$_};
+  } # for
+
   if ($host && $vbs) {
     ($status, @output) = $Clearcase::CC->execute (
-      "mkvob -tag $self->{tag} $comment -host $host -hpath $vbs "
+      "mkvob -tag $self->{tag} $comment $additionalOpts -host $host -hpath $vbs "
     . "-gpath $vbs $vbs");
   } else {
     # Note this requires that -stgloc's work and that using -auto is not a 
     # problem.
     ($status, @output) =
-      $Clearcase::CC->execute ("mkvob -tag $self->{tag} $comment "
-    . "-stgloc -auto");
+      $Clearcase::CC->execute ("mkvob -tag $self->{tag} $comment $additionalOpts -stgloc -auto");
   } # if
 
   $self->updateVobInfo;

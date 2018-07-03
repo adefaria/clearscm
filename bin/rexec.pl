@@ -36,7 +36,7 @@ $Date: 2008/02/29 15:09:15 $
                  [-use|rname <username>] [-p|assword <password>]
                  [-log]
                  -m|achines <host1>,<host2>,...
-                 
+
               <command>
 
  Where:

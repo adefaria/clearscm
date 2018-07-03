@@ -28,9 +28,9 @@ $Date: 2011/11/15 02:00:58 $
 
 =head1 SYNOPSIS
 
-Provides access to information about Clearcase Elements.
+Provides access to information about Clearcase Streams.
 
-  my $stream= new Clearcase::UCM::Stream ($name, $pvob);
+  my $stream = new Clearcase::UCM::Stream ($name, $pvob);
 
 =head1 DESCRIPTION
 
@@ -47,11 +47,8 @@ package Clearcase::UCM::Stream;
 use strict;
 use warnings;
 
-use Clearcase;
-use Clearcase::UCM::Baseline;
-
 sub new ($$) {
-  my ($class, $stream, $pvob) = @_;
+  my ($class, $name, $pvob) = @_;
 
 =pod
 
@@ -65,9 +62,13 @@ Parameters:
 
 =over
 
-=item stream name
+=item name
 
 Name of stream
+
+=item pvob
+
+Associated pvob
 
 =back
 
@@ -87,17 +88,17 @@ Returns:
 
 =cut
 
-  my $self = bless {
-    name => $stream,
-    pvob => Clearcase::vobtag $pvob,
+  $class = bless {
+    name => $name,
+    pvob => $pvob,
   }, $class; # bless
-    
-  return $self; 
+
+  return $class; 
 } # new
-  
+
 sub name () {
   my ($self) = @_;
-    
+
 =pod
 
 =head2 name
@@ -135,7 +136,7 @@ Returns:
 
 sub pvob () {
   my ($self) = @_;
-  
+
 =pod
 
 =head2 pvob
@@ -170,9 +171,9 @@ Returns:
 
   return $self->{pvob};
 } # pvob
-  
-sub create ($$;$$) {
-  my ($self, $project, $pvob, $baseline, $opts) = @_;
+
+sub create ($;$) {
+  my ($self, $project, $opts) = @_;
 
 =pod
 
@@ -186,21 +187,13 @@ Parameters:
 
 =over
 
-=item UCM Project (required)
+=item project
 
-UCM Project this stream belongs to
-
-=item PVOB (Required)
-
-Project Vob
-
-=item baseline
-
-Baseline to set this stream to
+Project that this stream will be created in
 
 =item opts
 
-Options: Additional options to use (e.g. -readonly)
+Options: Additional options to use (e.g. -baseline/-readonly)
 
 =back
 
@@ -226,30 +219,17 @@ Ouput from cleartool
 
 =cut
 
-  # Fill in object members
-  $self->{project}  = $project;
-  $self->{pvob}     = $pvob;
-    
-  # Fill in opts   
-  $opts ||= '';
-  $opts .= " -baseline $baseline"
-    if $baseline;  
-      
-  $self->{readonly} = $opts =~ /-readonly/;
-  
-  # TODO: This should call the exists function
-  # Return the stream name if the stream already exists
-  my ($status, @output) = 
-    $Clearcase::CC->execute ('lsstream -short ' . $self->{name}); 
+  return (0, ()) if $self->exists;
 
-  return ($status, @output)
-    unless $status;
-    
-  # Need to create the stream
-  return $Clearcase::CC->execute 
-    ("mkstream $opts -in " . $self->{project} .
-     "\@"                  . $self->{pvob}    .
-     ' '                   . $self->{name});
+  $opts ||= '';
+
+  $self->{readonly} = $opts =~ /-readonly/;
+
+  return $Clearcase::CC->execute(
+    "mkstream $opts -in "
+       . $project->name . '@' . $self->{pvob}->tag . ' '
+       . $self->name    . '@' . $self->{pvob}->tag
+  );
 } # create
 
 sub remove () {
@@ -267,22 +247,6 @@ Parameters:
 
 =over
 
-=item UCM Project (required)
-
-UCM Project this stream belongs to
-
-=item PVOB (Required)
-
-Project Vob
-
-=item baseline
-
-Baseline to set this stream to
-
-=item opts
-
-Options: Additional options to use (e.g. -readonly)
-
 =back
 
 =for html </blockquote>
@@ -308,8 +272,156 @@ Ouput from cleartool
 =cut
 
   return $Clearcase::CC->execute 
-    ('rmstream -f ' . $self->{name} . "\@" . $self->{pvob});
+    ('rmstream -f ' . $self->{name} . '@' . $self->{pvob}->name);
 } # rmStream
+
+sub rebase($;$) {
+  my ($self, $opts) = @_;
+
+=pod
+
+=head2 rebase
+
+Rebases a UCM Stream
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item baseline
+
+Baseline to rebase to
+
+=item opts
+
+Any additional opts
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $status
+
+Status from cleartool
+
+=item @output
+
+Ouput from cleartool
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  $opts ||= '';
+
+  $opts .= ' -stream '   . $self->name . '@' . $self->{pvob}->name;
+
+  return $Clearcase::CC->execute("rebase $opts");
+} # rebase
+
+sub recommend($) {
+  my ($self, $baseline) = @_;
+
+=pod
+
+=head2 recommend
+
+Recommends a baseline in a UCM Stream
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item baseline
+
+Baseline to recommend
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $status
+
+Status from cleartool
+
+=item @output
+
+Ouput from cleartool
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  return $Clearcase::CC->execute(
+    "chstream -recommended $baseline " . $self->name . '@' . $self->{pvob}->tag
+  );
+} # recommend
+
+sub nrecommended() {
+  my ($self) = @_;
+
+=pod
+
+=head2 nrecommend
+
+Changes stream to not have a recommended baseline
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $status
+
+Status from cleartool
+
+=item @output
+
+Ouput from cleartool
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  return $Clearcase::CC->execute(
+    'chstream -nrecommended ' . $self->name . '@' . $self->{pvob}->tag
+  );
+} # nrecommended
 
 sub baselines () {
   my ($self) = @_;
@@ -349,21 +461,63 @@ An array of baseline objects for this stream
 =cut
 
   my $cmd = "lsbl -short -stream $self->{name}\@$self->{pvob}";
-  
+
   $Clearcase::CC->execute ($cmd); 
 
   return if $Clearcase::CC->status;
 
   my @baselines;
-  
-  foreach ($Clearcase::CC->output) {
+
+  for ($Clearcase::CC->output) {
     my $baseline = Clearcase::UCM::Baseline->new ($_, $self->{pvob});
-    
+
     push @baselines, $baseline;
-  } # foreach
-  
+  } # for
+
   return @baselines;
 } # baselines
+
+sub exists() {
+  my ($self) = @_;
+
+=pod
+
+=head3 exists
+
+Return true if the stream exists - false otherwise
+
+Paramters:
+
+=for html <blockquote>
+
+=over 
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item boolean
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($status, @output) = $Clearcase::CC->execute(
+    'lsstream ' . $self->{name} . '@' . $self->{pvob}->name
+  );
+
+  return !$status;
+} # exists
 
 1;
 
@@ -374,6 +528,7 @@ An array of baseline objects for this stream
 =for html <p><a href="/php/scm_man.php?file=lib/Clearcase.pm">Clearcase</a></p>
 
 =for html <p><a href="/php/scm_man.php?file=lib/Clearcase/UCM/Baseline.pm">Clearcase::UCM::Baseline</a></p>
+=for html <p><a href="/php/scm_man.php?file=lib/Clearcase/UCM/Project.pm">Clearcase::UCM::Project</a></p>
 
 =head1 INCOMPATABILITIES
 

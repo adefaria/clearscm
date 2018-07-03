@@ -70,7 +70,7 @@ trigger.
  TODO: Is cleartool find really needed? I mean since we are going through
        the extended version namespace don't we by default find all
        subdirectories?
- 
+
 This script will use cleartool find to process all directory elements from
 $startingDir (Default '.'). For each version of the directory a hash will be
 built up containing all of the element names in that directory version.
@@ -167,8 +167,8 @@ sub reportDir (%) {
       $log->msg ("File: $filename");
 
       foreach (@oids) {
-	$log->msg ("\tOID: $$_{OID} ($$_{count})");
-	$log->msg ("\tFirst detected \@: $$_{version}");
+        $log->msg ("\tOID: $$_{OID} ($$_{count})");
+        $log->msg ("\tFirst detected \@: $$_{version}");
       } # foreach
     } # if
   } # foreach
@@ -231,7 +231,7 @@ sub processDir ($) {
     if $directory eq '.';
 
   my $displayName = "$directory$Clearcase::SFX$version";
-   
+
   # We only want to deal with branches and numbered versions. Non-numbered
   # versions which are not branches represent labels and baselines which are
   # just aliases for directory and file elements. Branches represent recursion
@@ -287,7 +287,7 @@ sub processDir ($) {
           last;
         } # if
       } # foreach
-        
+
       unless ($found) {
         # If we didn't find a match then make a new %objInfo starting with a
         # count of 1. Also save this current $version, which is the first
@@ -380,7 +380,7 @@ sub processDirs ($) {
 
   close $dirs
     or $log->err ("Unable to close $cmd - $!");
-    
+
   return $total{'evil twins'};
 } # processDirs
 
