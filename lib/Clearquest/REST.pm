@@ -151,7 +151,7 @@ Database Set name (Default: From cq.conf)
 =back
 
 =cut
-  
+
 our (%RECORDS, %FIELDS);
 
 # FieldTypes ENUM
@@ -169,14 +169,14 @@ my $RECORD_TYPE      = 9;
 
 sub _callREST ($$$;%) {
   my ($self, $type, $url, $body, %parms) = @_;
-  
+
   # Set error and errmsg to no error
   $self->error (0);
   $self->{errmsg} = '';
-  
+
   # Upshift the call type as the calls are actually like 'GET' and not 'get'
   $type = uc $type;
-  
+
   # We only support these call types
   croak "Unknown call type \"$type\""
     unless $type eq 'GET'     or
@@ -186,7 +186,7 @@ sub _callREST ($$$;%) {
            $type eq 'PUT'     or
            $type eq 'DELETE'  or
            $type eq 'HEAD';
-  
+
   # If the caller did not give us authorization then use the login member we
   # already have in the object
   unless ($parms{Authorization}) {
@@ -198,10 +198,10 @@ sub _callREST ($$$;%) {
   if ($url =~ /oslc.where/) {
     $parms{'OSLC-Core-Version'} = '2.0';
   } # if
-  
+
   # Remove the host portion if any
   $url =~ s/^http.*$self->{server}//;
-  
+
   # Call the REST call (Different calls have different numbers of parameters)
   if ($type eq 'GET'     or
       $type eq 'DELETE'  or
@@ -211,29 +211,29 @@ sub _callREST ($$$;%) {
   } else {
     $self->{rest}->$type ($url, $body, \%parms);
   } # if
-  
+
   return $self->error;
 } # _callREST
 
 sub _getRecordName ($) {
   my ($self, $query) = @_;
-  
+
   $self->_callREST ('get', $query);
-  
+
   if ($self->error) {
     $self->errmsg ("Unable to get record name for $query");
-    
+
     return;
   } # if
 
   my %record = %{XMLin ($self->{rest}->responseContent)};
-  
+
   return $record{element}{name};
 } # _getRecordName
 
 sub _getAttachmentList ($$) {
   my ($self, $result, $fields) = @_;
-  
+
   croak ((caller(0))[3] . ' is not implemented');
 
   return;
@@ -247,14 +247,14 @@ sub _getInternalID ($$) {
   $query .= "rcm.name=$key";  
 
   $self->_callREST ('get', $query);
-  
+
   unless ($self->error) {
     my %result = %{XMLin ($self->{rest}->responseContent)};
 
     return $result{entry}{id};
   } else {
     $self->errmsg ("Record not found (Table: $table, Key: \"$key\")");
-    
+
     return $self->errmsg;
   } # unless
 } # _getInternalID
@@ -263,21 +263,21 @@ sub _getRecord ($$@) {
   my ($self, $table, $url, @fields) = @_;
 
   $self->{fields} = [$self->_setFields ($table, @fields)];
-    
+
   $self->_callREST ('get', $url);
-  
+
   return if $self->error;
 
   # Now parse the results
   my %result = %{XMLin ($self->{rest}->responseContent)};
-  
+
   if ($result{entry}{content}{$table}) {
     return $self->_parseFields ($table, %{$result{entry}{content}{$table}});
   } elsif (ref \%result eq 'HASH') {
     # The if test above will create an empty $result{entry}{content}. We need
     # to delete that
     delete $result{entry};
-    
+
     return $self->_parseFields ($table, %result);
   } else {
     return;
@@ -288,7 +288,7 @@ sub _getRecordID ($) {
   my ($self, $table) = @_;
 
   $self->records;
-  
+
   return $RECORDS{$table};
 } # _getRecordID
 
@@ -296,44 +296,44 @@ sub _getRecordURL ($$;@) {
   my ($self, $table, $url, @fields) = @_;
 
   $self->{fields} = [$self->_setFields ($table, @fields)];
-    
+
   $self->error ($self->_callREST ('get', $url));
-  
+
   return if $self->error;
-  
+
   return $self->_parseFields ($table, %{XMLin ($self->{rest}->responseContent)});
 } # _getRecordURL
 
 sub _getReferenceList ($$) {
   my ($self, $url, $field) = @_;
-  
+
   $self->error ($self->_callREST ('get', $url));
-  
+
   return if $self->error;
-  
+
   my %result = %{XMLin ($self->{rest}->responseContent)};
 
   my @values;
-  
+
   # Need to find the field array here...
   foreach my $key (keys %result) {
     if (ref $result{$key} eq 'ARRAY') {
       foreach (@{$result{$key}}) {
         push @values, $$_{'oslc_cm:label'};
       } # foreach
-      
+
       last;
     } elsif (ref $result{$key} eq 'HASH' and $result{$key}{'oslc_cm:label'}) {
       push @values, $result{$key}{'oslc_cm:label'};
     } # if
   } # foreach
-  
+
   return @values;
 } # _getReferenceList
 
 sub _parseCondition ($$) {
   my ($self, $table, $condition) = @_;
-  
+
   # Parse simple conditions only
   my ($field, $operator, $value);
 
@@ -354,13 +354,13 @@ sub _parseCondition ($$) {
       return "$field in [$value]"
     } # if
   } # if
-  
+
   if ($operator eq '=' and $value =~ /^null$/i) {
     return "$field in [\"\"]";
   } elsif ($operator eq '!=' and $value =~ /^null$/i) {
     return "$field in [*]";
   } # if
-  
+
   # Trim quotes if any:
   if ($value =~ /^\s*\'/) {
     $value =~ s/^\s*\'//;
@@ -369,17 +369,17 @@ sub _parseCondition ($$) {
     $value =~ s/^\s*\"//;
     $value =~ s/\"\s*$//;
   } # if
-  
+
   # Trim leading and trailing whitespace
   $value =~ s/^\s+//;
   $value =~ s/\s+$//;
-  
+
   # Convert datetimes to Zulu
   if ($self->fieldType ($table, $field) == $DATE_TIME and
       $value !~ /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/) {
     $value = Clearquest::_UTCTime ($value);        
   } # if
-  
+
   return "$field $operator \"$value\""; 
 } # _parseCondition
 
@@ -387,28 +387,28 @@ sub _parseConditional ($$) {
   my ($self, $table, $condition) = @_;
 
   return 'oslc_cm.query=' unless $condition;
-  
+
   my $parsedConditional;
-  
+
   # Special case when the condition is ultra simple
   if ($condition !~ /(\w+)\s*(==|=|!=|<>|<|>|<=|>=|in|is\s+null|is\s+not\s+null)\s*(.*)/i) {
     return "rcm.name=$condition";
   } # if  
-  
+
   # TODO: This section needs improvement to handle more complex conditionals
   while () {
     if ($condition =~ /(.+?)\s+(and|or)\s+(.+)/i) {
       my $leftSide = $self->_parseCondition ($table, $1);
-      
+
       $parsedConditional .= "$leftSide $2 ";
       $condition          = $3;
     } else {
       $parsedConditional .= $self->_parseCondition ($table, $condition);
-      
+
       last;
     } # if
   } # while
-    
+
   # TODO: How would this work if we have a condition like 'f1 = "value" and
   # f2 is not null'?
   if ($parsedConditional =~ /in \[\*\]/) {
@@ -420,16 +420,16 @@ sub _parseConditional ($$) {
 
 sub _parseFields ($%) {
   my ($self, $table, %record) = @_;
-  
+
   foreach my $field (keys %record) {
     if ($field =~ /:/     or
         $field eq 'xmlns' or
         grep {/^$field$/} @{$self->{fields}} == 0) {
       delete $record{$field};
-      
+
       next;
     } # if
-    
+
     my $fieldType = $self->fieldType ($table, $field);
 
     if (ref $record{$field} eq 'HASH') {      
@@ -441,7 +441,7 @@ sub _parseFields ($%) {
         $record{$field} = \@values;
       } elsif ($fieldType == $ATTACHMENT_LIST) {
         my @attachments = $self->_getAttachmentList ($record{$field}{'oslc_cm:collref'}, $field);
-          
+
         $record{$field} = \@attachments;
       } elsif ($fieldType == $RECORD_TYPE) {
         $record{$field} = $record{$field}{'oslc_cm:label'};
@@ -449,33 +449,33 @@ sub _parseFields ($%) {
         $record{$field} = undef;
       } # if
     } # if
-      
+
     $record{$field} ||= '' if $self->{emptyStringForUndef};
 
     if ($fieldType == $DATE_TIME) {
       $record{$field} = Clearquest::_UTC2Localtime $record{$field};
     } # if
   } # foreach
-  
+
   return %record;  
 } # _parseFields
 
 sub _parseRecordDesc ($) {
   my ($self, $table) = @_;
-  
+
   # Need to get fieldType info
   my $recordID = $self->_getRecordID ($table);
-  
+
   return unless $recordID;
-  
+
   my $url = "$self->{uri}/record-type/$recordID";
-  
+
   $self->_callREST ('get', $url);
-  
+
   return if $self->error;
-  
+
   my %result = %{XMLin ($self->{rest}->responseContent)};
-  
+
   # Reach in deep for field definitions
   my %fields = %{$result{element}{complexType}{choice}{element}};
 
@@ -520,15 +520,15 @@ sub _parseRecordDesc ($) {
     } else {
       $FIELDS{$table}{$_}{FieldType} = $UNKNOWN;
     } # if
-    
+
     if ($fields{$_}{'cq:systemOwned'} and $fields{$_}{'cq:systemOwned'} eq 'true') {
       $FIELDS{$table}{$_}{SystemField} = 1;
     } else { 
       $FIELDS{$table}{$_}{SystemField} = 0;
     } # if
   } # foreach
-  
-  return;  
+
+  return;
 } # _parseRecordDesc
 
 sub _isSystemField ($$) {
@@ -557,17 +557,17 @@ sub _setFields ($@) {
 
   # Cause %FIELDS to be expanded for $table
   $self->_parseRecordDesc ($table);
-    
+
   unless (@fields) {
     foreach ($self->fields ($table)) {
       unless ($self->{returnSystemFields}) {
         next if $FIELDS{$table}{$_}{SystemField}
       } # unless
-      
+
       push @fields, $_;
     } # foreach
   } # unless 
- 
+
   push @fields, 'dbid' unless grep { /dbid/ } @fields;
 
   return @fields;
@@ -577,9 +577,9 @@ sub _setFieldValue ($$$) {
   my ($self, $table, $fieldName, $fieldValue) = @_;
 
   return if $self->_isSystemField ($table, $fieldName);
-  
+
   my $xml .= "<$fieldName>";
-    
+
   my $fieldType = $self->fieldType ($table, $fieldName);
 
   if ($fieldType == $STRING           or
@@ -589,39 +589,39 @@ sub _setFieldValue ($$$) {
     # Fix MULTILINE_STRINGs
     if ($fieldType == $MULTILINE_STRING and ref $fieldValue eq 'ARRAY') {
       chomp @{$fieldName};
-        
+
       $fieldValue= join "\n", @$fieldValue;
     } # if
-      
+
     $xml .= escapeHTML $fieldValue;
   } elsif ($fieldType == $REFERENCE) {
     my $tableReferenced = $self->fieldReference ($table, $fieldName);
-      
+
     if ($tableReferenced) {
       $xml .= $self->_getInternalID ($tableReferenced, $fieldValue);
     } else {
       $self->error (600);
       $self->errmsg ("Could not determine reference for $fieldName");
-        
+
       return; 
     } # if
   } elsif ($fieldType == $REFERENCE_LIST) {
     # We'll allow either an array reference or a single value, which we will
     # turn into an array
     my @values;
-      
+
     @values = ref $fieldValue eq 'ARRAY' ? @$fieldValue
                                          : ($fieldValue);
-                                               
+
     my $tableReferenced = $self->fieldReference ($table, $fieldName);
-      
+
     unless ($tableReferenced) {
       $self->error (600);
       $self->errmsg ("Could not determine reference for $fieldName");
-      
+
       return;
     } # if
-        
+
     foreach (@values) {
       my $internalID = $self->_getInternalID ($tableReferenced, $_);
 
@@ -630,7 +630,7 @@ sub _setFieldValue ($$$) {
       } else {
         $self->error (600);
         $self->errmsg ("Could not find a valid/active $tableReferenced with a key of \"$_\"");
-        
+
         return 
       } # if
     } # foreach
@@ -639,13 +639,13 @@ sub _setFieldValue ($$$) {
   } # if
 
   $xml .= "</$fieldName>\n";
-  
+
   return $xml;   
 } # _setFieldValue
 
 sub _startXML ($) {
   my ($table) = @_;
-  
+
   my $xml = << "XML";
 <?xml version="1.0" encoding="UTF-8"?>
 <$table
@@ -654,7 +654,7 @@ sub _startXML ($) {
   xmlns:dc="http://purl.org/dc/terms/"
   xmlns:oslc_cm="http://open-services.net/xmlns/cm/1.0/">
 XML
- 
+
   return $xml
 } # _startXML
 
@@ -723,15 +723,15 @@ Error message (if any)
 
   # First process all fields in the @ordering, if specified
   $xml .= $self->_setFieldValue ($table, $_, $record{$_}) foreach (@ordering);
-  
+
   foreach my $field (keys %record) {
     next if InArray $field, @ordering;
-    
+
     $xml .= $self->_setFieldValue ($table, $field, $record{$field});
   } # foreach
-  
+
   $xml .= "</$table>";
-  
+
   $self->_callREST ('post', $uri, $xml);
 
   # Get the DBID of the newly created record  
@@ -744,7 +744,7 @@ Error message (if any)
 
 sub connect (;$$$$) {
   my ($self, $username, $password, $database, $dbset) = @_;
-  
+
 =pod
 
 =head2 connect (;$$$$)
@@ -795,7 +795,7 @@ Returns:
 
   if (ref $username eq 'HASH') {
     my %opts = %$username;
-    
+
     $self->{username} = delete $opts{CQ_USERNAME};
     $self->{password} = delete $opts{CQ_PASSWORD};
     $self->{database} = delete $opts{CQ_DATABASE};
@@ -806,17 +806,17 @@ Returns:
     $self->{database} = $database if $database;
     $self->{dbset}    = $dbset    if $dbset;
   } # if
-  
+
   # Set URI in case anything changed
   $self->{uri}      = "/cqweb/oslc/repo/$self->{dbset}/db/$self->{database}";
   $self->{loggedin} = 1;
-  
+
   return 1;
 } # connect
 
 sub connected () {
   my ($self) = @_;
-  
+
 =pod
 
 =head2 connected ()
@@ -848,7 +848,7 @@ Returns:
 =for html </blockquote>
 
 =cut
-  
+
   return $self->{loggedin};  
 } # connected
 
@@ -934,7 +934,7 @@ sub dbsets () {
 
 sub delete ($$) {
   my ($self, $table, $key) = @_;
-  
+
 =pod
 
 =head2 delete ($table, $key)
@@ -976,7 +976,7 @@ Error message (if any)
 =cut
 
   my $query = $self->_getInternalID ($table, $key);
-  
+
   # Need to remove $self->{server} from beginning of $query
   $query =~ s/^http.*$self->{server}//;
 
@@ -992,13 +992,13 @@ sub DESTROY () {
   # global destruction (like when you die or exit), the ordering of destruction
   # is unpredictable so we might not succeed.
   return unless $self->{rest};
-  
+
   # Delete session - ignore error as there's really nothing we can do if this
   # fails.
   $self->_callREST ('delete', '/cqweb/oslc/session/');
-  
+
   croak "Unable to release REST session in destructor" if $self->error;
-  
+
   return;
 } # DESTROY
 
@@ -1051,9 +1051,9 @@ Error number (if any)
 =cut
 
   return unless $self->{rest};
-  
+
   $self->_callREST ('delete', '/cqweb/oslc/session/');
-  
+
   return $self->error;
 } # disconnect
 
@@ -1106,10 +1106,10 @@ Last error message
       return $self->{errmsg};
     } else {
       my $response = $self->response;
-      
+
       if ($response and $response ne '') {
         my %xml = %{XMLin ($self->response)};
-    
+
         if ($xml{Error}{message}) {
           $self->{errmsg} = $xml{Error}{message};
         } elsif (ref $xml{message} ne 'HASH' and $xml{message}) {
@@ -1122,13 +1122,13 @@ Last error message
       } # if
     } # if
   } # if
-  
+
   return $self->{errmsg};
 } # errmsg
 
 sub error (;$) {
   my ($self, $error) = @_;
-  
+
 =pod
 
 =head2 error ($error)
@@ -1164,8 +1164,7 @@ Last error
 =for html </blockquote>
 
 =cut
-  
-  
+
   if (defined $error) {
     $self->{responseCode} = $error;
   } else {
@@ -1187,7 +1186,7 @@ Last error
 
 sub fields ($) {
   my ($self, $table) = @_;
-  
+
 =pod
 
 =head2 fields ($table)
@@ -1225,19 +1224,19 @@ Array of the fields names for $table
 =cut
 
   my $recordID = $self->_getRecordID ($table);
-  
+
   return unless $recordID;
-  
+
   my $url = "$self->{uri}/record-type/$recordID";
 
   $self->_callREST ('get', $url);
-  
+
   return if $self->error;
 
   my %result = %{XMLin ($self->{rest}->responseContent)};
-  
+
   my @fields = keys %{$result{element}{complexType}{choice}{element}};
-   
+
   return @fields; 
 } # fields
 
@@ -1283,7 +1282,7 @@ Fieldtype enum
 =for html </blockquote>
 
 =cut
-  
+
   # If we've already computed the fieldTypes for the fields in this table then
   # return the value
   if ($FIELDS{$table}) {
@@ -1360,7 +1359,7 @@ this is not a reference or reference list field.
 
 sub find ($;$@) {
   my ($self, $table, $condition, @fields) = @_;
-  
+
 =pod
 
 =head2 find ($;$@)
@@ -1413,34 +1412,34 @@ is also returned.
 
   $self->{url} = "$self->{uri}/record/?rcm.type=$table&"
                . $self->_parseConditional ($table, $condition);
-  
+
   @fields = $self->_setFields ($table, @fields);
-  
+
   # Remove dbid for find
   @fields = grep { $_ ne 'dbid' } @fields;
-  
+
   if (@fields) {
     $self->{url} .= "&oslc_cm.properties=";
     $self->{url} .= join ',', @fields;
   } # if
-  
+
   # Save some fields for getNext
   $self->{fields} = \@fields;
   $self->{table}  = $table;
-  
+
   $self->{url} .= "&oslc_cm.pageSize=1";
-  
+
   return $self->{url} unless wantarray;
-  
+
   # If the user wants an array then he wants ($reesult, $nbrRecs) and so we need
   # to go out and get that info.
   $self->_callREST ('get', $self->{url});
-  
+
   return (undef, 0) if $self->error;
 
   # Now parse the results
   my %result = %{XMLin ($self->{rest}->responseContent)};
-  
+
   return ($self->{url}, $result{'oslc_cm:totalCount'}{content});
 } # find
 
@@ -1511,7 +1510,7 @@ An hash representing the qualifying record.
 
 sub getDBID ($$;@) {
   my ($self, $table, $dbid, @fields) = @_;
-  
+
 =pod
 
 =head2 get ($table, $key, @fields)
@@ -1567,13 +1566,13 @@ An hash representing the qualifying record.
      $url .= $self->_getRecordID ($table);
      $url .= '-';
      $url .= $dbid;
-    
+
   if (@fields) {
     $url .= "?oslc_cm.properties=";
     $url .= 'dbid,' unless grep { /dbid/i } @fields;
     $url .= join ',', @fields;
   } # if
-  
+
   return $self->_getRecord ($table, $url);
 } # getDBID
 
@@ -1583,7 +1582,7 @@ sub getDynamicList () {
 
 sub getNext ($) {
   my ($self, $result) = @_;
-  
+
 =pod
 
 =head2 getNext ($)
@@ -1619,33 +1618,33 @@ Hash of name/value pairs for the @fields specified to find.
 =for html </blockquote>
 
 =cut
-  
+
   return unless $self->{url};
-  
+
   my $url = $self->{url};
 
   $self->_callREST ('get', $url);
-  
+
   return if $self->error;
 
   # Now parse the results
   my %result = %{XMLin ($self->{rest}->responseContent)};
-  
+
   # Get the next link
   undef $self->{url};
-  
+
   if (ref $result{link} eq 'ARRAY') {
     foreach (@{$result{link}}) {
       if ($$_{rel} eq 'next') {
         ($self->{url}) = ($$_{href} =~ /^http.*$self->{server}(.*)/);
-  
+
         last;
       } # if
     } # foreach
   } # if
-  
+
   my %record;
-  
+
   if (ref $result{entry}{content}{$self->{table}} eq 'HASH') {
     %record = $self->_parseFields ($self->{table}, %{$result{entry}{content}{$self->{table}}});
   } elsif (ref $result{entry} eq 'HASH') {
@@ -1653,18 +1652,18 @@ Hash of name/value pairs for the @fields specified to find.
       %record = $self->_getRecordURL ($self->{table}, $result{entry}{id}, @{$self->{fields}});
     } # if
   } # if
-  
+
   # Get dbid
   if ($result{entry}{link}{href} =~ /-(\d+)$/) {
     $record{dbid} = $1;
   } # if
-  
+
   return %record;
 } # getNext
 
 sub key ($$) {
   my ($self, $table, $dbid) = @_;
-  
+
 =pod
 
 =head2 key ($$)
@@ -1710,7 +1709,7 @@ Returns:
 
 sub modify ($$$$;@) {
   my ($self, $table, $key, $action, $values, @ordering) = @_;
-  
+
 =pod
 
 =head2 modify ($table, $key, $action, $values, @ordering)
@@ -1778,36 +1777,36 @@ Error message (if any)
 
   my %values = %$values;
   my $xml    = _startXML $table;
-  
+
   $action ||= 'Modify';
-  
+
   my $query = $self->_getInternalID ($table, $key);
-  
+
   # Remove host portion
   $query =~ s/^http.*$self->{server}//;
-    
+
   # Add on action
   $query .= "?rcm.action=$action";
-  
+
   # First process all fields in the @ordering, if specified
   $xml .= $self->_setFieldValue ($table, $_, $values{$_}) foreach (@ordering);
-  
+
   foreach my $field (keys %values) {
     next if InArray $field, @ordering;
-    
+
     $xml .= $self->_setFieldValue ($table, $field, $values{$field});
   } # foreach
-  
+
   $xml .= "</$table>";
 
   $self->_callREST ('put', $query, $xml);
-  
+
   return $self->errmsg;
 } # modify
 
 sub modifyDBID ($$$$;@) {
   my ($self, $table, $dbid, $action, $values, @ordering) = @_;
-  
+
 =pod
 
 =head2 modifyDBID ($table, $dbid, $action, %update)
@@ -1875,36 +1874,36 @@ Error message (if any)
 
   my %values = %$values;
   my $xml    = _startXML $table;
-  
+
   $action ||= 'Modify';
-  
+
   my $query  = "$self->{uri}/record/";
      $query .= $self->_getRecordID ($table);
      $query .= '-';
      $query .= $dbid;
-  
+
   # Add on action
   $query .= "?rcm.action=$action";
-  
+
   # First process all fields in the @ordering, if specified
   $xml .= $self->_setFieldValue ($table, $_, $values{$_}) foreach (@ordering);
-  
+
   foreach my $field (keys %values) {
     next if InArray $field, @ordering;
-    
+
     $xml .= $self->_setFieldValue ($table, $field, $values{$field});
   } # foreach
-  
+
   $xml .= "</$table>";
 
   $self->_callREST ('put', $query, $xml);
-  
+
   return $self->errmsg;
 } # modifyDBID
 
 sub new (;%) {
   my ($class, $self) = @_;
-  
+
 =pod
 
 =head2 new (%parms)
@@ -1941,7 +1940,7 @@ Returns:
 =cut
 
   $self->{server} ||= $Clearquest::OPTS{CQ_SERVER};
-  
+
   $$self{base_url} = "$self->{server}/cqweb/oslc",
   $$self{uri}      = "/cqweb/oslc/repo/$self->{dbset}/db/$self->{database}",
   $$self{login}    = {
@@ -1950,19 +1949,19 @@ Returns:
     Authorization       => 'Basic '
       . encode_base64 "$self->{username}:$self->{password}",
   };
-  
+
   bless $self, $class;
-  
+
   # We create this UserAgent and Cookie Jar so we can set cookies to be 
   # remembered and passed back and forth automatically. By doing this we re-use
   # the JSESSIONID cookie we allows us to reuse our login and to dispose of the
   # login session properly when we are destroyed.
   my $userAgent = LWP::UserAgent->new;
-  
+
   # Set the cookie jar to use in-memory cookie management, cookies can be
   # persisted to disk, see HTTP::Cookies for more info.
   $userAgent->cookie_jar (HTTP::Cookies->new);
-  
+
   $self->{rest} = REST::Client->new (
     host      => $self->{server},
     timeout   => 15,
@@ -1975,7 +1974,7 @@ Returns:
 
 sub records () {
   my ($self) = @_;
-  
+
 =pod
 
 =head2 records ()
@@ -2011,27 +2010,27 @@ Hash of records and their record numbers
 =cut
 
   return if %RECORDS;
-  
+
   my $url = "$self->{uri}/record-type/";
 
   $self->_callREST ('get', $url);
-  
+
   unless ($self->error) {
     my %result = %{XMLin ($self->{rest}->responseContent)};
 
     foreach my $uri (keys %{$result{entry}}) {
       my ($recordID) = ($uri =~ /\/(\d+)/);
-      
+
       $RECORDS{$result{entry}{$uri}{title}} = $recordID;
     } # foreach
   } # unless
-  
+
   return %RECORDS;
 } # records
 
 sub response () {
   my ($self) = @_;
-  
+
 =pod
 
 =head2 response ()

@@ -38,7 +38,7 @@ The results are sent back as follows:
 
  Status: <status>
  <command output>
- 
+
 This allows the caller to determine if the command execution was successful as
 well as capture the commands output.
 
@@ -282,7 +282,7 @@ sub _serviceClient ($$) {
       $self->_debug ("Status: $status");
     } # if
 
-    print $client "$_\n" foreach (@output);
+    print $client "$_\n" for (@output);
     print $client "Clearexec Status: $status\n";
 
     $self->_debug ("Looping around for next command");
@@ -319,7 +319,7 @@ sub startServer (;$) {
 
   while () {
     $client = $self->{socket}->accept;
-    
+
     if ($? == -1) {
       if ($!{EINTR}) {
         next;
@@ -394,7 +394,7 @@ L<Net::hostent|Net::hostent>
 
 =head2 ClearSCM Perl Modules
 
-=begin man 
+=begin man
 
  DateUtils
  Display

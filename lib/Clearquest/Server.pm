@@ -87,14 +87,14 @@ sub new (;%) {
   my ($class, %parms) = @_;
 
   my $self;
-  
+
   $parms{CQ_DATABASE}      ||= $Clearquest::OPTS{CQ_DATABASE};
   $parms{CQ_USERNAME}      ||= $Clearquest::OPTS{CQ_USERNAME};
   $parms{CQ_PASSWORD}      ||= $Clearquest::OPTS{CQ_PASSWORD};
   $parms{CQ_DBSET}         ||= $Clearquest::OPTS{CQ_DBSET};
   $parms{CQ_SERVER}        ||= $Clearquest::OPTS{CQ_SERVER};
   $parms{CQ_PORT}          ||= $Clearquest::OPTS{CQ_PORT};
-  
+
   $parms{CQ_MULTITHREADED} = $Clearquest::OPTS{CQ_MULTITHREADED} 
     unless defined $parms{CQ_MULTITHREADED};
 
@@ -110,7 +110,7 @@ sub new (;%) {
   $self->{port}          = $parms{CQ_PORT};
   $self->{module}        = $parms{CQ_MODULE};
   $self->{multithreaded} = $parms{CQ_MULTITHREADED};
-  
+
   return bless $self, $class;
 } # new
 
@@ -120,7 +120,7 @@ sub _tag ($) {
   my $tag  = YMDHMS;
      $tag .= ' ';
      $tag .= $self->{pid} ? '[' . abs ($self->{pid}) . '] ' : '';
-  
+
   return "$tag$msg";
 } # _tag
 
@@ -128,32 +128,32 @@ sub _verbose ($) {
   my ($self, $msg) = @_;
 
   verbose $self->_tag ($msg);
-  
+
   return;
 } # _verbose
 
 sub _debug ($) {
   my ($self, $msg) = @_;
-  
+
   debug $self->_tag ($msg);
-  
+
   return;
 } # _debug
 
 sub _log ($) {
   my ($self, $msg) = @_;
-  
+
   display $self->_tag ($msg);
-  
+
   return;
 } # log
 
 sub _funeral () {
   debug "Entered _funeral";
-  
+
   while (my $childpid = waitpid (-1, WNOHANG) > 0) {
     my $status = $?;
-  
+
     if ($childpid != -1) {
       local $SIG{CHLD} = \&_funeral;
 
@@ -164,21 +164,21 @@ sub _funeral () {
         if $status;
     } # if
   } # while
-  
+
   return;
 } # _funeral
 
 sub _endServer () {
   display "Clearquest::Server V$VERSION shutdown at " . localtime;
-  
+
   # Kill process group
   kill 'TERM', -$$;
-  
+
   # Wait for all children to die
   while (wait != -1) {
     # do nothing
   } # while 
-  
+
   # Now that we are alone, we can simply exit
   exit;
 } # _endServer
@@ -186,39 +186,39 @@ sub _endServer () {
 sub _restartServer () {
   # Not sure what to do on a restart server
   display 'Entered _restartServer';
-  
+
   return;
 } # _restartServer
 
 sub _printStatus ($) {
   my ($self, $client) = @_;
-  
+
   my $status = $self->{clearquest}->error;
-  
+
   $status ||= 0;
-  
+
   $self->_debug ("Printing status: " . __PACKAGE__ . " Status: $status");
-  
+
   print $client __PACKAGE__ . " Status: $status\n";
-  
+
   $self->_debug ("After print");
-  
+
   return; 
 } # printStatus
 
 sub _connectToClearquest ($$$$) {
   my ($self, $database, $username, $password, $dbset) = @_;
-  
+
   my %parms;
-  
+
   $parms{CQ_DATABASE} = $database;
   $parms{CQ_USERNAME} = $username;
   $parms{CQ_PASSWORD} = $password;
   $parms{CQ_DBSET}    = $dbset;
-  
+
   # The server always uses the standard Clearquest API
   $parms{CQ_MODULE} = 'api';
-  
+
   # Connect to Clearquest database
   $self->{clearquest} = Clearquest->new (%parms);
 
@@ -227,22 +227,22 @@ sub _connectToClearquest ($$$$) {
         . " for $self->{clientname}");
 
   $self->{loggedin} = $self->{clearquest}->connect;
-  
+
   return $self->{loggedin};
 } # _connectToClearquest
 
 sub _processCommand ($$@) {
   my ($self, $client, $call, @parms) = @_;
-  
+
   $self->_debug ("Client wishes to execute $call");
 
   if ($call eq 'end') {
     $self->_verbose ("Serviced requests from $self->{clientname}");
-    
+
     close $client;
 
     $self->disconnectFromClient;
-      
+
     return 1;
   } elsif ($call eq 'open') {
     debug "connectToClearquest";
@@ -261,7 +261,7 @@ sub _processCommand ($$@) {
     $self->_printStatus ($client);    
   } elsif ($call eq 'get') {
     my %record = $self->{clearquest}->get (@parms);
-    
+
     unless ($self->{clearquest}->error) {
       foreach my $field (keys %record) {
         # TODO: Need to handle field types better...
@@ -269,20 +269,20 @@ sub _processCommand ($$@) {
           foreach (@{$record{$field}}) {
             # Change \n's to &#10;
             s/\r\n/&#10;/gm;
-      
+
             print $client "$field\@\@$_\n";
           } # foreach
         } else {
           # Change \n's to &#10;
           $record{$field} =~ s/\r\n/&#10;/gm;
-      
+
           print $client "$field\@\@$record{$field}\n";
         } # if
       } # foreach
     } else {
       print $client $self->{clearquest}->errmsg . "\n";
     } # unless
-    
+
     $self->_printStatus ($client);
   } elsif ($call eq 'find') {
     my ($result, $nbrRecs) = $self->{clearquest}->find (@parms);
@@ -292,14 +292,14 @@ sub _processCommand ($$@) {
     } else {
       # Store away $result so we can use it later
       $self->{result} = $result;
-      
+
       print $client "$result\n$nbrRecs\n";
     } # if
 
     $self->_printStatus ($client);       
   } elsif ($call eq 'getnext') {
     my %record = $self->{clearquest}->getNext ($self->{result});
-    
+
     unless ($self->{clearquest}->error) {
       foreach my $field (keys %record) {
         # TODO: Need to handle field types better...
@@ -307,37 +307,37 @@ sub _processCommand ($$@) {
           foreach (@{$record{$field}}) {
             # Change \n's to &#10;
             s/\r\n/&#10;/gm;
-      
+
             print $client "$field\@\@$_\n";
           } # foreach
         } else {
           # Change \n's to &#10;
           $record{$field} =~ s/\r\n/&#10;/gm;
-      
+
           print $client "$field\@\@$record{$field}\n";
         } # if
       } # foreach
     } else {
       print $client $self->{clearquest}->errmsg . "\n";
     } # unless
-    
+
     $self->_printStatus ($client);
   } elsif ($call eq 'getdynamiclist') {
     # TODO Better error handling/testing
     my @entry = $self->{clearquest}->getDynamicList (@parms);
-    
+
     print $client "$_\n" foreach @entry;
-    
+
     $self->_printStatus ($client);
   } elsif ($call eq 'dbsets') {
     # TODO Better error handling/testing
     print $client "$_\n" foreach ($self->{clearquest}->DBSets);
-    
+
     $self->_printStatus ($client);
   } elsif ($call eq 'key') {
     # TODO Better error handling/testing
     print $client $self->{clearquest}->key (@parms) . "\n";
-    
+
     $self->_printStatus ($client);
   } elsif ($call eq 'modify' or $call eq 'modifyDBID') {
     my $table  = shift @parms;
@@ -345,29 +345,29 @@ sub _processCommand ($$@) {
     my $action = shift @parms;
 
     # Need to turn off strict for eval here...
-    my ($values, @ordering);      
+    my ($values, @ordering);
     no strict;
     eval $parms[0];
-    
+
     $values = $VAR1;
     use strict;
-    
+
     @ordering = @{$parms[1]} if ref $parms[1] eq 'ARRAY';
-  
+
     my $errmsg;
-    
+
     if ($call eq 'modify') {
       $errmsg = $self->{clearquest}->modify ($table, $key, $action, $values, @ordering);
     } elsif ($call eq 'modifyDBID') {
       $errmsg = $self->{clearquest}->modifyDBID ($table, $key, $action, $values, @ordering);      
     } # if
-    
+
     print $client "$errmsg\n" if $errmsg ne '';
 
     $self->_printStatus ($client);
   } elsif ($call eq 'add') {
     my $dbid = $self->{clearquest}->add (@parms);
-    
+
     if ($self->{clearquest}->error) {
       print $client 'ERROR: ' . $self->{clearquest}->errmsg () . "\n";
     } # if
@@ -384,12 +384,12 @@ sub _processCommand ($$@) {
   } else {
     $self->{clearquest}->{errnbr} = -1;
     $self->{clearquest}->{errmsg} = "Unknown call $call";
-    
+
     print $client $self->{clearquest}->errmsg . "\n";
-    
+
     $self->_printStatus ($client);
   } # if
-  
+
   return;
 } # _processCommand
 
@@ -400,28 +400,28 @@ sub _serviceClient ($) {
 
   # Set autoflush for client
   $client->autoflush if $client;
-  
+
   my $line;
-  
+
   $self->_debug ("Reading request from client");
-  
+
   while ($line = <$client>) {
     $self->_debug ("Request read: $line");
-    
+
     if ($line) {
       chomp $line; chop $line if $line =~ /\r$/;
     } else {
       $self->_verbose ("Host $self->{clientname} went away!");
-      
+
       close $client;
-      
+
       return;
     } # if
 
     if ($line =~ /^shutdown/i) {
       if ($self->{server}) {
         $self->_verbose ("$self->{clientname} requested to shutdown the server");
-          
+
         print $client __PACKAGE__ . " Status: 0\n";
       } # if
 
@@ -430,26 +430,26 @@ sub _serviceClient ($) {
 
       exit 1;
     } # if
-    
+
     # Parse command line
     my ($call, @parms);
-      
+
     if ($line =~ /^\s*(\S+)\s+(.*)/) {
       $call = lc $1;
-      
+
       no strict;
       eval $2;
-      
+
       @parms = @$VAR1;
       use strict;
-      
+
       my $i = 0;
-      
+
       foreach (@parms) {
         if (/^\$VAR1/) {
           no strict;
           eval;
-        
+
           $parms[$i++] = $VAR1;
           use strict;
         } else {
@@ -461,7 +461,7 @@ sub _serviceClient ($) {
       @parms = ();
     } else {
       my $errmsg = "Garbled command line: '$line'";
-      
+
       if ($self->{clearquest}) {
         $self->{clearquest}->{errnbr} = -1;
         $self->{clearquest}->{errmsg} = $errmsg;
@@ -470,17 +470,17 @@ sub _serviceClient ($) {
       } else {
         print "$errmsg\n";
       } # if
-      
+
       $self->_printStatus ($client);
-  
+
       return;
     } # if
-    
+
     $self->_debug ("Processing command $call @parms");
-    
+
     last if $self->_processCommand ($client, $call, @parms);
   } # while
-  
+
   return;
 }  # _serviceClient
 
@@ -488,9 +488,9 @@ sub multithreaded (;$) {
   my ($self, $newValue) = @_;
 
   my $oldValue = $self->{multithreaded};
-  
+
   $self->{multithreaded} = $newValue if $newValue;
-  
+
   return $oldValue
 } # multithreaded
 
@@ -502,27 +502,27 @@ sub disconnectFromClient () {
 
   $self->_verbose ("Disconnected from client $self->{clientname}")
     if $self->{clientname};
-  
+
   undef $self->{clientname};
-        
+
   return;
 } # disconnectFromClient  
 
 sub DESTROY () {
   my ($self) = @_;
-  
-    $self->disconnectFromClient;
-  
+
+  $self->disconnectFromClient;
+
   if ($self->{socket}) {
-   close $self->{socket};
-   
-   undef $self->{socket};
-  } # if  
+    close $self->{socket};
+
+    undef $self->{socket};
+  } # if
 } # DESTROY
-  
+
 sub startServer () {
   my ($self) = @_;
-  
+
   # Create new socket to communicate to clients with
   $self->{socket} = IO::Socket::INET->new (
     Proto     => 'tcp',
@@ -536,9 +536,9 @@ sub startServer () {
 
   # Announce ourselves
   $self->_log (__PACKAGE__ . " V$VERSION accepting clients at " . localtime);
-  
+
   $SIG{HUP}  = \&_endServer;
-  
+
   # Now wait for an incoming request
   my $client;
 
@@ -551,10 +551,10 @@ sub startServer () {
       } else {
         error "Accept called failed (Error: $?) - $!", 1;
       } # if
-    } # if    
-    
+    } # if
+
     my $hostinfo = gethostbyaddr $client->peeraddr;
-    
+
     $self->{clientname} = $hostinfo ? $hostinfo->name : $client->peerhost;
 
     $self->_verbose ("$self->{clientname} is requesting service");
@@ -568,7 +568,7 @@ sub startServer () {
 
       error "Can't fork: $!"
         unless defined ($childpid = fork);
-        
+
       if ($childpid) {
         $self->{pid} = $$;
 
@@ -585,18 +585,18 @@ sub startServer () {
       } else {
         # In child process - ServiceClient
         $self->{pid} = $$;
-        
+
         # Now exec the caller but set STDIN to be the socket. Also pass
         # -serviceClient to the caller which will need to handle that and call
         # _serviceClient.
         $self->_debug ("Client: $client");
         open STDIN, '+<&', $client
           or croak "Unable to dup client";
-        
+
         my $cmd = "cqperl \"$FindBin::Bin/$FindBin::Script -serviceClient=$self->{clientname} -verbose -debug";
-        
+
         $self->_debug ("Execing: $cmd");
-        
+
         exec 'cqperl', "\"$FindBin::Bin/$FindBin::Script\"", "-serviceClient=$self->{clientname}", '-verbose', '-debug'
           or croak "Unable to exec $cmd";
       } # if
@@ -604,7 +604,7 @@ sub startServer () {
       $self->_serviceClient ($client);
     } # if
   } # while
-  
+
   # On Windows we can't catch SIGCHLD so we need to loop around. Ugly!
   goto LOOP if $^O =~ /win/i;
 } # startServer

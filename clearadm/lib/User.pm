@@ -31,16 +31,16 @@ $Date: 2011/01/09 01:03:10 $
 This module implements a User object which returns information about a user.
 
  my $user = new User ('adefaria');
- 
+
  print "Fullname: $user->{fullname}\n";
  print "EMail: $user->{email}\n";
- 
+
 =head2 DESCRIPTION
 
-This module instanciates a user object for the given user identifier and 
+This module instanciates a user object for the given user identifier and
 then collects information about the user such as fullname, email, etc. It does
 so by contacting Active Directory in a Windows domain or other directory servers
-depending on the site. As such exactly what data members are available may 
+depending on the site. As such exactly what data members are available may
 change or be different from site to site.
 
 =cut
@@ -60,7 +60,7 @@ our %CLEAROPTS= GetConfig ("$FindBin::Bin/etc/clearuser.conf");
 
 our $VERSION  = '$Revision: 1.4 $';
    ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
-   
+
 # Override options if in the environment
 $CLEAROPTS{CLEARUSER_LDAPHOST} = $ENV{CLEARUSER_LDAPHOST}
   if $ENV{CLEARUSER_LDAPHOST};
@@ -91,7 +91,7 @@ sub unix2sso ($) {
 
 sub GetOwnerInfo ($) {
   my ($userid) = @_;
-  
+
   my @parts = split /(\/|\\)/, $userid;
 
   if (@parts == 3) {
@@ -99,28 +99,28 @@ sub GetOwnerInfo ($) {
   } # if
 
   my $sso = unix2sso ($userid);
-  
+
   unless ($ldap) {
     $ldap = Net::LDAP->new ($CLEAROPTS{CLEARUSER_LDAPHOST})
       or croak 'Unable to create LDAP object';
-      
+
     $ad = $ldap->bind (
       "$CLEAROPTS{CLEARUSER_USERNAME}\@$CLEAROPTS{CLEARUSER_BIND}",
       password => $CLEAROPTS{CLEARUSER_PASSWORD});
   } # unless
-  
+
   $ad = $ldap->search (
     base   => $CLEAROPTS{CLEARUSER_BASEDN},
     filter => "(&(objectclass=user)(sAMAccountName=$sso))",
   );
-  
-  $ad->code 
+
+  $ad->code
     && croak $ad->error;
-    
+
   my @entries = $ad->entries;
 
   my %ownerInfo;
-    
+
   if (@entries == 1) {
     for (my $i = 0; $i < $ad->count; $i++) {
       my $entry = $ad->entry ($i);
@@ -129,11 +129,11 @@ sub GetOwnerInfo ($) {
         $ownerInfo{$attribute} = $entry->get_value ($attribute)
       } # foreach
     } # for
-    
+
     return %ownerInfo;
   } else {
     return;
-  } # if 
+  } # if
 } # GetOwnerInfo
 
 =pod
@@ -191,16 +191,16 @@ sub new ($) {
 
   croak "Must specify userid to User constructor"
     if @_ == 1;
-    
+
   my %members;
-  
+
   $members{id} = $userid;
-  
+
   my %ownerInfo = GetOwnerInfo ($userid);
-  
+
   $members{$_} = $ownerInfo{$_}
     foreach (keys %ownerInfo);
-  
+
   return bless \%members, $class;
 } # new
 
@@ -226,7 +226,7 @@ L<Net::LDAP|Net::LDAP>
 
 =head2 ClearSCM Perl Modules
 
-=begin man 
+=begin man
 
  GetConfig
 
