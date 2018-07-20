@@ -18,9 +18,10 @@ if [ -d /cleartrig/ent/SNSD/muos/ccadm_tools/vobs/ranccadm/scripts/lib ]; then
   export PERL5LIB=/cleartrig/ent/SNSD/muos/ccadm_tools/vobs/ranccadm/scripts/lib:$PERL5LIB
 fi
 
-# This no longer work
-#export http_proxy=webgate0.gddsi.com:8080
-#export ftp_proxy=webgate0.gddsi.com
+# This may need to be moved into bash_login
+if [ "$ARCHITECTURE" = "cygwin" ]; then
+  alias ping=$SYSTEMROOT/System32/ping
+fi
 
 export QTDIR="/usr/local/Trolltech/Qt-4.2.2"
 export QMAKESPEC="$QTDIR/mkspecs/solaris-cc"
@@ -35,6 +36,7 @@ export CQ_PERLLIB=/opt/rational/common/lib/perl5/5.6.1/sun4-solaris-multi:/opt/r
 export TZ="US/Arizona"
 
 alias xv=/prj/Synopsis/gccsparcOS5/ccss/utils/xv/xv
+alias puppet="/cygdrive/c/Program\ Files/Puppet\ Labs/Puppet\ Enterprise/bin/puppet.bat"
 
 export RSU_LICENSE_MAP="/prj/muosran/config/Rational_License_Map"
 
