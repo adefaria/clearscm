@@ -357,7 +357,7 @@ Returns:
   while () {
     my $key;
 
-   while (not defined ($key = ReadKey -1)) { }
+    while (not defined ($key = ReadKey -1)) { }
 
     if ($key =~ /(\r|\n)/) {
        print "\n";

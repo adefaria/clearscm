@@ -43,7 +43,9 @@ sub Bigfiles {
 
   foreach (@dirs) {
     next if !-d "$_";
-    my $cmd	= "find \"$_\" -xdev -type f -size +$size -exec ls -lLG {} \\;";
+
+    my $lsOpts  = $ARCHITECTURE eq 'solaris' ? '-loL' : '-lLG';
+    my $cmd	= "find \"$_\" -xdev -type f -size +$size -exec ls $lsOpts {} \\;";
     my @lines	= `$cmd`;
 
     foreach (@lines) {
@@ -52,7 +54,7 @@ sub Bigfiles {
       my %info;
 
       #if (/\S+\s+\d+\s+(\S+)\s+(\d+).*\"\.\/(.*)\"/) {
-      if (/\S+\s+\d+\s+(\S+)\s+\S+ \S+\s+(\d+)\s+\S+\s+\d+\s+\S+\s+(\S+)/){
+      if (/\S+\s+\d+\s+(\S+)\s+(\d+)\s+\S+\s+\S+\s+\d+\s+(.*)/) {
         $info {user}     = $1;
         $info {filesize} = $2;
         $info {filename} = $3;
@@ -70,7 +72,9 @@ my $top          = $lines - 2;
 my $bytes_in_meg = 1048576;
 my $block_size   = 512;
 my $size_in_meg  = 1;
-my %opts;
+my %opts = (
+  size => 1
+);
 
 my $result = GetOptions (
   \%opts,
@@ -81,23 +85,26 @@ my $result = GetOptions (
   'size=i',
 );
 
-my @dirs = @ARGV || '.';
-my $size = $opts {size} ? $opts {size} * $bytes_in_meg / $block_size : 4096;
+my @dirs = @ARGV > 0 ? @ARGV : '.';
+my $size = $opts{size} ? $opts{size} * $bytes_in_meg / $block_size : 4096;
+my @files;
 
 # Now do the find
-verbose "Directory:\t$_"
+verbose "Directory:\t@dirs";
 
-foreach (@dirs) {
-  verbose "Size:\t\t$size_in_meg Meg ($size blocks)";
+for (@dirs) {
+  verbose "Size:\t\t$opts{size} Meg ($size blocks)";
   verbose "Top:\t\t$top";
 
   my $head = $top ? "cat" : "head -$top";
 
-  my @files = Bigfiles $size, @dirs;
-} # for each
+  @files = Bigfiles $size, @dirs;
+} # for
 
-foreach (@files) {
+for (sort {$b->{filesize} <=> $a->{filesize}} @files) {
   my %info = %{$_};
 
+  last if $top-- == 0;
+
   print "${info {filesize}}\t${info {user}}\t${info {filename}}\n";
-} # foreach
+} # for

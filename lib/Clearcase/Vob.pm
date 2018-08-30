@@ -1248,6 +1248,8 @@ Ouput from cleartool
   } # for
 
   if ($host && $vbs) {
+    $additionalOpts .= '-ucmproject' if $self->{ucmproject};
+
     ($status, @output) = $Clearcase::CC->execute (
       "mkvob -tag $self->{tag} $comment $additionalOpts -host $host -hpath $vbs "
     . "-gpath $vbs $vbs");

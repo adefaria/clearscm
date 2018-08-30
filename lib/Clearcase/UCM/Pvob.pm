@@ -47,9 +47,7 @@ package Clearcase::UCM::Pvob;
 use strict;
 use warnings;
 
-# Would be better represented by use parent "Clearcase::Vob" but we're
-# working with old versions of Perl here...
-use base 'Clearcase::Vob';
+use parent 'Clearcase::Vob';
 
 use Carp;
 
@@ -93,7 +91,8 @@ Returns:
   croak 'Clearcase::UCM::Pvob: Must specify pvob tag' unless $tag;
 
   $class = bless {
-    tag => $tag,
+    tag        => $tag,
+    ucmproject => 1,
   }, $class; # bless
     
   $class->updateVobInfo;
@@ -101,46 +100,6 @@ Returns:
   return $class; 
 } # new
   
-sub create (;$$$%) {
-  my ($self, $host, $vbs, $comment, %opts) = @_;
-
-=pod
-
-=head2 create
-
-Creates a pvob
-
-Parameters:
-
-=for html <blockquote>
-
-=over
-
-=item none
-
-=back
-
-=for html </blockquote>
-
-Returns:
-
-=for html <blockquote>
-
-=over
-
-=item none
-
-=back
-
-=for html </blockquote>
-
-=cut
-
-  $opts{ucmproject} = undef;
-
-  return $self->SUPER::create ($host, $vbs, $comment, %opts);
-} # create
-
 sub tag() {
   my ($self) = @_;
 
