@@ -1,0 +1,44 @@
+################################################################################
+#
+# File: 	machines
+# Description:	Defintion of machines for allmach
+# Author:	Andrew@DeFaria.com
+#
+################################################################################
+# Column 1 Machine name
+# Column 2 Model
+# Column 3 OS Version
+# Column 4 ClearCase Version (if applicable)
+# Column 5 Owner (if known)
+# Column 6 Usage (if known)
+cowboys:Sun:Solaris 5.9:7.0.1.0:ccadm:ranvob1/registry server
+patriots:Sun:?:Solaris 5.9:7.0.1.0:ccadm:ranvob2
+rams:Sun:Solaris 5.9:7.0.1.0:ccadm:ranvob3/registry server
+chargers:Sun:Solaris 5.9:70.1.1:ccadm:ranview1
+colts:Sun:Solaris 5.9:7.0.1.0:ccadm:ranview2
+ranbuild1:Sun:Solaris 5.8:7.0.1.0:ccadm:builds
+ranbuild2:Sun:Solaris 5.9:2003.06.10+:ccadm:builds
+ranbuild4:Sun:Solaris 5.9:7.0.1.1:ccadm:builds
+randws119:Sun:Solaris 5.9:7.0.1.1:Hy Truong:Workstation
+randws094:Sun:Solaris 5.10:7.0.1.1:John Hartin:Old workstation
+randws033:Sun:Solaris 5.10:Sam Schwalm:Workstation
+randws103:Sun:Solaris 5.9:7.0.1.1:?:?
+randws106:Sun:Solaris 5.9:2003.06.10+:?:?
+randws113:Sun:Solaris 5.9:7.0.1.1:?:?
+randws114:Sun:Solaris 5.9:2003.06.10+:Tony Trujilo:?
+randws000:Sun:Solaris 5.10:7.0.1.1:?:?
+randws021:?:?:?:?:?
+randws035:?:?:?:ccadm:?
+randws036:?:?:?:ccadm:?
+ranadm1:Sun:Solaris 5.9:?:ccadm:Jumpstart, PowerBroker, NIS, SMTP, DNS, NTP
+ranadm2:Sun:Solaris 5.9:2003.06.10+:ccadm:License server, Sys admin, NIS, Home Directory server
+ranray:Sun:Solaris 5.9:2003.06.10+:ccadm:?
+ranray16:?:?:?:ccadm:Thin client to ranray
+niners:Sun:Solaris 5.9:2003.06.10+:ccadm:?
+randbs:Sun:Solaris 5.9:?:ccadm:CQ DB server/Bldforge
+ranbkp2:?:?:?:ccadm:?
+ranlin03:Redhat Linux:2.4.21-50.Elsmp:?:ccadm:?
+rancpp10:Redhat Linux:2.6.18.53.Eel5xen:?:ccadm:?
+rancpp01:Redhat Linux:2.6.18.53.Eel5xen:?:ccadm:?
+rancpp02:Redhat Linux:2.6.18.53.Eel5xen:?:ccadm:?
+rancpp03:Redhat Linux:2.6.18.53.Eel5xen:?:ccadm:?
