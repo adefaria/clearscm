@@ -57,11 +57,12 @@ our $VERSION  = '$Revision: 1.0 $';
    ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
 my %MACHINEOPTS = (
-  SERVER   => 'localhost',
-  USERNAME => 'machines',
-  PASSWORD => 'w0rk$harder',
+  SERVER   => $ENV{REXEC_DBHOST} || 'localhost',
+  USERNAME => 'rexec',
+  PASSWORD => 'rexec',
 );
 
+# Internal methods
 sub _connect (;$) {
   my ($self, $dbserver) = @_;
 
@@ -105,7 +106,6 @@ sub _checkRequiredFields ($$) {
   return;
 } # _checkRequiredFields
 
-# Internal methods
 sub _dberror ($$) {
   my ($self, $msg, $statement) = @_;
 
