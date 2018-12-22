@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -49,8 +49,8 @@ use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
 use ClearadmWeb;
 use Clearadm;
-#use Clearcase;
-#use Clearcase::Views;
+use Clearcase;
+use Clearcase::Views;
 use Display;
 use Utils;
 
@@ -134,6 +134,8 @@ foreach (@systems) {
   $data .= '</strike>'
     if $system{active} eq 'false';
     
+  $load{uptime} ||= 'Unknown';
+
   display td {class => 'dataCentered'}, "$data ",
     font {class => 'dim' }, "<br>Up: $load{uptime}";
 } # foreach

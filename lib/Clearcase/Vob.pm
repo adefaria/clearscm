@@ -56,7 +56,7 @@ expanded if and when accessed. This helps the VOB object to be more efficient.
  display "DB Size:\t"		. $vob->dbsize;
  display "Adm Size:\t"		. $vob->admsize;
  display "CT Size:\t"		. $vob->ctsize;
- display "DO Size:\t"		. $vob->dbsize;
+ display "DO Size:\t"		. $vob->dosize;
  display "Src Size:\t"		. $vob->srcsize;
  display "Size:\t\t"		. $vob->size;
 
@@ -157,7 +157,7 @@ sub tag () {
 
 =head2 tag
 
-Returns the VOB's tag
+Returns the VOB tag
 
 Parameters:
 
@@ -195,7 +195,7 @@ sub gpath () {
 
 =head2 gpath
 
-Returns the VOB's global path
+Returns the VOB global path
 
 Parameters:
 
@@ -233,7 +233,7 @@ sub shost () {
 
 =head2 shost
 
-Returns the VOB's server host
+Returns the VOB server host
 
 Parameters:
 
@@ -430,7 +430,7 @@ sub replica_uuid () {
 
 =head2 replica_uuid
 
-Returns the VOBS replica_uuid
+Returns the VOB replica_uuid
 
 Parameters:
 
@@ -468,7 +468,7 @@ sub host () {
 
 =head2 host
 
-Returns the VOB's host
+Returns the VOB host
 
 Parameters:
 
@@ -506,7 +506,7 @@ sub access_path () {
 
 =head2 access_path
 
-Returns the VOB's access path
+Returns the VOB access path
 
 Parameters:
 
@@ -628,7 +628,7 @@ sub expand_space () {
   $self->{srcsize} = 0;
   $self->{size}    = 0;
 
-  foreach (@output) {
+  for (@output) {
     if (/(\d*\.\d).*VOB database(.*)/) {
       $self->{dbsize} = $1;
     } elsif (/(\d*\.\d).*administration data(.*)/) {
@@ -642,10 +642,716 @@ sub expand_space () {
     } elsif (/(\d*\.\d).*Subtotal(.*)/) {
       $self->{size} = $1;
     } # if
-  } # foreach
+  } # for
   
   return;
 } # expand_space
+
+sub expand_description () {
+  my ($self) = @_;
+
+  my ($status, @output) = $Clearcase::CC->execute ("describe -long vob:$self->{tag}");
+
+  for (my $i = 0; $i < @output; $i++) {
+    if ($output[$i] =~ /created (\S+) by (.+) \((\S+)\)/) {
+      $self->{created}   = $1;
+      $self->{ownername} = $2;
+      $self->{owner}     = $3;
+    } elsif ($output[$i] =~ /^\s+\"(.+)\"/) {
+      $self->{comment} = $1;
+    } elsif ($output[$i] =~ /master replica: (.+)/) {
+      $self->{masterReplica} = $1;
+    } elsif ($output[$i] =~ /replica name: (.+)/) {
+      $self->{replicaName} = $1;
+    } elsif ($output[$i] =~ /VOB family featch level: (\d+)/) {
+      $self->{featureLevel} = $1;
+    } elsif ($output[$i] =~ /database schema version: (\d+)/) {
+      $self->{schemaVersion} = $1;
+    } elsif ($output[$i] =~ /modification by remote privileged user: (.+)/) {
+      $self->{remotePrivilege} = $1;
+    } elsif ($output[$i] =~ /atomic checkin: (.+)/) {
+      $self->{atomicCheckin} = $1;
+    } elsif ($output[$i] =~ /VOB ownership:/) {
+      while ($output[$i] !~ /Additional groups:/) {
+        $i++;
+
+        if ($output[$i++] =~ /owner (.+)/) {
+	  $self->{owner} = $1;
+	} # if
+
+	if ($output[$i++] =~ /group (.+)/) {
+	  $self->{group} = $1;
+	} # if
+      } # while
+
+      my @groups;
+
+      while ($output[$i] !~ /ACLs enabled/) {
+        if ($output[$i++] =~ /group (.+)/) {
+	  push @groups, $1;
+	} # if
+      } # while
+
+      $self->{groups} = \@groups;
+
+      if ($output[$i++] =~ /ACLs enabled: (.+)/) {
+        $self->{aclsEnabled} = $1;
+      } # if
+
+      my %attributes;
+
+      while ($i < @output and $output[$i] !~ /Hyperlinks:/) {
+        if ($output[$i] !~ /Attributes:/) {
+	  my ($key, $value) = split / = /, $output[$i];
+
+          # Trim leading spaces
+	  $key =~ s/^\s*(\S+)/$1/;
+
+	  # Remove unnecessary '"'s
+	  $value =~ s/\"(.*)\"/$1/;
+
+	  $attributes{$key} = $value;
+	} # if
+
+	$i++;
+      } # while
+      
+      $self->{attributes} = \%attributes;
+
+      $i++;
+
+      my %hyperlinks;
+
+      while ($i < @output and $output[$i]) {
+        my ($key, $value) = split " -> ", $output[$i++];
+
+        # Trim leading spaces
+        $key =~ s/^\s*(\S+)/$1/;
+	
+	$hyperlinks{$key} = $value;
+      } # while
+
+      $self->{hyperlinks} = \%hyperlinks;
+    } # if
+  } # for
+  
+  return;
+} # expand_space
+
+sub masterReplica() {
+
+=pod
+
+=head2 masterReplica
+
+Returns the VOB master replica
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item VOB master replica
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{masterReplica};
+
+  return $self->{masterReplica}
+} # masterReplica
+
+sub created() {
+
+=pod
+
+=head2 created
+
+Returns the date the VOB was created
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item Date the VOB was created
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{created};
+
+  return $self->{created}
+} # created
+
+sub ownername() {
+
+=pod
+
+=head2 ownername
+
+Returns the VOB ownername
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item VOB Owner Name
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{ownername};
+
+  return $self->{ownername}
+} # ownername
+
+sub owner() {
+
+=pod
+
+=head2 owner
+
+Returns the VOB owner
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item VOB master replica
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{owner};
+
+  return $self->{owner}
+} # owner
+
+sub comment() {
+
+=pod
+
+=head2 comment
+
+Returns the VOB comment
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item VOB comment
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{comment};
+
+  return $self->{comment}
+} # comment
+
+sub replicaName() {
+
+=pod
+
+=head2 replicaName
+
+Returns the VOB replicaName
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item VOB replica name
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{replicaName};
+
+  return $self->{replicaName}
+} # replicaName
+
+sub featureLevel() {
+
+=pod
+
+=head2 featureLevel
+
+Returns the VOB featureLevel
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item VOB feature level
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{featureLevel};
+
+  return $self->{featureLevel}
+} # featureLevel
+
+sub schemaVersion() {
+
+=pod
+
+=head2 schemaVersion
+
+Returns the VOB schemaVersion
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item VOB schema version
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{schemaVersion};
+
+  return $self->{schemaVersion}
+} # schemaVersion
+
+sub remotePrivilege() {
+
+=pod
+
+=head2 remotePrivilege
+
+Returns the VOB remotePrivilege
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item Remote Privilege capability
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{remotePrivilege};
+
+  return $self->{remotePrivilege}
+} # remotePrivilege
+
+sub atomicCheckin() {
+
+=pod
+
+=head2 atomicCheckin
+
+Returns the VOB atomicCheckin
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item Whether atomic check in enabled
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{atomicCheckin};
+
+  return $self->{atomicCheckin}
+} # atomicCheckin
+
+sub group() {
+
+=pod
+
+=head2 group
+
+Returns the VOB group
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item VOB group
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{group};
+
+  return $self->{group}
+} # group
+
+sub groups() {
+
+=pod
+
+=head2 groups
+
+Returns the VOB groups
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item VOB groups
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{groups};
+
+  return @{$self->{groups}}
+} # groups
+
+sub aclsEnabled() {
+
+=pod
+
+=head2 aclsEnabled
+
+Returns the VOB aclsEnabled
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item VOB aclsEnabled
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{aclsEnabled};
+
+  return $self->{aclsEnabled}
+} # aclsEnabled
+
+sub attributes() {
+
+=pod
+
+=head2 attributes
+
+Returns the VOB attributes
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item VOB attributes
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{attributes};
+
+  return %{$self->{attributes}};
+} # attributes
+
+sub hyperlinks() {
+
+=pod
+
+=head2 hyperlinks
+
+Returns the VOB hyperlinks
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item VOB hyperlinks
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($self) = @_;
+
+  $self->expand_description unless $self->{hyperlinks};
+
+  return %{$self->{hyperlinks}};
+} # hyperlinks
 
 sub countdb () {
   my ($self) = @_;
@@ -672,7 +1378,7 @@ sub countdb () {
   chomp @output;
 
   # Parse output
-  foreach (@output) {
+  for (@output) {
     if (/^ELEMENT\s*:\s*(\d*)/) {
       $self->{elements} = $1;
     } elsif (/^BRANCH\s*:\s*(\d*)/) {
@@ -680,7 +1386,7 @@ sub countdb () {
     } elsif (/^VERSION\s*:\s*(\d*)/) {
       $self->{versions} = $1;
     } # if
-  } # foreach
+  } # for
 
   chdir $cwd;
   
@@ -1318,7 +2024,7 @@ sub updateVobInfo ($$) {
   # use the create method on, return our blessings...
   return if $status != 0;
 
-  foreach (@output) {
+  for (@output) {
     if (/Global path: (.*)/) {
       $self->{gpath} = $1;
     } elsif (/Server host: (.*)/) {
@@ -1342,7 +2048,7 @@ sub updateVobInfo ($$) {
     } elsif (/Vob registry attributes: (.*)/) {
       $self->{vob_registry_attributes} = $1;
     } # if
- } # foreach
+ } # for
  
  return;
 } # getVobInfo

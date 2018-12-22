@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -94,47 +94,30 @@ sub snapshotFS ($$) {
   # Sun is so braindead!
   # TODO: Verify this works under Solaris
   if ($system{type} eq 'Unix') {
-    foreach ('ufs', 'vxfs') {
-      my $cmd = "/usr/bin/df -k -F $filesystem{mount}";
+    my $cmd = "df -v $filesystem{mount}";
 
-      my ($status, @unixfs) = $clearexec->execute ($cmd);
+    my ($status, @unixfs) = $clearexec->execute ($cmd);
 
-      if ($status != 0) {
-        error ('Unable to determine fsinfo for '
-             . "$system{name}:$filesystem{mount} ($cmd)\n" .
-               join "\n", @unixfs
-        );
-    
-        return;
-      } # if
+    if ($status != 0) {
+      error ('Unable to determine fsinfo for '
+           . "$system{name}:$filesystem{mount} ($cmd)\n" .
+             join "\n", @unixfs);
+   
+      return;
+    } # if
 
-      # Skip heading
-      shift @unixfs;
+    # Skip heading
+    shift @unixfs;
 
-      for (my $i = 0; $i < scalar @unixfs; $i++) {
-        my $firstField;
-    
-        # Trim leading and trailing spaces
-        $unixfs[$i] =~ s/^\s+//;
-        $unixfs[$i] =~ s/\s+$//;
+    for (my $i = 0; $i < scalar @unixfs; $i++) {
+      my @fields = split ' ', $unixfs[$i];
 
-        my @fields = split /\s+/, $unixfs[$i];
-
-        if (@fields == 1) {
-          $firstField   = 0;
-          $i++;
-
-          @fields   = split /\s+/, $unixfs[$i];;
-        } else {
-          $firstField   = 1;
-        } #if
-
-        $fs{size}    = $fields[$firstField]     * 1024;
-        $fs{used}    = $fields[$firstField + 1] * 1024;
-        $fs{free}    = $fields[$firstField + 2] * 1024;
-        $fs{reserve} = $fs{size} - $fs{used} - $fs{free};
-      } # for
-    } # foreach
+      $fs{mount}   = $fields[0];
+      $fs{size}    = $fields[2] * 1024;
+      $fs{used}    = $fields[3] * 1024;
+      $fs{free}    = $fields[4] * 1024;
+      $fs{reserve} = $fs{size} - $fs{used} - $fs{free};
+    } # for
   } elsif ($system{type} eq 'Linux' or $system{type} eq 'Windows') {
     my $cmd = "/bin/df --block-size=1 -P $filesystem{mount}";
 
@@ -181,7 +164,7 @@ verbose "$FindBin::Script V$VERSION";
 
 my $exit = 0;
 
-foreach my $system ($clearadm->FindSystem ($host)) {
+for my $system ($clearadm->FindSystem ($host)) {
   next if $$system{active} eq 'false';
   
   my $status = $clearexec->connectToServer (
@@ -194,7 +177,7 @@ foreach my $system ($clearadm->FindSystem ($host)) {
     next;
   } # unless
 
-  foreach my $filesystem ($clearadm->FindFilesystem ($$system{name}, $fs)) {
+  for my $filesystem ($clearadm->FindFilesystem ($$system{name}, $fs)) {
     verbose "Snapshotting $$system{name}:$$filesystem{filesystem}";
   
     my %fs = snapshotFS ($system, $$filesystem{filesystem});
@@ -211,23 +194,23 @@ foreach my $system ($clearadm->FindSystem ($host)) {
     next
       unless %notification;
   
-    my $usedPct = sprintf (
-      '%.2f',
-      (($fs{used} + $fs{reserve}) / $fs{size}) * 100
-    );
+    my $usedPct = '0%';
+
+    $usedPct = sprintf ('%.2f', (($fs{used} + $fs{reserve}) / $fs{size}) * 100) if $fs{size} != 0;
     
     if ($usedPct >= $$filesystem{threshold}) {
       $exit = 2;
-      display YMDHMS . " System: $$filesystem{system} "
+      display YMDHMS
+            . " System: $$filesystem{system} "
             . "Filesystem: $$filesystem{filesystem} Used: $usedPct% " 
             . "Threshold: $$filesystem{threshold}";    
     } else {
       $clearadm->ClearNotifications ($$system{name}, $$filesystem{filesystem});    
     } # if
-  } # foreach
+  } # for
   
   $clearexec->disconnectFromServer;
-} # foreach
+} # for
 
 exit $exit;
 

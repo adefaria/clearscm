@@ -88,6 +88,7 @@ use Carp;
 use DBI;
 use File::Basename;
 use Net::Domain qw(hostdomain);
+use Sys::Hostname;
 
 use FindBin;
 
@@ -98,9 +99,9 @@ use Display;
 use GetConfig;
 use Mail;
 
-my $conf = dirname (__FILE__) . '/../etc/clearadm.conf';
+my $conf = dirname(__FILE__) . '/../etc/clearadm.conf';
 
-our %CLEAROPTS = GetConfig ($conf);
+our %CLEAROPTS = GetConfig($conf);
 
 # Globals
 our $VERSION  = '$Revision: 1.54 $';
@@ -127,7 +128,7 @@ my $defaultFilesystemHist      = '6 months';
 my $defaultLoadavgHist         = '6 months';
 
 # Internal methods
-sub _dberror ($$) {
+sub _dberror($$) {
   my ($self, $msg, $statement) = @_;
 
   my $dberr    = $self->{db}->err;
@@ -139,7 +140,7 @@ sub _dberror ($$) {
   my $message = '';
 
   if ($dberr) {
-    my $function = (caller (1)) [3];
+    my $function = (caller(1)) [3];
 
     $message = "$function: $msg\nError #$dberr: $dberrmsg\n"
              . "SQL Statement: $statement";
@@ -148,46 +149,46 @@ sub _dberror ($$) {
   return $dberr, $message;
 } # _dberror
 
-sub _formatValues (@) {
+sub _formatValues(@) {
   my ($self, @values) = @_;
 
   my @returnValues;
 
   # Quote data values
-  push @returnValues, $_ eq '' ? 'null' : $self->{db}->quote ($_)
+  push @returnValues, $_ eq '' ? 'null' : $self->{db}->quote($_)
     for (@values);
 
   return @returnValues;
 } # _formatValues
 
-sub _formatNameValues (%) {
+sub _formatNameValues(%) {
   my ($self, %rec) = @_;
 
   my @nameValueStrs;
 
-  push @nameValueStrs, "$_=" . $self->{db}->quote ($rec{$_})
+  push @nameValueStrs, "$_=" . $self->{db}->quote($rec{$_})
     for (keys %rec);
 
   return @nameValueStrs;
 } # _formatNameValues
 
-sub _addRecord ($%) {
+sub _addRecord($%) {
   my ($self, $table, %rec) = @_;
 
   my $statement  = "insert into $table (";
      $statement .= join ',', keys %rec;
      $statement .= ') values (';
-     $statement .= join ',', $self->_formatValues (values %rec);
+     $statement .= join ',', $self->_formatValues(values %rec);
      $statement .= ')';
 
   my ($err, $msg);
 
-  $self->{db}->do ($statement);
+  $self->{db}->do($statement);
 
-  return $self->_dberror ("Unable to add record to $table", $statement);
+  return $self->_dberror("Unable to add record to $table", $statement);
 } # _addRecord
 
-sub _deleteRecord ($;$) {
+sub _deleteRecord($;$) {
   my ($self, $table, $condition) = @_;
 
   my $count;
@@ -196,11 +197,11 @@ sub _deleteRecord ($;$) {
      $statement .= "where $condition"
       if $condition;
 
-  my $sth = $self->{db}->prepare ($statement)
-    or return $self->_dberror ('Unable to prepare statement', $statement);
+  my $sth = $self->{db}->prepare($statement)
+    or return $self->_dberror('Unable to prepare statement', $statement);
 
   $sth->execute
-    or return $self->_dberror ('Unable to execute statement', $statement);
+    or return $self->_dberror('Unable to execute statement', $statement);
 
   my @row = $sth->fetchrow_array;
 
@@ -219,29 +220,29 @@ sub _deleteRecord ($;$) {
   $statement .= "where $condition"
     if $condition;
 
-  $self->{db}->do ($statement);
+  $self->{db}->do($statement);
 
   if ($self->{db}->err) {
-    return $self->_dberror ("Unable to delete record from $table", $statement);
+    return $self->_dberror("Unable to delete record from $table", $statement);
   } else {
     return $count, 'Records deleted';
   } # if
 } # _deleteRecord
 
-sub _updateRecord ($$%) {
+sub _updateRecord($$%) {
   my ($self, $table, $condition, %rec) = @_;
 
   my $statement  = "update $table set ";
-     $statement .= join ',', $self->_formatNameValues (%rec);
+     $statement .= join ',', $self->_formatNameValues(%rec);
      $statement .= " where $condition"
        if $condition;
 
-  $self->{db}->do ($statement);
+  $self->{db}->do($statement);
 
-  return $self->_dberror ("Unable to update record in $table", $statement);
+  return $self->_dberror("Unable to update record in $table", $statement);
 } # _updateRecord
 
-sub _checkRequiredFields ($$) {
+sub _checkRequiredFields($$) {
   my ($fields, $rec) = @_;
 
   for my $fieldname (@$fields) {
@@ -261,17 +262,21 @@ sub _checkRequiredFields ($$) {
   return;
 } # _checkRequiredFields
 
-sub _getRecords ($$) {
-  my ($self, $table, $condition) = @_;
+sub _getRecords($$;$) {
+  my ($self, $table, $condition, $additional) = @_;
 
   my ($err, $msg);
 
-  my $statement = "select * from $table where $condition";
+  $additional ||= '';
 
-  my $sth = $self->{db}->prepare ($statement);
+  my $statement  = "select * from $table";
+     $statement .= " where $condition" if $condition;
+     $statement .= $additional;
+
+  my $sth = $self->{db}->prepare($statement);
 
   unless ($sth) {
-    ($err, $msg) = $self->_dberror ('Unable to prepare statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to prepare statement', $statement);
 
     croak $msg;
   } # if
@@ -293,7 +298,7 @@ sub _getRecords ($$) {
       $err = 0;
       last;
     } else {
-      ($err, $msg) = $self->_dberror ('Unable to execute statement',
+      ($err, $msg) = $self->_dberror('Unable to execute statement',
                                       $statement);
     } # if
 
@@ -303,16 +308,16 @@ sub _getRecords ($$) {
 
     my $timestamp = YMDHMS;
 
-    $self->Error ("$timestamp: Unable to talk to DB server.\n\n$msg\n\n"
+    $self->Error("$timestamp: Unable to talk to DB server.\n\n$msg\n\n"
                 . "Will try again in $sleepTime seconds", -1);
 
     # Try to reconnect
-    $self->_connect ($self->{dbserver});
+    $self->_connect($self->{dbserver});
 
     sleep $sleepTime;
   } # while
 
-  $self->Error ("After $maxAttempts attempts I could not connect to the database", $err)
+  $self->Error("After $maxAttempts attempts I could not connect to the database", $err)
     if ($err == 2006 and $attempts > $maxAttempts);
 
   my @records;
@@ -322,12 +327,12 @@ sub _getRecords ($$) {
   } # while
 
   return @records;
-} # _getRecord
+} # _getRecords
 
-sub _aliasSystem ($) {
+sub _aliasSystem($) {
   my ($self, $system) = @_;
 
-  my %system = $self->GetSystem ($system);
+  my %system = $self->GetSystem($system);
 
   if ($system{name}) {
     return $system{name};
@@ -336,17 +341,17 @@ sub _aliasSystem ($) {
   } # if
 } # _aliasSystem
 
-sub _getLastID () {
+sub _getLastID() {
   my ($self) = @_;
 
   my $statement = 'select last_insert_id()';
 
-  my $sth = $self->{db}->prepare ($statement);
+  my $sth = $self->{db}->prepare($statement);
 
   my ($err, $msg);
 
   unless ($sth) {
-    ($err, $msg) = $self->_dberror ('Unable to prepare statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to prepare statement', $statement);
 
     croak $msg;
   } # if
@@ -354,7 +359,7 @@ sub _getLastID () {
   my $status = $sth->execute;
 
   unless ($status) {
-    ($err, $msg) = $self->_dberror ('Unable to execute statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to execute statement', $statement);
 
     croak $msg;
   } # if
@@ -366,7 +371,7 @@ sub _getLastID () {
   return $row[0];
 } # _getLastID
 
-sub _connect (;$) {
+sub _connect(;$) {
   my ($self, $dbserver) = @_;
 
   $dbserver ||= $CLEAROPTS{CLEARADM_SERVER};
@@ -374,12 +379,12 @@ sub _connect (;$) {
   my $dbname   = 'clearadm';
   my $dbdriver = 'mysql';
 
-  $self->{db} = DBI->connect (
+  $self->{db} = DBI->connect(
     "DBI:$dbdriver:$dbname:$dbserver",
     $CLEAROPTS{CLEARADM_USERNAME},
     $CLEAROPTS{CLEARADM_PASSWORD},
     {PrintError => 0},
-  ) or croak (
+  ) or croak(
     "Couldn't connect to $dbname database "
   . "as $CLEAROPTS{CLEARADM_USERNAME}\@$CLEAROPTS{CLEARADM_SERVER}"
   );
@@ -389,17 +394,17 @@ sub _connect (;$) {
   return;
 } # _connect
 
-sub new (;$) {
+sub new(;$) {
   my ($class, $dbserver) = @_;
 
   my $self = bless {}, $class;
 
-  $self->_connect ($dbserver);
+  $self->_connect($dbserver);
 
   return $self;
 } # new
 
-sub SetNotify () {
+sub SetNotify() {
   my ($self) = @_;
 
   $self->{NOTIFY} = $CLEAROPTS{CLEARADM_NOTIFY};
@@ -407,7 +412,7 @@ sub SetNotify () {
   return;
 } # SetNotify
 
-sub Error ($;$) {
+sub Error($;$) {
   my ($self, $msg, $errno) = @_;
 
   # If $errno is specified we need to stop. However we need to notify somebody
@@ -416,7 +421,7 @@ sub Error ($;$) {
 
   if ($errno) {
     if ($self->{NOTIFY}) {
-      mail (
+      mail(
         to      => $self->{NOTIFY},
         subject => 'Internal error occurred in Clearadm',
         data    => "<p>An unexpected, internal error occurred in Clearadm:</p><p>$msg</p>",
@@ -430,7 +435,7 @@ sub Error ($;$) {
   return;
 } # Error
 
-sub AddSystem (%) {
+sub AddSystem(%) {
   my ($self, %system) = @_;
 
   my @requiredFields = (
@@ -444,28 +449,28 @@ sub AddSystem (%) {
 
   $system{loadavgHist} ||= $defaultLoadavgHist;
 
-  return $self->_addRecord ('system', %system);
+  return $self->_addRecord('system', %system);
 } # AddSystem
 
-sub DeleteSystem ($) {
+sub DeleteSystem($) {
   my ($self, $name) = @_;
 
-  return $self->_deleteRecord ('system', "name='$name'");
+  return $self->_deleteRecord('system', "name='$name'");
 } # DeleteSystem
 
 sub UpdateSystem ($%) {
   my ($self, $name, %update) = @_;
 
-  return $self->_updateRecord ('system', "name='$name'", %update);
+  return $self->_updateRecord('system', "name='$name'", %update);
 } # UpdateSystem
 
-sub GetSystem ($) {
+sub GetSystem($) {
   my ($self, $system) = @_;
 
   return
     unless $system;
 
-  my @records = $self->_getRecords (
+  my @records = $self->_getRecords(
     'system',
     "name='$system' or alias like '%$system%'"
   );
@@ -477,25 +482,25 @@ sub GetSystem ($) {
   } # if
 } # GetSystem
 
-sub FindSystem (;$) {
+sub FindSystem(;$) {
   my ($self, $system) = @_;
 
   $system ||= '';
 
   my $condition = "name like '%$system%' or alias like '%$system%'";
 
-  return $self->_getRecords ('system', $condition);
+  return $self->_getRecords('system', $condition);
 } # FindSystem
 
-sub SearchSystem (;$) {
+sub SearchSystem(;$) {
   my ($self, $condition) = @_;
 
   $condition = "name like '%'" unless $condition;
 
-  return $self->_getRecords ('system', $condition);
+  return $self->_getRecords('system', $condition);
 } # SearchSystem
 
-sub AddPackage (%) {
+sub AddPackage(%) {
   my ($self, %package) = @_;
 
   my @requiredFields = (
@@ -509,32 +514,32 @@ sub AddPackage (%) {
   return -1, "AddPackage: $result"
     if $result;
 
-  return $self->_addRecord ('package', %package);
+  return $self->_addRecord('package', %package);
 } # AddPackage
 
-sub DeletePackage ($$) {
+sub DeletePackage($$) {
   my ($self, $system, $name) = @_;
 
-  return $self->_deleteRecord (
+  return $self->_deleteRecord(
     'package',
     "(system='$system' or alias='$system') and name='$name'");
 } # DeletePackage
 
-sub UpdatePackage ($$%) {
+sub UpdatePackage($$%) {
   my ($self, $system, $name, %update) = @_;
 
-  $system = $self->_aliasSystem ($system);
+  $system = $self->_aliasSystem($system);
 
   return
     unless $system;
 
-  return $self->_updateRecord ('package', "system='$system'", %update);
+  return $self->_updateRecord('package', "system='$system'", %update);
 } # UpdatePackage
 
 sub GetPackage($$) {
   my ($self, $system, $name) = @_;
 
-  $system = $self->_aliasSystem ($system);
+  $system = $self->_aliasSystem($system);
 
   return
     unless $system;
@@ -542,7 +547,7 @@ sub GetPackage($$) {
   return
     unless $name;
 
-  my @records = $self->_getRecords (
+  my @records = $self->_getRecords(
     'package',
     "system='$system' and name='$name'"
   );
@@ -554,22 +559,22 @@ sub GetPackage($$) {
   } # if
 } # GetPackage
 
-sub FindPackage ($;$) {
+sub FindPackage($;$) {
   my ($self, $system, $name) = @_;
 
   $name ||= '';
 
-  $system = $self->_aliasSystem ($system);
+  $system = $self->_aliasSystem($system);
 
   return
     unless $system;
 
   my $condition = "system='$system' and name like '%$name%'";
 
-  return $self->_getRecords ('package', $condition);
+  return $self->_getRecords('package', $condition);
 } # FindPackage
 
-sub AddFilesystem (%) {
+sub AddFilesystem(%) {
   my ($self, %filesystem) = @_;
 
   my @requiredFields = (
@@ -586,42 +591,42 @@ sub AddFilesystem (%) {
   # Default filesystem threshold
   $filesystem{threshold} ||= $defaultFilesystemThreshold;
 
-  return $self->_addRecord ('filesystem', %filesystem);
+  return $self->_addRecord('filesystem', %filesystem);
 } # AddFilesystem
 
-sub DeleteFilesystem ($$) {
+sub DeleteFilesystem($$) {
   my ($self, $system, $filesystem) = @_;
 
-  $system = $self->_aliasSystem ($system);
+  $system = $self->_aliasSystem($system);
 
   return
     unless $system;
 
-  return $self->_deleteRecord (
+  return $self->_deleteRecord(
     'filesystem',
     "system='$system' and filesystem='$filesystem'"
   );
 } # DeleteFilesystem
 
-sub UpdateFilesystem ($$%) {
+sub UpdateFilesystem($$%) {
   my ($self, $system, $filesystem, %update) = @_;
 
-  $system = $self->_aliasSystem ($system);
+  $system = $self->_aliasSystem($system);
 
   return
     unless $system;
 
-  return $self->_updateRecord (
+  return $self->_updateRecord(
     'filesystem',
     "system='$system' and filesystem='$filesystem'",
     %update
   );
 } # UpdateFilesystem
 
-sub GetFilesystem ($$) {
+sub GetFilesystem($$) {
   my ($self, $system, $filesystem) = @_;
 
-  $system = $self->_aliasSystem ($system);
+  $system = $self->_aliasSystem($system);
 
   return
     unless $system;
@@ -629,7 +634,7 @@ sub GetFilesystem ($$) {
   return
     unless $filesystem;
 
-  my @records = $self->_getRecords (
+  my @records = $self->_getRecords(
     'filesystem',
     "system='$system' and filesystem='$filesystem'"
   );
@@ -641,22 +646,22 @@ sub GetFilesystem ($$) {
   } # if
 } # GetFilesystem
 
-sub FindFilesystem ($;$) {
+sub FindFilesystem($;$) {
   my ($self, $system, $filesystem) = @_;
 
   $filesystem ||= '';
 
-  $system = $self->_aliasSystem ($system);
+  $system = $self->_aliasSystem($system);
 
   return
     unless $system;
 
   my $condition = "system='$system' and filesystem like '%$filesystem%'";
 
-  return $self->_getRecords ('filesystem', $condition);
+  return $self->_getRecords('filesystem', $condition);
 } # FindFilesystem
 
-sub AddVob (%) {
+sub AddVob(%) {
   my ($self, %vob) = @_;
 
   my @requiredFields = (
@@ -669,22 +674,22 @@ sub AddVob (%) {
   return -1, "AddVob: $result"
     if $result;
 
-  return $self->_addRecord ('vob', %vob);
+  return $self->_addRecord('vob', %vob);
 } # AddVob
 
-sub DeleteVob ($) {
+sub DeleteVob($) {
   my ($self, $tag) = @_;
 
-  return $self->_deleteRecord ('vob', "tag='$tag'");
+  return $self->_deleteRecord('vob', "tag='$tag'");
 } # DeleteVob
 
-sub GetVob ($) {
+sub GetVob($) {
   my ($self, $tag) = @_;
 
   return
     unless $tag;
 
-  my @records = $self->_getRecords ('vob', "tag='$tag'");
+  my @records = $self->_getRecords('vob', "tag='$tag'");
 
   if ($records[0]) {
     return %{$records[0]};
@@ -693,13 +698,13 @@ sub GetVob ($) {
   } # if
 } # GetVob
 
-sub FindVob ($) {
+sub FindVob($) {
   my ($self, $tag) = @_;
 
-  return $self->_getRecords ('vob', "tag like '%$tag%'");
+  return $self->_getRecords('vob', "tag like '%$tag%'");
 } # FindVob
 
-sub AddView (%) {
+sub AddView(%) {
   my ($self, %view) = @_;
 
   my @requiredFields = (
@@ -712,31 +717,36 @@ sub AddView (%) {
   return -1, "AddView: $result"
     if $result;
 
-  return $self->_addRecord ('view', %view);
+  return $self->_addRecord('view', %view);
 } # AddView
 
-sub DeleteView ($) {
+sub DeleteView($) {
   my ($self, $tag) = @_;
 
-  return $self->_deleteRecord ('vob', "tag='$tag'");
+  return $self->_deleteRecord('vob', "tag='$tag'");
 } # DeleteView
 
-sub GetView ($) {
-  my ($self, $tag) = @_;
+sub UpdateView($$) {
+  my ($self, $tag, $region, %viewRec) = @_;
 
-  return
-    unless $tag;
+  return $self->_updateRecord('view', "tag='$tag' and region='$region'", %viewRec);
+} # UpdateView
 
-  my @records = $self->_getRecords ('view', "tag='$tag'");
+sub GetView($$) {
+  my ($self, $tag, $region) = @_;
+
+  return unless $tag;
+
+  my @records = $self->_getRecords('view', "tag='$tag' and region='$region'");
 
   if ($records[0]) {
     return %{$records[0]};
   } else {
-  	return;
+    return;
   } # if
 } # GetView
 
-sub FindView (;$$$$) {
+sub FindView(;$$$$) {
   my ($self, $system, $region, $tag, $ownerName) = @_;
 
   $system    ||= '';
@@ -754,10 +764,10 @@ sub FindView (;$$$$) {
   $condition .= ' and ';
   $condition .= "ownerName like '%$ownerName'";
 
-  return $self->_getRecords ('view', $condition);
+  return $self->_getRecords('view', $condition);
 } # FindView
 
-sub AddFS (%) {
+sub AddFS(%) {
   my ($self, %fs) = @_;
 
   my @requiredFields = (
@@ -773,20 +783,20 @@ sub AddFS (%) {
   # Timestamp record
   $fs{timestamp} = Today2SQLDatetime;
 
-  return $self->_addRecord ('fs', %fs);
+  return $self->_addRecord('fs', %fs);
 } # AddFS
 
-sub TrimFS ($$) {
+sub TrimFS($$) {
   my ($self, $system, $filesystem) = @_;
 
-  my %filesystem = $self->GetFilesystem ($system, $filesystem);
+  my %filesystem = $self->GetFilesystem($system, $filesystem);
 
   return
     unless %filesystem;
 
-  my %task = $self->GetTask ('scrub');
+  my %task = $self->GetTask('scrub');
 
-  $self->Error ("Unable to find scrub task!", 1) unless %task;
+  $self->Error("Unable to find scrub task!", 1) unless %task;
 
   my $days;
   my $today = Today2SQLDatetime;
@@ -801,7 +811,7 @@ sub TrimFS ($$) {
 
   my $oldage = SubtractDays $today, $days;
 
-  my ($dberr, $dbmsg) = $self->_deleteRecord (
+  my ($dberr, $dbmsg) = $self->_deleteRecord(
     'fs',
     "system='$system' and filesystem='$filesystem' and timestamp<='$oldage'"
   );
@@ -818,25 +828,25 @@ sub TrimFS ($$) {
     $runlog{message} =
       "Scrubbed $dberr fs records for filesystem $system:$filesystem";
 
-    my ($err, $msg) = $self->AddRunlog (%runlog);
+    my ($err, $msg) = $self->AddRunlog(%runlog);
 
-    $self->Error ("Unable to add runlog - (Error: $err)\n$msg") if $err;
+    $self->Error("Unable to add runlog - (Error: $err)\n$msg") if $err;
   } # if
 
   return ($dberr, $dbmsg);
 } # TrimFS
 
-sub TrimLoadavg ($) {
+sub TrimLoadavg($) {
   my ($self, $system) = @_;
 
-  my %system = $self->GetSystem ($system);
+  my %system = $self->GetSystem($system);
 
   return
     unless %system;
 
-  my %task = $self->GetTask ('loadavg');
+  my %task = $self->GetTask('loadavg');
 
-  $self->Error ("Unable to find loadavg task!", 1) unless %task;
+  $self->Error("Unable to find loadavg task!", 1) unless %task;
 
   my $days;
   my $today = Today2SQLDatetime;
@@ -851,7 +861,7 @@ sub TrimLoadavg ($) {
 
   my $oldage = SubtractDays $today, $days;
 
-  my ($dberr, $dbmsg) = $self->_deleteRecord (
+  my ($dberr, $dbmsg) = $self->_deleteRecord(
     'loadavg',
     "system='$system' and timestamp<='$oldage'"
   );
@@ -868,18 +878,18 @@ sub TrimLoadavg ($) {
     $runlog{message} =
       "Scrubbed $dberr loadavg records for system $system";
 
-    my ($err, $msg) = $self->AddRunlog (%runlog);
+    my ($err, $msg) = $self->AddRunlog(%runlog);
 
-    $self->Error ("Unable to add runload (Error: $err)\n$msg") if $err;
+    $self->Error("Unable to add runload (Error: $err)\n$msg") if $err;
   } # if
 
   return ($dberr, $dbmsg);
 } # TrimLoadavg
 
-sub GetFS ($$;$$$$) {
+sub GetFS($$;$$$$) {
   my ($self, $system, $filesystem, $start, $end, $count, $interval) = @_;
 
-  $system = $self->_aliasSystem ($system);
+  $system = $self->_aliasSystem($system);
 
   return
     unless $system;
@@ -912,7 +922,7 @@ sub GetFS ($$;$$$$) {
     # returns 40 rows we'll see only rows 1-10, not rows 31-40). We need limit
     # $offset, $count where $offset = the number of qualifying records minus
     # $count
-    my $nbrRecs = $self->Count ('fs', $condition);
+    my $nbrRecs = $self->Count('fs', $condition);
     my $offset  = $nbrRecs - $count;
 
     # Offsets of < 0 are not allowed.
@@ -939,10 +949,10 @@ END
 
   my ($err, $msg);
 
-  my $sth = $self->{db}->prepare ($statement);
+  my $sth = $self->{db}->prepare($statement);
 
   unless ($sth) {
-    ($err, $msg) = $self->_dberror ('Unable to prepare statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to prepare statement', $statement);
 
     croak $msg;
   } # if
@@ -950,7 +960,7 @@ END
   my $status = $sth->execute;
 
   unless ($status) {
-    ($err, $msg) = $self->_dberror ('Unable to execute statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to execute statement', $statement);
 
     croak $msg;
   } # if
@@ -964,10 +974,10 @@ END
   return @records;
 } # GetFS
 
-sub GetLatestFS ($$) {
+sub GetLatestFS($$) {
   my ($self, $system, $filesystem) = @_;
 
-  $system = $self->_aliasSystem ($system);
+  $system = $self->_aliasSystem($system);
 
   return
     unless $system;
@@ -975,7 +985,7 @@ sub GetLatestFS ($$) {
   return
     unless $filesystem;
 
-  my @records = $self->_getRecords (
+  my @records = $self->_getRecords(
     'fs',
     "system='$system' and filesystem='$filesystem'"
   . " order by timestamp desc limit 0, 1",
@@ -988,7 +998,7 @@ sub GetLatestFS ($$) {
   } # if
 } # GetLatestFS
 
-sub AddLoadavg () {
+sub AddLoadavg() {
   my ($self, %loadavg) = @_;
 
   my @requiredFields = (
@@ -1003,13 +1013,13 @@ sub AddLoadavg () {
   # Timestamp record
   $loadavg{timestamp} = Today2SQLDatetime;
 
-  return $self->_addRecord ('loadavg', %loadavg);
+  return $self->_addRecord('loadavg', %loadavg);
 } # AddLoadavg
 
-sub GetLoadavg ($;$$$$) {
+sub GetLoadavg($;$$$$) {
   my ($self, $system, $start, $end, $count, $interval) = @_;
 
-  $system = $self->_aliasSystem ($system);
+  $system = $self->_aliasSystem($system);
 
   return
     unless $system;
@@ -1041,7 +1051,7 @@ sub GetLoadavg ($;$$$$) {
     # returns 40 rows we'll see only rows 1-10, not rows 31-40). We need limit
     # $offset, $count where $offset = the number of qualifying records minus
     # $count
-    my $nbrRecs = $self->Count ('loadavg', $condition);
+    my $nbrRecs = $self->Count('loadavg', $condition);
     my $offset  = $nbrRecs - $count;
 
     # Offsets of < 0 are not allowed.
@@ -1065,10 +1075,10 @@ END
 
   my ($err, $msg);
 
-  my $sth = $self->{db}->prepare ($statement);
+  my $sth = $self->{db}->prepare($statement);
 
   unless ($sth) {
-    ($err, $msg) = $self->_dberror ('Unable to prepare statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to prepare statement', $statement);
 
     croak $msg;
   } # if
@@ -1076,7 +1086,7 @@ END
   my $status = $sth->execute;
 
   unless ($status) {
-    ($err, $msg) = $self->_dberror ('Unable to execute statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to execute statement', $statement);
 
     croak $msg;
   } # if
@@ -1090,15 +1100,15 @@ END
   return @records;
 } # GetLoadvg
 
-sub GetLatestLoadavg ($) {
+sub GetLatestLoadavg($) {
   my ($self, $system) = @_;
 
-  $system = $self->_aliasSystem ($system);
+  $system = $self->_aliasSystem($system);
 
   return
     unless $system;
 
-  my @records = $self->_getRecords (
+  my @records = $self->_getRecords(
     'loadavg',
     "system='$system'"
   . " order by timestamp desc limit 0, 1",
@@ -1111,7 +1121,88 @@ sub GetLatestLoadavg ($) {
   } # if
 } # GetLatestLoadavg
 
-sub AddTask (%) {
+sub GetStorage($$$;$$$$$) {
+  my ($self, $type, $tag, $storage, $region, $start, $end, $count, $interval) = @_;
+
+  $interval ||= 'Day';
+  $region   ||= $Clearcase::CC->region;
+
+  return unless $type =~ /vob/i or $type =~ /view/;
+
+  my $size = $interval =~ /month/i
+           ? 7
+           : $interval =~ /day/i
+           ? 10
+           : $interval =~ /hour/i
+           ? 13
+           : 16;
+
+  undef $start if $start and $start =~ /earliest/i;
+  undef $end   if $end   and $end   =~ /latest/i;
+
+  my $condition;
+  my $table = $type eq 'vob' ? 'vobstorage' : 'viewstorage';
+
+  $condition  = "tag='$tag' and region='$region'";
+  $condition .= " and timestamp>='$start'" if $start;
+  $condition .= " and timestamp<='$end'"   if $end;
+
+  $condition .= " group by left(timestamp,$size)";
+
+  if ($count) {
+    # We can't simply do a "limit 0, $count" as that just gets the front end of
+    # the records return (i.e. if $count = say 10 and the timestamp range
+    # returns 40 rows we'll see only rows 1-10, not rows 31-40). We need limit
+    # $offset, $count where $offset = the number of qualifying records minus
+    # $count
+    my $nbrRecs = $self->Count($table, $condition);
+    my $offset  = $nbrRecs - $count;
+
+    # Offsets of < 0 are not allowed.
+    $offset = 0 if $offset < 0;
+
+    $condition .= " limit $offset, $count";
+  } # if
+
+  my $statement = <<"END";
+select
+  tag,
+  region,
+  left(timestamp,$size) as timestamp,
+  avg($storage) as size
+from
+  $table
+  where $condition
+END
+
+  my ($err, $msg);
+
+  my $sth = $self->{db}->prepare($statement);
+
+  unless ($sth) {
+    ($err, $msg) = $self->_dberror('Unable to prepare statement', $statement);
+
+    croak $msg;
+  } # if
+
+  my $status = $sth->execute;
+
+  unless ($status) {
+    ($err, $msg) = $self->_dberror('Unable to execute statement', $statement);
+
+    croak $msg;
+  } # if
+
+  my @records;
+
+  while (my $row = $sth->fetchrow_hashref) {
+    push @records, $row;
+  } # while
+
+  return @records;
+} # GetStorage
+
+sub AddTask(%) {
   my ($self, %task) = @_;
 
   my @requiredFields = (
@@ -1124,32 +1215,32 @@ sub AddTask (%) {
   return -1, "AddTask: $result"
     if $result;
 
-  return $self->_addRecord ('task', %task);
+  return $self->_addRecord('task', %task);
 } # AddTask
 
-sub DeleteTask ($) {
+sub DeleteTask($) {
   my ($self, $name) = @_;
 
-  return $self->_deleteRecord ('task', "name='$name'");
+  return $self->_deleteRecord('task', "name='$name'");
 } # DeleteTask
 
-sub FindTask ($) {
+sub FindTask($) {
   my ($self, $name) = @_;
 
   $name ||= '';
 
   my $condition = "name like '%$name%'";
 
-  return $self->_getRecords ('task', $condition);
+  return $self->_getRecords('task', $condition);
 } # FindTask
 
-sub GetTask ($) {
+sub GetTask($) {
   my ($self, $name) = @_;
 
   return
     unless $name;
 
-  my @records = $self->_getRecords ('task', "name='$name'");
+  my @records = $self->_getRecords('task', "name='$name'");
 
   if ($records[0]) {
     return %{$records[0]};
@@ -1158,13 +1249,13 @@ sub GetTask ($) {
   } # if
 } # GetTask
 
-sub UpdateTask ($%) {
+sub UpdateTask($%) {
   my ($self, $name, %update) = @_;
 
-  return $self->_updateRecord ('task', "name='$name'", %update);
+  return $self->_updateRecord('task', "name='$name'", %update);
 } # Update
 
-sub AddSchedule (%) {
+sub AddSchedule(%) {
   my ($self, %schedule) = @_;
 
   my @requiredFields = (
@@ -1176,16 +1267,16 @@ sub AddSchedule (%) {
   return -1, "AddSchedule: $result"
     if $result;
 
-  return $self->_addRecord ('schedule', %schedule);
+  return $self->_addRecord('schedule', %schedule);
 } # AddSchedule
 
-sub DeleteSchedule ($) {
+sub DeleteSchedule($) {
   my ($self, $name) = @_;
 
-  return $self->_deleteRecord ('schedule', "name='$name'");
+  return $self->_deleteRecord('schedule', "name='$name'");
 } # DeleteSchedule
 
-sub FindSchedule (;$$) {
+sub FindSchedule(;$$) {
   my ($self, $name, $task) = @_;
 
   $name ||= '';
@@ -1195,13 +1286,13 @@ sub FindSchedule (;$$) {
      $condition .= ' and ';
      $condition .= "task like '%$task%'";
 
-  return $self->_getRecords ('schedule', $condition);
+  return $self->_getRecords('schedule', $condition);
 } # FindSchedule
 
-sub GetSchedule ($) {
+sub GetSchedule($) {
   my ($self, $name) = @_;
 
-  my @records = $self->_getRecords ('schedule', "name='$name'");
+  my @records = $self->_getRecords('schedule', "name='$name'");
 
   if ($records[0]) {
     return %{$records[0]};
@@ -1210,13 +1301,13 @@ sub GetSchedule ($) {
   } # if
 } # GetSchedule
 
-sub UpdateSchedule ($%) {
+sub UpdateSchedule($%) {
   my ($self, $name, %update) = @_;
 
-  return $self->_updateRecord ('schedule', "name='$name'", %update);
+  return $self->_updateRecord('schedule', "name='$name'", %update);
 } # UpdateSchedule
 
-sub AddRunlog (%) {
+sub AddRunlog(%) {
   my ($self, %runlog) = @_;
 
   my @requiredFields = (
@@ -1230,64 +1321,68 @@ sub AddRunlog (%) {
 
   $runlog{ended} = Today2SQLDatetime;
 
-  my ($err, $msg) = $self->_addRecord ('runlog', %runlog);
+  $runlog{system} = hostname if $runlog{system} =~ /localhost/i;
+
+  my ($err, $msg) = $self->_addRecord('runlog', %runlog);
 
   return ($err, $msg, $self->_getLastID);
 } # AddRunlog
 
-sub DeleteRunlog ($) {
+sub DeleteRunlog($) {
   my ($self, $condition) = @_;
 
-  return $self->_deleteRecord ('runlog', $condition);
+  return $self->_deleteRecord('runlog', $condition);
 } # DeleteRunlog
 
-sub FindRunlog (;$$$$$$) {
+sub FindRunlog(;$$$$$$) {
   my ($self, $task, $system, $status, $id, $start, $page) = @_;
-
-  $task ||= '';
 
   # If ID is specified then that's all that really matters as it uniquely
   # identifies a runlog entry;
-  my $condition;
+  my ($condition, $conditions);
+  my $limit = '';
 
   unless ($id) {
-    $condition  = "task like '%$task%'";
+    if ($task !~ /all/i) {
+      $conditions++;
+      $condition = "task like '%$task%'";
+    } # if
 
-    if ($system) {
-      $condition .= " and system like '%$system%'"
-        unless $system eq 'All';
-    } else {
-      $condition .= ' and system is null';
-    } # unless
+    if ($system !~ /all/i) {
+      $condition .= ' and ' if $conditions;
+      $condition .= "system like '%$system%'";
+      $conditions++;
+    } # if
 
-    if (defined $status) {
+    if ($status) {
+      $condition .= ' and ' if $conditions;
+
       if ($status =~ /!(-*\d+)/) {
-        $condition .= " and status<>$1";
+        $condition .= "status<>$1";
       } else {
-        $condition .= " and status=$status"
+        $condition .= "status=$status"
       } # if
     } # if
 
-    $condition .= " order by started desc";
-
+    # Need defined here as $start may be 0!
     if (defined $start) {
       $page ||= 10;
-      $condition .= " limit $start, $page";
+      $limit = "limit $start, $page";
     } # unless
   } else {
     $condition = "id=$id";
   } # unless
 
-  return $self->_getRecords ('runlog', $condition);
+  return $self->_getRecords('runlog', $condition, " order by started desc $limit");
 } # FindRunlog
 
-sub GetRunlog ($) {
+sub GetRunlog($) {
   my ($self, $id) = @_;
 
   return
     unless $id;
 
-  my @records = $self->_getRecords ('runlog', "id=$id");
+  my @records = $self->_getRecords('runlog', "id=$id");
 
   if ($records[0]) {
     return %{$records[0]};
@@ -1296,13 +1391,13 @@ sub GetRunlog ($) {
   } # if
 } # GetRunlog
 
-sub UpdateRunlog ($%) {
+sub UpdateRunlog($%) {
   my ($self, $id, %update) = @_;
 
-  return $self->_updateRecord ('runlog', "id=$id", %update);
+  return $self->_updateRecord('runlog', "id=$id", %update);
 } # UpdateRunlog
 
-sub Count ($;$) {
+sub Count($;$) {
   my ($self, $table, $condition) = @_;
 
   $condition = $condition ? 'where ' . $condition : '';
@@ -1311,10 +1406,10 @@ sub Count ($;$) {
 
   my $statement = "select count(*) from $table $condition";
 
-  my $sth = $self->{db}->prepare ($statement);
+  my $sth = $self->{db}->prepare($statement);
 
   unless ($sth) {
-    ($err, $msg) = $self->_dberror ('Unable to prepare statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to prepare statement', $statement);
 
     croak $msg;
   } # if
@@ -1322,7 +1417,7 @@ sub Count ($;$) {
   my $status = $sth->execute;
 
   unless ($status) {
-    ($err, $msg) = $self->_dberror ('Unable to execute statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to execute statement', $statement);
 
     croak $msg;
   } # if
@@ -1363,7 +1458,7 @@ sub Count ($;$) {
 # execute the work to be done, timing it, and subtracting it from the $sleep
 # time returned. If the caller exhausts the $sleep time then they should call
 # us again.
-sub GetWork () {
+sub GetWork() {
   my ($self) = @_;
 
   my ($err, $msg);
@@ -1386,10 +1481,10 @@ where
 order by lastrun
 END
 
-  my $sth = $self->{db}->prepare ($statement);
+  my $sth = $self->{db}->prepare($statement);
 
   unless ($sth) {
-    ($err, $msg) = $self->_dberror ('Unable to prepare statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to prepare statement', $statement);
 
     croak $msg;
   } # if
@@ -1397,7 +1492,7 @@ END
   my $status = $sth->execute;
 
   unless ($status) {
-    ($err, $msg) = $self->_dberror ('Unable to execute statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to execute statement', $statement);
 
     croak $msg;
   } # if
@@ -1407,7 +1502,7 @@ END
 
   while (my $row = $sth->fetchrow_hashref) {
    if ($$row{system} !~ /localhost/i) {
-     my %system = $self->GetSystem ($$row{system});
+     my %system = $self->GetSystem($$row{system});
 
      # Skip inactive systems
      next if $system{active} eq 'false';
@@ -1436,8 +1531,8 @@ END
     } # if
 
     my $today    = Today2SQLDatetime;
-    my $lastrun  = Add ($$row{lastrun}, (seconds => $seconds));
-    my $waitTime = DateToEpoch ($lastrun) - DateToEpoch ($today);
+    my $lastrun  = Add($$row{lastrun}, (seconds => $seconds));
+    my $waitTime = DateToEpoch($lastrun) - DateToEpoch($today);
 
     if ($waitTime < 0) {
       # We're late - push this onto records and move on
@@ -1462,17 +1557,17 @@ END
   return ($sleep, @records);
 } # GetWork
 
-sub GetUniqueList ($$) {
+sub GetUniqueList($$) {
   my ($self, $table, $field) = @_;
 
   my ($err, $msg);
 
   my $statement = "select $field from $table group by $field";
 
-  my $sth = $self->{db}->prepare ($statement);
+  my $sth = $self->{db}->prepare($statement);
 
   unless ($sth) {
-    ($err, $msg) = $self->_dberror ('Unable to prepare statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to prepare statement', $statement);
 
     croak $msg;
   } # if
@@ -1480,7 +1575,7 @@ sub GetUniqueList ($$) {
   my $status = $sth->execute;
 
   unless ($status) {
-    ($err, $msg) = $self->_dberror ('Unable to execute statement', $statement);
+    ($err, $msg) = $self->_dberror('Unable to execute statement', $statement);
 
     croak $msg;
   } # if
@@ -1511,32 +1606,32 @@ sub AddAlert(%) {
   return -1, "AddAlert: $result"
     if $result;
 
-  return $self->_addRecord ('alert', %alert);
+  return $self->_addRecord('alert', %alert);
 } # AddAlert
 
-sub DeleteAlert ($) {
+sub DeleteAlert($) {
   my ($self, $name) = @_;
 
-  return $self->_deleteRecord ('alert', "name='$name'");
+  return $self->_deleteRecord('alert', "name='$name'");
 } # DeleteAlert
 
-sub FindAlert (;$) {
+sub FindAlert(;$) {
   my ($self, $alert) = @_;
 
   $alert ||= '';
 
   my $condition = "name like '%$alert%'";
 
-  return $self->_getRecords ('alert', $condition);
+  return $self->_getRecords('alert', $condition);
 } # FindAlert
 
-sub GetAlert ($) {
+sub GetAlert($) {
   my ($self, $name) = @_;
 
   return
     unless $name;
 
-  my @records = $self->_getRecords ('alert', "name='$name'");
+  my @records = $self->_getRecords('alert', "name='$name'");
 
   if ($records[0]) {
     return %{$records[0]};
@@ -1545,7 +1640,7 @@ sub GetAlert ($) {
   } # if
 } # GetAlert
 
-sub SendAlert ($$$$$$$) {
+sub SendAlert($$$$$$$) {
   my (
     $self,
     $alert,
@@ -1563,12 +1658,12 @@ sub SendAlert ($$$$$$$) {
      $footing .= "<a href='$CLEAROPTS{CLEARADM_WEBBASE}'>Clearadm</a><br>";
      $footing .= "Copyright &copy; $year, ClearSCM, Inc. - All rights reserved";
 
-  my %alert = $self->GetAlert ($alert);
+  my %alert = $self->GetAlert($alert);
 
   if ($alert{type} eq 'email') {
     my $from = 'Clearadm@' . hostdomain;
 
-    mail (
+    mail(
       from    => $from,
       to      => $to,
       subject => "Clearadm Alert: $system: $subject",
@@ -1577,7 +1672,7 @@ sub SendAlert ($$$$$$$) {
       footing => $footing,
     );
   } else {
-    $self->Error ("Don't know how to send $alert{type} alerts\n"
+    $self->Error("Don't know how to send $alert{type} alerts\n"
                 . "Subject: $subject\n"
                 . "Message: $message", 1);
   } # if
@@ -1592,10 +1687,10 @@ sub SendAlert ($$$$$$$) {
     message      => $subject,
   );
 
-  return $self->AddAlertlog (%alertlog);
+  return $self->AddAlertlog(%alertlog);
 } # SendAlert
 
-sub GetLastAlert ($$) {
+sub GetLastAlert($$) {
   my ($self, $notification, $system) = @_;
 
   my $statement = <<"END";
@@ -1613,11 +1708,11 @@ limit
   0, 1
 END
 
-  my $sth = $self->{db}->prepare ($statement)
-    or return $self->_dberror ('Unable to prepare statement', $statement);
+  my $sth = $self->{db}->prepare($statement)
+    or return $self->_dberror('Unable to prepare statement', $statement);
 
   $sth->execute
-    or return $self->_dberror ('Unable to execute statement', $statement);
+    or return $self->_dberror('Unable to execute statement', $statement);
 
   my $alertlog= $sth->fetchrow_hashref;
 
@@ -1630,7 +1725,7 @@ END
   } # if
 } # GetLastAlert
 
-sub GetLastTaskFailure ($$) {
+sub GetLastTaskFailure($$) {
   my ($self, $task, $system) = @_;
 
   my $statement = <<"END";
@@ -1650,11 +1745,11 @@ limit
   0, 1
 END
 
-  my $sth = $self->{db}->prepare ($statement)
-    or return $self->_dberror ('Unable to prepare statement', $statement);
+  my $sth = $self->{db}->prepare($statement)
+    or return $self->_dberror('Unable to prepare statement', $statement);
 
   $sth->execute
-    or return $self->_dberror ('Unable to execute statement', $statement);
+    or return $self->_dberror('Unable to execute statement', $statement);
 
   my $runlog= $sth->fetchrow_hashref;
 
@@ -1682,11 +1777,11 @@ limit
   0, 1
 END
 
-  $sth = $self->{db}->prepare ($statement)
-    or return $self->_dberror ('Unable to prepare statement', $statement);
+  $sth = $self->{db}->prepare($statement)
+    or return $self->_dberror('Unable to prepare statement', $statement);
 
   $sth->execute
-    or return $self->_dberror ('Unable to execute statement', $statement);
+    or return $self->_dberror('Unable to execute statement', $statement);
 
   $runlog = $sth->fetchrow_hashref;
 
@@ -1699,7 +1794,7 @@ END
   } # if
 } # GetLastTaskFailure
 
-sub Notify ($$$$$$) {
+sub Notify($$$$$$) {
   my (
     $self,
     $notification,
@@ -1718,44 +1813,44 @@ sub Notify ($$$$$$) {
 
   # Update filesystem, if $filesystem was specified
   if ($filesystem) {
-    ($err, $msg) = $self->UpdateFilesystem (
+    ($err, $msg) = $self->UpdateFilesystem(
       $system,
       $filesystem, (
         notification => $notification,
       ),
     );
 
-    $self->Error ("Unable to set notification for filesystem $system:$filesystem "
+    $self->Error("Unable to set notification for filesystem $system:$filesystem "
                . "(Status: $err)\n$msg", $err) if $err;
   } # if
 
   # Update system
-  ($err, $msg) = $self->UpdateSystem (
+  ($err, $msg) = $self->UpdateSystem(
     $system, (
       notification => $notification,
     ),
   );
 
-  my %notification = $self->GetNotification ($notification);
+  my %notification = $self->GetNotification($notification);
 
-  my %lastnotified = $self->GetLastAlert ($notification, $system);
+  my %lastnotified = $self->GetLastAlert($notification, $system);
 
   if (%lastnotified and $lastnotified{timestamp}) {
     my $today        = Today2SQLDatetime;
     my $lastnotified = $lastnotified{timestamp};
 
     if ($notification{nomorethan} =~ /hour/i) {
-      $lastnotified = Add ($lastnotified, (hours => 1));
+      $lastnotified = Add($lastnotified, (hours => 1));
     } elsif ($notification{nomorethan} =~ /day/i) {
-      $lastnotified = Add ($lastnotified, (days => 1));
+      $lastnotified = Add($lastnotified, (days => 1));
     } elsif ($notification{nomorethan} =~ /week/i) {
-      $lastnotified = Add ($lastnotified, (days => 7));
+      $lastnotified = Add($lastnotified, (days => 7));
     } elsif ($notification{nomorethan} =~ /month/i) {
-      $lastnotified = Add ($lastnotified, (month => 1));
+      $lastnotified = Add($lastnotified, (month => 1));
     } # if
 
     # If you want to fake an alert in the debugger just change $diff accordingly
-    my $diff = Compare ($today, $lastnotified);
+    my $diff = Compare($today, $lastnotified);
 
     return
       if $diff <= 0;
@@ -1763,14 +1858,14 @@ sub Notify ($$$$$$) {
 
   my $when       = Today2SQLDatetime;
   my $nomorethan = lc $notification{nomorethan};
-  my %alert      = $self->GetAlert ($notification{alert});
+  my %alert      = $self->GetAlert($notification{alert});
   my $to         = $alert{who};
 
   # If $to is null then this means to send the alert to the admin for the
   # machine.
   unless ($to) {
     if ($system) {
-      my %system = $self->GetSystem ($system);
+      my %system = $self->GetSystem($system);
 
       $to = $system{email};
     } else {
@@ -1787,7 +1882,7 @@ sub Notify ($$$$$$) {
 
   $message .= "<p>You will receive this alert no more than $nomorethan.</p>";
 
-  ($err, $msg) = $self->SendAlert (
+  ($err, $msg) = $self->SendAlert(
     $notification{alert},
     $system,
     $notification{name},
@@ -1797,29 +1892,29 @@ sub Notify ($$$$$$) {
     $runlogID,
   );
 
-  $self->Error ("Unable to send alert (Status: $err)\n$msg", $err) if $err;
+  $self->Error("Unable to send alert (Status: $err)\n$msg", $err) if $err;
 
   verbose "Sent alert to $to";
 
   # Update runlog to indicate we notified the user for this execution
-  ($err, $msg) = $self->UpdateRunlog (
+  ($err, $msg) = $self->UpdateRunlog(
     $runlogID, (
       alerted => 'true',
     ),
   );
 
-  $self->Error ("Unable to update runlog (Status: $err)\n$msg", $err) if $err;
+  $self->Error("Unable to update runlog (Status: $err)\n$msg", $err) if $err;
 
   return;
 } # Notify
 
-sub ClearNotifications ($$;$) {
+sub ClearNotifications($$;$) {
   my ($self, $system, $filesystem) = @_;
 
   my ($err, $msg);
 
   if ($filesystem) {
-    ($err, $msg) = $self->UpdateFilesystem (
+    ($err, $msg) = $self->UpdateFilesystem(
       $system,
       $filesystem, (notification => undef),
     );
@@ -1834,12 +1929,12 @@ sub ClearNotifications ($$;$) {
     # 'Filesystem' then we can toggle off the notification on the system too
     my $filesystemsAlerted = 0;
 
-    for ($self->FindFilesystem ($system)) {
+    for ($self->FindFilesystem($system)) {
       $filesystemsAlerted++
         if $$_{notification};
     } # for
 
-    my %system = $self->GetSystem ($system);
+    my %system = $self->GetSystem($system);
 
     return
       unless $system;
@@ -1847,22 +1942,22 @@ sub ClearNotifications ($$;$) {
     if ($system{notification}                 and
         $system{notification} eq 'Filesystem' and
         $filesystemsAlerted == 0) {
-      ($err, $msg) = $self->UpdateSystem ($system, (notification => undef));
+      ($err, $msg) = $self->UpdateSystem($system, (notification => undef));
 
-      $self->Error ("Unable to clear notification for system $system "
+      $self->Error("Unable to clear notification for system $system "
                   . "(Status: $err)\n$msg", $err) if $err;
     } # if
   } else {
-    ($err, $msg) = $self->UpdateSystem ($system, (notification => undef));
+    ($err, $msg) = $self->UpdateSystem($system, (notification => undef));
 
-    $self->Error ("Unable to clear notification for system $system "
+    $self->Error("Unable to clear notification for system $system "
                 . "(Status: $err)\n$msg", $err) if $err;
   } # if
 
   return;
 } # ClearNotifications
 
-sub SystemAlive (%) {
+sub SystemAlive(%) {
   my ($self, %system) = @_;
 
   # If we've never heard from this system then we will assume that the system
@@ -1881,10 +1976,10 @@ sub SystemAlive (%) {
 
   my $tenMinutes = 10 * 60;
 
-  $lastheardfrom = Add ($lastheardfrom, (seconds => $tenMinutes));
+  $lastheardfrom = Add($lastheardfrom, (seconds => $tenMinutes));
 
-  if (DateToEpoch ($lastheardfrom) < DateToEpoch ($today)) {
-    $self->UpdateSystem (
+  if (DateToEpoch($lastheardfrom) < DateToEpoch($today)) {
+    $self->UpdateSystem(
       $system{name}, (
         notification => 'Heartbeat'
       ),
@@ -1893,7 +1988,7 @@ sub SystemAlive (%) {
     return;
   } else {
     if ($system{notification}) {
-      $self->UpdateSystem (
+      $self->UpdateSystem(
         $system{name}, (
           notification => undef
         ),
@@ -1903,17 +1998,17 @@ sub SystemAlive (%) {
   } # if
 } # SystemAlive
 
-sub UpdateAlert ($%) {
+sub UpdateAlert($%) {
   my ($self, $name, %update) = @_;
 
-  return $self->_updateRecord (
+  return $self->_updateRecord(
     'alert',
     "name='$name'",
     %update
   );
 } # UpdateAlert
 
-sub AddAlertlog (%) {
+sub AddAlertlog(%) {
   my ($self, %alertlog) = @_;
 
   my @requiredFields = (
@@ -1929,23 +2024,23 @@ sub AddAlertlog (%) {
   # Timestamp record
   $alertlog{timestamp} = Today2SQLDatetime;
 
-  return $self->_addRecord ('alertlog', %alertlog);
+  return $self->_addRecord('alertlog', %alertlog);
 } # AddAlertlog
 
-sub DeleteAlertlog ($) {
+sub DeleteAlertlog($) {
   my ($self, $condition) = @_;
 
   return
     unless $condition;
 
   if ($condition =~ /all/i) {
-    return $self->_deleteRecord ('alertlog');
+    return $self->_deleteRecord('alertlog');
   } else {
-    return $self->_deleteRecord ('alertlog', $condition);
+    return $self->_deleteRecord('alertlog', $condition);
   } # if
 } # DeleteAlertlog
 
-sub FindAlertlog (;$$$$$) {
+sub FindAlertlog(;$$$$$) {
   my ($self, $alert, $system, $notification, $start, $page) = @_;
 
   $alert        ||= '';
@@ -1964,16 +2059,16 @@ sub FindAlertlog (;$$$$$) {
        $condition .= " limit $start, $page";
      } # unless
 
-  return $self->_getRecords ('alertlog', $condition);
+  return $self->_getRecords('alertlog', $condition);
 } # FindAlertLog
 
-sub GetAlertlog ($) {
+sub GetAlertlog($) {
   my ($self, $alert) = @_;
 
   return
     unless $alert;
 
-  my @records = $self->_getRecords ('alertlog', "alert='$alert'");
+  my @records = $self->_getRecords('alertlog', "alert='$alert'");
 
   if ($records[0]) {
     return %{$records[0]};
@@ -1982,17 +2077,17 @@ sub GetAlertlog ($) {
   } # if
 } # GetAlertlog
 
-sub UpdateAlertlog ($%) {
+sub UpdateAlertlog($%) {
   my ($self, $alert, %update) = @_;
 
-  return $self->_updateRecord (
+  return $self->_updateRecord(
     'alertlog',
     "alert='$alert'",
     %update
   );
 } # UpdateAlertlog
 
-sub AddNotification (%) {
+sub AddNotification(%) {
   my ($self, %notification) = @_;
 
   my @requiredFields = (
@@ -2006,16 +2101,16 @@ sub AddNotification (%) {
   return -1, "AddNotification: $result"
     if $result;
 
-  return $self->_addRecord ('notification', %notification);
+  return $self->_addRecord('notification', %notification);
 } # AddNotification
 
-sub DeleteNotification ($) {
+sub DeleteNotification($) {
   my ($self, $name) = @_;
 
-  return $self->_deleteRecord ('notification', "name='$name'");
+  return $self->_deleteRecord('notification', "name='$name'");
 } # DeletePackage
 
-sub FindNotification (;$$) {
+sub FindNotification(;$$) {
   my ($self, $name, $cond, $ordering) = @_;
 
   $name ||= '';
@@ -2024,16 +2119,16 @@ sub FindNotification (;$$) {
      $condition .= " and $cond"
        if $cond;
 
-  return $self->_getRecords ('notification', $condition);
+  return $self->_getRecords('notification', $condition);
 } # FindNotification
 
-sub GetNotification ($) {
+sub GetNotification($) {
   my ($self, $name) = @_;
 
   return
     unless $name;
 
-  my @records = $self->_getRecords ('notification', "name='$name'");
+  my @records = $self->_getRecords('notification', "name='$name'");
 
   if ($records[0]) {
     return %{$records[0]};
@@ -2042,15 +2137,49 @@ sub GetNotification ($) {
   } # if
 } # GetNotification
 
-sub UpdateNotification ($%) {
+sub UpdateNotification($%) {
   my ($self, $name, %update) = @_;
 
-  return $self->_updateRecord (
+  return $self->_updateRecord(
     'notification',
     "name='$name'",
     %update
   );
 } # UpdateNotification
+
+sub AddVobStorage(%) {
+  my ($self, %vobstorage) = @_;
+
+  my @requiredFields = (
+    'tag',
+  );
+
+  my $result = _checkRequiredFields \@requiredFields, \%vobstorage;
+
+  return -1, "AddVobStorage: $result" if $result;
+
+  # Timestamp record
+  $vobstorage{timestamp} = Today2SQLDatetime;
+
+  return $self->_addRecord('vobstorage', %vobstorage);
+} # AddVobStorage
+
+sub AddViewStorage(%) {
+  my ($self, %viewstorage) = @_;
+
+  my @requiredFields = (
+    'tag',
+  );
+
+  my $result = _checkRequiredFields \@requiredFields, \%viewstorage;
+
+  return -1, "AddViewStorage: $result" if $result;
+
+  # Timestamp record
+  $viewstorage{timestamp} = Today2SQLDatetime;
+
+  return $self->_addRecord('viewstorage', %viewstorage);
+} # AddViewStorage
 
 1;
 

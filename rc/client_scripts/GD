@@ -63,4 +63,3 @@ append_to_path "/cygdrive/c/Program Files (x86)/ibm/gsk8/lib"
 # Common CDPATHS
 export CT=/cleartrig/ent/SNSD/muos/ccadm_tools/vobs/ranccadm/scripts
 CDPATH=$CDPATH:/vobs/ranccadm:$CT
-

@@ -72,12 +72,12 @@ use Clearcase;
 use Display;
 use OSDep;
 
-sub new () {
-  my ($class) = @_;
+sub new (;$) {
+  my ($class, $host, $region) = @_;
 
 =pod
 
-=head2 new (tag)
+=head2 new (host)
 
 Construct a new Clearcase Vobs object.
 
@@ -87,7 +87,10 @@ Parameters:
 
 =over
 
-=item none
+=item host
+
+If host is specified then limit the vob list to only those vobs on that host. If
+host is not specified then all vobs are considered
 
 =back
 
@@ -107,18 +110,13 @@ Returns:
 
 =cut
 
-  my ($status, @output) = $Clearcase::CC->execute ("lsvob -short");
+  my $cmd  = 'lsvob -short';
+     $cmd .= " -host $host"     if $host;
+     $cmd .= " -region $region" if $region;
+
+  my ($status, @output) = $Clearcase::CC->execute ($cmd);
 
   return if $status;
-
-  # Strip $VOBTAG_PREFIX
-  foreach (@output) {
-    if ($ARCHITECTURE eq 'windows' or $ARCHITECTURE eq 'cygwin') {
-      s/\\//;
-    } else {
-      s/$Clearcase::VOBTAG_PREFIX//;
-    } # if
-  } # foreach
 
   return bless {
     vobs => \@output

@@ -157,6 +157,38 @@ create table fs (
       on update cascade
 ) engine=innodb; -- fs
 
+-- vobstorage: Contains a snapshot of a vob's storage pools at a given date
+-- and time
+create table vobstorage (
+  tag		varchar(255) not null,
+  region        varchar(255) not null,
+  timestamp	datetime     not null,
+  admin		decimal(10,1),
+  db		decimal(10,1),
+  cleartext	decimal(10,1),
+  derivedobj	decimal(10,1),
+  source	decimal(10,1),
+  total		decimal(10,1),
+
+  key vobtagIndex (tag),
+  primary key  (tag, region, timestamp)
+) engine=innodb; -- vobstorage
+
+-- viewstorage: Contains a snapshot of a view's storage pools at a given date
+-- and time
+create table viewstorage (
+  tag		varchar(255) not null,
+  region        varchar(255) not null,
+  timestamp	datetime     not null,
+  private	decimal(10,1),
+  db		decimal(10,1),
+  admin		decimal(10,1),
+  total         decimal(10,1),
+
+  key viewtagIndex (tag),
+  primary key (tag, region, timestamp)
+) engine=innodb; -- viewstorage
+
 -- loadavg: Contains a snapshot reading of a system's load average
 create table loadavg (
   system        varchar(255)    not null,

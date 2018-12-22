@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 =pod
 
@@ -47,6 +47,9 @@ $Date: 2013/06/02 18:47:26 $
 
 Examine the Clearadm schedule and perform the tasks required.
 
+Note that sending the Cleartasks.pl process a sigusr1 will cause it to toggle
+verbose mode.
+
 =cut
 
 use strict;
@@ -54,6 +57,7 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
+use Sys::Hostname;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -67,7 +71,10 @@ use Utils;
 my $VERSION  = '$Revision: 1.25 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
-my $logfile = "$Clearadm::CLEAROPTS{CLEARADM_LOGDIR}/$FindBin::Script.log";           
+my $logfile =  "$Clearadm::CLEAROPTS{CLEARADM_LOGDIR}/$FindBin::Script";
+   $logfile =~ s/\.pl$//;
+   $logfile .= '.' . hostname() . '.log';
+
 my $pidfile = "$Clearadm::CLEAROPTS{CLEARADM_RUNDIR}/$FindBin::Script.pid";
 my $daemon  = 1;
 
@@ -75,6 +82,18 @@ my $daemon  = 1;
 $ENV{PATH} .= ":$Clearadm::CLEAROPTS{CLEARADM_BASE}";
 
 my ($clearadm, $clearexec);
+
+sub ToggleVerbose() {
+  if (get_verbose) {
+    display 'Turning verbose off';
+    set_verbose 0;
+  } else {
+    display 'Turning verbose on';
+    set_verbose 1;
+  } # if
+} # ToggleVerbose
+
+$SIG{USR1} = \&ToggleVerbose;
 
 sub HandleSystemNotCheckingIn (%) {
   my (%system) = @_;
@@ -131,7 +150,7 @@ END
 } # HandleSystemNotCheckingIn
 
 sub SystemsCheckin () {
-  foreach ($clearadm->FindSystem) {
+  for ($clearadm->FindSystem) {
     my %system = %$_;
     
     next if $system{active} eq 'false';
@@ -163,7 +182,7 @@ sub SystemsCheckin () {
   
     $clearadm->ClearNotifications ($system{name})
       if $system{notification} and $system{notification} eq 'Heartbeat';
-  } # foreach
+  } # for
   
   return;
 } # SystemsCheckin
@@ -225,7 +244,7 @@ sub ProcessLoadavgErrors ($$$$@) {
   
   my $when = Today2SQLDatetime;
   
-  foreach (@output) {
+  for (@output) {
     # We need to log this output. Write it to STDOUT
     display $_;
 
@@ -285,7 +304,7 @@ END
       undef,
       $lastid,
     );
-  } # foreach
+  } # for
   
   return;
 } # ProcessLoadAvgErrors
@@ -300,7 +319,7 @@ sub ProcessFilesystemErrors ($$$$@) {
 
   my %system;
   
-  foreach (@output) {
+  for (@output) {
     # We need to log this output. Write it to STDOUT
     display $_;
     
@@ -317,9 +336,9 @@ sub ProcessFilesystemErrors ($$$$@) {
         $system{$1} = \%fsinfo;
       } # if
     } # if
-  } # foreach
+  } # for
    
-  foreach my $systemName (keys %system) {
+  for my $systemName (keys %system) {
     my @fsinfo;
     
     if (ref $system{$systemName} eq 'HASH') {
@@ -340,7 +359,7 @@ were over their threshold.</p>
 
 <ul>
 END
-    foreach (@fsinfo) {
+    for (@fsinfo) {
       my %fsinfo = %{$_};
       my $filesystemLink  = $Clearadm::CLEAROPTS{CLEARADM_WEBBASE};
          $filesystemLink .= "/plot.cgi?type=filesystem&system=$systemName";
@@ -349,7 +368,7 @@ END
       $message .= "<li>Filesystem <a href=\"$filesystemLink\">";
       $message .= "$fsinfo{filesystem}</a> is $fsinfo{usedPct}% full. Threshold is ";
       $message .= "$fsinfo{threshold}%</li>";
-    } # foreach
+    } # for
       
     $message .= "</ul>";
     
@@ -362,7 +381,7 @@ END
       undef,
       $lastid,
     );
-  } # foreach
+  } # for
   
   return;
 } # ProcessFilesystemErrors
@@ -518,26 +537,28 @@ while () {
   
   my ($sleep, @workItems) = $clearadm->GetWork;
   
-  foreach (@workItems) {
+  for (@workItems) {
     my %scheduledTask = %{$_};
     
     $scheduledTask{system} ||= 'All systems';
     
     if ($scheduledTask{system} =~ /all systems/i) {
-      foreach my $system ($clearadm->FindSystem) {
+      for my $system ($clearadm->FindSystem) {
+        next if $$system{active} eq 'false';
+
         $scheduledTask{system} = $$system{name};
         $sleep = ExecuteTask $sleep, %scheduledTask;
-      } # foreach
+      } # for
     } else {
       $sleep = ExecuteTask $sleep, %scheduledTask;
     } # if
-  } # foreach  
+  } # for  
   
   if ($sleep > 0) {
     verbose "Sleeping for $sleep seconds";
     sleep $sleep;
   } # if  
-} # foreach
+} # for
 
 =pod
 

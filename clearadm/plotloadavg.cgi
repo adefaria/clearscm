@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -103,7 +103,7 @@ my @loads = $clearadm->GetLoadavg (
   $opts{scaling}
 );
 
-graphError "No loadavg data found for system $opts{system}"
+graphError "No loadavg data"
   unless @loads;
 
 my (@x, @y);

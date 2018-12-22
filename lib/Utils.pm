@@ -578,7 +578,7 @@ Returns:
 
 =cut
 
-  open my $pipe, '|-', $to
+  open my $pipe, '|', $to 
     or error "Unable to open pipe - $!", 1;
 
   foreach (@output) {

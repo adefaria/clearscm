@@ -2,9 +2,9 @@
 
 =pod
 
-=head1 NAME $RCSfile: plotfs.cgi,v $
+=head1 NAME $RCSfile: plotstorage.cgi,v $
 
-Plot Filesystem usage
+Plot Clearcse Storage usage
 
 =head1 VERSION
 
@@ -30,30 +30,30 @@ $Date: 2011/01/14 16:37:04 $
 
 =head1 SYNOPSIS
 
- Usage plotfs.cgi: system=<system> filesytem=<filesystem> 
-                   [height=<height>] [width=<width>] [color=<color>]
-                   [scaling=<scaling>] [points=<points>] [tiny=<0|1>] 
+ Usage plotstorage.cgi: tag=<tag> type=<vob|view> storage=<storage>
+                        [height=<height>] [width=<width>] [color=<color>]
+                        [scaling=<scaling>] [points=<points>] [tiny=<0|1>] 
 
  Where:
-   <system>:     Name of the system defined in the Clearadm database to
-                 retrieve filesystem snapshots for.
-   <filesystem>: Name of the filesytem to plot information for
-   <height>:     Height of chart (Default: 480px - tiny: 40)
-   <width>:      Width of chart (Default: 800px - tiny: 150)
-   <color>:      A GD::Color color value (Default: lblue)
-   <scaling>:    Currently one of Minute, Hour, Day or Month. Specifies how
-                 Clearadm::GetFS will scale the data returned (Default: Minute 
-                 - tiny: Day)
-   <points>:     Number of points to plot (Default: all points - tiny: 7)
+   <tag>:     Tag of the Clearcase object (vob or view)
+   <type>:    Designates whether <tag> is a vob of a view
+   <storage>: Name of the Clearcase storage pool to plot information for
+   <height>:  Height of chart (Default: 480px - tiny: 40)
+   <width>:   Width of chart (Default: 800px - tiny: 150)
+   <color>:   A GD::Color color value (Default: lblue)
+   <scaling>: Currently one of Minute, Hour, Day or Month. Specifies how
+              Clearadm::GetFS will scale the data returned (Default: Minute 
+              - tiny: Day)
+   <points>:  Number of points to plot (Default: all points - tiny: 7)
    
 =head1 DESCRIPTION
 
-Draws a chart of the filesystem usage for the system and filesystem passed in.
+Draws a chart of the storage usage for the Clearcase object (vob|view).
 Parameters such as height, width, color, scaling and points can be set 
 individually though more often the user will just use the web controls to set 
-them. Defaults produce a nice chart. Tiny mode is used by systemdetails.cgi to
-draw tiny charts in the table. Setting tiny sets a number of the other chart
-options to produce a standard, tiny chart.
+them. Defaults produce a nice chart. Tiny mode is used by
+<vob|view>details.cgi to draw tiny charts in the table. Setting tiny sets
+a number of the other chart options to produce a standard, tiny chart.
 
 =cut
 
@@ -66,6 +66,7 @@ use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
 use Clearadm;
 use ClearadmWeb;
+use Clearcase;
 use Display;
 
 use CGI qw (:standard :cgi-lib);
@@ -91,44 +92,45 @@ my $clearadm = Clearadm->new;
 
 my $graph = GD::Graph::area->new ($opts{width}, $opts{height});
 
-graphError "System is required"
-  unless $opts{system};
-  
-graphError "Filesystem is required"
-  unless $opts{filesystem};
+graphError "Tag is required"     unless $opts{tag};
+graphError "Type is required"    unless $opts{type};
+graphError "Storage is required" unless $opts{storage};
 
 graphError "Points not numeric (points: $opts{points})"
   if $opts{points} and $opts{points} !~ /^\d+$/;
   
-my @fs = $clearadm->GetFS (
-  $opts{system},
-  $opts{filesystem},
+my @storage = $clearadm->GetStorage (
+  $opts{type},
+  $opts{tag},
+  $opts{storage},
+  $opts{region},
   $opts{start},
   $opts{end},
   $opts{points},
   $opts{scaling}
 );
 
-graphError "No data found for $opts{system}:$opts{filesystem}"
-  unless @fs;
+graphError "No data found for $opts{type} $opts{tag} for storage pool $opts{storage}"
+  unless @storage;
 
 my (@x, @y);
 
 my $i = 0;
 
-foreach (@fs) {
+for (@storage) {
   $i++;
-  my %fs = %{$_};
+  my %storage = %{$_};
   
   if ($opts{tiny}) {
     push @x, '';
   } else {
-    push @x, $fs{timestamp};
+    push @x, $storage{timestamp};
   } # if
 
-  push @y, $opts{meg} ? $fs{used} / (1024 * 1024) :
-                        $fs{used} / (1024 * 1024 * 12024);
-}
+  push @y, $opts{meg} ? $storage{size} / (1024 * 1024) :
+                        $storage{size} / (1024 * 1024 * 12024);
+} # for
+
 my @data = ([@x], [@y]);
 
 my $x_label_skip = @x > 1000 ? 200
@@ -137,15 +139,16 @@ my $x_label_skip = @x > 1000 ? 200
                  : @x > 10   ?   1
                  : 0;
                  
-my $x_label = $opts{tiny} ? '' : 'Filesystem Usage';
+my $storageLabel = ucfirst $opts{storage};
+my $x_label = $opts{tiny} ? '' : "$storageLabel Storage";
 my $y_label = $opts{tiny} ? '' : 
               $opts{msg}  ? 'Used (Meg)' : 'Used (Gig)';
-my $title   = $opts{tiny} ? '' : "Filesystem usage for "
-                               . "$opts{system}:$opts{filesystem}";
+my $title   = $opts{tiny} ? '' : "Storage usage for "
+                               . "$opts{type}:$opts{tag} $storageLabel";
 my $labelY  = $opts{tiny} ? '' : '%.2f';
 
 $graph->set (
-  x_label           =>$x_label,
+  x_label           => $x_label,
   x_labels_vertical => 1,
   x_label_skip      => $x_label_skip,
   x_label_position  => .5,

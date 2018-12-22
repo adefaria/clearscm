@@ -93,19 +93,13 @@ use Display;
 use Utils;
 
 use Term::ReadLine;
-use Term::ANSIColor qw(color);
+use Term::ANSIColor qw (color);
 
 # Package globals
 my $_pos = 0;
 my $_haveGnu;
 
-my $promptColor = color('bold yellow');
-my $inputColor  = color('underline');
-my $resetColor  = color('reset');
-
-my (%_cmds, $_attribs);
-
-our $_cmdline;
+my (%_cmds, $_cmdline, $_attribs);
 
 BEGIN {
   # See if we can load Term::ReadLine::Gnu
@@ -120,9 +114,7 @@ BEGIN {
 } # BEGIN
 
 # Share %opts
-our %opts = (
-  color => 1,
-);
+our %opts;
 
 my %builtin_cmds = (
   history       => {
@@ -175,7 +167,7 @@ the specified file.',
   },
 );
 
-sub _cmdCompletion($$) {
+sub _cmdCompletion ($$) {
   my ($text, $state) = @_;
 
   return unless %_cmds;
@@ -192,13 +184,13 @@ sub _cmdCompletion($$) {
   return;
 } # _cmdCompletion
 
-sub _complete($$$$) {
+sub _complete ($$$$) {
   my ($text, $line, $start, $end) = @_;
 
   return $_cmdline->completion_matches ($text, \&CmdLine::_cmdCompletion);
 } # _complete
 
-sub _gethelp() {
+sub _gethelp () {
   my ($self) = @_;
 
   return unless %_cmds;
@@ -213,10 +205,10 @@ sub _gethelp() {
 
   # Sometimes we are called by ReadLine's callback and can't pass $self
   if (ref $self eq 'CmdLine') {
-    $self->help($line);
+    $self->help ($line);
   } else {
-    $CmdLine::cmdline->help($line);
-  } # if
+    $CmdLine::cmdline->help ($line);
+  } # if  
 
   $_cmdline->on_new_line;
 } # _gethelp
@@ -225,20 +217,21 @@ sub _interpolate ($) {
   my ($self, $str) = @_;
 
   # Skip interpolation for the perl command (Note this is raid specific)
-  return $str if $str =~ /^\s*perl\s*/i;
+  return $str
+    if $str =~ /^\s*perl\s*/i;
 
   while ($str =~ /\$/) {
     if ($str =~ /\$(\w+)/) {
       my $varname = $1;
 
-      if ($self->{vars}{$varname}) {
-        if ($self->{vars}{$varname} =~ / /) {
-          $str =~ s/\$$varname/\'$self->{vars}{$varname}\'/;
-        } else {
+      if (defined $self->{vars}{$varname}) {
+	if ($self->{vars}{$varname} =~ / /) {
+	  $str =~ s/\$$varname/\'$self->{vars}{$varname}\'/;
+	} else {
           $str =~ s/\$$varname/$self->{vars}{$varname}/;
-        } # if
+	} # if
       } else {
-        $str =~ s/\$$varname//;
+	$str =~ s/\$$varname//;
       } # if
     } # if
   } # while
@@ -246,7 +239,7 @@ sub _interpolate ($) {
   return $str;
 } # _interpolate
 
-sub _builtinCmds($) {
+sub _builtinCmds ($) {
   my ($self, $line) = @_;
 
   unless (defined $line) {
@@ -266,7 +259,7 @@ sub _builtinCmds($) {
       system $1;
     } # if
 
-    #$_cmdline->remove_history($_cmdline->where_history);
+    #$_cmdline->remove_history ($_cmdline->where_history);
 
     return;
   } # if
@@ -275,14 +268,15 @@ sub _builtinCmds($) {
     $cmd = $1;
   } # if
 
-  return unless $cmd;
+  return
+    unless $cmd;
 
   my @parms;
 
   # Search for matches of partial commands
   my $foundCmd;
 
-  for (keys %builtin_cmds) {
+  for (keys %builtin_cmds) {    
     if ($_ eq $cmd) {
       # Exact match - honor it
       $foundCmd = $cmd;
@@ -309,7 +303,7 @@ sub _builtinCmds($) {
   if ($builtin_cmds{$cmd}) {
     if ($line =~ /^\s*help\s*(.*)/i) {
       if ($1 =~ /(.+)$/) {
-        $self->help($1);
+        $self->help ($1);
       } else {
         $self->help;
       } # if
@@ -317,22 +311,22 @@ sub _builtinCmds($) {
       if ($1 =~ /(\d+)\s+(\d+)\s*$/) {
         $self->history ('list', $1, $2);
       } elsif ($1 =~ /^\s*$/) {
-        $self->history('list');
+        $self->history ('list');
       } else {
         error "Invalid usage";
-        $self->help('history');
+        $self->help ('history');
       } # if
     } elsif ($line =~ /^\s*savehist\s*(.*)/i) {
       if ($1 =~ /(\S+)\s+(\d+)\s+(\d+)\s*$/) {
-        $self->history('save', $1, $2, $3);
+        $self->history ('save', $1, $2, $3);
       } else {
         error 'Invalid usage';
-        $self->help('savehist');
+        $self->help ('savehist');
       } # if
     } elsif ($line =~ /^\s*get\s*(.*)/i) {
       if ($1 =~ (/^\$*(\S+)\s*$/)) {
-        my $value = $self->_get($1);
-
+        my $value = $self->_get ($1);
+        
         if ($value) {
           display "$1 = $value";
         } else {
@@ -340,14 +334,14 @@ sub _builtinCmds($) {
         } # if
       } else {
         error 'Invalid usage';
-        $self->help('get');
+        $self->help ('get');
       } # if
     } elsif ($line =~ /^\s*set\s*(.*)/i) {
       if ($1 =~ /^\$*(\S+)\s*=\s*(.*)/) {
-        $self->_set($1, $2)
+        $self->_set ($1, $2)
       } else {
         error 'Invalid usage';
-        $self->help('set');
+        $self->help ('set');
       } # if
     } elsif ($line =~ /^\s*source\s+(\S+)/i) {
       $result = $self->source ($1);
@@ -356,12 +350,11 @@ sub _builtinCmds($) {
     } elsif ($line =~ /^\s*color\s*(.*)/i) {
       if ($1 =~ /(1|on)/i) {
         $opts{color} = 1;
-        delete $ENV{ANSI_COLORS_DISABLED} if $ENV{ANSI_COLORS_DISABLED};
-        $self->set_prompt;
+        delete $ENV{ANSI_COLORS_DISABLED}
+          if $ENV{ANSI_COLORS_DISABLED};
       } elsif ($1 =~ /(0|off)/i) {
-        $opts{color} = 0;
+        $opts{trace} = 0;
         $ENV{ANSI_COLORS_DISABLED} = 1;
-        $self->set_prompt;
       } elsif ($1 =~ /\s*$/) {
         if ($ENV{ANSI_COLORS_DISABLED}) {
           display 'Color is currently off';
@@ -370,7 +363,7 @@ sub _builtinCmds($) {
         } # if
       } else {
         error 'Invalid usage';
-        $self->help('color');
+        $self->help ('color');
       } # if
     } elsif ($line =~ /^\s*trace\s*(.*)/i) {
       if ($1 =~ /(1|on)/i) {
@@ -385,7 +378,7 @@ sub _builtinCmds($) {
         } # if
       } else {
         error 'Invalid usage';
-        $self->help('trace');
+        $self->help ('trace');
       } # if
     } # if
   } # if
@@ -395,7 +388,7 @@ sub _builtinCmds($) {
 
 sub _interrupt () {
   # Announce that we have hit an interrupt
-  print color('yellow') . "<Control-C>\n" . color('reset');
+  print color ('yellow') . "<Control-C>\n" . color ('reset');
 
   # Free up all of the line state info
   $_cmdline->free_line_state;
@@ -411,14 +404,14 @@ sub _interrupt () {
   return;
 } # _interrupt
 
-sub _displayMatches($$$) {
+sub _displayMatches ($$$) {
   my ($matches, $numMatches, $maxLength) = @_;
-
+  
   # Work on a copy... (Otherwise we were getting "Attempt to free unreferenced
   # scalar" internal errors from perl)
   my @Matches;
 
-  push @Matches, $_ for (@$matches);
+  push @Matches, $_ for (@$matches);  
 
   my $match = shift @Matches;
 
@@ -443,14 +436,14 @@ sub _displayMatches($$$) {
 
   unshift @newMatches, $match;
 
-  $_cmdline->display_match_list(\@newMatches);
+  $_cmdline->display_match_list (\@newMatches);
   $_cmdline->on_new_line;
   $_cmdline->redisplay;
 
   return;
 } # _displayMatches
-
-sub new(;$$%) {
+  
+sub new (;$$%) {
   my ($class, $histfile, $eval, %cmds) = @_;
 
 =pod
@@ -527,7 +520,7 @@ Returns:
   } # unless
 
   # Instantiate a commandline
-  $_cmdline = Term::ReadLine->new($me);
+  $_cmdline = Term::ReadLine->new ($me);
 
   # Store the function pointer of what to call when sourcing a file or
   # evaluating an expression.
@@ -539,21 +532,17 @@ Returns:
     } # if
   } # if
 
-  $self->{promptColor} = $promptColor;
-  $self->{inputColor}  = $inputColor;
-  $self->{resetColor}  = $resetColor;
-
   # Default prompt is "$me:"
-  $self->set_prompt("$me:");
+  $self->{prompt} = "$me:";
 
   # Set commands
-  $self->set_cmds(%cmds);
+  $self->set_cmds (%cmds);
 
   # Set some ornamentation
-  $_cmdline->ornaments('e,,u') unless $Config{cppflags} =~ /win32/i;
+  $_cmdline->ornaments ('s,e,u,') unless $Config{cppflags} =~ /win32/i;
 
   # Read in history
-  $self->set_histfile($histfile);
+  $self->set_histfile ($histfile);
 
   # Generator function for completion matches
   $_attribs = $_cmdline->Attribs;
@@ -566,7 +555,7 @@ Returns:
   # The following functionality requires Term::ReadLine::Gnu
   if ($_haveGnu) {
     # Bind a key to display completion
-    $_cmdline->add_defun('help-on-command', \&CmdLine::_gethelp, ord ("\cl"));
+    $_cmdline->add_defun ('help-on-command', \&CmdLine::_gethelp, ord ("\cl"));
 
     # Save a handy copy of RL_PROMPT_[START|END]_IGNORE
     $self->{ignstart} = $_cmdline->RL_PROMPT_START_IGNORE;
@@ -581,7 +570,7 @@ Returns:
   return $self;
 } # new
 
-sub get() {
+sub get () {
   my ($self) = @_;
 
 =pod
@@ -624,9 +613,6 @@ Returns:
 
     $prompt =~ s/\\\#/$self->{cmdnbr}/g;
 
-    # Now color it if color is on
-    $prompt = "$self->{resetColor}$self->{promptColor}$prompt$self->{resetColor}$self->{inputColor}" if $self->{promptColor};
-
     use POSIX;
 
     # Term::ReadLine::Gnu restarts whatever system call it is using, such that
@@ -647,32 +633,29 @@ Returns:
       $oldaction = POSIX::SigAction->new;
 
       # Set up our unsafe signal handler
-      POSIX::sigaction(&POSIX::SIGINT, $sigaction, $oldaction);
+      POSIX::sigaction (&POSIX::SIGINT, $sigaction, $oldaction);
     } # if
 
-    $line = $_cmdline->readline($prompt);
-
-    display_nolf $resetColor;
+    $line = $_cmdline->readline ($prompt);
 
     # Restore the old signal handler
     if ($Config{cppflags} !~ /win32/i) {
-      POSIX::sigaction(&POSIX::SIGINT, $oldaction);
+      POSIX::sigaction (&POSIX::SIGINT, $oldaction);
     } # if
 
-    $line = $self->_interpolate($line) if $line;
+    $line = $self->_interpolate ($line)
+      if $line;
 
-    $self->{cmdnbr}++ unless $self->{sourcing};
+    $self->{cmdnbr}++
+      unless $self->{sourcing};
 
-    ($cmd, $line, $result) = $self->_builtinCmds($line);
+    ($cmd, $line, $result) = $self->_builtinCmds ($line);
 
-    $line = '' unless $cmd;
+    $line = ''
+      unless $cmd;
   } while ($cmd and $builtin_cmds{$cmd});
 
-  if (wantarray) {
-    return ($line, $result);
-  } else {
-    return $result || $line;
-  } # if
+  return ($line, $result);
 } # get
 
 sub set_cmds (%) {
@@ -760,22 +743,14 @@ Returns:
 
 =cut
 
-  my $oldPrompt = $self->{prompt};
+  my $return = $self->{prompt};
 
-  $self->{prompt} = $prompt if $prompt;
+  $self->{prompt} = $prompt;
 
-  if ($opts{color}) {
-    $self->{promptColor} = $promptColor;
-    $self->{resetColor}  = $resetColor;
-  } else {
-    undef $self->{promptColor};
-    undef $self->{resetColor};
-  } # if
-
-  return $oldPrompt;
+  return $return;
 } # set_prompt
 
-sub set_histfile($) {
+sub set_histfile ($) {
   my ($self, $histfile) = @_;
 
 =pod
@@ -820,7 +795,7 @@ Returns:
       $_cmdline->clear_history;
 
       # Now read histfile
-      $_cmdline->ReadHistory($histfile);
+      $_cmdline->ReadHistory ($histfile);
     } # if
 
     # Determine the number of lines in the history file
@@ -836,7 +811,7 @@ Returns:
   return;
 } # set_histfile
 
-sub set_eval(;\&) {
+sub set_eval (;\&) {
   my ($self, $eval) = @_;
 
 =pod
@@ -881,7 +856,7 @@ Returns:
   return $returnEval;
 } # set_eval
 
-sub help(;$) {
+sub help (;$) {
   my ($self, $cmd) = @_;
 
 =pod
@@ -938,9 +913,9 @@ Returns:
       if (/$searchStr/i) {
         $helpFound = 1;
 
-        my $cmdcolor = $builtin_cmds{$_} ? color('cyan') : color ('magenta');
-        my $boldOn   = $builtin_cmds{$_} ? color('white on_cyan') : color ('white on_magenta');
-        my $boldOff  = color('reset') . $cmdcolor;
+        my $cmdcolor = $builtin_cmds{$_} ? color ('cyan') : color ('magenta');
+        my $boldOn   = $builtin_cmds{$_} ? color ('white on_cyan') : color ('white on_magenta');
+        my $boldOff  = color ('reset') . $cmdcolor;
 
            $cmd  = "$cmdcolor$_";
            $cmd =~ s/($searchStr)/$boldOn$1$boldOff/g;
@@ -980,12 +955,12 @@ Returns:
     } # for
   } # if
 
-  $self->handleOutput($cmd, @help);
+  $self->handleOutput ($cmd, @help);
 
   return;
 } # help
 
-sub history(;$) {
+sub history (;$) {
   my ($self, $action) = @_;
 
 =pod
@@ -1048,15 +1023,15 @@ Returns:
     $start = $_[3];
     $end   = $_[4];
   } elsif ($action eq 'redo') {
-    $_cmdline->remove_history($_cmdline->where_history);
+    $_cmdline->remove_history ($_cmdline->where_history);
 
     my $nbr  = $_[2];
-    my $line = $_cmdline->history_get($nbr);
+    my $line = $_cmdline->history_get ($nbr);
 
-    $_cmdline->add_history($line);
+    $_cmdline->add_history ($line);
     display $line;
 
-    my ($cmd, $result) = $self->_builtinCmds($line);
+    my ($cmd, $result) = $self->_builtinCmds ($line);
 
     if ($builtin_cmds{$cmd}) {
       return;
@@ -1131,12 +1106,12 @@ Returns:
   return;
 } # history
 
-sub _get($$) {
+sub _get ($$) {
   my ($self, $name) = @_;
 
 =pod
 
-=head2 _get($name)
+=head2 _get ($name)
 
 This method gets a variable to a value stored in the CmdLine
 object.
@@ -1172,7 +1147,7 @@ Returns:
   return $self->{vars}{$name}
 } # _get
 
-sub _set($$) {
+sub _set ($$) {
   my ($self, $name, $value) = @_;
 
 =pod
@@ -1216,14 +1191,14 @@ Returns:
 
   my $returnValue = $self->{vars}{$name};
 
-  if ($value) {
-    $value = $self->_interpolate($value);
+  if (defined $value) {
+    $value = $self->_interpolate ($value);
 
     # Do not call eval if we are setting result - otherwise we recurse
     # infinitely.
     unless ($name eq 'result') {
       no strict;
-      $value = $self->{eval}($value)
+      $value = $self->{eval} ($value)
         if $self->{eval};
       use strict;
     } # unless
@@ -1236,12 +1211,12 @@ Returns:
   return $returnValue;
 } # _set
 
-sub vars($) {
+sub vars ($) {
   my ($self, $cmd) = @_;
 
 =pod
 
-=head2 vars($name)
+=head2 vars ($name)
 
 This method will print out all known variables
 
@@ -1276,10 +1251,10 @@ Returns:
   push @output, "$_ = $self->{vars}{$_}"
     for (keys %{$self->{vars}});
 
-  $self->handleOutput($cmd, @output);
+  $self->handleOutput ($cmd, @output);
 } # vars
 
-sub handleOutput($@) {
+sub handleOutput ($@) {
   my ($self, $line, @output) = @_;
 
 =pod
@@ -1346,14 +1321,17 @@ Returns:
 
     local $SIG{PIPE} = 'IGNORE';
 
-    open $pipe, '|', $pipeToCmd or undef $pipe;
+    open $pipe, '|', $pipeToCmd
+      or undef $pipe;
 
     # TODO: Not handling the output here. Need open2 and then recursively call
     # handleOutput.
     if ($pipe) {
-      print $pipe "$_\n" for (@output);
+      print $pipe "$_\n"
+        for (@output);
 
-      close $pipe or error "Unable to close pipe for $pipeToCmd - $!";
+      close $pipe
+        or error "Unable to close pipe for $pipeToCmd - $!";
     } else {
       error "Unable to open pipe for $pipeToCmd - $!";
     } # if
@@ -1364,7 +1342,8 @@ Returns:
       open my $output, '>', $outToFile;
 
       if ($output) {
-        print $output "$_\n" for (@output);
+        print $output "$_\n"
+          for (@output);
 
         close $output;
 
@@ -1378,7 +1357,7 @@ Returns:
   return;
 } # handleOutput
 
-sub source($) {
+sub source ($) {
   my ($self, $file) = @_;
 
 =pod
@@ -1453,12 +1432,12 @@ Returns:
     $_ = $self->_interpolate ($_);
 
     # Check to see if it's a builtin
-    my ($cmd, $line, $result) = $self->_builtinCmds($_);
+    my ($cmd, $line, $result) = $self->_builtinCmds ($_);
 
     next if $builtin_cmds{$cmd};
 
     no strict;
-    $result = $self->{eval}($line);
+    $result = $self->{eval} ($line);
     use strict;
 
     if (defined $result) {
@@ -1480,7 +1459,7 @@ Returns:
 sub DESTROY {
   my ($self) = @_;
 
-  $_cmdline->WriteHistory($self->{histfile})
+  $_cmdline->WriteHistory ($self->{histfile})
     if $_cmdline and $_haveGnu;
 
   return;

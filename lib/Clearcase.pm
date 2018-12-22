@@ -593,6 +593,7 @@ Array of output lines from the cleartool command execution.
   if (!$clearpid) {
     # Simple check to see if we can execute cleartool
     @output = `$cleartool -ver 2>&1`;
+    @output = ();
         
     return (-1, 'Clearcase not installed')
       unless $? == 0;

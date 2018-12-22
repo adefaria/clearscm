@@ -75,6 +75,18 @@ insert into notification (
   cond,
   nomorethan
 ) values (
+  'Clearcase Storage',
+  'Email admin',
+  'Clearcase Failure',
+  'Once a day'
+);
+
+insert into notification (
+  name,
+  alert,
+  cond,
+  nomorethan
+) values (
   'System checkin',
   'Email admin',
   'Not respoding',
@@ -101,7 +113,7 @@ insert into task (
   command
 ) values (
   'Loadavg',
-  'Localhost',
+  'localhost',
   'Obtain a loadavg snapshot on all systems',
   'updatela.pl'
 );
@@ -113,7 +125,7 @@ insert into task (
   command
 ) values (
   'Filesystem',
-  'Localhost',
+  'localhost',
   'Obtain a filesystem snapshot on all systems/filesystems',
   'updatefs.pl'
 );
@@ -125,7 +137,7 @@ insert into task (
   command
 ) values (
   'Scrub',
-  'Localhost',
+  'localhost',
   'Scrub Clearadm database',
   'clearadmscrub.pl'
 );
@@ -137,7 +149,7 @@ insert into task (
   command
 ) values (
   'System checkin',
-  'Localhost',
+  'localhost',
   'Checkin from all systems',
   'default'
 );
@@ -149,9 +161,21 @@ insert into task (
   command
 ) values (
   'Update systems',
-  'Localhost',
+  'localhost',
   'Update all systems',
   'updatesystem.pl -host all'
+);
+
+insert into task (
+  name,
+  system,
+  description,
+  command
+) values (
+  'Clearcase Storage',
+  'localhost',
+  'Update Clearcase VOB/View storage',
+  'updateccfs.pl'
 );
 
 -- Predefined schedule
@@ -190,3 +214,17 @@ insert into schedule (
   'Scrub',
   '1 day'
 );
+
+insert into schedule (
+  name,
+  task,
+  notification,
+  frequency
+) values (
+  'Clearcase Storage',
+  'Clearcase Storage',
+  'Clearcase Storage',
+  '1 day'
+);
+
+

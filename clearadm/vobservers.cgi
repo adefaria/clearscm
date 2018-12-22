@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -51,7 +51,7 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
-use CGI qw (:standard :cgi-lib *table start_Tr end_Tr);
+use CGI qw (:standard :cgi-lib *table start_Tr end_Tr start_ol end_ol);
 use CGI::Carp 'fatalsToBrowser';
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
@@ -59,6 +59,8 @@ use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 use ClearadmWeb;
 use Clearcase;
 use Clearcase::Server;
+use Clearcase::Vobs;
+use Clearcase::Vob;
 use Display;
 use Utils;
 
@@ -70,6 +72,68 @@ my $subtitle = 'Vob Servers';
 
 my $VERSION  = '$Revision: 1.9 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
+
+sub DisplayVobs($) {
+  my ($server) = @_;
+
+  display h3 {
+    -class => 'center',
+  }, "Vobs on " . $server->name;
+
+  display start_table;
+
+  display start_Tr;
+    display th {
+      -class => 'labelCentered',
+      }, '#';
+    display th {
+    -class => 'labelCentered',
+      }, 'Tag';
+    display th {
+      -class => 'labelCentered',
+      }, 'Type';
+    display th {
+      -class => 'labelCentered',
+      }, 'Active';
+    display th {
+      -class => 'labelCentered',
+      }, 'Access Path';
+    display th {
+      -class => 'labelCentered',
+      }, 'Attributes';
+  display end_Tr;
+
+  my $i = 0;
+
+  my $vobs = Clearcase::Vobs->new($server->name);
+
+  for (sort $vobs->vobs) {
+    my $vob = Clearcase::Vob->new($_);
+
+    display start_Tr;
+      display td {
+        -class => 'dataCentered',
+      }, ++$i;
+      display td {
+        -class => 'data',
+      }, a {-href => "vobdetails.cgi?tag=" . $vob->tag}, $vob->tag;
+      display td {
+        -class => 'dataCentered',
+      }, $vob->access;
+      display td {
+        -class => 'dataCentered',
+      }, $vob->active;
+      display td {
+        -class => 'data',
+      }, $vob->access_path;
+      display td {
+        -class => 'data',
+      }, $vob->vob_registry_attributes;
+    display end_Tr;
+  } # for
+
+  display end_table;
+} # DisplayVob
 
 sub DisplayTable (@) {
   my (@vobServers) = @_;
@@ -94,39 +158,167 @@ sub DisplayTable (@) {
     display th {
       -class => 'labelCentered',
       }, 'OS Version';
+    display th {
+      -class => 'labelCentered',
+      }, 'Hardware';
+    display th {
+      -class => 'labelCentered',
+      }, 'Registry Host';
+    display th {
+      -class => 'labelCentered',
+      }, 'Region';
+    display th {
+      -class => 'labelCentered',
+      }, 'License Host';
   display end_Tr;
 
   my $i = 0;
 
-  foreach (@vobServers) {
-    my $server = Clearcase::Server->new ($_, $opts{region});
+  my $server;
 
-    # Data fields
-    my $name  = $server->name;
-    my $ccVer = $server->ccVer;
-    my $osVer = $server->osVer;
-
-    $ccVer ||= $unknown;
-    $osVer ||= $unknown;
+  for (@vobServers) {
+    $server = Clearcase::Server->new ($_, $opts{region});
 
     display start_Tr;
       display td {
         -class => 'dataCentered',
       }, ++$i;
       display td {
-        -class   => 'data',
-      }, a {-href => "serverdetails.cgi?server=$name"}, $name;
+        -class   => 'dataCentered',
+      }, a {-href => "systemdetails.cgi?system=" . $server->name}, $server->name;
       display td {
-        -class => 'data',
-      }, $ccVer;
+        -class => 'dataCentered',
+      }, $server->ccVer;
       display td {
-        -class => 'data',
-      }, $osVer;
+        -class => 'dataCentered',
+      }, $server->osVer;
+      display td {
+        -class => 'dataCentered',
+      }, $server->hardware;
+      display td {
+        -class => 'dataCentered',
+      }, a {-href => "systemdetails.cgi?system=" . $server->registryHost}, $server->registryHost;
+      display td {
+        -class => 'dataCentered',
+      }, $server->registryRegion;
+      display td {
+        -class => 'dataCentered',
+      }, $server->licenseHost;
     display end_Tr;
-  } # foreach
 
-  display end_table;
+    display start_Tr;
+      display th {
+        -class => 'labelCentered',
+        }, 'MVFS';
+      display th {
+        -class => 'labelCentered',
+        }, 'Scaling';
+      display th {
+        -class => 'labelCentered',
+        }, 'Free Mnodes';
+      display th {
+        -class => 'labelCentered',
+        }, 'Free Mnodes Cleartext';
+      display th {
+        -class => 'labelCentered',
+        }, 'File names';
+      display th {
+        -class => 'labelCentered',
+        }, 'Directory names';
+      display th {
+        -class => 'labelCentered',
+        }, 'Blocks Per Directory';
+      display th {
+        -class => 'labelCentered',
+        }, 'Names not found';
+    display end_Tr;
+
+    display start_Tr;
+      display td {
+        -class => 'dataCentered',
+      }, '&nbsp;';
+      display td {
+        -class   => 'dataCentered',
+      }, $server->scalingFactor;
+      display td {
+        -class   => 'dataRight',
+      }, $server->mvfsFreeMnodes;
+      display td {
+        -class => 'dataRight',
+      }, $server->mvfsFreeMnodesCleartext;
+      display td {
+        -class => 'dataRight',
+      }, $server->mvfsFileNames;
+      display td {
+        -class => 'dataRight',
+      }, $server->mvfsDirectoryNames;
+      display td {
+        -class => 'dataRight',
+      }, $server->mvfsBlocksPerDirectory;
+      display td {
+        -class => 'dataRight',
+      }, $server->mvfsNamesNotFound;
+    display end_Tr;
+
+    display start_Tr;
+      display th {
+        -class => 'labelCentered',
+        }, 'RPC Handles';
+      display th {
+        -class => 'labelCentered',
+        }, 'Cleartext Idle Lifetime';
+      display th {
+        -class => 'labelCentered',
+        }, 'VOB HTS';
+      display th {
+        -class => 'labelCentered',
+        }, 'Cleartext HTS';
+      display th {
+        -class => 'labelCentered',
+        }, 'Thread HTS';
+      display th {
+        -class => 'labelCentered',
+        }, 'DNC HTS';
+      display th {
+        -class => 'labelCentered',
+        }, 'Process HTS';
+      display th {
+        -class => 'labelCentered',
+        }, 'Initial Mnode Table Size';
+    display end_Tr;
+
+    display start_Tr;
+      display td {
+        -class => 'dataRight',
+      }, $server->mvfsRPCHandles;
+      display td {
+        -class => 'dataRight',
+      }, $server->cleartextIdleLifetime;
+      display td {
+        -class   => 'dataRight',
+      }, $server->vobHashTableSize;
+      display td {
+        -class   => 'dataRight',
+      }, $server->cleartextHashTableSize;
+      display td {
+        -class => 'dataRight',
+      }, $server->threadHashTableSize;
+      display td {
+        -class => 'dataRight',
+      }, $server->dncHashTableSize;
+      display td {
+        -class => 'dataRight',
+      }, $server->processHashTableSize;
+      display td {
+        -class => 'dataRight',
+      }, $server->mvfsInitialMnodeTableSize;
+    display end_Tr;
+    display end_table;
+  } # for
   
+  display p;
+  DisplayVobs $server;
+
   return;
 } # DisplayTable
 
@@ -158,11 +350,11 @@ error "Unable to list all vobs in the region $opts{region}"
 
 my %vobServers;
 
-foreach (@output) {
+for (@output) {
   if (/Server host: (.*)/) {
     $vobServers{$1} = undef;
   } # if
-} # foreach
+} # for
 
 DisplayTable sort (keys (%vobServers));
 

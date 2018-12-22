@@ -51,7 +51,7 @@ use strict;
 use warnings;
 
 use Carp;
-use Net::LDAP;
+#use Net::LDAP;
 
 use GetConfig;
 

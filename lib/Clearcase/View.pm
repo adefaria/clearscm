@@ -46,9 +46,9 @@ fields they are expanded.
 
  display_nolf MAGENTA   . "Additional groups:\t";
 
- foreach ($view->additional_groups) {
+ for ($view->additional_groups) {
    display_nolf "$_ ";
- } # foreach
+ } # for
 
  display '';
 
@@ -1168,7 +1168,7 @@ Returns:
 =cut
 
   return $self->{tag};
- } # tag
+} # tag
 
 sub text_mode () {
   my ($self) = @_;
@@ -1764,7 +1764,7 @@ sub updateViewInfo ($$) {
   $self->{ucm}                = 0;
   $self->{additional_groups}  = '';
 
-  foreach (@output) {
+  for (@output) {
     if (/Global path: (.*)/) {
       $self->{gpath} = $1;
     } elsif (/Server host: (.*)/) {
@@ -1805,19 +1805,26 @@ sub updateViewInfo ($$) {
       $self->{text_mode} = $1;
     } elsif (/Properties: (.*)/) {
       $self->{properties} = $1;
-    } elsif (/Owner: (\S+)\s+: (\S+) /) {
+    } elsif (/View owner: (\S+)$/) {
+      # It is possible that there may be problems enumerating
+      # -properties and -full when listing views due to servers
+      # no longer being available. Still the "View owner" line
+      # denotes the view's owner.
+      $self->{owner}      = $1;
+      $self->{owner_mode} = '';
+    } elsif (/Owner: (\S+)\s+: (\S+)/) {
       $self->{owner}          = $1;
       $self->{owner_mode}     = $2;
     } elsif (/Group: (.+)\s+:\s+(\S+)\s+/) {
       $self->{group}          = $1;
-       $self->{group_mode}     = $2;
-    } elsif (/Other:\s+: (\S+) /) {
+      $self->{group_mode}     = $2;
+    } elsif (/Other:\s+: (\S+)/) {
       $self->{other_mode}     = $1;
     } elsif (/Additional groups: (.*)/) {
       my @additional_groups = split /\s+/, $1;
       $self->{additional_groups} = \@additional_groups;
     } # if
-  } # foreach
+  } # for
 
   # Change modes to numeric
   $self->{mode} = 0;
@@ -1836,6 +1843,361 @@ sub updateViewInfo ($$) {
   
   return;
 } # updateViewInfo
+
+sub viewPrivateStorage() {
+  my ($self) = @_;
+  
+=pod
+
+=head1 viewPrivateStorage
+
+Returns the view private storage size for this view.
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item view private storage
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  $self->updateViewSpace unless ($self->{viewPrivateStorage});
+
+  return $self->{viewPrivateStorage};
+} # viewPrivateStorage
+
+sub viewPrivateStoragePct() {
+  my ($self) = @_;
+  
+=pod
+
+=head1 viewPrivateStoragePct
+
+Returns the view private storage percent for this view.
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item view private storage
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  $self->updateViewSpace unless ($self->{viewPrivateStoragePct});
+
+  return $self->{viewPrivateStoragePct};
+} # viewPrivateStoragePct
+
+sub viewDatabase() {
+  my ($self) = @_;
+  
+=pod
+
+=head1 viewDatabase
+
+Returns the view database size for this view.
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item view database size
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  $self->updateViewSpace unless ($self->{viewDatabase});
+
+  return $self->{viewDatabase};
+} # viewDatabase
+
+sub viewDatabasePct() {
+  my ($self) = @_;
+  
+=pod
+
+=head1 viewDatabasePct
+
+Returns the view database percent for this view.
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item view database percent
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  $self->updateViewSpace unless ($self->{viewDatabasePct});
+
+  return $self->{viewDatabasePct};
+} # viewDatabasePct
+
+sub viewAdmin() {
+  my ($self) = @_;
+  
+=pod
+
+=head1 viewAdmin
+
+Returns the view admin size for this view.
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item view admin size
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  $self->updateViewSpace unless ($self->{viewAdmin});
+
+  return $self->{viewAdmin};
+} # viewAdmin
+
+sub viewAdminPct() {
+  my ($self) = @_;
+  
+=pod
+
+=head1 viewAdminPct
+
+Returns the view admin percent for this view.
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item view admin percent
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  $self->updateViewSpace unless ($self->{viewAdminPct});
+
+  return $self->{viewAdminPct};
+} # viewAdminPct
+
+sub viewSpace() {
+  my ($self) = @_;
+  
+=pod
+
+=head1 viewSpace
+
+Returns the view total size for this view.
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item view space
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  $self->updateViewSpace unless ($self->{viewSpace});
+
+  return $self->{viewSpace};
+} # viewSpace
+
+sub viewSpacePct() {
+  my ($self) = @_;
+  
+=pod
+
+=head1 viewSpacePct
+
+Returns the view database percent for this view.
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item view space percent
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  $self->updateViewSpace unless ($self->{viewSpacePct});
+
+  return $self->{viewSpacePct};
+} # viewSpacePct
+
+sub updateViewSpace() {
+  my ($self) = @_;
+
+  my ($status, @output) = $Clearcase::CC->execute (
+    "space -region $self->{region} -view $self->{tag}"
+  );
+
+  $self->{viewPrivateStorage}    = 0.0;
+  $self->{viewPrivateStoragePct} = '0%';
+  $self->{viewAdmin}             = 0.0;
+  $self->{viewAdminPct}          = '0%';
+  $self->{viewDatabase}          = 0.0;
+  $self->{viewDatabasePct}       = '0%';
+  $self->{viewSpace}             = 0.0;
+  $self->{viewSpacePct}          = '0%';
+
+  for (@output) {
+    if (/\s*(\S+)\s*(\S+)\s*View private storage/) {
+      $self->{viewPrivateStorage}    = $1;
+      $self->{viewPrivateStoragePct} = $2;
+    } elsif (/\s*(\S+)\s*(\S+)\s*View database/) {
+      $self->{viewDatabase}    = $1;
+      $self->{viewDatabasePct} = $2;
+    } elsif (/\s*(\S+)\s*(\S+)\s*View administration/) {
+      $self->{viewAdmin}    = $1;
+      $self->{viewAdminPct} = $2;
+    } elsif (/\s*(\S+)\s*(\S+)\s*Subtotal/) {
+      $self->{viewSpace}    = $1;
+      $self->{viewSpacePct} = $2;
+    } # if
+  } # for
+
+  return;
+} # updateViewSpace
 
 1;
 
