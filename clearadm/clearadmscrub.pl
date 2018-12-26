@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -34,10 +34,10 @@ $Date: 2012/11/09 06:45:36 $
 
  Where:
    -u|sage:     Displays usage
- 
+
    -ve|rbose:   Be verbose
    -deb|ug:     Output debug messages
-   
+
 =head1 DESCRIPTION
 
 This script will scrub all old records in the Clearadm database
@@ -49,6 +49,7 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
+use Sys::Hostname;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -80,25 +81,25 @@ verbose "$FindBin::Script V$VERSION";
 
 my ($err, $msg);
 
-foreach my $system ($clearadm->FindSystem ($host)) {
+for my $system ($clearadm->FindSystem ($host)) {
   ($err, $msg) = $clearadm->TrimLoadavg ($$system{name});
-  
+
   if ($msg eq 'Records deleted' or $msg eq '') {
     verbose "Scrub loadavg $$system{name}: $err $msg:";
   } else {
     error "#$err: $msg";
   } # if
-  
-  foreach my $filesystem ($clearadm->FindFilesystem ($$system{name}, $fs)) {
+
+  for my $filesystem ($clearadm->FindFilesystem ($$system{name}, $fs)) {
     ($err, $msg) = $clearadm->TrimFS ($$system{name}, $$filesystem{filesystem});
-    
+
     if ($msg eq 'Records deleted' or $msg eq '') {
       verbose "Scrub filesystem $$system{name}:$$filesystem{filesystem}: $err $msg";
     } else {
       error "#$err: $msg";
     } # if
-  } # foreach
-} # foreach
+  } # for
+} # for
 
 # TODO: These should be configurable
 my $sixMonthsAgo = SubtractDays (Today2SQLDatetime, 180);
@@ -106,10 +107,11 @@ my $sixMonthsAgo = SubtractDays (Today2SQLDatetime, 180);
 my %runlog = (
   task    => 'Scrub',
   started => Today2SQLDatetime,
+  system  => hostname(),
 );
 
 # Scrub old alertlogs
-($runlog{status}, $runlog{message}) = 
+($runlog{status}, $runlog{message}) =
   $clearadm->DeleteAlertlog ("timestamp<='$sixMonthsAgo'");
 
 verbose "$runlog{task} alertlog: $runlog{status} $runlog{message}";
@@ -119,9 +121,9 @@ $clearadm->AddRunlog (%runlog);
 $runlog{started} = Today2SQLDatetime;
 
 # Scrub old runlogs
-($runlog{status}, $runlog{message}) = 
+($runlog{status}, $runlog{message}) =
   $clearadm->DeleteRunlog ("started<='$sixMonthsAgo'");
-  
+
 verbose "$runlog{task} runlog: $runlog{status} $runlog{message}";
 
 $clearadm->AddRunlog (%runlog);
@@ -146,7 +148,7 @@ L<Getopt::Long|Getopt::Long>
 
 =head2 ClearSCM Perl Modules
 
-=begin man 
+=begin man
 
  Clearadm
  DateUtils
