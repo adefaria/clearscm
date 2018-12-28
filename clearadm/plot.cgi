@@ -66,36 +66,66 @@ sub displayGraph () {
   display '<center>';
   
   if ($opts{type} eq 'loadavg') {
-    unless ($opts{tiny}) {
-      display img {src => "plotloadavg.cgi?$parms", class => 'chart'};
+    my %system = $clearadm->GetSystem($opts{system});
+
+    # We can use the cached version only if the opts are set to default
+    if ($opts{scaling} eq 'Hour' and $opts{points} == 24) {
+      my $data = $opts{tiny} ? $system{loadavgsmall} : $system{loadavg};
+
+      display img {src => "data:image/png;base64,$data"};
     } else {
-      display img {src => "plotloadavg.cgi?$parms", border => 0};
-    } # unless
+      unless ($opts{tiny}) {
+        display img {src => "plotloadavg.cgi?$parms", class => 'chart'};
+      } else {
+        display img {src => "plotloadavg.cgi?$parms", border => 0};
+      } # unless
+    } # if
   } elsif ($opts{type} eq 'filesystem') {
-    unless ($opts{tiny}) {
-      display img {src => "plotfs.cgi?$parms", class => 'chart'};
+    my %filesystem = $clearadm->GetFilesystem($opts{system}, $opts{filesystem});
+
+    # We can use the cached version only if the opts are set to default
+    if ($opts{scaling} eq 'Day' and $opts{points} == 7) {
+      my $data = $opts{tiny} ? $filesystem{fssmall} : $filesystem{fslarge};
+
+      display img {src => "data:image/png;base64,$data"};
     } else {
-      display img {src => "plotfs.cgi?$parms", border => 0};
-    } # unless
+      unless ($opts{tiny}) {
+        display img {src => "plotfs.cgi?$parms", class => 'chart'};
+      } else {
+        display img {src => "plotfs.cgi?$parms", border => 0};
+      } # unless
+    } # if
   } elsif ($opts{type} eq 'vob' or $opts{type} eq 'view') {
-    unless ($opts{tiny}) {
-      display img {src => "plotstorage.cgi?$parms", class => 'chart'};
+    my (%vob, %view);
+
+    %vob  = $clearadm->GetVob($opts{tag}, $opts{region})  if $opts{type} eq 'vob';
+    %view = $clearadm->GetView($opts{tag}, $opts{region}) if $opts{type} eq 'view';
+    # We can use the cached version only if the opts are set to default
+    if ($opts{scaling} eq 'Day' and $opts{points} == 7) {
+      my $storageType = $opts{tiny}          ? "$opts{storage}small" : "$opts{storage}large";
+      my $data        = $opts{type} eq 'vob' ? $vob{$storageType}    : $view{$storageType};
+
+      display img {src => "data:image/png;base64,$data"};
     } else {
-      display img {src => "plotstorage.cgi?$parms", border => 0};
-    } # unless
+      unless ($opts{tiny}) {
+        display img {src => "plotstorage.cgi?$parms", class => 'chart'};
+      } else {
+        display img {src => "plotstorage.cgi?$parms", border => 0};
+      } # unless
+    } # if
   } # if
 
   display '</center>';
   
-  return
+  return;
 } # displayGraph
 
 sub displayFSInfo () {
   if ($opts{filesystem}) {
     display h3 {-align => 'center'}, 'Latest Filesystem Reading';
   } else {
-  	display p;
-  	return;
+    display p;
+    return;
   } # if
   
   display start_table {width => '800px', cellspacing => 1};
@@ -281,7 +311,8 @@ display start_form {
 };
 
 # Some hidden fields to pass along
-display input {type => 'hidden', name => 'type', value => $opts{type}};
+display input {type => 'hidden', name => 'type',   value => $opts{type}};
+display input {type => 'hidden', name => 'region', value => $opts{region}};
 
 displayGraph;
 displayFSInfo;

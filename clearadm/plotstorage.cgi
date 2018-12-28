@@ -40,7 +40,7 @@ $Date: 2011/01/14 16:37:04 $
    <storage>: Name of the Clearcase storage pool to plot information for
    <height>:  Height of chart (Default: 480px - tiny: 40)
    <width>:   Width of chart (Default: 800px - tiny: 150)
-   <color>:   A GD::Color color value (Default: lblue)
+   <color>:   A GD::Color color value (Default: purple)
    <scaling>: Currently one of Minute, Hour, Day or Month. Specifies how
               Clearadm::GetFS will scale the data returned (Default: Minute 
               - tiny: Day)
@@ -61,6 +61,7 @@ use strict;
 use warnings;
 
 use FindBin;
+use Convert::Base64;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -77,7 +78,7 @@ my %opts = Vars;
 my $VERSION  = '$Revision: 1.13 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
-$opts{color}  ||= 'lblue';
+$opts{color}  ||= $opts{type} eq 'vob' ? 'purple' : 'marine';
 $opts{height} ||= 350;
 $opts{width}  ||= 800;
 
@@ -168,8 +169,12 @@ $graph->set (
 my $image = $graph->plot(\@data)
   or croak $graph->error;
 
-print "Content-type: image/png\n\n";
-print $image->png;
+unless ($opts{generate}) {
+  print "Content-type: image/png\n\n";
+  print $image->png;
+} else {
+  print encode_base64 $image->png;
+} # unless
 
 =pod
 

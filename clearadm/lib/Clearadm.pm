@@ -665,51 +665,73 @@ sub AddVob(%) {
   my ($self, %vob) = @_;
 
   my @requiredFields = (
-    'system',
     'tag',
+    'region',
   );
 
   my $result = _checkRequiredFields \@requiredFields, \%vob;
 
-  return -1, "AddVob: $result"
-    if $result;
+  return -1, "AddVob: $result" if $result;
 
   return $self->_addRecord('vob', %vob);
 } # AddVob
 
-sub DeleteVob($) {
-  my ($self, $tag) = @_;
+sub DeleteVob($$) {
+  my ($self, $tag, $region) = @_;
 
-  return $self->_deleteRecord('vob', "tag='$tag'");
+  return $self->_deleteRecord('vob', "tag='$tag' and region='$region'");
 } # DeleteVob
 
-sub GetVob($) {
-  my ($self, $tag) = @_;
+sub GetVob($$) {
+  my ($self, $tag, $region) = @_;
 
-  return
-    unless $tag;
+  return unless $tag;
 
-  my @records = $self->_getRecords('vob', "tag='$tag'");
+  # Windows vob tags begin with "\", which is problematic. The solution is to
+  # escape the "\"
+  $tag =~ s/^\\/\\\\/;
+
+  my @records = $self->_getRecords('vob', "tag='$tag' and region='$region'");
 
   if ($records[0]) {
     return %{$records[0]};
   } else {
-  	return;
+    return;
   } # if
 } # GetVob
 
-sub FindVob($) {
-  my ($self, $tag) = @_;
+sub FindVob($;$) {
+  my ($self, $tag, $region) = @_;
 
-  return $self->_getRecords('vob', "tag like '%$tag%'");
+  # Windows vob tags begin with "\", which is problematic. The solution is to
+  # escape the "\"
+  $tag =~ s/^\\/\\\\/;
+
+  my $condition = "tag like '%$tag%'";
+  
+  $condition .= " and region='$region'" if $region;
+
+  return $self->_getRecords('vob', $condition);
 } # FindVob
+
+sub UpdateVob(%) {
+  my ($self, %vob) = @_;
+
+  # Windows vob tags begin with "\", which is problematic. The solution is to
+  # escape the "\"
+  my $vobtag = $vob{tag};
+
+  $vobtag =~ s/^\\/\\\\/;
+
+  return $self->_updateRecord('vob', "tag='$vobtag' and region='$vob{region}'", %vob);
+} # UpdateVob
 
 sub AddView(%) {
   my ($self, %view) = @_;
 
   my @requiredFields = (
-    'system',
     'tag',
+    'region'
   );
 
   my $result = _checkRequiredFields \@requiredFields, \%view;
@@ -720,16 +742,16 @@ sub AddView(%) {
   return $self->_addRecord('view', %view);
 } # AddView
 
-sub DeleteView($) {
-  my ($self, $tag) = @_;
+sub DeleteView($$) {
+  my ($self, $tag, $region) = @_;
 
-  return $self->_deleteRecord('vob', "tag='$tag'");
+  return $self->_deleteRecord('vob', "tag='$tag' and region='$region'");
 } # DeleteView
 
-sub UpdateView($$) {
-  my ($self, $tag, $region, %viewRec) = @_;
+sub UpdateView(%) {
+  my ($self, %view) = @_;
 
-  return $self->_updateRecord('view', "tag='$tag' and region='$region'", %viewRec);
+  return $self->_updateRecord('view', "tag='$view{tag}' and region='$view{region}'", %view);
 } # UpdateView
 
 sub GetView($$) {
@@ -1139,6 +1161,10 @@ sub GetStorage($$$;$$$$$) {
 
   undef $start if $start and $start =~ /earliest/i;
   undef $end   if $end   and $end   =~ /latest/i;
+
+  # Windows vob tags begin with "\", which is problematic. The solution is to
+  # escape the "\"
+  $tag =~ s/^\\/\\\\/;
 
   my $condition;
   my $table = $type eq 'vob' ? 'vobstorage' : 'viewstorage';

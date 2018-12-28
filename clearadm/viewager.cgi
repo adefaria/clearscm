@@ -239,8 +239,6 @@ sub GenerateRegion ($) {
       # Compute age
       $age       = Age ($modified_date);
       $ageSuffix = $age != 1 ? 'days' : 'day';
-    #} else {
-    #  $modified_date = 'Unknown';
     } # if
 
     my %oldView = $clearadm->GetView($view->tag, $view->region);
@@ -264,7 +262,7 @@ sub GenerateRegion ($) {
     $viewRec{modified} = $modified_date if $modified_date;
 
     if (%oldView) {
-      ($err, $msg) = $clearadm->UpdateView($view->tag, $view->region, %viewRec);
+      ($err, $msg) = $clearadm->UpdateView(%viewRec);
 
       error "Unable to update view $name in Clearadm\n$msg", $err if $err;
     } else {

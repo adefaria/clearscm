@@ -54,6 +54,7 @@ use warnings;
 use Net::Domain qw(hostname);
 use FindBin;
 use Getopt::Long;
+use Convert::Base64;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -165,22 +166,22 @@ verbose "$FindBin::Script V$VERSION";
 my $exit = 0;
 
 for my $system ($clearadm->FindSystem ($host)) {
-  next if $$system{active} eq 'false';
+  next if $system->{active} eq 'false';
   
   my $status = $clearexec->connectToServer (
-    $$system{name}, 
-    $$system{port}
+    $system->{name}, 
+    $system->{port}
   );
   
   unless ($status) {
-    verbose "Unable to connect to system $$system{name}:$$system{port}";
+    verbose "Unable to connect to system $system->{name}:$system->{port}";
     next;
   } # unless
 
-  for my $filesystem ($clearadm->FindFilesystem ($$system{name}, $fs)) {
-    verbose "Snapshotting $$system{name}:$$filesystem{filesystem}";
+  for my $filesystem ($clearadm->FindFilesystem ($system->{name}, $fs)) {
+    verbose "Snapshotting $system->{name}:$filesystem->{filesystem}";
   
-    my %fs = snapshotFS ($system, $$filesystem{filesystem});
+    my %fs = snapshotFS ($system, $filesystem->{filesystem});
     
     if (%fs) {
       my ($err, $msg) = $clearadm->AddFS (%fs);
@@ -188,24 +189,44 @@ for my $system ($clearadm->FindSystem ($host)) {
       error $msg, $err if $err;
     } # if
     
+    # Generate graphs
+    my $cmd = "plotfs.cgi generate=1 system=$system->{name} filesystem=$filesystem->{filesystem} scaling=Day points=7";
+
+    verbose "Generating fssmall for $system->{name}:$filesystem->{filesystem}";
+    my ($error, @output) = Execute("$cmd tiny=1 2>&1");
+
+    error 'Unable to generate fssmall' . join("\n", @output), $error if $error;
+
+    $filesystem->{fssmall} = join '', @output;
+
+    verbose "Generating fslarge for $system->{name}:$filesystem->{filesystem}";
+    ($error, @output) = Execute("$cmd 2>&1");
+
+    error 'Unable to generate fslarge' . join("\n", @output), $error if $error;
+
+    $filesystem->{fslarge} = join '', @output;
+
+    my ($err, $msg) = $clearadm->UpdateFilesystem($system->{name}, $filesystem->{filesystem}, %$filesystem);
+
+    error "Unable to update filesystem record $msg", $err if $err;
+
     # Check if over threshold
     my %notification = $clearadm->GetNotification ('Filesystem');
 
-    next
-      unless %notification;
+    next unless %notification;
   
     my $usedPct = '0%';
 
     $usedPct = sprintf ('%.2f', (($fs{used} + $fs{reserve}) / $fs{size}) * 100) if $fs{size} != 0;
     
-    if ($usedPct >= $$filesystem{threshold}) {
+    if ($usedPct >= $filesystem->{threshold}) {
       $exit = 2;
       display YMDHMS
-            . " System: $$filesystem{system} "
-            . "Filesystem: $$filesystem{filesystem} Used: $usedPct% " 
-            . "Threshold: $$filesystem{threshold}";    
+            . " System: $filesystem->{system} "
+            . "Filesystem: $filesystem->{filesystem} Used: $usedPct% " 
+            . "Threshold: $filesystem->{threshold}";    
     } else {
-      $clearadm->ClearNotifications ($$system{name}, $$filesystem{filesystem});    
+      $clearadm->ClearNotifications ($system->{name}, $filesystem->{filesystem});    
     } # if
   } # for
   

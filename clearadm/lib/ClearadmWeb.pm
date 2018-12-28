@@ -413,7 +413,7 @@ sub makeStoragePoolDropdown($$) {
 
   my @values;
 
-  my $dropdown = 'Storage pool ';
+  my $dropdown = 'Storage pool  ';
     
   if ($type eq 'vob') {
     push @values, qw(admin db cleartext derivedobj source total);
@@ -633,17 +633,17 @@ sub heading (;$$) {
 
   display header;
   display start_html {
-  	-title  => $title,
-  	-author => 'Andrew DeFaria <Andrew@ClearSCM.com>',
-  	-meta   => {
-  	  keywords  => 'ClearSCM Clearadm',
+    -title  => $title,
+    -author => 'Andrew DeFaria <Andrew@ClearSCM.com>',
+    -meta   => {
+      keywords  => 'ClearSCM Clearadm',
       copyright => 'Copyright (c) ClearSCM, Inc. 2010, All rights reserved',
-  	},
-  	-script => [{
-  	  -language => 'JavaScript',
-  	  -src      => 'clearadm.js',
-  	}],
-  	-style   => ['clearadm.css', 'clearmenu.css'],
+  },
+    -script => [{
+      -language => 'JavaScript',
+      -src      => 'clearadm.js',
+    }],
+    -style   => ['clearadm.css', 'clearmenu.css'],
   }, $title;
 
   return if $type;
@@ -1213,13 +1213,17 @@ sub displayFilesystem ($) {
         display td {class => $classRightTop}, "$used ($usedPct%)<br>",
           font {class => 'unknown'}, "$fs{timestamp}";
         display td {class => $classRightTop}, "$filesystem{threshold}%";
+
+	my $image = $filesystem{fssmall}
+	  ? "data:image/png;base64,$filesystem{fssmall}"
+	  : "plotfs.cgi?system=$system{name}&filesystem=$filesystem{filesystem}&tiny=1";
+
         display td {class => $class},
           a {href =>
             "plot.cgi?type=filesystem&system=$system{name}"
           . "&filesystem=$filesystem{filesystem}&scaling=Day&points=7"
           }, img {
-            src    => "plotfs.cgi?system=$system{name}"
-                    . "&filesystem=$filesystem{filesystem}&tiny=1",
+            src    => $image,
             border => 0,
           };
       display end_Tr;
@@ -1785,7 +1789,7 @@ sub displaySystem ($) {
       a {href =>
         "plot.cgi?type=loadavg&system=$system{name}&scaling=Hour&points=24"
         }, img {
-          src    => "plotloadavg.cgi?system=$system{name}&tiny=1",
+          src    => "data:image/png;base64,$system{loadavgsmall}",
           border => 0,
       };
 
@@ -1850,58 +1854,59 @@ sub displaySystem ($) {
     my $classRight    = $class . 'Right';
 
     display start_Tr;
-        display start_td {class => 'data'};
+      display start_td {class => 'data'};
 
-        my $areYouSure = 'Are you sure you want to delete '
-                       . "$system{name}:$filesystem{filesystem}?" . '\n'
-                       . 'Doing so will remove all records related to this\n'
-                       . 'filesystem and its history.';
+      my $areYouSure = 'Are you sure you want to delete '
+                     . "$system{name}:$filesystem{filesystem}?" . '\n'
+                     . 'Doing so will remove all records related to this\n'
+                     . 'filesystem and its history.';
 
-        display start_form {
-          method => 'post',
-          action => 'processfilesystem.cgi',
+      display start_form {
+        method => 'post',
+        action => 'processfilesystem.cgi',
+      };
+
+      display input {
+        type  => 'hidden',
+        name  => 'system',
+        value => $system{name},
+      };
+      display input {
+        type  => 'hidden',
+        name  => 'filesystem',
+        value => $filesystem{filesystem},
+      };
+
+      display input {
+        name    => 'delete',
+        type    => 'image',
+        src     => 'delete.png',
+        alt     => 'Delete',
+        value   => 'Delete',
+        title   => 'Delete',
+        onclick => "return AreYouSure ('$areYouSure');"
+      };
+      display input {
+        name    => 'edit',
+        type    => 'image',
+        src     => 'edit.png',
+        alt     => 'Edit',
+        value   => 'Edit',
+        title   => 'Edit',
+      };
+
+      if ($filesystem{notification}) {
+        display a {
+          href => "alertlog.cgi?system=$filesystem{system}"}, img {
+          src    => 'alert.png',
+          border => 0,
+          alt    => 'Alert!',
+          title  => 'This filesystem has alerts',
         };
+      } # if
 
-        display input {
-          type  => 'hidden',
-          name  => 'system',
-          value => $system{name},
-        };
-        display input {
-          type  => 'hidden',
-          name  => 'filesystem',
-          value => $filesystem{filesystem},
-        };
+      display end_form;
 
-        display input {
-          name    => 'delete',
-          type    => 'image',
-          src     => 'delete.png',
-          alt     => 'Delete',
-          value   => 'Delete',
-          title   => 'Delete',
-          onclick => "return AreYouSure ('$areYouSure');"
-        };
-        display input {
-          name    => 'edit',
-          type    => 'image',
-          src     => 'edit.png',
-          alt     => 'Edit',
-          value   => 'Edit',
-          title   => 'Edit',
-        };
-
-        if ($filesystem{notification}) {
-          display a {
-            href => "alertlog.cgi?system=$filesystem{system}"}, img {
-            src    => 'alert.png',
-            border => 0,
-            alt    => 'Alert!',
-            title  => 'This filesystem has alerts',
-          };
-        } # if
-
-        display end_form;
       display td {class => $class},         $filesystem{filesystem};
       display td {class => $classCentered}, $filesystem{fstype};
       display td {class => $class},         $filesystem{mount};
@@ -1917,10 +1922,8 @@ sub displaySystem ($) {
         . "&filesystem=$filesystem{filesystem}"
         . "&scaling=Day&points=7"
         }, img {
-           src    => "plotfs.cgi?system=$system{name}&"
-                   . "filesystem=$filesystem{filesystem}"
-                   . '&tiny=1',
-           border => 0,
+          src    => "data:image/png;base64,$filesystem{fssmall}",
+          border => 0,
         };
     display end_Tr;
   } # for
