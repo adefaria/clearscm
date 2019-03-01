@@ -91,7 +91,7 @@ function stoptimer () {
   $headers .= "Content-type: text/html; charset=iso-8859-1\r\n";
   $headers .= "From: Andrew DeFaria <Andrew@DeFaria.com>";
 
-  //mail("andrew@defaria.com", "Somebody visited your resume", $msg, $headers);
+  mail("andrew@defaria.com", "Somebody visited your resume", $msg, $headers);
   ?>
 </head>
 
@@ -104,8 +104,8 @@ function stoptimer () {
     <?php start_box ("cs2")?>
       <h2 align=center><a href="http://defaria.com">Andrew P. DeFaria</a></h2>
       <address style="text-align:center">
-      11727 Stoney Peak Dr #65<br>
-      San Diego, California 92128-6440<br>
+      14435 South 48th Street #2083<br>
+      Phoenix, Arizona 85044-6448<br>
       </address>
       <p style="text-align:center">
       Phone: 408-596-4937</a><br>
@@ -113,7 +113,7 @@ function stoptimer () {
 <table align="center" width="400">
   <tr>
     <td>
-      <marquee behavior="alternate" onmouseover="this.stop()" onmouseout="this.start()"><a id="blink" href="Resume.docx">Download an MS Word copy!</a></marquee><br>
+      <marquee behavior="alternate" onmouseover="this.stop()" onmouseout="this.start()"><a id="blink" href="Resume.odt">Download an MS Word copy!</a></marquee><br>
     </td>
   </tr>
     <td align="center">
@@ -158,8 +158,8 @@ function stoptimer () {
 
   <h3>Hardware</h3>
 
-  <p>Workstations and servers from Sun, HP as well as various other manufactures
-  of Linux systems.</p>
+  <p>Workstations and servers from Sun, HP, Microsoft Windows as well as various
+  other manufactures of Linux systems.</p>
 
   <h3>Operating Systems</h3>
 
@@ -232,6 +232,7 @@ function stoptimer () {
         <th>Virtualization</th>
         <td>
           <span class="standout">VMWare</span>, <span class="standout">VirtualBox</span>,
+          <span class="standout">vSphere</span>, <span class="standout">vCenter</span>
         </td>
       </tr>
       <tr>
@@ -290,15 +291,40 @@ function stoptimer () {
 
   <br>
 
+  <h2>Clients</h2>
+
   <hr noshade>
 
-  <h2>Clients</h2>
+  <p><a href="https://gdmissionsystems.com/en/satellite-ground-systems/mobile-user-objective-system">
+  <img src="General_Dynamics_logo.jpg" alt="General Dynamics" border="0"></a></p>
+
+  <p>March 2018 - Present<br>
+  <font class=dim>Contract</font><br>
+  <a href="https://defaria-status.blogspot.com/search/label/General%20Dynamics">General Dynamics</a></font>
+
+  <p>For this technology refresh of over a decade ago, I was instrumental in 
+  setting up and maintain dozens of Solaris 5.11 zone systems and served as the
+  primary Solaris System Administrator. This includes setup of many services
+  like NIS, DNS, NTP, SMTP, AutoFS as well as a standard set of tools.
+
+  <p>Introduced <span class="standout">Puppet</span> to the group and served as
+  the <span class="standout">Puppet Master</span>.</p>
+
+  <p>Created Windows based <span class="standout">VMs</span> for specific roles
+  such as <span class="standout"BuildForge Console</span>, Application server,
+  Domain Controllers, etc. These were managed under <span
+  class="standout">vCenter</span>.</p>
+
+  <p>Developed <span class="standout">Perl</span> scripts for validation testing
+  of <span class="standout">Clearcase</span> and <span class="standout">Clearquest</span>.
+  Developed a Clearcase enhanced monitoring tool to monitor servers, loadavg and
+  filesystems as well as Clearcase objects like VOBs and views.</p>
 
   <hr noshade>
 
   <p><a href="http://www.broadcom.com"><img src="Broadcom.gif" alt="Broadcom/Avago" border="0"></a></p>
 
-  <p>August 2016 - Present<br>
+  <p>August 2016 - January 2018<br>
   <font class=dim>Contract</font><br>
 
   <p>Converted an internal project from a <span class="standout">Jenkins</span>/
@@ -311,10 +337,10 @@ function stoptimer () {
 
   <hr noshade>
 
+  <p><a href="http://icann.org"><img alt="ICANN" src="ICANN.png" border="0"></a><br></p>
+
   <p>May 2016 - July 2016<br>
   <font class=dim>Contract</font><br>
-
-  <p><a href="http://icann.org"><img alt="ICANN" src="ICANN.png" border="0"></a><br></p>
 
   <p>Developed <a 
   href="https://en.wikipedia.org/wiki/Registration_Data_Access_Protocol">RDAP</a>
