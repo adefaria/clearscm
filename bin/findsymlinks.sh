@@ -17,7 +17,10 @@ for component in "${components[@]}"; do
   testpath="${testpath}/$component"
 
   if [ -h "$testpath" ]; then
+    points_to=$(ls -l $testpath | awk '{print $NF}')
+
     echo "$testpath: symbolic link to $(ls -l $testpath | awk '{print $NF}')"
     testpath=$(readlink -n $testpath)
   fi
 done
+

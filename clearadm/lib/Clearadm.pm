@@ -680,11 +680,16 @@ sub GetVob($$) {
   } # if
 } # GetVob
 
+<<<<<<< HEAD
 sub FindVobStorage(;$$) {
   my ($self, $tag, $region) = @_;
 
   $tag    ||= '';
   $region ||= '';
+
+=======
+sub FindVob($;$) {
+  my ($self, $tag, $region) = @_;
 
   # Windows vob tags begin with "\", which is problematic. The solution is to
   # escape the "\"
