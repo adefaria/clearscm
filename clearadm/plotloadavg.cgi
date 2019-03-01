@@ -59,6 +59,7 @@ use strict;
 use warnings;
 
 use FindBin;
+use Convert::Base64;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -66,7 +67,7 @@ use Clearadm;
 use ClearadmWeb;
 use Display;
 
-use CGI qw (:standard :cgi-lib);
+use CGI qw(:standard :cgi-lib);
 use GD::Graph::area;
 
 my %opts = Vars;
@@ -87,7 +88,7 @@ if ($opts{tiny}) {
 
 my $clearadm = Clearadm->new;
 
-my $graph = GD::Graph::area->new ($opts{width}, $opts{height});
+my $graph = GD::Graph::area->new($opts{width}, $opts{height});
 
 graphError "System is required"
   unless $opts{system};
@@ -95,12 +96,12 @@ graphError "System is required"
 graphError "Points not numeric (points: $opts{points})"
   if $opts{points} and $opts{points} !~ /^\d+$/;
 
-my @loads = $clearadm->GetLoadavg (
+my @loads = $clearadm->GetLoadavg(
   $opts{system},
   $opts{start},
   $opts{end},
   $opts{points},
-  $opts{scaling}
+  $opts{scaling},
 );
 
 graphError "No loadavg data"
@@ -108,7 +109,7 @@ graphError "No loadavg data"
 
 my (@x, @y);
 
-foreach (@loads) {
+for (@loads) {
   my %load = %{$_};
   
   if ($opts{tiny}) {
@@ -118,7 +119,7 @@ foreach (@loads) {
   } # if
 
   push @y, $load{loadavg};
-} # foreach
+} # for
 
 my @data = ([@x], [@y]);
 
@@ -133,7 +134,7 @@ my $y_label = $opts{tiny} ? '' : 'Load';
 my $title   = $opts{tiny} ? '' : "Load Average for $opts{system}";
 my $labelY  = $opts{tiny} ? '' : '%.2f';
 
-$graph->set (
+$graph->set(
   x_label           => $x_label,
   x_labels_vertical => 1,
   x_label_skip      => $x_label_skip,
@@ -154,8 +155,12 @@ $graph->set (
 my $image = $graph->plot(\@data)
   or croak $graph->error;
 
-print "Content-type: image/png\n\n";
-print $image->png;
+unless ($opts{generate}) {
+  print "Content-type: image/png\n\n";
+  print $image->png;
+} else {
+  print encode_base64 $image->png;
+} # unless
 
 =pod
 

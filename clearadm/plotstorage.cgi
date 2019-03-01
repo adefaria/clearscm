@@ -40,7 +40,7 @@ $Date: 2011/01/14 16:37:04 $
    <storage>: Name of the Clearcase storage pool to plot information for
    <height>:  Height of chart (Default: 480px - tiny: 40)
    <width>:   Width of chart (Default: 800px - tiny: 150)
-   <color>:   A GD::Color color value (Default: lblue)
+   <color>:   A GD::Color color value (Default: purple)
    <scaling>: Currently one of Minute, Hour, Day or Month. Specifies how
               Clearadm::GetFS will scale the data returned (Default: Minute 
               - tiny: Day)
@@ -61,6 +61,7 @@ use strict;
 use warnings;
 
 use FindBin;
+use Convert::Base64;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -69,7 +70,7 @@ use ClearadmWeb;
 use Clearcase;
 use Display;
 
-use CGI qw (:standard :cgi-lib);
+use CGI qw(:standard :cgi-lib);
 use GD::Graph::area;
 
 my %opts = Vars;
@@ -77,7 +78,7 @@ my %opts = Vars;
 my $VERSION  = '$Revision: 1.13 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
-$opts{color}  ||= 'lblue';
+$opts{color}  ||= $opts{type} eq 'vob' ? 'purple' : 'marine';
 $opts{height} ||= 350;
 $opts{width}  ||= 800;
 
@@ -90,7 +91,7 @@ if ($opts{tiny}) {
 
 my $clearadm = Clearadm->new;
 
-my $graph = GD::Graph::area->new ($opts{width}, $opts{height});
+my $graph = GD::Graph::area->new($opts{width}, $opts{height});
 
 graphError "Tag is required"     unless $opts{tag};
 graphError "Type is required"    unless $opts{type};
@@ -99,7 +100,7 @@ graphError "Storage is required" unless $opts{storage};
 graphError "Points not numeric (points: $opts{points})"
   if $opts{points} and $opts{points} !~ /^\d+$/;
   
-my @storage = $clearadm->GetStorage (
+my @storage = $clearadm->GetStoragePool(
   $opts{type},
   $opts{tag},
   $opts{storage},
@@ -147,7 +148,7 @@ my $title   = $opts{tiny} ? '' : "Storage usage for "
                                . "$opts{type}:$opts{tag} $storageLabel";
 my $labelY  = $opts{tiny} ? '' : '%.2f';
 
-$graph->set (
+$graph->set(
   x_label           => $x_label,
   x_labels_vertical => 1,
   x_label_skip      => $x_label_skip,
@@ -168,8 +169,12 @@ $graph->set (
 my $image = $graph->plot(\@data)
   or croak $graph->error;
 
-print "Content-type: image/png\n\n";
-print $image->png;
+unless ($opts{generate}) {
+  print "Content-type: image/png\n\n";
+  print $image->png;
+} else {
+  print encode_base64 $image->png;
+} # unless
 
 =pod
 

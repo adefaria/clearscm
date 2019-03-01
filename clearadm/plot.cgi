@@ -39,7 +39,7 @@ use strict;
 use warnings;
 
 use FindBin;
-use CGI qw (:standard :cgi-lib start_table end_table start_Tr end_Tr);
+use CGI qw(:standard :cgi-lib start_table end_table start_Tr end_Tr);
 use GD::Graph::area;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
@@ -55,7 +55,7 @@ my %opts = Vars;
 
 my $clearadm;
 
-sub displayGraph () {
+sub displayGraph() {
   my $parms;
 
   for (keys %opts) {
@@ -66,36 +66,66 @@ sub displayGraph () {
   display '<center>';
   
   if ($opts{type} eq 'loadavg') {
-    unless ($opts{tiny}) {
-      display img {src => "plotloadavg.cgi?$parms", class => 'chart'};
+    my %system = $clearadm->GetSystem($opts{system});
+
+    # We can use the cached version only if the opts are set to default
+    if ($opts{scaling} eq 'Hour' and $opts{points} == 24) {
+      my $data = $opts{tiny} ? $system{loadavgsmall} : $system{loadavg};
+
+      display img {src => "data:image/png;base64,$data"};
     } else {
-      display img {src => "plotloadavg.cgi?$parms", border => 0};
-    } # unless
+      unless ($opts{tiny}) {
+        display img {src => "plotloadavg.cgi?$parms", class => 'chart'};
+      } else {
+        display img {src => "plotloadavg.cgi?$parms", border => 0};
+      } # unless
+    } # if
   } elsif ($opts{type} eq 'filesystem') {
-    unless ($opts{tiny}) {
-      display img {src => "plotfs.cgi?$parms", class => 'chart'};
+    my %filesystem = $clearadm->GetFilesystem($opts{system}, $opts{filesystem});
+
+    # We can use the cached version only if the opts are set to default
+    if ($opts{scaling} eq 'Day' and $opts{points} == 7) {
+      my $data = $opts{tiny} ? $filesystem{fssmall} : $filesystem{fslarge};
+
+      display img {src => "data:image/png;base64,$data"};
     } else {
-      display img {src => "plotfs.cgi?$parms", border => 0};
-    } # unless
+      unless ($opts{tiny}) {
+        display img {src => "plotfs.cgi?$parms", class => 'chart'};
+      } else {
+        display img {src => "plotfs.cgi?$parms", border => 0};
+      } # unless
+    } # if
   } elsif ($opts{type} eq 'vob' or $opts{type} eq 'view') {
-    unless ($opts{tiny}) {
-      display img {src => "plotstorage.cgi?$parms", class => 'chart'};
+    my (%vob, %view);
+
+    %vob  = $clearadm->GetVob($opts{tag}, $opts{region})  if $opts{type} eq 'vob';
+    %view = $clearadm->GetView($opts{tag}, $opts{region}) if $opts{type} eq 'view';
+    # We can use the cached version only if the opts are set to default
+    if ($opts{scaling} eq 'Day' and $opts{points} == 7) {
+      my $storageType = $opts{tiny}          ? "$opts{storage}small" : "$opts{storage}large";
+      my $data        = $opts{type} eq 'vob' ? $vob{$storageType}    : $view{$storageType};
+
+      display img {src => "data:image/png;base64,$data"};
     } else {
-      display img {src => "plotstorage.cgi?$parms", border => 0};
-    } # unless
+      unless ($opts{tiny}) {
+        display img {src => "plotstorage.cgi?$parms", class => 'chart'};
+      } else {
+        display img {src => "plotstorage.cgi?$parms", border => 0};
+      } # unless
+    } # if
   } # if
 
   display '</center>';
   
-  return
+  return;
 } # displayGraph
 
-sub displayFSInfo () {
+sub displayFSInfo() {
   if ($opts{filesystem}) {
     display h3 {-align => 'center'}, 'Latest Filesystem Reading';
   } else {
-  	display p;
-  	return;
+    display p;
+    return;
   } # if
   
   display start_table {width => '800px', cellspacing => 1};
@@ -161,20 +191,20 @@ sub displayControls() {
   my ($systemLink, $systemButtons);
 
   if ($opts{type} =~ /(vob|view)/i) {
-    $tagsButtons = makeTagsDropdown ($opts{type}, $opts{tag});
+    $tagsButtons = makeTagsDropdown($opts{type}, $opts{tag});
   } else {
     $systemLink = span {id => 'systemLink'}, a {
       href => "systemdetails.cgi?system=$opts{system}",
     }, 'System';
 
-    $systemButtons = makeSystemDropdown (
+    $systemButtons = makeSystemDropdown(
       $systemLink, 
       $opts{system}, 
       'updateFilesystems(this.value);updateSystemLink(this.value)'
     );
   } # if
 
-  my $startButtons = makeTimeDropdown (
+  my $startButtons = makeTimeDropdown(
     $opts{type},
     'startTimestamp',
     $opts{system},
@@ -184,7 +214,7 @@ sub displayControls() {
     $opts{scaling},
   );
 
-  my $endButtons = makeTimeDropdown (
+  my $endButtons = makeTimeDropdown(
     $opts{type},
     'endTimestamp',
     $opts{system},
@@ -204,7 +234,7 @@ sub displayControls() {
     $update = ''; # TODO do I need something here?
   } # if
              
-  my $intervalButtons = makeIntervalDropdown (
+  my $intervalButtons = makeIntervalDropdown(
     'Interval',
     $opts{scaling},
     $update
@@ -264,7 +294,7 @@ sub displayControls() {
 
 $clearadm = Clearadm->new;
 
-my $title  = ucfirst ($opts{type}) . ': ';
+my $title  = ucfirst($opts{type}) . ': ';
 
 $title .= ucfirst $opts{system}           if $opts{system};
 $title .= ":$opts{filesystem}"            if $opts{filesystem};
@@ -281,7 +311,8 @@ display start_form {
 };
 
 # Some hidden fields to pass along
-display input {type => 'hidden', name => 'type', value => $opts{type}};
+display input {type => 'hidden', name => 'type',   value => $opts{type}};
+display input {type => 'hidden', name => 'region', value => $opts{region}};
 
 displayGraph;
 displayFSInfo;

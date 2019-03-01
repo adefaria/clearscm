@@ -73,7 +73,7 @@ use Utils;
 my $VERSION  = '$Revision: 1.1 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
   
-sub SetupAgent () {
+sub SetupAgent() {
   verbose 'Setting up Agent...';
   
   my ($status, @output, $cmd);
@@ -121,8 +121,7 @@ sub SetupAgent () {
 
       ($status, @output) = Execute "$cmd 2>&1";
 
-      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
-        if $status;
+      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status if $status;
 
       $cmd = "chmod 777 $Clearadm::CLEAROPTS{CLEARADM_BASE}/$_";
 
@@ -137,8 +136,7 @@ sub SetupAgent () {
     # Symlink $CLEARADM/etc/conf.d/clearadm -> /etc/init.d
     my $confdir = '/etc/init.d';
 
-    error "Cannot find conf.d directory ($confdir)", 1
-      unless -d $confdir;
+    error "Cannot find conf.d directory ($confdir)", 1 unless -d $confdir;
 
     unless (-e "$confdir/clearagent") {
       $cmd = "ln -s $FindBin::Bin/etc/init.d/clearagent $confdir";
@@ -155,8 +153,7 @@ sub SetupAgent () {
 
       ($status, @output) = Execute "$cmd 2>&1";
 
-      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
-        if $status;
+      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status if $status;
 
       verbose 'Starting clearagent';
     
@@ -164,15 +161,13 @@ sub SetupAgent () {
 
       ($status, @output) = Execute "$cmd 2>&1";
   
-      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
-        if $status;
+      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status if $status;
     } else {
       $cmd = 'update-rc.d clearagent defaults';
     
       ($status, @output) = Execute "$cmd 2>&1";
   
-      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
-        if $status;
+      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status if $status;
 
       verbose 'Starting clearagent';
     
@@ -188,7 +183,7 @@ sub SetupAgent () {
   return;
 } # SetupAgent
 
-sub SetupTasks () {
+sub SetupTasks() {
   my ($status, @output, $cmd);
    
   verbose 'Setting up Tasks...';
@@ -196,16 +191,14 @@ sub SetupTasks () {
   # Symlink $CLEARADM/etc/conf.d/cleartasks -> /etc/init.d
   my $confdir = '/etc/init.d';
 
-  error "Cannot find conf.d directory ($confdir)", 1
-    unless -d $confdir;
+  error "Cannot find conf.d directory ($confdir)", 1 unless -d $confdir;
 
   unless (-e "$confdir/clearadm") {
     $cmd = "ln -s $FindBin::Bin/etc/init.d/cleartasks $confdir";
   
     ($status, @output) = Execute "$cmd 2>&1";
  
-    error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
-      if $status;
+    error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status if $status;
   } # unless
 
   # Setup runlevel links
@@ -213,8 +206,7 @@ sub SetupTasks () {
     
   ($status, @output) = Execute "$cmd 2>&1";
   
-  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
-    if $status;
+  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status if $status;
  
   verbose 'Starting cleartasks';
     
@@ -222,15 +214,14 @@ sub SetupTasks () {
   
   ($status, @output) = Execute "$cmd 2>&1";
   
-  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
-    if $status;
+  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status if $status;
 
   verbose 'Done';
         
   return;
 } # SetupTasks
  
-sub SetupWeb () {
+sub SetupWeb() {
   verbose 'Setting up Web...';
   
   my ($status, @output, $cmd);
@@ -238,8 +229,7 @@ sub SetupWeb () {
   # Symlink $CLEARADM/etc/conf.d/clearadm -> /etc/apache2/conf.d
   my $confdir = '/etc/apache2/conf.d';
 
-  error "Cannot find Apache 2 conf.d directory ($confdir)", 1
-    unless -d $confdir;
+  error "Cannot find Apache 2 conf.d directory ($confdir)", 1 unless -d $confdir;
 
   unless (-e "$confdir/clearadm") {
     $cmd = "ln -s $FindBin::Bin/etc/conf.d/clearadm $confdir";
@@ -266,7 +256,7 @@ sub SetupWeb () {
   return;
 } # SetupWeb
 
-sub SetupDatabase () {
+sub SetupDatabase() {
   verbose 'Setting up Database';
   
   my ($status, @output, $cmd);
@@ -277,8 +267,7 @@ sub SetupDatabase () {
   
   ($status, @output) = Execute "$cmd 2>&1";
   
-  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
-    if $status;
+  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status if $status;
 
   verbose 'Setting up database users';
         
@@ -286,8 +275,7 @@ sub SetupDatabase () {
   
   ($status, @output) = Execute "$cmd 2>&1";
   
-  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
-    if $status;
+  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status if $status;
 
   verbose 'Setting up predefined tasks';
         
@@ -295,8 +283,7 @@ sub SetupDatabase () {
   
   ($status, @output) = Execute "$cmd 2>&1";
   
-  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
-    if $status;
+  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status if $status;
 
   verbose 'Done';
   
@@ -312,15 +299,14 @@ Usage 'You must be root'
   
 my $package = 'all';
 
-GetOptions (
+GetOptions(
   usage       => sub { Usage },
   verbose     => sub { set_verbose },
   debug       => sub { set_debug },
   'package=s' => \$package,
 ) or Usage "Invalid parameter";
 
-Usage 'Extraneous options: ' . join ' ', @ARGV
-  if @ARGV;
+Usage 'Extraneous options: ' . join ' ', @ARGV if @ARGV;
 
 # Announce ourselves
 verbose "$FindBin::Script V$VERSION";

@@ -52,11 +52,12 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
-use CGI qw (:standard :cgi-lib *table start_Tr end_Tr);
+use CGI qw(:standard :cgi-lib *table start_Tr end_Tr);
 use CGI::Carp 'fatalsToBrowser';
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
+use Clearadm;
 use ClearadmWeb;
 use Clearcase;
 use Clearcase::Vob;
@@ -77,7 +78,7 @@ if ($Clearcase::CC->region) {
 my $VERSION  = '$Revision: 1.11 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
-sub DisplayTable ($) {
+sub DisplayTable($) {
   my ($vob) = @_;
 
   my $active = ($vob->active) ? 'YES' : 'NO';
@@ -90,6 +91,10 @@ sub DisplayTable ($) {
     -cellspacing    => 1,
     -class          => 'main',
   };
+
+  my $clearadm = Clearadm->new;
+
+  my %clearadmvob = $clearadm->GetVob($vob->tag, $vob->region);
 
   display start_Tr;
     display th {class => 'label'},              'Tag:';
@@ -199,53 +204,80 @@ sub DisplayTable ($) {
     display th {class => 'labelCentered', colspan => 10}, 'VOB Storage Pools';
   display end_Tr;
 
+  my $image = $clearadmvob{adminsmall}
+    ? "data:image/png;base64,$clearadmvob{adminsmall}"
+    : "plotstorage.cgi?type=vob&storage=admin&tiny=1&tag=" . $vob->tag;
+
   display start_Tr;
     display th {class => 'label'},                                'Admin:';
     display td {class => 'data', colspan => 4, align => 'center'}, a {href =>
-      "plot.cgi?type=vob&storage=admin&scaling=Hour&points=24&tag=" . $vob->tag
+      'plot.cgi?type=vob&storage=admin&scaling=Day&points=7&region=' . $vob->region . '&tag=' . $vob->tag
     }, img {
-      src    => "plotstorage.cgi?type=vob&storage=admin&tiny=1&tag=" . $vob->tag,
+      src    => $image,
       border => 0,
     };
+
+    $image = $clearadmvob{sourcesmall}
+      ? "data:image/png;base64,$clearadmvob{sourcesmall}"
+      : 'plotstorage.cgi?type=vob&storage=source&tiny=1&region=' . $vob->region . '&tag=' . $vob->tag;
+
     display th {class => 'label'},                                'Source Size:';
     display td {class => 'data', colspan => 4, align => 'center'}, a {href =>
-      "plot.cgi?type=vob&storage=source&scaling=Hour&points=24&tag=" . $vob->tag
+      'plot.cgi?type=vob&storage=source&scaling=Day&points=7&region=' . $vob->region . '&tag=' . $vob->tag
     }, img {
-      src    => "plotstorage.cgi?type=vob&storage=source&tiny=1&tag=" . $vob->tag,
+      src    => $image,
       border => 0,
     };
   display end_Tr;
 
   display start_Tr;
+    $image = $clearadmvob{dbsmall}
+      ? "data:image/png;base64,$clearadmvob{dbsmall}"
+      : 'plotstorage.cgi?type=vob&storage=db&tiny=1&region=' . $vob->region . '&tag=' . $vob->tag;
+
     display th {class => 'label'},                                'Database:';
     display td {class => 'data', colspan => 4, align => 'center'}, a {href =>
-      "plot.cgi?type=vob&storage=db&scaling=Hour&points=24&tag=" . $vob->tag
+      'plot.cgi?type=vob&storage=db&scaling=Day&points=7&region=' . $vob->region . '&tag=' . $vob->tag
     }, img {
-      src    => "plotstorage.cgi?type=vob&storage=db&tiny=1&tag=" . $vob->tag,
+      src    => $image,
       border => 0,
     };
+
+    $image = $clearadmvob{derivedobjsmall}
+      ? "data:image/png;base64,$clearadmvob{derivedobjsmall}"
+      : 'plotstorage.cgi?type=vob&storage=derivedobj&tiny=1&region=' . $vob->region . '&tag=' . $vob->tag;
+
     display th {class => 'label'},                                'Derived Obj:';
     display td {class => 'data', colspan => 4, align => 'center'}, a {href =>
-      "plot.cgi?type=vob&storage=derivedobj&scaling=Hour&points=24&tag=" . $vob->tag
+      'plot.cgi?type=vob&storage=derivedobj&scaling=Day&points=7&region=' . $vob->region . '&tag=' . $vob->tag
     }, img {
-      src    => "plotstorage.cgi?type=vob&storage=derivedobj&tiny=1&tag=" . $vob->tag,
+      src    => $image,
       border => 0,
     };
   display end_Tr;
 
   display start_Tr;
+    $image = $clearadmvob{cleartextsmall}
+      ? "data:image/png;base64,$clearadmvob{cleartextsmall}"
+      : 'plotstorage.cgi?type=vob&storage=cleartext&tiny=1&region=' . $vob->retion . '&tag=' . $vob->tag;
+
     display th {class => 'label'},                                'Cleartext:';
     display td {class => 'data', colspan => 4, align => 'center'}, a {href =>
-      "plot.cgi?type=vob&storage=cleartext&scaling=Hour&points=24&tag=" . $vob->tag
+      'plot.cgi?type=vob&storage=cleartext&scaling=Day&points=7&region=' . $vob->region . '&tag=' . $vob->tag
     }, img {
-      src    => "plotstorage.cgi?type=vob&storage=cleartext&tiny=1&tag=" . $vob->tag,
+      src    => $image,
       border => 0,
     };
+
+    $image = $clearadmvob{totalsmall}
+      ? "data:image/png;base64,$clearadmvob{totalsmall}"
+      : 'plotstorage.cgi?type=vob&storage=total&tiny=1&region=' . $vob->region . '&tag=' . $vob->tag;
+
     display th {class => 'label'},                                'Total Size:';
     display td {class => 'data', colspan => 4, align => 'center'}, a {href =>
-      "plot.cgi?type=vob&storage=total&scaling=Hour&points=24&tag=" . $vob->tag
+      'plot.cgi?type=vob&storage=total&scaling=Day&points=7&region=' . $vob->region . '&tag=' . $vob->tag
     }, img {
-      src    => "plotstorage.cgi?type=vob&storage=total&tiny=1&tag=" . $vob->tag,
+      src    => $image,
       border => 0,
     };
   display end_Tr;
@@ -255,21 +287,21 @@ sub DisplayTable ($) {
   return;
 } # DisplayTable
 
-sub DisplayRegion {
+sub DisplayRegion() {
   display start_form (action => 'vobdetails.cgi');
 
   display 'Region ';
 
   my ($defaultRegion, @regions) = ('', ('Clearcase not installed'));
 
-  display popup_menu (
+  display popup_menu(
     -name     => 'region',
     -values   => [@regions],
     -default  => $defaultRegion,
     -onchange => 'submit();',
   );
 
-  display submit (
+  display submit(
     -value => 'Go',
   );
 
@@ -287,11 +319,11 @@ sub DisplayVobs($) {
     push @vobs, 'No VOBs';
   } # unless
 
-  display start_form (action => 'vobdetails.cgi');
+  display start_form(action => 'vobdetails.cgi');
 
   display 'Region ';
 
-  display popup_menu (
+  display popup_menu(
     -name     => 'region',
     -values   => [$Clearcase::CC->regions],
     -default  => $region,
@@ -300,13 +332,13 @@ sub DisplayVobs($) {
 
   display b ' VOB: ';
 
-  display popup_menu (
+  display popup_menu(
      -name     => 'vob',
      -values   => \@vobs,
      -onchange => 'submit();',
   );
 
-  display submit (
+  display submit(
     -value     => 'Go',
   );
 
@@ -316,7 +348,7 @@ sub DisplayVobs($) {
 } # DisplayVobs
 
 # Main
-GetOptions (
+GetOptions(
   \%opts,
   'usage'        => sub { Usage },
   'verbose'      => sub { set_verbose },
@@ -344,7 +376,7 @@ unless ($opts{tag}) {
   exit;
 } # unless
 
-my $vob = Clearcase::Vob->new ($opts{tag}, $opts{region});
+my $vob = Clearcase::Vob->new($opts{tag}, $opts{region});
 
 DisplayTable $vob;
 
@@ -388,6 +420,7 @@ L<Getopt::Long|Getopt::Long>
 =begin html
 
 <blockquote>
+<a href="http://clearscm.com/php/scm_man.php?file=clearadm/lib/Clearadm.pm">Clearadm</a><br>
 <a href="http://clearscm.com/php/scm_man.php?file=clearadm/lib/ClearadmWeb.pm">ClearadmWeb</a><br>
 <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase.pm">Clearcase</a><br>
 <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase/View.pm">Clearcase::View</a><br>

@@ -52,11 +52,12 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
-use CGI qw (:standard :cgi-lib *table start_Tr end_Tr);
+use CGI qw(:standard :cgi-lib *table start_Tr end_Tr);
 use CGI::Carp 'fatalsToBrowser';
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
+use Clearadm;
 use ClearadmWeb;
 use Clearcase;
 use Clearcase::View;
@@ -68,13 +69,9 @@ my %opts = Vars;
 
 my $subtitle = 'View Details';
 
-if ($Clearcase::CC->region) {
-  $opts{region} ||= $Clearcase::CC->region;
-} else {
-  $opts{region} ||= 'Clearcase not installed';
-} # if
+$opts{region} ||= $Clearcase::CC->region;
 
-my $VERSION  = '$Revision: 1.11 $';
+my $VERSION  = '$Revision: 1.12 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
 sub DisplayTable ($) {
@@ -93,6 +90,10 @@ sub DisplayTable ($) {
     -cellspacing    => 1,
     -class          => 'main',
   };
+
+  my $clearadm = Clearadm->new;
+
+  my %clearadmview = $clearadm->GetView($view->tag, $view->region);
 
   display start_Tr;
     display th {class => 'label'},              'Tag:';
@@ -154,36 +155,54 @@ sub DisplayTable ($) {
     display th {class => 'labelCentered', colspan => 10}, 'View Storage Pools';
   display end_Tr;
 
+  my $image = $clearadmview{dbsmall}
+    ? "data:image/png;base64,$clearadmview{dbsmall}"
+    : "plotstorage.cgi?type=view&storage=db&tiny=1&tag=" . $view->tag;
+
   display start_Tr;
     display th {class => 'label'},                                'Database:';
     display td {class => 'data', colspan => 3, align => 'center'}, a {href =>
-       "plot.cgi?type=view&storage=private&tag=" . $view->tag
+       "plot.cgi?type=view&storage=db&scaling=Day&points=7&region=" . $view->region . '&tag=' . $view->tag
     }, img {
-      src    => "plotstorage.cgi?type=view&storage=private&tiny=1&tag=" . $view->tag,
+      src    => $image,
       border => 0,
     };
+
+    $image = $clearadmview{privatesmall}
+      ? "data:image/png;base64,$clearadmview{privatesmall}"
+      : "plotstorage.cgi?type=view&storage=private&tiny=1&tag=" . $view->tag;
+
     display th {class => 'label'},                                'Private:';
     display td {class => 'data', colspan => 5, align => 'center'}, a {href =>
-       "plot.cgi?type=view&storage=db&tag=" . $view->tag
+       "plot.cgi?type=view&storage=private&scaling=Day&points=7&region=" . $view->region . '&tag=' . $view->tag
     }, img {
-      src    => "plotstorage.cgi?type=view&storage=db&tiny=1&tag=" . $view->tag,
+      src    => $image,
       border => 0,
     };
   display end_Tr;
 
+  $image = $clearadmview{adminsmall}
+    ? "data:image/png;base64,$clearadmview{adminsmall}"
+    : "plotstorage.cgi?type=view&storage=admin&tiny=1&tag=" . $view->tag;
+
   display start_Tr;
     display th {class => 'label'},                                'Admin:';
     display td {class => 'data', colspan => 3, align => 'center'}, a {href =>
-       "plot.cgi?type=view&storage=admin&tag=" . $view->tag
+       "plot.cgi?type=view&storage=admin&scaling=Day&points=7&region=" . $view->region . '&tag=' . $view->tag
     }, img {
-      src    => "plotstorage.cgi?type=view&storage=admin&tiny=1&tag=" . $view->tag,
+      src    => $image,
       border => 0,
     };
+
+    $image = $clearadmview{totalsmall}
+      ? "data:image/png;base64,$clearadmview{totalsmall}"
+      : "plotstorage.cgi?type=view&storage=total&tiny=1&tag=" . $view->tag;
+
     display th {class => 'label'},                                'Total Space:';
     display td {class => 'data', colspan => 5, align => 'center'}, a {href =>
-       "plot.cgi?type=view&storage=total&tag=" . $view->tag
+       "plot.cgi?type=view&storage=total&scaling=Day&points=7&region=" . $view->region . '&tag=' . $view->tag
     }, img {
-      src    => "plotstorage.cgi?type=view&storage=total&tiny=1&tag=" . $view->tag,
+      src    => $image,
       border => 0,
     };
   display end_Tr;
@@ -193,17 +212,15 @@ sub DisplayTable ($) {
   return
 } # DisplayTable
 
-sub DisplayRegion {
+sub DisplayRegion() {
   display start_form (action => 'viewdetails.cgi');
 
   display 'Region ';
 
-  my ($defaultRegion, @regions) = ('', ('Clearcase not installed'));
-
   display popup_menu (
     -name     => 'region',
-    -values   => [@regions],
-    -default  => $defaultRegion,
+    -values   => [$Clearcase::CC->regions],
+    -default  => $Clearcase::CC->region,
     -onchange => 'submit();',
   );
 
@@ -216,7 +233,7 @@ sub DisplayRegion {
   return
 } # DisplayRegion
 
-sub DisplayViews ($) {
+sub DisplayViews($) {
   my ($region) = @_;
 
   my $views = Clearcase::Views->new ($region);
@@ -226,7 +243,7 @@ sub DisplayViews ($) {
     push @views, 'No Views';
   } # unless
 
-  display start_form (action => 'viewdetails.cgi');
+  display start_form(action => 'viewdetails.cgi');
 
   display 'Region ';
 
@@ -245,7 +262,7 @@ sub DisplayViews ($) {
      -onchange => 'submit();',
   );
 
-  display submit (
+  display submit(
     -value     => 'Go',
   );
 
@@ -255,7 +272,7 @@ sub DisplayViews ($) {
 } # DisplayViews
 
 # Main
-GetOptions (
+GetOptions(
   \%opts,
   'usage'        => sub { Usage },
   'verbose'      => sub { set_verbose },
@@ -283,9 +300,7 @@ unless ($opts{tag}) {
   exit;
 } # unless
 
-my $view = Clearcase::View->new ($opts{tag}, $opts{region});
-
-DisplayTable $view;
+DisplayTable(Clearcase::View->new($opts{tag}, $opts{region}));
 
 footing;
 
@@ -315,6 +330,7 @@ L<Getopt::Long|Getopt::Long>
 
 =begin man 
 
+ Clearadm
  ClearadmWeb
  Clearcase
  Clearcase::View
@@ -327,6 +343,7 @@ L<Getopt::Long|Getopt::Long>
 =begin html
 
 <blockquote>
+<a href="http://clearscm.com/php/scm_man.php?file=clearadm/lib/Clearadm.pm">Clearadm</a><br>
 <a href="http://clearscm.com/php/scm_man.php?file=clearadm/lib/ClearadmWeb.pm">ClearadmWeb</a><br>
 <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase.pm">Clearcase</a><br>
 <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase/View.pm">Clearcase::View</a><br>

@@ -48,7 +48,7 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
-use CGI qw (:standard :cgi-lib *table start_Tr end_Tr start_td end_td);
+use CGI qw(:standard :cgi-lib *table start_Tr end_Tr start_td end_td);
 use CGI::Carp 'fatalsToBrowser';
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
@@ -65,7 +65,7 @@ my $subtitle = 'Systems Status: All Systems';
 
 my $clearadm;
 
-sub DisplaySystems () {
+sub DisplaySystems() {
   display start_table {cellspacing => 1, class => 'main'};
   
   display start_Tr;
@@ -80,7 +80,7 @@ sub DisplaySystems () {
     display th {class => 'labelCentered'}, 'Load Avg';
   display end_Tr;
   
-  foreach ($clearadm->FindSystem) {
+  for ($clearadm->FindSystem) {
     my %system = %{$_};
   
     $system{alias}  = setField $system{alias},  'N/A';
@@ -174,7 +174,7 @@ sub DisplaySystems () {
       my $lastheardfromClass = 'dataCentered';
       my $lastheardfromData  = $system{lastheardfrom};
   
-      unless ($clearadm->SystemAlive (%system)) {
+      unless ($clearadm->SystemAlive(%system)) {
         $lastheardfromClass = 'dataCenteredAlert';
         $lastheardfromData  = a {
           href  => "alertlog.cgi?system=$system{name}",
@@ -189,16 +189,21 @@ sub DisplaySystems () {
       display td {class => $classRightTop}, "$load{loadavg} ",
         font {class => 'dim' }, "<br>$load{timestamp}";
       display td {class => $classRightTop}, $system{loadavgThreshold};
+
+      my $image = $system{loadavgsmall}
+        ? "data:image/png;base64,$system{loadavgsmall}"
+	: "plotloadavg.cgi?system=$system{name}&tiny=1";
+
       display td {class => $class}, 
         a {
           href => 
             "plot.cgi?type=loadavg&system=$system{name}&scaling=Hour&points=24"
         }, img {
-          src    => "plotloadavg.cgi?system=$system{name}&tiny=1",
+          src    => $image,
           border => 0,
         };
     display end_Tr;
-  } # foreach
+  } # for
 
   display end_table;
   
@@ -213,7 +218,7 @@ sub DisplaySystems () {
 } # DisplaySystems
 
 # Main
-GetOptions (
+GetOptions(
   usage   => sub { Usage },
   verbose => sub { set_verbose },
   debug   => sub { set_debug },

@@ -55,7 +55,7 @@ use warnings;
 
 use Getopt::Long;
 use FindBin;
-use Term::ANSIColor qw (color);
+use Term::ANSIColor qw(color);
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -77,18 +77,18 @@ my $port = $Clearexec::CLEAROPTS{CLEAREXEC_PORT};
 
 my $clearexec;
 
-sub CmdLoop () {
+sub CmdLoop() {
   my ($line, $result);
 
-  my $prompt = color ('BOLD YELLOW') . "$me->$host:" . color ('RESET');
+  my $prompt = color('BOLD YELLOW') . "$me->$host:" . color('RESET');
   
-  $CmdLine::cmdline->set_prompt ($prompt);
+  $CmdLine::cmdline->set_prompt($prompt);
     
-  while (($line, $result) = $CmdLine::cmdline->get ()) {
+  while (($line, $result) = $CmdLine::cmdline->get()) {
     last unless defined $line;
     last if $line =~ /exit|quit/i;
     
-    my ($status, @output) = $clearexec->execute ($line);
+    my ($status, @output) = $clearexec->execute($line);
     
     last if $line =~ /stopserver/i;
     
@@ -105,7 +105,7 @@ sub CmdLoop () {
 } # CmdLoop
 
 # Main
-GetOptions (
+GetOptions(
   'usage'   => sub { Usage },
   'verbose' => sub { set_verbose },
   'debug'   => sub { set_debug },
@@ -117,20 +117,19 @@ my $cmd = join ' ', @ARGV;
 
 verbose "$FindBin::Script V$VERSION";
 
-$clearexec =Clearexec->new;
+$clearexec = Clearexec->new;
 
 my ($status, @output);
 
-$status = $clearexec->connectToServer ($host, $port);
+$status = $clearexec->connectToServer($host, $port);
 
-error "Unable to connect to $host:$port", 1
-  unless $status;
+error "Unable to connect to $host:$port", 1 unless $status;
 
 if ($cmd ne '') {
-  ($status, @output) = $clearexec->execute ($cmd);
+  ($status, @output) = $clearexec->execute($cmd);
 
   if ($status) {
-    error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1;
+    error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), 1;
   } else {
     display join "\n", @output;
     display "Status: $status";

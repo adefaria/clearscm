@@ -38,7 +38,7 @@ specifics about the method you are envoking.
  my $clearadm = new Clearadm;
 
  # Add a new system
- my %system = (
+ my %system =(
   name          => 'jupiter',
   alias         => 'defaria.com',
   admin         => 'Andrew DeFaria',
@@ -47,13 +47,13 @@ specifics about the method you are envoking.
   description   => 'Home server',
  );
 
- my ($err, $msg) = $clearadm->AddSystem (%system);
+ my ($err, $msg) = $clearadm->AddSystem(%system);
 
  # Find systems matching 'jup'
- my @systems = $clearadm->FindSystem ('jup');
+ my @systems = $clearadm->FindSystem('jup');
 
  # Get a system by name
- my %system = $clearadm->GetSystem ('jupiter');
+ my %system = $clearadm->GetSystem('jupiter');
 
  # Update system
  my %update = (
@@ -64,7 +64,7 @@ specifics about the method you are envoking.
 
  # Delete system (Warning: will delete all related records regarding this
  # system).
- my ($err, $msg) = $clearadm->DeleteSystem ('jupiter');
+ my ($err, $msg) = $clearadm->DeleteSystem('jupiter');
 
 =head1 DESCRIPTION
 
@@ -98,6 +98,8 @@ use DateUtils;
 use Display;
 use GetConfig;
 use Mail;
+use Clearcase::Vob;
+use Clearcase::View;
 
 my $conf = dirname(__FILE__) . '/../etc/clearadm.conf';
 
@@ -155,8 +157,7 @@ sub _formatValues(@) {
   my @returnValues;
 
   # Quote data values
-  push @returnValues, $_ eq '' ? 'null' : $self->{db}->quote($_)
-    for (@values);
+  push @returnValues, $_ eq '' ? 'null' : $self->{db}->quote($_) for (@values);
 
   return @returnValues;
 } # _formatValues
@@ -166,8 +167,7 @@ sub _formatNameValues(%) {
 
   my @nameValueStrs;
 
-  push @nameValueStrs, "$_=" . $self->{db}->quote($rec{$_})
-    for (keys %rec);
+  push @nameValueStrs, "$_=" . $self->{db}->quote($rec{$_}) for (keys %rec);
 
   return @nameValueStrs;
 } # _formatNameValues
@@ -194,8 +194,7 @@ sub _deleteRecord($;$) {
   my $count;
 
   my $statement  = "select count(*) from $table ";
-     $statement .= "where $condition"
-      if $condition;
+     $statement .= "where $condition" if $condition;
 
   my $sth = $self->{db}->prepare($statement)
     or return $self->_dberror('Unable to prepare statement', $statement);
@@ -213,12 +212,10 @@ sub _deleteRecord($;$) {
     $count = 0;
   } # if
 
-  return ($count, 'Records deleted')
-    if $count == 0;
+  return ($count, 'Records deleted') if $count == 0;
 
   $statement  = "delete from $table ";
-  $statement .= "where $condition"
-    if $condition;
+  $statement .= "where $condition" if $condition;
 
   $self->{db}->do($statement);
 
@@ -234,8 +231,7 @@ sub _updateRecord($$%) {
 
   my $statement  = "update $table set ";
      $statement .= join ',', $self->_formatNameValues(%rec);
-     $statement .= " where $condition"
-       if $condition;
+     $statement .= " where $condition" if $condition;
 
   $self->{db}->do($statement);
 
@@ -255,8 +251,7 @@ sub _checkRequiredFields($$) {
       } # if
     } # for
 
-    return "$fieldname is required"
-      unless $found;
+    return "$fieldname is required" unless $found;
   } # for
 
   return;
@@ -337,7 +332,7 @@ sub _aliasSystem($) {
   if ($system{name}) {
     return $system{name};
   } else {
-  	return;
+    return;
   } # if
 } # _aliasSystem
 
@@ -444,8 +439,7 @@ sub AddSystem(%) {
 
   my $result = _checkRequiredFields \@requiredFields, \%system;
 
-  return -1, "AddSystem: $result"
-    if $result;
+  return -1, "AddSystem: $result" if $result;
 
   $system{loadavgHist} ||= $defaultLoadavgHist;
 
@@ -467,8 +461,7 @@ sub UpdateSystem ($%) {
 sub GetSystem($) {
   my ($self, $system) = @_;
 
-  return
-    unless $system;
+  return unless $system;
 
   my @records = $self->_getRecords(
     'system',
@@ -478,7 +471,7 @@ sub GetSystem($) {
   if ($records[0]) {
     return %{$records[0]};
   } else {
-  	return;
+    return;
   } # if
 } # GetSystem
 
@@ -511,8 +504,7 @@ sub AddPackage(%) {
 
   my $result = _checkRequiredFields \@requiredFields, \%package;
 
-  return -1, "AddPackage: $result"
-    if $result;
+  return -1, "AddPackage: $result" if $result;
 
   return $self->_addRecord('package', %package);
 } # AddPackage
@@ -530,8 +522,7 @@ sub UpdatePackage($$%) {
 
   $system = $self->_aliasSystem($system);
 
-  return
-    unless $system;
+  return unless $system;
 
   return $self->_updateRecord('package', "system='$system'", %update);
 } # UpdatePackage
@@ -541,11 +532,8 @@ sub GetPackage($$) {
 
   $system = $self->_aliasSystem($system);
 
-  return
-    unless $system;
-
-  return
-    unless $name;
+  return unless $system;
+  return unless $name;
 
   my @records = $self->_getRecords(
     'package',
@@ -555,7 +543,7 @@ sub GetPackage($$) {
   if ($records[0]) {
     return %{$records[0]};
   } else {
-  	return;
+    return;
   } # if
 } # GetPackage
 
@@ -566,8 +554,7 @@ sub FindPackage($;$) {
 
   $system = $self->_aliasSystem($system);
 
-  return
-    unless $system;
+  return unless $system;
 
   my $condition = "system='$system' and name like '%$name%'";
 
@@ -585,8 +572,7 @@ sub AddFilesystem(%) {
 
   my $result = _checkRequiredFields \@requiredFields, \%filesystem;
 
-  return -1, "AddFilesystem: $result"
-    if $result;
+  return -1, "AddFilesystem: $result" if $result;
 
   # Default filesystem threshold
   $filesystem{threshold} ||= $defaultFilesystemThreshold;
@@ -599,8 +585,7 @@ sub DeleteFilesystem($$) {
 
   $system = $self->_aliasSystem($system);
 
-  return
-    unless $system;
+  return unless $system;
 
   return $self->_deleteRecord(
     'filesystem',
@@ -613,8 +598,7 @@ sub UpdateFilesystem($$%) {
 
   $system = $self->_aliasSystem($system);
 
-  return
-    unless $system;
+  return unless $system;
 
   return $self->_updateRecord(
     'filesystem',
@@ -628,11 +612,8 @@ sub GetFilesystem($$) {
 
   $system = $self->_aliasSystem($system);
 
-  return
-    unless $system;
-
-  return
-    unless $filesystem;
+  return unless $system;
+  return unless $filesystem;
 
   my @records = $self->_getRecords(
     'filesystem',
@@ -653,8 +634,7 @@ sub FindFilesystem($;$) {
 
   $system = $self->_aliasSystem($system);
 
-  return
-    unless $system;
+  return unless $system;
 
   my $condition = "system='$system' and filesystem like '%$filesystem%'";
 
@@ -665,71 +645,112 @@ sub AddVob(%) {
   my ($self, %vob) = @_;
 
   my @requiredFields = (
-    'system',
     'tag',
+    'region',
   );
 
   my $result = _checkRequiredFields \@requiredFields, \%vob;
 
-  return -1, "AddVob: $result"
-    if $result;
+  return -1, "AddVob: $result" if $result;
 
   return $self->_addRecord('vob', %vob);
 } # AddVob
 
-sub DeleteVob($) {
-  my ($self, $tag) = @_;
+sub DeleteVob($$) {
+  my ($self, $tag, $region) = @_;
 
-  return $self->_deleteRecord('vob', "tag='$tag'");
+  return $self->_deleteRecord('vob', "tag='$tag' and region='$region'");
 } # DeleteVob
 
-sub GetVob($) {
-  my ($self, $tag) = @_;
+sub GetVob($$) {
+  my ($self, $tag, $region) = @_;
 
-  return
-    unless $tag;
+  return unless $tag;
 
-  my @records = $self->_getRecords('vob', "tag='$tag'");
+  # Windows vob tags begin with "\", which is problematic. The solution is to
+  # escape the "\"
+  $tag =~ s/^\\/\\\\/;
+
+  my @records = $self->_getRecords('vob', "tag='$tag' and region='$region'");
 
   if ($records[0]) {
     return %{$records[0]};
   } else {
-  	return;
+    return;
   } # if
 } # GetVob
 
-sub FindVob($) {
-  my ($self, $tag) = @_;
+sub FindVobStorage(;$$) {
+  my ($self, $tag, $region) = @_;
 
-  return $self->_getRecords('vob', "tag like '%$tag%'");
+  $tag    ||= '';
+  $region ||= '';
+
+  # Windows vob tags begin with "\", which is problematic. The solution is to
+  # escape the "\"
+  $tag =~ s/^\\/\\\\/;
+
+  my $condition = "tag like '%$tag%'";
+  
+  $condition .= " and region='$region'" if $region;
+
+  return $self->_getRecords('vobstorage', $condition);
+} # FindVobStorage
+
+sub FindVob(;$$) {
+  my ($self, $tag, $region) = @_;
+
+  $tag    ||= '';
+  $region ||= '';
+
+  # Windows vob tags begin with "\", which is problematic. The solution is to
+  # escape the "\"
+  $tag =~ s/^\\/\\\\/;
+
+  my $condition = "tag like '%$tag%'";
+  
+  $condition .= " and region='$region'" if $region;
+
+  return $self->_getRecords('vob', $condition);
 } # FindVob
+
+sub UpdateVob(%) {
+  my ($self, %vob) = @_;
+
+  # Windows vob tags begin with "\", which is problematic. The solution is to
+  # escape the "\"
+  my $vobtag = $vob{tag};
+
+  $vobtag =~ s/^\\/\\\\/;
+
+  return $self->_updateRecord('vob', "tag='$vobtag' and region='$vob{region}'", %vob);
+} # UpdateVob
 
 sub AddView(%) {
   my ($self, %view) = @_;
 
   my @requiredFields = (
-    'system',
     'tag',
+    'region'
   );
 
   my $result = _checkRequiredFields \@requiredFields, \%view;
 
-  return -1, "AddView: $result"
-    if $result;
+  return -1, "AddView: $result" if $result;
 
   return $self->_addRecord('view', %view);
 } # AddView
 
-sub DeleteView($) {
-  my ($self, $tag) = @_;
+sub DeleteView($$) {
+  my ($self, $tag, $region) = @_;
 
-  return $self->_deleteRecord('vob', "tag='$tag'");
+  return $self->_deleteRecord('vob', "tag='$tag' and region='$region'");
 } # DeleteView
 
-sub UpdateView($$) {
-  my ($self, $tag, $region, %viewRec) = @_;
+sub UpdateView(%) {
+  my ($self, %view) = @_;
 
-  return $self->_updateRecord('view', "tag='$tag' and region='$region'", %viewRec);
+  return $self->_updateRecord('view', "tag='$view{tag}' and region='$view{region}'", %view);
 } # UpdateView
 
 sub GetView($$) {
@@ -747,22 +768,16 @@ sub GetView($$) {
 } # GetView
 
 sub FindView(;$$$$) {
-  my ($self, $system, $region, $tag, $ownerName) = @_;
-
-  $system    ||= '';
-  $region    ||= '';
-  $tag       ||= '';
-  $ownerName ||= '';
+  my ($self, $tag, $region, $ownerName) = @_;
 
   my $condition;
+  my @conditions;
 
-  $condition  = "system like '%$system%'";
-  $condition .= ' and ';
-  $condition  = "region like '%$region%'";
-  $condition .= ' and ';
-  $condition .= "tag like '%$tag'";
-  $condition .= ' and ';
-  $condition .= "ownerName like '%$ownerName'";
+  push @conditions, "tag like '%$tag%'"           if $tag;
+  push @conditions, "region = '$region'"          if $region;
+  push @conditions, "ownerName like '$ownerName'" if $ownerName;
+
+  $condition = join " and ", @conditions if @conditions;
 
   return $self->_getRecords('view', $condition);
 } # FindView
@@ -791,8 +806,7 @@ sub TrimFS($$) {
 
   my %filesystem = $self->GetFilesystem($system, $filesystem);
 
-  return
-    unless %filesystem;
+  return unless %filesystem;
 
   my %task = $self->GetTask('scrub');
 
@@ -817,8 +831,7 @@ sub TrimFS($$) {
   );
 
   if ($dbmsg eq 'Records deleted') {
-    return (0, $dbmsg)
-      if $dberr == 0;
+    return (0, $dbmsg) if $dberr == 0;
 
     my %runlog;
 
@@ -841,8 +854,7 @@ sub TrimLoadavg($) {
 
   my %system = $self->GetSystem($system);
 
-  return
-    unless %system;
+  return unless %system;
 
   my %task = $self->GetTask('loadavg');
 
@@ -867,8 +879,7 @@ sub TrimLoadavg($) {
   );
 
   if ($dbmsg eq 'Records deleted') {
-    return (0, $dbmsg)
-      if $dberr == 0;
+    return (0, $dbmsg) if $dberr == 0;
 
     my %runlog;
 
@@ -886,16 +897,111 @@ sub TrimLoadavg($) {
   return ($dberr, $dbmsg);
 } # TrimLoadavg
 
+sub TrimStorage($$$) {
+  my ($self, $type, $tag, $region) = @_;
+
+  my $today = Today2SQLDatetime;
+
+  my $oldage = SubtractDays $today, $Clearadm::CLEAROPTS{CLEARADM_SCRUBDAYS};
+
+  my $table = $type =~ /vob/i
+            ? 'vobstorage'
+	    : 'viewstorage';
+
+  my ($dberr, $dbmsg) = $self->_deleteRecord(
+    $table,
+    "tag='$tag' and region='$region' and timestamp<='$oldage'"
+  );
+
+  if ($dbmsg eq 'Records deleted') {
+    return (0, $dbmsg) if $dberr == 0;
+
+    my %runlog;
+
+    $runlog{task}    = 'Scrub';
+    $runlog{started} = $today;
+    $runlog{status}  = 0;
+    $runlog{message} =
+      "Scrubbed $dberr ${type}storage records";
+
+    my ($err, $msg) = $self->AddRunlog(%runlog);
+
+    $self->Error("Unable to add runload (Error: $err)\n$msg") if $err;
+  } # if
+
+  return ($dberr, $dbmsg);
+} # TrimStorage
+
+sub ValidateCCObjects() {
+  my ($self) = @_;
+
+  my $vobRecordsDeleted  = 0;
+  my $viewRecordsDeleted = 0;
+
+  for my $region ($Clearcase::CC->regions) {
+    for my $type (qw(vob view)) {
+      my @ccobjs;
+      verbose "Processing ${type}s in $region";
+
+      if ($type eq 'vob') {
+        verbose "Finding all vobs in region $region";
+	@ccobjs = $self->FindVob(undef, $region);
+	verbose 'Found ' . scalar @ccobjs . ' vobs to process';
+      } elsif ($type eq 'view') {
+        verbose "Finding all views in region $region";
+	@ccobjs = $self->FindView(undef, $region);
+	verbose 'Found ' . scalar @ccobjs . ' views to process';
+      } # if
+
+      for my $object (@ccobjs) {
+        my %ccobjrec = %$object;
+
+	verbose "Processing $ccobjrec{tag}:$ccobjrec{region}";
+
+	my $ccobj;
+
+	if ($type eq 'vob') {
+	  $ccobj = Clearcase::Vob->new($ccobjrec{tag}, $ccobjrec{region});
+	} else {
+	  $ccobj = Clearcase::View->new($ccobjrec{tag}, $ccobjrec{region});
+	} # if 
+
+	verbose_nolf 'Checking if ' . $ccobj->{tag} . ':' . $ccobj->{region} . ' exists anymore...';
+
+	if ($ccobj->exists) {
+	  verbose ' it does! Skipping...';
+	  next;
+	} else {
+	  verbose ' it doesn\'t!';
+	} # if
+
+	#next if $ccobj->exists;
+
+	verbose "Deleting $type $ccobjrec{tag}:$ccobjrec{region}";
+
+	my ($recordsDeleted, $msg) = $self->_deleteRecord($type, 
+	  "tag='$ccobjrec{tag}' and region='$ccobjrec{region}'");
+
+	if ($msg ne 'Records deleted') {
+	  return ($recordsDeleted, $msg);
+	} else {
+	  $viewRecordsDeleted += $recordsDeleted if $type eq 'view';
+	  $vobRecordsDeleted  += $recordsDeleted if $type eq 'vob';
+	} # if
+      } # for
+    } # for
+  } # for
+
+  return ($viewRecordsDeleted, $vobRecordsDeleted);
+} # ValidateCCObjects
+
 sub GetFS($$;$$$$) {
   my ($self, $system, $filesystem, $start, $end, $count, $interval) = @_;
 
   $system = $self->_aliasSystem($system);
 
-  return
-    unless $system;
-
-  return
-    unless $filesystem;
+  return unless $system;
+  return unless $filesystem;
 
   $interval ||= 'Minute';
 
@@ -979,11 +1085,8 @@ sub GetLatestFS($$) {
 
   $system = $self->_aliasSystem($system);
 
-  return
-    unless $system;
-
-  return
-    unless $filesystem;
+  return unless $system;
+  return unless $filesystem;
 
   my @records = $self->_getRecords(
     'fs',
@@ -992,9 +1095,9 @@ sub GetLatestFS($$) {
   );
 
   if ($records[0]) {
-  	return %{$records[0]};
+    return %{$records[0]};
   } else {
-  	return;
+    return;
   } # if
 } # GetLatestFS
 
@@ -1007,8 +1110,7 @@ sub AddLoadavg() {
 
   my $result = _checkRequiredFields \@requiredFields, \%loadavg;
 
-  return -1, "AddLoadavg: $result"
-    if $result;
+  return -1, "AddLoadavg: $result" if $result;
 
   # Timestamp record
   $loadavg{timestamp} = Today2SQLDatetime;
@@ -1021,8 +1123,7 @@ sub GetLoadavg($;$$$$) {
 
   $system = $self->_aliasSystem($system);
 
-  return
-    unless $system;
+  return unless $system;
 
   $interval ||= 'Minute';
 
@@ -1055,8 +1156,7 @@ sub GetLoadavg($;$$$$) {
     my $offset  = $nbrRecs - $count;
 
     # Offsets of < 0 are not allowed.
-    $offset = 0
-      if $offset < 0;
+    $offset = 0 if $offset < 0;
 
     $condition .= " limit $offset, $count";
   } # if
@@ -1105,8 +1205,7 @@ sub GetLatestLoadavg($) {
 
   $system = $self->_aliasSystem($system);
 
-  return
-    unless $system;
+  return unless $system;
 
   my @records = $self->_getRecords(
     'loadavg',
@@ -1121,7 +1220,7 @@ sub GetLatestLoadavg($) {
   } # if
 } # GetLatestLoadavg
 
-sub GetStorage($$$;$$$$$) {
+sub GetStoragePool($$$;$$$$$) {
   my ($self, $type, $tag, $storage, $region, $start, $end, $count, $interval) = @_;
 
   $interval ||= 'Day';
@@ -1139,6 +1238,10 @@ sub GetStorage($$$;$$$$$) {
 
   undef $start if $start and $start =~ /earliest/i;
   undef $end   if $end   and $end   =~ /latest/i;
+
+  # Windows vob tags begin with "\", which is problematic. The solution is to
+  # escape the "\"
+  $tag =~ s/^\\/\\\\/;
 
   my $condition;
   my $table = $type eq 'vob' ? 'vobstorage' : 'viewstorage';
@@ -1200,7 +1303,7 @@ END
   } # while
 
   return @records;
-} # GetStorage
+} # GetStoragePool
 
 sub AddTask(%) {
   my ($self, %task) = @_;
@@ -1212,8 +1315,7 @@ sub AddTask(%) {
 
   my $result = _checkRequiredFields \@requiredFields, \%task;
 
-  return -1, "AddTask: $result"
-    if $result;
+  return -1, "AddTask: $result" if $result;
 
   return $self->_addRecord('task', %task);
 } # AddTask
@@ -1237,8 +1339,7 @@ sub FindTask($) {
 sub GetTask($) {
   my ($self, $name) = @_;
 
-  return
-    unless $name;
+  return unless $name;
 
   my @records = $self->_getRecords('task', "name='$name'");
 
@@ -1264,8 +1365,7 @@ sub AddSchedule(%) {
 
   my $result = _checkRequiredFields \@requiredFields, \%schedule;
 
-  return -1, "AddSchedule: $result"
-    if $result;
+  return -1, "AddSchedule: $result" if $result;
 
   return $self->_addRecord('schedule', %schedule);
 } # AddSchedule
@@ -1280,7 +1380,7 @@ sub FindSchedule(;$$) {
   my ($self, $name, $task) = @_;
 
   $name ||= '';
-  $task||= '';
+  $task ||= '';
 
   my $condition  = "name like '%$name%'";
      $condition .= ' and ';
@@ -1316,8 +1416,7 @@ sub AddRunlog(%) {
 
   my $result = _checkRequiredFields \@requiredFields, \%runlog;
 
-  return -1, "AddRunlog: $result"
-    if $result;
+  return -1, "AddRunlog: $result" if $result;
 
   $runlog{ended} = Today2SQLDatetime;
 
@@ -1379,8 +1478,7 @@ sub FindRunlog(;$$$$$$) {
 sub GetRunlog($) {
   my ($self, $id) = @_;
 
-  return
-    unless $id;
+  return unless $id;
 
   my @records = $self->_getRecords('runlog', "id=$id");
 
@@ -1603,8 +1701,7 @@ sub AddAlert(%) {
 
   my $result = _checkRequiredFields \@requiredFields, \%alert;
 
-  return -1, "AddAlert: $result"
-    if $result;
+  return -1, "AddAlert: $result" if $result;
 
   return $self->_addRecord('alert', %alert);
 } # AddAlert
@@ -1852,8 +1949,7 @@ sub Notify($$$$$$) {
     # If you want to fake an alert in the debugger just change $diff accordingly
     my $diff = Compare($today, $lastnotified);
 
-    return
-      if $diff <= 0;
+    return if $diff <= 0;
   } # if
 
   my $when       = Today2SQLDatetime;
@@ -1936,8 +2032,7 @@ sub ClearNotifications($$;$) {
 
     my %system = $self->GetSystem($system);
 
-    return
-      unless $system;
+    return unless $system;
 
     if ($system{notification}                 and
         $system{notification} eq 'Filesystem' and
@@ -1963,13 +2058,11 @@ sub SystemAlive(%) {
   # If we've never heard from this system then we will assume that the system
   # has not been set up to run clearagent and has never checked in. In any event
   # we cannot say the system died because we've never known it to be alive!
-  return 1
-    unless $system{lastheardfrom};
+  return 1 unless $system{lastheardfrom};
 
   # If a system is not active (may have been temporarily been deactivated) then
   # we don't want to turn on the bells and whistles alerting people it's down.
-  return 1
-    if $system{active} eq 'false';
+  return 1 if $system{active} eq 'false';
 
   my $today         = Today2SQLDatetime;
   my $lastheardfrom = $system{lastheardfrom};
@@ -2018,8 +2111,7 @@ sub AddAlertlog(%) {
 
   my $result = _checkRequiredFields \@requiredFields, \%alertlog;
 
-  return -1, "AddAlertlog: $result"
-    if $result;
+  return -1, "AddAlertlog: $result" if $result;
 
   # Timestamp record
   $alertlog{timestamp} = Today2SQLDatetime;
@@ -2054,10 +2146,10 @@ sub FindAlertlog(;$$$$$) {
      $condition .= "notification like '%$notification%'";
      $condition .= " order by timestamp desc";
 
-     if (defined $start) {
-       $page ||= 10;
-       $condition .= " limit $start, $page";
-     } # unless
+  if (defined $start) {
+    $page ||= 10;
+    $condition .= " limit $start, $page";
+  } # unless
 
   return $self->_getRecords('alertlog', $condition);
 } # FindAlertLog
@@ -2065,8 +2157,7 @@ sub FindAlertlog(;$$$$$) {
 sub GetAlertlog($) {
   my ($self, $alert) = @_;
 
-  return
-    unless $alert;
+  return unless $alert;
 
   my @records = $self->_getRecords('alertlog', "alert='$alert'");
 
@@ -2098,8 +2189,7 @@ sub AddNotification(%) {
 
   my $result = _checkRequiredFields \@requiredFields, \%notification;
 
-  return -1, "AddNotification: $result"
-    if $result;
+  return -1, "AddNotification: $result" if $result;
 
   return $self->_addRecord('notification', %notification);
 } # AddNotification
@@ -2125,8 +2215,7 @@ sub FindNotification(;$$) {
 sub GetNotification($) {
   my ($self, $name) = @_;
 
-  return
-    unless $name;
+  return unless $name;
 
   my @records = $self->_getRecords('notification', "name='$name'");
 

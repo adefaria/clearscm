@@ -102,11 +102,11 @@ my $SECS_IN_HOUR = $SECS_IN_MIN * 60;
 my $SECS_IN_DAY  = $SECS_IN_HOUR * 24;
 
 # Forwards
-sub Today2SQLDatetime();
-sub DateToEpoch($);
-sub EpochToDate($);
+sub Today2SQLDatetime ();
+sub DateToEpoch ($);
+sub EpochToDate ($);
 
-sub ymdhms(;$) {
+sub ymdhms {
   my ($time) = @_;
 
   $time ||= time;
@@ -121,7 +121,7 @@ sub ymdhms(;$) {
     $wday,
     $yday,
     $isdst
-  ) = localtime($time);
+  ) = localtime ($time);
 
   # Adjust month
   $mon++;
@@ -139,7 +139,7 @@ sub ymdhms(;$) {
   return $year, $mon, $mday, $hour, $min, $sec;
 } # ymdhms
 
-sub julian($$$) {
+sub julian ($$$) {
   my ($year, $month, $day) = @_;
 
   my $days = 0;
@@ -154,19 +154,19 @@ sub julian($$$) {
   return $days + $day;
 } # julian
 
-sub _is_leap_year($) {
+sub _is_leap_year ($) {
   my ($year) = @_;
-
+  
   return 0 if $year % 4;
   return 1 if $year % 100;
   return 0 if $year % 400;
-
+  
   return 1; 
 } # _is_leap_year
 
-sub Add($%) {
+sub Add ($%) {
   my ($datetime, %parms) = @_;
-
+  
 =pod
 
 =head2 Add ($datetime, %parms)
@@ -192,7 +192,7 @@ Hash of parms. Acceptable values are of the following format:
  hours   => $hours
  days    => $days
  month   => $month
-
+ 
 Note that month will simply increment the month number, adjusting for overflow
 of year if appropriate. Therefore a date of 2/28/2001 would increase by 1 month
 to yield 3/28/2001. And, unfortunately, an increase of 1 month to 1/30/2011 
@@ -223,47 +223,47 @@ Returns:
     'days',
     'months',
   );
-
-  for (keys %parms) {
-    unless (InArray($_, @validKeys)) {
+  
+  foreach (keys %parms) {
+    unless (InArray ($_, @validKeys)) {
       croak "Invalid key in DateUtils::Add: $_";
     } # unless
-  } # for
-
+  } # foreach
+  
   my $epochTime = DateToEpoch $datetime;
-
+  
   my $amount = 0;
-
+  
   $parms{seconds} ||= 0;
   $parms{minutes} ||= 0;
   $parms{hours}   ||= 0;
   $parms{days}    ||= 0;
-
+  
   $amount += $parms{days}    * $SECS_IN_DAY;
   $amount += $parms{hours}   * $SECS_IN_HOUR;
   $amount += $parms{minutes} * $SECS_IN_MIN;
   $amount += $parms{seconds};
-
+    
   $epochTime += $amount;
 
   $datetime = EpochToDate $epochTime;
-
+  
   if ($parms{month}) {
     my $years  = $parms{month} / 12;
     my $months = $parms{month} % 12;
-
+     
     my $month = substr $datetime, 5, 2;
-
+    
     $years += ($month + $months) / 12;
-    substr($datetime, 5, 2) = ($month + $months) % 12;
-
-    substr($datetime, 0, 4) = substr ($datetime, 0, 4) + $years;
+    substr ($datetime, 5, 2) = ($month + $months) % 12;
+    
+    substr ($datetime, 0, 4) = substr ($datetime, 0, 4) + $years;
   } # if
-
+  
   return $datetime;
 } # Add
 
-sub Age($) {
+sub Age ($) {
   my ($timestamp) = @_;
 
 =pod
@@ -312,13 +312,13 @@ Returns:
   my $timestamp_days = julian $timestamp_year, $month, $day;
 
   if ($timestamp_year > $today_year or
-     ($timestamp_days > $today_days and $timestamp_year == $today_year)) {
+      ($timestamp_days > $today_days and $timestamp_year == $today_year)) {
     return;
   } else {
     my $leap_days = 0;
 
     for (my $i = $timestamp_year; $i < $today_year; $i++) {
-
+	
       $leap_days++ if $i % 4 == 0;
     } # for
 
@@ -327,9 +327,9 @@ Returns:
   } # if
 } # Age
 
-sub Compare($$) {
+sub Compare ($$) {
   my ($date1, $date2) = @_;
-
+  
 =pod
 
 =head2 Compare ($date2, $date2)
@@ -372,9 +372,9 @@ Returns:
   return DateToEpoch ($date1) <=> DateToEpoch ($date2);
 } # Compare
 
-sub DateToEpoch($) {
+sub DateToEpoch ($) {
   my ($date) = @_;
-
+  
 =pod
 
 =head2 DateToEpoch ($datetime)
@@ -415,13 +415,13 @@ Returns:
   my $hour    = substr $date, 11, 2;
   my $minute  = substr $date, 14, 2;
   my $seconds = substr $date, 17, 2;
-
+  
   my $days;
 
   for (my $i = 1970; $i < $year; $i++) {
     $days += _is_leap_year ($i) ? 366 : 365;
   } # for
-
+  
   my @monthDays = (
     0,
     31, 
@@ -436,23 +436,23 @@ Returns:
     304,
     334,
   );
-
+  
   $days += $monthDays[$month - 1];
-
+  
   $days++
     if _is_leap_year ($year) and $month > 2;
-
+    
  $days += $day - 1;
-
+  
   return ($days   * $SECS_IN_DAY)
        + ($hour   * $SECS_IN_HOUR)
        + ($minute * $SECS_IN_MIN)
        + $seconds;
 } # DateToEpoch
 
-sub EpochToDate($) {
+sub EpochToDate ($) {
   my ($epoch) = @_;
-
+  
 =pod
 
 =head2 EpochToDate ($epoch)
@@ -491,19 +491,19 @@ Returns:
   my ($month, $day, $hour, $minute, $seconds);
   my $leapYearSecs = 366 * $SECS_IN_DAY;
   my $yearSecs     = $leapYearSecs - $SECS_IN_DAY;
-
+  
   while () {
     my $amount = _is_leap_year ($year) ? $leapYearSecs : $yearSecs;
-
+    
     last
       if $amount > $epoch;
-
+      
     $epoch -= $amount;
     $year++;
   } # while
-
-  my $leapYearAdjustment = _is_leap_year($year) ? 1 : 0;
-
+  
+  my $leapYearAdjustment = _is_leap_year ($year) ? 1 : 0;
+  
   if ($epoch >= (334 + $leapYearAdjustment) * $SECS_IN_DAY) {
     $month = '12';
     $epoch -= (334 + $leapYearAdjustment) * $SECS_IN_DAY;
@@ -541,24 +541,24 @@ Returns:
     $month = '01';
   } # if
 
-  $day     = int(($epoch / $SECS_IN_DAY) + 1);
+  $day     = int (($epoch / $SECS_IN_DAY) + 1);
   $epoch   = $epoch % $SECS_IN_DAY;
-  $hour    = int($epoch / $SECS_IN_HOUR);
+  $hour    = int ($epoch / $SECS_IN_HOUR);
   $epoch   = $epoch % $SECS_IN_HOUR;
-  $minute  = int($epoch / $SECS_IN_MIN);
+  $minute  = int ($epoch / $SECS_IN_MIN);
   $seconds = $epoch % $SECS_IN_MIN;
-
+  
   $day     = "0$day"     if $day     < 10;
   $hour    = "0$hour"    if $hour    < 10;
   $minute  = "0$minute"  if $minute  < 10;
   $seconds = "0$seconds" if $seconds < 10;
-
+  
   return "$year-$month-$day $hour:$minute:$seconds";
 } # EpochToDate
 
-sub UTCTime($) {
+sub UTCTime ($) {
   my ($datetime) = @_;
-
+  
 =pod
 
 =head2 UTCTime ($epoch)
@@ -594,10 +594,10 @@ Returns:
 =cut
 
   my @localtime = localtime;
-  my ($sec, $min, $hour, $mday, $mon, $year) = gmtime(
+  my ($sec, $min, $hour, $mday, $mon, $year) = gmtime (
     DateToEpoch ($datetime) - (timegm (@localtime) - timelocal (@localtime))
   );
-
+      
   $year += 1900;
   $mon++;
 
@@ -606,13 +606,13 @@ Returns:
   $hour = '0' . $hour if $hour < 10;  
   $mon  = '0' . $mon  if $mon  < 10;
   $mday = '0' . $mday if $mday < 10;
-
+      
   return "$year-$mon-${mday}T$hour:$min:${sec}Z";  
 } # UTCTime
 
-sub UTC2Localtime($) {
+sub UTC2Localtime ($) {
   my ($utcdatetime) = @_;
-
+  
   # If the field does not look like a UTC time then just return it.
   return $utcdatetime unless $utcdatetime =~ /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/;
 
@@ -626,7 +626,7 @@ sub UTC2Localtime($) {
   );
 } # UTC2Localtime
 
-sub FormatDate($) {
+sub FormatDate ($) {
   my ($date) = @_;
 
 =pod
@@ -670,7 +670,7 @@ Returns:
        . substr ($date, 0, 4);
 } # FormatDate
 
-sub FormatTime($) {
+sub FormatTime ($) {
   my ($time) = @_;
 
 =pod
@@ -712,13 +712,13 @@ Returns:
   my $AmPm    = $hours > 12 ? "Pm" : "Am";
 
   $hours = $hours - 12 if $hours > 12;
-
+  
   $hours = "0$hours" if length $hours == 1;
 
   return "$hours:$minutes $AmPm";
 } # FormatTime
 
-sub MDY(;$) {
+sub MDY (;$) {
   my ($time) = @_;
 
 =pod
@@ -760,7 +760,7 @@ Returns:
   return "$mon/$mday/$year";
 } # MDY
 
-sub SQLDatetime2UnixDatetime($) {
+sub SQLDatetime2UnixDatetime ($) {
   my ($sqldatetime) = @_;
 
 =pod
@@ -815,12 +815,12 @@ Returns:
   my $year  = substr $sqldatetime, 0, 4;
   my $month = substr $sqldatetime, 5, 2;
   my $day   = substr $sqldatetime, 8, 2;
-  my $time  = FormatTime(substr $sqldatetime, 11);
+  my $time  = FormatTime (substr $sqldatetime, 11);
 
   return $months{$month} . " $day, $year \@ $time";
 } # SQLDatetime2UnixDatetime
 
-sub SubtractDays($$) {
+sub SubtractDays ($$) {
   my ($timestamp, $nbr_of_days) = @_;
 
 =pod
@@ -914,7 +914,7 @@ Returns:
   return $year . "-" . $month . "-" . $days . substr $timestamp, 10;
 } # SubtractDays
 
-sub Today2SQLDatetime() {
+sub Today2SQLDatetime () {
 
 =pod
 
@@ -951,7 +951,7 @@ Returns:
   return UnixDatetime2SQLDatetime (scalar (localtime));
 } # Today2SQLDatetime
 
-sub UnixDatetime2SQLDatetime($) {
+sub UnixDatetime2SQLDatetime ($) {
   my ($datetime) = @_;
 
 =pod
@@ -1060,7 +1060,7 @@ Returns:
   unless ($months{$month_name}) {
     $month_name = substr $datetime, 8, 3;
   } # unless
-
+  
   my $month = $months{$month_name};
   my $time  = substr $datetime, 11, 8;
 
@@ -1072,12 +1072,12 @@ Returns:
     warning "Year undefined for $orig_datetime\nReturning today's date";
     return Today2SQLDatetime;
   } # unless
-
+    
   unless ($month) {
     warning "Month undefined for $orig_datetime\nReturning today's date";
     return Today2SQLDatetime;
   } # unless
-
+  
   unless ($day) {
     warning "Day undefined for $orig_datetime\nReturning today's date";
     return Today2SQLDatetime;
@@ -1091,7 +1091,7 @@ Returns:
   return "$year-$month-$day $time";
 } # UnixDatetime2SQLDatetime
 
-sub YMD(;$) {
+sub YMD (;$) {
   my ($time) = @_;
 
 =pod
@@ -1133,7 +1133,7 @@ Returns:
   return "$year$mon$mday";
 } # YMD
 
-sub YMDHM(;$) {
+sub YMDHM (;$) {
   my ($time) = @_;
 
 =pod
@@ -1175,7 +1175,7 @@ Returns:
   return "$year$mon$mday\@$hour:$min";
 } # YMDHM
 
-sub YMDHMS(;$) {
+sub YMDHMS (;$) {
   my ($time) = @_;
 
 =pod
@@ -1217,7 +1217,7 @@ Returns:
   return "$year$mon$mday\@$hour:$min:$sec";
 } # YMDHMS
 
-sub timestamp(;$) {
+sub timestamp (;$) {
   my ($time) = @_;
 
 =pod
@@ -1256,72 +1256,6 @@ Returns:
 
   return "$year$mon${mday}_$hour$min$sec";
 } # timestamp
-
-sub MDYHMS2SQLDatetime($) {
-  my ($datetime) = @_;
-
-  $datetime =~ s/^\s+|\s+$//g;
-
-  my ($year, $mon, $day, $hour, $min, $sec, $ampm);
-
-  # For datetime format of MM/DD/YYYY HH:MM:SS [Am|Pm]
-  if ($datetime =~ /^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{1,2}):(\d{1,2}) (\w{2})$/) {
-    $mon   = $1;
-    $day   = $2;
-    $year  = $3;
-    $hour  = $4;
-    $min   = $5;
-    $sec   = $6;
-    $ampm  = $7;
-  # For datetime format of MM/DD/YYYY HH:MM:SS
-  } elsif ($datetime =~ /^(\d{1,2})\/(\d{1,2})\/(\d{4}) (\d{1,2}):(\d{1,2}):(\d{1,2})$/){
-    $mon   = $1;
-    $day   = $2;
-    $year  = $3;
-    $hour  = $4;
-    $min   = $5;
-    $sec   = $6;
-  # For datetime format of MM/DD/YYYY
-  } elsif ($datetime =~ /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/) {
-    $mon   = $1;
-    $day   = $2;
-    $year  = $3;
-    $hour  = '00';
-    $min   = '00';
-    $sec   = '00';
-  } else {
-    return
-  } # if
-
-  # Range checks
-  return if $mon  > 12 or $mon  <= 0;
-  return if $day  > 31 or $day  <= 0;
-  return if $hour > 23 or $hour <  0;
-  return if $min  > 59 or $min  <  0;
-
-  if ($day >= 31 and ($mon == 2
-                   or $mon == 4
-                   or $mon == 6
-                   or $mon == 9
-                   or $mon == 11)) {
-    return;
-  } # if
-
-  return if $day >  29 and  $mon == 2;
-  return if $day == 29 and  $mon == 2 and not _is_leap_year($year);
-
-  # Convert to 24 hour time if necessary
-  $hour += 12 if $ampm and $ampm =~ /pm/i;
-
-  # Add any leading zeros
-  $mon  = "0$mon"  if length $mon  == 1;
-  $day  = "0$day"  if length $day  == 1;
-  $hour = "0$hour" if length $hour == 1;
-  $min  = "0$min"  if length $min  == 1;
-  $sec  = "0$sec"  if length $sec  == 1;
-
-  return "$year-$mon-$day $hour:$min:$sec";
-} # MDYHMS2SQLDatetime
 
 1;
 

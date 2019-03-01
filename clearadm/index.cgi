@@ -42,8 +42,9 @@ use warnings;
 use FindBin;
 use Getopt::Long;
 
-use CGI qw (:standard *table start_Tr end_Tr);
+use CGI qw(:standard *table start_Tr end_Tr);
 use CGI::Carp 'fatalsToBrowser';
+use Convert::Base64;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -57,7 +58,7 @@ use Utils;
 my $clearadm = Clearadm->new;
 
 # Main
-GetOptions (
+GetOptions(
   'usage'        => sub { Usage },
   'verbose'      => sub { set_verbose },
   'debug'        => sub { set_debug },
@@ -94,7 +95,7 @@ my @systems = $clearadm->FindSystem;
 
 $perRow = @systems if @systems < $perRow;
 
-foreach (@systems) {
+for (@systems) {
   my %system = %{$_};
   
   if ($i++ % $perRow == 0) {
@@ -106,8 +107,7 @@ foreach (@systems) {
 
   my $data;
   
-  $data = '<strike>'
-    if $system{active} eq 'false';
+  $data = '<strike>' if $system{active} eq 'false';
     
   $data .= a {
     href => "systemdetails.cgi?system=$system{name}"
@@ -115,7 +115,7 @@ foreach (@systems) {
   
   if ($system{notification}) {
     $data .= '&nbsp;' . a {
-      href => "alertlog.cgi?system=$system{name}"}, img {
+      href   => "alertlog.cgi?system=$system{name}"}, img {
       src    => 'alert.png',
       border => 0,
       alt    => 'Alert!',
@@ -123,22 +123,25 @@ foreach (@systems) {
     };
   } # if
   
+  my $image = $system{loadavgsmall}
+    ? "data:image/png;base64,$system{loadavgsmall}"
+    : "plotloadavg.cgi?system=$system{name}&tiny=1";
+
   $data .=  '<br>' .  
     a {href => 
       "plot.cgi?type=loadavg&system=$system{name}&scaling=Hour&points=24"
      }, img {
-       src    => "plotloadavg.cgi?system=$system{name}&tiny=1",
+       src    => $image,
        border => 0,
      };
    
-  $data .= '</strike>'
-    if $system{active} eq 'false';
+  $data .= '</strike>' if $system{active} eq 'false';
     
   $load{uptime} ||= 'Unknown';
 
   display td {class => 'dataCentered'}, "$data ",
     font {class => 'dim' }, "<br>Up: $load{uptime}";
-} # foreach
+} # for
 
 while ($i % $perRow != 0) {
    $i++;

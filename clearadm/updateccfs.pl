@@ -66,11 +66,14 @@ use Clearcase::Vob;
 use DateUtils;
 use Display;
 use Utils;
+use TimeUtils;
 
 my $VERSION  = '$Revision: 1.29 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
 my $clearadm = Clearadm->new;
+
+my %total;
 
 # Given a view tag, snapshot the storage sizes
 sub snapshotViewStorage($$) {
@@ -91,6 +94,12 @@ sub snapshotViewStorage($$) {
   my ($err, $msg) = $clearadm->AddViewStorage(%viewstorage);
 
   error $msg, $err if $err;
+
+  $total{'Views snapshotted'}++;
+
+  updateView($tag, $region);
+
+  return;
 } # snapshotVobStorage
 
 # Given a vob tag, snapshot the storage sizes
@@ -114,12 +123,134 @@ sub snapshotVobStorage($$) {
   my ($err, $msg) = $clearadm->AddVobStorage(%vobstorage);
 
   error $msg, $err, if $err;
+
+  $total{'VOBs snapshotted'}++;
+
+  updateVob($tag, $region);
+
+  return;
 } # snapshotVobStorage
+
+sub updateVob($$) {
+  my ($tag, $region) = @_;
+
+  my ($err, $msg, $error, @output, $graph);
+
+  my %vob = $clearadm->GetVob($tag, $region);
+
+  for my $graphType (qw(admin cleartext db derivedobj source total)) {
+  #for my $graphType (qw(derivedobj)) {
+    # Windows vob tags begin with "\", which is problematic. The solution is to
+    # escape the "\"
+    my $vobtag = $tag;
+    $vobtag =~ s/^\\/\\\\/;
+
+    my $cmd = "plotstorage.cgi generate=1 type=vob storage=$graphType region=$region scaling=Day points=7 tag=$vobtag";
+
+    $graph = "${graphType}small";
+
+    verbose "Generating $graph for VOB $tag (Region: $region)";
+
+    ($error, @output) = Execute("$cmd tiny=1 2>&1");
+
+    error "Unable to generate $graph" . join("\n", @output), $error if $error;
+
+    $vob{$graph} = join '', @output;
+    $total{'VOB Graphs generated'}++;
+
+    $graph = "${graphType}large";
+
+    verbose "Generating $graph for VOB $tag (Region: $region)";
+
+    ($error, @output) = Execute("$cmd 2>&1");
+
+    error "Unable to generate $graph" . join("\n", @output), $error if $error;
+
+    $vob{$graph} = join '', @output;
+    $total{'VOB Graphs generated'}++;
+  } # for
+
+  if ($vob{tag}) {
+    ($err, $msg) = $clearadm->UpdateVob(%vob);
+
+    error "Unable to update VOB $tag (Region: $region) - $msg", $err if $err;
+
+    $total{'VOBs updated'}++;
+  } else {
+    $vob{tag}    = $tag;
+    $vob{region} = $region;
+
+    ($err, $msg) = $clearadm->AddVob(%vob);
+
+    error "Unable to add VOB $tag (Region: $region) - $msg", $err if $err;
+
+    $total{'VOBs added'}++;
+  } # if
+
+  return;
+} # updateVob
+
+sub updateView($$) {
+  my ($tag, $region) = @_;
+
+  my ($err, $msg, $error, @output, $graph);
+
+  my %view = $clearadm->GetView($tag, $region);
+
+  for my $graphType (qw(private db admin total)) {
+    my $cmd = "plotstorage.cgi generate=1 type=view storage=$graphType region=$region scaling=Day points=7 tag=$tag";
+
+    $graph = "${graphType}small";
+
+    verbose "Generating $graph for View $tag (Region: $region)";
+
+    ($error, @output) = Execute("$cmd tiny=1 2>&1");
+
+    error "Unable to generate $graph" . join("\n", @output), $error if $error;
+
+    $total{'View Graphs generated'}++;
+
+    $view{$graph} = join '', @output;
+
+    $graph = "${graphType}large";
+
+    verbose "Generating $graph for View $tag (Region: $region)";
+
+    ($error, @output) = Execute("$cmd 2>&1");
+
+    error "Unable to generate $graph" . join("\n", @output), $error if $error;
+
+    $total{'View Graphs generated'}++;
+
+    $view{$graph} = join '', @output;
+  } # for
+
+  if ($view{tag}) {
+    ($err, $msg) = $clearadm->UpdateView(%view);
+
+    error "Unable to update View $tag (Region: $region) - $msg", $err if $err;
+
+    $total{'Views updated'}++;
+  } else {
+    $view{tag}    = $tag;
+    $view{region} = $region;
+
+    ($err, $msg) = $clearadm->AddView(%view);
+
+    error "Unable to add VOB $tag (Region: $region) - $msg", $err if $err;
+
+    $total{'Views added'}++;
+  } # if
+
+  return;
+} # updateView
 
 my %opts;
 
 # Main
-GetOptions (
+my $startTime = time;
+
+GetOptions(
   \%opts,
   'usage'   => sub { Usage },
   'verbose' => sub { set_verbose },
@@ -198,7 +329,7 @@ if ($opts{vob} and $opts{vob} =~ /all/i) {
 } elsif ($opts{vob}) {
   if ($opts{region} =~ /all/i) {
     for my $region ($Clearcase::CC->regions) {
-      verbose "Snapshotting view $opts{vob} in region $region";
+      verbose "Snapshotting vob $opts{vob} in region $region";
 
       snapshotVobStorage $opts{vob}, $region;
     } # for
@@ -207,6 +338,11 @@ if ($opts{vob} and $opts{vob} =~ /all/i) {
 
     snapshotVobStorage $opts{vob}, $opts{region};
   } # if
+} # if
+
+if (get_verbose) {
+  Stats \%total;
+  display_duration $startTime;
 } # if
 
 =pod

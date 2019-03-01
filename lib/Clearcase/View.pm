@@ -127,7 +127,7 @@ use warnings;
 use Clearcase;
 use Display; 
 
-sub new ($;$) {
+sub new($;$) {
   my ($class, $tag, $region) = @_;
 
 =pod
@@ -170,14 +170,19 @@ Returns:
 
 =cut
 
-  my $self = bless { tag => $tag }, $class;
+  $region ||= $Clearcase::CC->region;
 
-  $self->updateViewInfo ($region);
+  my $self = bless {
+    tag    => $tag,
+    region => $region
+  }, $class;
+
+  $self->updateViewInfo;
 
   return $self;
 } # new
   
-sub accessed_by () {
+sub accessed_by() {
   my ($self) = @_;
    
 =pod
@@ -215,7 +220,7 @@ Returns:
   return $self->{accessed_by};
 } # accessed_by
 
-sub accessed_date () {
+sub accessed_date() {
   my ($self) = @_;
      
 =pod
@@ -253,7 +258,7 @@ Returns:
   return $self->{accessed_date};
 } # accessed_date
 
-sub access_path () {
+sub access_path() {
   my ($self) = @_;
    
 =pod
@@ -291,7 +296,7 @@ Returns:
   return $self->{access_path};
 } # access_path
 
-sub active () {
+sub active() {
   my ($self) = @_;
   
 =pod
@@ -329,7 +334,7 @@ Returns:
   return $self->{active};
 } # active
 
-sub additional_groups () {
+sub additional_groups() {
   my ($self) = @_;
   
 =pod
@@ -372,7 +377,7 @@ Returns:
   } # if
 } # additional_groups
 
-sub created_by () {
+sub created_by() {
   my ($self) = @_;
   
 =pod
@@ -410,7 +415,7 @@ Returns:
   return $self->{created_by};
 } # created_by
 
-sub created_date () {
+sub created_date() {
    my ($self) = @_;
    
 =pod
@@ -448,7 +453,7 @@ Returns:
   return $self->{created_date};
 } # created_date
 
-sub cs_updated_by () {
+sub cs_updated_by() {
   my ($self) = @_;
   
 =pod
@@ -486,7 +491,7 @@ Returns:
   return $self->{cs_updated_by};
 } # cs_updated_by
 
-sub cs_updated_date () {
+sub cs_updated_date() {
   my ($self) = @_;
 
 =pod
@@ -524,7 +529,7 @@ Returns:
   return $self->{cs_updated_date};
 } # cs_updated_date
 
-sub dynamic () {
+sub dynamic() {
   my ($self) = @_;
   
 =pod
@@ -559,10 +564,11 @@ Returns:
 
 =cut
 
+  return unless $self->{type};
   return $self->type eq 'dynamic';
 } # dynamic
 
-sub gpath () {
+sub gpath() {
   my ($self) = @_;
   
 =pod
@@ -600,7 +606,7 @@ Returns:
   return $self->{gpath};
 } # gpath
 
-sub group () {
+sub group() {
   my ($self) = @_;
   
 =pod
@@ -638,7 +644,7 @@ Returns:
   return $self->{group};
 } # group
 
-sub group_mode () {
+sub group_mode() {
   my ($self) = @_;
   
 =pod
@@ -676,7 +682,7 @@ Returns:
   return $self->{group_mode};
 } # group_mode
 
-sub host () {
+sub host() {
   my ($self) = @_;
   
 =pod
@@ -714,7 +720,7 @@ Returns:
   return $self->{host};
 } # host
 
-sub mode () {
+sub mode() {
   my ($self) = @_;
   
 =pod
@@ -752,7 +758,7 @@ Returns:
   return $self->{mode};
 } # mode
 
-sub modified_by () {
+sub modified_by() {
   my ($self) = @_;
   
 =pod
@@ -790,7 +796,7 @@ Returns:
   return $self->{modified_by};
 } # modified_by
 
-sub modified_date () {
+sub modified_date() {
   my ($self) = @_;
   
 =pod
@@ -828,7 +834,7 @@ Returns:
   return $self->{modified_date};
 } # modified_date
 
-sub other_mode () {
+sub other_mode() {
   my ($self) = @_;
   
 =pod
@@ -866,7 +872,7 @@ Returns:
   return $self->{other_mode};
 } # other_mode
 
-sub owner () {
+sub owner() {
   my ($self) = @_;
   
 =pod
@@ -904,7 +910,7 @@ Returns:
   return $self->{owner}
 } # owner
 
-sub owner_mode () {
+sub owner_mode() {
   my ($self) = @_;
   
 =pod
@@ -942,7 +948,7 @@ Returns:
   return $self->{owner_mode}
 } # owner_mode
 
-sub properties () {
+sub properties() {
   my ($self) = @_;
   
 =pod
@@ -980,7 +986,7 @@ Returns:
   return $self->{properties};
 } # properties
 
-sub region () {
+sub region() {
   my ($self) = @_;
   
 =pod
@@ -1018,7 +1024,7 @@ Returns:
   return $self->{region};
 } # region
 
-sub shost () {
+sub shost() {
   my ($self) = @_;
   
 =pod
@@ -1056,7 +1062,7 @@ Returns:
   return $self->{shost};
 } # shost
 
-sub snapshot () {
+sub snapshot() {
   my ($self) = @_;
   
 =pod
@@ -1091,10 +1097,11 @@ Returns:
 
 =cut
 
+  return unless $self->{type};
   return $self->type eq 'snapshot';
 } # snapshot
 
-sub webview () {
+sub webview() {
   my ($self) = @_;
   
 =pod
@@ -1129,10 +1136,11 @@ Returns:
 
 =cut
 
-  return $self->type eq 'webview';
+  return unless $self->{type};
+  return $self->{type} eq 'webview';
 } # webview
 
-sub tag () {
+sub tag() {
   my ($self) = @_;
   
 =pod
@@ -1170,7 +1178,7 @@ Returns:
   return $self->{tag};
 } # tag
 
-sub text_mode () {
+sub text_mode() {
   my ($self) = @_;
   
 =pod
@@ -1208,7 +1216,7 @@ Returns:
   return $self->{text_mode};
 } # tag
 
-sub type () {
+sub type() {
   my ($self) = @_;
   
 =pod
@@ -1243,10 +1251,10 @@ Returns:
 
 =cut
 
-  return $self->{type} ? $self->{type} : 'Unknown';
+  return $self->{type};
 } # type
 
-sub ucm () {
+sub ucm() {
   my ($self) = @_;
   
 =pod
@@ -1284,7 +1292,7 @@ Returns:
   return $self->{ucm};
 } # ucm
 
-sub uuid () {
+sub uuid() {
   my ($self) = @_;
   
 =pod
@@ -1322,7 +1330,7 @@ Returns:
   return $self->{uuid};
 } # uuid
 
-sub exists () {
+sub exists() {
   my ($self) = @_;
 
 =pod
@@ -1357,12 +1365,12 @@ Returns:
 
 =cut
 
-  my ($status, @output) = $Clearcase::CC->execute ("lsview $self->{tag}");
+  my ($status, @output) = $Clearcase::CC->execute("lsview -region $self->{region} $self->{tag}");
   
   return !$status;
 } # exists
 
-sub create (;$$$) {
+sub create(;$$$) {
   my ($self, $host, $vws, $region) = @_;
     
 =pod
@@ -1412,7 +1420,7 @@ Ouput from cleartool
   $region ||= $Clearcase::CC->region;
 
   if ($self->exists) {
-    $self->updateViewInfo ($region);
+    $self->updateViewInfo;
       
     return (0, ())
   } # if
@@ -1421,21 +1429,21 @@ Ouput from cleartool
     
   if ($host && $vws) {
     ($status, @output) = 
-      $Clearcase::CC->execute ("mkview -tag $self->{tag} -region $region "
+      $Clearcase::CC->execute("mkview -tag $self->{tag} -region $region "
                           .    "-host $host -hpath $vws -gpath $vws $vws");
   } else {
     # Note this requires that -stgloc's work and that using -auto is not a 
     # problem.
     ($status, @output) =
-       $Clearcase::CC->execute ("mkview -tag $self->{tag} -stgloc -auto");
+       $Clearcase::CC->execute("mkview -tag $self->{tag} -stgloc -auto");
   } # if
 
-  $self->updateViewInfo ($region);
+  $self->updateViewInfo;
 
   return ($status, @output);
 } # create
   
-sub createUCM ($$) {
+sub createUCM($$) {
   my ($self, $stream, $pvob, $region) = @_;
 
 =pod
@@ -1493,18 +1501,18 @@ Array of output
     
   # Need to create the view
   my ($status, @output) = 
-    $Clearcase::CC->execute ("mkview -tag $self->{tag} -stream " 
+    $Clearcase::CC->execute("mkview -tag $self->{tag} -stream " 
                            . "$self->{stream}\@$self->{pvob} -stgloc -auto");
  
   return ($status, @output)
     if $status;
       
-  $self->updateViewInfo ($region);
+  $self->updateViewInfo;
 
   return ($status, @output);
 } # createUCM
 
-sub remove () {
+sub remove() {
   my ($self) = @_;
 
 =pod
@@ -1551,12 +1559,12 @@ Ouput from cleartool
   my ($status, @output);
 
   if ($self->dynamic) {
-    ($status, @output) = $Clearcase::CC->execute (
+    ($status, @output) = $Clearcase::CC->execute(
        "rmview -force -tag $self->{tag}"
      );
   } else {
     error 'Removal of snapshot views not implemented yet', 1;
-    #($status, @output) = $Clearcase::CC->execute (
+    #($status, @output) = $Clearcase::CC->execute(
     #  "rmview -force $self->{snapshot_view_pname}"
     #);
   } # if
@@ -1564,7 +1572,7 @@ Ouput from cleartool
   return ($status, @output);
 } # remove
 
-sub start () {
+sub start() {
   my ($self) = @_;
 
 =pod
@@ -1605,10 +1613,10 @@ Ouput from cleartool
 
 =cut
 
-  return $Clearcase::CC->execute ("startview $self->{tag}");
+  return $Clearcase::CC->execute("startview $self->{tag}");
 } # start
 
-sub stop () {
+sub stop() {
   my ($self) = @_;
 
 =pod
@@ -1649,10 +1657,10 @@ Ouput from cleartool
 
 =cut
 
-  return $Clearcase::CC->execute ("endview $self->{tag}");
+  return $Clearcase::CC->execute("endview $self->{tag}");
 } # stop
 
-sub kill () {
+sub kill() {
   my ($self) = @_;
 
 =pod
@@ -1693,10 +1701,10 @@ Ouput from cleartool
 
 =cut
 
-  return $Clearcase::CC->execute ("endview -server $self->{tag}");
+  return $Clearcase::CC->execute("endview -server $self->{tag}");
 } # kill
 
-sub set () {
+sub set() {
   my ($self) = @_;
 
 =pod
@@ -1744,14 +1752,14 @@ Ouput from cleartool
   return ($status, @output);
 } # set
 
-sub updateViewInfo ($$) {
-  my ($self, $region) = @_;
+sub updateViewInfo($$) {
+  my ($self) = @_;
 
-  $region ||= $Clearcase::CC->region;
-
-  my ($status, @output) = $Clearcase::CC->execute (
-    "lsview -region $region -long -properties -full $self->{tag}"
+  my ($status, @output) = $Clearcase::CC->execute(
+    "lsview -region $self->{region} -long -properties -full $self->{tag}"
   );
+
+  return if $status;
 
   # Assuming this view is an empty shell of an object that the user may possibly
   # use the create method on, return our blessings...
@@ -2167,7 +2175,7 @@ Returns:
 sub updateViewSpace() {
   my ($self) = @_;
 
-  my ($status, @output) = $Clearcase::CC->execute (
+  my ($status, @output) = $Clearcase::CC->execute(
     "space -region $self->{region} -view $self->{tag}"
   );
 

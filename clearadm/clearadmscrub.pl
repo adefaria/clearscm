@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -49,6 +49,7 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
+use Sys::Hostname;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -65,52 +66,92 @@ my $clearadm  = Clearadm->new;
 
 my ($host, $fs);
 
+my %opts = (
+  scrubdays => $Clearadm::CLEAROPTS{CLEARADM_SCRUBDAYS}
+);
+
 # Main
-GetOptions (
-  'usage'   => sub { Usage },
-  'verbose' => sub { set_verbose },
-  'debug'   => sub { set_debug },
+GetOptions(
+  \%opts,
+  'usage'    => sub { Usage },
+  'verbose'  => sub { set_verbose },
+  'debug'    => sub { set_debug },
+  "scrubdays=i",
 ) or Usage "Invalid parameter";
 
-Usage 'Extraneous options: ' . join ' ', @ARGV
-  if @ARGV;
+Usage 'Extraneous options: ' . join ' ', @ARGV if @ARGV;
 
 # Announce ourselves
 verbose "$FindBin::Script V$VERSION";
 
 my ($err, $msg);
 
-foreach my $system ($clearadm->FindSystem ($host)) {
-  ($err, $msg) = $clearadm->TrimLoadavg ($$system{name});
+for my $system ($clearadm->FindSystem($host)) {
+  ($err, $msg) = $clearadm->TrimLoadavg($system->{name});
   
   if ($msg eq 'Records deleted' or $msg eq '') {
-    verbose "Scrub loadavg $$system{name}: $err $msg:";
+    verbose "Scrub loadavg $system->{name}: $err $msg:";
   } else {
     error "#$err: $msg";
   } # if
   
-  foreach my $filesystem ($clearadm->FindFilesystem ($$system{name}, $fs)) {
-    ($err, $msg) = $clearadm->TrimFS ($$system{name}, $$filesystem{filesystem});
+  for my $filesystem ($clearadm->FindFilesystem($system->{name}, $fs)) {
+    ($err, $msg) = $clearadm->TrimFS($system->{name}, $filesystem->{filesystem});
     
     if ($msg eq 'Records deleted' or $msg eq '') {
-      verbose "Scrub filesystem $$system{name}:$$filesystem{filesystem}: $err $msg";
+      verbose "Scrub filesystem $system->{name}:$filesystem->{filesystem}: $err $msg";
     } else {
       error "#$err: $msg";
     } # if
-  } # foreach
-} # foreach
+  } # for
+} # for
 
-# TODO: These should be configurable
-my $sixMonthsAgo = SubtractDays (Today2SQLDatetime, 180);
+my $scrubdate = SubtractDays(Today2SQLDatetime, $opts{scrubdays});
 
 my %runlog = (
   task    => 'Scrub',
   started => Today2SQLDatetime,
+  system  => hostname(),
 );
+
+# Scrub view and vob storage records
+for ($clearadm->FindVob) {
+  ($err, $msg) = $clearadm->TrimStorage('vob', $_->{tag}, $_->{region});
+
+  if ($msg eq 'Records deleted' or $msg eq '') {
+    verbose "Scub VOB $_->{tag} $err $msg";
+  } else {
+    error "#$err: $msg";
+  } # if
+} # for
+
+for ($clearadm->FindView) {
+  ($err, $msg) = $clearadm->TrimStorage('view', $_->{tag}, $_->{region});
+
+  if ($msg eq 'Records deleted' or $msg eq '') {
+    verbose "Scub View $_->{tag} $err $msg";
+  } else {
+    error "#$err: $msg";
+  } # if
+} # for
+
+# Make sure the Clearcase objects we have in Clearadm are still valid
+my ($views, $vobs) = $clearadm->ValidateCCObjects;
+
+if ($vobs !~ /^\d+/) {
+  error "Unable to validate Clearcase objects: $vobs", $views;
+} else {
+  $runlog{status} = 0;
+
+  $runlog{message}  = "Deleted $views views\n" if $views;
+  $runlog{message} .= "Deleted $vobs vobs"     if $vobs;
+
+  $clearadm->AddRunlog(%runlog);
+} # if
 
 # Scrub old alertlogs
 ($runlog{status}, $runlog{message}) = 
-  $clearadm->DeleteAlertlog ("timestamp<='$sixMonthsAgo'");
+  $clearadm->DeleteAlertlog ("timestamp<='$scrubdate'");
 
 verbose "$runlog{task} alertlog: $runlog{status} $runlog{message}";
 
@@ -120,11 +161,11 @@ $runlog{started} = Today2SQLDatetime;
 
 # Scrub old runlogs
 ($runlog{status}, $runlog{message}) = 
-  $clearadm->DeleteRunlog ("started<='$sixMonthsAgo'");
+  $clearadm->DeleteRunlog ("started<='$scrubdate'");
   
 verbose "$runlog{task} runlog: $runlog{status} $runlog{message}";
 
-$clearadm->AddRunlog (%runlog);
+$clearadm->AddRunlog(%runlog);
 
 =pod
 
