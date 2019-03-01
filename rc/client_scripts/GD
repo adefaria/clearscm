@@ -18,11 +18,6 @@ if [ -d /cleartrig/ent/SNSD/muos/ccadm_tools/vobs/ranccadm/scripts/lib ]; then
   export PERL5LIB=/cleartrig/ent/SNSD/muos/ccadm_tools/vobs/ranccadm/scripts/lib:$PERL5LIB
 fi
 
-# This may need to be moved into bash_login
-if [ "$ARCHITECTURE" = "cygwin" ]; then
-  alias ping=$SYSTEMROOT/System32/ping
-fi
-
 export QTDIR="/usr/local/Trolltech/Qt-4.2.2"
 export QMAKESPEC="$QTDIR/mkspecs/solaris-cc"
 export ORACLE="SID rancq"
@@ -66,4 +61,5 @@ append_to_path "/cygcrive/d/Program Files/IBM/RationalSDLC/ClearCase/bin"
 append_to_path "/cygdrive/c/Program Files (x86)/ibm/gsk8/lib"
 
 # Common CDPATHS
-CDPATH=$CDPATH:/vobs/ranccadm
+export CT=/cleartrig/ent/SNSD/muos/ccadm_tools/vobs/ranccadm/scripts
+CDPATH=$CDPATH:/vobs/ranccadm:$CT

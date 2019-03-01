@@ -313,7 +313,7 @@ sub CreateWOR() {
     RCLC_name          => 'Test RCLC',
     Prod_Arch1         => 'testcode : N/A',
     work_product_name  => '10 - Software',
-    #Engr_target        => 'Test Engineering Target',
+    Engr_target        => 'Test Engineering Target',
     work_code_name     => 'RAN-RW2',
   );
 
@@ -502,7 +502,7 @@ DeleteRecord 'Component', $FindBin::Script if $opts{add};
 
 $log->msg('Enable tc.project for integration with Clearquest');
 
-$test_pvob    = Clearcase::UCM::Pvob->new("${Clearcase::VOBTAG_PREFIX}tc.pvob");
+$test_pvob    = Clearcase::UCM::Pvob->new("${Clearcase::VOBTAG_PREFIX}/tc.pvob");
 $test_project = Clearcase::UCM::Project->new('tc.project', 'tc.folder', $test_pvob);
 
 my ($rc, @output) = $test_project->change("-force -crmenable $opts{CQ_DATABASE}");

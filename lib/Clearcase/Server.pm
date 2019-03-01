@@ -29,6 +29,7 @@ $Date: 2011/01/02 04:59:36 $
 =head2 SYNOPSIS
 
 Provides access to information about a Clearcase Server.
+
 =head2 DESCRIPTION
 
 This module implements an object oriented interface to a Clearcase
@@ -92,6 +93,8 @@ sub new ($;$) {
 
   my $self = bless { name => $name }, $class;
 
+  $self->updateServerInfo($name);
+
   return $self;
 } # new
   
@@ -143,11 +146,11 @@ sub mvfsBlocksPerDirectory () {
   return $self->{mvfsBlocksPerDirectory};
 } # mvfsBlocksPerDirectory
 
-sub mvfsCleartextMnodes () {
+sub mvfsFreeMnodesCleartext() {
   my ($self) = @_;
  
-  return $self->{mvfsCleartextMnodes};
-} # mvfsCleartextMnodes
+  return $self->{mvfsFreeMnodesCleartext};
+} # mvfsFreeMnodesCleartext
 
 sub mvfsDirectoryNames () {
   my ($self) = @_;
@@ -244,6 +247,66 @@ sub processHashTableSize () {
 
   return $self->{processHashTableSize};
 } # processHashTableSize
+
+sub updateServerInfo($) {
+  my ($self, $host) = @_;
+
+  my ($status, @output) = $Clearcase::CC->execute(
+    "hostinfo -long -properties -full $host"
+  );
+
+  for (@output) {
+    if (/Product: ClearCase (.*)/) {
+      $self->{ccVer} = $1;
+    } elsif (/Operating system: (.*)/) {
+      $self->{osVer} = $1;
+    } elsif (/Hardware type: (.*)/) {
+      $self->{hardware} = $1;
+    } elsif (/License host: (.*)/) {
+      $self->{licenseHost} = $1;
+    } elsif (/Registry host: (.*)/) {
+      $self->{registryHost} = $1;
+    } elsif (/Registry region: (.*)/) {
+      $self->{registryRegion} = $1;
+    } elsif (/Blocks per directory: (.*)/) {
+      $self->{mvfsBlocksPerDirectory} = $1;
+    } elsif (/Free mnodes for cleartext: (.*)/) {
+      $self->{mvfsFreeMnodesCleartext} = $1;
+    } elsif (/Directory names: (.*)/) {
+      $self->{mvfsDirectoryNames} = $1;
+    } elsif (/File names: (.*)/) {
+      $self->{mvfsFileNames} = $1;
+    } elsif (/Free mnodes: (.*)/) {
+      $self->{mvfsFreeMnodes} = $1;
+    } elsif (/Initial mnode table size: (.*)/) {
+      $self->{mvfsInitialMnodeTableSize} = $1;
+    } elsif (/Minimum free mnodes for cleartext: (.*)/) {
+      $self->{mvfsMinCleartextMnodes} = $1;
+    } elsif (/Mimimum free mnodes: (.*)/) {
+      $self->{mvfsMinFreeMnodes} = $1;
+    } elsif (/Names not found: (.*)/) {
+      $self->{mvfsNamesNotFound} = $1;
+    } elsif (/RPC handles: (.*)/) {
+      $self->{mvfsRPCHandles} = $1;
+    } elsif (/Scaling factor to initialize MVFS cache sizes: (.*)/) {
+      $self->{scalingFactor} = $1;
+    } elsif (/Cleartext idle lifetime: (.*)/) {
+      $self->{cleartextIdleLifetime} = $1;
+    } elsif (/VOB hash table size: (.*)/) {
+      $self->{vobHashTableSize} = $1;
+    } elsif (/Cleartext hash table size: (.*)/) {
+      $self->{cleartextHashTableSize} = $1;
+    } elsif (/Thread hash table size: (.*)/) {
+      $self->{threadHashTableSize} = $1;
+    } elsif (/DNC hash table size: (.*)/) {
+      $self->{dncHashTableSize} = $1;
+    } elsif (/Process hash table size: (.*)/) {
+      $self->{processHashTableSize} = $1;
+    } # if
+  } # for
+
+  return;
+} # updateServerInfo
 
 1;
 

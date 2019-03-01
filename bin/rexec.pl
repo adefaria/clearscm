@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use strict;
 use warnings;
 
@@ -18,7 +18,7 @@ Andrew DeFaria <Andrew@ClearSCM.com>
 
 =item Revision
 
-$Revision: 1.0 $
+$Revision: 2.0 $
 
 =item Created:
 
@@ -35,7 +35,8 @@ $Date: 2008/02/29 15:09:15 $
  Usage: rexec.pl [-usa|ge] [-h|elp] [-v|erbose] [-d|ebug]
                  [-use|rname <username>] [-p|assword <password>]
                  [-log]
-                 -m|achines <host1>,<host2>,...
+                 [-m|achines <host1>,<host2>,...]
+		 [-f|ile <machines>]
 
               <command>
 
@@ -47,6 +48,7 @@ $Date: 2008/02/29 15:09:15 $
    -use|rname: User name to login as (Default: $USER - Env: REXEC_USER)
    -p|assword: Password to use (Default: None - Env: REXEC_PASSWD)
    -m|achines: Machine(s) to run the command on
+   -f|ile:     File containing machine info
    -l|og:      Log output (<machine>.log)
 
    <command>:  Commands to execute (Enclose multiple commands in quotes)
@@ -119,15 +121,17 @@ my %opts = (
   debug    => sub { set_debug },
   username => $ENV{REXEC_USER} || $ENV{USER},
   password => $ENV{REXEC_PASSWD},
-  filename => $ENV{REXEC_MACHINES_FILE} || '/opt/clearscm/data/machines',
+  database => 1,
 );
 
 sub Interrupted {
   use Term::ReadKey;
 
-  display BLUE . "\nInterrupted execution on $currentHost->{host}" . RESET;
+  my $host = $currentHost->{host} || 'Unknown Host';
 
-  display_nolf "Executing on " . YELLOW . $currentHost->{host}  . RESET . " - "
+  display BLUE . "\nInterrupted execution on $host" . RESET;
+
+  display_nolf "Executing on " . CYAN . $host . RESET . " - "
     . CYAN      . BOLD . "C" . RESET . CYAN     . "ontinue"     . RESET . " or "
     . MAGENTA   . BOLD . "A" . RESET . MAGENTA  . "bort run"    . RESET . " ("
     . CYAN      . BOLD . "C" . RESET . "/"
@@ -147,7 +151,7 @@ sub Interrupted {
 
   if ($answer eq "s") {
     *STDOUT->flush;
-    display "Skipping $currentHost->{host}";
+    display "Skipping $host";
   } elsif ($answer eq "a") {
     display RED . "Aborting run". RESET;
     exit;
@@ -160,9 +164,6 @@ sub Interrupted {
 
 sub connectHost ($) {
   my ($host) = @_;
-
-  # Start a log...
-  $log = Logger->new (name => $host) if $opts{log};
 
   eval {
     $currentHost = Rexec->new (
@@ -184,26 +185,59 @@ sub connectHost ($) {
   return;
 } # connectHost
 
+sub initLog($) {
+  my ($machine) = @_;
+
+  if ($opts{log}) {
+    my $logdir = $opts{logdir} ? "$opts{logdir}/$machine" : $machine;
+
+    mkdir $logdir or error "Unable to make directory $logdir", 1;
+    
+    $log = Logger->new(
+      name => 'output',
+      path => $logdir,
+    );
+  } # if
+} # initLog
+
+sub Log($;$) {
+  my ($msg, $nocrlf) = @_;
+
+  if ($log) {
+    $log->msg($msg, $nocrlf);
+  } else {
+    verbose $msg, $nocrlf;
+  } #
+} # Log
+
+sub logError ($;$) {
+  my ($msg, $exit) = @_;
+
+  if ($log) {
+    $log->err($msg, $exit);
+  } else {
+    error $msg, $exit;
+  } # if
+} # logError
+
 sub execute ($$;$) {
   my ($host, $cmd, $prompt) = @_;
 
   my @lines;
 
-  verbose_nolf "Connecting to machine $host...";
+  Log "Connecting to machine $host...", 1;
 
-  display_nolf BOLD . YELLOW . "$host:" . RESET if $opts{verbose};
+  display_nolf BOLD . CYAN . "$host:" . RESET if $opts{verbose};
 
   connectHost $host unless $currentHost and $currentHost->{host} eq $host;
 
   return (1, ()) unless $currentHost;
 
-  verbose " connected";
+  Log ' connected';
 
-  display WHITE . UNDERLINE . "$cmd" . RESET if $opts{verbose};
+  Log "$host:" . UNDERLINE . $cmd . RESET;
 
   @lines = $currentHost->execute ($cmd);
-
-  verbose "Disconnected from $host";
 
   my $status = $currentHost->status;
 
@@ -224,8 +258,9 @@ GetOptions (
   'log',
   'logdir',
   'filename=s',
-  'database',
+  'database!',
   'machines=s@',
+  'condition=s',
 ) or pod2usage;
 
 $opts{debug}   = get_debug   if ref $opts{debug}   eq 'CODE';
@@ -233,38 +268,47 @@ $opts{verbose} = get_verbose if ref $opts{verbose} eq 'CODE';
 
 my $cmd = join ' ', @ARGV;
 
+$opts{machines} = [$ENV{REXEC_HOST}] if $ENV{REXEC_HOST};
+
 unless ($opts{machines}) {
-  $opts{machines} = [$ENV{REXEC_HOST}] if $ENV{REXEC_HOST};
-} # unless
+  # Connect to Machines module
+  my $machines;
 
-# Connect to Machines module
-my $machines;
+  unless ($opts{database}) {
+    require Machines; Machines->import;
 
-unless ($opts{database}) {
-  require Machines; Machines->import;
+    $machines = Machines->new(filename => $opts{filename});
+  } else {
+    require Machines::MySQL; Machines::MySQL->import;
 
-  $machines = Machines->new(filename => $opts{filename});
-} else {
-  require Machines::MySQL; Machines::MySQL->import;
+    $machines = Machines::MySQL->new;
 
-  $machines = Machines::MySQL->new;
+    my %machines = $machines->select($opts{condition});
+
+    $opts{machines} = [keys %machines];
+  } # if
 } # if
-
-my %machines = $machines->select;
 
 my ($status, @lines);
 
-for my $machine (sort keys %machines) {
+for my $machine (sort @{$opts{machines}}) {
+  initLog $machine;
+
   if ($cmd) {
     ($status, @lines) = execute $machine, $cmd;
 
-    display BOLD . YELLOW . "$machine:" . RESET . WHITE . $cmd;
+    display BOLD . CYAN . "$machine:" . UNDERLINE . WHITE . $cmd . RESET;
 
-    error "Execution of $cmd on $machine yielded error $status" if $status;
+    logError "Execution of $cmd on $machine failed", $status if $status;
+
+    if ($log) {
+      $log->log($_) for @lines;
+    } # if
 
     display $_ for @lines;
 
     undef $currentHost;
+    undef $log;
   } else {
     verbose_nolf "Connecting to machine $machine...";
 
@@ -273,13 +317,15 @@ for my $machine (sort keys %machines) {
     if ($currentHost) {
       my $cmdline = CmdLine->new ();
 
-      $cmdline->set_prompt (BOLD . YELLOW . "$machine:" . RESET . WHITE);
+      $cmdline->set_prompt (BOLD . CYAN . "$machine:" . RESET . WHITE);
 
       while () {
-        #$cmd = <STDIN>;
+        Log "$machine:";
+
         $cmd = $cmdline->get(); 
 
         unless ($cmd) {
+	  $log->msg('') if $log;
           display '';
           last;
         } # unless
@@ -289,12 +335,17 @@ for my $machine (sort keys %machines) {
 
         chomp $cmd;
 
+        Log $cmd;
+
         ($status, @lines) = execute $machine, $cmd;
 
-        error "Execution of $cmd on $machine yielded error $status" if $status;
+        logError "Execution of $cmd on $machine failed", $status if $status;
 
+        Log $_ for @lines;
         display $_ for @lines;
       } # while
     } # if
+
+    undef $log;
   } # if
 } # for

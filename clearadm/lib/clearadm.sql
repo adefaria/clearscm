@@ -56,6 +56,8 @@ create table system (
                      '1 year'
                    ) not null default '6 months',
   loadavgThreshold float (4,2) default 5.00,
+  loadavgsmall     blob,
+  loadavg          blob,
 
   primary key (name)
 ) engine=innodb; -- system
@@ -130,6 +132,8 @@ create table filesystem (
                    '11 months',
                    '1 year'
                  ) not null default '6 months',
+  fssmall        blob,
+  fslarge        blob,
   
   key filesystemIndex (filesystem),
   foreign key systemLink (system) references system (name)
@@ -157,6 +161,42 @@ create table fs (
       on update cascade
 ) engine=innodb; -- fs
 
+-- vobstorage: Contains a snapshot of a vob's storage pools at a given date
+-- and time
+create table vobstorage (
+  tag		  varchar(255) not null,
+  region          varchar(255) not null,
+  timestamp	  datetime     not null,
+  admin		  decimal(10,1),
+  db		  decimal(10,1),
+  cleartext	  decimal(10,1),
+  derivedobj	  decimal(10,1),
+  source	  decimal(10,1),
+  total		  decimal(10,1),
+
+  key vobtagIndex (tag),
+  primary key  (tag, region, timestamp)
+  foreign key vobLink (tag, region)
+    references vob (tag, region)
+      on delete cascade
+      on update cascade
+) engine=innodb; -- vobstorage
+
+-- viewstorage: Contains a snapshot of a view's storage pools at a given date
+-- and time
+create table viewstorage (
+  tag		varchar(255) not null,
+  region        varchar(255) not null,
+  timestamp	datetime     not null,
+  private	decimal(10,1),
+  db		decimal(10,1),
+  admin		decimal(10,1),
+  total         decimal(10,1),
+
+  key viewtagIndex (tag),
+  primary key (tag, region, timestamp)
+) engine=innodb; -- viewstorage
+
 -- loadavg: Contains a snapshot reading of a system's load average
 create table loadavg (
   system        varchar(255)    not null,
@@ -171,43 +211,55 @@ create table loadavg (
     on update cascade
 ) engine=innodb; -- loadavg
 
--- vobs: Describe a system's vobs
+-- vob: Describe a system's vobs
 create table vob (
-  system varchar (255) not null,
-  tag    varchar (255) not null,
+  tag    	  varchar (255) not null,
+  region	  varchar (255) not null,
+  adminsmall  	  blob,
+  dbsmall	  blob,
+  cleartextsmall  blob,
+  derivedobjsmall blob,
+  sourcesmall     blob,
+  totalsmall      blob,
+  adminlarge   	  blob,
+  dblarge    	  blob,
+  cleartextlarge  blob,
+  derivedobjlarge blob,
+  sourcelarge     blob,
+  totallarge      blob,
   
-  key systemIndex (system),
-  foreign key systemLink (system) references system (name)
-    on delete cascade
-    on update cascade,
-  primary key (tag)
+  key vobTagIndex (tag),
+  primary key (tag, region)
 ) engine=innodb; -- vob 
 
 -- view: Describe views
 create table view (
-  system    varchar (255) not null,
-  region    varchar (255) not null,
-  tag       varchar (255) not null,
-  owner     tinytext,
-  ownerName tinytext,
-  email     tinytext,
-  type      enum (
-              'dynamic',
-              'snapshot',
-              'web'
-            ) not null default 'dynamic',
-  gpath     tinytext,
-  modified  datetime,
-  timestamp datetime,
-  age       tinytext,
-  ageSuffix tinytext,
+  tag          varchar (255) not null,
+  region       varchar (255) not null,
+  owner        tinytext,
+  ownerName    tinytext,
+  email        tinytext,
+  type         enum (
+                 'dynamic',
+                 'snapshot',
+                 'web'
+               ) not null default 'dynamic',
+  gpath        tinytext,
+  modified     datetime,
+  timestamp    datetime,
+  age          tinytext,
+  ageSuffix    tinytext,
+  privatesmall blob,
+  dbsmall      blob,
+  adminsmall   blob,
+  totalsmall   blob,
+  privatelarge blob,
+  dblarge      blob,
+  adminlarge   blob,
+  totallarge   blob,
   
-  key systemIndex (system),
-  foreign key systemLink (system) references system (name)
-    on delete cascade
-    on update cascade,
-  key regionIndex (region),
-  primary key (region, tag)
+  key viewTagIndex (tag),
+  primary key (tag, region)
 ) engine=innodb; -- view
 
 create table task (

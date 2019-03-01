@@ -121,6 +121,12 @@ if [ -r /etc/bash_completion -a $ARCHITECTURE != "cygwin" ]; then
   source /etc/bash_completion
 fi
 
+# Windows aliases
+if [ $ARCHITECTURE = "cygwin" ]; then
+  alias ping=$(echo $SYSTEMROOT | tr '\\' '\/')/system32/ping
+  alias rdp=mstsc
+fi
+
 # We specify /home/$USER here so that when we sudo to another user 
 # we will only trap logout if that user also has a ~/.rc/logout
 # (doubtfull).

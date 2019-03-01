@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -86,7 +86,11 @@ my $title = 'Process System';
 
 heading $title;
 
-unless ($opts{'delete.x'} or $opts{'edit.x'} or $opts{action} eq 'Post') {
+unless ($opts{'delete.x'}
+     or $opts{'edit.x'}
+     or $opts{action} eq 'Post'
+     or $opts{action} eq 'Add'
+  ) {
   displayError 'Action not defined!';
   exit 1;
 } # unless

@@ -73,6 +73,8 @@ use FindBin;
 use lib "$FindBin::Bin/../../lib";
 
 use Clearadm;
+use Clearcase::Vobs;
+use Clearcase::Views;
 use DateUtils;
 use Display;
 use Utils;
@@ -109,7 +111,9 @@ our @EXPORT = qw (
   makeFilesystemDropdown
   makeIntervalDropdown
   makeNotificationDropdown
+  makeStoragePoolDropdown
   makeSystemDropdown
+  makeTagsDropdown
   makeTimeDropdown
   makeTaskDropdown
   setField
@@ -121,25 +125,28 @@ our @PREDEFINED_ALERTS = (
 );
 
 our @PREDEFINED_NOTIFICATIONS = (
+  'Clearcase Storage',
+  'Heartbeat',
   'Loadavg',
   'Filesystem',
   'Scrub',
-  'Heartbeat',
   'System checkin',
   'Update systems',
 );
 
 our @PREDEFINED_TASKS = (
-  'Loadavg',
+  'Clearcase Storage',
   'Filesystem',
+  'Loadavg',
   'Scrub',
   'System checkin',
   'Update systems',
 );
 
 our @PREDEFINED_SCHEDULES = (
-  'Loadavg',
+  'Clearcase Storage',
   'Filesystem',
+  'Loadavg',
   'Scrub',
   'Update systems',
 );
@@ -188,7 +195,7 @@ sub setFields ($%) {
   my ($label, %rec) = @_;
 
   $rec{$_} = setField ($rec{$_}, $label)
-    foreach keys %rec;
+    for keys %rec;
 
   return %rec;
 } # setFields;
@@ -196,9 +203,9 @@ sub setFields ($%) {
 sub dumpVars (%) {
   my (%vars) = @_;
 
-  foreach (keys %vars) {
+  for (keys %vars) {
     dbug "$_: $vars{$_}";
-  } # foreach
+  } # for
 
   return;
 } # dumpVars
@@ -259,7 +266,7 @@ sub _makeAlertlogSelection ($$) {
   $values{All} = 'All';
 
   $values{$$_{$name}} = $$_{$name}
-    foreach ($clearadm->FindAlertlog);
+    for ($clearadm->FindAlertlog);
 
   my $dropdown = popup_menu {
     name    => $name,
@@ -282,13 +289,13 @@ sub _makeRunlogSelection ($$) {
 
   my %values;
 
-  foreach (@values) {
+  for (@values) {
      unless ($_ eq '') {
        $values{$_} = $_;
      } else {
        $values{NULL} = '<NULL>';
      } #if
-  } # foreach
+  } # for
 
   my $dropdown = popup_menu {
     name    => $name,
@@ -328,7 +335,7 @@ sub makeAlertDropdown (;$$) {
   my @values;
 
   push @values, $$_{name}
-    foreach ($clearadm->FindAlert);
+    for ($clearadm->FindAlert);
 
   my $dropdown  = "$label ";
      $dropdown .= popup_menu {
@@ -373,6 +380,57 @@ sub makeNoMoreThanDropdown (;$$) {
   return $dropdown;
 } # makeNoMorThanDropdown
 
+sub makeTagsDropdown($$) {
+  my ($type, $tag) = @_;
+
+  my $dropdown = ucfirst $type . ' ';
+
+  if ($type eq 'vob') {
+    my $vobs = Clearcase::Vobs->new;
+
+    $dropdown .= popup_menu {
+      name    => 'tag',
+      class   => 'dropdown',
+      values  => [sort $vobs->vobs],
+      default => $tag,
+    }; 
+  } else {
+    my $views = Clearcase::Views->new;
+
+    $dropdown .= popup_menu {
+      name    => 'tag',
+      class   => 'dropdown',
+      values  => [sort $views->views],
+      default => $tag,
+    };
+  } # if
+      
+  return span {id => $type}, $dropdown;
+} # makeTagsDropdown
+
+sub makeStoragePoolDropdown($$) {
+  my ($type, $tag) = @_;
+
+  my @values;
+
+  my $dropdown = 'Storage pool  ';
+    
+  if ($type eq 'vob') {
+    push @values, qw(admin db cleartext derivedobj source total);
+  } else {
+    push @values, qw(admin db private total);
+  } # if
+
+  $dropdown .= popup_menu {
+    name    => 'storage',
+    class   => 'dropdown',
+    values  => \@values,
+    default => $tag,
+  };
+
+  return span {id => $type}, $dropdown;
+} # makeStoragePoolsDropdown
+    
 sub makeFilesystemDropdown ($;$$$) {
   my ($system, $label, $default, $onchange) = @_;
 
@@ -380,13 +438,13 @@ sub makeFilesystemDropdown ($;$$$) {
 
   my %filesystems;
 
-  foreach ($clearadm->FindFilesystem ($system)) {
+  for ($clearadm->FindFilesystem ($system)) {
     my %filesystem = %{$_};
 
     my $value = "$filesystem{filesystem} ($filesystem{mount})";
 
     $filesystems{$filesystem{filesystem}} = $value;
-  } # foreach
+  } # for
 
   my $dropdown .= "$label ";
      $dropdown .= popup_menu {
@@ -437,7 +495,7 @@ sub makeNotificationDropdown (;$$) {
   my @values;
 
   push @values, $$_{name}
-    foreach ($clearadm->FindNotification);
+    for ($clearadm->FindNotification);
 
   my $dropdown  = "$label ";
      $dropdown .= popup_menu {
@@ -476,14 +534,14 @@ sub makeSystemDropdown (;$$$%) {
 
   $label ||= '';
 
-  foreach ($clearadm->FindSystem) {
+  for ($clearadm->FindSystem) {
     my %system = %{$_};
 
     my $value  = $system{name};
        $value .= $system{alias} ? " ($system{alias})" : '';
 
     $systems{$system{name}} = $value;
-  } # foreach
+  } # for
 
   my $systemDropdown .= "$label ";
      $systemDropdown .= popup_menu {
@@ -506,7 +564,7 @@ sub makeTaskDropdown (;$$) {
   my @values;
 
   push @values, $$_{name}
-    foreach ($clearadm->FindTask);
+    for ($clearadm->FindTask);
 
   my $taskDropdown  = "$label ";
      $taskDropdown .= popup_menu {
@@ -541,10 +599,10 @@ sub makeTimeDropdown ($$$;$$$$$) {
 
   if ($table =~ /loadavg/i) {
     push @times, $$_{timestamp}
-      foreach ($clearadm->GetLoadavg ($system, undef, undef, undef, $interval));
+      for ($clearadm->GetLoadavg ($system, undef, undef, undef, $interval));
   } elsif ($table =~ /filesystem/i) {
     push @times, $$_{timestamp}
-      foreach ($clearadm->GetFS ($system, $filesystem, undef, undef, undef, $interval));
+      for ($clearadm->GetFS ($system, $filesystem, undef, undef, undef, $interval));
   } # if
 
   push @times, 'Latest';
@@ -575,17 +633,17 @@ sub heading (;$$) {
 
   display header;
   display start_html {
-  	-title  => $title,
-  	-author => 'Andrew DeFaria <Andrew@ClearSCM.com>',
-  	-meta   => {
-  	  keywords  => 'ClearSCM Clearadm',
+    -title  => $title,
+    -author => 'Andrew DeFaria <Andrew@ClearSCM.com>',
+    -meta   => {
+      keywords  => 'ClearSCM Clearadm',
       copyright => 'Copyright (c) ClearSCM, Inc. 2010, All rights reserved',
-  	},
-  	-script => [{
-  	  -language => 'JavaScript',
-  	  -src      => 'clearadm.js',
-  	}],
-  	-style   => ['clearadm.css', 'clearmenu.css'],
+  },
+    -script => [{
+      -language => 'JavaScript',
+      -src      => 'clearadm.js',
+    }],
+    -style   => ['clearadm.css', 'clearmenu.css'],
   }, $title;
 
   return if $type;
@@ -609,7 +667,7 @@ sub heading (;$$) {
     display start_li;
       display a {href => 'systems.cgi'}, "Systems$ieTableWrapStart";
         display start_ul;
-          foreach (@allSystems) {
+          for (sort @allSystems) {
             my %system = %{$_};
             my $sysName  = ucfirst $system{name};
                $sysName .= " ($system{alias})"
@@ -618,7 +676,7 @@ sub heading (;$$) {
             display li a {
               href => "systemdetails.cgi?system=$system{name}"
             }, ucfirst "&nbsp;$sysName";
-          } # foreach
+          } # for
         display end_ul;
         display $ieTableWrapEnd;
         display end_li;
@@ -630,7 +688,7 @@ sub heading (;$$) {
     display start_li;
       display a {href => 'filesystems.cgi'}, "Filesystems$ieTableWrapStart";
         display start_ul;
-          foreach (@allSystems) {
+          for (@allSystems) {
             my %system = %{$_};
             my $sysName  = ucfirst $system{name};
                $sysName .= " ($system{alias})"
@@ -639,49 +697,16 @@ sub heading (;$$) {
             display li a {
               href => "filesystems.cgi?system=$system{name}"
             }, ucfirst "&nbsp;$sysName";
-          } # foreach
+          } # for
         display end_ul;
         display $ieTableWrapEnd;
-    display end_li;
-  display end_ul;
-
-  # Servers
-  display start_ul;
-    display start_li;
-      display a {href => '#'}, "Servers$ieTableWrapStart";
-      display start_ul {class => 'skinny'};
-        display start_li;
-          display start_a {href => 'vobs.cgi'};
-          display "<span class='drop'><span>VOB</span>&raquo;</span>$ieTableWrapStart";
-        display start_ul;
-          display li a {href => "systemdetails.cgi?system=jupiter"}, '&nbsp;Jupiter (defaria.com)';
-        display end_ul;
-        display $ieTableWrapEnd;
-        display end_li;
-
-        display start_li;
-        display start_a {href => 'views.cgi'};
-        display "<span class='drop'><span>View</span>&raquo;</span>$ieTableWrapStart";
-        display start_ul;
-          display li a {href => "systemdetails.cgi?system=earth"}, '&nbsp;Earth';
-          display li a {href => "systemdetails.cgi?system=mars"}, '&nbsp;Mars';
-        display end_ul;
-        display $ieTableWrapEnd;
-      display end_ul;
-      display $ieTableWrapEnd;
     display end_li;
   display end_ul;
 
   # Vobs
   display start_ul;
     display start_li;
-      display a {href => 'vobs.cgi'}, "VOBs$ieTableWrapStart";
-      display start_ul;
-        display li a {href => '#'}, '&nbsp;/vobs/clearscm';
-        display li a {href => '#'}, '&nbsp;/vobs/clearadm';
-        display li a {href => '#'}, '&nbsp;/vobs/test';
-        display li a {href => '#'}, '&nbsp;/vobs/test2';
-      display end_ul;
+      display a {href => 'vobservers.cgi'}, "&nbsp;&nbsp;&nbsp;VOBs$ieTableWrapStart";
       display $ieTableWrapEnd;
     display end_li;
   display end_ul;
@@ -689,11 +714,7 @@ sub heading (;$$) {
   # Views
   display start_ul;
     display start_li;
-      display a {href => 'views.cgi'}, "Views$ieTableWrapStart";
-      display start_ul;
-        display li a {href => 'viewager.cgi'}, '&nbsp;View Ager';
-        display li a {href => '#'}, '&nbsp;Releast View';
-      display end_ul;
+      display a {href => 'viewager.cgi'}, "Views$ieTableWrapStart";
       display $ieTableWrapEnd;
     display end_li;
   display end_ul;
@@ -754,7 +775,7 @@ sub displayAlert (;$) {
     display th {class => 'labelCentered'}, 'Category';
   display end_Tr;
 
-  foreach ($clearadm->FindAlert ($alert)) {
+  for ($clearadm->FindAlert ($alert)) {
     my %alert = %{$_};
 
     $alert{who} = setField $alert{who}, 'System Administrator';
@@ -827,7 +848,7 @@ sub displayAlert (;$) {
       display td {class => 'data'},
         (InArray $alert{name}, @PREDEFINED_ALERTS) ? 'Predefined' : 'User Defined';
     display end_Tr;
-  } # foreach
+  } # for
 
   display end_table;
 
@@ -1018,7 +1039,7 @@ sub displayAlertlog (%) {
 
   my $i = $opts{start};
 
-  foreach ($clearadm->FindAlertlog (
+  for ($clearadm->FindAlertlog (
     $opts{alert},
     $opts{system},
     $opts{notification},
@@ -1055,7 +1076,7 @@ sub displayAlertlog (%) {
       }, $alertlog{runlog};
       display td {class => 'data'},         $alertlog{message};
     display end_Tr;
-  } # foreach
+  } # for
 
   display end_form;
 
@@ -1083,7 +1104,7 @@ sub displayFilesystem ($) {
     display th {class => 'labelCentered'}, 'Usage';
   display end_Tr;
 
-  foreach ($clearadm->FindSystem ($systemName)) {
+  for (sort { $a->{mount} cmp $b->{mount} } $clearadm->FindSystem ($systemName)) {
     my %system = %{$_};
 
     %system = setFields ('N/A', %system);
@@ -1092,7 +1113,7 @@ sub displayFilesystem ($) {
               ? a {-href => "mailto:$system{email}"}, $system{admin}
               : $system{admin};
 
-    foreach ($clearadm->FindFilesystem ($system{name})) {
+    for ($clearadm->FindFilesystem ($system{name})) {
       my %filesystem = %{$_};
 
       my %fs = $clearadm->GetLatestFS ($system{name}, $filesystem{filesystem});
@@ -1192,18 +1213,22 @@ sub displayFilesystem ($) {
         display td {class => $classRightTop}, "$used ($usedPct%)<br>",
           font {class => 'unknown'}, "$fs{timestamp}";
         display td {class => $classRightTop}, "$filesystem{threshold}%";
+
+	my $image = $filesystem{fssmall}
+	  ? "data:image/png;base64,$filesystem{fssmall}"
+	  : "plotfs.cgi?system=$system{name}&filesystem=$filesystem{filesystem}&tiny=1";
+
         display td {class => $class},
           a {href =>
             "plot.cgi?type=filesystem&system=$system{name}"
           . "&filesystem=$filesystem{filesystem}&scaling=Day&points=7"
           }, img {
-            src    => "plotfs.cgi?system=$system{name}"
-                    . "&filesystem=$filesystem{filesystem}&tiny=1",
+            src    => $image,
             border => 0,
           };
       display end_Tr;
-    } # foreach
-  } # foreach
+    } # for
+  } # for
 
   display end_table;
 
@@ -1224,7 +1249,7 @@ sub displayNotification (;$) {
     display th {class => 'labelCentered'}, 'Category';
   display end_Tr;
 
-  foreach ($clearadm->FindNotification ($notification)) {
+  for ($clearadm->FindNotification ($notification)) {
     my %notification= setFields 'N/A', %{$_};
 
     display start_Tr;
@@ -1296,7 +1321,7 @@ sub displayNotification (;$) {
       : 'User Defined';
 
     display end_Tr;
-  } # foreach
+  } # for
 
   display end_table;
 
@@ -1315,25 +1340,24 @@ sub displayRunlog (%) {
 
   my $optsChanged;
 
-  unless (($opts{oldtask}   and $opts{task}    or
-           $opts{oldtask}   eq  $opts{task})   and
-          ($opts{oldsystem} and $opts{system}  or
-           $opts{oldsystem} eq  $opts{system}) and
-          ($opts{oldnot}    and $opts{not}     or
-           $opts{oldnot}    eq  $opts{not})    and
-          ($opts{oldstatus} and $opts{status}  or
-           $opts{oldstatus} eq  $opts{status})) {
-    $optsChanged = 1;
-  } # unless
+  for (qw(task system not status)) {
+    my $old = "old$_";
+    if (($opts{$old} and $opts{$_}) and ($opts{$old} ne $opts{$_})) {
+      $optsChanged = 1;
+      last;
+    } # if
+  } # for
 
-  my $condition;
+  my $condition = '';
 
   unless ($opts{id}) {
-    $condition  = "task like '%";
-    $condition .= $opts{task} ? $opts{task} : '';
-    $condition .= "%'";
+    if ($opts{task} !~ /all/i) {
+      $condition  = "task like '%";
+      $condition .= $opts{task} ? $opts{task} : '';
+      $condition .= "%'";
+    } # if
 
-    if ($opts{system}) {
+    if ($opts{system} !~ /all/i) {
       if ($opts{system} eq '<NULL>') {
         $condition .= ' and system is null';
         undef $opts{system}
@@ -1342,7 +1366,7 @@ sub displayRunlog (%) {
       } # if
     } # if
 
-    if (defined $opts{status}) {
+    if ($opts{status} !~ /all/i) {
       $condition .= ' and ';
       unless ($opts{not}) {
         $condition .= "status=$opts{status}";
@@ -1490,13 +1514,13 @@ sub displayRunlog (%) {
 
   my $status;
 
-  if (defined $opts{status}) {
+  if ($opts{status}) {
     if ($opts{status} !~ /all/i) {
       $status = $opts{not} ne 'true' ? $opts{status} : "!$opts{status}";
     } # if
   } # if
 
-  foreach ($clearadm->FindRunlog (
+  for ($clearadm->FindRunlog (
     $opts{task},
     $opts{system},
     $status,
@@ -1522,7 +1546,7 @@ sub displayRunlog (%) {
       display td {class => 'data'},         a {
         href => "tasks.cgi?task=$runlog{task}"
       }, $runlog{task};
-      display td {class => 'data'}, $runlog{system} eq 'Localhost'
+      display td {class => 'data'}, $runlog{system} eq 'localhost'
         ? $runlog{system}
         : a {
         href => "systemdetails.cgi?system=$runlog{system}"
@@ -1536,7 +1560,7 @@ sub displayRunlog (%) {
 
       display td {class => $class, width => '50%'},         $message;
     display end_Tr;
-  } # foreach
+  } # for
 
   display end_table;
 
@@ -1556,7 +1580,7 @@ sub displaySchedule () {
     display th {class => 'labelCentered'}, 'Category';
   display end_Tr;
 
-  foreach ($clearadm->FindSchedule) {
+  for ($clearadm->FindSchedule) {
     my %schedule = setFields 'N/A', %{$_};
 
     display start_Tr;
@@ -1634,7 +1658,7 @@ sub displaySchedule () {
         : 'User Defined';
 
     display end_Tr;
-  } # foreach
+  } # for
 
   display end_table;
 
@@ -1765,7 +1789,7 @@ sub displaySystem ($) {
       a {href =>
         "plot.cgi?type=loadavg&system=$system{name}&scaling=Hour&points=24"
         }, img {
-          src    => "plotloadavg.cgi?system=$system{name}&tiny=1",
+          src    => "data:image/png;base64,$system{loadavgsmall}",
           border => 0,
       };
 
@@ -1805,7 +1829,7 @@ sub displaySystem ($) {
     display th {class => 'labelCentered'}, 'Usage';
   display end_Tr;
 
-  foreach ($clearadm->FindFilesystem ($system{name})) {
+  for ($clearadm->FindFilesystem ($system{name})) {
     my %filesystem = %{$_};
 
     my %fs = $clearadm->GetLatestFS (
@@ -1830,58 +1854,59 @@ sub displaySystem ($) {
     my $classRight    = $class . 'Right';
 
     display start_Tr;
-        display start_td {class => 'data'};
+      display start_td {class => 'data'};
 
-        my $areYouSure = 'Are you sure you want to delete '
-                       . "$system{name}:$filesystem{filesystem}?" . '\n'
-                       . 'Doing so will remove all records related to this\n'
-                       . 'filesystem and its history.';
+      my $areYouSure = 'Are you sure you want to delete '
+                     . "$system{name}:$filesystem{filesystem}?" . '\n'
+                     . 'Doing so will remove all records related to this\n'
+                     . 'filesystem and its history.';
 
-        display start_form {
-          method => 'post',
-          action => 'processfilesystem.cgi',
+      display start_form {
+        method => 'post',
+        action => 'processfilesystem.cgi',
+      };
+
+      display input {
+        type  => 'hidden',
+        name  => 'system',
+        value => $system{name},
+      };
+      display input {
+        type  => 'hidden',
+        name  => 'filesystem',
+        value => $filesystem{filesystem},
+      };
+
+      display input {
+        name    => 'delete',
+        type    => 'image',
+        src     => 'delete.png',
+        alt     => 'Delete',
+        value   => 'Delete',
+        title   => 'Delete',
+        onclick => "return AreYouSure ('$areYouSure');"
+      };
+      display input {
+        name    => 'edit',
+        type    => 'image',
+        src     => 'edit.png',
+        alt     => 'Edit',
+        value   => 'Edit',
+        title   => 'Edit',
+      };
+
+      if ($filesystem{notification}) {
+        display a {
+          href => "alertlog.cgi?system=$filesystem{system}"}, img {
+          src    => 'alert.png',
+          border => 0,
+          alt    => 'Alert!',
+          title  => 'This filesystem has alerts',
         };
+      } # if
 
-        display input {
-          type  => 'hidden',
-          name  => 'system',
-          value => $system{name},
-        };
-        display input {
-          type  => 'hidden',
-          name  => 'filesystem',
-          value => $filesystem{filesystem},
-        };
+      display end_form;
 
-        display input {
-          name    => 'delete',
-          type    => 'image',
-          src     => 'delete.png',
-          alt     => 'Delete',
-          value   => 'Delete',
-          title   => 'Delete',
-          onclick => "return AreYouSure ('$areYouSure');"
-        };
-        display input {
-          name    => 'edit',
-          type    => 'image',
-          src     => 'edit.png',
-          alt     => 'Edit',
-          value   => 'Edit',
-          title   => 'Edit',
-        };
-
-        if ($filesystem{notification}) {
-          display a {
-            href => "alertlog.cgi?system=$filesystem{system}"}, img {
-            src    => 'alert.png',
-            border => 0,
-            alt    => 'Alert!',
-            title  => 'This filesystem has alerts',
-          };
-        } # if
-
-        display end_form;
       display td {class => $class},         $filesystem{filesystem};
       display td {class => $classCentered}, $filesystem{fstype};
       display td {class => $class},         $filesystem{mount};
@@ -1897,13 +1922,11 @@ sub displaySystem ($) {
         . "&filesystem=$filesystem{filesystem}"
         . "&scaling=Day&points=7"
         }, img {
-           src    => "plotfs.cgi?system=$system{name}&"
-                   . "filesystem=$filesystem{filesystem}"
-                   . '&tiny=1',
-           border => 0,
+          src    => "data:image/png;base64,$filesystem{fssmall}",
+          border => 0,
         };
     display end_Tr;
-  } # foreach
+  } # for
 
   display end_table;
 
@@ -1925,7 +1948,7 @@ sub displayTask (;$) {
     display th {class => 'labelCentered'}, 'Category';
   display end_Tr;
 
-  foreach ($clearadm->FindTask ($task)) {
+  for ($clearadm->FindTask ($task)) {
     my %task = %{$_};
 
     $task{system} = 'All Systems'
@@ -1995,7 +2018,7 @@ sub displayTask (;$) {
       display td {class => 'data'},
         (InArray $task{name}, @PREDEFINED_TASKS) ? 'Predefined' : 'User Defined';
     display end_Tr;
-  } # foreach
+  } # for
 
   display end_table;
 
@@ -2619,10 +2642,9 @@ sub editTask (;$) {
     };
     my $systemDropdown = makeSystemDropdown (
       undef,
-      $task{system} ? $task{system} : 'All Systems',
+      $task{system} ? $task{system} : 'localhost',
       undef, (
-        'All systems' => undef,
-        'Localhost'   => 'Localhost',
+        'localhost' => 'localhost',
       ),
     );
 

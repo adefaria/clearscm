@@ -1,0 +1,5 @@
+#/bin/bash
+#
+# Solaris doesn't support init.d scripts and I'm not writting a bona fide
+# SMF service for this
+exec /opt/clearscm/clearadm/cleartasks.pl

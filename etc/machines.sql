@@ -24,6 +24,7 @@ use machines;
 create table system (
   name             varchar (255) not null,
   model            tinytext,
+  domain           tinytext,
   alias            varchar (255),
   active           enum (
                      'true',

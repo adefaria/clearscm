@@ -11,28 +11,22 @@
 # Column 4 ClearCase Version (if applicable)
 # Column 5 Owner (if known)
 # Column 6 Usage (if known)
-chargers:Sun:Solaris 5.9:7.0.1.1:ccadm:ranview1
-colts:Sun:Solaris 5.9:7.0.1.0:ccadm:ranview2
-cowboys:Sun:Solaris 5.9:7.0.1.0:ccadm:ranvob1/registry server
-niners:Sun:Solaris 5.9:2003.06.10+:ccadm:
-patriots:Sun:Solaris 5.9:7.0.1.0:ccadm:ranvob2
-rams:Sun:Solaris 5.9:7.0.1.0:ccadm:ranvob3/registry server
-#ranadm1:Sun:Solaris 5.9::ccadm:Jumpstart, PowerBroker, NIS, SMTP, DNS, NTP
-ranadm2:Sun:Solaris 5.9:2003.06.10+:ccadm:License server, Sys admin, NIS, Home Directory server
-ranbkp2::::ccadm:Backup
-ranbuild1:Sun:Solaris 5.8:7.0.1.0:ccadm:builds
-ranbuild2:Sun:Solaris 5.9:2003.06.10+:ccadm:builds
-ranbuild4:Sun:Solaris 5.9:7.0.1.1:ccadm:builds
-rancpp01:Redhat Linux:2.6.18.53.Eel5xen::ccadm:
-rancpp02:Redhat Linux:2.6.18.53.Eel5xen::ccadm:
-rancpp03:Redhat Linux:2.6.18.53.Eel5xen::ccadm:
-rancpp10:Redhat Linux:2.6.18.53.Eel5xen::ccadm:
-#randbs:Sun:Solaris 5.9::ccadm:CQ DB server/Bldforge
-randws094:Sun:Solaris 5.10:7.0.1.1:John Hartin:Old workstation
-randws103:Sun:Solaris 5.9:7.0.1.1::
-randws106:Sun:Solaris 5.9:2003.06.10+::
-randws113:Sun:Solaris 5.9:7.0.1.1::
-randws114:Sun:Solaris 5.9:2003.06.10+:Tony Trujilo:
-randws119:Sun:Solaris 5.9:7.0.1.1:Hy Truong:Workstation
-ranlin03:Redhat Linux:2.4.21-50.Elsmp::ccadm:
-ranray:Sun:Solaris 5.9:2003.06.10+:ccadm:
+rdeadm1:Oracle:Solaris 5.11:9.0.0:Tools Team:Primary Admin Server, NIS Master, DNS slave
+rdeadm2:Oracle:Solaris 5.11:9.0.0:Tools Team:Secondary Admin Server, home, NIS Slave, DNS Master, mail and prj
+rdevob1:Oracle:Solaris 5.11:9.0.0:Tools Team:Clearcase Vob Server 1
+rdevob2:Oracle:Solaris 5.11:9.0.0:Tools Team:Clearcase Vob Server 2
+rdeview1:Oracle:Solaris 5.11:9.0.0:Tools Team:Clearcase View Server
+rdebuild1:Oracle:Solaris 5.11:9.0.0:Tools Team:Build Server 1
+rdebuild2:Oracle:Solaris 5.11:9.0.0:Tools Team:Build Server 2
+rdebuild3:Oracle:Solaris 5.11:9.0.0:Tools Team:Build Server 3
+rdebuild4:Oracle:Solaris 5.11:9.0.0:Tools Team:Build Server 4
+rdedws000:Oracle:Solaris 5.11:9.0.0:Tools Team:Engineering Desktop
+rdedws033:Oracle:Solaris 5.11:9.0.0:Tools Team:Engineering Desktop
+rdedws035:Oracle:Solaris 5.11:9.0.0:Tools Team:Engineering Desktop
+rdedws036:Oracle:Solaris 5.11:9.0.0:Tools Team:Engineering Desktop
+rdedws094:Oracle:Solaris 5.11:9.0.0:Tools Team:Engineering Desktop
+rdedws103:Oracle:Solaris 5.11:9.0.0:Tools Team:Engineering Desktop
+rdedws106:Oracle:Solaris 5.11:9.0.0:Tools Team:Engineering Desktop
+rdedws113:Oracle:Solaris 5.11:9.0.0:Tools Team:Engineering Desktop
+rdedws114:Oracle:Solaris 5.11:9.0.0:Tools Team:Engineering Desktop
+rdedws119:Oracle:Solaris 5.11:9.0.0:Tools Team:Engineering Desktop

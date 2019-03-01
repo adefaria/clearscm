@@ -17,6 +17,15 @@
   diff=auto
   branch=auto
 
+[diff]
+  tool = meld
+
+[difftool]
+  prompt = false
+
+[difftool "meld"]
+  cmd = meld "$LOCAL" "$REMOTE"
+
 # Currently these are restating the default
 [color "branch"]
   current=green
@@ -24,7 +33,7 @@
   remote=red
 
 [color "diff"]
-  external = /usr/local/bin/git-meld
+  external = /bin/meld
 
 [color "status"]
   added=yellow

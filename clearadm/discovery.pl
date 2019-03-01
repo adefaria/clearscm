@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 =pod
 
@@ -41,7 +41,7 @@ $Date: 2011/01/07 20:48:22 $
    
    -broadcastA|ddr <ip>:      Broadcast IP (Default: Current subnet)
    -broadcastT|ime <seconds>: Number of sends to wait for responses to broadcast
-                              (Default: 30 seconds)
+                              (Default: 10 seconds)
 
 =head1 DESCRIPTION
 
@@ -62,6 +62,7 @@ use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
 use Clearadm;
 use Display;
+use OSDep;
 use Utils;
 
 my $VERSION  = '$Revision: 1.1 $';
@@ -81,14 +82,18 @@ sub discover ($) {
   verbose "Performing discovery (for $broadcastTime seconds)...";
 
   while (<$broadcast>) {
-    if (/from (.*):/) {
-      my $ip       = $1;
-      my $hostname = gethostbyaddr (inet_aton ($ip), AF_INET);
-     
-       unless ($hosts{$ip}) {
-         verbose "Received response from ($ip): $hostname";
-         $hosts{$ip} = $hostname;
-       } # unless
+    display "Received line: $_";
+    if (/from (\S+) \((.+)\)/) {
+      my $hostname = $1;
+      my $ip       = $2;
+
+      # Remove domain
+      $hostname =~ s/(\w+)\..*/$1/;
+
+      unless ($hosts{$ip}) {
+        verbose "Received response from ($ip): $hostname";
+        $hosts{$ip} = $hostname;
+      } # unless
     } # if
   
     last
@@ -117,8 +122,16 @@ Usage 'Extraneous options: ' . join ' ', @ARGV
 # Announce ourselves
 verbose "$FindBin::Script V$VERSION";
 
-my $broadcastCmd = "ping -b $broadcastAddress 2>&1";
+my $broadcastCmd = 'ping ';
 
+if ($ARCHITECTURE eq 'solaris') {
+  $broadcastCmd .= '-s ';
+} else {
+  $broadcastCmd .= '-b ';
+} # if
+
+$broadcastCmd .= "$broadcastAddress 2>&1";
+  
 my $pid = open my $broadcast, '-|', $broadcastCmd
   or error "Unable to do $broadcastCmd", 1;
 

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 =pod
 
@@ -160,8 +160,8 @@ verbose "$FindBin::Script V$VERSION";
 
 my $exit = 0;
 
-foreach my $system ($clearadm->FindSystem ($host)) {
-  next if $$system{active} eq 'false';
+for my $system ($clearadm->FindSystem ($host)) {
+  next if $system->{active} eq 'false';
   
   my %load = snapshotLoad $system;
   
@@ -170,24 +170,46 @@ foreach my $system ($clearadm->FindSystem ($host)) {
   
     error $msg, $err if $err;
   } else {
-    error "Unable to get loadavg for system $$system{name}", 1;
+    error "Unable to get loadavg for system $system->{name}", 1;
   } # if
   
   # Check if over threshold
   my %notification = $clearadm->GetNotification ('Loadavg');
 
-  next
-    unless %notification;
+  next unless %notification;
   
-  if ($load{loadavg} >= $$system{loadavgThreshold}) {
+  if ($load{loadavg} >= $system->{loadavgThreshold}) {
     $exit = 2;
-    error YMDHMS . " System: $$system{name} "
+    error YMDHMS . " System: $system->{name} "
         . "Loadavg $load{loadavg} "
-        . "Threshold $$system{loadavgThreshold}";
+        . "Threshold $system->{loadavgThreshold}";
   } else {
-    $clearadm->ClearNotifications ($$system{name});
+    $clearadm->ClearNotifications ($system->{name});
   } # if
-} # foreach
+
+  # Add graphs to system record
+  my ($loadavgsmall, $loadavg);
+
+  my $cmd = "plotloadavg.cgi generate=1 system=$system->{name} scaling=Hour points=24";
+
+  verbose "Generating loadavgsmall for $system->{name}";
+  my ($error, @output) = Execute("$cmd tiny=1 2>&1");
+
+  error 'Unable to generate loadavgsmall' . join("\n", @output), $error if $error;
+
+  $system->{loadavgsmall} = join '', @output;
+
+  verbose "Generating loadavg for $system->{name}";
+  ($error, @output) = Execute("$cmd 2>&1");
+  
+  error 'Unable to generate loadavg' . join("\n", @output), $error if $error;
+
+  $system->{loadavg} = join '', @output;
+
+  my ($err, $msg) = $clearadm->UpdateSystem($system->{name}, %$system);
+
+  error "Unable to udpate system record $msg", $err if $err;
+} # for
 
 exit $exit;
 

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -61,6 +61,7 @@ use strict;
 use warnings;
 
 use FindBin;
+use Convert::Base64;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -165,8 +166,12 @@ $graph->set (
 my $image = $graph->plot(\@data)
   or croak $graph->error;
 
-print "Content-type: image/png\n\n";
-print $image->png;
+unless ($opts{generate}) {
+  print "Content-type: image/png\n\n";
+  print $image->png;
+} else {
+  print encode_base64 $image->png;
+} # unless
 
 =pod
 

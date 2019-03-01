@@ -82,7 +82,7 @@ use Display;
 
 my ($clearpid, $clearin, $clearout, $oldHandler, $cleartool);
 
-our $VIEW_DRIVE     = $ENV{CLEARCASE_VIEW_DRIVE} || 'M';
+our $VIEW_DRIVE     = 'M';
 our $VOB_MOUNT      = 'vob';
 our $WIN_VOB_PREFIX = '\\';
 our $SFX            = $ENV{CLEARCASE_XN_SFX} ? $ENV{CLEARCASE_XN_SFX} : '@@';
@@ -118,9 +118,9 @@ BEGIN {
     # We can go to the registry pretty easy in Cygwin but I'm not sure how to do
     # that in plain old Windows. Most people either have Clearcase installed on
     # the C drive or commonly on the D drive on servers. So we'll look at both.
-    $CCHOME = 'C:\\Program Files (x86)\\ibm\\RationalSDLC\\Clearcase';
+    $CCHOME = 'C:\\IBMRational\\RationalSDLC\\Clearcase';
 
-    $CCHOME = 'D:\\Program Files (x86)\\ibm\\RationalSDLC\\Clearcase'
+    $CCHOME = 'D:\\IBMRational\\RationalSDLC\\Clearcase'
       unless -d $CCHOME;
 
     error 'Unable to figure out where Clearcase is installed', 1
@@ -579,7 +579,7 @@ Array of output lines from the cleartool command execution.
   # to use these Clearcase objects say in a web page where the server is often
   # run as a plain user who does not have cleartool in their path.
   unless ($cleartool) {
-    if ($ARCHITECTURE =~ /Win/i or $ARCHITECTURE eq 'cygwin') {
+    if ($ARCHITECTURE =~ /Win/ or $ARCHITECTURE eq 'cygwin') {
       $cleartool = 'cleartool';
     } elsif (-x '/opt/rational/clearcase/bin/cleartool') {
       $cleartool = '/opt/rational/clearcase/bin/cleartool';
@@ -593,6 +593,7 @@ Array of output lines from the cleartool command execution.
   if (!$clearpid) {
     # Simple check to see if we can execute cleartool
     @output = `$cleartool -ver 2>&1`;
+    @output = ();
         
     return (-1, 'Clearcase not installed')
       unless $? == 0;

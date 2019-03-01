@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -54,6 +54,7 @@ use warnings;
 use Net::Domain qw(hostname);
 use FindBin;
 use Getopt::Long;
+use Convert::Base64;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -94,47 +95,30 @@ sub snapshotFS ($$) {
   # Sun is so braindead!
   # TODO: Verify this works under Solaris
   if ($system{type} eq 'Unix') {
-    foreach ('ufs', 'vxfs') {
-      my $cmd = "/usr/bin/df -k -F $filesystem{mount}";
+    my $cmd = "df -v $filesystem{mount}";
 
-      my ($status, @unixfs) = $clearexec->execute ($cmd);
+    my ($status, @unixfs) = $clearexec->execute ($cmd);
 
-      if ($status != 0) {
-        error ('Unable to determine fsinfo for '
-             . "$system{name}:$filesystem{mount} ($cmd)\n" .
-               join "\n", @unixfs
-        );
-    
-        return;
-      } # if
+    if ($status != 0) {
+      error ('Unable to determine fsinfo for '
+           . "$system{name}:$filesystem{mount} ($cmd)\n" .
+             join "\n", @unixfs);
+   
+      return;
+    } # if
 
-      # Skip heading
-      shift @unixfs;
+    # Skip heading
+    shift @unixfs;
 
-      for (my $i = 0; $i < scalar @unixfs; $i++) {
-        my $firstField;
-    
-        # Trim leading and trailing spaces
-        $unixfs[$i] =~ s/^\s+//;
-        $unixfs[$i] =~ s/\s+$//;
+    for (my $i = 0; $i < scalar @unixfs; $i++) {
+      my @fields = split ' ', $unixfs[$i];
 
-        my @fields = split /\s+/, $unixfs[$i];
-
-        if (@fields == 1) {
-          $firstField   = 0;
-          $i++;
-
-          @fields   = split /\s+/, $unixfs[$i];;
-        } else {
-          $firstField   = 1;
-        } #if
-
-        $fs{size}    = $fields[$firstField]     * 1024;
-        $fs{used}    = $fields[$firstField + 1] * 1024;
-        $fs{free}    = $fields[$firstField + 2] * 1024;
-        $fs{reserve} = $fs{size} - $fs{used} - $fs{free};
-      } # for
-    } # foreach
+      $fs{mount}   = $fields[0];
+      $fs{size}    = $fields[2] * 1024;
+      $fs{used}    = $fields[3] * 1024;
+      $fs{free}    = $fields[4] * 1024;
+      $fs{reserve} = $fs{size} - $fs{used} - $fs{free};
+    } # for
   } elsif ($system{type} eq 'Linux' or $system{type} eq 'Windows') {
     my $cmd = "/bin/df --block-size=1 -P $filesystem{mount}";
 
@@ -181,23 +165,23 @@ verbose "$FindBin::Script V$VERSION";
 
 my $exit = 0;
 
-foreach my $system ($clearadm->FindSystem ($host)) {
-  next if $$system{active} eq 'false';
+for my $system ($clearadm->FindSystem ($host)) {
+  next if $system->{active} eq 'false';
   
   my $status = $clearexec->connectToServer (
-    $$system{name}, 
-    $$system{port}
+    $system->{name}, 
+    $system->{port}
   );
   
   unless ($status) {
-    verbose "Unable to connect to system $$system{name}:$$system{port}";
+    verbose "Unable to connect to system $system->{name}:$system->{port}";
     next;
   } # unless
 
-  foreach my $filesystem ($clearadm->FindFilesystem ($$system{name}, $fs)) {
-    verbose "Snapshotting $$system{name}:$$filesystem{filesystem}";
+  for my $filesystem ($clearadm->FindFilesystem ($system->{name}, $fs)) {
+    verbose "Snapshotting $system->{name}:$filesystem->{filesystem}";
   
-    my %fs = snapshotFS ($system, $$filesystem{filesystem});
+    my %fs = snapshotFS ($system, $filesystem->{filesystem});
     
     if (%fs) {
       my ($err, $msg) = $clearadm->AddFS (%fs);
@@ -205,29 +189,49 @@ foreach my $system ($clearadm->FindSystem ($host)) {
       error $msg, $err if $err;
     } # if
     
+    # Generate graphs
+    my $cmd = "plotfs.cgi generate=1 system=$system->{name} filesystem=$filesystem->{filesystem} scaling=Day points=7";
+
+    verbose "Generating fssmall for $system->{name}:$filesystem->{filesystem}";
+    my ($error, @output) = Execute("$cmd tiny=1 2>&1");
+
+    error 'Unable to generate fssmall' . join("\n", @output), $error if $error;
+
+    $filesystem->{fssmall} = join '', @output;
+
+    verbose "Generating fslarge for $system->{name}:$filesystem->{filesystem}";
+    ($error, @output) = Execute("$cmd 2>&1");
+
+    error 'Unable to generate fslarge' . join("\n", @output), $error if $error;
+
+    $filesystem->{fslarge} = join '', @output;
+
+    my ($err, $msg) = $clearadm->UpdateFilesystem($system->{name}, $filesystem->{filesystem}, %$filesystem);
+
+    error "Unable to update filesystem record $msg", $err if $err;
+
     # Check if over threshold
     my %notification = $clearadm->GetNotification ('Filesystem');
 
-    next
-      unless %notification;
+    next unless %notification;
   
-    my $usedPct = sprintf (
-      '%.2f',
-      (($fs{used} + $fs{reserve}) / $fs{size}) * 100
-    );
+    my $usedPct = '0%';
+
+    $usedPct = sprintf ('%.2f', (($fs{used} + $fs{reserve}) / $fs{size}) * 100) if $fs{size} != 0;
     
-    if ($usedPct >= $$filesystem{threshold}) {
+    if ($usedPct >= $filesystem->{threshold}) {
       $exit = 2;
-      display YMDHMS . " System: $$filesystem{system} "
-            . "Filesystem: $$filesystem{filesystem} Used: $usedPct% " 
-            . "Threshold: $$filesystem{threshold}";    
+      display YMDHMS
+            . " System: $filesystem->{system} "
+            . "Filesystem: $filesystem->{filesystem} Used: $usedPct% " 
+            . "Threshold: $filesystem->{threshold}";    
     } else {
-      $clearadm->ClearNotifications ($$system{name}, $$filesystem{filesystem});    
+      $clearadm->ClearNotifications ($system->{name}, $filesystem->{filesystem});    
     } # if
-  } # foreach
+  } # for
   
   $clearexec->disconnectFromServer;
-} # foreach
+} # for
 
 exit $exit;
 

@@ -32,10 +32,20 @@ function git () {
   # Need to reset title since we put the branch name in the titlebar
   git=$(which git)
 
-  if [ "$1" = "checkout" -o "$1" = "co" ]; then
-    $git $@
-    set_title
-  else
-    $git $@
+  if [ "${git:0:3}" != "no " ]; then
+    if [ "$1" = "checkout" -o "$1" = "co" ]; then
+      $git $@
+      set_title
+    elif [ "$1" = "files" ]; then
+      if [ -z "$2" ]; then
+        echo "Files in git commit HEAD"
+        $git show --pretty="" --name-only HEAD
+      else
+        echo "Files in git commit $2"
+	$git show --pretty="" --name-only $2
+      fi
+    else
+      $git $@
+    fi
   fi
 } # git

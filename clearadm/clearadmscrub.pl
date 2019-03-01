@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -49,6 +49,7 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
+use Sys::Hostname;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -80,7 +81,7 @@ verbose "$FindBin::Script V$VERSION";
 
 my ($err, $msg);
 
-foreach my $system ($clearadm->FindSystem ($host)) {
+for my $system ($clearadm->FindSystem ($host)) {
   ($err, $msg) = $clearadm->TrimLoadavg ($$system{name});
   
   if ($msg eq 'Records deleted' or $msg eq '') {
@@ -89,7 +90,7 @@ foreach my $system ($clearadm->FindSystem ($host)) {
     error "#$err: $msg";
   } # if
   
-  foreach my $filesystem ($clearadm->FindFilesystem ($$system{name}, $fs)) {
+  for my $filesystem ($clearadm->FindFilesystem ($$system{name}, $fs)) {
     ($err, $msg) = $clearadm->TrimFS ($$system{name}, $$filesystem{filesystem});
     
     if ($msg eq 'Records deleted' or $msg eq '') {
@@ -97,8 +98,8 @@ foreach my $system ($clearadm->FindSystem ($host)) {
     } else {
       error "#$err: $msg";
     } # if
-  } # foreach
-} # foreach
+  } # for
+} # for
 
 # TODO: These should be configurable
 my $sixMonthsAgo = SubtractDays (Today2SQLDatetime, 180);
@@ -106,6 +107,7 @@ my $sixMonthsAgo = SubtractDays (Today2SQLDatetime, 180);
 my %runlog = (
   task    => 'Scrub',
   started => Today2SQLDatetime,
+  system  => hostname(),
 );
 
 # Scrub old alertlogs

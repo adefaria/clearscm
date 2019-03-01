@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 =pod
 
@@ -78,7 +78,7 @@ sub SetupAgent () {
   
   my ($status, @output, $cmd);
   
-  if ($ARCH eq 'cygwin') {
+  if ($ARCHITECTURE eq 'cygwin') {
      verbose '[Cygwin] Creating up Clearagent Service';
      
      $cmd  = 'cygrunsrv -I clearagent -p C:/Cygwin/bin/perl ';
@@ -86,7 +86,7 @@ sub SetupAgent () {
      
     ($status, @output) = Execute "$cmd 2>&1";
   
-    error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
+    error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
       if $status;
       
     verbose '[Cygwin] Starting Clearagent Service';
@@ -94,34 +94,44 @@ sub SetupAgent () {
     $cmd .= 'net start clearagent';
     ($status, @output) = Execute "$cmd 2>&1";
   
-    error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
+    error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
       if $status;
   } else {
-    my $Arch = ucfirst $ARCH;
+    my $Arch = ucfirst $ARCHITECTURE;
   
     verbose 'Creating clearagent user';
     
     $cmd = 'useradd -Mr clearagent';
+    $cmd = 'useradd clearagent' if $ARCHITECTURE eq 'solaris';
     
     ($status, @output) = Execute "$cmd 2>&1";
   
     if ($status == 9) {
        warning "The user clearagent already exists";
+    } elsif ($status == 2304) {
+      # Stupid Solaris...
     } elsif ($status != 0) {
-      error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1;
+      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status;
     } # if
 
     verbose 'Setting permissions on log and var directories';
-    
-    $cmd  = "chmod 777 $Clearadm::CLEAROPTS{CLEARADM_BASE}/var;";
-    $cmd .= "chmod 777 $Clearadm::CLEAROPTS{CLEARADM_BASE}/var/run;";
-    $cmd .= "chmod 777 $Clearadm::CLEAROPTS{CLEARADM_BASE}/log";
-  
-    ($status, @output) = Execute "$cmd 2>&1";
-  
-    error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
-      if $status;
 
+    for (qw(var var/run log)) {
+      $cmd = "mkdir -p $Clearadm::CLEAROPTS{CLEARADM_BASE}/$_";
+
+      ($status, @output) = Execute "$cmd 2>&1";
+
+      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
+        if $status;
+
+      $cmd = "chmod 777 $Clearadm::CLEAROPTS{CLEARADM_BASE}/$_";
+
+      ($status, @output) = Execute "$cmd 2>&1";
+
+      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
+        if $status;
+    } # for
+  
     verbose "[$Arch] Setting up clearagent daemon";
        
     # Symlink $CLEARADM/etc/conf.d/clearadm -> /etc/init.d
@@ -130,29 +140,47 @@ sub SetupAgent () {
     error "Cannot find conf.d directory ($confdir)", 1
       unless -d $confdir;
 
-    unless (-e "$confdir/clearadm") {
-      $cmd = "ln -s $FindBin::Bin/etc/init.d/clearadm $confdir";
+    unless (-e "$confdir/clearagent") {
+      $cmd = "ln -s $FindBin::Bin/etc/init.d/clearagent $confdir";
   
       ($status, @output) = Execute "$cmd 2>&1";
   
-      error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
+      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
         if $status;
     } # unless
 
     # Setup runlevel links
-    $cmd = 'update-rc.d clearagent defaults';
+    if ($ARCHITECTURE eq 'solaris') {
+      $cmd = "ln -s /etc/init.d/clearagent /etc/rc2.d/S90clearagent";
+
+      ($status, @output) = Execute "$cmd 2>&1";
+
+      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
+        if $status;
+
+      verbose 'Starting clearagent';
     
-    ($status, @output) = Execute "$cmd 2>&1";
+      $cmd = '/etc/init.d/clearagent';
+
+      ($status, @output) = Execute "$cmd 2>&1";
   
-    error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
-      if $status;
-      
-    verbose 'Starting clearagent';
+      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
+        if $status;
+    } else {
+      $cmd = 'update-rc.d clearagent defaults';
     
-    $cmd = 'service clearagent start';
+      ($status, @output) = Execute "$cmd 2>&1";
   
-    error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
-      if $status;
+      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
+        if $status;
+
+      verbose 'Starting clearagent';
+    
+      $cmd = 'service clearagent start';
+  
+      error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
+        if $status;
+    } # if
   } # if
 
   verbose "Done";
@@ -176,7 +204,7 @@ sub SetupTasks () {
   
     ($status, @output) = Execute "$cmd 2>&1";
  
-    error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
+    error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
       if $status;
   } # unless
 
@@ -185,7 +213,7 @@ sub SetupTasks () {
     
   ($status, @output) = Execute "$cmd 2>&1";
   
-  error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
+  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
     if $status;
  
   verbose 'Starting cleartasks';
@@ -194,7 +222,7 @@ sub SetupTasks () {
   
   ($status, @output) = Execute "$cmd 2>&1";
   
-  error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
+  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
     if $status;
 
   verbose 'Done';
@@ -218,11 +246,11 @@ sub SetupWeb () {
   
     ($status, @output) = Execute "$cmd 2>&1";
   
-    error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
+    error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
       if $status;
   } # unless
     
-  if ($ARCH eq 'cygwin') {
+  if ($ARCHITECTURE eq 'cygwin') {
     $cmd = 'net stop apache2; net start apache2';
   } else {
     $cmd = '/etc/init.d/apache2 restart';
@@ -230,7 +258,7 @@ sub SetupWeb () {
   
   ($status, @output) = Execute "$cmd 2>&1";
   
-  error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
+  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
     if $status;
 
   verbose 'Done';
@@ -249,7 +277,7 @@ sub SetupDatabase () {
   
   ($status, @output) = Execute "$cmd 2>&1";
   
-  error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
+  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
     if $status;
 
   verbose 'Setting up database users';
@@ -258,7 +286,7 @@ sub SetupDatabase () {
   
   ($status, @output) = Execute "$cmd 2>&1";
   
-  error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
+  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
     if $status;
 
   verbose 'Setting up predefined tasks';
@@ -267,7 +295,7 @@ sub SetupDatabase () {
   
   ($status, @output) = Execute "$cmd 2>&1";
   
-  error "Unable to execute $cmd (Status: $status)\n" . join ("\n", @output), 1
+  error "Unable to execute $cmd (Status: $status)\n" . join("\n", @output), $status
     if $status;
 
   verbose 'Done';
@@ -277,10 +305,10 @@ sub SetupDatabase () {
 
 # Main
 error "Cannot setup Clearadm when using Windows - hint try using Cgywin", 1 
-  if $ARCH eq 'windows';
+  if $ARCHITECTURE eq 'windows';
 
 Usage 'You must be root'
-  unless $> == 0 or $ARCH eq 'cygwin'; 
+  unless $> == 0 or $ARCHITECTURE eq 'cygwin'; 
   
 my $package = 'all';
 

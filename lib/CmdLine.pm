@@ -507,7 +507,7 @@ Returns:
 
   my $me = get_me;
 
-  $histfile ||= ".${me}_hist";
+  $histfile ||= "$ENV{HOME}/.${me}_hist";
 
   error "Creating bogus .${me}_hist file!"
     if $me eq '-' or $me eq '';

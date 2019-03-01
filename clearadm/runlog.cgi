@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =pod 
 
@@ -84,14 +84,11 @@ my $title = 'Run Log';
 
 heading $title;
 
-undef $opts{task}
-  if $opts{task} and $opts{task} eq 'All';
-  
+$opts{task}   ||= 'All';
 $opts{system} ||= 'All';
+$opts{not}    ||= 0;
+$opts{status} ||= 'All';
 
-undef $opts{status}
-  if $opts{status} and $opts{status} eq 'All';
-  
 display h1 {class => 'center'}, $title;
 
 displayRunlog (%opts);

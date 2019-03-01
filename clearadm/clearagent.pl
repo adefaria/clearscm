@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 =pod
 
@@ -57,6 +57,7 @@ use warnings;
 
 use Getopt::Long;
 use FindBin;
+use Sys::Hostname;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -95,7 +96,9 @@ $clearexec = Clearexec->new;
 
 $clearexec->setMultithreaded ($multithreaded);
 
-my $logfile = "$Clearexec::CLEAROPTS{CLEAREXEC_LOGDIR}/$FindBin::Script.log";
+my $logfile  = "$Clearexec::CLEAROPTS{CLEAREXEC_LOGDIR}/$FindBin::Script";
+   $logfile =~ s/\.pl$//;
+   $logfile .= '.' . hostname() . '.log';
 
 EnterDaemonMode $logfile, $logfile, $pidfile
   if $daemon;

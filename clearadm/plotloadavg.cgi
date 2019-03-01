@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -59,6 +59,7 @@ use strict;
 use warnings;
 
 use FindBin;
+use Convert::Base64;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
@@ -100,15 +101,15 @@ my @loads = $clearadm->GetLoadavg (
   $opts{start},
   $opts{end},
   $opts{points},
-  $opts{scaling}
+  $opts{scaling},
 );
 
-graphError "No loadavg data found for system $opts{system}"
+graphError "No loadavg data"
   unless @loads;
 
 my (@x, @y);
 
-foreach (@loads) {
+for (@loads) {
   my %load = %{$_};
   
   if ($opts{tiny}) {
@@ -118,7 +119,7 @@ foreach (@loads) {
   } # if
 
   push @y, $load{loadavg};
-} # foreach
+} # for
 
 my @data = ([@x], [@y]);
 
@@ -154,8 +155,12 @@ $graph->set (
 my $image = $graph->plot(\@data)
   or croak $graph->error;
 
-print "Content-type: image/png\n\n";
-print $image->png;
+unless ($opts{generate}) {
+  print "Content-type: image/png\n\n";
+  print $image->png;
+} else {
+  print encode_base64 $image->png;
+} # unless
 
 =pod
 

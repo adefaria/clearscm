@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -57,6 +57,7 @@ use CGI::Carp 'fatalsToBrowser';
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
 
+use Clearadm;
 use ClearadmWeb;
 use Clearcase;
 use Clearcase::View;
@@ -80,24 +81,11 @@ my $VERSION  = '$Revision: 1.11 $';
 sub DisplayTable ($) {
   my ($view) = @_;
 
-  # Data fields
-  my $tag             = setField $view->tag;
-  my $server          = setField $view->shost;
-  my $region          = setField $view->region;
-  my $properties      = setField $view->properties;
-  my $text_mode       = setField $view->text_mode;
   my $permissions     = setField $view->owner_mode
                       . setField $view->group_mode
                       . setField $view->other_mode;
-  my $owner           = setField $view->owner;
   my $active          = ($view->active) ? 'YES' : 'NO';
-  my $created_by      = setField $view->created_by;
-  my $created_date    = setField $view->created_date;
-  my $cs_updated_by   = setField $view->cs_updated_by;
-  my $cs_updated_date = setField $view->cs_updated_date;
-  my $gpath           = setField $view->gpath;
-  my $access_path     = setField $view->access_path;
-  my $uuid            = setField $view->uuid;
+  my $gpath           = $view->gpath;
 
   $gpath = font {-class => 'unknown'}, '&lt;no-gpath&gt;'
     if $gpath eq '<no-gpath>';
@@ -107,45 +95,49 @@ sub DisplayTable ($) {
     -class          => 'main',
   };
 
+  my $clearadm = Clearadm->new;
+
+  my %clearadmview = $clearadm->GetView($view->tag, $view->region);
+
   display start_Tr;
     display th {class => 'label'},              'Tag:';
-    display td {class => 'data', colspan => 3}, $tag;
+    display td {class => 'data', colspan => 3}, setField $view->tag;
     display th {class => 'label'},              'Server:';
     display td {class => 'data'}, a {
-      href => "serverdetails.cgi?server=$server"
-    }, $server;
+      href => 'systemdetails.cgi?system=' . $view->shost
+    }, $view->shost;
     display th {class => 'label'},               'Region:';
-    display td {class => 'data'},                 $region;
+    display td {class => 'data'},                 $view->region;
   display end_Tr;
 
   display start_Tr;
     display th {class => 'label'},              'Properties:';
-    display td {class => 'data', colspan => 3}, $properties;
+    display td {class => 'data', colspan => 3}, $view->properties;
     display th {class => 'label'},              'Text Mode:';
-    display td {class => 'data'},               $text_mode;
+    display td {class => 'data'},               $view->text_mode;
     display th {class => 'label'},              'Permission:';
     display td {class => 'data'},               $permissions;
   display end_Tr;
 
   display start_Tr;
     display th {class => 'label'},              'Owner:';
-    display td {class => 'data', colspan => 3}, $owner;
+    display td {class => 'data', colspan => 3}, $view->owner;
     display th {class => 'label'},              'Active:';
     display td {class => 'data', colspan => 3}, $active;
   display end_Tr;
 
   display start_Tr;
     display th {class => 'label'},              'Created by:';
-    display td {class => 'data', colspan => 3}, $created_by;
+    display td {class => 'data', colspan => 3}, $view->created_by;
     display th {class => 'label'},              'on:';
-    display td {class => 'data', colspan => 3}, $created_date;
+    display td {class => 'data', colspan => 3}, $view->created_date;
   display end_Tr;
 
   display start_Tr;
     display th {class => 'label'},              'CS Updated by:';
-    display td {class => 'data', colspan => 3}, $cs_updated_by;
+    display td {class => 'data', colspan => 3}, $view->cs_updated_by;
     display th {class => 'label'},              'on:';
-    display td {class => 'data', colspan => 3}, $cs_updated_date;
+    display td {class => 'data', colspan => 3}, $view->cs_updated_date;
   display end_Tr;
 
   display start_Tr;
@@ -155,12 +147,68 @@ sub DisplayTable ($) {
 
   display start_Tr;
     display th {class => 'label'},              'Access Path:';
-    display td {class => 'data', colspan => 7}, $access_path;
+    display td {class => 'data', colspan => 7}, $view->access_path;
   display end_Tr;
 
   display start_Tr;
     display th {class => 'label'},              'UUID:';
-    display td {class => 'data', colspan => 7}, $uuid;
+    display td {class => 'data', colspan => 7}, $view->uuid;
+  display end_Tr;
+
+  display start_Tr;
+    display th {class => 'labelCentered', colspan => 10}, 'View Storage Pools';
+  display end_Tr;
+
+  my $image = $clearadmview{dbsmall}
+    ? "data:image/png;base64,$clearadmview{dbsmall}"
+    : "plotstorage.cgi?type=view&storage=db&tiny=1&tag=" . $view->tag;
+
+  display start_Tr;
+    display th {class => 'label'},                                'Database:';
+    display td {class => 'data', colspan => 3, align => 'center'}, a {href =>
+       "plot.cgi?type=view&storage=db&scaling=Day&points=7&region=" . $view->region . '&tag=' . $view->tag
+    }, img {
+      src    => $image,
+      border => 0,
+    };
+
+    $image = $clearadmview{privatesmall}
+      ? "data:image/png;base64,$clearadmview{privatesmall}"
+      : "plotstorage.cgi?type=view&storage=private&tiny=1&tag=" . $view->tag;
+
+    display th {class => 'label'},                                'Private:';
+    display td {class => 'data', colspan => 5, align => 'center'}, a {href =>
+       "plot.cgi?type=view&storage=private&scaling=Day&points=7&region=" . $view->region . '&tag=' . $view->tag
+    }, img {
+      src    => $image,
+      border => 0,
+    };
+  display end_Tr;
+
+  $image = $clearadmview{adminsmall}
+    ? "data:image/png;base64,$clearadmview{adminsmall}"
+    : "plotstorage.cgi?type=view&storage=admin&tiny=1&tag=" . $view->tag;
+
+  display start_Tr;
+    display th {class => 'label'},                                'Admin:';
+    display td {class => 'data', colspan => 3, align => 'center'}, a {href =>
+       "plot.cgi?type=view&storage=admin&scaling=Day&points=7&region=" . $view->region . '&tag=' . $view->tag
+    }, img {
+      src    => $image,
+      border => 0,
+    };
+
+    $image = $clearadmview{totalsmall}
+      ? "data:image/png;base64,$clearadmview{totalsmall}"
+      : "plotstorage.cgi?type=view&storage=total&tiny=1&tag=" . $view->tag;
+
+    display th {class => 'label'},                                'Total Space:';
+    display td {class => 'data', colspan => 5, align => 'center'}, a {href =>
+       "plot.cgi?type=view&storage=total&scaling=Day&points=7&region=" . $view->region . '&tag=' . $view->tag
+    }, img {
+      src    => $image,
+      border => 0,
+    };
   display end_Tr;
 
   display end_table;
@@ -258,9 +306,7 @@ unless ($opts{tag}) {
   exit;
 } # unless
 
-my $view = Clearcase::View->new ($opts{tag}, $opts{region});
-
-DisplayTable $view;
+DisplayTable(Clearcase::View->new($opts{tag}, $opts{region}));
 
 footing;
 
@@ -290,6 +336,7 @@ L<Getopt::Long|Getopt::Long>
 
 =begin man 
 
+ Clearadm
  ClearadmWeb
  Clearcase
  Clearcase::View
@@ -302,6 +349,7 @@ L<Getopt::Long|Getopt::Long>
 =begin html
 
 <blockquote>
+<a href="http://clearscm.com/php/scm_man.php?file=clearadm/lib/Clearadm.pm">Clearadm</a><br>
 <a href="http://clearscm.com/php/scm_man.php?file=clearadm/lib/ClearadmWeb.pm">ClearadmWeb</a><br>
 <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase.pm">Clearcase</a><br>
 <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase/View.pm">Clearcase::View</a><br>

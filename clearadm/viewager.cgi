@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 
 =pod
 
@@ -59,7 +59,8 @@ including old ones.
 
  Where:
    -u|sage:            Displays usage
-   -region <region>:   Region to use when looking for the view
+   -region <region>:   Region to use when looking for views (Default
+                       for generate action: all)
    -e|mail:            Send email to owners of old views
    -ag|eThreshold:     Number of days before a view is considered old
                        (Default: 180)
@@ -140,11 +141,11 @@ use User;
 my $VERSION  = '$Revision: 1.11 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
-my %opts = Vars;
+my %opts;
 my $clearadm;
 
-$opts{sortby} ||= 'age';
-$opts{region} ||= $Clearcase::CC->region;
+$opts{sortby}       ||= 'age';
+$opts{ageThreshold}   = 180; # Default number of days a view must be older than
 
 my $subtitle = 'View Aging Report';
 my $email;
@@ -158,14 +159,13 @@ my $script     = 'http://'
                . $port
                . $scriptName;
 
-my (%total, $action);
-my $ageThreshold = 180; # Default number of days a view must be older than
+my %total;
 my $nbrThreshold;       # Number of views threshold - think top 10
 
 sub GenerateRegion ($) {
   my ($region) = @_;
 
-  verbose "Processing $region";
+  verbose "Processing region $region";
   $total{Regions}++;
 
   my $views = Clearcase::Views->new ($region);
@@ -176,7 +176,7 @@ sub GenerateRegion ($) {
 
   my $i = 0;
 
-  foreach my $name (@Views) {
+  for my $name (@Views) {
     $total{Views}++;
 
     if (++$i % 100 == 0) {
@@ -214,13 +214,17 @@ sub GenerateRegion ($) {
 
     my $ownerid = $view->owner;
 
-    if ($ownerid) {
-      $user = User->new ($ownerid);
+    if ($ownerid =~ /^\w+(\\|\/)(\w+)/) {
+      # TODO: Handle user identification better
+      #$user = User->new ($ownerid);
 
-      $user->{name} ||= 'Unknown';
+      $ownerid       = $2;
+      $user->{name}  = $2;
+      $user->{email} = "$2\@gddsi.com";
     } else {
       $ownerid       = 'Unknown';
       $user->{name}  = 'Unknown';
+      $user->{email} = 'unknown@gddsi.com';
     } # if
 
     my $age       = 0;
@@ -235,29 +239,40 @@ sub GenerateRegion ($) {
       # Compute age
       $age       = Age ($modified_date);
       $ageSuffix = $age != 1 ? 'days' : 'day';
-    } else {
-      $modified_date = 'Unknown';
     } # if
 
-    my ($err, $msg) = $clearadm->AddView (
-      system        => $view->shost,
-      region        => $view->region,
-      tag           => $view->tag,
-      owner         => $ownerid,
-      ownerName     => $user->{name},
-      email         => $user->{email},
-      type          => $type,
-      gpath         => $gpath,
-      modified_date => $modified_date,
-      age           => $age,
-      ageSuffix     => $ageSuffix,
+    my %oldView = $clearadm->GetView($view->tag, $view->region);
+
+    my ($err, $msg);
+
+    my %viewRec = (
+      system    => $view->shost,
+      region    => $view->region,
+      tag       => $view->tag,
+      owner     => $ownerid,
+      ownerName => $user->{name},
+      email     => $user->{email},
+      type      => $type,
+      gpath     => $gpath,
+      age       => $age,
+      ageSuffix => $ageSuffix,
     );
 
-    error "Unable to add view $name to Clearadm\n$msg", $err
-      if $err;
-  } # foreach
+    # Some views have not yet been modified
+    $viewRec{modified} = $modified_date if $modified_date;
 
-  verbose "\nProcessed $region";
+    if (%oldView) {
+      ($err, $msg) = $clearadm->UpdateView(%viewRec);
+
+      error "Unable to update view $name in Clearadm\n$msg", $err if $err;
+    } else {
+      ($err, $msg) = $clearadm->AddView (%viewRec);
+
+      error "Unable to add view $name to Clearadm\n$msg", $err if $err;
+    } # if
+  } # for
+
+  verbose "\nProcessed region $region";
   
   return;
 } # GenerateRegion
@@ -266,9 +281,9 @@ sub Generate ($) {
   my ($region) = @_;
 
   if ($region =~ /all/i) {
-     foreach ($Clearcase::CC->regions) {
-        GenerateRegion $_;
-     } # foreach
+    for ($Clearcase::CC->regions) {
+      GenerateRegion $_;
+    } # for
   } else {
     GenerateRegion $region;
   } # if
@@ -283,21 +298,21 @@ sub Report (@) {
 
   my @sortedViews;
 
-  if ($opts{sort} eq 'age') {
+  if ($opts{sortby} eq 'age') {
     # Sort by age numerically decending
     @sortedViews = sort { $$b{$opts{sortby}} <=> $$a{$opts{sortby}} } @views;
   } else {
-    @sortedViews = sort { $$a{$opts{sort}} cmp $$b{$opts{sort}} } @views;
+    @sortedViews = sort { $$a{$opts{sortby}} cmp $$b{$opts{sortby}} } @views;
   } # if
 
   $total{Reported} = 0;
 
-  foreach (@sortedViews) {
+  for (@sortedViews) {
     my %view = %{$_};
 
     last
       if ($nbrThreshold and $total{Reported} + 1 > $nbrThreshold) or
-         ($view{age} < $ageThreshold);
+         ($view{age} < $opts{ageThreshold});
 
     $total{Reported}++;
 
@@ -321,11 +336,11 @@ format STDOUT_TOP =
 .
 format STDOUT =
 @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< @<<<<<<<<<<<<<<<<<<<<< @<<<<<<<<<< @<<<<<<<<<<<<<<< @>>>> @<<<<
-$view{tag},$view{owner},$view{type},$view{modified_date},$view{age},$view{ageSuffix}
+$view{tag},$view{owner},$view{type},$view{modified},$view{age},$view{ageSuffix}
 .
 
     write;
-  } # foreach
+  } # for
   
   return;
 } # Report
@@ -369,17 +384,12 @@ sub FormatTable ($@) {
     width        => '100%',
   };
 
-  my $registryHost = $Clearcase::CC->registry_host;
-  
-  $registryHost = font {class => 'unknown'}, 'Unknown'
-    unless $registryHost;
-
   $caption   .= start_Tr;
     $caption .= td {
        -align => 'left',
        -width => '30%',
     }, font ({-class => 'label'}, 'Registry: '),
-       $registryHost, '<br>',
+       setField($Clearcase::CC->registry_host), '<br>',
        font ({-class => 'label'}, 'Views: '),
        $nbrViews;
     $caption .= td {
@@ -454,17 +464,19 @@ sub FormatTable ($@) {
     # Sort by age numerically decending
     @views = $opts{reverse} == 1
            ? sort { $$a{$opts{sortby}} <=> $$b{$opts{sortby}} } @views
-           : sort { $$b{$opts{sortby}} <=> $$a{$opts{sortby}} } @views
+           : sort { $$b{$opts{sortby}} <=> $$a{$opts{sortby}} } @views;
   } else {
     @views = $opts{reverse} == 1
            ? sort { $$b{$opts{sortby}} cmp $$a{$opts{sortby}} } @views
-           : sort { $$a{$opts{sortby}} cmp $$b{$opts{sortby}} } @views
+           : sort { $$a{$opts{sortby}} cmp $$b{$opts{sortby}} } @views;
   } # if
 
   my $i;
 
-  foreach (@views) {
+  for (@views) {
     my %view = %{$_};
+
+    next if $view{region} ne $opts{region};
 
     my $owner = $view{owner};
 
@@ -474,7 +486,9 @@ sub FormatTable ($@) {
 
     $owner = $view{ownerName} ? $view{ownerName} : 'Unknown';
 
-    my $rowClass= $view{age} > $ageThreshold ? 'oldview' : 'view';
+    next if $opts{user} and $owner ne $opts{user};
+
+    my $rowClass= $view{age} > $opts{ageThreshold} ? 'oldview' : 'view';
 
     $table   .= start_Tr {
       class => $rowClass
@@ -503,7 +517,7 @@ sub FormatTable ($@) {
         class => $view{type}
       }, $view{age}, ' ', $view{ageSuffix});
     $table .= end_Tr;
-  } # foreach
+  } # for
 
   $table .= end_table;
 
@@ -524,7 +538,7 @@ sub EmailUser ($@) {
 <p>Won't you take a moment to review this message and clean up any views you no
 longer need?</p>
 
-<p>The following views are owned by you and have not been modified in $ageThreshold
+<p>The following views are owned by you and have not been modified in $opts{ageThreshold}
 days:</p>
 END
 
@@ -587,7 +601,7 @@ sub EmailUsers (@) {
   my @userViews;
   my $currUser = $views [0]->{ownerName};
 
-  foreach (@views) {
+  for (@views) {
     my %view = %{$_};
 
     next
@@ -601,12 +615,12 @@ sub EmailUsers (@) {
 
       @userViews =();
     } else {
-      if ($view{age} > $ageThreshold) {
+      if ($view{age} > $opts{ageThreshold}) {
         push @userViews, \%view
           if !-f "$view{gpath}/ageless";
       } # if
     } # if
-  } # foreach
+  } # for
 
   display"Done";
   
@@ -627,18 +641,23 @@ GetOptions (
   'nbrThreshold=i',
 ) or Usage "Invalid parameter";
 
-local $| = 1;
+# Get options from CGI
+my %CGIOpts = Vars;
 
-$opts{region} ||= '';
+$opts{$_} = $CGIOpts{$_} for keys %CGIOpts;
+
+local $| = 1;
 
 # Announce ourselves
 verbose "$FindBin::Script v$VERSION";
 
 $clearadm = Clearadm->new;
 
-if ($action and $action eq 'generate') {
+if ($opts{action} and $opts{action} eq 'generate') {
+  $opts{region} ||= 'all';
+
   Generate $opts{region};
-  Stats \%total;
+  Stats \%total if $opts{verbose};
 } else {
   if ($opts{region} and ($opts{region} eq 'Clearcase not installed')) {
     heading;
@@ -647,6 +666,8 @@ if ($action and $action eq 'generate') {
     exit 1; 
   } # if
   
+  $opts{region} ||= $Clearcase::CC->region;
+
   my @views = $clearadm->FindView (
     'all',
     $opts{region},
@@ -654,7 +675,7 @@ if ($action and $action eq 'generate') {
     $opts{user}
   );
   
-  if ($action and $action eq 'report') {
+  if ($opts{action} and $opts{action} eq 'report') {
     Report @views;
     Stats \%total;
   } elsif ($email) {

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 =pod
 
@@ -73,36 +73,43 @@ my $clearexec = Clearexec->new;
 
 my ($delete, $host, $port);
 
-sub GetFilesystems (%) {
+sub GetFilesystems(%) {
   my (%system) = @_;
   
   # TODO: Unix/Linux systems often vary as to what parameters df supports. The
   # -P is to intended to make this POSIX standard. Need to make sure this works
   # on other systems (i.e. Solaris, HP-UX, Redhat, etc.).
-  my $cmd = $system{type} eq 'Windows' ? 'df -TP' : 'df -l -TP';
+  my $cmd = $system{type} eq 'Windows'
+          ? 'df -TP'
+	  : $system{type} eq 'Unix' # I think I need to add a Solaris type
+	  ? '/usr/xpg4/bin/df -l -P'
+	  : 'df -l -TP';
    
   my ($status, @output) = $clearexec->execute ($cmd);
   
-  error "Unable to execute uname -a - $!", $status . join ("\n". @output)
+  error "Unable to execute $cmd - $! (Status: $status)\n" . join ("\n". @output), $status
     if $status;
   
   # Real file systems start with "/"
-  @output = grep { /^\// } @output;
+  my @fs = grep { /^\// } @output;
+
+  # Also add lines that start with rpool (This is for Solaris zones
+  push @fs, grep { /^rpool/ } @output;
   
   my @filesystems;
     
-  foreach (@output) {
-  	if (/^(\S+)\s+(\S+).+?(\S+)$/) {
+  for (@fs) {
+    if (/^(\S+)\s+(\S+).+?(\S+)$/) {
       my %filesystem;
       
       $filesystem{system}     = $system{name};
-  	  $filesystem{filesystem} = $1;
-  	  $filesystem{fstype}     = $2;
-  	  $filesystem{mount}      = $3;
+      $filesystem{filesystem} = $1;
+      $filesystem{fstype}     = $2;
+      $filesystem{mount}      = $3;
 
       push @filesystems, \%filesystem;    
-  	} # if
-  } # foreach
+    } # if
+  } # for
   
   return @filesystems;
 } # GetFilesystems
@@ -146,7 +153,13 @@ sub GatherSysInfo (;%) {
     if $status;
   
   # TODO: Need to handle this better
-  $system{type} = $output[0] =~ /cygwin/i ? 'Windows' : $output[0];
+  if ($output[0] =~ /sunos/i) {
+    $system{type} = 'Unix';
+  } elsif ($output[0] =~ /cygwin/i) {
+    $system{type} = 'Windows';
+  } else {
+    $system{type} = 'Linux';
+  } # if
   
   return %system;  
 } # GatherSysInfo
@@ -156,7 +169,7 @@ sub AddFilesystems (%) {
 
   my ($err, $msg);
     
-  foreach (GetFilesystems %system) {
+  for (GetFilesystems %system) {
     my %filesystem = %{$_};
     
     my %oldfilesystem = $clearadm->GetFilesystem (
@@ -186,7 +199,7 @@ sub AddFilesystems (%) {
           . "$filesystem{system}:$filesystem{filesystem}"
         if $err;
     } # if      
-  } # foreach
+  } # for
   
   return ($err, $msg);  
 } # AddFilesystems
@@ -284,14 +297,14 @@ if ($delete) {
   } # if
 } else {
   if ($host eq 'all') {
-    foreach ($clearadm->FindSystem) {
+    for ($clearadm->FindSystem) {
       my %system = %$_;
       
       ($err, $msg) = UpdateSystem (%system);
   
       error "Unable to update host $system{name}\n$msg", $err
         if $err;
-    } # foreach
+    } # for
   } else {
     my %system = $clearadm->GetSystem ($host);
     

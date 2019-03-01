@@ -96,7 +96,11 @@ Returns:
     "mkfolder $comment -in " . $class->{parent} . ' ' . $name . '@' . $pvob->tag
   );
 
-  return $class->updateFolderInfo;
+  return if $status;
+
+  ($status, @output) = $class->updateFolderInfo;
+
+  return $status ? undef : $class;
 } # new
   
 sub name () {
@@ -416,6 +420,7 @@ sub updateFolderInfo () {
 
   return $self;
 } # updateFolderInfo
+
 1;
 
 =head1 DEPENDENCIES
