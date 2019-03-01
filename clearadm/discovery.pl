@@ -72,7 +72,7 @@ my $clearadm = Clearadm->new;
 
 my $broadcastTime = 10;
 
-sub discover ($) {
+sub discover($) {
   my ($broadcast) = @_;
   
   my $startTime = time;
@@ -96,8 +96,7 @@ sub discover ($) {
       } # unless
     } # if
   
-    last
-      if (time () - $startTime) > $broadcastTime;
+    last if (time() - $startTime) > $broadcastTime;
   } # while
 
   verbose "$broadcastTime seconds has elapsed - discovery complete";
@@ -106,9 +105,9 @@ sub discover ($) {
 } # discover
 
 # Main
-my $broadcastAddress = inet_ntoa (INADDR_BROADCAST);
+my $broadcastAddress = inet_ntoa(INADDR_BROADCAST);
 
-GetOptions (
+GetOptions(
   usage             => sub { Usage },
   verbose           => sub { set_verbose },
   debug             => sub { set_debug },
@@ -116,8 +115,7 @@ GetOptions (
   'broadcastAddr=s' => \$broadcastAddress,  
 ) or Usage "Invalid parameter";
 
-Usage 'Extraneous options: ' . join ' ', @ARGV
-  if @ARGV;
+Usage 'Extraneous options: ' . join ' ', @ARGV if @ARGV;
 
 # Announce ourselves
 verbose "$FindBin::Script V$VERSION";
@@ -147,17 +145,15 @@ verbose_nolf "Found $nbrHosts host";
 verbose_nolf 's' if $nbrHosts != 1;
 verbose      " on subnet $broadcastAddress";
 
-foreach (sort values %hosts) {
-  my $verbose = get_verbose () ? '-verbose' : '';
+for (sort values %hosts) {
+  my $verbose = get_verbose() ? '-verbose' : '';
   
   my ($status, @output) = Execute "updatesystem.pl -host $_ $verbose";
 
-  error "Unable to update host $_ (Status: $status)\n"
-      . join ("\n", @output), 1
-    if $status;
+  error "Unable to update host $_ (Status: $status)\n" . join ("\n", @output), 1 if $status;
     
   verbose join "\n", @output;
-} # foreach
+} # for
 
 =pod
 

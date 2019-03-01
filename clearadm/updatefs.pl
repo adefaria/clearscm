@@ -73,17 +73,17 @@ my $clearexec = Clearexec->new;
 my ($host, $fs);
 
 # Given a host and a filesystem, formulate a fs record
-sub snapshotFS ($$) {
+sub snapshotFS($$) {
   my ($systemRef, $filesystem) = @_;
 
   my %system = %{$systemRef};
 
-  my %filesystem = $clearadm->GetFilesystem ($system{name}, $filesystem);
+  my %filesystem = $clearadm->GetFilesystem($system{name}, $filesystem);
   
   unless (%filesystem) {
-  	error "Filesystem $host:$filesystem not in clearadm database - try adding it";
-  	
-  	return;
+    error "Filesystem $host:$filesystem not in clearadm database - try adding it";
+
+    return;
   } # unless
   
   my %fs = (
@@ -101,8 +101,8 @@ sub snapshotFS ($$) {
 
     if ($status != 0) {
       error ('Unable to determine fsinfo for '
-           . "$system{name}:$filesystem{mount} ($cmd)\n" .
-             join "\n", @unixfs);
+           . "$system{name}:$filesystem{mount} ($cmd)\n"
+           . join "\n", @unixfs);
    
       return;
     } # if
@@ -149,7 +149,7 @@ sub snapshotFS ($$) {
 } # snapshotFS
 
 # Main
-GetOptions (
+GetOptions(
   'usage'   => sub { Usage },
   'verbose' => sub { set_verbose },
   'debug'   => sub { set_debug },
@@ -157,8 +157,7 @@ GetOptions (
   'fs=s'    => \$fs,
 ) or Usage "Invalid parameter";
 
-Usage 'Extraneous options: ' . join ' ', @ARGV
-  if @ARGV;
+Usage 'Extraneous options: ' . join ' ', @ARGV if @ARGV;
 
 # Announce ourselves
 verbose "$FindBin::Script V$VERSION";
@@ -168,7 +167,7 @@ my $exit = 0;
 for my $system ($clearadm->FindSystem ($host)) {
   next if $system->{active} eq 'false';
   
-  my $status = $clearexec->connectToServer (
+  my $status = $clearexec->connectToServer(
     $system->{name}, 
     $system->{port}
   );
@@ -181,10 +180,10 @@ for my $system ($clearadm->FindSystem ($host)) {
   for my $filesystem ($clearadm->FindFilesystem ($system->{name}, $fs)) {
     verbose "Snapshotting $system->{name}:$filesystem->{filesystem}";
   
-    my %fs = snapshotFS ($system, $filesystem->{filesystem});
+    my %fs = snapshotFS($system, $filesystem->{filesystem});
     
     if (%fs) {
-      my ($err, $msg) = $clearadm->AddFS (%fs);
+      my ($err, $msg) = $clearadm->AddFS(%fs);
   
       error $msg, $err if $err;
     } # if
@@ -211,7 +210,7 @@ for my $system ($clearadm->FindSystem ($host)) {
     error "Unable to update filesystem record $msg", $err if $err;
 
     # Check if over threshold
-    my %notification = $clearadm->GetNotification ('Filesystem');
+    my %notification = $clearadm->GetNotification('Filesystem');
 
     next unless %notification;
   

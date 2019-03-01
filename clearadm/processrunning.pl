@@ -64,7 +64,7 @@ use Utils;
 my $VERSION  = '$Revision: 1.2 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
   
-sub restart ($) {
+sub restart($) {
   my ($restart) = @_;
 
   my ($status, @output) = Execute "$restart 2>&1";
@@ -72,11 +72,11 @@ sub restart ($) {
   unless ($status) {
     display "Successfully executed restart option: $restart";
       
-    display $_ foreach (@output);
+    display $_ for (@output);
   } else {
     display "Unable to restart process using $restart (Status: $status)";
       
-    display $_ foreach (@output);
+    display $_ for (@output);
   } # unless
   
   return $status;
@@ -122,19 +122,15 @@ unless ($status) {
       . join ("\n", @output), $status;
 } # if
  
-foreach (@output) {
-  next
-    if /grep -i '$name'/;
-    
-  next
-    if /grep -i $name/;
-  
-  next
-    if /$FindBin::Script/;
+for (@output) {
+  next if /grep -i '$name'/;
+  next if /grep -i $name/;
+  next if /$FindBin::Script/;
     
   display "Found processes named $name";
+
   exit 0;
-} # foreach
+} # for
 
 display "Did not find any processes named $name";
 

@@ -81,7 +81,7 @@ $CLEAROPTS{CLEAREXEC_PORT} = $ENV{CLEAREXEC_PORT}
 $CLEAROPTS{CLEAREXEC_MULTITHREADED} = $ENV{CLEAREXEC_MULTITHREADED}
   if $ENV{CLEAREXEC_MULTITHREADED};
 
-sub new () {
+sub new() {
   my ($class) = @_;
 
   my $clearadm = bless {}, $class;
@@ -91,7 +91,7 @@ sub new () {
   return $clearadm;
 } # new
 
-sub _tag ($) {
+sub _tag($) {
   my ($self, $msg) = @_;
 
   my $tag = YMDHMS;
@@ -101,7 +101,7 @@ sub _tag ($) {
   return "$tag$msg";
 } # _tag
 
-sub _verbose ($) {
+sub _verbose($) {
   my ($self, $msg) = @_;
 
   verbose $self->_tag ($msg);
@@ -109,7 +109,7 @@ sub _verbose ($) {
   return;
 } # _verbose
 
-sub _debug ($) {
+sub _debug($) {
   my ($self, $msg) = @_;
 
   debug $self->_tag ($msg);
@@ -117,7 +117,7 @@ sub _debug ($) {
   return;
 } # _debug
 
-sub _log ($) {
+sub _log($) {
   my ($self, $msg) = @_;
 
   display $self->_tag ($msg);
@@ -125,7 +125,7 @@ sub _log ($) {
   return;
 } # log
 
-sub _endServer () {
+sub _endServer() {
   display "Clearexec V$VERSION shutdown at " . localtime;
 
   # Kill process group
@@ -133,7 +133,6 @@ sub _endServer () {
 
   # Wait for all children to die
   while (wait != -1) {
-
     # do nothing
   } # while
 
@@ -141,7 +140,7 @@ sub _endServer () {
   exit;
 } # _endServer
 
-sub _restartServer () {
+sub _restartServer() {
 
   # Not sure what to do on a restart server
   display 'Entered _restartServer';
@@ -149,7 +148,7 @@ sub _restartServer () {
   return;
 } # _restartServer
 
-sub setMultithreaded ($) {
+sub setMultithreaded($) {
   my ($self, $value) = @_;
 
   my $oldValue = $self->{multithreaded};
@@ -159,13 +158,13 @@ sub setMultithreaded ($) {
   return $oldValue;
 } # setMultithreaded
 
-sub getMultithreaded () {
+sub getMultithreaded() {
   my ($self) = @_;
 
   return $self->{multithreaded};
 } # getMultithreaded
 
-sub connectToServer (;$$) {
+sub connectToServer(;$$) {
   my ($self, $host, $port) = @_;
 
   $host ||= $CLEAROPTS{CLEAREXEC_HOST};
@@ -179,8 +178,7 @@ sub connectToServer (;$$) {
 
   return unless $self->{socket};
 
-  $self->{socket}->autoflush
-    if $self->{socket};
+  $self->{socket}->autoflush if $self->{socket};
 
   $self->{host} = $host;
   $self->{port} = $port;
@@ -194,7 +192,7 @@ sub connectToServer (;$$) {
   return;
 } # connectToServer
 
-sub disconnectFromServer () {
+sub disconnectFromServer() {
   my ($self) = @_;
 
   undef $self->{socket};
@@ -202,11 +200,10 @@ sub disconnectFromServer () {
   return;
 } # disconnectFromServer
 
-sub execute ($) {
+sub execute($) {
   my ($self, $cmd) = @_;
 
-  return (-1, 'Unable to talk to server')
-    unless $self->{socket};
+  return (-1, 'Unable to talk to server') unless $self->{socket};
 
   my ($status, $statusLine, @output) = (-1, '', ());
 
@@ -230,14 +227,13 @@ sub execute ($) {
   return ($status, @output);
 } # execute
 
-sub _serviceClient ($$) {
+sub _serviceClient($$) {
   my ($self, $host, $client) = @_;
 
   $self->_verbose ("Serving requests from $host");
 
   # Set autoflush for client
-  $client->autoflush
-    if $client;
+  $client->autoflush if $client;
 
   while () {
     # Read command from client
@@ -274,8 +270,7 @@ sub _serviceClient ($$) {
       $self->_debug ("Returning 0, undef");
     } else {
       # Combines STDERR -> STDOUT if not already specified
-      $cmd .= ' 2>&1'
-        unless $cmd =~ /2>&1/;
+      $cmd .= ' 2>&1' unless $cmd =~ /2>&1/;
 
       $self->_debug ("Executing $cmd");
       ($status, @output) = Execute $cmd;
@@ -295,7 +290,7 @@ sub _serviceClient ($$) {
   return;
 } # _serviceClient
 
-sub startServer (;$) {
+sub startServer(;$) {
   my ($self, $port) = @_;
 
   $port ||= $CLEAROPTS{CLEAREXEC_PORT};
@@ -308,8 +303,7 @@ sub startServer (;$) {
     Reuse     => 1
   );
 
-  error "Could not create socket - $!", 1
-    unless $self->{socket};
+  error "Could not create socket - $!", 1 unless $self->{socket};
 
   # Announce ourselves
   $self->_log ("Clearexec V$VERSION accepting clients at " . localtime);

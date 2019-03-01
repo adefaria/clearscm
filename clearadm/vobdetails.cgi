@@ -52,7 +52,7 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
-use CGI qw (:standard :cgi-lib *table start_Tr end_Tr);
+use CGI qw(:standard :cgi-lib *table start_Tr end_Tr);
 use CGI::Carp 'fatalsToBrowser';
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
@@ -78,7 +78,7 @@ if ($Clearcase::CC->region) {
 my $VERSION  = '$Revision: 1.11 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
-sub DisplayTable ($) {
+sub DisplayTable($) {
   my ($vob) = @_;
 
   my $active = ($vob->active) ? 'YES' : 'NO';
@@ -287,21 +287,21 @@ sub DisplayTable ($) {
   return;
 } # DisplayTable
 
-sub DisplayRegion {
+sub DisplayRegion() {
   display start_form (action => 'vobdetails.cgi');
 
   display 'Region ';
 
   my ($defaultRegion, @regions) = ('', ('Clearcase not installed'));
 
-  display popup_menu (
+  display popup_menu(
     -name     => 'region',
     -values   => [@regions],
     -default  => $defaultRegion,
     -onchange => 'submit();',
   );
 
-  display submit (
+  display submit(
     -value => 'Go',
   );
 
@@ -319,11 +319,11 @@ sub DisplayVobs($) {
     push @vobs, 'No VOBs';
   } # unless
 
-  display start_form (action => 'vobdetails.cgi');
+  display start_form(action => 'vobdetails.cgi');
 
   display 'Region ';
 
-  display popup_menu (
+  display popup_menu(
     -name     => 'region',
     -values   => [$Clearcase::CC->regions],
     -default  => $region,
@@ -332,13 +332,13 @@ sub DisplayVobs($) {
 
   display b ' VOB: ';
 
-  display popup_menu (
+  display popup_menu(
      -name     => 'vob',
      -values   => \@vobs,
      -onchange => 'submit();',
   );
 
-  display submit (
+  display submit(
     -value     => 'Go',
   );
 
@@ -348,7 +348,7 @@ sub DisplayVobs($) {
 } # DisplayVobs
 
 # Main
-GetOptions (
+GetOptions(
   \%opts,
   'usage'        => sub { Usage },
   'verbose'      => sub { set_verbose },
@@ -376,7 +376,7 @@ unless ($opts{tag}) {
   exit;
 } # unless
 
-my $vob = Clearcase::Vob->new ($opts{tag}, $opts{region});
+my $vob = Clearcase::Vob->new($opts{tag}, $opts{region});
 
 DisplayTable $vob;
 

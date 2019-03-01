@@ -80,7 +80,7 @@ my $clearexec;
 my $multithreaded = $Clearexec::CLEAROPTS{CLEAREXEC_MULTITHREADED};
 my $daemon        = 1;
 
-GetOptions (
+GetOptions(
   'usage'           => sub { Usage },
   'verbose'         => sub { set_verbose },
   'debug'           => sub { set_debug },
@@ -94,14 +94,13 @@ Usage 'Extraneous options: ' . join ' ', @ARGV
 
 $clearexec = Clearexec->new;
 
-$clearexec->setMultithreaded ($multithreaded);
+$clearexec->setMultithreaded($multithreaded);
 
 my $logfile  = "$Clearexec::CLEAROPTS{CLEAREXEC_LOGDIR}/$FindBin::Script";
    $logfile =~ s/\.pl$//;
    $logfile .= '.' . hostname() . '.log';
 
-EnterDaemonMode $logfile, $logfile, $pidfile
-  if $daemon;
+EnterDaemonMode $logfile, $logfile, $pidfile if $daemon;
   
 display "$FindBin::Script V$VERSION started at " . localtime;
 

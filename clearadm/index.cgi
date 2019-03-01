@@ -42,7 +42,7 @@ use warnings;
 use FindBin;
 use Getopt::Long;
 
-use CGI qw (:standard *table start_Tr end_Tr);
+use CGI qw(:standard *table start_Tr end_Tr);
 use CGI::Carp 'fatalsToBrowser';
 use Convert::Base64;
 
@@ -58,7 +58,7 @@ use Utils;
 my $clearadm = Clearadm->new;
 
 # Main
-GetOptions (
+GetOptions(
   'usage'        => sub { Usage },
   'verbose'      => sub { set_verbose },
   'debug'        => sub { set_debug },

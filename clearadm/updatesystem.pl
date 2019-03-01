@@ -85,10 +85,9 @@ sub GetFilesystems(%) {
 	  ? '/usr/xpg4/bin/df -l -P'
 	  : 'df -l -TP';
    
-  my ($status, @output) = $clearexec->execute ($cmd);
+  my ($status, @output) = $clearexec->execute($cmd);
   
-  error "Unable to execute $cmd - $! (Status: $status)\n" . join ("\n". @output), $status
-    if $status;
+  error "Unable to execute $cmd - $! (Status: $status)\n" . join ("\n". @output), $status if $status;
   
   # Real file systems start with "/"
   my @fs = grep { /^\// } @output;
@@ -114,19 +113,18 @@ sub GetFilesystems(%) {
   return @filesystems;
 } # GetFilesystems
 
-sub GatherSysInfo (;%) {
+sub GatherSysInfo(;%) {
   my (%system) = @_;
 
   # Set name if not currently set  
-  $system{name} = $host
-    unless $system{name};
+  $system{name} = $host unless $system{name};
     
   my ($status, @output);
   
   $system{port} ||= $port;
 
   # Connect to clearexec server
-  $status = $clearexec->connectToServer ($system{name}, $system{port});
+  $status = $clearexec->connectToServer($system{name}, $system{port});
 
   unless ($status) {
     warning "Unable to connect to $system{name}:$port";
@@ -136,10 +134,9 @@ sub GatherSysInfo (;%) {
   # Get OS info
   my $cmd = 'uname -a';
 
-  ($status, @output) = $clearexec->execute ($cmd);
+  ($status, @output) = $clearexec->execute($cmd);
   
-  error "Unable to execute '$cmd' - $!", $status . join ("\n". @output)
-    if $status;
+  error "Unable to execute '$cmd' - $!", $status . join("\n". @output) if $status;
   
   $system{os} = $output[0];
   
@@ -147,10 +144,9 @@ sub GatherSysInfo (;%) {
   
   $cmd = 'uname -s';
   
-  ($status, @output) = $clearexec->execute ($cmd);
+  ($status, @output) = $clearexec->execute($cmd);
 
-  error "Unable to execute '$cmd' - $!", $status . join ("\n". @output)
-    if $status;
+  error "Unable to execute '$cmd' - $!", $status . join("\n". @output) if $status;
   
   # TODO: Need to handle this better
   if ($output[0] =~ /sunos/i) {
@@ -164,7 +160,7 @@ sub GatherSysInfo (;%) {
   return %system;  
 } # GatherSysInfo
 
-sub AddFilesystems (%) {
+sub AddFilesystems(%) {
   my (%system) = @_;
 
   my ($err, $msg);
@@ -172,7 +168,7 @@ sub AddFilesystems (%) {
   for (GetFilesystems %system) {
     my %filesystem = %{$_};
     
-    my %oldfilesystem = $clearadm->GetFilesystem (
+    my %oldfilesystem = $clearadm->GetFilesystem(
       $filesystem{system},
       $filesystem{filesystem}
     );
@@ -180,31 +176,29 @@ sub AddFilesystems (%) {
     if (%oldfilesystem) {
       verbose "Updating filesystem $filesystem{system}:$filesystem{filesystem}";
       
-      ($err, $msg) = $clearadm->UpdateFilesystem (
+      ($err, $msg) = $clearadm->UpdateFilesystem(
         $filesystem{system},
         $filesystem{filesystem},
         %filesystem,
       );
       
       error 'Unable to update filesystem '
-          . "$filesystem{system}:$filesystem{filesystem}"
-        if $err;
+          . "$filesystem{system}:$filesystem{filesystem}" if $err;
     } else {
       verbose 'Adding filesystem '
             . "$filesystem{system}:$filesystem{filesystem}";
     
-      ($err, $msg) = $clearadm->AddFilesystem (%filesystem);
+      ($err, $msg) = $clearadm->AddFilesystem(%filesystem);
 
       error 'Unable to add filesystem '
-          . "$filesystem{system}:$filesystem{filesystem}"
-        if $err;
-    } # if      
+          . "$filesystem{system}:$filesystem{filesystem}" if $err;
+    } # if
   } # for
   
   return ($err, $msg);  
 } # AddFilesystems
 
-sub AddSystem ($) {
+sub AddSystem($) {
   my ($system) = @_;
   
   verbose "Adding newhost $system";
@@ -214,10 +208,9 @@ sub AddSystem ($) {
   # If GatherSysInfo was able to connect to clearagent it will set this field
   my $clearagent = delete $system{clearagent};
   
-  my ($err, $msg) = $clearadm->AddSystem (%system);
+  my ($err, $msg) = $clearadm->AddSystem(%system);
   
-  return ($err, $msg)
-    if $err;
+  return ($err, $msg) if $err;
     
   if ($clearagent) {
     return AddFilesystems %system;
@@ -226,12 +219,12 @@ sub AddSystem ($) {
   } # if
 } # AddSystem
 
-sub UpdateSystem (%) {
+sub UpdateSystem(%) {
   my (%system) = @_;
   
   my ($err, $msg);
   
-  %system = GatherSysInfo (%system);
+  %system = GatherSysInfo(%system);
   
   # If GatherSysInfo was able to connect to clearagent it will set this field
   my $clearagent = delete $system{clearagent};
@@ -240,7 +233,7 @@ sub UpdateSystem (%) {
   
   verbose "Updating existing host $system{name}";
   
-  ($err, $msg) = $clearadm->UpdateSystem ($system{name}, %system);
+  ($err, $msg) = $clearadm->UpdateSystem($system{name}, %system);
     
   return ($err, $msg) if $err;
 
@@ -255,7 +248,7 @@ sub UpdateSystem (%) {
 $host = hostname;
 $port = $Clearexec::CLEAROPTS{CLEAREXEC_PORT};
 
-GetOptions (
+GetOptions(
   'usage'   => sub { Usage },
   'verbose' => sub { set_verbose },
   'debug'   => sub { set_debug },
@@ -264,12 +257,10 @@ GetOptions (
   'port=s'  => \$port,
 ) or Usage "Invalid parameter";
 
-Usage 'Extraneous options: ' . join ' ', @ARGV
-  if @ARGV;
+Usage 'Extraneous options: ' . join ' ', @ARGV if @ARGV;
 
 if ($delete) {
-  error "Must specify -host if you specify -delete", 1
-    unless $host;
+  error "Must specify -host if you specify -delete", 1 unless $host;
 } # if
 
 # Announce ourselves
@@ -283,7 +274,7 @@ if ($delete) {
   my $answer = <STDIN>;
   
   if ($answer =~ /(y|yes)/i) {
-    ($err, $msg) = $clearadm->DeleteSystem ($host);
+    ($err, $msg) = $clearadm->DeleteSystem($host);
   
     if ($err == 0) {
        error "No host named $host in database";
@@ -300,18 +291,17 @@ if ($delete) {
     for ($clearadm->FindSystem) {
       my %system = %$_;
       
-      ($err, $msg) = UpdateSystem (%system);
+      ($err, $msg) = UpdateSystem(%system);
   
-      error "Unable to update host $system{name}\n$msg", $err
-        if $err;
+      error "Unable to update host $system{name}\n$msg", $err if $err;
     } # for
   } else {
-    my %system = $clearadm->GetSystem ($host);
+    my %system = $clearadm->GetSystem($host);
     
     if (%system) {
-      ($err, $msg) = UpdateSystem (%system);
+      ($err, $msg) = UpdateSystem(%system);
     } else {
-      ($err, $msg) = AddSystem ($host);
+      ($err, $msg) = AddSystem($host);
     } # if
 
     if ($err) {

@@ -52,7 +52,7 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
-use CGI qw (:standard :cgi-lib *table start_Tr end_Tr);
+use CGI qw(:standard :cgi-lib *table start_Tr end_Tr);
 use CGI::Carp 'fatalsToBrowser';
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
@@ -69,13 +69,9 @@ my %opts = Vars;
 
 my $subtitle = 'View Details';
 
-if ($Clearcase::CC->region) {
-  $opts{region} ||= $Clearcase::CC->region;
-} else {
-  $opts{region} ||= 'Clearcase not installed';
-} # if
+$opts{region} ||= $Clearcase::CC->region;
 
-my $VERSION  = '$Revision: 1.11 $';
+my $VERSION  = '$Revision: 1.12 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
 sub DisplayTable ($) {
@@ -216,17 +212,15 @@ sub DisplayTable ($) {
   return
 } # DisplayTable
 
-sub DisplayRegion {
+sub DisplayRegion() {
   display start_form (action => 'viewdetails.cgi');
 
   display 'Region ';
 
-  my ($defaultRegion, @regions) = ('', ('Clearcase not installed'));
-
   display popup_menu (
     -name     => 'region',
-    -values   => [@regions],
-    -default  => $defaultRegion,
+    -values   => [$Clearcase::CC->regions],
+    -default  => $Clearcase::CC->region,
     -onchange => 'submit();',
   );
 
@@ -239,7 +233,7 @@ sub DisplayRegion {
   return
 } # DisplayRegion
 
-sub DisplayViews ($) {
+sub DisplayViews($) {
   my ($region) = @_;
 
   my $views = Clearcase::Views->new ($region);
@@ -249,7 +243,7 @@ sub DisplayViews ($) {
     push @views, 'No Views';
   } # unless
 
-  display start_form (action => 'viewdetails.cgi');
+  display start_form(action => 'viewdetails.cgi');
 
   display 'Region ';
 
@@ -268,7 +262,7 @@ sub DisplayViews ($) {
      -onchange => 'submit();',
   );
 
-  display submit (
+  display submit(
     -value     => 'Go',
   );
 
@@ -278,7 +272,7 @@ sub DisplayViews ($) {
 } # DisplayViews
 
 # Main
-GetOptions (
+GetOptions(
   \%opts,
   'usage'        => sub { Usage },
   'verbose'      => sub { set_verbose },

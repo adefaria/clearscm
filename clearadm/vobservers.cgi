@@ -51,7 +51,7 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
-use CGI qw (:standard :cgi-lib *table start_Tr end_Tr start_ol end_ol);
+use CGI qw(:standard :cgi-lib *table start_Tr end_Tr start_ol end_ol);
 use CGI::Carp 'fatalsToBrowser';
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
@@ -135,7 +135,7 @@ sub DisplayVobs($) {
   display end_table;
 } # DisplayVob
 
-sub DisplayTable (@) {
+sub DisplayTable(@) {
   my (@vobServers) = @_;
 
   my $unknown = font {-class => 'unknown'}, 'Unknown';
@@ -177,7 +177,7 @@ sub DisplayTable (@) {
   my $server;
 
   for (@vobServers) {
-    $server = Clearcase::Server->new ($_, $opts{region});
+    $server = Clearcase::Server->new($_, $opts{region});
 
     display start_Tr;
       display td {
@@ -323,7 +323,7 @@ sub DisplayTable (@) {
 } # DisplayTable
 
 # Main
-GetOptions (
+GetOptions(
   \%opts,
   'usage'        => sub { Usage },
   'verbose'      => sub { set_verbose },
@@ -345,8 +345,7 @@ my ($status, @output) = $Clearcase::CC->execute (
 );
 
 error "Unable to list all vobs in the region $opts{region}"
-    . join ("\n", @output), 1
-  if $status;
+    . join("\n", @output), 1 if $status;
 
 my %vobServers;
 
@@ -356,7 +355,7 @@ for (@output) {
   } # if
 } # for
 
-DisplayTable sort (keys (%vobServers));
+DisplayTable sort(keys(%vobServers));
 
 footing;
 

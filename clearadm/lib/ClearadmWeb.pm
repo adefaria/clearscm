@@ -47,7 +47,7 @@ use strict;
 
 use base 'Exporter';
 
-use CGI qw (
+use CGI qw(
   :standard
    start_a
    end_a
@@ -85,7 +85,7 @@ our $APPNAME= 'Clearadm';
 our $VERSION  = '$Revision: 1.46 $';
    ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
-our @EXPORT = qw (
+our @EXPORT = qw(
   autoScale
   displayError
   displayAlert
@@ -165,7 +165,7 @@ our @PREDEFINED_MULTIPLIERS = (
   'Days',
 );
 
-sub dbug ($) {
+sub dbug($) {
   my ($msg) = @_;
 
   display font ({-class => 'error'}, '<br>DEBUG: '). $msg;
@@ -173,7 +173,7 @@ sub dbug ($) {
   return;
 } # dbug
 
-sub displayError ($) {
+sub displayError($) {
   my ($msg) = @_;
 
   display font ({-class => 'error'}, 'Error: ') . $msg;
@@ -181,7 +181,7 @@ sub displayError ($) {
   return
 } # displayError;
 
-sub setField ($;$) {
+sub setField($;$) {
   my ($field, $label) = @_;
 
   $label ||= 'Unknown';
@@ -191,7 +191,7 @@ sub setField ($;$) {
   return defined $field ? $field : $undef;
 } # setField
 
-sub setFields ($%) {
+sub setFields($%) {
   my ($label, %rec) = @_;
 
   $rec{$_} = setField ($rec{$_}, $label)
@@ -200,7 +200,7 @@ sub setFields ($%) {
   return %rec;
 } # setFields;
 
-sub dumpVars (%) {
+sub dumpVars(%) {
   my (%vars) = @_;
 
   for (keys %vars) {
@@ -210,7 +210,7 @@ sub dumpVars (%) {
   return;
 } # dumpVars
 
-sub graphError ($) {
+sub graphError($) {
   my ($msg) = @_;
 
   use GD;
@@ -240,7 +240,7 @@ sub graphError ($) {
   exit;
 } # graphError
 
-sub autoScale ($) {
+sub autoScale($) {
   my ($amount) = @_;
 
   my $kbyte = 1024;
@@ -256,7 +256,7 @@ sub autoScale ($) {
   return $size;
 } # autoScale
 
-sub _makeAlertlogSelection ($$) {
+sub _makeAlertlogSelection($$) {
   my ($name, $default) = @_;
 
   $default ||= 'All';
@@ -278,7 +278,7 @@ sub _makeAlertlogSelection ($$) {
   return $dropdown;
 } # _makeAlertlogSelection
 
-sub _makeRunlogSelection ($$) {
+sub _makeRunlogSelection($$) {
   my ($name, $default) = @_;
 
   $default ||= 'All';
@@ -308,7 +308,7 @@ sub _makeRunlogSelection ($$) {
   return $dropdown;
 } # _makeRunlogSelection
 
-sub _makeRunlogSelectionNumeric ($$) {
+sub _makeRunlogSelectionNumeric($$) {
   my ($name, $default) = @_;
 
   $default ||= 'All';
@@ -327,15 +327,14 @@ sub _makeRunlogSelectionNumeric ($$) {
   return $dropdown;
 } # _makeRunlogSelection
 
-sub makeAlertDropdown (;$$) {
+sub makeAlertDropdown(;$$) {
   my ($label, $default) = @_;
 
   $label ||= '';
 
   my @values;
 
-  push @values, $$_{name}
-    for ($clearadm->FindAlert);
+  push @values, $$_{name} for ($clearadm->FindAlert);
 
   my $dropdown  = "$label ";
      $dropdown .= popup_menu {
@@ -348,7 +347,7 @@ sub makeAlertDropdown (;$$) {
   return $dropdown;
 } # makeAlertDropdown
 
-sub makeMultiplierDropdown (;$$) {
+sub makeMultiplierDropdown(;$$) {
   my ($label, $default) = @_;
 
   $label ||= '';
@@ -364,7 +363,7 @@ sub makeMultiplierDropdown (;$$) {
   return $dropdown;
 } # makeMultiplierDropdown
 
-sub makeNoMoreThanDropdown (;$$) {
+sub makeNoMoreThanDropdown(;$$) {
   my ($label, $default) = @_;
 
   $label ||= '';
@@ -431,7 +430,7 @@ sub makeStoragePoolDropdown($$) {
   return span {id => $type}, $dropdown;
 } # makeStoragePoolsDropdown
     
-sub makeFilesystemDropdown ($;$$$) {
+sub makeFilesystemDropdown($;$$$) {
   my ($system, $label, $default, $onchange) = @_;
 
   $label ||= '';
@@ -459,7 +458,7 @@ sub makeFilesystemDropdown ($;$$$) {
   return span {id => 'filesystems'}, $dropdown;
 } # makeFilesystemDropdown
 
-sub makeIntervalDropdown (;$$$) {
+sub makeIntervalDropdown(;$$$) {
   my ($label, $default, $onchange) = @_;
 
   $label ||= '';
@@ -471,8 +470,7 @@ sub makeIntervalDropdown (;$$$) {
     'Month',
   );
 
-  $default = ucfirst lc $default
-    if $default;
+  $default = ucfirst lc $default if $default;
 
   my $dropdown  = "$label ";
      $dropdown .= popup_menu {
@@ -487,7 +485,7 @@ sub makeIntervalDropdown (;$$$) {
    return span {id => 'scaling'}, $dropdown;
 } # makeIntervalDropdown;
 
-sub makeNotificationDropdown (;$$) {
+sub makeNotificationDropdown(;$$) {
   my ($label, $default) = @_;
 
   $label ||= '';
@@ -508,7 +506,7 @@ sub makeNotificationDropdown (;$$) {
   return $dropdown;
 } # makeNotificationDropdown
 
-sub makeRestartableDropdown (;$$) {
+sub makeRestartableDropdown(;$$) {
   my ($label, $default) = @_;
 
   $label ||= '';
@@ -529,7 +527,7 @@ sub makeRestartableDropdown (;$$) {
   return $dropdown;
 } # makeRestartableDropdown
 
-sub makeSystemDropdown (;$$$%) {
+sub makeSystemDropdown(;$$$%) {
   my ($label, $default, $onchange, %systems) = @_;
 
   $label ||= '';
@@ -556,7 +554,7 @@ sub makeSystemDropdown (;$$$%) {
   return span {id => 'systems'}, $systemDropdown;
 } # makeSystemDropdown
 
-sub makeTaskDropdown (;$$) {
+sub makeTaskDropdown(;$$) {
   my ($label, $default) = @_;
 
   $label ||= '';
@@ -577,7 +575,7 @@ sub makeTaskDropdown (;$$) {
   return $taskDropdown;
 } # makeTaskDropdown
 
-sub makeTimeDropdown ($$$;$$$$$) {
+sub makeTimeDropdown($$$;$$$$$) {
   my (
     $table,
     $elementID,
@@ -622,7 +620,7 @@ sub makeTimeDropdown ($$$;$$$$$) {
   return $timeDropdown;
 } # makeTimeDropdown
 
-sub heading (;$$) {
+sub heading(;$$) {
   my ($title, $type) = @_;
 
   if ($title) {
@@ -762,7 +760,7 @@ sub heading (;$$) {
   return;
 } # heading
 
-sub displayAlert (;$) {
+sub displayAlert(;$) {
   my ($alert) = @_;
 
   display start_table {cellspacing => 1};
@@ -862,7 +860,7 @@ sub displayAlert (;$) {
   return;
 } # DisplayAlerts
 
-sub displayAlertlog (%) {
+sub displayAlertlog(%) {
   my (%opts) = @_;
 
   my $optsChanged;
@@ -1085,7 +1083,7 @@ sub displayAlertlog (%) {
   return;
 } # displayAlertlog
 
-sub displayFilesystem ($) {
+sub displayFilesystem($) {
   my ($systemName) = @_;
 
   display start_table {cellspacing => 1, width => '98%'};
@@ -1235,7 +1233,7 @@ sub displayFilesystem ($) {
   return;
 } # displayFilesystem
 
-sub displayNotification (;$) {
+sub displayNotification(;$) {
   my ($notification) = @_;
 
   display start_table {cellspacing => 1};
@@ -1335,7 +1333,7 @@ sub displayNotification (;$) {
   return;
 } # displayNotification
 
-sub displayRunlog (%) {
+sub displayRunlog(%) {
   my (%opts) = @_;
 
   my $optsChanged;
@@ -1567,7 +1565,7 @@ sub displayRunlog (%) {
   return;
 } # displayRunlog
 
-sub displaySchedule () {
+sub displaySchedule() {
   display start_table {cellspacing => 1};
 
   display start_Tr;
@@ -1672,7 +1670,7 @@ sub displaySchedule () {
   return;
 } # displaySchedule
 
-sub displaySystem ($) {
+sub displaySystem($) {
   my ($systemName) = @_;
 
   my %system = $clearadm->GetSystem ($systemName);
@@ -1933,7 +1931,7 @@ sub displaySystem ($) {
   return;
 } # displaySystem
 
-sub displayTask (;$) {
+sub displayTask(;$) {
   my ($task) = @_;
 
   display start_table {cellspacing => 1, width => '98%'};
@@ -2032,7 +2030,7 @@ sub displayTask (;$) {
   return;
 } # DisplayAlerts
 
-sub editAlert (;$) {
+sub editAlert(;$) {
   my ($alert) = @_;
 
   display start_form (
@@ -2113,7 +2111,7 @@ sub editAlert (;$) {
   return;
 } # editAlert
 
-sub editFilesystem ($$) {
+sub editFilesystem($$) {
   my ($system, $filesystem) = @_;
 
   display start_form (
@@ -2214,7 +2212,7 @@ sub editFilesystem ($$) {
   return;
 } # editFilesytem
 
-sub editNotification (;$) {
+sub editNotification(;$) {
   my ($notification) = @_;
 
   display start_form (
@@ -2299,7 +2297,7 @@ sub editNotification (;$) {
   return;
 } # editNotification
 
-sub editSchedule (;$) {
+sub editSchedule(;$) {
   my ($schedule) = @_;
 
   display start_form (
@@ -2402,7 +2400,7 @@ sub editSchedule (;$) {
   return;
 } # editSchedule
 
-sub editSystem (;$) {
+sub editSystem(;$) {
   my ($system) = @_;
 
   display start_form (
@@ -2587,7 +2585,7 @@ sub editSystem (;$) {
   return;
 } # editSystem
 
-sub editTask (;$) {
+sub editTask(;$) {
   my ($task) = @_;
 
   display start_form (
@@ -2688,7 +2686,7 @@ sub editTask (;$) {
   return;
 } # editTask
 
-sub footing () {
+sub footing() {
   my $clearscm = a {-href => 'http://clearscm.com'}, 'ClearSCM, Inc.';
 
   # Figure out which script by using CLEARADM_BASE.

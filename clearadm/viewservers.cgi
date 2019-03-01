@@ -51,7 +51,7 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
-use CGI qw (:standard :cgi-lib *table start_Tr end_Tr);
+use CGI qw(:standard :cgi-lib *table start_Tr end_Tr);
 use CGI::Carp 'fatalsToBrowser';
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
@@ -71,7 +71,7 @@ my $subtitle = 'View Servers';
 my $VERSION  = '$Revision: 1.9 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
-sub DisplayTable (@) {
+sub DisplayTable(@) {
   my (@viewServers) = @_;
 
   my $unknown = font {-class => 'unknown'}, 'Unknown';
@@ -98,7 +98,7 @@ sub DisplayTable (@) {
 
   my $i = 0;
 
-  foreach (@viewServers) {
+  for (@viewServers) {
     my $server = Clearcase::Server->new ($_, $opts{region});
 
     # Data fields
@@ -123,7 +123,7 @@ sub DisplayTable (@) {
         -class => 'data',
       }, $osVer;
     display end_Tr;
-  } # foreach
+  } # for
 
   display end_table;
   
@@ -131,7 +131,7 @@ sub DisplayTable (@) {
 } # DisplayTable
 
 # Main
-GetOptions (
+GetOptions(
   \%opts,
   'usage'        => sub { Usage },
   'verbose'      => sub { set_verbose },
@@ -155,13 +155,13 @@ error "Unable to list all views in the region $opts{region}" . join ("\n", @outp
 
 my %viewServers;
 
-foreach (@output) {
+for (@output) {
   if (/Server host: (.*)/) {
     $viewServers{$1} = undef;
   } # if
-} # foreach
+} # for
 
-DisplayTable sort (keys (%viewServers));
+DisplayTable sort(keys(%viewServers));
 
 footing;
 

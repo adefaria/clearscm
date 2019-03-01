@@ -95,7 +95,7 @@ sub ToggleVerbose() {
 
 $SIG{USR1} = \&ToggleVerbose;
 
-sub HandleSystemNotCheckingIn (%) {
+sub HandleSystemNotCheckingIn(%) {
   my (%system) = @_;
    
   my $startTime = time;
@@ -110,7 +110,7 @@ sub HandleSystemNotCheckingIn (%) {
     system   => $system{name},
   );
 
-  my ($err, $msg, $lastid) = $clearadm->AddRunlog (%runlog);
+  my ($err, $msg, $lastid) = $clearadm->AddRunlog(%runlog);
   
   $clearadm->Error ("Unable to add to runlog (Status: $err)\n$msg") if $err;
    
@@ -123,8 +123,8 @@ sub HandleSystemNotCheckingIn (%) {
      $systemLink     .= "/systemdetails.cgi?system=$system{name}";
   my $runlogLink      = $Clearadm::CLEAROPTS{CLEARADM_WEBBASE};
      $runlogLink     .= "/runlog.cgi?id=$lastid";
-   my $subject         = "System is not responding (Is clearagent running?)";
-     $message = <<"END";      
+  my $subject         = "System is not responding (Is clearagent running?)";
+     $message         = <<"END";      
 <center>
 <h1><font color="red">Alert</font> System not responding!</h1>
 </center>
@@ -134,7 +134,7 @@ href="$runlogLink">not responding</a> to clearagent requests. This can happen if
 clearagent is not setup and running on the system.</p> 
 END
      
-  $clearadm->Notify (
+  $clearadm->Notify(
     $notification{name},
     $subject,
     $message,
@@ -149,7 +149,7 @@ END
   return;
 } # HandleSystemNotCheckingIn
 
-sub SystemsCheckin () {
+sub SystemsCheckin() {
   for ($clearadm->FindSystem) {
     my %system = %$_;
     
@@ -159,10 +159,7 @@ sub SystemsCheckin () {
     
     my $startTime = time;
     
-    my $status = $clearexec->connectToServer (
-      $system{name},
-      $system{port}
-    );
+    my $status = $clearexec->connectToServer($system{name}, $system{port});
     
     unless ($status) {
       HandleSystemNotCheckingIn %system;
@@ -175,10 +172,7 @@ sub SystemsCheckin () {
           . "$system{name}:$system{port}";
     
     display __FILE__ . " DEBUG: System undefined 1" unless $system{name};
-    $clearadm->UpdateSystem (
-      $system{name},
-      (lastheardfrom => Today2SQLDatetime)
-    );
+    $clearadm->UpdateSystem($system{name}, (lastheardfrom => Today2SQLDatetime));
   
     $clearadm->ClearNotifications ($system{name})
       if $system{notification} and $system{notification} eq 'Heartbeat';
@@ -187,7 +181,7 @@ sub SystemsCheckin () {
   return;
 } # SystemsCheckin
 
-sub UpdateRunlog ($$$$) {
+sub UpdateRunlog($$$$) {
   my ($status, $startTime, $task, $output) = @_;
   
   my %runlog = (
@@ -215,28 +209,28 @@ sub UpdateRunlog ($$$$) {
     } # if
   } # if
     
-  my ($err, $msg, $lastid) = $clearadm->AddRunlog (%runlog);
+  my ($err, $msg, $lastid) = $clearadm->AddRunlog(%runlog);
     
-  $clearadm->Error ($msg, $err) if $err;
+  $clearadm->Error($msg, $err) if $err;
 
   return $lastid;
 } # UpdateRunlog
 
-sub MakeSystemLink ($) {
+sub MakeSystemLink($) {
   my ($system) = @_;
   
   return "$Clearadm::CLEAROPTS{CLEARADM_WEBBASE}/systemdetails.cgi?system="
        . $system;
 } # MakeSystemLink
 
-sub MakeLoadavgLink ($) {
+sub MakeLoadavgLink($) {
   my ($system) = @_;
 
   return "$Clearadm::CLEAROPTS{CLEARADM_WEBBASE}/plot.cgi?type=loadavg&system="
        . "$system&scaling=Hour&points=24";
 } # MakeLoadavgLink
 
-sub ProcessLoadavgErrors ($$$$@) {
+sub ProcessLoadavgErrors($$$$@) {
   # TODO: Also need to handle the case where the error was something other
   # than "Load average over threshold". Perhaps by having different return
   # status. Also, runlog entry #22169 never reported!
@@ -290,12 +284,12 @@ END
 END
       $message .= join "\n", @output;
       $message .= "</pre>";
-      $clearadm->Error ($message, -1);
+      $clearadm->Error($message, -1);
       
       last;
     } # if
 
-    $clearadm->Notify (
+    $clearadm->Notify(
       $notification,
       $subject,
       $message,
@@ -309,7 +303,7 @@ END
   return;
 } # ProcessLoadAvgErrors
 
-sub ProcessFilesystemErrors ($$$$@) {
+sub ProcessFilesystemErrors($$$$@) {
   # TODO: Also need to handle the case where the error was something other
   # than "Filesystem over threshold". Perhaps by having different return
   # status.
@@ -347,7 +341,7 @@ sub ProcessFilesystemErrors ($$$$@) {
        push @fsinfo, @{$system{$systemName}};
     } # if
 
-    my $systemLink = MakeSystemLink ($systemName);
+    my $systemLink = MakeSystemLink($systemName);
     my $subject    = 'Filesystem has exceeded threshold';
     my $message = <<"END";      
 <center>
@@ -372,7 +366,7 @@ END
       
     $message .= "</ul>";
     
-    $clearadm->Notify (
+    $clearadm->Notify(
       $notification,
       $subject,
       $message,
@@ -386,7 +380,7 @@ END
   return;
 } # ProcessFilesystemErrors
 
-sub NonZeroReturn ($$$$$$) {
+sub NonZeroReturn($$$$$$) {
   my ($system, $notification, $status, $lastid, $output, $task) = @_;
 
   my @output = @{$output};
@@ -424,7 +418,7 @@ END
 
   $message .= "</pre></blockquote>";
   
-  $clearadm->Notify (
+  $clearadm->Notify(
     $notification,
     $subject,
     $message,
@@ -437,7 +431,7 @@ END
   return;   
 } # NonZeroReturn
 
-sub ExecuteTask ($%) {
+sub ExecuteTask($%) {
   my ($sleep, %task) = @_;
   
   my ($status, @output, %system, $subject, $message);
@@ -466,7 +460,7 @@ sub ExecuteTask ($%) {
                  . "execute $task{command}";
       $status = -1;
     } else {
-      ($status, @output) = $clearexec->execute ($task{command});
+      ($status, @output) = $clearexec->execute($task{command});
       
       $output[0] = "Unable to exec $task{command} on $system{name}"
         if $status == -1;
@@ -480,7 +474,7 @@ sub ExecuteTask ($%) {
   if ($status != 0) {
     if ($notification{cond}
       and $notification{cond} =~ /non zero return/i) {
-      NonZeroReturn (
+      NonZeroReturn(
         $system{name},
         $notification{name},
         $status,
@@ -489,20 +483,20 @@ sub ExecuteTask ($%) {
         \%task
       );
     } elsif ($notification{cond} =~ /loadavg over threshold/i) {
-      ProcessLoadavgErrors ($notification{name}, $task{name}, $system{name}, $lastid, @output);
+      ProcessLoadavgErrors($notification{name}, $task{name}, $system{name}, $lastid, @output);
     } elsif ($notification{cond} =~ /filesystem over threshold/i) {
-      ProcessFilesystemErrors ($notification{name}, $task{name}, $system{name}, $lastid, @output);
+      ProcessFilesystemErrors($notification{name}, $task{name}, $system{name}, $lastid, @output);
     } # if
   } else {
-    $clearadm->ClearNotifications ($task{system});
+    $clearadm->ClearNotifications($task{system});
   } # if
         
-  my ($err, $msg) = $clearadm->UpdateSchedule (
+  my ($err, $msg) = $clearadm->UpdateSchedule(
     $task{schedulename},
     ( 'lastrunid' => $lastid ),
   );
     
-  $clearadm->Error ($msg, $err) if $err;  
+  $clearadm->Error($msg, $err) if $err;
   
   $sleep -= time - $startTime;
   
@@ -510,7 +504,7 @@ sub ExecuteTask ($%) {
 } # ExecuteTask
 
 # Main
-GetOptions (
+GetOptions(
   'usage'     => sub { Usage },
   'verbose'   => sub { set_verbose },
   'debug'     => sub { set_debug },
@@ -518,11 +512,9 @@ GetOptions (
   'pidfile=s' => \$pidfile,
 ) or Usage "Invalid parameter";
 
-Usage 'Extraneous options: ' . join ' ', @ARGV
-  if @ARGV;
+Usage 'Extraneous options: ' . join ' ', @ARGV if @ARGV;
 
-EnterDaemonMode $logfile, $logfile, $pidfile
-  if $daemon;
+EnterDaemonMode $logfile, $logfile, $pidfile if $daemon;
 
 display "$FindBin::Script V$VERSION started at " . localtime;
 

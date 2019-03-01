@@ -174,7 +174,7 @@ create table vobstorage (
   source	  decimal(10,1),
   total		  decimal(10,1),
 
-  key vobtagIndex (tag),
+  key vobtagIndex (tag, region),
   primary key  (tag, region, timestamp)
   foreign key vobLink (tag, region)
     references vob (tag, region)
@@ -193,8 +193,12 @@ create table viewstorage (
   admin		decimal(10,1),
   total         decimal(10,1),
 
-  key viewtagIndex (tag),
-  primary key (tag, region, timestamp)
+  key viewtagIndex (tag, region),
+  primary key (tag, region, timestamp),
+  foreign key viewLink (tag, region)
+    references view (tag, region)
+      on delete cascade
+      on update cascade
 ) engine=innodb; -- viewstorage
 
 -- loadavg: Contains a snapshot reading of a system's load average

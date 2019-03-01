@@ -250,7 +250,7 @@ my %opts;
 # Main
 my $startTime = time;
 
-GetOptions (
+GetOptions(
   \%opts,
   'usage'   => sub { Usage },
   'verbose' => sub { set_verbose },

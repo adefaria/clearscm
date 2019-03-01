@@ -67,7 +67,7 @@ use Clearadm;
 use ClearadmWeb;
 use Display;
 
-use CGI qw (:standard :cgi-lib);
+use CGI qw(:standard :cgi-lib);
 use GD::Graph::area;
 
 my %opts = Vars;
@@ -88,7 +88,7 @@ if ($opts{tiny}) {
 
 my $clearadm = Clearadm->new;
 
-my $graph = GD::Graph::area->new ($opts{width}, $opts{height});
+my $graph = GD::Graph::area->new($opts{width}, $opts{height});
 
 graphError "System is required"
   unless $opts{system};
@@ -96,7 +96,7 @@ graphError "System is required"
 graphError "Points not numeric (points: $opts{points})"
   if $opts{points} and $opts{points} !~ /^\d+$/;
 
-my @loads = $clearadm->GetLoadavg (
+my @loads = $clearadm->GetLoadavg(
   $opts{system},
   $opts{start},
   $opts{end},
@@ -134,7 +134,7 @@ my $y_label = $opts{tiny} ? '' : 'Load';
 my $title   = $opts{tiny} ? '' : "Load Average for $opts{system}";
 my $labelY  = $opts{tiny} ? '' : '%.2f';
 
-$graph->set (
+$graph->set(
   x_label           => $x_label,
   x_labels_vertical => 1,
   x_label_skip      => $x_label_skip,

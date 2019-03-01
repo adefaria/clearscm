@@ -69,7 +69,7 @@ use Clearadm;
 use ClearadmWeb;
 use Display;
 
-use CGI qw (:standard :cgi-lib);
+use CGI qw(:standard :cgi-lib);
 use GD::Graph::area;
 
 my %opts = Vars;
@@ -90,7 +90,7 @@ if ($opts{tiny}) {
 
 my $clearadm = Clearadm->new;
 
-my $graph = GD::Graph::area->new ($opts{width}, $opts{height});
+my $graph = GD::Graph::area->new($opts{width}, $opts{height});
 
 graphError "System is required"
   unless $opts{system};
@@ -101,7 +101,7 @@ graphError "Filesystem is required"
 graphError "Points not numeric (points: $opts{points})"
   if $opts{points} and $opts{points} !~ /^\d+$/;
   
-my @fs = $clearadm->GetFS (
+my @fs = $clearadm->GetFS(
   $opts{system},
   $opts{filesystem},
   $opts{start},
@@ -117,7 +117,7 @@ my (@x, @y);
 
 my $i = 0;
 
-foreach (@fs) {
+for (@fs) {
   $i++;
   my %fs = %{$_};
   
@@ -129,7 +129,8 @@ foreach (@fs) {
 
   push @y, $opts{meg} ? $fs{used} / (1024 * 1024) :
                         $fs{used} / (1024 * 1024 * 12024);
-}
+} # for
+
 my @data = ([@x], [@y]);
 
 my $x_label_skip = @x > 1000 ? 200
@@ -145,7 +146,7 @@ my $title   = $opts{tiny} ? '' : "Filesystem usage for "
                                . "$opts{system}:$opts{filesystem}";
 my $labelY  = $opts{tiny} ? '' : '%.2f';
 
-$graph->set (
+$graph->set(
   x_label           =>$x_label,
   x_labels_vertical => 1,
   x_label_skip      => $x_label_skip,

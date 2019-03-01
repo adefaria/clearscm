@@ -40,7 +40,7 @@ use warnings;
 use FindBin;
 use Getopt::Long;
 
-use CGI qw (:standard *table start_Tr end_Tr);
+use CGI qw(:standard *table start_Tr end_Tr);
 use CGI::Carp 'fatalsToBrowser';
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
@@ -50,7 +50,7 @@ use Display;
 use Utils;
 
 # Main
-GetOptions (
+GetOptions(
   'usage'        => sub { Usage },
   'verbose'      => sub { set_verbose },
   'debug'        => sub { set_debug },
@@ -65,8 +65,7 @@ display '<pre><blockquote>';
 
 display h1 {class => 'center'}, "$ClearadmWeb::APPNAME: README";
 
-display $_
-  foreach (ReadFile 'README');
+display $_ foreach (ReadFile 'README');
 
 display '</pre></blockquote>';
 

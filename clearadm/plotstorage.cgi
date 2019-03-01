@@ -70,7 +70,7 @@ use ClearadmWeb;
 use Clearcase;
 use Display;
 
-use CGI qw (:standard :cgi-lib);
+use CGI qw(:standard :cgi-lib);
 use GD::Graph::area;
 
 my %opts = Vars;
@@ -91,7 +91,7 @@ if ($opts{tiny}) {
 
 my $clearadm = Clearadm->new;
 
-my $graph = GD::Graph::area->new ($opts{width}, $opts{height});
+my $graph = GD::Graph::area->new($opts{width}, $opts{height});
 
 graphError "Tag is required"     unless $opts{tag};
 graphError "Type is required"    unless $opts{type};
@@ -100,7 +100,7 @@ graphError "Storage is required" unless $opts{storage};
 graphError "Points not numeric (points: $opts{points})"
   if $opts{points} and $opts{points} !~ /^\d+$/;
   
-my @storage = $clearadm->GetStorage (
+my @storage = $clearadm->GetStoragePool(
   $opts{type},
   $opts{tag},
   $opts{storage},
@@ -148,7 +148,7 @@ my $title   = $opts{tiny} ? '' : "Storage usage for "
                                . "$opts{type}:$opts{tag} $storageLabel";
 my $labelY  = $opts{tiny} ? '' : '%.2f';
 
-$graph->set (
+$graph->set(
   x_label           => $x_label,
   x_labels_vertical => 1,
   x_label_skip      => $x_label_skip,

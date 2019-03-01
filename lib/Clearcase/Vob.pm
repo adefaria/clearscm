@@ -98,8 +98,8 @@ use warnings;
 use Clearcase;
 use OSDep;
 
-sub new ($) {
-  my ($class, $tag) = @_;
+sub new($;$) {
+  my ($class, $tag, $region) = @_;
 
 =pod
 
@@ -141,8 +141,11 @@ Returns:
 
 =cut
 
+  $region ||= $Clearcase::CC->region;
+
   $class = bless {
-    tag => $tag
+    tag    => $tag,
+    region => $region,
   }, $class;
 
   $class->updateVobInfo;
@@ -150,7 +153,7 @@ Returns:
   return $class;
 } # new
 
-sub tag () {
+sub tag() {
   my ($self) = @_;
    
 =pod
@@ -188,7 +191,7 @@ Returns:
   return $self->{tag};
 } # tag
 
-sub gpath () {
+sub gpath() {
   my ($self) = @_;
   
 =pod
@@ -226,7 +229,7 @@ Returns:
   return $self->{gpath};
 } # gpath
 
-sub shost () {
+sub shost() {
   my ($self) = @_;
   
 =pod
@@ -268,7 +271,8 @@ Returns:
 sub name() {
   goto &tag;
 } # name
-sub access () {
+
+sub access() {
   my ($self) = @_;
   
 =pod
@@ -308,7 +312,7 @@ Returns either public for public VOBs or private for private VOBs
   return $self->{access};
 } # access
 
-sub mopts () {
+sub mopts() {
   my ($self) = @_;
   
 =pod
@@ -346,7 +350,7 @@ Returns:
   return $self->{mopts};
 } # mopts
 
-sub region () {
+sub region() {
   my ($self) = @_;
   
 =pod
@@ -384,7 +388,7 @@ Returns:
   return $self->{region};
 } # region
 
-sub active () {
+sub active() {
   my ($self) = @_;
   
 =pod
@@ -423,7 +427,7 @@ Returns:
   return $self->{active};
 } # active
 
-sub replica_uuid () {
+sub replica_uuid() {
   my ($self) = @_;
   
 =pod
@@ -461,7 +465,7 @@ Returns:
   return $self->{replica_uuid};
 } # replica_uuid
 
-sub host () {
+sub host() {
   my ($self) = @_;
   
 =pod
@@ -499,7 +503,7 @@ Returns:
   return $self->{host};
 } # host
 
-sub access_path () {
+sub access_path() {
   my ($self) = @_;
   
 =pod
@@ -539,7 +543,7 @@ This is the path relative to the VOB's host
   return $self->{access_path};
 } # access_path
 
-sub family_uuid () {
+sub family_uuid() {
   my ($self) = @_;
   
 =pod
@@ -577,7 +581,7 @@ Returns:
   return $self->{family_uuid};
 } # family_uuid
 
-sub vob_registry_attributes () {
+sub vob_registry_attributes() {
   my ($self) = @_;
   
 =pod
@@ -615,7 +619,7 @@ Returns:
   return $self->{vob_registry_attributes};
 } # vob_registry_attributes
 
-sub expand_space () {
+sub expand_space() {
   my ($self) = @_;
 
   my ($status, @output) = $Clearcase::CC->execute ("space -vob $self->{tag}");
@@ -647,10 +651,10 @@ sub expand_space () {
   return;
 } # expand_space
 
-sub expand_description () {
+sub expand_description() {
   my ($self) = @_;
 
-  my ($status, @output) = $Clearcase::CC->execute ("describe -long vob:$self->{tag}");
+  my ($status, @output) = $Clearcase::CC->execute("describe -long vob:$self->{tag}");
 
   for (my $i = 0; $i < @output; $i++) {
     if ($output[$i] =~ /created (\S+) by (.+) \((\S+)\)/) {
@@ -1353,7 +1357,7 @@ Returns:
   return %{$self->{hyperlinks}};
 } # hyperlinks
 
-sub countdb () {
+sub countdb() {
   my ($self) = @_;
 
   # Set values to zero in case we cannot get the right values from countdb
@@ -1367,13 +1371,13 @@ sub countdb () {
   chomp $cwd;
   chdir "$self->{gpath}/db";
 
-   my $cmd    = "$Clearcase::COUNTDB vob_db 2>&1";
-   my @output = `$cmd`;
+  my $cmd    = "$Clearcase::COUNTDB vob_db 2>&1";
+  my @output = `$cmd`;
 
-   if ($? != 0) {
-     chdir $cwd;
-     return;
-    }    # if
+  if ($? != 0) {
+    chdir $cwd;
+    return;
+  } # if
 
   chomp @output;
 
@@ -1393,7 +1397,7 @@ sub countdb () {
   return;
 } # countdb
 
-sub elements () {
+sub elements() {
   my ($self) = @_;
 
 =pod
@@ -1433,7 +1437,7 @@ Returns:
   return $self->{elements};
 } # elements
 
-sub branches () {
+sub branches() {
   my ($self) = @_;
 
 =pod
@@ -1473,7 +1477,7 @@ Returns:
   return $self->{branches};
 } # branches
 
-sub versions () {
+sub versions() {
   my ($self) = @_;
 
 =pod
@@ -1513,7 +1517,7 @@ Returns:
   return $self->{versions};
 } # versions
 
-sub dbsize () {
+sub dbsize() {
   my ($self) = @_;
 
 =pod
@@ -1553,7 +1557,7 @@ Returns:
   return $self->{dbsize};
 } # dbsize
 
-sub admsize () {
+sub admsize() {
   my ($self) = @_;
 
 =pod
@@ -1593,7 +1597,7 @@ Returns:
   return $self->{admsize};
 } # admsize
 
-sub ctsize () {
+sub ctsize() {
   my ($self) = @_;
 
 =pod
@@ -1633,7 +1637,7 @@ Returns:
   return $self->{ctsize};
 } # ctsize
 
-sub dosize () {
+sub dosize() {
   my ($self) = @_;
 
 =pod
@@ -1673,7 +1677,7 @@ Returns:
   return $self->{dosize};
 } # dosize
 
-sub srcsize () {
+sub srcsize() {
   my ($self) = @_;
 
 =pod
@@ -1713,7 +1717,7 @@ Returns:
   return $self->{srcsize};
 } # srcsize
 
-sub size () {
+sub size() {
   my ($self) = @_;
 
 =pod
@@ -1753,7 +1757,7 @@ Returns:
   return $self->{size};
 } # size
 
-sub mount () {
+sub mount() {
   my ($self) = @_;
 
 =pod
@@ -1796,12 +1800,12 @@ An array of lines output from the cleartool mount command
 
   return 0 if $self->{active} && $self->{active} eq "YES";
 
-  my ($status, @output) = $Clearcase::CC->execute ("mount $self->{tag}");
+  my ($status, @output) = $Clearcase::CC->execute("mount $self->{tag}");
 
   return ($status, @output);
 } # mount
 
-sub umount () {
+sub umount() {
   my ($self) = @_;
 
 =pod
@@ -1842,12 +1846,12 @@ Ouput from cleartool
 
 =cut
 
-  my ($status, @output) = $Clearcase::CC->execute ("umount $self->{tag}");
+  my ($status, @output) = $Clearcase::CC->execute("umount $self->{tag}");
 
   return ($status, @output);
 } # umount
 
-sub exists () {
+sub exists() {
   my ($self) = @_;
 
 =pod
@@ -1882,12 +1886,12 @@ Returns:
 
 =cut
 
-  my ($status, @output) = $Clearcase::CC->execute ("lsvob $self->{tag}");
+  my ($status, @output) = $Clearcase::CC->execute("lsvob -region $self->{region} $self->{tag}");
 
   return !$status;
 } # exists
 
-sub create (;$$$%) {
+sub create(;$$$%) {
   my ($self, $host, $vbs, $comment, %opts) = @_;
 
 =pod
@@ -1956,14 +1960,14 @@ Ouput from cleartool
   if ($host && $vbs) {
     $additionalOpts .= '-ucmproject' if $self->{ucmproject};
 
-    ($status, @output) = $Clearcase::CC->execute (
+    ($status, @output) = $Clearcase::CC->execute(
       "mkvob -tag $self->{tag} $comment $additionalOpts -host $host -hpath $vbs "
     . "-gpath $vbs $vbs");
   } else {
     # Note this requires that -stgloc's work and that using -auto is not a 
     # problem.
     ($status, @output) =
-      $Clearcase::CC->execute ("mkvob -tag $self->{tag} $comment $additionalOpts -stgloc -auto");
+      $Clearcase::CC->execute("mkvob -tag $self->{tag} $comment $additionalOpts -stgloc -auto");
   } # if
 
   $self->updateVobInfo;
@@ -1971,7 +1975,7 @@ Ouput from cleartool
   return ($status, @output);
 } # create
 
-sub remove () {
+sub remove() {
   my ($self) = @_;
 
 =pod
@@ -2012,13 +2016,13 @@ Ouput from cleartool
 
 =cut
 
-  return $Clearcase::CC->execute ("rmvob -force $self->{gpath}");
+  return $Clearcase::CC->execute("rmvob -force $self->{gpath}");
 } # remove
 
 sub updateVobInfo ($$) {
   my ($self) = @_;
 
-  my ($status, @output) = $Clearcase::CC->execute ("lsvob -long $self->{tag}");
+  my ($status, @output) = $Clearcase::CC->execute("lsvob -long $self->{tag}");
 
   # Assuming this vob is an empty shell of an object that the user may possibly
   # use the create method on, return our blessings...

@@ -72,19 +72,18 @@ my $clearexec = Clearexec->new;
 my $host;
 
 # Given a host, formulate a loadavg record
-sub snapshotLoad ($) {
+sub snapshotLoad($) {
   my ($systemRef) = @_;
 
   my %system = %{$systemRef};
   
   my ($status, @output);
 
-  $status = $clearexec->connectToServer (
+  $status = $clearexec->connectToServer(
     $system{name}, $system{port}
   );
   
-  error "Unable to connect to system $system{name}:$system{port}", 1
-    unless $status;
+  error "Unable to connect to system $system{name}:$system{port}", 1 unless $status;
   
   verbose "Snapshotting load on $system{name}";
   
@@ -94,10 +93,9 @@ sub snapshotLoad ($) {
 
   my $cmd = 'uptime';
   
-  ($status, @output) = $clearexec->execute ($cmd);
+  ($status, @output) = $clearexec->execute($cmd);
 
-  return
-    if $status;
+  return if $status;
 
   # Parsing uptime is odd. Sometimes we get output like
   #
@@ -129,12 +127,11 @@ sub snapshotLoad ($) {
     my $loadvbs = 'c:/cygwin/opt/clearscm/clearadm/load.vbs';
     $cmd = "cscript /nologo $loadvbs";
   	
-    ($status, @output) = $clearexec->execute ($cmd);
+    ($status, @output) = $clearexec->execute($cmd);
   	
     chop @output if $output[0] =~ /\r/;
   	
-    return
-      if $status;
+    return if $status;
   	  
     $load{loadavg} = $output[0] / 100;
   } # if
@@ -145,28 +142,27 @@ sub snapshotLoad ($) {
 } # snapshotLoad
 
 # Main
-GetOptions (
+GetOptions(
   'usage'   => sub { Usage },
   'verbose' => sub { set_verbose },
   'debug'   => sub { set_debug },
   'host=s'  => \$host,
 ) or Usage "Invalid parameter";
 
-Usage 'Extraneous options: ' . join ' ', @ARGV
-  if @ARGV;
+Usage 'Extraneous options: ' . join ' ', @ARGV if @ARGV;
 
 # Announce ourselves
 verbose "$FindBin::Script V$VERSION";
 
 my $exit = 0;
 
-for my $system ($clearadm->FindSystem ($host)) {
+for my $system ($clearadm->FindSystem($host)) {
   next if $system->{active} eq 'false';
   
   my %load = snapshotLoad $system;
   
   if (%load) {
-    my ($err, $msg) = $clearadm->AddLoadavg (%load);
+    my ($err, $msg) = $clearadm->AddLoadavg(%load);
   
     error $msg, $err if $err;
   } else {
@@ -174,7 +170,7 @@ for my $system ($clearadm->FindSystem ($host)) {
   } # if
   
   # Check if over threshold
-  my %notification = $clearadm->GetNotification ('Loadavg');
+  my %notification = $clearadm->GetNotification('Loadavg');
 
   next unless %notification;
   

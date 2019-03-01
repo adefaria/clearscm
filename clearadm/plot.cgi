@@ -39,7 +39,7 @@ use strict;
 use warnings;
 
 use FindBin;
-use CGI qw (:standard :cgi-lib start_table end_table start_Tr end_Tr);
+use CGI qw(:standard :cgi-lib start_table end_table start_Tr end_Tr);
 use GD::Graph::area;
 
 use lib "$FindBin::Bin/lib", "$FindBin::Bin/../lib";
@@ -55,7 +55,7 @@ my %opts = Vars;
 
 my $clearadm;
 
-sub displayGraph () {
+sub displayGraph() {
   my $parms;
 
   for (keys %opts) {
@@ -120,7 +120,7 @@ sub displayGraph () {
   return;
 } # displayGraph
 
-sub displayFSInfo () {
+sub displayFSInfo() {
   if ($opts{filesystem}) {
     display h3 {-align => 'center'}, 'Latest Filesystem Reading';
   } else {
@@ -191,20 +191,20 @@ sub displayControls() {
   my ($systemLink, $systemButtons);
 
   if ($opts{type} =~ /(vob|view)/i) {
-    $tagsButtons = makeTagsDropdown ($opts{type}, $opts{tag});
+    $tagsButtons = makeTagsDropdown($opts{type}, $opts{tag});
   } else {
     $systemLink = span {id => 'systemLink'}, a {
       href => "systemdetails.cgi?system=$opts{system}",
     }, 'System';
 
-    $systemButtons = makeSystemDropdown (
+    $systemButtons = makeSystemDropdown(
       $systemLink, 
       $opts{system}, 
       'updateFilesystems(this.value);updateSystemLink(this.value)'
     );
   } # if
 
-  my $startButtons = makeTimeDropdown (
+  my $startButtons = makeTimeDropdown(
     $opts{type},
     'startTimestamp',
     $opts{system},
@@ -214,7 +214,7 @@ sub displayControls() {
     $opts{scaling},
   );
 
-  my $endButtons = makeTimeDropdown (
+  my $endButtons = makeTimeDropdown(
     $opts{type},
     'endTimestamp',
     $opts{system},
@@ -234,7 +234,7 @@ sub displayControls() {
     $update = ''; # TODO do I need something here?
   } # if
              
-  my $intervalButtons = makeIntervalDropdown (
+  my $intervalButtons = makeIntervalDropdown(
     'Interval',
     $opts{scaling},
     $update
@@ -294,7 +294,7 @@ sub displayControls() {
 
 $clearadm = Clearadm->new;
 
-my $title  = ucfirst ($opts{type}) . ': ';
+my $title  = ucfirst($opts{type}) . ': ';
 
 $title .= ucfirst $opts{system}           if $opts{system};
 $title .= ":$opts{filesystem}"            if $opts{filesystem};
