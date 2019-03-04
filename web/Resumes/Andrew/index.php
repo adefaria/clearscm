@@ -592,7 +592,7 @@ function stoptimer () {
 
   <hr noshade>
 
-  <p><a href="http://www.lynuxworks.com"><img src="Lynuxworks.gif"
+  <p><a href="http://www.lynuxworks.com"><img src="Lynuxworks.png"
   alt="Lynuxworks" title="Lynuxworks" border="0"></a></p>
 
   <p>December 2004 - September 2005<br>
@@ -614,7 +614,7 @@ function stoptimer () {
 
   <hr noshade>
 
-  <p><a href="https://www.ameriquestcorp.com/"><img src="Ameriquest.gif"
+  <p><a href="https://www.ameriquestcorp.com/"><img src="Ameriquest.png"
   alt="Ameriquest" title="Ameriquest" border="0"></a></p>
 
   <p>March 2004 - December 2005<br>
@@ -630,7 +630,7 @@ function stoptimer () {
 
   <hr noshade>
 
-  <p><a href="http://krldesign.com/saliraweb/"><img src="Salira.gif"
+  <p><a href="http://krldesign.com/saliraweb/"><img src="Salira.png"
   alt="Salira" title="Salira" border="0"></a></p>
 
   <p>August 2001 - February 2004<br>
