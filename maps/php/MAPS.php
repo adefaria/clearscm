@@ -310,15 +310,15 @@ END;
     print <<<END
   <div class="username">Welcome $Userid</div>
     <div class="menu">
-    <a href="/maps/">MAPS Home</a><br>
+    <a href="/maps/">Home</a><br>
     <a href="/maps/bin/stats.cgi">Statistics</a><br>
-    <a href="/maps/bin/editprofile.cgi">Edit Profile</a><br>
+    <a href="/maps/bin/editprofile.cgi">Profile</a><br>
     <a href="/maps/php/Reports.php">Reports</a><br>
-    <a href="/maps/php/list.php?type=white">White List</a><br>
-    <a href="/maps/php/list.php?type=black">Black List</a><br>
-    <a href="/maps/php/list.php?type=null">Null List</a><br>
+    <a href="/maps/php/list.php?type=white">White</a><br>
+    <a href="/maps/php/list.php?type=black">Black</a><br>
+    <a href="/maps/php/list.php?type=null">Null</a><br>
     <a href="/maps/doc/">Help</a><br>
-    <a href="/maps/adm/">MAPS Admin</a><br>
+    <a href="/maps/adm/">Admin</a><br>
     <a href="/maps/?logout=yes">Logout</a>
     </div>
 END;
