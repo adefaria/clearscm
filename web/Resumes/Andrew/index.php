@@ -212,6 +212,12 @@ function stoptimer () {
         </td>
       </tr>
       <tr>
+        <th>Configuration Management</th>
+        <td>
+          <span class="standout">Puppet</span>, <span class="standout">Ansible</span>
+        </td>
+      </tr>
+      <tr>
         <th>Middleware</th>
         <td>
           <span class="standout">Apache</span>, <span class="standout">Tomcat</span>,
@@ -247,9 +253,9 @@ function stoptimer () {
         </td>
       </tr>
       <tr>
-        <th>Cloud Computing</th>
+        <th>Cloud Computing (<span class="standout">Classroom Only</span>)</th>
         <td>
-          <span class="standout">AWS: EC2</span>, 
+          <span class="standout">EC2</span>, 
           <span class="standout">IAM</span>, 
           <span class="standout">S3</span>, 
           <span class="standout">Glacier</span>, 
@@ -274,25 +280,25 @@ function stoptimer () {
   <table align=center border=1 cellspacing=0 cellpadding=2 width="90%">
     <tbody>
       <tr>
-        <td><a href="http://www.linkedin.com/profile/view?id=276869">Tom Connor</a></td>
+        <td><a href="https://www.linkedin.com/in/charles-clarke-30853132/">Charles Clarke</a></td>
+        <td>(770) 252-1500</td>
+        <td><a href="mailto:charles@abs-consulting.com">charles@abs-consulting.com</a></td>
+        <td>Owner ABS Consulting</td>
+      </tr>
+      <tr>
+        <td><a href="https://www.linkedin.com/in/tom-connor-285114/">Tom Connor</a></td>
         <td>(512)-422-1172</td>
         <td><a href="mailto:tomhillconnor@yahoo.com">tomhillconnor@yahoo.com</a></td>
         <td>Coworker, Consultant</td>
       </tr>
       <tr>
-        <td><a href="http://www.linkedin.com/profile/view?id=700521">James Chen</a></td>
+        <td><a href="https://www.linkedin.com/in/specware/">James Chen</a></td>
         <td>(408)-845-5360</td>
         <td><a href="mailto:jchen@salira.com">jchen@salira.com</a></td>
-        <td>Vice President of Engineering,<br>Salira Optical Network Systems</td>
+        <td>Consultant at Specware & 2Opp, LLC</td>
       </tr>
       <tr>
-        <td><a href="http://www.linkedin.com/profile/view?id=12113821">Omair Ahmed</a></td>
-        <td>(224) 715-9786</td>
-        <td><a href="mailto:Omair.Ahmed@ge.com">omair.ahmed@ge.com</a></td>
-        <td>Coworker, General Electric</td>
-      </tr>
-      <tr>
-        <td><a href="http://www.linkedin.com/profile/view?id=1023014">Shivdutt Jha</a></td>
+        <td><a href="https://www.linkedin.com/in/shivdutt-jha-032414/">Shivdutt Jha</a></td>
         <td>(408)-806-3476</td>
         <td><a href="mailto:shivdutt_jha@hotmail.com">shivdutt_jha@hotmail.com</a></td>
         <td>Coworker, Consultant</td>
@@ -365,8 +371,8 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/Audience">Audience</a></p>
 
-  <p><span class="standout">Devops Admin</span>: Initially wrote scripts to 
-  import data from <span class="standout">Bugzilla</span> and other sources to
+  <p>Initially wrote scripts to import data from
+  <span class="standout">Bugzilla</span> and other sources to
   <span class="standout">JIRA</span> thus automating the migration of several
   projects. Also administered <span class="standout">Linux</span> servers
   (<span class="standout">Centos</span>/<span
