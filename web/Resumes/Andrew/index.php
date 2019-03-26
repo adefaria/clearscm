@@ -161,7 +161,6 @@ function stoptimer () {
       </tbody>
     </table>
 
-
   <h3>Objective</h3>
 
   <p>To work with state of the art operating systems and networks to
@@ -266,6 +265,15 @@ function stoptimer () {
       </tr>
     </tbody>
   </table>
+
+  <p><span class="standout">Important Note:</span> While I am AWS certified, I
+  currently do not have actual on the job experience with AWS. Training for obtaining
+  an AWS Certificate does require hands on with various AWS services as listed above
+  in order to properly prepare for the test. I have been working in the computer
+  field all my life and specialize in coming up to speed with new technologies
+  very quickly and feel confident that I can learn any AWS services in use at
+  your company in a short period of time. Please take this into account while
+  evaluating my skills. Thanks.</p>
 
   <h3>Education</h3>
 
