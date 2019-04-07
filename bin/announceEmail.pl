@@ -70,12 +70,14 @@ use MIME::Base64;
 use lib "$FindBin::Bin/../lib";
 
 use Display;
+use Logger;
 use Utils;
 
 my $defaultIMAPServer = 'defaria.com';
-my $defaultSleeptime  = 5;
+my $defaultSleeptime  = 1;
 my $IMAP;
 my %unseen;
+my $log;
 
 my %opts = (
   usage    => sub { pod2usage },
@@ -84,6 +86,7 @@ my %opts = (
   debug    => sub { set_debug },
   daemon   => 1,
   username => $ENV{USER},
+  password => $ENV{PASSWORD},
   imap     => $defaultIMAPServer,
   sleep    => $defaultSleeptime,
 );
@@ -99,20 +102,20 @@ sub unseenMsgs() {
 } # unseenMsgs 
 
 sub Connect2IMAP() {
-  verbose "Connecting to $opts{imap} as $opts{username}";
+  $log->msg("Connecting to $opts{imap} as $opts{username}");
 
   $IMAP = Net::IMAP::Simple->new($opts{imap}) ||
     error("Unable to connect to IMAP server $opts{imap}: " . $Net::IMAP::Simple::errstr, 1);
 
-  verbose "Connected";
+  $log->msg("Connected");
 
-  verbose "Logging onto $opts{imap} as $opts{username}";
+  $log->msg("Logging onto $opts{imap} as $opts{username}");
 
   unless ($IMAP->login($opts{username}, $opts{password})) {
-    error("Login to $opts{imap} as $opts{username} failed: " . $IMAP->errstr, 1);
+    $log->err("Login to $opts{imap} as $opts{username} failed: " . $IMAP->errstr, 1);
   } # unless
 
-  verbose "Logged on";
+  $log->msg("Logged on");
 
   # Focus on INBOX only
   $IMAP->select('INBOX');
@@ -123,10 +126,9 @@ sub Connect2IMAP() {
 } # Connect2IMAP
 
 sub MonitorMail() {
-  verbose "Monitoring email";
+  $log->msg("Monitoring email");
 
   while () {
-    verbose "Looking for unread messages";
     # First close and reselect the INBOX to get its current status
     $IMAP->close;
     $IMAP->select('INBOX');
@@ -169,9 +171,19 @@ sub MonitorMail() {
       my $msg = "Message from $from... " . quotemeta $subject;
       $msg =~ s/\"/\\"/g;
 
-      verbose "Announcing $msg";
+      if (get_verbose) {
+        $log->msg("Announcing $msg");
+      } else {
+        $log->log("Announcing $msg")
+      }
 
-      Execute "/usr/local/bin/gt \"$msg\"";
+      my $cmd = "/usr/local/bin/gt \"$msg\"";
+
+      my ($status, @output) = Execute $cmd;
+
+      if ($status) {
+        $log->err("Unable to execute $cmd" . join("\n", @output));
+      } # if
 
       $unseen{$_} = 1;
     } # for
@@ -183,7 +195,7 @@ sub MonitorMail() {
 } # MonitorMail
 
 END {
-  $IMAP->quit;
+  $IMAP->quit if $IMAP;
 } # END
 
 ## Main
@@ -206,6 +218,12 @@ unless ($opts{password}) {
 } # unless
 
 EnterDaemonMode if $opts{daemon};
+
+$log = Logger->new(
+  path        => '/var/log',
+  timestamped => 'yes',
+  append      => 'yes',
+);
 
 Connect2IMAP;
 MonitorMail;
