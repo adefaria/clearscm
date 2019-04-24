@@ -44,7 +44,7 @@ $Date: 2019/04/04 13:40:10 $
    -use|rname: User name to log in with (Default: $USER)
    -p|assword: Password to use (Default: prompted)
    -i|map:     IMAP server to talk to (Default: defaria.com)
-   -s|leep:    Number of minutes to sleep inbetween checking mail (Default: 5)
+   -s|leep:    Number of minutes to sleep inbetween checking mail (Default: 1)
 
 =head1 DESCRIPTION
 
@@ -168,14 +168,15 @@ sub MonitorMail() {
       } # if
 
       # Now speak it!
+      my $logmsg = "From $from $subject";
       my $msg = "Message from $from... " . quotemeta $subject;
       $msg =~ s/\"/\\"/g;
 
       if (get_verbose) {
-        $log->msg("Announcing $msg");
+        $log->msg($logmsg);
       } else {
-        $log->log("Announcing $msg")
-      }
+        $log->log($logmsg);
+      } # if
 
       my $cmd = "/usr/local/bin/gt \"$msg\"";
 
