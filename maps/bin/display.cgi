@@ -172,6 +172,9 @@ sub Body($) {
             last;
           } # if
         } # for
+      } elsif ($part->mime_type eq 'multipart/related') {
+        # Sometimes parts are 'multipart/relative'...
+	$part->print_body;
       } else {
         if ($part->mime_type =~ /text/) {
           my $encoding = '';

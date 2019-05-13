@@ -99,9 +99,10 @@ function stoptimer () {
     $msg     .= '</body></html>';
     $headers  = "MIME-Version: 1.0\r\n";
     $headers .= "Content-type: text/html; charset=iso-8859-1\r\n";
-    $headers .= "From: Andrew DeFaria <Andrew@DeFaria.com>";
+    $headers .= "From: Resume Reporter <ResumeReporter@DeFaria.com>";
 
-    mail("andrew@defaria.com", "Somebody visited your resume", $msg, $headers);
+    $subject = "Another resume hit. This makes $count visits to your resume";
+    mail("andrew@defaria.com", $subject, $msg, $headers);
   } // if
 ?>
 </head>
