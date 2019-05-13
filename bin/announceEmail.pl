@@ -227,4 +227,8 @@ $log = Logger->new(
 );
 
 Connect2IMAP;
+
+my $cmd = "/usr/local/bin/gt \"Now monitoring email for $opts{username}\@$opts{imap}\"";
+my ($status, @output) = Execute $cmd;
+
 MonitorMail;
