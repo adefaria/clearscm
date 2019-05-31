@@ -105,7 +105,7 @@ print '<p></p><center>',
   hidden ({-name    => 'type',
            -default => $type}),
   submit ({-name    => 'action',
-           -value   => 'Add New Entry'}),
+           -value   => 'Add'}),
   '</center>';
 
 Footing;

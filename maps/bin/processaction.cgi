@@ -426,17 +426,17 @@ $lines = $options{'Page'};
 
 $total = count('list', "userid = \"$userid\" and type = \"$type\"") if $type;
 
-if ($action eq 'Add New Entry') {
+if ($action eq 'Add') {
   AddNewEntry($type);
-} elsif ($action eq 'Delete Marked') {
+} elsif ($action eq 'Delete') {
   DeleteEntries($type);
-} elsif ($action eq 'Modify Marked') {
+} elsif ($action eq 'Modify') {
   ModifyEntries($type);
-} elsif ($action eq 'Whitelist Marked') {
+} elsif ($action eq 'Whitelist') {
   WhitelistMarked;
-} elsif ($action eq 'Blacklist Marked') {
+} elsif ($action eq 'Blacklist') {
   BlacklistMarked;
-} elsif ($action eq 'Nulllist Marked') {
+} elsif ($action eq 'Nulllist') {
   NulllistMarked;
 } else {
   Heading(

@@ -93,13 +93,13 @@ $this_page = $next / $lines + 1;
       "<a href=list.php?type=$type&next=" . ($next + $lines) . "><img src=/maps/images/next.gif border=0 alt=Next align=middle accesskey=n></a>" : "";
     print $prev_button;
     ?>
-    <input type="submit" name="action" value="Add New Entry"
+    <input type="submit" name="action" value="Add"
       onclick="return NoneChecked (document.list);">
-    <input type="submit" name="action" value="Delete Marked"
+    <input type="submit" name="action" value="Delete"
       onclick="return CheckAtLeast1Checked (document.list) && AreYouSure ('Are you sure you want to delete these entries?');">
-    <input type="submit" name="action" value="Modify Marked"
+    <input type="submit" name="action" value="Modify"
       onclick="return CheckAtLeast1Checked (document.list);">
-    <input type="submit" name="action" value="Reset Marks"
+    <input type="submit" name="action" value="Reset"
       onclick="return ClearAll (document.list);">
     <?php print $next_button?>
   </div>
