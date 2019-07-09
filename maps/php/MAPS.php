@@ -486,7 +486,7 @@ END;
 
   print <<<END
   <tr>
-    <td align=center colspan=4><input type="submit" name="action" value="Nulllist Marked" onclick="return CheckAtLeast1Checked (document.domains);" /><input type="submit" name="action" value="Reset Marks" onclick="return ClearAll (document.domains);" />
+    <td align=center colspan=4><input type="submit" name="action" value="Nulllist" onclick="return CheckAtLeast1Checked (document.domains);" /><input type="submit" name="action" value="Reset" onclick="return ClearAll (document.domains);" />
     </td>
   </tr>
 <table>
