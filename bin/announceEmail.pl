@@ -91,6 +91,24 @@ my %opts = (
   sleep    => $defaultSleeptime,
 );
 
+sub interrupted {
+  if (get_debug) {
+    $log->msg("Turning off debugging");
+    set_debug 0;
+  } else {
+    $log->msg("Turning on debugging");
+    set_debug 1;
+  } # if
+} # interrupted
+
+$SIG{USR1} = \&interrupted;
+
+sub debugit($) {
+  my ($msg) = @_;
+
+  $log->msg($msg) if get_debug;
+} # logit
+
 sub unseenMsgs() {
   my %unseenMsgs;
 
@@ -102,20 +120,20 @@ sub unseenMsgs() {
 } # unseenMsgs 
 
 sub Connect2IMAP() {
-  $log->msg("Connecting to $opts{imap} as $opts{username}");
+  $log->msg("Connecting to $opts{imap} as $opts{username}...", 1);
 
   $IMAP = Net::IMAP::Simple->new($opts{imap}) ||
-    error("Unable to connect to IMAP server $opts{imap}: " . $Net::IMAP::Simple::errstr, 1);
+    $log->err("Unable to connect to IMAP server $opts{imap}: " . $Net::IMAP::Simple::errstr, 1);
 
-  $log->msg("Connected");
+  $log->msg(' connected');
 
-  $log->msg("Logging onto $opts{imap} as $opts{username}");
+  $log->msg("Logging onto $opts{imap} as $opts{username}...", 1);
 
   unless ($IMAP->login($opts{username}, $opts{password})) {
     $log->err("Login to $opts{imap} as $opts{username} failed: " . $IMAP->errstr, 1);
   } # unless
 
-  $log->msg("Logged on");
+  $log->msg(' logged on');
 
   # Focus on INBOX only
   $IMAP->select('INBOX');
@@ -126,12 +144,19 @@ sub Connect2IMAP() {
 } # Connect2IMAP
 
 sub MonitorMail() {
-  $log->msg("Monitoring email");
+  my $msg = "Now monitoring email for $opts{username}\@$opts{imap}";
+
+  $log->msg($msg);
+
+  my $cmd = "/usr/local/bin/gt \"$msg\"";
+
+  my ($status, @output) = Execute $cmd;
 
   while () {
     # First close and reselect the INBOX to get its current status
     $IMAP->close;
-    $IMAP->select('INBOX');
+    $IMAP->select('INBOX')
+      or $log->err("Unable to select INBOX - ". $IMAP->errstr(), 1);
 
     # Go through all of the unseen messages and add them to %unseen if they were
     # not there already from a prior run and read
@@ -152,7 +177,12 @@ sub MonitorMail() {
     for (keys %newUnseen) {
       next if $unseen{$_};
 
-      my $email = Email::Simple->new(join '', @{$IMAP->top($_)});
+      my @msglines = $IMAP->top($_);
+
+      # What happens at INBOX 0? Does top return empty array?
+      $log->err("Unable to get top for $_ - " . $IMAP->errstr(), 1) unless @msglines;
+
+      my $email = Email::Simple->new(join '', @msglines);
 
       my $from = $email->header('From');
 
@@ -172,31 +202,35 @@ sub MonitorMail() {
       my $msg = "Message from $from... " . quotemeta $subject;
       $msg =~ s/\"/\\"/g;
 
-      if (get_verbose) {
-        $log->msg($logmsg);
-      } else {
-        $log->log($logmsg);
-      } # if
+      debugit $logmsg;
 
       my $cmd = "/usr/local/bin/gt \"$msg\"";
 
-      my ($status, @output) = Execute $cmd;
+      my $hour = (localtime)[2];
 
-      if ($status) {
-        $log->err("Unable to execute $cmd" . join("\n", @output));
+      # Only announce if after 6 Am. Not this will announce up until
+      # midnight but that's ok. I want midnight to 6 Am as silent time.
+      if ($hour > 6) {
+        my ($status, @output) = Execute $cmd;
+
+        if ($status) {
+          $log->err("Unable to execute $cmd" . join("\n", @output));
+        } # if
       } # if
 
       $unseen{$_} = 1;
     } # for
 
-    verbose "Sleeping for $opts{sleep} minutes";
+    debugit "Sleeping for $opts{sleep} minutes";
     sleep 60 * $opts{sleep};
-    verbose "Ah that was refreshing!";
+    debugit "Ah that was refreshing!";
   } # while
 } # MonitorMail
 
 END {
   $IMAP->quit if $IMAP;
+
+  $log->msg("$FindBin::Script ending!");
 } # END
 
 ## Main
@@ -218,6 +252,8 @@ unless ($opts{password}) {
   $opts{password} = GetPassword;
 } # unless
 
+$opts{debug} = get_debug;
+
 EnterDaemonMode if $opts{daemon};
 
 $log = Logger->new(
@@ -227,8 +263,5 @@ $log = Logger->new(
 );
 
 Connect2IMAP;
-
-my $cmd = "/usr/local/bin/gt \"Now monitoring email for $opts{username}\@$opts{imap}\"";
-my ($status, @output) = Execute $cmd;
 
 MonitorMail;
