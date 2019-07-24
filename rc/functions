@@ -226,7 +226,7 @@ function sj {
     ps $psopts | $PAGER
   else
     for str; do
-      ps $psopts | grep "$str" | grep -v "grep $str" | grep -v "grep -d skip"
+      ps $psopts | grep "$str" | grep -ve "grep $str" -e "grep -d skip" -e "grep --color=auto"
     done
   fi
 } # sj

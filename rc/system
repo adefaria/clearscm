@@ -27,31 +27,20 @@ case "$SYSNAME" in
     SYSNAME="Venus"
     ;;
 
-  Rdecc1-ldom)
-    SYSNAME="Server1"
+  Cdvra99a0983)
+    SYSNAME="Dev"
     ;;
 
-  Rdebf1-ldom)
-    SYSNAME="Server2"
+  Cuvra99a0983)
+    SYSNAME="UAT"
     ;;
 
-  Rdews-ldom)
-    SYSNAME="Server3"
+  Crvra99a0983)
+    SYSNAME="BCP"
     ;;
 
-  Rdebf1)
-    SYSNAME="Rdebuild1"
+  Cpvra99a0983)
+    SYSNAME="Production"
     ;;
 
-  Rdebf2)
-    SYSNAME="Rdebuild2"
-    ;;
-
-  Rdebf3)
-    SYSNAME="Rdebuild3"
-    ;;
-
-  Rdebf4)
-    SYSNAME="Rdebuild4"
-    ;;
 esac

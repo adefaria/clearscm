@@ -1,0 +1,47 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: GD,v $
+# Revision:	$Revision: 1.1 $
+# Description:	Client specific start up for Wells Fargo
+# Author:       Andrew@DeFaria.com
+# Created:      Tue Jul 23 11:46:30 MST 2019
+# Modified:     
+# Language:     bash
+#
+# (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
+#
+################################################################################
+umask 002
+
+export TZ="US/Arizona"
+
+# Additional paths...
+append_to_path "/opt/boksm/bin"
+append_to_path "/opt/puppetlabs/bin"
+
+# Additional LD_LIBRARY_PATHs...
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/apps/local/lib:/apps/oracle/product/12.2.0.1_64/client/lib:/apps/local/freetds/lib"
+
+# Oracle
+export ORACLE_HOME="/apps/oracle/product/12.2.0.1_64/client"
+export TNS_ADMIN="/apps/oracle/product/12.2.0.1_64/client/network/admin"
+
+# Perl
+PERL5LIB="/apps/userpro/lib:/apps/local/lib/perl:/apps/userpro/default/lib/perl"
+
+# UserPro Setup
+export APPROOT="/apps/userpro"
+export APPS_ROOT="/apps/userpro/legacy"
+export USERPRO_ROOT="/apps/userpro/legacy"
+export USERPRO_CONF="/apps/userpro/legacy/conf"
+export USERPRO_LOGS="/apps/userpro/logs"
+
+export DANCER_ENVIRONMENT=$(echo $SYSNAME | tr [:upper:] [:lower:])
+
+# Common CDPATHS
+CDPATH=$CDPATH:/apps/userpro
+
+stty kill ^u
+
+unset TMOUT
