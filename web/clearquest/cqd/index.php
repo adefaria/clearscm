@@ -33,7 +33,7 @@
 <div id="page">
   <div id="content">
     <?php start_box ("cs3");?>
-      <h2>Clearquest Daemon</h2>
+      <h2><a href="CQD.odp">Clearquest Daemon</a></h2>
     <?php end_box ();?>
 
   <h3>Overview</h3>
