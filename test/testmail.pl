@@ -17,17 +17,10 @@ use warnings;
 
 use FindBin;
 
-my $libs;
-
-BEGIN {
-  $libs = $ENV{SITE_PERLLIB} ? $ENV{SITE_PERLLIB} : "$FindBin::Bin/../lib";
-
-  die "Unable to find libraries\n" if !$libs;
-}
-
-use lib $libs;
+use lib "$FindBin::Bin/../lib";
 
 use Mail;
+use Display;
 
 my $data = <<END;
 <table cellspacing=0 border=1>
@@ -78,11 +71,15 @@ my $subject	= "Helpdesk Report";
 my $to		= "Andrew\@DeFaria.com";
 
 # Main
+display "Calling mail";
 mail (
-  "to"		=> $to,
-  "subject"	=> $subject,
-  "mode"	=> "html",
-  "heading"	=> $heading,
-  "footing"	=> $footing,
-  "data"	=> $data,
-)
+  to            => $to,
+  port          => 1025,
+  subject       => $subject,
+  mode          => "html",
+  heading       => $heading,
+  footing       => $footing,
+  data          => $data,
+  randomizeFrom => 1,
+);
+display "Called mail";

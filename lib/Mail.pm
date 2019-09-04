@@ -85,22 +85,22 @@ use Net::SMTP;
 use Display;
 use GetConfig;
 
-our @EXPORT = qw (
+our @EXPORT = qw(
   mail
 );
 
 my ($err, %config);
 
-my $mail_conf = dirname (__FILE__) . '/../etc/mail.conf';
-              
+my $mail_conf = dirname(__FILE__) . '/../etc/mail.conf';
+
 if (-r $mail_conf) {
   %config = GetConfig $mail_conf;
 
   $config{SMTPHOST} = $ENV{SMTPHOST} || $config{SMTPHOST};
-  
+
   $err = "SMTPHOST not defined in $mail_conf nor in the environment variable SMTPHOST"
     unless $config{SMTPHOST};
-  
+
   unless ($err) {
     $config{SMTPFROM} = $ENV{SMTPFROM} || $config{SMTPFROM};
 
@@ -111,7 +111,18 @@ if (-r $mail_conf) {
   $err = "Unable to read mail config file $mail_conf";
 } # if
 
-sub mail {
+sub randStr() {
+  my $length = int(rand 16);
+
+  my @charset = ('A'..'Z', 'a'..'z', 0..9);
+
+  my $randStr;
+  $randStr .= $charset[rand @charset] for 0..$length;
+
+  return $randStr;
+} # randStr
+
+sub mail(%) {
   my (%parms) = @_;
 
 =pod
@@ -153,6 +164,10 @@ Subject line for email (Default: "(no subject)")
 
 Mode to send the email as. Values can be "plain", "text/plain",
 "html", "text/html".
+
+=item randomizeFrom
+
+Generate a random From email address.
 
 =item data
 
@@ -200,26 +215,31 @@ Returns:
 =cut
 
   # If from isn't specified we'll use a default
-  my $from = defined $parms{from} ? $parms{from} : $config{SMTPFROM};
+  my $from = $parms{from} || $config{SMTPFROM};
 
-  error $err, 1 if $err;
-  
+  if ($parms{randomizeFrom}) {
+    # Generate a random From address
+    my $username = randStr;
+    my $domain   = randStr;
+
+    $from = "$username\@defaria.com";
+  } # if
+
   my $me = "Mail::mail";
 
   # Make arrays for to, cc and bcc
-  my (@to, @cc, @bcc);
-  @to  = split /, */, $parms{to};
-  @cc  = split /, */, $parms{cc}  if defined $parms{cc};
-  @bcc = split /, */, $parms{bcc} if defined $parms{bcc};
+  my @to  = split /, */, $parms{to};
+  my @cc  = split /, */, $parms{cc}  if $parms{cc};
+  my @bcc = split /, */, $parms{bcc} if $parms{bcc};
 
-  error       "$me: You must specify \"to\""        if scalar @to == 0;
-  warning     "$me: You should specify \"subject\"" if !defined $parms{subject};
+  error   "$me: You must specify \"to\""        if @to == 0;
+  warning "$me: You should specify \"subject\"" unless $parms{subject};
 
-  my $subject = defined $parms{subject} ? $parms{subject} : "(no subject)";
+  my $subject = $parms{subject} || "(no subject)";
 
   my $mode;
 
-  if (!defined $parms{mode}) {
+  if (!$parms{mode}) {
     $mode = "text/plain";
   } elsif ($parms{mode} eq "plain" or $parms{mode} eq "text/plain") {
     $mode = "text/plain";
@@ -241,25 +261,25 @@ Returns:
   } # if
 
   # Connect to server
-  my $smtp = Net::SMTP->new ($config{SMTPHOST})
+  my $smtp = Net::SMTP->new($config{SMTPHOST})
     or error "Unable to connect to mail server: $config{SMTPHOST}", 1;
 
   # Address the mail
-  $smtp->mail ($from);
+  $smtp->mail($from);
 
   # Who are we sending to...
-  $smtp->to  ($_, {SkipBad => 1}) foreach (@to);
-  $smtp->cc  ($_, {SkipBad => 1}) foreach (@cc);
-  $smtp->bcc ($_, {SkipBad => 1}) foreach (@bcc);
+  $smtp->to  ($_, {SkipBad => 1}) for (@to);
+  $smtp->cc  ($_, {SkipBad => 1}) for (@cc);
+  $smtp->bcc ($_, {SkipBad => 1}) for (@bcc);
 
   # Now write the headers
   $smtp->data;
-  $smtp->datasend ("From: $from\n");
-  $smtp->datasend ("To: $_\n") foreach (@to);
-  $smtp->datasend ("Cc: $_\n") foreach (@cc);
-  $smtp->datasend ("Subject: $subject\n");
-  $smtp->datasend ("Content-Type: $mode\n");
-  $smtp->datasend ("\n");
+  $smtp->datasend("From: $from\n");
+  $smtp->datasend("To: $_\n") for (@to);
+  $smtp->datasend("Cc: $_\n") for (@cc);
+  $smtp->datasend("Subject: $subject\n");
+  $smtp->datasend("Content-Type: $mode\n");
+  $smtp->datasend("\n");
 
   # If heading is specified then the user wants this stuff before the main
   # message
@@ -297,32 +317,32 @@ Returns:
 
     # Create a textual version of the HTML
     my $html = HTML::TreeBuilder->new;
-    $html->parse ($msgdata);
-    $html->eof;
-    my $formatter = HTML::FormatText->new (
-      leftmargin      => 0,
-      rightmargin     => 80
+    $html->parse($msgdata);
+    new$html->eof;
+    my $formatter = HTML::FormatText->new(
+      leftmargin  => 0,
+      rightmargin => 80
     );
-    my $plain_text = $formatter->format ($html);
+    my $plain_text = $formatter->format($html);
 
     # Create ASCII attachment first
-    $container->attach (
+    $container->attach(
       Type     => "text/plain",
       Encoding => "quoted-printable",
       Data     => $plain_text,
     );
 
     # Create HTML attachment
-    $container->attach (
+    $container->attach(
       Type     => "text/html",
       Encoding => "quoted-printable",
       Data     => $msgdata,
     );
     
-    $container->smtpsend (Host => $smtp);
+    $container->smtpsend(Host => $smtp);
   } else {
     # Plain text here
-    $smtp->datasend ($msgdata);
+    $smtp->datasend($msgdata);
   } # if
 
   # All done

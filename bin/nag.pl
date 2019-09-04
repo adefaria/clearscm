@@ -197,11 +197,12 @@ while (<$nagsIn>) {
       or error "Unable to open message file $msgfile - $!", 1;
 
     mail (
-      to      => $email,
-      subject => $subject,
-      mode    => 'html',
-      data    => $msg,
-      footing => $footing,
+      to            => $email,
+      subject       => $subject,
+      mode          => 'html',
+      data          => $msg,
+      footing       => $footing,
+      randomizeFrom => 1,
     );
 
     close $msg
