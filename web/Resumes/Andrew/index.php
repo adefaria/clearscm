@@ -102,7 +102,7 @@ function stoptimer () {
     $headers .= "From: Resume Reporter <ResumeReporter@DeFaria.com>";
 
     $subject = "Another resume hit. This makes $count visits to your resume";
-    mail("andrew@defaria.com", $subject, $msg, $headers);
+    //mail("andrew@defaria.com", $subject, $msg, $headers);
   } // if
 ?>
 </head>
@@ -255,12 +255,12 @@ function stoptimer () {
       <tr>
         <th>Cloud Computing (<span class="standout">Classroom Only</span>)</th>
         <td>
-          <span class="standout">EC2</span>, 
-          <span class="standout">IAM</span>, 
-          <span class="standout">S3</span>, 
-          <span class="standout">Glacier</span>, 
-          <span class="standout">CloudFront</span>, 
-          <span class="standout">Route53, 
+          <span class="standout">EC2</span>,
+          <span class="standout">IAM</span>,
+          <span class="standout">S3</span>,
+          <span class="standout">Glacier</span>,
+          <span class="standout">CloudFront</span>,
+          <span class="standout">Route53,
           <span class="standout">VPC</span>
         </td>
       </tr>
@@ -321,14 +321,23 @@ function stoptimer () {
 
   <hr noshade>
 
+  <p><a href="https://www.wellsfargo.com/">
+  <img src="WellsFargo.png" alt="Wells Fargo" border="0"></a></p>
+
+  <p><a href="https://www.wellsfargo.com/">WellsFargo</a> July 2019 - Present<br>
+
+  <p>Working on Perl Dancer applications</p>
+
+  <hr noshade>
+
   <p><a href="https://gdmissionsystems.com/en/satellite-ground-systems/mobile-user-objective-system">
   <img src="General_Dynamics_logo.jpg" alt="General Dynamics" border="0"></a></p>
 
-  <p>March 2018 - Present<br>
+  <p>March 2018 - March 2019<br>
   <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/General%20Dynamics">General Dynamics</a></font>
 
-  <p>For this technology refresh of over a decade ago, I was instrumental in 
+  <p>For this technology refresh of over a decade ago, I was instrumental in
   setting up and maintain dozens of Solaris 5.11 zone systems and served as the
   primary Solaris System Administrator. This includes setup of many services
   like NIS, DNS, NTP, SMTP, AutoFS as well as a standard set of tools.
@@ -354,10 +363,10 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
 
   <p>Converted an internal project from a <span class="standout">Jenkins</span>/
-  <span class="standout">Perforce</span> build system to the Broadcom/Avago 
+  <span class="standout">Perforce</span> build system to the Broadcom/Avago
   standard of <span class="standout">Electric Commander</span>/
   <span class="standout">Git</span>. Developed Perl scripts to sign executables
-  and remotely execute commands on Windows systems using <span 
+  and remotely execute commands on Windows systems using <span
   class="standout">Cygwin/ssh</span> thus streamlining and standardizing remote
   building and signing of executables.</p>
 
@@ -368,7 +377,7 @@ function stoptimer () {
   <p>May 2016 - July 2016<br>
   <font class=dim>Contract</font><br>
 
-  <p>Developed <a 
+  <p>Developed <a
   href="https://en.wikipedia.org/wiki/Registration_Data_Access_Protocol">RDAP</a>
   server for testing SLA compliance of various TLD registrars around the world.</p>
 
@@ -387,15 +396,15 @@ function stoptimer () {
   (<span class="standout">Centos</span>/<span
   class="standout">Ubuntu</span>/<span class="standout">Redhat Enterprise</span>)
   managing VM images in vSphere,
-  <span class="standout">Perforce</span>, <span class="standout">Swarm</span>, 
+  <span class="standout">Perforce</span>, <span class="standout">Swarm</span>,
   <span class="standout">Git Fusion</span>.</p>
 
-  <p>Added functionality to custom build system that utilized <span 
-  class="standout">Perl</span>/<span class="standout">PHP</span>/<span 
-  class="standout">Apache</span>/<span class="standout">Linux</span>/<span 
-  class="standout">Windows</span> servers to allow engineers in the field to 
-  remotely perform customized builds. Integrated Bugzilla and Perforce (P4DTG). 
-  Assisted with JIRA setup and integration of <span 
+  <p>Added functionality to custom build system that utilized <span
+  class="standout">Perl</span>/<span class="standout">PHP</span>/<span
+  class="standout">Apache</span>/<span class="standout">Linux</span>/<span
+  class="standout">Windows</span> servers to allow engineers in the field to
+  remotely perform customized builds. Integrated Bugzilla and Perforce (P4DTG).
+  Assisted with JIRA setup and integration of <span
   class="standout">Salesforce</span> with JIRA. Assisted in the migration
   for users to new Knowles domain.</p>
 
@@ -408,9 +417,9 @@ function stoptimer () {
   <a href="http://defaria.com/blogs/Status/archives/cat_axcient.html">Axcient</a></p>
 
   <p>Worked as a <span class="standout">Build and Release Engineer</span> for
-  AxOS. The Axcient product is a customized derivative of <span 
-  class="standout">Ubuntu</span>. The SCM system being used is <span 
-  class="standout">git</span>. Developed and standardized procedures for 
+  AxOS. The Axcient product is a customized derivative of <span
+  class="standout">Ubuntu</span>. The SCM system being used is <span
+  class="standout">git</span>. Developed and standardized procedures for
   performing builds.</p>
 
   <hr noshade>
@@ -421,10 +430,10 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/Broadcom">Broadcom</a></p>
 
-  <p><span class="standout">Clearquest Designer</span>: Maintained Clearquest 
-  instances implementing functionality with <span class="standout">Visual Basic</span>. 
-  Using ClearSCM's <a 
-  href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase.pm">Clearquest</a>, 
+  <p><span class="standout">Clearquest Designer</span>: Maintained Clearquest
+  instances implementing functionality with <span class="standout">Visual Basic</span>.
+  Using ClearSCM's <a
+  href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase.pm">Clearquest</a>,
   <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/Server.pm">Clearquest::Server</a>,
   <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/Client.pm">Clearquest::Client</a>
   and <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>
@@ -433,11 +442,11 @@ function stoptimer () {
 
   <p>Migrated a project from their unsupported build environment into the standard
   <span class="standout"><a
-  href="http://www.electric-cloud.com/products/electriccommander.php">Electric 
-  Commander</a></span>/<span class="standout">Perforce</span> based solution 
+  href="http://www.electric-cloud.com/products/electriccommander.php">Electric
+  Commander</a></span>/<span class="standout">Perforce</span> based solution
   using <span class="standout">Cygwin</span>, <span class="standout">bash</span>
-  and <span class="standout">LSF</span> to farm builds out to a pool of <span 
-  class="standout">Windows</span> servers to perform builds. Builds were done 
+  and <span class="standout">LSF</span> to farm builds out to a pool of <span
+  class="standout">Windows</span> servers to perform builds. Builds were done
   using <span class="standout">Visual Studio</span> 8.0, 9.0 and 10.0 on Windows
   Servers triggered by Perforce triggers at code checkin.</p>
 
@@ -449,18 +458,18 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/Tellabs">Tellabs</a></font>
 
-  <p>Automated various informational systems using <span 
-  class="standout">Perl</span>/<span class="standout">MySQL</span>/<span 
+  <p>Automated various informational systems using <span
+  class="standout">Perl</span>/<span class="standout">MySQL</span>/<span
   class="standout">Oracle</span>, and the web.</p>
 
-  <p>Developed a command line debugger called <a 
+  <p>Developed a command line debugger called <a
   href="http://clearscm.com/php/scm_man.php?file=bin/raid">RAID</a> (a Real
-  Aid In Debugging) which provided a consistent interface with complete command 
-  history and variable substitution courtesy of a Perl module that I wrote 
-  called <a 
+  Aid In Debugging) which provided a consistent interface with complete command
+  history and variable substitution courtesy of a Perl module that I wrote
+  called <a
   href="http://clearscm.com/php/scm_man.php?file=lib/CmdLine.pm">Cmdline.pm</a>.
-  This Perl process utilized <span class="standout">Inline::C</span> to 
-  interface to the developer libraries and provide a consistent interface for 
+  This Perl process utilized <span class="standout">Inline::C</span> to
+  interface to the developer libraries and provide a consistent interface for
   the various command line debuggers developed by various different groups.</p>
 
   <hr noshade>
@@ -471,8 +480,8 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/General%20Electric">General Electric</a></font>
 
-  <p>Performed <span class="standout">Clearcase</span>/<span 
-  class="standout">Clearquest UCM</span> administration. Developed an <a 
+  <p>Performed <span class="standout">Clearcase</span>/<span
+  class="standout">Clearquest UCM</span> administration. Developed an <a
   href="http://clearscm.com/php/scm_man.php?file=cc/etf.pl">Evil Twin Finder</a>
   in Perl. Worked with <span class="standout">Build Forge</span> (IBM's CI tool
   similar to <span class="standout">Jenkins</span>) jobs to automate work flow.
@@ -489,9 +498,9 @@ function stoptimer () {
   <a href="https://defaria-status.blogspot.com/search/label/General%20Dynamics">General Dynamics</a></font>
 
   <p><span class="standout">Clearcase</span>/<span class="standout">Clearquest</span>
-  Administrator, <span class="standout">Build Release</span> and 
-  <span class="standout">Automation</span> using <span 
-  class="standout">Perl</span> scripts. Updated <span 
+  Administrator, <span class="standout">Build Release</span> and
+  <span class="standout">Automation</span> using <span
+  class="standout">Perl</span> scripts. Updated <span
   class="standout">C++</span>/<span class="standout">Qt</span> application that
   integrates <span class="standout">UCM</span>/Clearquest integrated environment
   into one tool and ported it to Linux.</p>
@@ -510,7 +519,7 @@ function stoptimer () {
   into a MySQL database. Developed a PHP web page to present the data in various
   forms including graphs, reports, exporting to CSV files and emailing of
   reports. Implemented maintenance programs to scrub and keep the data clean.
-  This system was instrumental in Functional Quality Testing for the <a 
+  This system was instrumental in Functional Quality Testing for the <a
   href="http://en.wikipedia.org/wiki/Mobile_User_Objective_System">MUOS</a>
   program. This reduced the time it took to certify testing with the military several
   fold.</p>
@@ -534,8 +543,8 @@ function stoptimer () {
   <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/Texas%20Instruments">Texas Instruments</a></font>
 
-  <p><span class="standout">Clearcase</span>/<span 
-  class="standout">Clearquest</span> Administrator. Wrote a <span 
+  <p><span class="standout">Clearcase</span>/<span
+  class="standout">Clearquest</span> Administrator. Wrote a <span
   class="standout">Perl</span>/<span class="standout">Oracle</span>
   application to track information about projects worldwide. Automated Clearcase
   license usage reporting and load balancing of Clearquest web servers.</p>
@@ -550,7 +559,7 @@ function stoptimer () {
   <a href="https://defaria-status.blogspot.com/search/label/HP">Hewlett Packard</a></p>
 
   <p>Managed and executed day to day build and release duties. Served as
-  <span class="standout">Clearcase/Clearquest</span> Administrator as well as 
+  <span class="standout">Clearcase/Clearquest</span> Administrator as well as
   overall support of systems. Assisted with creating UCM streams and handling of
   rebase and delivery issues for engineers and the build/release process. Wrote
   <span class="standout">UCM triggers</span> to notify users of deliveries from
@@ -653,7 +662,7 @@ function stoptimer () {
 
   <p>After consulting briefly with Salira Optical Network Systems I joined this
   startup company serving in the role of Clearcase/Clearquest Administrator for
-  this mostly Windows shop. I helped others in setting up the 
+  this mostly Windows shop. I helped others in setting up the
   Clearcase/Clearquest environment as well as provided Training.</p>
 
   <p>I also served in the role of Release Engineer managing the build process.
@@ -661,7 +670,7 @@ function stoptimer () {
   product that provides an extremely workable Unix like environment and
   engineered a build environment around that using GNU make and other standard
   Unix and GNU utilities. When users complained that building remotely was slow
-  I performed an analysis on build performance. I also performed Build Stress 
+  I performed an analysis on build performance. I also performed Build Stress
   Testing where I characterized the effect of multiple simultaneous builds
   performed on the server.</p>
 
@@ -722,7 +731,7 @@ function stoptimer () {
 
   <hr noshade>
 
-  <p><a href="http://cisco.com"><img src="Cisco.gif" alt="Cisco Systems" 
+  <p><a href="http://cisco.com"><img src="Cisco.gif" alt="Cisco Systems"
   title="Cisco Systems" border=0></a></p>
 
   <p>March 1999 - August 1999<br>
@@ -745,7 +754,7 @@ function stoptimer () {
 
   <hr noshade>
 
-  <a href="https://www.oracle.com/sun/index.html"><img src="Sun.jpg" alt="Sun Microsystems" 
+  <a href="https://www.oracle.com/sun/index.html"><img src="Sun.jpg" alt="Sun Microsystems"
   title="Sun Microsystems" border=0></a></p>
 
   <p>December 1998 - March 1999<br>
@@ -775,7 +784,7 @@ function stoptimer () {
   in many Kittyhawks, Mohawks and Bravehawks (about 40 of them) for use as
   Clearcase Vob, View and Build, Mail, Application, X Terminal and Web servers.
   Assist in documenting setup and configuration as well as trouble shooting and
-  handling of patches for all lab wide shared resources.</p> 
+  handling of patches for all lab wide shared resources.</p>
 
   <p>Responsible for setup and running of Windows NT domain, account setup and
   print serving. Setup and evaluated Clearcase 3.2 on NT. Developed backup
