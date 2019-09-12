@@ -333,7 +333,7 @@ function stoptimer () {
   <p><a href="https://gdmissionsystems.com/en/satellite-ground-systems/mobile-user-objective-system">
   <img src="General_Dynamics_logo.jpg" alt="General Dynamics" border="0"></a></p>
 
-  <p>March 2018 - March 2019<br>
+  <p>March 2018 - April 2019<br>
   <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/General%20Dynamics">General Dynamics</a></font>
 
