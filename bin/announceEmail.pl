@@ -99,6 +99,8 @@ sub interrupted {
     $log->msg("Turning on debugging");
     set_debug 1;
   } # if
+
+  return;
 } # interrupted
 
 $SIG{USR1} = \&interrupted;
@@ -107,6 +109,8 @@ sub debugit($) {
   my ($msg) = @_;
 
   $log->msg($msg) if get_debug;
+
+  return;
 } # logit
 
 sub unseenMsgs() {
@@ -141,6 +145,8 @@ sub Connect2IMAP() {
   # Setup %unseen to have each unseen message index set to 0 meaning not read
   # aloud yet
   %unseen = unseenMsgs;
+
+  return;
 } # Connect2IMAP
 
 sub MonitorMail() {
@@ -154,6 +160,7 @@ sub MonitorMail() {
 
   while () {
     # First close and reselect the INBOX to get its current status
+    debugit "Reconnecting to INBOX";
     $IMAP->close;
     $IMAP->select('INBOX')
       or $log->err("Unable to select INBOX - ". $IMAP->errstr(), 1);
@@ -174,6 +181,7 @@ sub MonitorMail() {
       } # if
     } # for
 
+    debugit "Processing newUnseen";
     for (keys %newUnseen) {
       next if $unseen{$_};
 
@@ -187,7 +195,7 @@ sub MonitorMail() {
       my $from = $email->header('From');
 
       # Extract the name only when the email is of the format "name <email>"
-      if ($from =~ /^(.*)\<(\S*)>/) {
+      if ($from =~ /^"?(.*?)"?\s*\<(\S*)>/) {
         $from = $1 if $1 ne '';
       } # if
 
@@ -197,21 +205,26 @@ sub MonitorMail() {
         $subject = decode_base64($2);
       } # if
 
+      # Google Talk doesn't like #
+      $subject =~ s/\#//g;
+
       # Now speak it!
+      debugit "Speaking message from $from";
       my $logmsg = "From $from $subject";
-      my $msg = "Message from $from... " . quotemeta $subject;
+
+      $msg = "Message from $from... " . quotemeta $subject;
       $msg =~ s/\"/\\"/g;
 
       debugit $logmsg;
 
-      my $cmd = "/usr/local/bin/gt \"$msg\"";
+      $cmd = "/usr/local/bin/gt \"$msg\"";
 
       my $hour = (localtime)[2];
 
       # Only announce if after 6 Am. Not this will announce up until
       # midnight but that's ok. I want midnight to 6 Am as silent time.
       if ($hour > 6) {
-        my ($status, @output) = Execute $cmd;
+        ($status, @output) = Execute $cmd;
 
         if ($status) {
           $log->err("Unable to execute $cmd" . join("\n", @output));
@@ -225,7 +238,11 @@ sub MonitorMail() {
     sleep 60 * $opts{sleep};
     debugit "Ah that was refreshing!";
   } # while
+
+  return;
 } # MonitorMail
+
+$SIG{USR2} = \&MonitorMail;
 
 END {
   $IMAP->quit if $IMAP;
