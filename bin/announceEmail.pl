@@ -29,7 +29,7 @@ $Date: 2019/04/04 13:40:10 $
 
 =back
 
-=hade1 SYNOPSIS
+=head1 SYNOPSIS
 
  Usage: announceEmail.pl [-usa|ge] [-h|elp] [-v|erbose] [-de|bug] [-da|emon]
                          [-use|rname <username>] [-p|assword <password>]
