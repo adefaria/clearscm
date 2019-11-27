@@ -19,13 +19,16 @@ use warnings;
 
 use vars qw (@ISA @EXPORT);
 
-BEGIN {
-  $ENV{TZ}='America/Los_Angeles';
-} # BEGIN
+# Not sure why I was setting TZ to LA but I'm in Phoenix now. This is best
+# handled by configuring the OS correctly anyway.
+#BEGIN {
+#  $ENV{TZ}='America/Los_Angeles';
+#} # BEGIN
 
 @ISA = qw (Exporter);
 
-@EXPORT = qw (
+@EXPORT = qw(
+  CheckEmail
   FormatDate
   FormatTime
   SQLDatetime2UnixDatetime
@@ -36,7 +39,7 @@ BEGIN {
 
 sub Today2SQLDatetime;
 
-sub FormatDate {
+sub FormatDate($) {
   my ($date) = @_;
 
   return substr ($date, 5, 2)  . '/' .
@@ -44,7 +47,7 @@ sub FormatDate {
          substr ($date, 0, 4);
 } # FormatDate
 
-sub FormatTime {
+sub FormatTime($) {
   my ($time) = @_;
 
   my $hours   = substr $time, 0, 2;
@@ -60,7 +63,7 @@ sub FormatTime {
   return "$hours:$minutes:$seconds $AmPm";
 } # FormatTime
 
-sub SQLDatetime2UnixDatetime {
+sub SQLDatetime2UnixDatetime($) {
   my ($sqldatetime) = @_;
 
   my %months = (
@@ -86,7 +89,7 @@ sub SQLDatetime2UnixDatetime {
   return $months {$month} . " $day, $year \@ $time";
 } # SQLDatetime2UnixDatetime
 
-sub SubtractDays {
+sub SubtractDays($$) {
   my ($timestamp,$nbr_of_days) = @_;
 
   my @months = (
@@ -259,8 +262,27 @@ sub UnixDatetime2SQLDatetime($) {
   return "$year-$month-$day $time";
 } # UnixDatetime2SQLDatetime
 
-sub Today2SQLDatetime {
+sub Today2SQLDatetime() {
   return UnixDatetime2SQLDatetime(scalar localtime);
 } # Today2SQLDatetime
+
+sub CheckEmail($$) {
+  my ($username, $domain) = @_;
+
+  # Check to see if a full email address in either $username or $domain
+  if ($username eq '') {
+    return '' if $domain eq '';
+
+    if ($domain =~ /(.*)\@(.*)/) {
+      ($username, $domain) = split '@', $domain;
+    } # if
+  } elsif ($domain eq '') {
+    if ($username =~ /(.*)\@(.*)/) {
+      ($username, $domain) = split '@', $username;
+    } # if
+  } # if
+
+   return lc "$username\@$domain";
+} # CheckEmail
 
 1;

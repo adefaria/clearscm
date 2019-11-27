@@ -376,7 +376,7 @@ sub CheckOnList ($$;$) {
                    : !defined $domain
                    ? "$email_on_file\@"
                    : $email_on_file;
-    if ($sender =~ /$search_for/i) {
+    if ($sender and $sender =~ /$search_for/i) {
       $rule   = "Matching rule: ($listtype:$sequence) \"$email_on_file\"";
       $rule  .= " - $comment" if $comment and $comment ne '';
       $status = 1;

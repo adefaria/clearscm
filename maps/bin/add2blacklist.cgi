@@ -23,6 +23,7 @@ use lib "$FindBin::Bin/../lib";
 use MAPS;
 use MAPSLog;
 use MAPSWeb;
+use MAPSUtil;
 
 use CGI qw/:standard *table/;
 use CGI::Carp 'fatalsToBrowser';
@@ -43,7 +44,7 @@ sub Add2List() {
     last if ((!defined $pattern || $pattern eq '') &&
              (!defined $domain  || $domain  eq ''));
 
-    $sender = lc "$pattern\@$domain";
+    $sender = CheckEmail $pattern, $domain;
 
     my ($status, $rule) = OnBlacklist($sender);
 
