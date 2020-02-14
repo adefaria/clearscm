@@ -47,16 +47,16 @@ sub MakeButtons {
 
   $buttons = $buttons .
     submit ({-name    => "action",
-             -value   => "Whitelist Marked",
+             -value   => "Whitelist",
              -onClick => "return CheckAtLeast1Checked (document.detail);"}) .
     submit ({-name    => "action",
-             -value   => "Blacklist Marked",
+             -value   => "Blacklist",
              -onClick => "return CheckAtLeast1Checked (document.detail);"}) .
     submit ({-name    => "action",
-             -value   => "Nulllist Marked",
+             -value   => "Nulllist",
              -onClick => "return CheckAtLeast1Checked (document.detail);"}) .
     submit ({-name    => "action",
-             -value   => "Reset Marks",
+             -value   => "Reset",
              -onClick => "return ClearAll (document.detail);"});
 
   return $buttons . $next_button;
