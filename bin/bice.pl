@@ -66,8 +66,8 @@ my $security_logfile = '/var/log/auth.log';
 # Customize these variables
 my $domain   = 'DeFaria.com';
 my $contact  = 'Andrew@DeFaria.com';
-my $location = 'Santa Clara, California, USA';
-my $UTC      = 'UTC-8';
+my $location = 'Phoenix, Arizona, USA';
+my $UTC      = 'UTC-7';
 my $mailhost = $domain;
 # End customize these variables
 
@@ -128,11 +128,12 @@ sub GetEmailAddresses ($) {
   my ($ip) = @_;
 
   # List of whois servers to try
+  # Apparently whois.opensrs.net no longer offers whois service?
   my @whois_list = (
     '',
     'whois.arin.net',
     'whois.nsiregistry.net',
-    'whois.opensrs.net',
+    #'whois.opensrs.net',
     'whois.networksolutions.com',
   );
 
