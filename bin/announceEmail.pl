@@ -76,6 +76,19 @@ my $IMAP;
 my %unseen;
 my $log;
 
+my @greetings = (
+  'Incoming message',
+  'You have received a new message',
+  'Hey I found this in your inbox',
+  'For some unknown reason this guy send you a message',
+  'Did you know you just got a message',
+  'Potential spam',
+  'You received a communique',
+  'I was looking in your inbox and found a message',
+  'Not sure you want to hear this message',
+  'Good news',
+);
+
 my %opts = (
   usage    => sub { pod2usage },
   help     => sub { pod2usage(-verbose => 2)},
@@ -117,7 +130,7 @@ sub unseenMsgs() {
 } # unseenMsgs 
 
 sub Connect2IMAP() {
-  $log->msg("Connecting to $opts{imap} as $opts{username}...", 1);
+  $log->msg("Connecting to $opts{imap} as $opts{username}");
 
   $IMAP = Mail::IMAPTalk->new(
     Server   => $opts{imap},
@@ -125,7 +138,7 @@ sub Connect2IMAP() {
     Password => $opts{password},
   ) or $log->err("Unable to connect to IMAP server $opts{imap}: $@", 1);
 
-  $log->msg(' connected');
+  $log->msg('Connected');
 
   # Focus on INBOX only
   $IMAP->select('inbox');
@@ -184,10 +197,12 @@ sub MonitorMail() {
 
       # Now speak it!
       debugit "Speaking message from $from";
+
       my $logmsg = "From $from $subject";
 
-      my $msg = "Message from $from... " . quotemeta $subject;
-         $msg =~ s/\"/\\"/g;
+      my $greeting = $greetings[int rand $#greetings];
+      my $msg      = "$greeting from $from... " . quotemeta $subject;
+         $msg      =~ s/\"/\\"/g;
 
       # Log it
       $log->msg($logmsg);
