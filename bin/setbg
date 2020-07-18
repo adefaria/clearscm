@@ -35,14 +35,15 @@ $Date: 2012/11/09 15:31:30 $
  
  Where:
 
- -u|sage:     Displays this usage
- -h|elp:      Display full help
- -ve|rbose:   Be verbose
- -d|ebug:     Output debug messages
+ -u|sage:      Displays this usage
+ -h|elp:       Display full help
+ -ve|rbose:    Be verbose
+ -d|ebug:      Output debug messages
 
- -s|leep:     Number of minutes to sleep between setting the background
-             (Default: 1 hour)
- -b|gdirs:    Directories to scan for images
+ -s|leep:      Number of minutes to sleep between setting the background
+               (Default: 1 hour)
+ -l|ockscreen: Change lockscreen backround (Default: False)
+ -b|gdirs:     Directories to scan for images
 
 =head1 DESCRIPTION
 
@@ -88,16 +89,17 @@ use Display;
 use Logger;
 use Utils;
 
-my $VERSION  = '$Revision: 1.11 $';
+my $VERSION  = '$Revision: 1.12 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
 my $processes = Proc::ProcessTable->new;
 my %opts = (
-  sleep   => 60,
-  usage   => sub { pod2usage },
-  help    => sub { pod2usage (-verbose => 2)},
-  verbose => sub { set_verbose },
-  debug   => sub { set_debug },
+  sleep      => 60,
+  lockscreen => 0,
+  usage      => sub { pod2usage },
+  help       => sub { pod2usage (-verbose => 2)},
+  verbose    => sub { set_verbose },
+  debug      => sub { set_debug },
 );
 
 my %totals;
@@ -149,11 +151,12 @@ sub updateSetBG ($$) {
   open my $setbg, '>', "$ENV{HOME}/.$FindBin::Script"
     or error "Unable to open $ENV{HOME}/.$FindBin::Script for writing - $!", 1;
 
-  display $bgimage,   $setbg;
+  display $bgimage, $setbg;
 
   close $setbg;
 
-  my $msg = localtime() . ":$bgimage lock:$lockimage";
+  my $msg  = localtime() . ':$bgimage';
+     $msg .= " lock:$lockimage" if $opts{lockscreen};
 
   open my $hist, '>>', "$ENV{HOME}/.$FindBin::Script.hist"
     or error "Unable to open $ENV{HOME}/.$FindBin::Script.hist for append - $!", 1;
@@ -186,6 +189,7 @@ GetOptions (
   'verbose',
   'debug',
   'sleep=i',
+  'lockscreen',
   'bgdirs=s@',
 ) || Usage;
 
@@ -241,16 +245,18 @@ while () {
     $totals{'Images displayed'}++;
   } # if
 
-  $cmd = "$setbg $setLockOpts$lockimage\" 2> /dev/null";
+  if ($opts{lockscreen}) {
+    $cmd = "$setbg $setLockOpts$lockimage\" 2> /dev/null";
 
-  @output = `$cmd`;
+    @output = `$cmd`;
 
-  if ($? != 0) {
-    error "Trying to set lock screen - command used \"$cmd\"\n\nOutput\n\n" .
-      join "\n", @output;
-    $totals{errors}++;
-  } else {
-    $totals{'Lock screens displayed'}++;
+    if ($? != 0) {
+      error "Trying to set lock screen - command used \"$cmd\"\n\nOutput\n\n" .
+        join "\n", @output;
+      $totals{errors}++;
+    } else {
+      $totals{'Lock screens displayed'}++;
+    } # if
   } # if
 
   updateSetBG $bgimage, $lockimage;
