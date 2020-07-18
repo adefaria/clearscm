@@ -17,7 +17,9 @@ include "MAPS.php";
 
 OpenDB ();
 
-$password = $_REQUEST ["password"];
+if (isset ($_REQUEST["password"])) {
+  $password = $_REQUEST ["password"];
+} // if
 
 if (isset ($userid)) {
   if (!$from_cookie) {

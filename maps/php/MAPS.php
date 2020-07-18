@@ -34,9 +34,13 @@ $Types = array (
   "nulllist"
 );
 
+$db;
+
 function DBError($msg, $statement) {
-  $errno  = mysql_errno();
-  $errmsg = mysql_error();
+  global $db;
+
+  $errno  = mysqli_errno($db);
+  $errmsg = mysqli_error($db);
   print "$msg<br>Error # $errno $errmsg";
   print "<br>SQL Statement: $statement";
 
@@ -44,10 +48,12 @@ function DBError($msg, $statement) {
 } // DBError
 
 function OpenDB() {
-  $db = mysql_connect("localhost", "maps", "spam")
+  global $db;
+
+  $db = mysqli_connect("localhost", "maps", "spam")
     or DBError("OpenDB: Unable to connect to database server", "Connect");
 
-  mysql_select_db("MAPS")
+  mysqli_select_db($db, "MAPS")
     or DBError("OpenDB: Unable to select MAPS database", "adefaria_maps");
 } // OpenDB
 
@@ -58,24 +64,28 @@ function SetContext($new_userid) {
 } // SetContext
 
 function Encrypt($password, $userid) {
+  global $db;
+
   $statement = "select encode(\"$password\",\"$userid\")";
 
-  $result = mysql_query($statement)
+  $result = mysqli_query($db, $statement)
     or DBError("Encrypt: Unable to execute statement", $statement);
 
   // Get return value, which should be the encoded password
-  $row = mysql_fetch_array($result);
+  $row = mysqli_fetch_array($result);
 
   return $row[0];
 } // Encrypt
 
 function UserExists($userid) {
+  global $db;
+
   $statement = "select userid, password from user where userid = \"$userid\"";
 
-  $result = mysql_query($statement)
+  $result = mysqli_query($db, $statement)
     or DBError ("UserExists: Unable to execute statement", $statement);
 
-  $row = mysql_fetch_array($result);
+  $row = mysqli_fetch_array($result);
 
   $dbuserid   = $row["userid"];
   $dbpassword = $row["password"];
@@ -109,15 +119,15 @@ function Login($userid, $password) {
 } // Login
 
 function CountList ($type) {
-  global $userid;
+  global $userid, $db;
 
   $statement = "select count(*) as count from list where type=\"$type\" and userid=\"$userid\"";
 
-  $result = mysql_query($statement)
+  $result = mysqli_query($db, $statement)
     or DBError("CountList: Unable to count list: ", $statement);
 
   // How many rows are there?
-  $row = mysql_fetch_array($result);
+  $row = mysqli_fetch_array($result);
 
   return $row["count"];
 } // CountList
@@ -129,10 +139,10 @@ function FindList($type, $next, $lines) {
 
   $statement = "select * from list where type=\"$type\" and userid=\"$userid\" order by sequence limit $next, $lines";
 
-  $result = mysql_query($statement)
+  $result = mysqli_query($db, $statement)
     or DBError ("FindList: Unable to execute query: ", $statement);
 
-  $count = mysql_num_rows($result);
+  $count = mysqli_num_rows($result);
 
   return array($count, $result);
 } // FindList
@@ -142,13 +152,15 @@ function Today2SQLDatetime() {
 } // Today2SQLDatetime
 
 function countem($table, $condition) {
+  global $db;
+
   $statement = "select count(distinct sender) as count from $table where $condition";
 
-  $result = mysql_query($statement)
+  $result = mysqli_query($db, $statement)
     or DBError("countem: Unable to perform query: ", $statement);
 
   // How many rows are there?
-  $row = mysql_fetch_array($result);
+  $row = mysqli_fetch_array($result);
 
   return $row["count"];
 } // countem
@@ -350,16 +362,16 @@ END;
 } # NavigationBar
 
 function GetUserLines() {
-  global $userid;
+  global $userid, $db;
 
   $lines = 10;
 
   $statement = "select value from useropts where userid=\"$userid\" and name=\"Page\"";
 
-  $result = mysql_query($statement)
+  $result = mysqli_query($db, $statement)
     or DBError("GetUserLines: Unable to execute query: ", $statement);
 
-  $row = mysql_fetch_array ($result);
+  $row = mysqli_fetch_array ($result);
 
   if (isset ($row["value"])) {
     $lines = $row["value"];
@@ -372,14 +384,15 @@ function DisplayList($type, $next, $lines) {
   global $userid;
   global $total;
   global $last;
+  global $db;
 
   $statement = "select * from list where userid=\"$userid\" and type=\"$type\" order by sequence limit $next, $lines";
 
-  $result = mysql_query($statement)
+  $result = mysqli_query($db, $statement)
     or DBError("DisplayList: Unable to execute query: ", $statement);
 
   for ($i = 0; $i < $lines; $i++) {
-    $row = mysql_fetch_array ($result);
+    $row = mysqli_fetch_array ($result);
 
     if (!isset ($row ["sequence"])) {
       break;
@@ -435,7 +448,7 @@ END;
 } // MAPSHeader
 
 function ListDomains($top = 10) {
-  global $userid;
+  global $userid, $db;
 
   // Generate a list of the top 10 spammers by domain
   $statement = "select count(sender) as nbr, ";
@@ -447,7 +460,7 @@ function ListDomains($top = 10) {
   $statement = $statement . "group by domain order by nbr desc";
 
   // Do the query
-  $result = mysql_query($statement)
+  $result = mysqli_query($db, $statement)
     or DBError("ListDomains: Unable to execute query: ", $statement);
 
   print <<<END
@@ -462,7 +475,7 @@ END;
 
   // Get results
   for ($i = 0; $i < $top; $i++) {
-    $row = mysql_fetch_array ($result);
+    $row = mysqli_fetch_array ($result);
     $domain = $row["domain"];
     $nbr    = $row["nbr"];
 
@@ -494,17 +507,17 @@ END;
 } // ListDomains
 
 function Space() {
-  global $userid;
+  global $userid, $db;
 
   // Tally up space used by $userid
   $space = 0;
 
   $statement = "select * from email where userid = \"$userid\"";
 
-  $result = mysql_query($statement)
+  $result = mysqli_query($db, $statement)
     or DBError("Space: Unable to execute query: ", $statement);
 
-  while ($row = mysql_fetch_array ($result)) {
+  while ($row = mysqli_fetch_array ($result)) {
     $msg_space =
       strlen($row["userid"])    +
       strlen($row["sender"])    +
