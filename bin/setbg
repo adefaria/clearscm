@@ -155,7 +155,7 @@ sub updateSetBG ($$) {
 
   close $setbg;
 
-  my $msg  = localtime() . ':$bgimage';
+  my $msg  = localtime() . ":$bgimage";
      $msg .= " lock:$lockimage" if $opts{lockscreen};
 
   open my $hist, '>>', "$ENV{HOME}/.$FindBin::Script.hist"
