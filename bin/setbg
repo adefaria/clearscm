@@ -130,11 +130,12 @@ sub fillPictures () {
   $totals{bgdirs} = 0;
 
   for (@{$opts{bgdirs}}) {
-    my @pics = `find "$_" -type f -name "*.jpg"`;
+    my ($status, @pics) = Execute "find \"$_\" -type f";
 
     chomp @pics;
 
-    push @images, @pics;
+    push @images, grep(/jpg$|png$|gif$/i, @pics);
+
     push @{$opts{bgdircnt}}, scalar @pics;
 
     $totals{bgdirs}++;
@@ -233,11 +234,17 @@ while () {
   my $bgimage   = escapeHTML ($images[int (rand $#images)]);
   my $lockimage = escapeHTML ($images[int (rand $#images)]);
 
+  my $monitorIsOn;
+
+  my ($status, @output) = Execute("xset q | grep Monitor | awk '{print \$3}'");
+
+  next if $status or $output[0] eq 'Off';
+
   my $cmd = "$setbg $setbgOpts$bgimage\" 2> /dev/null";
 
-  my @output = `$cmd`;
+  ($status, @output) = Execute $cmd;
 
-  if ($? != 0) {
+  if ($status) {
     error "Trying to set background - command used \"$cmd\"\n\nOutput\n\n" . 
       join "\n", @output;
     $totals{errors}++;
@@ -248,9 +255,9 @@ while () {
   if ($opts{lockscreen}) {
     $cmd = "$setbg $setLockOpts$lockimage\" 2> /dev/null";
 
-    @output = `$cmd`;
+    ($status, @output) = Execute $cmd;
 
-    if ($? != 0) {
+    if ($status != 0) {
       error "Trying to set lock screen - command used \"$cmd\"\n\nOutput\n\n" .
         join "\n", @output;
       $totals{errors}++;
