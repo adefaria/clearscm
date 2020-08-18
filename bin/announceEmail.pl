@@ -17,7 +17,7 @@ Andrew DeFaria <Andrew@DeFaria.com>
 
 =item Revision
 
-$Revision: 1.1 $
+$Revision: 1.2 $
 
 =item Created:
 
@@ -41,9 +41,10 @@ $Date: 2019/04/04 13:40:10 $
    -v|erbose:  Verbose mode (Default: -verbose)
    -de|bug:    Turn on debugging (Default: Off)
    -da|emon:   Run in daemon mode (Default: -daemon)
-   -use|rname: User name to log in with (Default: $USER)
+   -user|name: User name to log in with (Default: $USER)
    -p|assword: Password to use (Default: prompted)
    -i|map:     IMAP server to talk to (Default: defaria.com)
+   -uses|sl:   Whether or not to use SSL to connect (Default: False)
 
 =head1 DESCRIPTION
 
@@ -98,6 +99,7 @@ my %opts = (
   username => $ENV{USER},
   password => $ENV{PASSWORD},
   imap     => $defaultIMAPServer,
+  usessl   => 0,
 );
 
 sub interrupted {
@@ -114,14 +116,6 @@ sub interrupted {
 
 $SIG{USR1} = \&interrupted;
 
-sub debugit($) {
-  my ($msg) = @_;
-
-  $log->msg($msg) if get_debug;
-
-  return;
-} # logit
-
 sub unseenMsgs() {
   $IMAP->select('inbox') or
     $log->err("Unable to select inbox: " . get_last_error(), 1);
@@ -136,6 +130,7 @@ sub Connect2IMAP() {
     Server   => $opts{imap},
     Username => $opts{username},
     Password => $opts{password},
+    UseSSL   => $opts{usessl},
   ) or $log->err("Unable to connect to IMAP server $opts{imap}: $@", 1);
 
   $log->msg('Connected');
@@ -151,89 +146,84 @@ sub Connect2IMAP() {
 } # Connect2IMAP
 
 sub MonitorMail() {
-  while () {
-    # First close and reselect the INBOX to get its current status
-    debugit "Reconnecting to INBOX";
-    $IMAP->close;
-    $IMAP->select('INBOX')
-      or $log->err("Unable to select INBOX - ". $IMAP->errstr(), 1);
+  # First close and reselect the INBOX to get its current status
+  $IMAP->close;
+  $IMAP->select('INBOX')
+    or $log->err("Unable to select INBOX - ". $IMAP->errstr(), 1);
 
-    # Go through all of the unseen messages and add them to %unseen if they were
-    # not there already from a prior run and read
-    my %newUnseen = unseenMsgs;
+  # Go through all of the unseen messages and add them to %unseen if they were
+  # not there already from a prior run and read
+  my %newUnseen = unseenMsgs;
 
-    # Now clean out any messages in %unseen that were not in the %newUnseen and
-    # marked as previously read
-    for (keys %unseen) {
-      if (defined $newUnseen{$_}) {
-        if ($unseen{$_}) {
-          delete $newUnseen{$_};
-        } # if
-      } else {
-        delete $unseen{$_}
+  # Now clean out any messages in %unseen that were not in the %newUnseen and
+  # marked as previously read
+  for (keys %unseen) {
+    if (defined $newUnseen{$_}) {
+      if ($unseen{$_}) {
+        delete $newUnseen{$_};
       } # if
-    } # for
+    } else {
+      delete $unseen{$_}
+    } # if
+  } # for
 
-    debugit "Processing newUnseen";
-    for (keys %newUnseen) {
-      next if $unseen{$_};
+  for (keys %newUnseen) {
+    next if $unseen{$_};
 
-      my $envelope = $IMAP->fetch($_, '(envelope)');
-      my $from     = $envelope->{$_}{envelope}{From};
-      my $subject  = $envelope->{$_}{envelope}{Subject};
-         $subject //= 'Unknown subject';
+    my $envelope = $IMAP->fetch($_, '(envelope)');
+    my $from     = $envelope->{$_}{envelope}{From};
+    my $subject  = $envelope->{$_}{envelope}{Subject};
+       $subject //= 'Unknown subject';
 
-      # Extract the name only when the email is of the format "name <email>"
-      if ($from =~ /^"?(.*?)"?\s*\<(\S*)>/) {
-        $from = $1 if $1 ne '';
-      } # if
+    # Extract the name only when the email is of the format "name <email>"
+    if ($from =~ /^"?(.*?)"?\s*\<(\S*)>/) {
+      $from = $1 if $1 ne '';
+    } # if
 
-      if ($subject =~ /=?\S+?(Q|B)\?(.+)\?=/) {
-        $subject = decode_base64($2);
-      } # if
+    if ($subject =~ /=?\S+?(Q|B)\?(.+)\?=/) {
+      $subject = decode_base64($2);
+    } # if
 
-      # Google Talk doesn't like #
-      $subject =~ s/\#//g;
+    # Google Talk doesn't like #
+    $subject =~ s/\#//g;
 
-      # Now speak it!
-      debugit "Speaking message from $from";
+    # Now speak it!
+    my $logmsg = "From $from $subject";
 
-      my $logmsg = "From $from $subject";
+    my $greeting = $greetings[int rand $#greetings];
+    my $msg      = "$greeting from $from... " . quotemeta $subject;
+       $msg      =~ s/\"/\\"/g;
 
-      my $greeting = $greetings[int rand $#greetings];
-      my $msg      = "$greeting from $from... " . quotemeta $subject;
-         $msg      =~ s/\"/\\"/g;
+    # Log it
+    $log->msg($logmsg);
 
-      # Log it
-      $log->msg($logmsg);
+    my $hour = (localtime)[2];
 
-      debugit $logmsg;
-
+    # Only announce if after 6 Am. Note this will announce up until
+    # midnight but that's ok. I want midnight to 6 Am as silent time.
+    if ($hour > 6) {
       my $cmd = "/usr/local/bin/gt \"$msg\"";
+      my ($status, @output) = Execute $cmd;
 
-      my $hour = (localtime)[2];
-
-      # Only announce if after 6 Am. Note this will announce up until
-      # midnight but that's ok. I want midnight to 6 Am as silent time.
-      if ($hour > 6) {
-        my ($status, @output) = Execute $cmd;
-
-        if ($status) {
-          $log->err("Unable to execute $cmd" . join("\n", @output));
-        } # if
+      if ($status) {
+        $log->err("Unable to execute $cmd" . join("\n", @output));
       } # if
+    } # if
 
-      $unseen{$_} = 1;
-    } # for
-  } # while
+    $unseen{$_} = 1;
+  } # for
 
-  return;
+  # Re-establish callback
+  $IMAP->idle(\&MonitorMail);
+
+  # Should not get here
+  $log->err("Unable to re-establish IDLE callback from IMAP server $opts{imap}", 1);
 } # MonitorMail
 
 END {
   $IMAP->quit if $IMAP;
 
-  $log->msg("$FindBin::Script ending!");
+  $log->msg("$FindBin::Script ending unexpectedly!");
 } # END
 
 ## Main
@@ -247,6 +237,7 @@ GetOptions(
   'username=s',
   'password=s',
   'imap=s',
+  'usessl',
   'sleep',
 );
 
@@ -257,7 +248,9 @@ unless ($opts{password}) {
 
 $opts{debug} = get_debug;
 
-EnterDaemonMode if $opts{daemon};
+if ($opts{daemon}) {
+  EnterDaemonMode unless defined $DB::OUT;
+} # if
 
 $log = Logger->new(
   path        => '/var/log',
@@ -277,3 +270,5 @@ my ($status, @output) = Execute $cmd;
 
 $IMAP->idle(\&MonitorMail);
 
+# Should not get here
+$log->err("Falling off the edge of $0", 1);
