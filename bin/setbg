@@ -130,11 +130,12 @@ sub fillPictures () {
   $totals{bgdirs} = 0;
 
   for (@{$opts{bgdirs}}) {
-    my @pics = `find "$_" -type f -name "*.jpg"`;
+    my ($status, @pics) = Execute "find \"$_\" -type f";
 
     chomp @pics;
 
-    push @images, @pics;
+    push @images, grep(/jpg$|png$|gif$/i, @pics);
+
     push @{$opts{bgdircnt}}, scalar @pics;
 
     $totals{bgdirs}++;
@@ -144,8 +145,20 @@ sub fillPictures () {
 
   return @images;
 } # fillPictures
+sub writeHistory($) {
+  my ($msg) = @_;
 
-sub updateSetBG ($$) {
+  open my $hist, '>>', "$ENV{HOME}/.$FindBin::Script.hist"
+    or error "Unable to open $ENV{HOME}/.$FindBin::Script.hist for append - $!", 1;
+
+  $msg = localtime() . $msg;
+
+  display $msg, $hist;
+
+  close $hist;
+} # writeHistory
+
+sub updateSetBG($$) {
   my ($bgimage, $lockimage) = @_;
 
   open my $setbg, '>', "$ENV{HOME}/.$FindBin::Script"
@@ -155,15 +168,10 @@ sub updateSetBG ($$) {
 
   close $setbg;
 
-  my $msg  = localtime() . ":$bgimage";
+  my $msg  = ":$bgimage";
      $msg .= " lock:$lockimage" if $opts{lockscreen};
 
-  open my $hist, '>>', "$ENV{HOME}/.$FindBin::Script.hist"
-    or error "Unable to open $ENV{HOME}/.$FindBin::Script.hist for append - $!", 1;
-
-  display $msg, $hist;
-
-  close $hist;
+  writeHistory $msg;
 
   return;
 } # updateSetBG
@@ -233,35 +241,43 @@ while () {
   my $bgimage   = escapeHTML ($images[int (rand $#images)]);
   my $lockimage = escapeHTML ($images[int (rand $#images)]);
 
-  my $cmd = "$setbg $setbgOpts$bgimage\" 2> /dev/null";
+  my $monitorIsOn;
 
-  my @output = `$cmd`;
+  my ($status, @output) = Execute("xset q | grep Monitor | awk '{print \$3}'");
 
-  if ($? != 0) {
-    error "Trying to set background - command used \"$cmd\"\n\nOutput\n\n" . 
-      join "\n", @output;
-    $totals{errors}++;
+  if ($status or $output[0] eq 'Off') {
+    writeHistory ":Monitor off, not setting background to $bgimage";
   } else {
-    $totals{'Images displayed'}++;
-  } # if
+    my $cmd = "$setbg $setbgOpts$bgimage\" 2> /dev/null";
 
-  if ($opts{lockscreen}) {
-    $cmd = "$setbg $setLockOpts$lockimage\" 2> /dev/null";
+    ($status, @output) = Execute $cmd;
 
-    @output = `$cmd`;
-
-    if ($? != 0) {
-      error "Trying to set lock screen - command used \"$cmd\"\n\nOutput\n\n" .
+    if ($status) {
+      error "Trying to set background - command used \"$cmd\"\n\nOutput\n\n" . 
         join "\n", @output;
       $totals{errors}++;
     } else {
-      $totals{'Lock screens displayed'}++;
+      $totals{'Images displayed'}++;
     } # if
+
+    if ($opts{lockscreen}) {
+      $cmd = "$setbg $setLockOpts$lockimage\" 2> /dev/null";
+
+      ($status, @output) = Execute $cmd;
+
+      if ($status != 0) {
+        error "Trying to set lock screen - command used \"$cmd\"\n\nOutput\n\n" .
+          join "\n", @output;
+        $totals{errors}++;
+      } else {
+        $totals{'Lock screens displayed'}++;
+      } # if
+    } # if
+
+    updateSetBG $bgimage, $lockimage;
+
+    displayStats;
   } # if
-
-  updateSetBG $bgimage, $lockimage;
-
-  displayStats;
 
   $today = YMD;
 

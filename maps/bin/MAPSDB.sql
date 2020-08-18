@@ -88,5 +88,6 @@ create table log (
 ); -- log
 
 -- Create users
-grant all privileges 
-  on MAPS.* to maps@"localhost"  identified by "spam";
+-- New 8.0 syntax...
+create user 'maps'@'localhost' identified by 'spam';
+grant all privileges on MAPS.* to 'maps'@'localhost';

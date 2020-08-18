@@ -110,6 +110,7 @@ path_dirs="$path_dirs\
   /usr/ucb\
   /opt/ssh/bin\
   /tools/bin\
+  /snap/bin\
   $systemroot/System32\
   $systemroot\
 "
