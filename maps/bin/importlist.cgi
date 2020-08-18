@@ -32,11 +32,14 @@ my $userid =   cookie('MAPSUser');
    $userid //= $ENV{USER};
 my $Userid =   ucfirst $userid;
 
+my $type = param 'type';
+my $file = param 'file';
+
 my %opts = (
   usage => sub { pod2usage },
   help  => sub { pod2usage (-verbose => 2)},
-  type  => param('type'),
-  file  => param('file'),
+  type  => $type,
+  file  => $file,
 );
 
 sub importList ($) {
