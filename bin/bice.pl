@@ -71,7 +71,18 @@ my $UTC      = 'UTC-7';
 my $mailhost = $domain;
 # End customize these variables
 
-my $verbose;
+# Current IPset. This is the name of an IP match set (See 
+# https://kirkkosinski.com/2013/11/mass-blocking-evil-ip-addresses-iptables-ip-sets/)
+# Each set can hold up to 65535 entries. We are currently on set 2.
+#
+# TODO: This code should handle the case where the set fills and we need to go
+#       to the next set. Something like "ipset list <current set> | wc - " and
+#       if it's > than say 60000, start a new set.
+#
+#       Also, when a new set comes around we need to do:
+#         $ iptables -A FORWARD -m set --mach-set <newset> src -j DROP
+my $currIPSet = 'BICE2';
+
 my $update    = 1;
 my $email     = 1;
 my $hostname  = `hostname`;
@@ -81,46 +92,19 @@ if ($hostname =~ /(\w*)\./) {
   $hostname = $1;
 } # if
 
-sub AddToIPTables (@) {
-  my (@ips) = @_;
+sub AddToIPSet($) {
+  my ($ip) = @_;
 
-  # We shouldn't need to weed out duplicate but ya never know  
-  my $ipfilename = '/etc/ipblock';
+  my ($status, @output) = Execute "/sbin/ipset add $currIPSet $ip 2>&1";
 
-  my $result = open my $ipfile, '<', $ipfilename;
+  if ($status) {
+    return if $output[0] =~ /already added/;
 
-  my (%ips, @oldips);
-
-  if ($result) {
-    @oldips = <$ipfile>; 
-
-    close $ipfile if $ipfile;
-
-    chomp @oldips;
+    error "Unable to add $ip to ipset $currIPSet" . join ("\n", @output), 1;
+  } else {
+    return;
   } # if
-
-  map { $ips{$_} = 1 } @oldips;
-  map { $ips{$_} = 1 } <@ips>;
-
-  open $ipfile, '>', "$ipfilename"
-    or error "Unable to open $ipfilename - $!", 1;
-
-  foreach (sort keys %ips) {
-    print $ipfile "$_\n";
-  } # foreach
-
-  close $ipfile;
-
-  # Recreate the BICE chain
-  `/sbin/iptables -F BICE`;
-  `/sbin/iptables -X BICE`;
-  `/sbin/iptables -N BICE`;
-
-  # Add all new @ips to iptables
-  `/sbin/iptables -A BICE -s $_ -p tcp -j DROP` foreach (sort keys %ips);
-
-  return;
-} # AddToIPTables
+} # AddToIPSet
 
 # Use whois(1) to get the email addresses of the responsible parties for an IP
 # address. Note that a hash is used to eliminate duplicates.
@@ -139,7 +123,7 @@ sub GetEmailAddresses ($) {
 
   my %email_addresses;
 
-  foreach (@whois_list) {
+  for (@whois_list) {
     my @lines;
 
     if ($_ eq "") {
@@ -148,7 +132,7 @@ sub GetEmailAddresses ($) {
       @lines = grep {/.*\@.*/ } `whois -h $_ $ip`;
     } # if
 
-    foreach (@lines) {
+    for (@lines) {
       my @fields = split /:/, $_;
 
       $_ = $fields [@fields - 1];
@@ -156,23 +140,23 @@ sub GetEmailAddresses ($) {
       if (/(\S+\@\S[\.\S]+)/) {
         $email_addresses{$1} = "";
       } # if
-    } # foreach
+    } # for
 
     # Break out of loop if we found email addresses
     last unless keys %email_addresses;
-  } # foreach
+  } # for
 
   return keys %email_addresses;
 } # GetEmailAddresses
 
 # Send email to the responsible parties.
-sub SendEmail ($$$$$) {
-  my ($to, $subject, $message, $ip, $violations) = @_;
+sub SendEmail ($$$$$$) {
+  my ($to, $subject, $message, $ip, $attempts, $violationNbr) = @_;
 
   if ($email) {
-    verbose "Reporting $ip ($violations violations) to $to";
+    verbose "$violationNbr: Reporting $ip ($attempts violations) to $to";
   } else {
-    verbose "Would have reported $ip ($violations violations) to $to";
+    verbose "$violationNbr: Would have reported $ip ($attempts violations) to $to";
     return;
   } # if
 
@@ -243,7 +227,7 @@ sub processLogfile () {
   flock $writelog, LOCK_EX
     or error "Unable to flock $security_logfile", 1;
 
-  print $writelog $_ foreach @lines;
+  print $writelog $_ for @lines;
 
   flock $writelog, LOCK_UN
     or error "Unable to unlock $security_logfile", 1;
@@ -267,14 +251,15 @@ sub ReportBreakins () {
     verbose "$nbrViolations sites attempting to violate our perimeter";
   } # if
 
-  foreach (sort keys %violations) {
-    my $ip = $_;
+  my $violations;
 
+  for my $ip (sort keys %violations) {
     my $attempts;
 
-    $attempts += @{$violations{$ip}{$_}} foreach (keys %{$violations{$ip}});
+    $violations++;
+    $attempts += @{$violations{$ip}{$_}} for (keys %{$violations{$ip}});
 
-    my @emails   = GetEmailAddresses $ip;
+    my @emails = GetEmailAddresses $ip;
 
     unless (@emails) {
       verbose 'Unable to find any responsible parties for detected breakin '
@@ -310,28 +295,27 @@ attempted and the time of the attempt:</p>
 <ol>
 END
     # Report users
-    foreach my $user (sort keys %{$violations{$ip}}) {
+    for my $user (sort keys %{$violations{$ip}}) {
       if (@{$violations{$ip}{$user}} == 1) {
         $message .= "<li>The user <b>$user</b> attempted access on $violations{$ip}{$user}[0]</li>";
       } else {
         $message .= "<li>The user <b>$user</b> attemped access on the following date/times:</li>"; 
         $message .= "<ol>";
-        $message .= "<li>$_</li>" foreach (@{$violations{$ip}{$user}});
+        $message .= "<li>$_</li>" for (@{$violations{$ip}{$user}});
         $message .= "</ol>";
       } # if
-    } # foreach
+    } # for
 
     $message .= '</ol><p>Your prompt attention to this matter is expected '
               . 'and will be appreciated.</p>';
-    SendEmail $to, $subject, $message, $ip, $attempts;
-  } # foreach
+    SendEmail $to, $subject, $message, $ip, $attempts, $violations;
+    AddToIPSet $ip;
+  } # for
 
-  AddToIPTables keys %violations;
+  return;
 } # ReportBreakins
 
 ## Main
-
-# Get options
 GetOptions (
   'verbose', sub { set_verbose },
   'debug',   sub { set_debug },
@@ -341,8 +325,7 @@ GetOptions (
   'file=s',  \$security_logfile,
 ) || Usage;
 
-Usage 'Must specify filename'
-  unless $security_logfile;
+Usage 'Must specify filename' unless $security_logfile;
 
 ReportBreakins;
 

@@ -93,7 +93,7 @@ BEGIN {
   $me =~ s/\.pl$//;
 } # BEGIN
 
-sub new (;%){
+sub new(;%) {
   my ($class, %parms) = @_;
 
 =pod
@@ -166,7 +166,7 @@ Returns:
   my $append      = $parms{append}      ? '>>'                : '>';
   my $logfile;
 
-  if (defined $parms{extension}) {
+  if ($parms{extension}) {
     $name .= ".$parms{extension}" unless $parms{extension} eq '';
   } else {
     $name .= '.log';
@@ -176,7 +176,7 @@ Returns:
     or error "Unable to open logfile $path/$name - $!", 1;
 
   # Set unbuffered output
-  $logfile->autoflush ();
+  $logfile->autoflush();
 
   set_verbose if $ENV{VERBOSE};
   set_debug   if $ENV{DEBUG};
@@ -192,7 +192,7 @@ Returns:
   }, $class; # bless
 } # new
 
-sub append ($) {
+sub append($) {
   my ($self, $filename) = @_;
 
 =pod
@@ -241,7 +241,7 @@ Returns:
   return;
 } # append
 
-sub name () {
+sub name() {
   my ($self) = @_;
 
 =pod
@@ -279,7 +279,7 @@ Returns:
   return $self->{name};
 } # name
 
-sub fullname () {
+sub fullname() {
   my ($self) = @_;
 
 =pod
@@ -317,7 +317,7 @@ Returns:
   return "$self->{path}/$self->{name}";
 } # fullname
 
-sub msg ($;$) {
+sub msg($;$) {
   my ($self, $msg, $nolinefeed) = @_;
 
 =pod
@@ -366,7 +366,7 @@ Returns:
   return;
 } # msg
 
-sub disp ($;$) {
+sub disp($;$) {
   my ($self, $msg, $nolinefeed) = @_;
 
 =pod
@@ -415,7 +415,7 @@ Returns:
   return;
 } # disp
 
-sub incrementErr (;$) {
+sub incrementErr(;$) {
   my ($self, $increment) = @_;
 
 =pod
@@ -459,7 +459,7 @@ Returns:
   return;
 } # incrementErr
 
-sub err ($;$) {
+sub err($;$) {
   my ($self, $msg, $errno) = @_;
 
 =pod
@@ -522,7 +522,7 @@ Returns:
   return;
 } # err
 
-sub maillog (%) {
+sub maillog(%) {
   my ($self, %parms) = @_;
 
 =pod
@@ -568,8 +568,7 @@ Returns:
   my $footing = $parms{footing};
   my $mode    = $parms{mode};
 
-  $mode = "plain" 
-    unless $mode;
+  $mode = "plain" unless $mode;
 
   my $log_filename = "$self->{path}/$self->{name}";
 
@@ -584,7 +583,7 @@ Returns:
               . $footing;
   } # if
 
-  mail (
+  mail(
     from    => $from,
     to      => $to,
     cc      => $cc,
@@ -601,7 +600,7 @@ Returns:
   return;
 } # maillog
 
-sub log {
+sub log($;$) {
   my ($self, $msg, $nolinefeed) = @_;
 
 =pod
@@ -651,7 +650,7 @@ Returns:
   return;
 } # log
 
-sub logcmd ($) {
+sub logcmd($) {
   my ($self, $cmd) = @_;
 
 =pod
@@ -710,7 +709,7 @@ Returns:
   return ($?, @output);
 } # logcmd
 
-sub loglines () {
+sub loglines() {
   my ($self) = @_;
 
 =pod
@@ -748,7 +747,7 @@ Returns:
   return ReadFile "$self->{path}/$self->{name}";
 } # loglines
 
-sub warn ($;$) {
+sub warn($;$) {
   my ($self, $msg, $warnno) = @_;
 
 =pod
@@ -805,7 +804,7 @@ Returns:
   return;
 } # warn
 
-sub errors () {
+sub errors() {
   my ($self) = @_;
 
 =pod
@@ -843,7 +842,15 @@ Returns:
   return $self->{errors};
 } # errors
 
-sub warnings () {
+sub dbug($) {
+  my ($self, $msg) = @_;
+
+  $self->log("DEBUG: $msg") unless get_debug;
+
+  return;
+} # dbug
+
+sub warnings() {
   my ($self) = @_;
 
 =pod
@@ -881,7 +888,7 @@ Returns:
   return $self->{warnings};
 } # warnings
 
-sub DESTROY () {
+sub DESTROY() {
   my ($self) = @_;
 
   close ($self->{handle});
