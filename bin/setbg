@@ -237,17 +237,27 @@ truncate "$ENV{HOME}/.$FindBin::Script.hist", 0;
 
 EnterDaemonMode unless defined $DB::OUT;
 
+my $pickNewImages = 1;
+
 while () {
-  my $bgimage   = escapeHTML ($images[int (rand $#images)]);
-  my $lockimage = escapeHTML ($images[int (rand $#images)]);
+  my ($bgimage, $lockimage);
+
+  if ($pickNewImages) {
+    $bgimage   = escapeHTML ($images[int (rand $#images)]);
+    $lockimage = escapeHTML ($images[int (rand $#images)]);
+  } # if
 
   my $monitorIsOn;
 
   my ($status, @output) = Execute("xset q | grep Monitor | awk '{print \$3}'");
 
   if ($status or $output[0] eq 'Off') {
-    writeHistory ":Monitor off, not setting background to $bgimage";
+    writeHistory ":Monitor off, not setting background to $bgimage - will keep trying";
+
+    $pickNewImages = 0;
   } else {
+    $pickNewImages = 1;
+
     my $cmd = "$setbg $setbgOpts$bgimage\" 2> /dev/null";
 
     ($status, @output) = Execute $cmd;
