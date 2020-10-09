@@ -166,7 +166,7 @@ Returns:
   my $append      = $parms{append}      ? '>>'                : '>';
   my $logfile;
 
-  if ($parms{extension}) {
+  if (defined $parms{extension}) {
     $name .= ".$parms{extension}" unless $parms{extension} eq '';
   } else {
     $name .= '.log';
