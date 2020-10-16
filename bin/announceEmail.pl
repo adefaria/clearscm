@@ -155,6 +155,12 @@ sub Connect2IMAP() {
 sub Say($) {
   my ($msg) = @_;
 
+  if (-f "$FindBin::Bin/shh") {
+    $log->msg("Not speaking because we were asked to be quiet - $msg");
+
+    return;
+  } # if
+
   my ($status, @output) = Execute "/usr/local/bin/gt \"$msg\"";
 
   $log->err("Unable to speak (Status: $status) - "
