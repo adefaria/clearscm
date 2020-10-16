@@ -341,10 +341,9 @@ Returns:
 
 =cut  
 
-  
   $prompt ||= 'Password';
 
-  my $password;
+  my $password = '';
 
   local $| = 1;
 
@@ -365,9 +364,18 @@ Returns:
        last;
     } # if
 
-    print '*';
+    # Handle backspaces
+    if ($key eq chr(127)) {
+      unless ($password eq '') {
+        chop $password;
 
-    $password .= $key;
+        print "\b \b";
+      } # unless
+    } else {
+      print '*';
+
+      $password .= $key;
+    } # if
   } # while
 
   ReadMode 'restore'; # Reset tty mode before exiting.
