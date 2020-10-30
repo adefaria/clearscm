@@ -125,6 +125,8 @@ fi
 if [ $ARCHITECTURE = "cygwin" ]; then
   alias ping=$(echo $SYSTEMROOT | tr '\\' '\/')/system32/ping
   alias rdp=mstsc
+else
+  alias sys=systemctl
 fi
 
 # We specify /home/$USER here so that when we sudo to another user 

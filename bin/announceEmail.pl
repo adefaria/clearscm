@@ -36,15 +36,18 @@ $Date: 2019/04/04 13:40:10 $
                          [-i|map <server]
 
  Where:
-   -usa|ge:    Print this usage
-   -h|elp:     Detailed help
-   -v|erbose:  Verbose mode (Default: -verbose)
-   -de|bug:    Turn on debugging (Default: Off)
-   -da|emon:   Run in daemon mode (Default: -daemon)
-   -user|name: User name to log in with (Default: $USER)
-   -p|assword: Password to use (Default: prompted)
-   -i|map:     IMAP server to talk to (Default: defaria.com)
-   -uses|sl:   Whether or not to use SSL to connect (Default: False)
+   -usa|ge:      Print this usage
+   -h|elp:       Detailed help
+   -v|erbose:    Verbose mode (Default: -verbose)
+   -de|bug:      Turn on debugging (Default: Off)
+   -da|emon:     Run in daemon mode (Default: -daemon)
+   -user|name:   User name to log in with (Default: $USER)
+   -p|assword:   Password to use (Default: prompted)
+   -n|ame:       Name of account (Default: imap)
+   -i|map:       IMAP server to talk to (Default: defaria.com)
+   -uses|sl:     Whether or not to use SSL to connect (Default: False)
+   -useb|locking Whether to block on socket (Default: False)
+   -a-nnounce    Announce startup (Default: False)
 
 =head1 DESCRIPTION
 
@@ -71,6 +74,7 @@ use lib "$FindBin::Bin/../lib";
 use Display;
 use Logger;
 use Utils;
+use TimeUtils;
 
 my $defaultIMAPServer = 'defaria.com';
 my $IMAP;
@@ -91,15 +95,17 @@ my @greetings = (
 );
 
 my %opts = (
-  usage    => sub { pod2usage },
-  help     => sub { pod2usage(-verbose => 2)},
-  verbose  => sub { set_verbose },
-  debug    => sub { set_debug },
-  daemon   => 1,
-  username => $ENV{USER},
-  password => $ENV{PASSWORD},
-  imap     => $defaultIMAPServer,
-  usessl   => 0,
+  usage       => sub { pod2usage },
+  help        => sub { pod2usage(-verbose => 2)},
+  verbose     => sub { set_verbose },
+  debug       => sub { set_debug },
+  daemon      => 1,
+  username    => $ENV{USER},
+  password    => $ENV{PASSWORD},
+  imap        => $defaultIMAPServer,
+  usessl      => 0,
+  useblocking => 0,
+  announce    => 0,
 );
 
 sub interrupted {
@@ -124,16 +130,17 @@ sub unseenMsgs() {
 } # unseenMsgs 
 
 sub Connect2IMAP() {
-  $log->msg("Connecting to $opts{imap} as $opts{username}");
+  $log->dbug("Connecting to $opts{imap} as $opts{username}");
 
   $IMAP = Mail::IMAPTalk->new(
-    Server   => $opts{imap},
-    Username => $opts{username},
-    Password => $opts{password},
-    UseSSL   => $opts{usessl},
+    Server      => $opts{imap},
+    Username    => $opts{username},
+    Password    => $opts{password},
+    UseSSL      => $opts{usessl},
+    UseBlocking => $opts{useblocking},
   ) or $log->err("Unable to connect to IMAP server $opts{imap}: $@", 1);
 
-  $log->msg('Connected');
+  $log->dbug("Connected to $opts{imap} as $opts{username}");
 
   # Focus on INBOX only
   $IMAP->select('inbox');
@@ -145,7 +152,26 @@ sub Connect2IMAP() {
   return;
 } # Connect2IMAP
 
+sub Say($) {
+  my ($msg) = @_;
+
+  if (-f "$FindBin::Bin/shh") {
+    $log->msg("Not speaking because we were asked to be quiet - $msg");
+
+    return;
+  } # if
+
+  my ($status, @output) = Execute "/usr/local/bin/gt \"$msg\"";
+
+  $log->err("Unable to speak (Status: $status) - "
+          . join ("\n", @output), $status) if $status;
+
+  return;
+} # Say
+
 sub MonitorMail() {
+  MONITORMAIL:
+
   # First close and reselect the INBOX to get its current status
   $IMAP->close;
   $IMAP->select('INBOX')
@@ -191,39 +217,60 @@ sub MonitorMail() {
     my $logmsg = "From $from $subject";
 
     my $greeting = $greetings[int rand $#greetings];
-    my $msg      = "$greeting from $from... " . quotemeta $subject;
+    my $msg      = "$greeting from $from... $subject";
        $msg      =~ s/\"/\\"/g;
-
-    # Log it
-    $log->msg($logmsg);
 
     my $hour = (localtime)[2];
 
     # Only announce if after 6 Am. Note this will announce up until
     # midnight but that's ok. I want midnight to 6 Am as silent time.
-    if ($hour > 6) {
-      my $cmd = "/usr/local/bin/gt \"$msg\"";
-      my ($status, @output) = Execute $cmd;
-
-      if ($status) {
-        $log->err("Unable to execute $cmd" . join("\n", @output));
-      } # if
+    if ($hour >= 6) {
+      Say $msg;
+      $log->msg($logmsg);
+    } else {
+      $log->msg("$logmsg [silent]");
     } # if
 
     $unseen{$_} = 1;
   } # for
 
   # Re-establish callback
-  $IMAP->idle(\&MonitorMail);
+  eval { $IMAP->idle(\&MonitorMail) };
 
-  # Should not get here
-  $log->err("Unable to re-establish IDLE callback from IMAP server $opts{imap}", 1);
+  # If we return from idle then the server went away for some reason. With Gmail
+  # the server seems to time out around 30-40 minutes. Here we simply reconnect
+  # to the imap server and continue to MonitorMail.
+  $log->dbug("MonitorMail: Connection to $opts{imap} ended. Reconnecting");
+
+  # Destroy current IMAP connection
+  $log->dbug("MonitorMail: Destorying IMAP connection to $opts{imap}");
+
+  undef $IMAP;
+
+  # Re-establish connection
+  Connect2IMAP;
+
+  $log->dbug("MonitorMail: Reconnected to IMAP server $opts{imap}");
+
+  # MonitorMail again - the dreaded goto! Seems the cleanest way to restart
+  # in this instance. I could call MonitorMail() recursively but that would
+  # leave junk on the stack.
+  $log->dbug('MonitorMail: Going back to the top of the loop');
+
+  goto MONITORMAIL;
+
+  return; # To make perlcritic happy
 } # MonitorMail
 
 END {
-  $IMAP->quit if $IMAP;
+  # If $log is not yet defined then the exit is not unexpected
+  if ($log) {
+    my $msg = "$FindBin::Script ending unexpectedly!";
 
-  $log->msg("$FindBin::Script ending unexpectedly!");
+    Say $msg;
+
+    $log->err($msg);
+  } # if
 } # END
 
 ## Main
@@ -235,40 +282,53 @@ GetOptions(
   'debug',
   'daemon!',
   'username=s',
+  'name=s',
   'password=s',
   'imap=s',
   'usessl',
-  'sleep',
-);
+  'useblocking',
+  'announce!',
+) || pod2usage;
 
 unless ($opts{password}) {
   verbose "I need $opts{username}'s password";
   $opts{password} = GetPassword;
 } # unless
 
-$opts{debug} = get_debug;
+$opts{name} //= $opts{imap};
+
+if ($opts{username} =~ /.*\@(.*)$/) {
+  $opts{name} = $1;
+} # if
 
 if ($opts{daemon}) {
+  # Perl complains if we reference $DB::OUT only once
+  my $foo = $DB::OUT;
   EnterDaemonMode unless defined $DB::OUT;
 } # if
 
 $log = Logger->new(
   path        => '/var/log',
+  name        => "$Logger::me.$opts{name}",
   timestamped => 'yes',
   append      => 'yes',
 );
 
 Connect2IMAP;
 
-my $msg = "Now monitoring email for $opts{username}\@$opts{imap}";
+if ($opts{username} =~ /(.*)\@/) {
+  $opts{user} = $1;
+} else {
+  $opts{user} = $opts{username};
+} # if
+
+my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
+
+Say $msg if $opts{announce};
 
 $log->msg($msg);
 
-my $cmd = "/usr/local/bin/gt \"$msg\"";
-
-my ($status, @output) = Execute $cmd;
-
-$IMAP->idle(\&MonitorMail);
+MonitorMail;
 
 # Should not get here
 $log->err("Falling off the edge of $0", 1);

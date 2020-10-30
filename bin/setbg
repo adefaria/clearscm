@@ -32,7 +32,7 @@ $Date: 2012/11/09 15:31:30 $
 
  Usage: setbg [-u|sage] [-h|elp] [-ve|rbose] [-d|ebug] [-s|leep <n>]
               [-bgdirs <bgdir> -bgdirs ...]
- 
+
  Where:
 
  -u|sage:      Displays this usage
@@ -130,11 +130,13 @@ sub fillPictures () {
   $totals{bgdirs} = 0;
 
   for (@{$opts{bgdirs}}) {
-    my ($status, @pics) = Execute "find \"$_\" -type f";
+    my ($status, @pics) = Execute "find \"$_/\" -type f";
 
     chomp @pics;
 
     push @images, grep(/jpg$|png$|gif$/i, @pics);
+
+    @pics = grep(/jpg$|png$|gif$/i, @pics);
 
     push @{$opts{bgdircnt}}, scalar @pics;
 
@@ -143,8 +145,11 @@ sub fillPictures () {
 
   $totals{images} = scalar @images;
 
+  displayStats;
+
   return @images;
 } # fillPictures
+
 sub writeHistory($) {
   my ($msg) = @_;
 
@@ -237,17 +242,26 @@ truncate "$ENV{HOME}/.$FindBin::Script.hist", 0;
 
 EnterDaemonMode unless defined $DB::OUT;
 
+my $pickNewImages = 1;
+my ($bgimage, $lockimage);
+
 while () {
-  my $bgimage   = escapeHTML ($images[int (rand $#images)]);
-  my $lockimage = escapeHTML ($images[int (rand $#images)]);
+  if ($pickNewImages) {
+    $bgimage   = escapeHTML ($images[int (rand $#images)]);
+    $lockimage = escapeHTML ($images[int (rand $#images)]);
+  } # if
 
   my $monitorIsOn;
 
   my ($status, @output) = Execute("xset q | grep Monitor | awk '{print \$3}'");
 
   if ($status or $output[0] eq 'Off') {
-    writeHistory ":Monitor off, not setting background to $bgimage";
+    writeHistory ":Monitor off, not setting background to $bgimage - will keep trying";
+
+    $pickNewImages = 0;
   } else {
+    $pickNewImages = 1;
+
     my $cmd = "$setbg $setbgOpts$bgimage\" 2> /dev/null";
 
     ($status, @output) = Execute $cmd;
@@ -275,9 +289,9 @@ while () {
     } # if
 
     updateSetBG $bgimage, $lockimage;
-
-    displayStats;
   } # if
+
+  displayStats;
 
   $today = YMD;
 

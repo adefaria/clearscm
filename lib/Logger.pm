@@ -83,7 +83,7 @@ use Utils;
 
 my ($error_color, $warning_color, $command_color, $highlight_color, $normal) = "";
 
-my $me;
+our $me;
 
 BEGIN {
   # Extract relative path and basename from script name.
@@ -166,7 +166,7 @@ Returns:
   my $append      = $parms{append}      ? '>>'                : '>';
   my $logfile;
 
-  if ($parms{extension}) {
+  if (defined $parms{extension}) {
     $name .= ".$parms{extension}" unless $parms{extension} eq '';
   } else {
     $name .= '.log';
@@ -845,7 +845,7 @@ Returns:
 sub dbug($) {
   my ($self, $msg) = @_;
 
-  $self->log("DEBUG: $msg") unless get_debug;
+  $self->log("DEBUG: $msg") if get_debug;
 
   return;
 } # dbug
