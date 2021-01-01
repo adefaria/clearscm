@@ -125,15 +125,12 @@ sub SubtractDays($$) {
   $days += $day - $nbr_of_days;
 
   # Compute $days_in_year
-  my $days_in_year;
+  my $days_in_year = (($year % 4) == 0) ? 366 : 365;
 
   # Adjust if crossing year boundary
   if ($days <= 0) {
     $year--;
-    $days_in_year = (($year % 4) == 0) ? 366 : 365;
     $days = $days_in_year + $days;
-  } else {
-    $days_in_year = (($year % 4) == 0) ? 366 : 365;
   } # if
 
   # Convert back
@@ -148,7 +145,7 @@ sub SubtractDays($$) {
   } # while
 
   # Prefix month with 0 if necessary
-  $month++;
+  $month++ unless $month == 12;
   if ($month < 10) {
     $month = '0' . $month;
   } # if
