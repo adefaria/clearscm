@@ -116,8 +116,8 @@ function stoptimer () {
     <?php start_box ("cs2")?>
       <h2 align=center><a href="http://defaria.com">Andrew P. DeFaria</a></h2>
       <address style="text-align:center">
-      14435 South 48th Street #2083<br>
-      Phoenix, Arizona 85044-6448<br>
+      870 Soft Wind #4<br>
+      Vista, California 92081<br>
       </address>
       <p style="text-align:center">
       Phone: 408-596-4937</a><br>
@@ -191,65 +191,78 @@ function stoptimer () {
       <tr>
         <th>Version Control Systems</th>
         <td>
-          <span class="standout">Git</span>, <span class="standout">Perforce</span>,
+          <span class="standout">Git</span>,
+	  <span class="standout">Perforce</span>,
           <span class="standout">Clearcase</span>
         </td>
       </tr>
       <tr>
         <th>Issue Tracking</th>
         <td>
-          <span class="standout">JIRA</span>, <span class="standout">Clearquest</span>,
+          <span class="standout">JIRA</span>,
+	  <span class="standout">Clearquest</span>,
           <span class="standout">Bugzilla</span>
         </td>
       </tr>
       <tr>
         <th>Languages</th>
         <td>
-          <span class="standout">Perl</span>, <span class="standout">Bash</span>,
-          <span class="standout">PHP</span>, <span class="standout">C++</span>,
-          <span class="standout">C</span>, <span class="standout">Ada</span>,
+          <span class="standout">Perl</span>,
+	  <span class="standout">Bash</span>,
+          <span class="standout">PHP</span>,
+	  <span class="standout">C++</span>,
+          <span class="standout">C</span>,
+	  <span class="standout">Ada</span>,
           <span class="standout">TCL</span>
         </td>
       </tr>
       <tr>
         <th>Configuration Management</th>
         <td>
-          <span class="standout">Puppet</span>, <span class="standout">Ansible</span>
+          <span class="standout">Puppet</span>,
+	  <span class="standout">Ansible</span>
         </td>
       </tr>
       <tr>
         <th>Middleware</th>
         <td>
-          <span class="standout">Apache</span>, <span class="standout">Tomcat</span>,
-          <span class="standout">Samba</span>, <span class="standout">Winbind</span>,
-          <span class="standout">LDAP</span>, <span class="standout">REST</span>
+          <span class="standout">Apache</span>,
+	  <span class="standout">Tomcat</span>,
+          <span class="standout">Samba</span>,
+	  <span class="standout">Winbind</span>,
+          <span class="standout">LDAP</span>,
+	  <span class="standout">REST</span>
         </td>
       </tr>
       <tr>
         <th>Web Apps</th>
         <td>
-          <span class="standout">JIRA</span>, <span class="standout">Confluence</span>,
+          <span class="standout">JIRA</span>,
+	  <span class="standout">Confluence</span>,
           <span class="standout">Swarm</span>
         </td>
       </tr>
       <tr>
         <th>Databases</th>
         <td>
-          <span class="standout">MySQL</span>, <span class="standout">Oracle</span>
+          <span class="standout">MySQL</span>,
+	  <span class="standout">Oracle</span>
         </td>
       </tr>
       <tr>
-        <th>Coninuous Integration</th>
+        <th>CI/CD</th>
         <td>
-          <span class="standout">Build Forge</span>, <span class="standout">Electric Commander</span>,
-          <span class="standout">Jenkins</span>
+          <span class="standout">Jenkins</span>,
+	  <span class="standout">Electric Commander</span>
         </td>
       </tr>
       <tr>
         <th>Virtualization</th>
         <td>
-          <span class="standout">VMWare</span>, <span class="standout">VirtualBox</span>,
-          <span class="standout">vSphere</span>, <span class="standout">vCenter</span>
+          <span class="standout">VMWare</span>,
+	  <span class="standout">VirtualBox</span>,
+          <span class="standout">vSphere</span>,
+	  <span class="standout">vCenter</span>
         </td>
       </tr>
       <tr>
@@ -261,20 +274,12 @@ function stoptimer () {
           <span class="standout">Glacier</span>,
           <span class="standout">CloudFront</span>,
           <span class="standout">Route53,
-          <span class="standout">VPC</span>
+          <span class="standout">VPC</span>,
+	  <span class="standout">Docker</span>
         </td>
       </tr>
     </tbody>
   </table>
-
-  <p><span class="standout">Important Note:</span> While I am AWS certified, I
-  currently do not have actual on the job experience with AWS. Training for obtaining
-  an AWS Certificate does require hands on with various AWS services as listed above
-  in order to properly prepare for the test. I have been working in the computer
-  field all my life and specialize in coming up to speed with new technologies
-  very quickly and feel confident that I can learn any AWS services in use at
-  your company in a short period of time. Please take this into account while
-  evaluating my skills. Thanks.</p>
 
   <h3>Education</h3>
 
@@ -324,18 +329,20 @@ function stoptimer () {
   <p><a href="https://www.wellsfargo.com/">
   <img src="WellsFargo.png" alt="Wells Fargo" border="0"></a></p>
 
-  <p><a href="https://www.wellsfargo.com/">WellsFargo</a> July 2019 - Present<br>
+  <h2>Perl Developer</h2>
+  <p>July 2019 - Present<br>
+  <font class=dim>Contract</font></p>
 
-  <p>Working on Perl Dancer applications</p>
+  <p>Responsible for maintaining a Perl application written using the Dancer framework called UserPro. Tightened security by standardizing access to database as well as implemented an auditing facility for changes made to database records.</p>
 
   <hr noshade>
 
   <p><a href="https://gdmissionsystems.com/en/satellite-ground-systems/mobile-user-objective-system">
   <img src="General_Dynamics_logo.jpg" alt="General Dynamics" border="0"></a></p>
 
+  <h2>Solaris Administrator, PuppetMaster</h2>
   <p>March 2018 - April 2019<br>
-  <font class=dim>Contract</font><br>
-  <a href="https://defaria-status.blogspot.com/search/label/General%20Dynamics">General Dynamics</a></font>
+  <font class=dim>Contract</font></p>
 
   <p>For this technology refresh of over a decade ago, I was instrumental in
   setting up and maintain dozens of Solaris 5.11 zone systems and served as the
@@ -358,9 +365,9 @@ function stoptimer () {
   <hr noshade>
 
   <p><a href="http://www.broadcom.com"><img src="Broadcom.gif" alt="Broadcom/Avago" border="0"></a></p>
-
+  <h2>Devops Engineer</h2>
   <p>August 2016 - January 2018<br>
-  <font class=dim>Contract</font><br>
+  <font class=dim>Contract</font></p>
 
   <p>Converted an internal project from a <span class="standout">Jenkins</span>/
   <span class="standout">Perforce</span> build system to the Broadcom/Avago
@@ -374,8 +381,9 @@ function stoptimer () {
 
   <p><a href="http://icann.org"><img alt="ICANN" src="ICANN.png" border="0"></a><br></p>
 
+  <h2>Python Developer</h2>
   <p>May 2016 - July 2016<br>
-  <font class=dim>Contract</font><br>
+  <font class=dim>Contract</font></p>
 
   <p>Developed <a
   href="https://en.wikipedia.org/wiki/Registration_Data_Access_Protocol">RDAP</a>
@@ -384,10 +392,11 @@ function stoptimer () {
   <hr noshade>
 
   <p><a href="http://audience.com"><img alt="Audience" src="Audience.png" border="0"></a><br><b>A Knowles Company</b></p>
-
-  <p>March 2014 - April 2016<br>
-  <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/Audience">Audience</a></p>
+
+  <h2>JIRA/Perforce/Linux Administrator</h2>
+  <p>March 2014 - April 2016<br>
+  <font class=dim>Contract</font></p>
 
   <p>Initially wrote scripts to import data from
   <span class="standout">Bugzilla</span> and other sources to
@@ -411,10 +420,10 @@ function stoptimer () {
   <hr noshade>
 
   <p><a href="http://www.axcient.com"><img src="Axcient.png" alt="Axcient" border="0"></a></p>
-
-  <p>July 2013 - Dec 2013<br>
-  <font class=dim>Contract</font><br>
   <a href="http://defaria.com/blogs/Status/archives/cat_axcient.html">Axcient</a></p>
+  <h2>Build Release Engineer</h2>
+  <p>July 2013 - Dec 2013<br>
+  <font class=dim>Contract</font></p>
 
   <p>Worked as a <span class="standout">Build and Release Engineer</span> for
   AxOS. The Axcient product is a customized derivative of <span
@@ -425,10 +434,10 @@ function stoptimer () {
   <hr noshade>
 
   <p><a href="http://www.broadcom.com"><img src="Broadcom.gif" alt="Broadcom" border="0"></a></p>
-
-  <p>December 2011 - April 2013<br>
-  <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/Broadcom">Broadcom</a></p>
+  <h2>Clearquest Administrator</h2>
+  <p>December 2011 - April 2013<br>
+  <font class=dim>Contract</font></p>
 
   <p><span class="standout">Clearquest Designer</span>: Maintained Clearquest
   instances implementing functionality with <span class="standout">Visual Basic</span>.
@@ -453,10 +462,10 @@ function stoptimer () {
   <hr noshade>
 
   <p><a href="http://www.tellabs.com"><img src="Tellabs.gif" alt="Tellabs" border="0"></a></p>
-
-  <p>March 2011 - December 2011<br>
-  <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/Tellabs">Tellabs</a></font>
+  <h2>Perl Developer</h2>
+  <p>March 2011 - December 2011<br>
+  <font class=dim>Contract</font></p>
 
   <p>Automated various informational systems using <span
   class="standout">Perl</span>/<span class="standout">MySQL</span>/<span
@@ -475,10 +484,10 @@ function stoptimer () {
   <hr noshade>
 
   <p><a href="https://www2.gehealthcare.com/portal/site/usen"><img src="GEHealthcare.gif" alt="General Electric" border="0"></a></p>
-
-  <p>January 2010 - October 2010<br>
-  <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/General%20Electric">General Electric</a></font>
+  <h2>Clearcase/Clearquest Administrator</h2>
+  <p>January 2010 - October 2010<br>
+  <font class=dim>Contract</font></p>
 
   <p>Performed <span class="standout">Clearcase</span>/<span
   class="standout">Clearquest UCM</span> administration. Developed an <a
@@ -492,10 +501,10 @@ function stoptimer () {
   <hr noshade>
 
   <p><a href="http://www.gdc4s.com"><img src="General_Dynamics_logo.jpg" alt="General Dynamics" border="0"></a></p>
-
-  <p>June 2007 - October 2009<br>
-  <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/General%20Dynamics">General Dynamics</a></font>
+  <h2>Clearcase/Clearquest/Release Engineer</h2>
+  <p>June 2007 - October 2009<br>
+  <font class=dim>Contract</font></p>
 
   <p><span class="standout">Clearcase</span>/<span class="standout">Clearquest</span>
   Administrator, <span class="standout">Build Release</span> and
@@ -538,10 +547,10 @@ function stoptimer () {
 
   <p><a href="http://ti.com"><img src="TexasInstruments.jpg"
   alt="Texas Instruments" title="Texas Instruments" border=0></a></p>
-
-  <p>October 2006 - June 2007<br>
-  <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/Texas%20Instruments">Texas Instruments</a></font>
+  <h2>Clearcase/Clearquest Administrator</h2>
+  <p>October 2006 - June 2007<br>
+  <font class=dim>Contract</font></p>
 
   <p><span class="standout">Clearcase</span>/<span
   class="standout">Clearquest</span> Administrator. Wrote a <span
@@ -553,10 +562,10 @@ function stoptimer () {
 
   <p><a href="http://hp.com"><img src="HPLogo.gif" alt="Hewlett
   Packard Company" title="Hewlett Packard Company" border=0></a></p>
-
-  <p>February 2006 - October 2006<br>
-  <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/HP">Hewlett Packard</a></p>
+  <h2>Build Release Engineer</h2>
+  <p>February 2006 - October 2006<br>
+  <font class=dim>Contract</font></p>
 
   <p>Managed and executed day to day build and release duties. Served as
   <span class="standout">Clearcase/Clearquest</span> Administrator as well as
@@ -580,10 +589,10 @@ function stoptimer () {
 
   <p><a href="http://www.broadcom.com"><img src="Broadcom.gif"
   alt="Broadcom" title="Broadcom" border="0"></a></p>
-
-  <p>September 2005 - January 2006<br>
-  <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/Broadcom">Broadcom</a></p>
+  <h2>Clearcase/Clearquest Administor</h2>
+  <p>September 2005 - January 2006<br>
+  <font class=dim>Contract</font></p>
 
   <p>Served as <span class="standout">Clearcase/Clearquest</span> Administrator
   as well as overall support of systems. Developed several <a href="http://clearscm.com/clearcase/triggers.php">triggers</a>
@@ -618,9 +627,9 @@ function stoptimer () {
 
   <p><a href="http://www.lynuxworks.com"><img src="Lynuxworks.png"
   alt="Lynuxworks" title="Lynuxworks" border="0"></a></p>
-
-  <p>December 2004 - September 2005<br>
   <a href="https://defaria-status.blogspot.com/search/label/LynuxWorks">LynuxWorks</a></p>
+  <h2>Build Engineer</h2>
+  <p>December 2004 - September 2005</p>
 
   <p>Served as a build engineer in the Integration Group responsible for
   building LynxOS (Linux RTOS) as well as tool chains, testing, releasing and
@@ -640,10 +649,10 @@ function stoptimer () {
 
   <p><a href="https://www.ameriquestcorp.com/"><img src="Ameriquest.png"
   alt="Ameriquest" title="Ameriquest" border="0"></a></p>
-
-  <p>March 2004 - December 2005<br>
-  <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/Ameriquest">Ameriquest</a></p>
+  <h2>Clearcase Administrator</h2>
+  <p>March 2004 - December 2005<br>
+  <font class=dim>Contract</font></p>
 
   <p>Served as Clearcase/Clearquest administrator to this major mortgage
   company. As Ameriquest is just starting out I have been busy with importing
@@ -656,9 +665,9 @@ function stoptimer () {
 
   <p><a href="http://krldesign.com/saliraweb/"><img src="Salira.png"
   alt="Salira" title="Salira" border="0"></a></p>
-
-  <p>August 2001 - February 2004<br>
   <a href="https://defaria-status.blogspot.com/search/label/Salira">Salira</a></p>
+  <h2>Clearcase/Clearquest Administrator/Build Engineer</h2>
+  <p>August 2001 - February 2004<br>
 
   <p>After consulting briefly with Salira Optical Network Systems I joined this
   startup company serving in the role of Clearcase/Clearquest Administrator for
@@ -701,7 +710,7 @@ function stoptimer () {
 
   <p><a href="http://hp.com"><img src="HPLogo.gif" alt="Hewlett
   Packard Company" title="Hewlett Packard Company" border=0></a></p>
-
+  <h2>Unix Systems Administrator</h2>
   <p>August 1999 - February 2001<br>
   <font class=dim>Contract</font><br>
   Systems Technology Division<br>
@@ -733,10 +742,10 @@ function stoptimer () {
 
   <p><a href="http://cisco.com"><img src="Cisco.gif" alt="Cisco Systems"
   title="Cisco Systems" border=0></a></p>
-
-  <p>March 1999 - August 1999<br>
-  <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/Cisco">Cisco</a></p>
+  <h2>Clearcase Administrator</h2>
+  <p>March 1999 - August 1999<br>
+  <font class=dim>Contract</font></p>
 
   <p>Served as Clearcase/Unix Systems Administrator. Responsible for all
   Clearcase operations in CNS/AD on Sun Solaris, HP-UX, Windows NT 4.0 and
@@ -756,10 +765,10 @@ function stoptimer () {
 
   <a href="https://www.oracle.com/sun/index.html"><img src="Sun.jpg" alt="Sun Microsystems"
   title="Sun Microsystems" border=0></a></p>
-
-  <p>December 1998 - March 1999<br>
-  <font class=dim>Contract</font><br>
   <a href="https://defaria-status.blogspot.com/search/label/Sun">Sun Microsystems</a></p>
+  <h2>Build Engineer</h2>
+  <p>December 1998 - March 1999<br>
+  <font class=dim>Contract</font></p>
 
   <p>Worked on the Sunpeak Configuration Management team performing promotions
   of code updates into test and production environments. Also worked on
@@ -769,7 +778,7 @@ function stoptimer () {
 
   <p><a href="http://hp.com"><img src="HPLogo.gif" alt="Hewlett
   Packard Company" title="Hewlett Packard Company" border=0></a></p>
-
+  <h2>Clearcase/Unix Systems Administrator</h2>
   <p>February 1988 - November 1998<br>
   Systems Technology Division<br>
   Enterprise Java Lab</p>
