@@ -32,14 +32,16 @@ $Date: 2011/04/15 15:05:16 $
 
  Usage: checkdns [-u|sage] [-v|erbose] [-d|ebug]
                  [-s|leep <n>] [-l|ogpath <path>] 
- 
+
  Where:
    -u|sage     Print this usage
    -v|erbose:  Verbose mode 
-   -d|ebug:    Emit debug information
-   
+   -de|bug:    Emit debug information
+
+   -h|ost:           Host to check (Default: google.com)
    -s|leep <n>:      Set sleep period to <n> minutes (Default: 15 minutes)
    -l|ogpath <path>: Put the log file in <path> (Default: /var/log)
+   -da|emon:         Whether to go into daemon most (Default: yes)
 
 =head1 DESCRIPTION
 
@@ -66,11 +68,17 @@ my $VERSION  = '$Revision: 1.6 $';
 
 $0 = $FindBin::Script;
 
-my $host          = 'google.com';
-my $sleep         = 15;
-my $initial_sleep = $sleep;
-my $logpath       = '/var/log';
-my $log;
+my ($log, $initial_sleep);
+
+my %opts = (
+  host        => 'google.com',
+  sleep       => 15,
+  logpath     => '/var/log',
+  usage       => sub { Usage },
+  verbose     => sub { set_verbose },
+  debug       => sub { set_debug },
+  daemon      => 1,
+);
 
 sub CheckDNS {
   my ($host) = @_;
@@ -84,17 +92,17 @@ sub CheckDNS {
 
     # Cut down sleep time to monitor this outage more closely but do not go 
     # below once a minute.
-    if ($sleep > 1) {
-      $sleep -= $sleep / 2;
+    if ($opts{sleep} > 1) {
+      $opts{sleep} -= $opts{sleep} / 2;
     } else {
-      $sleep = 1;
+      $opts{sleep} = 1;
     } # if
 
     return 1;
   } # if
 
   # Successful lookup - set $sleep to $initial_sleep
-  $sleep = $initial_sleep;
+  $opts{sleep} = $initial_sleep;
 
   return;
 } # CheckDNS
@@ -103,26 +111,26 @@ sub Shutdown {
   my $msg;
 
   my $errors = $log->errors;
-  
-  $log->msg ("$errors errors encountered since starting")
-    if $errors;
 
-  $log->msg ('Caught interrupt - shutting down');
+  $log->msg("$errors errors encountered since starting") if $errors;
+  $log->msg('Caught interrupt - shutting down');
 
   exit $errors;
 } # Interrupt
 
 # Main
 GetOptions (
-  usage       => sub { Usage },
-  verbose     => sub { set_verbose },
-  debug       => sub { set_debug },
-  'sleep=i'   => \$sleep,
-  'logpath=s' => \$logpath,
+  \%opts,
+  'usage',
+  'verbose',
+  'debug',
+  'host=s',
+  'sleep=i',
+  'logpath=s',
+  'daemon!',
 ) or Usage 'Invalid parameter';
 
-# Need to reset $initial_sleep if it GetOptions changed it
-$initial_sleep = $sleep;
+$initial_sleep = $opts{sleep};
 
 $SIG {INT}  =
 $SIG {TERM} = \&Shutdown;
@@ -131,34 +139,35 @@ $SIG {TERM} = \&Shutdown;
 sethostent (0);
 
 $log = Logger->new (
-  path		=> $logpath,
-  timestamped	=> 'yes',
-  append	=> 'yes',
+  path        => $opts{logpath},
+  timestamped => 'yes',
+  append      => 'yes',
 );
 
 $log->msg (
-  "Started $FindBin::Script $VERSION logging to $logpath/$FindBin::Script.log"
+  "Started $FindBin::Script $VERSION logging to $opts{logpath}/$FindBin::Script.log"
 );
 
-if ($sleep > 1) {
-  $log->msg ("Polling DNS on host $host every $sleep minutes");
+if ($opts{sleep} > 1) {
+  $log->msg ("Polling DNS on host $opts{host} every $opts{sleep} minutes");
 } else {
-  $log->msg ("Polling DNS on host $host every minute");  
+  $log->msg ("Polling DNS on host $opts{host} every minute");  
 } # if
 
-EnterDaemonMode 
-  unless get_debug;
+$opts{daemon} = 0 if get_debug;
+
+EnterDaemonMode if $opts{daemon};
 
 while () {
-  my $status = CheckDNS $host;
+  my $status = CheckDNS $opts{host};
 
   if ($status) {
-    $log->err ("Unable to resolve IP address for $host");
+    $log->err ("Unable to resolve IP address for $opts{host}");
   } else {
-    $log->msg ("Successfully resolved $host");
+    $log->msg ("Successfully resolved $opts{host}");
   } # if
 
-  sleep ($sleep * 60);
+  sleep $opts{sleep} * 60;
 } # while
 
 =pod
