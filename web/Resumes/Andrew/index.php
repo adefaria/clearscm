@@ -121,7 +121,7 @@ function stoptimer () {
       <p style="text-align:center">
       Phone: 408-596-4937</a><br>
       Email: <a href="mailto:Andrew@DeFaria.com">Andrew@DeFaria.com</a><br>
-<table align="center" width="400">
+<table align="center" width="500">
   <tr>
     <td>
       <marquee behavior="alternate" onmouseover="this.stop()" onmouseout="this.start()"><a id="blink" href="Resume.docx">Download an MS Word copy!</a></marquee><br>
@@ -143,35 +143,41 @@ function stoptimer () {
 </table>
     <?php end_box ();?>
 
-    <table cellspacing="0" cellpadding="0" width="300" border="0" align="center">
+    <h2>Certifications and Class Work</h2>
+
+    <table cellspacing="0" cellpadding="0" width="500" border="0" align="center">
       <tbody>
         <tr>
           <td valign="center" align="center">
             <a href="AWS Certified Solutions Architect - Associate certificate.pdf" target="_blank">
-                <img src="AWS_Certified_Logo_SAA_294x230_Color.png" align="middle" alt="AWS Certified Solutions Architect"><br>
-              <br>
-                <img src="AWS_Certified_Tag__SAA_294x230-Color.png" alt="Associate">
-              <br>
-              <b>Validation Number:</b> 4Q2XDJDCK1EE1HC5
+              AWS Solutions Architect
             </a>
           </td>
+          <td><b>Validation Number:</b> 4Q2XDJDCK1EE1HC5</td>
+        </tr>
+        <tr>
           <td valign="top" align="center">
-            <a href="Docker Certified Associate.pdf" target="_blank">
-              <img src="Docker Certified Associate (DCA).png" alt="Docker Certified Associate (DCA)">
+            <a href="Docker Certified Associate (DCA).pdf" target="_blank">
+              Docker Certified Associate (DCA)
             </a>
           </td>
+          <td>Course Completed @ A Cloud Guru</td>
         </tr>
         <tr>
           <td valign="top" align="center">
             <a href="Jenkins Quick Start.pdf" target="_blank">
-              <img src="Jenkins Quick Start.png" alt="Jenkin Quick Start">
+              Jenkin Quick Start</a>
             </a>
           </td>
+          <td>Course Completed @ A Cloud Guru</td>
+        </tr>
+        <tr>
           <td valign="top" align="center">
             <a href="Jenkins Fundamentals.pdf" target="_blank">
-              <img src="Jenkins Fundamentals.png" alt="Jenkin Fundamentals">
+              Jenkin Fundamentals</a>
             </a>
           </td>
+          <td>Course Completed @ A Cloud Guru</td>
         </tr>
       </tbody>
     </table>
@@ -206,7 +212,7 @@ function stoptimer () {
         <th>Version Control Systems</th>
         <td>
           <span class="standout">Git</span>,
-	  <span class="standout">Perforce</span>,
+          <span class="standout">Perforce</span>,
           <span class="standout">Clearcase</span>
         </td>
       </tr>
@@ -214,7 +220,7 @@ function stoptimer () {
         <th>Issue Tracking</th>
         <td>
           <span class="standout">JIRA</span>,
-	  <span class="standout">Clearquest</span>,
+          <span class="standout">Clearquest</span>,
           <span class="standout">Bugzilla</span>
         </td>
       </tr>
@@ -222,11 +228,11 @@ function stoptimer () {
         <th>Languages</th>
         <td>
           <span class="standout">Perl</span>,
-	  <span class="standout">Bash</span>,
+          <span class="standout">Bash</span>,
           <span class="standout">PHP</span>,
-	  <span class="standout">C++</span>,
+          <span class="standout">C++</span>,
           <span class="standout">C</span>,
-	  <span class="standout">Ada</span>,
+          <span class="standout">Ada</span>,
           <span class="standout">TCL</span>
         </td>
       </tr>
@@ -234,25 +240,25 @@ function stoptimer () {
         <th>Configuration Management</th>
         <td>
           <span class="standout">Puppet</span>,
-	  <span class="standout">Ansible</span>
+          <span class="standout">Ansible</span>
         </td>
       </tr>
       <tr>
         <th>Middleware</th>
         <td>
           <span class="standout">Apache</span>,
-	  <span class="standout">Tomcat</span>,
+          <span class="standout">Tomcat</span>,
           <span class="standout">Samba</span>,
-	  <span class="standout">Winbind</span>,
+          <span class="standout">Winbind</span>,
           <span class="standout">LDAP</span>,
-	  <span class="standout">REST</span>
+          <span class="standout">REST</span>
         </td>
       </tr>
       <tr>
         <th>Web Apps</th>
         <td>
           <span class="standout">JIRA</span>,
-	  <span class="standout">Confluence</span>,
+          <span class="standout">Confluence</span>,
           <span class="standout">Swarm</span>
         </td>
       </tr>
@@ -260,23 +266,23 @@ function stoptimer () {
         <th>Databases</th>
         <td>
           <span class="standout">MySQL</span>,
-	  <span class="standout">Oracle</span>
+          <span class="standout">Oracle</span>
         </td>
       </tr>
       <tr>
         <th>CI/CD</th>
         <td>
           <span class="standout">Jenkins</span>,
-	  <span class="standout">Electric Commander</span>
+          <span class="standout">Electric Commander</span>
         </td>
       </tr>
       <tr>
         <th>Virtualization</th>
         <td>
           <span class="standout">VMWare</span>,
-	  <span class="standout">VirtualBox</span>,
+          <span class="standout">VirtualBox</span>,
           <span class="standout">vSphere</span>,
-	  <span class="standout">vCenter</span>
+          <span class="standout">vCenter</span>
         </td>
       </tr>
       <tr>
@@ -285,11 +291,10 @@ function stoptimer () {
           <span class="standout">EC2</span>,
           <span class="standout">IAM</span>,
           <span class="standout">S3</span>,
-          <span class="standout">Glacier</span>,
           <span class="standout">CloudFront</span>,
           <span class="standout">Route53,
           <span class="standout">VPC</span>,
-	  <span class="standout">Docker</span>
+          <span class="standout">Docker</span>
         </td>
       </tr>
     </tbody>
@@ -338,15 +343,16 @@ function stoptimer () {
 
   <h2>ClearSCM, Inc</h2>
 
-  <h3>Perl Developer</h3>
-  <p>July 2007 - Present<br>
+  <p><i>July 2007 - Present</i></p>
+
+  <h3>Perl Developer - Wells Fargo <i>(July 2019 - Present)</i></h3>
 
   <p>Responsible for maintaining a Perl application written using the Dancer
   framework called UserPro. Tightened security by standardizing access to
   database as well as implemented an auditing facility for changes made to
   database records.</p>
 
-  <h3>Solaris Administrator, PuppetMaster</h3>
+  <h3>Solaris Administrator, PuppetMaster - General Dynamics <i>(March 2018 - April 2019)</i></h3>
 
   <p>For this technology refresh of over a decade ago, I was instrumental in
   setting up and maintain dozens of Solaris 5.11 zone systems and served as the
@@ -366,7 +372,7 @@ function stoptimer () {
   Developed a Clearcase enhanced monitoring tool to monitor servers, loadavg and
   filesystems as well as Clearcase objects like VOBs and views.</p>
 
-  <h3>Devops Engineer</h3>
+  <h3>Devops Engineer - Broadcom <i>(August 2016 - January 2018)</i></h3>
 
   <p>Converted an internal project from a <span class="standout">Jenkins</span>/
   <span class="standout">Perforce</span> build system to the Broadcom/Avago
@@ -376,13 +382,13 @@ function stoptimer () {
   class="standout">Cygwin/ssh</span> thus streamlining and standardizing remote
   building and signing of executables.</p>
 
-  <h3>Python Developer</h3>
+  <h3>Python Developer - ICANN <i>(May 2016 - July 2016)</i></h3>
 
   <p>Developed <a
   href="https://en.wikipedia.org/wiki/Registration_Data_Access_Protocol">RDAP</a>
   server for testing SLA compliance of various TLD registrars around the world.</p>
 
-  <h3>JIRA/Perforce/Linux Administrator</h3>
+  <h3>JIRA/Perforce/Linux Administrator - Knowles <i>(Mardch 2014 - April 2016)</i></h3>
 
   <p>Initially wrote scripts to import data from
   <span class="standout">Bugzilla</span> and other sources to
@@ -403,7 +409,7 @@ function stoptimer () {
   class="standout">Salesforce</span> with JIRA. Assisted in the migration
   for users to new Knowles domain.</p>
 
-  <h3>Build Release Engineer</h3>
+  <h3>Build Release Engineer - Axcient <i>(July 2013 - December 2013)</i></h3>
 
   <p>Worked as a <span class="standout">Build and Release Engineer</span> for
   AxOS. The Axcient product is a customized derivative of <span
@@ -411,7 +417,7 @@ function stoptimer () {
   class="standout">git</span>. Developed and standardized procedures for
   performing builds.</p>
 
-  <h3>Clearquest Administrator</h3>
+  <h3>Clearquest Administrator - Broadcom <i>(December 2011 - December 2013)</i></h3>
 
   <p><span class="standout">Clearquest Designer</span>: Maintained Clearquest
   instances implementing functionality with <span class="standout">Visual Basic</span>.
@@ -433,9 +439,7 @@ function stoptimer () {
   using <span class="standout">Visual Studio</span> 8.0, 9.0 and 10.0 on Windows
   Servers triggered by Perforce triggers at code checkin.</p>
 
-  <h3>Perl Developer</h3>
-  <p>March 2011 - December 2011<br>
-  <font class=dim>Contract</font></p>
+  <h3>Perl Developer - Tellabs <i>(March 2011 - December 2011)</i></h3>
 
   <p>Automated various informational systems using <span
   class="standout">Perl</span>/<span class="standout">MySQL</span>/<span
@@ -451,7 +455,7 @@ function stoptimer () {
   interface to the developer libraries and provide a consistent interface for
   the various command line debuggers developed by various different groups.</p>
 
-  <h3>Clearcase/Clearquest Administrator</h3>
+  <h3>Clearcase/Clearquest Administrator - General Electric Healthcare <i>(January 2010 - October 2010)</i></h3>
 
   <p>Performed <span class="standout">Clearcase</span>/<span
   class="standout">Clearquest UCM</span> administration. Developed an <a
@@ -462,7 +466,7 @@ function stoptimer () {
   baselines and projects. Wrote Perl scripts for conversions of Clearquest data
   with other systems (Siebel).</p>
 
-  <h3>Clearcase/Clearquest/Release Engineer</h3>
+  <h3>Clearcase/Clearquest/Release Engineer - General Dynamics <i>(June 2007 - October 2009)</i></h3>
 
   <p><span class="standout">Clearcase</span>/<span class="standout">Clearquest</span>
   Administrator, <span class="standout">Build Release</span> and
@@ -505,8 +509,9 @@ function stoptimer () {
 
   <h2>DeFaria.com</h2>
 
-  <h3>Clearcase/Clearquest Administrator</h3>
-  <p>February 2004 - June 2007<br>
+  <p><i>February 2004 - June 2007</i></p>
+
+  <h3>Clearcase/Clearquest Administrator - Texas Instruments <i>(October 2006 - June 2007)</i></h3>
 
   <p><span class="standout">Clearcase</span>/<span
   class="standout">Clearquest</span> Administrator. Wrote a <span
@@ -514,7 +519,7 @@ function stoptimer () {
   application to track information about projects worldwide. Automated Clearcase
   license usage reporting and load balancing of Clearquest web servers.</p>
 
-  <h3>Build Release Engineer</h3>
+  <h3>Build Release Engineer - Hewlett Packard <i>(February 2006 - October 2006)</i></h3>
 
   <p>Managed and executed day to day build and release duties. Served as
   <span class="standout">Clearcase/Clearquest</span> Administrator as well as
@@ -534,7 +539,7 @@ function stoptimer () {
   process to perform simple continuous integration. Created a dynamic web page
   to show Junit test history.
 
-  <h3>Clearcase/Clearquest Administor</h3>
+  <h3>Clearcase/Clearquest Administator - Broadcom <i>(September 2005 - January 2006)</i></h3>
 
   <p>Served as <span class="standout">Clearcase/Clearquest</span> Administrator
   as well as overall support of systems. Developed several <a href="http://clearscm.com/clearcase/triggers.php">triggers</a>
@@ -565,7 +570,7 @@ function stoptimer () {
   the start for creation of a set Object Oriented Perl modules to encapsulate
   Clearcase in a Perl like manner (still in development).</p>
 
-  <h3>Build Engineer</h3>
+  <h3>Build Engineer - Lynuxworks <i>(December 2004 - September 2005)</i></h3>
 
   <p>Served as a build engineer in the Integration Group responsible for
   building LynxOS (Linux RTOS) as well as tool chains, testing, releasing and
@@ -581,7 +586,7 @@ function stoptimer () {
   Developed a web application that allows one to maintain CVS account
   information including account creation, setting/resetting of password, etc.</p>
 
-  <h3>Clearcase Administrator</h3>
+  <h3>Clearcase Administrator - Ameriquest <i>(March 2004 - December 2005)</i></h3>
 
   <p>Served as Clearcase/Clearquest administrator to this major mortgage
   company. As Ameriquest is just starting out I have been busy with importing
@@ -594,8 +599,9 @@ function stoptimer () {
 
   <h2>Salira</h2>
 
+  <p><i>August 2001 - February 2004</i></p>
+
   <h3>Clearcase/Clearquest Administrator/Build Engineer</h3>
-  <p>August 2001 - February 2004<br>
 
   <p>After consulting briefly with Salira Optical Network Systems I joined this
   startup company serving in the role of Clearcase/Clearquest Administrator for
@@ -638,8 +644,9 @@ function stoptimer () {
 
   <h2>DeFaria.com</h2>
 
-  <h3>Unix Systems Administrator</h2>
-  <p>December 1998 - February 2001<br>
+  <p><i>December 1998 - February 2001</i></p>
+
+  <h3>Unix Systems Administrator - Hewlett Packard <i>(August 1999 - February 2001)</i></h2>
 
   <p>Setup security system automating the running of Medusa (an internal
   security audit tool) on approximately 100 machines. Reports are generated
@@ -663,7 +670,7 @@ function stoptimer () {
 
   <p>Set up Netscape Enterprise Web Server and iPlanet 4.1 Web Server.</p>
 
-  <h3>Clearcase Administrator</h3>
+  <h3>Clearcase Administrator - Cisco <i>(March 1999 August 1999)</i></h3>
 
   <p>Served as Clearcase/Unix Systems Administrator. Responsible for all
   Clearcase operations in CNS/AD on Sun Solaris, HP-UX, Windows NT 4.0 and
@@ -679,7 +686,7 @@ function stoptimer () {
   <p>As CNS/AD was in a secured and isolated network, learned and assisted users
   with ssh/scp.</p>
 
-  <h3>Build Engineer</h3>
+  <h3>Build Engineer - Sun Microsystems <i>(December 1998 - March 1999)</i></h3>
 
   <p>Worked on the Sunpeak Configuration Management team performing promotions
   of code updates into test and production environments. Also worked on
@@ -687,13 +694,11 @@ function stoptimer () {
 
   <hr noshade>
 
-  <h2>Hewlett Packard Company</p>
+  <h2>Hewlett Packard Company</h2>
+
+  <p><i>February 1988 - November 1998</i></p>
 
   <h3>Clearcase/Unix Systems Administrator</h3>
-
-  <p>February 1988 - November 1998<br>
-  Systems Technology Division<br>
-  Enterprise Java Lab</p>
 
   <p>Primary Clearcase and Multisite Administrator for a large Clearcase
   environment with approximately 1400 views and 180 vobs. Most vobs are
