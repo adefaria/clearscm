@@ -11,6 +11,7 @@
   pager = less -RX
   packedGitLimit=128m
   packedGitWindowSize=128m
+	excludesfile = /home/andrew/.gitignore
 
 [color]
   status=auto
