@@ -118,7 +118,7 @@ sub Footing(;$) {
   print start_div {-class => "copyright"};
   print "Copyright &copy; 2001-$year - All rights reserved";
   print br (
-    a ({-href => 'http://defaria.com'},
+    a ({-href => 'https://defaria.com'},
       'Andrew DeFaria'),
     a ({-href => 'mailto:Andrew@DeFaria.com'},
       '&lt;Andrew@DeFaria.com&gt;'));

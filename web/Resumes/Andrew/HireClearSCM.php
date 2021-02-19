@@ -101,7 +101,7 @@ td {
       <table border="0" cellpadding="5" cellspacing="0" width="100%">
         <tbody>
           <tr>
-            <td valign="top"><div class=name><a href="http://defaria.com"><b>Andrew DeFaria</b></a></div>
+            <td valign="top"><div class=name><a href="https://defaria.com"><b>Andrew DeFaria</b></a></div>
             <table border="0" cellpadding="0" cellspacing="0" width="100%">
               <tbody>
                 <tr>

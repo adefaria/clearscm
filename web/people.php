@@ -52,7 +52,7 @@
 
   <p>Andrew is the president of ClearSCM, Inc. and it the principal
   writer, designer and implementor of this web site. He also runs his
-  own domain at <a href="http://defaria.com">defaria.com</a> where he
+  own domain at <a href="https://defaria.com">defaria.com</a> where he
   keeps his administration skills sharp and develops web
   applications. For example, Andrew has developed a personal spam
   filtering system known as Mail Authorization and Permission System

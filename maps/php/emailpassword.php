@@ -53,7 +53,7 @@ $message = "
 <body>
 <p>Your MAPS Password is $decoded_password</p>
 
-<p>Click <a href=http://defaria.com/maps>here</a> to login to MAPS.
+<p>Click <a href=https://defaria.com/maps>here</a> to login to MAPS.
 </body>
 </html>
 ";

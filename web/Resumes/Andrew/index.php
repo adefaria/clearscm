@@ -136,7 +136,7 @@ function stoptimer () {
   <tr>
     <td align="center">
       <center>
-      <font size=-1>For the most up to date copy of this resume see <a href="https://defaria.com/resume">http://defaria.com/resume</a></font>
+      <font size=-1>For the most up to date copy of this resume see <a href="https://defaria.com/resume">https://defaria.com/resume</a></font>
       </center>
     </td>
   </tr>
@@ -579,7 +579,7 @@ function stoptimer () {
   <p>Developed a process of providing full text search of the company's defect
   database using Perl and Htdig (See <a href="http://clearscm.com/scripts/ecrd">ECRDig</a>).
   Developed a web based report to show CVS activity as well as several other CVS
-  related utilities(See <a href="http://defaria.com/Resume/cvs_utilities">CVS
+  related utilities(See <a href="https://defaria.com/Resume/cvs_utilities">CVS
   Utilities</a>) as well as report on the differences between two CVS tags.</p>
 
   <p>Automated the build process so that nightly builds could be performed.
@@ -724,7 +724,7 @@ function stoptimer () {
   and design issues. Installed, configured and maintain the <a href="http://home.netscape.com/">Netscape</a>
   Suitespot Servers including the Enterprise and Directory servers. Developed
   several web pages and forms for the lab as well as run
-  <a href="https://web.archive.org/web/20001109171100/http://defaria.com/Quicken">The
+  <a href="https://web.archive.org/web/20001109171100/https://defaria.com/Quicken">The
   Unofficial Quicken® Web Page.</a></p>
 
   <p>I developed an Application Server providing many machines with many
