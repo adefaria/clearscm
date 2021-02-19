@@ -153,11 +153,11 @@ Parameters:
 
 Message to display
 
-=item $handle:       
+=item $handle:
 
 File handle to display to (Default: STDERR)
 
-=item $nolinefeed:   
+=item $nolinefeed:
 
 If defined no linefeed is displayed at the end of the message.
 
@@ -185,28 +185,28 @@ Returns:
 
   return
     unless $debug;
-  
+
   return
     if $debug == 0;
-    
+
   $level ||= 1;
   $msg   ||= '';
 
   if (($handle and -t $handle) or (-t *STDERR)) {
     $msg = color ('cyan')
          . $me
-	 . color ('reset')
-	 . ": "
-	 . color ('magenta')
-	 . "DEBUG"
-	 . color ('reset')
-	 . ": $msg";
+         . color ('reset')
+         . ': '
+         . color ('magenta')
+         . "DEBUG"
+         . color ('reset')
+         . ": $msg";
   } else {
     $msg = "$me: DEBUG: $msg";
   } # if
 
   display_err $msg, $handle, $nolinefeed if $debug and $level <= $debug;
-  
+
   return;
 } # debug
 
@@ -214,13 +214,13 @@ sub debug1 ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
 
   debug $msg, $handle, $nolinefeed, 1;
-  
+
   return;
 } # debug1
 
 sub debug2 ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
- 
+
   debug $msg, $handle, $nolinefeed, 2;
 
   return;
@@ -228,7 +228,7 @@ sub debug2 ($;$$) {
 
 sub debug3 ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
- 
+
   debug $msg, $handle, $nolinefeed, 2;
 
   return;
@@ -254,11 +254,11 @@ Parameters:
 
 Message to display
 
-=item $handle:       
+=item $handle:
 
 File handle to display to (Default: STDOUT)
 
-=item $nolinefeed:   
+=item $nolinefeed:
 
 If defined no linefeed is displayed at the end of the message.
 
@@ -285,7 +285,7 @@ Returns:
 
   print $handle $msg;
   print $handle "\n" unless $nolinefeed;
-  
+
   return;
 } # display
 
@@ -339,13 +339,13 @@ Returns:
 
   print $handle $msg;
   print $handle "\n" if !$nolinefeed;
-  
+
   return;
 } # display_err
 
 sub display_error ($;$$$) {
   my ($msg, $errno, $handle, $nolinefeed) = @_;
-  
+
 =pod
 
 =head2 display_error ($msg, $errno, $handle, $nolinefeed)
@@ -393,37 +393,37 @@ Returns:
 =cut
 
   $msg ||= '';
-  
+
   unless ($errno) {
     if (($handle and -t $handle) or (-t *STDERR) and ($Config{perl} ne 'ratlperl')) {
       $msg = color ('cyan') 
            . $me
            . color ('reset')
-	   . ": "
-	   . color ('red')
-	   . "ERROR"
-	   . color ('reset')
-	   . ": $msg";
+           . ': '
+           . color ('red')
+           . 'ERROR'
+           . color ('reset')
+           . ": $msg";
     } else {
       $msg = "$me: ERROR: $msg";
     } # if
   } else {
     if (($handle and -t $handle) or (-t *STDERR) and ($Config{perl} ne 'ratlperl')) {
       $msg = color ('cyan')
-	   . $me
-	   . color ('reset')
-	   . ": "
-	   . color ('red')
-	   . "ERROR #$errno"
-	   . color ('reset')
-	   . ": $msg";
+           . $me
+           . color ('reset')
+           . ': '
+           . color ('red')
+           . "ERROR #$errno"
+           . color ('reset')
+           . ": $msg";
     } else {
       $msg = "$me: ERROR #$errno: $msg";
     } # if
   } # if
 
   display_err $msg, $handle, $nolinefeed;
-  
+
   return;
 } # display_error
 
@@ -446,7 +446,7 @@ Parameters:
 
 Message to display
 
-=item $handle:       
+=item $handle:
 
 File handle to display to (Default: STDOUT)
 
@@ -469,7 +469,7 @@ Returns:
 =cut
 
   display $msg, $handle, "nolf";
-  
+
   return;
 } # display_nolf
 
@@ -496,7 +496,7 @@ Parameters:
 
 Message to display
 
-=item $handle:       
+=item $handle:
 
 File handle to display to (Default: STDOUT)
 
@@ -525,7 +525,7 @@ Returns:
   display_error $msg, $errno, $handle, $nolinefeed;
 
   exit $errno if $errno;
-  
+
   return;
 } # error
 
@@ -709,7 +709,7 @@ Returns:
 
 sub set_me {
   my ($whoami) = @_;
-  
+
 =pod
 
 =head2 set_me ($me)
@@ -742,7 +742,7 @@ Returns:
 =cut
 
   $me = $whoami;
-  
+
   return;
 } # set_me
 
@@ -880,7 +880,7 @@ Returns:
 
   return
     unless $trace;
-    
+
   $msg    = $msg  ? ": $msg" : '';
   $type ||= 'In';
 
@@ -902,21 +902,21 @@ Returns:
   if (-t STDOUT) {
     display color ('cyan')
           . "$type "
-	  . color ('yellow')
-	  . color ('bold')
-	  . $subroutine
-	  . color ('reset')
-	  . $msg;
+          . color ('yellow')
+          . color ('bold')
+          . $subroutine
+          . color ('reset')
+          . $msg;
   } else {
     display "$type $subroutine$msg";
-  } # if    
+  } # if
 
   return $subroutine;
 } # trace
 
 sub trace_enter (;$) {
   my ($msg) = @_;
-  
+
 =pod
 
 =head2 trace_enter
@@ -956,7 +956,7 @@ Returns:
 
 sub trace_exit (;$) {
   my ($msg) = @_;
-  
+
 =pod
 
 =head2 trace_exit
@@ -993,7 +993,7 @@ Returns:
 =cut
 
   trace $msg, "EXIT";
-  
+
   return
 } # trace_exit
 
@@ -1055,33 +1055,33 @@ Returns:
 
   $level   ||= 1;
   $verbose ||= 0;
-  
+
   display $msg, $handle, $nolinefeed if $verbose and $level <= $verbose;
-  
+
   return;
 } # verbose
 
 sub verbose1 ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
-  
+
   verbose $msg, $$handle, $nolinefeed, 1;
-  
+
   return;
 } # verbose1
 
 sub verbose2 ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
-  
+
   verbose $msg, $handle, $nolinefeed, 2;
-  
+
   return;
 } # verbose1
 
 sub verbose3 ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
-  
+
   verbose $msg, $handle, $nolinefeed, 3;
-  
+
   return;
 } # verbose1
 
@@ -1127,7 +1127,7 @@ Returns:
 =cut
 
   verbose $msg, $handle, "nolf";
-  
+
   return;
 } # verbose_nolf
 
@@ -1152,11 +1152,11 @@ Parameters:
 
 Message to display
 
-=item $handle:       
+=item $handle:
 
 File handle to display to (Default: STDOUT)
 
-=item $nolinefeed:   
+=item $nolinefeed:
 
 If defined no linefeed is displayed at the end of the message.
 
@@ -1183,33 +1183,33 @@ Returns:
   unless ($warnno) {
     if (($handle and -t $handle) or (-t *STDERR) and ($Config{perl} ne 'ratlperl')) {
       $msg = color ('cyan')
-	   . $me
-	   . color ('reset')
-	   . ": "
-	   . color ('yellow')
-	   . "WARNING"
-	   . color ('reset')
-	   . ": $msg";
+           . $me
+           . color ('reset')
+           . ": "
+           . color ('yellow')
+           . "WARNING"
+           . color ('reset')
+           . ": $msg";
     } else {
       $msg = "$me: WARNING: $msg";
     } # if
   } else {
     if (($handle and -t $handle) or (-t *STDERR) and ($Config{perl} ne 'ratlperl')) {
       $msg = color ('cyan')
-	   . $me
-	   . color ('reset')
-	   . ": "
-	   . color ('yellow')
-	   . "WARNING #$warnno"
-	   . color ('reset')
-	   . ": $msg";
+           . $me
+           . color ('reset')
+           . ": "
+           . color ('yellow')
+           . "WARNING #$warnno"
+           . color ('reset')
+           . ": $msg";
     } else {
       $msg = "$me: WARNING #$warnno: $msg";
     } # if
   } # if
 
   display_err $msg, $handle, $nolinefeed;
-  
+
   return;
 } # warning
 
