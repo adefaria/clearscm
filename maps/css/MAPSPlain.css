@@ -1,317 +1,317 @@
 /************************************************************************/
-/* File:	MAPSPlain.css						*/
-/* Description: Cascading Style Sheet definitions for MAPS (plain	*/
-/*		version)						*/
-/* Author:	Andrew@DeFaria.com					*/
-/* Created:     Mon Nov  3 21:55:05 PST 2003				*/
-/* Language:	Cascading Style Sheet					*/
-/*									*/
-/* (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved.		*/
+/* File:        MAPSPlain.css                                           */
+/* Description: Cascading Style Sheet definitions for MAPS (plain       */
+/*              version)                                                */
+/* Author:      Andrew@DeFaria.com                                      */
+/* Created:     Mon Nov  3 21:55:05 PST 2003                            */
+/* Language:    Cascading Style Sheet                                   */
+/*                                                                      */
+/* (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved.         */
 /************************************************************************/
 body {
-  background-color:	white;
-  color:		#000066;
-  font-family:		trebuchet MS,
-  			trebuchet,
-			verdana,
-			arial,
-			sans-serif;
-  font-size:		16px;
-  margin:		10px;
+  background-color:  white;
+  color:             #000066;
+  font-family:       trebuchet MS,
+                     trebuchet,
+                     verdana,
+                     arial,
+                     sans-serif;
+  font-size:         16px;
+  margin:            10px;
 }
 
 .heading {
-  margin-left:		140px;
-  margin-top:		5px;
-  padding:		5px;
+  margin-left:       140px;
+  margin-top:        5px;
+  padding:           5px;
 }
 
 .leftbar {
-  height:		auto;
-  left:			2px;
-  position:		absolute;
-  top:			5px;
-  width:		135px;
+  height:            auto;
+  left:              2px;
+  position:          absolute;
+  top:               5px;
+  width:             135px;
 }
 
 .username {
-  color:		white;
-  font-family:		veranda, arial;
-  font-style:		bold;
-  font-size:		14px;
-  margin-left:		2px;
-  margin-bottom:	5px;
-  text-align:		center;
-  width:		125px;
+  color:             white;
+  font-family:       veranda, arial;
+  font-style:        bold;
+  font-size:         14px;
+  margin-left:       2px;
+  margin-bottom:     5px;
+  text-align:        center;
+  width:             125px;
 }
 
 .menu {
-  background-color:	#579;
-  background-image:	url(/maps/images/world.gif);
-  border:		2px groove black;
-  font-family:		verdana, geneva, arial, helvetica, sans-serif;
-  font-size:		14px;
-  font-weight:		bold;
-  line-height:		150%;
-  margin:		2px;
-  padding:		2px;
-  width:		122px;
+  background-color:  #579;
+  background-image:  url(/maps/images/world.gif);
+  border:            2px groove black;
+  font-family:       verdana, geneva, arial, helvetica, sans-serif;
+  font-size:         14px;
+  font-weight:       bold;
+  line-height:       150%;
+  margin:            2px;
+  padding:           2px;
+  width:             122px;
 }
 
 .intromenu {
-  background-color:	#579;
-  border:		2px groove black;
-  font-family:		verdana, geneva, arial, helvetica, sans-serif;
-  font-size:		14px;
-  font-weight:		bold;
-  line-height:		150%;
-  margin:		2px;
-  padding:		2px;
-  width:		125px;
+  background-color:  #579;
+  border:            2px groove black;
+  font-family:       verdana, geneva, arial, helvetica, sans-serif;
+  font-size:         14px;
+  font-weight:       bold;
+  line-height:       150%;
+  margin:            2px;
+  padding:           2px;
+  width:             125px;
 }
 
 .search {
-  background:		#4682b4;
-  border:		2px groove black;
-  color:		white;
-  font-family:		veranda, arial;
-  font-style:		bold;
-  margin-left:		2px;
-  margin-right:		5px;
-  text-align:		center;
-  width:		125px;
+  background:        #4682b4;
+  border:            2px groove black;
+  color:             white;
+  font-family:       veranda, arial;
+  font-style:        bold;
+  margin-left:       2px;
+  margin-right:      5px;
+  text-align:        center;
+  width:             125px;
 }
 
 .quickstats {
-  background-color:	#ffffcc;
-  border:		2px groove #336699;
-  color:		black;
-  font-size:		10px;
-  line-height:		10px;
-  margin:		2px;
-  padding:		2;
-  width:		125px;
+  background-color:  #ffffcc;
+  border:            2px groove #336699;
+  color:             black;
+  font-size:         10px;
+  line-height:       10px;
+  margin:            2px;
+  padding:           2;
+  width:             125px;
 }
 
 .content {
-  background:		#fff;
-  border:		0.1px solid #fff;
-  color:		#666;
-  font-family:		trebuchet MS, trebuchet, verdana, arial, sans-serif;
-  margin:		5px;
-  padding:		5px;
-  width:		auto;
+  background:        #fff;
+  border:            0.1px solid #fff;
+  color:             #666;
+  font-family:       trebuchet MS, trebuchet, verdana, arial, sans-serif;
+  margin:            5px;
+  padding:           5px;
+  width:             auto;
 }
 
 .copyright {
-  border-bottom:	1px dotted #ccc;
-  border-top:		1px dotted #ccc;
-  color:		#666;
-  font-family:		verdana, arial, sans-serif;
-  font-size:		10px;
-  margin-top:		5px;
-  text-align:		center;
-  width:		auto;
+  border-bottom:     1px dotted #ccc;
+  border-top:        1px dotted #ccc;
+  color:             #666;
+  font-family:       verdana, arial, sans-serif;
+  font-size:         10px;
+  margin-top:        5px;
+  text-align:        center;
+  width:             auto;
 }
 
-.label { 
-  color:		#993333;
-  font-weight:		bold;
-  font-size:		14px;
+.label {
+  color:             #993333;
+  font-weight:       bold;
+  font-size:         14px;
 }
 
-.smalllabel { 
-  color:		#993333;
-  font-weight:		bold;
-  font-size:		12px;
+.smalllabel {
+  color:             #993333;
+  font-weight:       bold;
+  font-size:         12px;
 }
 
-.smallnumber { 
-  color:		black;
-  font-size:		12px;
+.smallnumber {
+  color:             black;
+  font-size:         12px;
 }
 
 .header { 
-  color:		#000099;
-  font-weight:		bold;
+  color:             #000099;
+  font-weight:       bold;
 }
 
 .standout { 
-  color:		red
+  color:             red
 }
 
 .error { 
-  color:		red;
-  font-style:		bold;
+  color:             red;
+  font-style:        bold;
 }
 
 .dim { 
-  color:		#999999;
+  color:             #999999;
 }
 
 .dimsmall { 
-  color:		#999999;
-  font-size:		0.9em;
-  font-family:		Times;
+  color:             #999999;
+  font-size:         0.9em;
+  font-family:       Times;
 }
 
 .highlite { 
-  color:		#000099;
-  font-weight:		bold;
+  color:             #000099;
+  font-weight:       bold;
 }
 
 .inputfield { 
-  background:		#ece9d8;
-  color:		Black;
-  font-family:		Veranda,
-  			Times;
-  font-size:		12px;
-  padding-top:		0px;
-  padding-bottom:	0px;
+  background:        #ece9d8;
+  color:             Black;
+  font-family:       Veranda,
+                     Times;
+  font-size:         12px;
+  padding-top:       0px;
+  padding-bottom:    0px;
 }
 
 .note { 
-  background:		#339999;
-  color:		White;
-  font-weight:		bold;
+  background:        #339999;
+  color:             White;
+  font-weight:       bold;
 }
 
 .notetext { 
-  color:		#333;
-  font-size:		12px;
-  font-weight:		italic;
+  color:             #333;
+  font-size:         12px;
+  font-weight:       italic;
 }
 
 # Headers
-h1, h2, h3, h4, h5 { 
-  color:		#000099;
+h1, h2, h3, h4, h5 {
+  color:             #000099;
 }
 
 h1 { 
-  font-size:		18pt;
+  font-size:         18pt;
 }
 
 h2 { 
-  font-size:		14pt;
+  font-size:         14pt;
 }
 
 h3 { 
-  font-size:		10pt;
+  font-size:         10pt;
 }
 
 h4 { 
-  font-size:		8pt;
+  font-size:         8pt;
 }
 
 # Global anchor effects
 a {
-  background:           transparent;
-  text-decoration:      none;
+  background:        transparent;
+  text-decoration:   none;
 }
 
 a:link {
-  color:                #0000ee;
+  color:             #0000ee;
 }
 
 a:visited {
-  color:                #cc33cc;
+  color:             #cc33cc;
 }
 
 a:hover {
-  color:                White;
-  background:		#0054e3;
+  color:             White;
+  background:        #0054e3;
 }
 
 a:active {
-  color:                #ff0000;
+  color:             #ff0000;
 }
 
 # Special anchor effects
 .sender {
-  font-weight:		bold
+  font-weight:       bold
 }
 
 .sender a:link {
-  color:		Red;
+  color:             Red;
 }
 
 .sender a:visited {
-  color:		#0054e3;
+  color:             #0054e3;
 }
 
 .sender a:hover {
-  color:		White;
-  background:		Red;
+  color:             White;
+  background:        Red;
 }
 
 .sender a:active {
-  color:		Yellow;
+  color:             Yellow;
 }
 
 # Menu anchors
 .menu {
-  font-weight:		bold;
+  font-weight:       bold;
 }
 
 .menu a:link {
-  color:		Red;
+  color:             Red;
 }
 
 .menu a:visited {
-  color:		white;
+  color:             white;
 }
 
 .menu a:hover {
-  color:		White;
-  background:		Red;
+  color:             White;
+  background:        Red;
 }
 
 .menu a:active {
-  color:		Yellow;
+  color:             Yellow;
 }
 
 # Intromenu anchors
 .intromenu {
-  font-weight:		bold;
+  font-weight:       bold;
 }
 
 .intromenu a:link {
-  color:		Red;
+  color:             Red;
 }
 
 .intromenu a:visited {
-  color:		white;
+  color:             white;
 }
 
 .intromenu a:hover {
-  color:		White;
-  background:		Red;
+  color:             White;
+  background:        Red;
 }
 
 .intromenu a:active {
-  color:		Yellow;
+  color:             Yellow;
 }
 
 .leftbox {
-  border:		thin silver solid;
-  float:		left;
-  width:		25%;
-  margin:		0.5em;
-  padding:		0.5em;
-  background:		#f8f8f8;
-  color:		black;
-  font-size:		12px;
-  -moz-border-radius:	10px;
+  border:            thin silver solid;
+  float:             left;
+  width:             25%;
+  margin:            0.5em;
+  padding:           0.5em;
+  background:        #f8f8f8;
+  color:             black;
+  font-size:         12px;
+  -moz-border-radius:10px;
 }
 
 .rightbox {
-  border:		thin silver solid;
-  float:		right;
-  width:		25%;
-  margin:		0.5em;
-  padding:		0.5em;
-  background:		#f8f8f8;
-  color:		black;
-  font-size:		12px;
-  -moz-border-radius:	10px;
+  border:            thin silver solid;
+  float:             right;
+  width:             25%;
+  margin:            0.5em;
+  padding:           0.5em;
+  background:        #f8f8f8;
+  color:             black;
+  font-size:         12px;
+  -moz-border-radius:10px;
 }
