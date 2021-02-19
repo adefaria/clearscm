@@ -69,13 +69,14 @@ function CopyFile {
 
 ReplaceFile "$HOME/.Xdefaults"	  "$HOME/.rc/Xdefaults"
 ReplaceFile "$HOME/.bash_login"	  "$HOME/.rc/bash_login"
-ReplaceFile "$HOME/.bashrc"	      "$HOME/.rc/bash_login"
-ReplaceFile "$HOME/.inputrc"	    "$HOME/.rc/inputrc"
-ReplaceFile "$HOME/.vimrc"	      "$HOME/.rc/vimrc"
-ReplaceDir  "$HOME/.xemacs"	      "$HOME/.rc/xemacs"
+ReplaceFile "$HOME/.bashrc"	  "$HOME/.rc/bash_login"
+ReplaceFile "$HOME/.inputrc"	  "$HOME/.rc/inputrc"
+ReplaceFile "$HOME/.vimrc"	  "$HOME/.rc/vimrc"
+ReplaceDir  "$HOME/.xemacs"	  "$HOME/.rc/xemacs"
 ReplaceFile "$HOME/.perlcriticrc" "$HOME/.rc/perlcriticrc"
 ReplaceFile "$HOME/.perltidyrc"   "$HOME/.rc/perltidyrc"
 ReplaceFile "$HOME/.gitconfig"    "$HOME/.rc/gitconfig"
+ReplaceFile "$HOME/.gitignore"    "$HOME/.rc/gitignore"
 
 # Ssh is picky about the ownership of this file so copy it.
 CopyFile "$HOME/.ssh/config"	  "$HOME/.rc/sshconfig"
