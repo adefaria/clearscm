@@ -111,6 +111,8 @@ path_dirs="$path_dirs\
   /opt/ssh/bin\
   /tools/bin\
   /snap/bin\
+  /System/bin\
+  /opt/bin\
   $systemroot/System32\
   $systemroot\
 "
