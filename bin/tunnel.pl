@@ -124,6 +124,8 @@ sub interrupt {
    Report "Tunnel killed unexpectedly", 1;
 
    kill 'INT', $ssh->get_master_pid;
+
+   return;
 } # interrupt
 
 sub tunnel() {
@@ -142,6 +144,7 @@ RETRY:
 
   Report("Unable to establish ssh tunnel " . $ssh->error, 1) if $ssh->error;
 
+  # Check to see if address is already in use
   my @lines = <$fh>;
 
   close $fh;
@@ -158,6 +161,9 @@ RETRY:
 
     $log->msg($msg);
 
+    # Reset retry attempts since we reestablished the tunnel
+    $retryattempts = 0 if $retryattempts;
+
     # Wait for master to exit
     waitpid($ssh->get_master_pid, WUNTRACED);
 
@@ -167,6 +173,8 @@ RETRY:
     $opts{announce} = $retryattempts;
 
     Report 'Ssh tunnel terminated unexpectedly - Attempting restart';
+
+    undef $ssh;
 
     goto RETRY;
   } # if
