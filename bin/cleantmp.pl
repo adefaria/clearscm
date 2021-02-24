@@ -144,7 +144,6 @@ sub FileCreated {
           } # if
         } # if
 
-
         last;
       } # if
     } # for
@@ -152,6 +151,8 @@ sub FileCreated {
 
   return;
 } # FileCreated
+
+$SIG{USR1} = \&FileCreated;
 
 ## Main
 GetOptions (
