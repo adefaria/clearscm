@@ -68,6 +68,7 @@ use Pod::Usage;
 
 use Display;
 use Logger;
+use Speak;
 use Utils;
 
 my $VERSION  = '$Revision: 1.0 $';
@@ -89,27 +90,10 @@ my %opts = (
 
 my ($log, $ssh);
 
-sub Say($) {
-  my ($msg) = @_;
-
-  if (-f "$FindBin::Bin/shh") {
-    $log->msg("Not speaking because we were asked to be quiet - $msg");
-
-    return;
-  } # if
-
-  my ($status, @output) = Execute "/usr/local/bin/gt \"$msg\"";
-
-  $log->err("Unable to speak (Status: $status) - "
-          . join ("\n", @output), $status) if $status;
-
-  return;
-} # Say
-
 sub Report ($;$) {
   my ($msg, $err) = @_;
 
-  Say $msg;
+  speak $msg, $log;
 
   if ($err) {
     $log->err($msg, $err);
@@ -157,7 +141,7 @@ RETRY:
     my $msg  = 'Ssh tunnel ';
        $msg .= $retryattempts ? 'reestablished' : 'established';
 
-    Say $msg if $opts{announce};
+    speak $msg, $log if $opts{announce};
 
     $log->msg($msg);
 

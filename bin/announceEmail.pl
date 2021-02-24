@@ -73,8 +73,9 @@ use lib "$FindBin::Bin/../lib";
 
 use Display;
 use Logger;
-use Utils;
+use Speak;
 use TimeUtils;
+use Utils;
 
 my $defaultIMAPServer = 'defaria.com';
 my $IMAP;
@@ -152,23 +153,6 @@ sub Connect2IMAP() {
   return;
 } # Connect2IMAP
 
-sub Say($) {
-  my ($msg) = @_;
-
-  if (-f "$FindBin::Bin/shh") {
-    $log->msg("Not speaking because we were asked to be quiet - $msg");
-
-    return;
-  } # if
-
-  my ($status, @output) = Execute "/usr/local/bin/gt \"$msg\"";
-
-  $log->err("Unable to speak (Status: $status) - "
-          . join ("\n", @output), $status) if $status;
-
-  return;
-} # Say
-
 sub MonitorMail() {
   MONITORMAIL:
 
@@ -224,8 +208,8 @@ sub MonitorMail() {
 
     # Only announce if after 6 Am. Note this will announce up until
     # midnight but that's ok. I want midnight to 6 Am as silent time.
-    if ($hour >= 6) {
-      Say $msg;
+    if ($hour >= 7) {
+      speak $msg, $log;
       $log->msg($logmsg);
     } else {
       $log->msg("$logmsg [silent]");
@@ -267,7 +251,7 @@ END {
   if ($log) {
     my $msg = "$FindBin::Script ending unexpectedly!";
 
-    Say $msg;
+    speak $msg, $log;
 
     $log->err($msg);
   } # if
@@ -324,7 +308,7 @@ if ($opts{username} =~ /(.*)\@/) {
 
 my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
 
-Say $msg if $opts{announce};
+speak $msg, $log if $opts{announce};
 
 $log->msg($msg);
 
