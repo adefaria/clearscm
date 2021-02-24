@@ -47,6 +47,7 @@ use warnings;
 use base 'Exporter';
 
 use FindBin;
+use Clipboard;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -111,6 +112,9 @@ Returns:
 
     return;
   } # if
+
+  # Handle the case where $msg is not passed in. Then use the clipboard;
+  $msg = Clipboard->paste unless $msg;
 
   # Handle the case where $msg is a filehandle
   $msg = <$msg> if ref $msg eq 'GLOB';

@@ -1,0 +1,103 @@
+#!/usr/bin/perl
+
+=pod
+
+=head1 NAME $RCSfile: speak,v $
+
+Simply speaks the passed in message, clipboard or file
+
+=head1 VERSION
+
+=over
+
+=item Author
+
+Andrew DeFaria <Andrew@DeFaria.com>
+
+=item Revision
+
+$Revision: 1.0 $
+
+=item Created:
+
+Wed 24 Feb 2021 12:01:12 PM PST
+
+=item Modified:
+
+=back
+
+=head1 SYNOPSIS
+
+ Usage: speak [-usa|ge] [-h|elp] [-v|erbose] [-de|bug]
+              [-c|lipboard] [-f|ile <filename>] ["message"]
+
+ Where:
+   -usa|ge:          Print this usage
+   -h|elp:           Detailed help
+   -v|erbose:        Verbose mode (Default: -verbose)
+   -de|bug:          Turn on debugging (Default: Off)
+   -c|lipboard:      Speak the contents of the clipboard
+   -f|ile <filename> Speak the contents of <filename>
+   "message"         Speak the message
+
+=head1 DESCRIPTION
+
+This script speaks the contents of the passed in message, clipboard or file
+
+=cut
+
+use strict;
+use warnings;
+
+use FindBin;
+use Getopt::Long;
+use Pod::Usage;
+
+use lib"$FindBin::Bin/../lib";
+
+use Display;
+use Clipboard;
+use Speak;
+
+my %opts = (
+  usage       => sub { pod2usage },
+  help        => sub { pod2usage(-verbose => 2)},
+  verbose     => sub { set_verbose },
+  debug       => sub { set_debug },
+);
+
+## Main
+GetOptions(
+  \%opts,
+  'usage',
+  'help',
+  'verbose',
+  'debug',
+  'clipboard',
+  'file=s',
+) || pod2usage;
+
+my $msg = join ' ', @ARGV;
+
+if ($opts{clipboard}) {
+  if ($opts{file}) {
+    error 'Cannot specify both -clipboard and -file', 1;
+  } elsif ($msg) {
+    error 'Cannot specify both -clipboard and <message>', 1;
+  } else {
+    $msg = Clipboard->paste;
+  } # if
+} elsif ($opts{file}) {
+  if ($msg) {
+    error 'Cannot specify both -file and <message>', 1;
+  } else {
+    open my $file, '<', $opts{file} or
+      error "Unable to open $opts{file} - $!", 1;
+
+    $msg = <$file>;
+
+    close $file;
+  } # if
+} # if
+
+speak $msg;
