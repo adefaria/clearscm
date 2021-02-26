@@ -73,7 +73,7 @@ my ($log, $initial_sleep);
 my %opts = (
   host        => 'google.com',
   sleep       => 15,
-  logpath     => '/var/log',
+  logpath     => '/var/local/log',
   usage       => sub { Usage },
   verbose     => sub { set_verbose },
   debug       => sub { set_debug },

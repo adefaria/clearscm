@@ -292,7 +292,7 @@ if ($opts{daemon}) {
 } # if
 
 $log = Logger->new(
-  path        => '/var/log',
+  path        => '/var/local/log',
   name        => "$Logger::me.$opts{name}",
   timestamped => 'yes',
   append      => 'yes',

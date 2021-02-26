@@ -82,7 +82,7 @@ my %opts = (
   debug   => sub { set_debug },
   tmp     => File::Spec->tmpdir(),
   conf    => "$FindBin::Bin/../etc/$script.conf",
-  logpath => '/var/log',
+  logpath => '/var/local/log',
   sleep   => 60,
 );
 

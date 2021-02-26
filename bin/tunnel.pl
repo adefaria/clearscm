@@ -188,7 +188,7 @@ $opts{daemon} = 0 if defined $DB::OUT;
 use warnings;
 
 $log = Logger->new(
-  path        => '/var/log',
+  path        => '/var/local/log',
   name        => "$Logger::me",
   timestamped => 'yes',
   append      => 'yes',
