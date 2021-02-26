@@ -57,6 +57,6 @@
 [http]
 	sslVerify = false
 [credential]
-	helper = store
+	helper = store --file ~/.git-credentials
 [pull]
 	rebase = false
