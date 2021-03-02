@@ -100,7 +100,7 @@ fi
 umask 002
 
 if [ "$interactive" = "true" ]; then
-  stty tostop intr ^C kill ^X susp ^Z erase ^H -inpck -istrip -ixany -echok -echonl
+  stty tostop intr ^C kill ^X susp ^Z erase ^? -inpck -istrip -ixany -echok -echonl
 fi
 
 # Set adm_base

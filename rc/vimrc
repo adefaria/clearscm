@@ -8,4 +8,3 @@ set hlsearch
 set ff=unix
 colorscheme evening
 map!  
-set number

@@ -249,7 +249,7 @@ Returns:
       display 'Finished in 0 seconds';
     } # if
   } # unless
-  
+
   my $end_time = time;
   my $duration = howlong $start_time, $end_time;
 
@@ -258,7 +258,7 @@ Returns:
   } else {
     display "Finished in $duration";
   } # if
-  
+
   return;
 } # display_duration
 
