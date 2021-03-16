@@ -46,6 +46,8 @@ $Date: $
    -c|onf <file>:    Config file holding patterns to match (Default: 
                      .../etc/cleantmp.conf)
    -l|ogpath <path>: Path to logfile (Default: /var/log)
+   -a|ppend:         Append to logfile (Default: Noappend)
+   -da|emon          Run in daemon mode (Default: -daemon)
    -s|leep <secs>:   How many seconds to sleep between polls (Default: 60)
 
 =head1 DESCRIPTION
@@ -80,6 +82,7 @@ my %opts = (
   help    => sub { pod2usage(-verbose => 2)},
   verbose => sub { set_verbose },
   debug   => sub { set_debug },
+  daemon  => 1,
   tmp     => File::Spec->tmpdir(),
   conf    => "$FindBin::Bin/../etc/$script.conf",
   logpath => '/var/local/log',
@@ -161,13 +164,19 @@ GetOptions (
   'help',
   'verbose',
   'debug',
+  'daemon!',
   'tmp=s',
   'logpath=s',
   'conf=s',
-  'sleep=i'
+  'sleep=i',
+  'append',
 ) or pod2usage;
 
-$log = Logger->new(path => $opts{logpath}, timestamped => 1);
+$log = Logger->new(
+  path        => $opts{logpath},
+  timestamped => 1,
+  append      => $opts{append},
+);
 
 $log->msg("Starting $FindBin::Script");
 
@@ -186,7 +195,12 @@ $monitor->watch({
 
 set_debug if $DB::OUT;
 
-EnterDaemonMode unless $DB::OUT or get_debug;
+if ($opts{daemon}) {
+  # Perl complains if we reference $DB::OUT only once
+  no warnings;
+  EnterDaemonMode unless defined $DB::OUT or get_debug;
+  use warnings;
+} # if
 
 while () {
   $monitor->scan;

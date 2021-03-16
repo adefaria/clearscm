@@ -30,22 +30,22 @@ $Date: $
 
 =head1 SYNOPSIS
 
- Usage: tunnel.pl [-u|sage] [-h|elp] [-ve|rbose] [-d|ebug]
- 
- Where:
+  Usage: tunnel.pl [-u|sage] [-h|elp] [-ve|rbose] [-d|ebug]
 
- -u|sage:      Displays this usage
- -h|elp:       Display full help
- -ve|rbose:    Be verbose
- -d|ebug:      Output debug messages
- -host1:       First host for tunnel (Default: localhost)
- -port1:       Port for host1
- -host2:       Second host for tunnel (Default: defaria.com)
- -port2:       Port for host2
- -a|nnounce:   Whether to announce startup (Default false)
- -maxtretries: Maximum number of retry attempt to reestablish tunnel
-               (Default 3)
- -nodaemon:    Whether to go into daemon mode (Default: Daemon mode)
+  Where:
+    -u|sage:      Displays this usage
+    -h|elp:       Display full help
+    -ve|rbose:    Be verbose
+    -d|ebug:      Output debug messages
+    -host1:       First host for tunnel (Default: localhost)
+    -port1:       Port for host1
+    -host2:       Second host for tunnel (Default: defaria.com)
+    -port2:       Port for host2
+    -a|nnounce:   Whether to announce startup (Default false)
+    -ap|pend      Append to logfile (Default: Noappend)
+    -maxtretries: Maximum number of retry attempt to reestablish tunnel
+                  (Default 3)
+    -nodaemon:    Whether to go into daemon mode (Default: Daemon mode)
 
 =head1 DESCRIPTION
 
@@ -180,6 +180,7 @@ GetOptions (
   'announce!',
   'maxretries=i',
   'daemon!',
+  'append',
 ) || Usage;
 
 # Turn off daemon mode if we are in the Perl debugger;
@@ -191,13 +192,18 @@ $log = Logger->new(
   path        => '/var/local/log',
   name        => "$Logger::me",
   timestamped => 'yes',
-  append      => 'yes',
+  append      => $opts{append},
 );
 
 $log->msg("$FindBin::Script v$VERSION");
 
 $SIG{INT} = $SIG{TERM} = \&interrupt;
 
-EnterDaemonMode if $opts{daemon};
+if ($opts{daemon}) {
+  # Perl complains if we reference $DB::OUT only once
+  no warnings;
+  EnterDaemonMode unless defined $DB::OUT or get_debug;
+  use warnings;
+} # if
 
 tunnel;

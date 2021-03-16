@@ -31,23 +31,28 @@ $Date: 2019/04/04 13:40:10 $
 
 =head1 SYNOPSIS
 
- Usage: announceEmail.pl [-usa|ge] [-h|elp] [-v|erbose] [-de|bug] [-da|emon]
+ Usage: announceEmail.pl [-usa|ge] [-h|elp] [-v|erbose] [-de|bug]
                          [-use|rname <username>] [-p|assword <password>]
-                         [-i|map <server]
+                         [-i|map <server>]
+                         [-an|nouce] [-ap|pend] [-da|emon] [-n|name <name>]
+                         [-uses|sl] [-useb|locking]
 
  Where:
-   -usa|ge:      Print this usage
-   -h|elp:       Detailed help
-   -v|erbose:    Verbose mode (Default: -verbose)
-   -de|bug:      Turn on debugging (Default: Off)
-   -da|emon:     Run in daemon mode (Default: -daemon)
-   -user|name:   User name to log in with (Default: $USER)
-   -p|assword:   Password to use (Default: prompted)
-   -n|ame:       Name of account (Default: imap)
-   -i|map:       IMAP server to talk to (Default: defaria.com)
-   -uses|sl:     Whether or not to use SSL to connect (Default: False)
+   -usa|ge       Print this usage
+   -h|elp        Detailed help
+   -v|erbose     Verbose mode (Default: -verbose)
+   -de|bug       Turn on debugging (Default: Off)
+ 
+   -user|name    User name to log in with (Default: $USER)
+   -p|assword    Password to use (Default: prompted)
+   -i|map        IMAP server to talk to (Default: defaria.com)
+
+   -an|nounce    Announce startup (Default: False)
+   -ap|pend      Append to logfile (Default: Noappend)
+   -da|emon      Run in daemon mode (Default: -daemon)
+   -n|ame        Name of account (Default: imap)
+   -uses|sl      Whether or not to use SSL to connect (Default: False)
    -useb|locking Whether to block on socket (Default: False)
-   -a-nnounce    Announce startup (Default: False)
 
 =head1 DESCRIPTION
 
@@ -104,9 +109,6 @@ my %opts = (
   username    => $ENV{USER},
   password    => $ENV{PASSWORD},
   imap        => $defaultIMAPServer,
-  usessl      => 0,
-  useblocking => 0,
-  announce    => 0,
 );
 
 sub interrupted {
@@ -155,18 +157,21 @@ sub Connect2IMAP() {
 
 sub MonitorMail() {
   MONITORMAIL:
+  $log->dbug("Top of MonitorMail loop");
 
   # First close and reselect the INBOX to get its current status
   $IMAP->close;
   $IMAP->select('INBOX')
     or $log->err("Unable to select INBOX - ". $IMAP->errstr(), 1);
 
+  $log->dbug("Closed and reselected INBOX");
   # Go through all of the unseen messages and add them to %unseen if they were
   # not there already from a prior run and read
   my %newUnseen = unseenMsgs;
 
   # Now clean out any messages in %unseen that were not in the %newUnseen and
   # marked as previously read
+  $log->dbug("Cleaning out unseen");
   for (keys %unseen) {
     if (defined $newUnseen{$_}) {
       if ($unseen{$_}) {
@@ -177,6 +182,7 @@ sub MonitorMail() {
     } # if
   } # for
 
+  $log->dbug("Processing new unseen messages");
   for (keys %newUnseen) {
     next if $unseen{$_};
 
@@ -208,7 +214,9 @@ sub MonitorMail() {
 
     # Only announce if after 6 Am. Note this will announce up until
     # midnight but that's ok. I want midnight to 6 Am as silent time.
+    $log->dbug("About to speak/log");
     if ($hour >= 7) {
+      $log->dbug("Calling speak");
       speak $msg, $log;
       $log->msg($logmsg);
     } else {
@@ -218,16 +226,21 @@ sub MonitorMail() {
     $unseen{$_} = 1;
   } # for
 
+  # Let's time things
+  my $startTime = time;
+
   # Re-establish callback
+  $log->dbug("Evaling idle");
   eval { $IMAP->idle(\&MonitorMail) };
 
   # If we return from idle then the server went away for some reason. With Gmail
   # the server seems to time out around 30-40 minutes. Here we simply reconnect
   # to the imap server and continue to MonitorMail.
-  $log->dbug("MonitorMail: Connection to $opts{imap} ended. Reconnecting");
+  $log->dbug("MonitorMail: Connection to $opts{imap} ended - lasted "
+           . howlong $startTime);
 
   # Destroy current IMAP connection
-  $log->dbug("MonitorMail: Destorying IMAP connection to $opts{imap}");
+  $log->dbug("MonitorMail: Destroying IMAP connection to $opts{imap}");
 
   undef $IMAP;
 
@@ -272,6 +285,7 @@ GetOptions(
   'usessl',
   'useblocking',
   'announce!',
+  'append',
 ) || pod2usage;
 
 unless ($opts{password}) {
@@ -287,15 +301,16 @@ if ($opts{username} =~ /.*\@(.*)$/) {
 
 if ($opts{daemon}) {
   # Perl complains if we reference $DB::OUT only once
-  my $foo = $DB::OUT;
-  EnterDaemonMode unless defined $DB::OUT;
+  no warnings;
+  EnterDaemonMode unless defined $DB::OUT or get_debug;
+  use warnings;
 } # if
 
 $log = Logger->new(
   path        => '/var/local/log',
   name        => "$Logger::me.$opts{name}",
   timestamped => 'yes',
-  append      => 'yes',
+  append      => $opts{append},
 );
 
 Connect2IMAP;
