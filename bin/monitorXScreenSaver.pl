@@ -112,10 +112,8 @@ $log->msg('Started monitoring XScreenSaver');
 
 if ($opts{daemon}) {
   # Perl complains if we reference $DB::OUT only once
-  display "EnterDaemonMode" unless $DB::OUT or get_debug;
   no warnings;
   EnterDaemonMode unless defined $DB::OUT or get_debug;
-  display "Back from EnterDaemonMode";
   use warnings;
 } # if
 
