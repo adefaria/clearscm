@@ -57,6 +57,14 @@ function OpenDB() {
     or DBError("OpenDB: Unable to select MAPS database", "adefaria_maps");
 } // OpenDB
 
+function CloseDB() {
+  global $db;
+
+  if (isset ($db)) {
+    mysqli_close($db);
+  } // if
+} // CloseDB
+
 function SetContext($new_userid) {
   global $userid;
 
@@ -524,8 +532,10 @@ function Space() {
       strlen($row["subject"])   +
       strlen($row["timestamp"]) +
       strlen($row["data"]);
-    $space = $space + $msg_space;
+    $space += $msg_space;
   } // while
+
+  mysqli_free_result($result);
 
   return $space;
 } // Space

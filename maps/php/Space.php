@@ -32,10 +32,12 @@ Space Usage for <?php echo $Userid?></h2>
 </div>
 <div class="content">
   <?php
-    OpenDB ();
+    OpenDB();
     SetContext ($userid);
     NavigationBar ($userid);
-    $space = Space ();
+
+    $space = Space();
+    
     $one_meg = 1024 * 1024;
 
     if ($space > $one_meg) {
@@ -47,6 +49,8 @@ Space Usage for <?php echo $Userid?></h2>
     } else {
       print "$Userid is using up no space in the database";
     } // if
+
+    CloseDB();
 
     copyright (2001);
   ?>
