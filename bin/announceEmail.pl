@@ -42,7 +42,7 @@ $Date: 2019/04/04 13:40:10 $
    -h|elp        Detailed help
    -v|erbose     Verbose mode (Default: -verbose)
    -de|bug       Turn on debugging (Default: Off)
- 
+
    -user|name    User name to log in with (Default: $USER)
    -p|assword    Password to use (Default: prompted)
    -i|map        IMAP server to talk to (Default: defaria.com)
@@ -53,6 +53,10 @@ $Date: 2019/04/04 13:40:10 $
    -n|ame        Name of account (Default: imap)
    -uses|sl      Whether or not to use SSL to connect (Default: False)
    -useb|locking Whether to block on socket (Default: False)
+
+ Signals:
+   $SIG{USR1}:   Toggles debug option
+   $SIG{USR2}:   Reestablishes connection to IMAP server
 
 =head1 DESCRIPTION
 
@@ -98,6 +102,7 @@ my @greetings = (
   'I was looking in your inbox and found a message',
   'Not sure you want to hear this message',
   'Good news',
+  "What's this? A new message",
 );
 
 my %opts = (
@@ -123,7 +128,17 @@ sub interrupted {
   return;
 } # interrupted
 
+sub Connect2IMAP;
+
+sub restart {
+  $log->dbug("Re-establishing connection to $opts{imap} as $opts{username}");
+  Connect2IMAP;
+
+  goto MONITORMAIL;
+} # restart
+
 $SIG{USR1} = \&interrupted;
+$SIG{USR2} = \&restart;
 
 sub unseenMsgs() {
   $IMAP->select('inbox') or
@@ -134,6 +149,9 @@ sub unseenMsgs() {
 
 sub Connect2IMAP() {
   $log->dbug("Connecting to $opts{imap} as $opts{username}");
+
+  # Destroy any old connections
+  undef $IMAP;
 
   $IMAP = Mail::IMAPTalk->new(
     Server      => $opts{imap},
@@ -236,27 +254,9 @@ sub MonitorMail() {
   # If we return from idle then the server went away for some reason. With Gmail
   # the server seems to time out around 30-40 minutes. Here we simply reconnect
   # to the imap server and continue to MonitorMail.
-  $log->dbug("MonitorMail: Connection to $opts{imap} ended - lasted "
-           . howlong $startTime);
+  restart;
 
-  # Destroy current IMAP connection
-  $log->dbug("MonitorMail: Destroying IMAP connection to $opts{imap}");
-
-  undef $IMAP;
-
-  # Re-establish connection
-  Connect2IMAP;
-
-  $log->dbug("MonitorMail: Reconnected to IMAP server $opts{imap}");
-
-  # MonitorMail again - the dreaded goto! Seems the cleanest way to restart
-  # in this instance. I could call MonitorMail() recursively but that would
-  # leave junk on the stack.
-  $log->dbug('MonitorMail: Going back to the top of the loop');
-
-  goto MONITORMAIL;
-
-  return; # To make perlcritic happy
+  return;
 } # MonitorMail
 
 END {
