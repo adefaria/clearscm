@@ -471,7 +471,7 @@ In a scalar context just the 1 minute load average.
   # TODO: Make it work on Windows...
   return if $^O =~ /win/i;
 
-  open my $loadAvg, '/proc/loadavg'
+  open my $loadAvg, '<', '/proc/loadavg'
     or croak "Unable to open /proc/loadavg\n";
 
   my $load = <$loadAvg>;

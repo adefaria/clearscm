@@ -104,10 +104,11 @@ Returns:
 =cut
 
   if (-f "$FindBin::Bin/shh") {
+    $msg .= ' [silent]';
     if ($log) {
-      $log->msg("Not speaking because we were asked to be quiet - $msg");
+      $log->msg($msg);
     } else {
-      verbose "Not speaking because we were asked to be quiet - $msg";
+      verbose $msg;
     } # if
 
     return;

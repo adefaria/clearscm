@@ -150,7 +150,7 @@ sub DESTROY {
 
   # Call old signal handler (if any)
   &$oldHandler if $oldHandler;
-  
+
   return;
 } # DESTROY
 
@@ -523,7 +523,7 @@ sub execute {
 Sends a command to the cleartool coprocess. If not running a cleartool coprocess
 is started and managed. The coprocess is implemented as a coprocess using IPC
 for communication that will exist until the object is destroyed. Stdin and
-stdout/stderr are therefore pipes and can be fed. The execute method feds the
+stdout/stderr are therefore pipes and can be fed. The execute method feeds the
 input pipe and returns status and output from the output pipe.
 
 Using execute can speed up execution of repeative cleartool invocations
@@ -594,10 +594,10 @@ Array of output lines from the cleartool command execution.
     # Simple check to see if we can execute cleartool
     @output = `$cleartool -ver 2>&1`;
     @output = ();
-        
+
     return (-1, 'Clearcase not installed')
       unless $? == 0;
-          
+
     $clearpid = open3 ($clearin, $clearout, $clearout, $cleartool, "-status");
 
     return (-1, ('Clearcase not installed')) unless $clearpid;
@@ -631,7 +631,7 @@ Array of output lines from the cleartool command execution.
   $self->{lastcmd} = 'cleartool ' . $cmd;
   $self->{status}  = $status;
   $self->{output}  = join "\n", @output;
-  
+
   return ($status, @output);
 } # execute
 
