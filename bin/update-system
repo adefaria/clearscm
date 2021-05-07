@@ -1,0 +1,21 @@
+#!/bin/bash
+export PATH=$PATH:/sbin:/usr/sbin
+
+logfile=/var/local/log/update-system.log
+
+echo "$(date): $HOSTNAME: update-system: Start" > $logfile
+
+apt-get update -y >> $logfile 2>&1
+
+uptodate=$(apt list --upgradeable 2> /dev/null | grep -v "^Listing" | wc -l)
+
+if [ $uptodate -ne 0 ]; then
+  apt-get upgrade    -y >> $logfile 2>&1
+  apt-get autoremove -y >> $logfile 2>&1
+
+  echo "Updated $HOSTNAME" >> $logfile
+else
+  echo "No updates for $HOSTNAME" >> $logfile
+fi
+
+echo "$(date): $HOSTNAME: update-system: End" >> $logfile
