@@ -85,8 +85,12 @@ my %opts = (
   port2      => 25,
   remotehost => 'defaria.com',
   maxretries => 3,
-  daemon     => 1,
 );
+
+# Perlcritic complains if $DB::OUT is used only once.
+no warnings;
+$opts{daemon} = 1 unless defined $DB::OUT;
+use warnings;
 
 my ($log, $ssh);
 
@@ -120,7 +124,7 @@ sub tunnel() {
 RETRY:
   my ($fh, $filename) = tempfile;
 
-  my $ssh = Net::OpenSSH->new(
+  $ssh = Net::OpenSSH->new(
     $opts{remotehost},
     master_opts         => $tunnelStr,
     default_stderr_file => $filename
@@ -135,7 +139,7 @@ RETRY:
 
   unlink $filename;
 
-  if (grep /address already in use/i, @lines) {
+  if (grep { /address already in use/i } @lines) {
     Report 'Unable to start tunnel - Address already in use', 1;
   } else {
     my $msg  = 'Ssh tunnel ';
@@ -153,10 +157,6 @@ RETRY:
 
     Report("Ssh tunnel terminated unexpectedly - Maximum retry count hit ($opts{maxretries}) - giving up", 1)
       if $retryattempts++ >= $opts{maxretries};
-
-    $opts{announce} = $retryattempts;
-
-    Report 'Ssh tunnel terminated unexpectedly - Attempting restart';
 
     undef $ssh;
 
@@ -183,11 +183,6 @@ GetOptions (
   'append',
 ) || Usage;
 
-# Turn off daemon mode if we are in the Perl debugger;
-no warnings; # Ignore warning about used only once $DB::OUT when not in debugger
-$opts{daemon} = 0 if defined $DB::OUT;
-use warnings;
-
 $log = Logger->new(
   path        => '/var/local/log',
   name        => "$Logger::me",
@@ -199,11 +194,6 @@ $log->msg("$FindBin::Script v$VERSION");
 
 $SIG{INT} = $SIG{TERM} = \&interrupt;
 
-if ($opts{daemon}) {
-  # Perl complains if we reference $DB::OUT only once
-  no warnings;
-  EnterDaemonMode unless defined $DB::OUT or get_debug;
-  use warnings;
-} # if
+EnterDaemonMode unless $opts{daemon} and get_debug;
 
 tunnel;
