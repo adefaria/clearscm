@@ -48,7 +48,7 @@ $Date: 2013/06/12 14:05:47 $
 
    -[no]e|xecute:     Set execute mode.         
 
-# (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
+# (c) Copyright 2000-2021, Andrew@DeFaria.com, all rights reserved.
 
 =cut 
 
@@ -56,11 +56,12 @@ use strict;
 use warnings;
 
 use Getopt::Long;
+use Email::Valid;
 use FindBin;
 use File::Temp qw (tempfile);
 use Net::Domain qw (hostdomain);
 
-use lib "$FindBin::Bin/../lib", '/opt/clearscm/lib';
+use lib "$FindBin::Bin/../lib", "$FindBin::Bin/../../lib";
 
 use MAPS;
 use MAPSLog;
@@ -68,18 +69,18 @@ use MAPSLog;
 use Display;
 use Utils;
 
-my $verbose    = 0;
-my $execute    = 1;
-my $userid     = $ENV{USER};
+my $verbose   = 0;
+my $execute   = 1;
+my $userid    = $ENV{USER};
 
-my $logpath    = "$FindBin::Bin/../log";
-my $logfile    = "$logpath/debug.log";
+my $logpath   = "$FindBin::Bin/../log";
+my $logfile   = "$logpath/debug.log";
 my $forwardto = $ENV{MAPS_FORWARDTO} || 'adefaria@gmail.com';
 
 # For some reason I'm not parsing messages correctly but it only seems to
 # happen when the message is piped in from the MTA. This routine will
 # temporarily save the messages in a file.
-sub SaveStdin () {
+sub SaveStdin() {
   # Generate tempfile
   my $msgfile = tempfile ();
 
@@ -95,7 +96,7 @@ sub SaveStdin () {
   return $msgfile;
 } # SaveStdin
 
-sub ValidDomainUser ($) {
+sub ValidDomainUser($) {
   my ($sender) = @_;
 
   my ($username, $domainname);
@@ -120,8 +121,7 @@ sub ValidDomainUser ($) {
 sub ProcessMsgs ($$$) {
   my ($msgfile, $username, $user_email) = @_;
 
-  return
-    unless $execute;
+  return unless $execute;
 
   while (!eof *$msgfile) {
     my ($sender, $sender_long, $reply_to, $subject, $data) = ReadMsg (*$msgfile);
@@ -156,11 +156,8 @@ sub ProcessMsgs ($$$) {
     #
     # Finally, we handle return processing
 
-    # Special sender handling: 
-    if ($sender !~ /.+\@.+/) {
-      verbose "Sender not found in message or invalid";
-      next;
-    } # if
+    # Discard any email with an invalid email address
+    next unless Email::Valid->address($sender);
 
     if ($sender eq $user_email and
             (lc ($sender_long) !~ lc ("\"$username\" <$user_email>") and
@@ -212,7 +209,7 @@ sub ProcessMsgs ($$$) {
 } # ProcessMsgs
 
 # Main
-GetOptions (
+GetOptions(
   'user=s'      => \$userid,
   'verbose'     => sub { set_verbose },
   'debug'       => sub { set_debug },
