@@ -32,6 +32,11 @@ use MIME::Words qw(:all);
 
 my $userid      = cookie('MAPSUser');
 my $sender      = param('sender');
+
+# CGI will replace '+' with ' ', which many mailers are starting to do,
+# so add it back
+$sender =~ s/ /\+/;
+
 my $msg_nbr     = param('msg_nbr');
 my $table_name  = 'message';
 
