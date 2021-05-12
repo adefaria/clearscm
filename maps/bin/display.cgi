@@ -32,7 +32,7 @@ use MIME::Words qw(:all);
 
 my $userid      = cookie('MAPSUser');
 my $sender      = param('sender');
-my $msg_nbr     = param('msg_nbr');
+my $msg_date    = param('msg_date');
 my $table_name  = 'message';
 
 sub ParseEmail(@) {
@@ -65,22 +65,16 @@ sub ParseEmail(@) {
 } # ParseEmail
 
 sub Body($) {
-  my ($count) = @_;
+  my ($date) = @_;
 
-  $count ||= 1;
+  # Find unique message using $date
+  my $handle = FindEmail $sender, $date;
 
-  my $handle = FindEmail $sender;
-
-  my ($userid, $sender, $subject, $timestamp, $message);
-
-  # Need to handle multiple messages
-  for (my $i = 0; $i < $count; $i++) {
-    ($userid, $sender, $subject, $timestamp, $message) = GetEmail $handle;
-  } # for
+  my ($userid, $sender, $subject, $timestamp, $message) = GetEmail $handle;
 
   my $parser = MIME::Parser->new();
 
-  $parser->output_to_core (1);
+  $parser->output_to_core(1);
 
   my $entity = $parser->parse_data ($message);
 
@@ -107,10 +101,10 @@ sub Body($) {
                         -bgcolor      => "#ece9d8",
                         -width        => "100%"}) . "\n";
 
-    foreach (keys (%header)) {
+    for (keys (%header)) {
       next if /base64/;
 
-      my $str = decode_mimewords ($header{$_});
+      my $str = decode_mimewords($header{$_});
 
       print Tr ([
         th ({-align    => "right",
@@ -118,7 +112,7 @@ sub Body($) {
              -width    => "8%"}, "$_:") . "\n" .
         td ({-bgcolor  => "white"}, $str)
       ]);
-    } # if
+    } # for
 
     print end_table;
     print "</td></tr>";
@@ -174,7 +168,7 @@ sub Body($) {
         } # for
       } elsif ($part->mime_type eq 'multipart/related') {
         # Sometimes parts are 'multipart/relative'...
-	$part->print_body;
+        $part->print_body;
       } else {
         if ($part->mime_type =~ /text/) {
           my $encoding = '';
@@ -213,6 +207,6 @@ $userid = Heading(
 SetContext($userid);
 NavigationBar($userid);
 
-Body($msg_nbr);
+Body($msg_date);
 
 Footing($table_name);
