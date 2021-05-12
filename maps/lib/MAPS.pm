@@ -702,16 +702,19 @@ sub Encrypt($$) {
   return $row[0];
 } # Encrypt
 
-sub FindEmail(;$) {
-  my ($sender) = @_;
+sub FindEmail(;$$) {
+  my ($sender, $date) = @_;
 
   my $statement;
 
-  if (!defined $sender || $sender eq '') {
-    $statement = "select * from email where userid = '$userid'";
-  } else {
-    $statement = "select * from email where userid = '$userid' and sender = '$sender'";
-  } # if
+  $sender //= '';
+  $date   //= '';
+
+  $statement  = "select * from email where userid = '$userid'";
+
+  # Add conditions if present
+  $statement .= " and sender = '$sender'"  if $sender;
+  $statement .= " and timestamp = '$date'" if $date;
 
   my $sth = $DB->prepare($statement)
     or DBError('FindEmail: Unable to prepare statement', $statement);

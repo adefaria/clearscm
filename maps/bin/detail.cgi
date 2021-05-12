@@ -242,8 +242,9 @@ sub PrintTable {
     my $messages = 1;
 
     for (@msgs) {
-      my $msg_date = pop @{$_};
-      my $subject  = pop @{$_};
+      my $msg_date  = pop @{$_};
+      my $link_date = $msg_date;
+      my $subject   = pop @{$_};
 
       if ($date eq substr ($msg_date, 0, 10)) {
         $msg_date = b font {-color => 'green'}, SQLDatetime2UnixDatetime $msg_date;
@@ -262,7 +263,6 @@ sub PrintTable {
                      -cellspacing => 2,
                      -border      => 0,
                      -width       => '100%'};
-      my $msg_nbr = $messages;
       print
         Tr [
           td {-class   => 'msgnbr',
@@ -275,7 +275,7 @@ sub PrintTable {
           td {-class   => 'subject',
               -valign  => 'middle',
               -bgcolor => '#ffffff'},
-           a {-href    => "display.cgi?sender=$sender;msg_nbr=$msg_nbr"}, $subject,
+           a {-href    => "display.cgi?sender=$sender;msg_date=$link_date"}, $subject,
           td {-class   => 'date',
               -width   => '150',
               -valign  => 'middle'}, $msg_date
