@@ -17,5 +17,7 @@ if [ $uptodate -ne 0 ]; then
 
   echo "$(date): Updated $HOSTNAME" >> $logfile
 else
+  rm $tmpfile
+
   echo "$(date): No updates for $HOSTNAME" >> $logfile
 fi
