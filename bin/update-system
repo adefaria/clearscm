@@ -2,14 +2,18 @@
 export PATH=$PATH:/sbin:/usr/sbin
 
 logfile=/var/local/log/update-system.log
+tmpfile=/tmp/update-system.list
 
 apt-get update -y > /dev/null 2>&1
 
-uptodate=$(apt list --upgradeable 2> /dev/null | grep -v "^Listing" | wc -l)
+apt-gt list --upgradeable > $tmpfile
+uptodate=$(grep -v "^Listing" $tmpfile | wc -l)
 
 if [ $uptodate -ne 0 ]; then
-  apt-get upgrade    -y >> $logfile 2>&1
-  apt-get autoremove -y >> $logfile 2>&1
+  cat $tmpfile >> $logfile && rm $tmpfile
+  
+  apt-get upgrade    -y >> /dev/null 2>&1
+  apt-get autoremove -y >> /dev/null 2>&1
 
   echo "$(date): Updated $HOSTNAME" >> $logfile
 else
