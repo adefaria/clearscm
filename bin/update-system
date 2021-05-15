@@ -6,16 +6,26 @@ tmpfile=/tmp/update-system.list
 
 apt-get update -y > /dev/null 2>&1
 
-apt-gt list --upgradeable > $tmpfile
+apt list --upgradeable > $tmpfile 2> /dev/null
 uptodate=$(grep -v "^Listing" $tmpfile | wc -l)
 
 if [ $uptodate -ne 0 ]; then
   cat $tmpfile >> $logfile && rm $tmpfile
   
-  apt-get upgrade    -y >> /dev/null 2>&1
-  apt-get autoremove -y >> /dev/null 2>&1
+  apt-get upgrade -y >> $tmpfile
 
-  echo "$(date): Updated $HOSTNAME" >> $logfile
+  held_back=$(grep "kept back" $tmpfile | wc -l)
+
+  if [ $held_back -ne 0 ]; then
+    echo "$(date): $HOSTNAME not updated - packages held back" >> $logfile
+
+    cat $tmpfile >> $logfile && rm $tmpfile
+  else
+    rm $tmpfile
+    echo "$(date): Updated $HOSTNAME" >> $logfile
+  fi
+
+  apt-get autoremove -y >> /dev/null 2>&1
 else
   rm $tmpfile
 
