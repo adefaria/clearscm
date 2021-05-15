@@ -6,7 +6,7 @@ tmpfile=/tmp/update-system.list
 
 apt-get update -y > /dev/null 2>&1
 
-apt-gt list --upgradeable > $tmpfile
+apt list --upgradeable > $tmpfile 2> /dev/null
 uptodate=$(grep -v "^Listing" $tmpfile | wc -l)
 
 if [ $uptodate -ne 0 ]; then
