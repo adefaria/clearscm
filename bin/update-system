@@ -11,7 +11,7 @@ uptodate=$(grep -v "^Listing" $tmpfile | wc -l)
 
 if [ $uptodate -ne 0 ]; then
   cat $tmpfile >> $logfile && rm $tmpfile
-  
+
   apt-get upgrade -y >> $tmpfile
 
   held_back=$(grep "kept back" $tmpfile | wc -l)

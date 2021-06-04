@@ -105,6 +105,9 @@ my @greetings = (
   "What's this? A new message",
 );
 
+my $icon    = '/home/andrew/.icons/Thunderbird.jpg';
+my $timeout = 5 * 1000;
+
 my %opts = (
   usage       => sub { pod2usage },
   help        => sub { pod2usage(-verbose => 2)},
@@ -116,12 +119,20 @@ my %opts = (
   imap        => $defaultIMAPServer,
 );
 
+sub notify($) {
+  my ($msg) = @_;
+
+  my $cmd = "notify-send -i $icon -t $timeout '$msg'";
+
+  Execute $cmd;
+} # notify
+
 sub interrupted {
   if (get_debug) {
-    $log->msg("Turning off debugging");
+    notify 'Turning off debugging';
     set_debug 0;
   } else {
-    $log->msg("Turning on debugging");
+    notify ('Turning on debugging');
     set_debug 1;
   } # if
 
@@ -131,7 +142,10 @@ sub interrupted {
 sub Connect2IMAP;
 
 sub restart {
-  $log->dbug("Re-establishing connection to $opts{imap} as $opts{username}");
+  my $msg = "Re-establishing connection to $opts{imap} as $opts{username}";
+
+  $log->dbug($msg);
+
   Connect2IMAP;
 
   goto MONITORMAIL;
