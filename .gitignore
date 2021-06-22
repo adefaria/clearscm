@@ -1,2 +1,7 @@
-.pydevproject
-/cadence/
+/.pydevproject
+/.gitignore
+/.project
+/.includepath
+docker
+web/Resumes/Andrew/.resume.hist
+web/Resumes/Andrew/.resumehits
