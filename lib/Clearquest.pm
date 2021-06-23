@@ -35,50 +35,50 @@ Provides access to Clearquest database in an object oriented manner.
 
  # Connect to database (using all the defaults in cq.conf)
  $cq->connect;
- 
+
  # Connect as non standard user;
- 
+
  $cq->connect (CQ_USERNAME => 'me', CQ_PASSWORD => 'mypassword');
 
  # Get record (Default: all fields)
  my %record = $cq->get ($recordName, $key);
- 
+
  # Get record with specific field list
  my %record =$cq->get ($recordName, $key, qw(field1 field2))
- 
+
  # Modify a record
  my %update = (
    Description => 'This is a new description',
-   Active      => 1, 
+   Active      => 1,
  );
  $cq->modify ($recordName, $key, 'Modify', \%update);
- 
+
  # Change state using modify with an alternate action. Note the use of @ordering
  my %fieldsToUpdate = (
    Project  => 'Carrier',
    Category => 'New Functionality',
    Groups   => [ 'Group1', 'Group2' ],
  );
- 
+
  my @ordering qw(Project Category);
- 
+
  $cq->modify ($recordName, $key, 'Open', \%fieldsToUpdate, @ordering);
 
  if ($cq->error) {
    error "Unable to update $key to Opened state\n"
        . $cq->errmsg;
  } # if
- 
+
 =head1 DESCRIPTION
 
-This module provides a simple interface to Clearquest in a Perl like fashion. 
-There are three modes of talking to Clearquest using this module - api, rest 
+This module provides a simple interface to Clearquest in a Perl like fashion.
+There are three modes of talking to Clearquest using this module - api, rest
 and client.
 
 With module = 'api' you must have Clearquest installed locally and you must use
-cqperl to execute your script. This mode of operation has the benefit of speed - 
-note that initial connection to the Clearquest database is not very speedy, but 
-all subsequent calls will operate at full speed. The 'api' module is free to 
+cqperl to execute your script. This mode of operation has the benefit of speed -
+note that initial connection to the Clearquest database is not very speedy, but
+all subsequent calls will operate at full speed. The 'api' module is free to
 use. For the other modules contact ClearSCM, Inc.
 
 With module = 'rest' you can access Clearquest by using a RESTFull interface.
@@ -87,10 +87,10 @@ see Clearquest::REST for a list of required CPAN modules). The REST interface is
 a slower than the native api and requires the setup of Clearquest Web (cqweb) on
 your network. To use the REST interface set CQ_MODULE to 'rest'.
 
-With module = 'client' you access Clearquest through the companion 
+With module = 'client' you access Clearquest through the companion
 Clearquest::Server module and the cqd.pl server script. The server process is
-started on a machine that has Clearquest installed locally. It uses the api 
-interface for speed and can operate in a multithreaded manner, spawning 
+started on a machine that has Clearquest installed locally. It uses the api
+interface for speed and can operate in a multithreaded manner, spawning
 processes which open and handle requests from Clearquest::Client requests. To
 use the Client interface set CQ_MODULE to 'client'.
 
@@ -102,7 +102,7 @@ of your script's usage of the Clearquest module should be exactly the same.
 This module uses GetConfig to read in a configuration file (../etc/cq.conf)
 which sets default values described below. Or you can export the option name to
 the env(1) to override the defaults in cq.conf. Finally you can programmatically
-set the options when you call new by passing in a %parms hash. To specify the 
+set the options when you call new by passing in a %parms hash. To specify the
 %parms hash key remove the CQ_ portion and lc the rest.
 
 =for html <blockquote>
@@ -171,7 +171,7 @@ my $DEFAULT_DBSET = $OPTS{CQ_DBSET};
 
 our $VERSION  = '$Revision: 2.23 $';
    ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
-   
+
 # Override options if in the environment
 $OPTS{CQ_DATABASE} = $ENV{CQ_DATABASE} if $ENV{CQ_DATABASE};
 $OPTS{CQ_DBSET}    = $ENV{CQ_DBSET}    if $ENV{CQ_DBSET};
@@ -202,8 +202,8 @@ my %FIELDS;
 my @objects;
 
 my $SECS_IN_MIN  = 60;
-my $SECS_IN_HOUR = $SECS_IN_MIN * 60; 
-my $SECS_IN_DAY  = $SECS_IN_HOUR * 24;  
+my $SECS_IN_HOUR = $SECS_IN_MIN * 60;
+my $SECS_IN_DAY  = $SECS_IN_HOUR * 24;
 
 my $operatorRE = qr/
   (\w+)              # field name
@@ -236,54 +236,54 @@ END {
 } # END
 
 # Internal methods
-sub _commitRecord ($) {
+sub _commitRecord($) {
   my ($self, $entity) = @_;
-  
+
   $self->{errmsg} = $entity->Validate;
-  
+
   if ($self->{errmsg} eq '') {
     $self->{errmsg} = $entity->Commit;
     $self->{error}  = $self->{errmsg} eq '' ? 0 : 1;
-    
+
     return $self->{errmsg};
   } else {
     $self->{error} = 1;
-    
+
     $entity->Revert;
-    
+
     return $self->{errmsg};
-  } # if  
+  } # if
 } # _commitRecord
 
-sub _is_leap_year ($) {
+sub _is_leap_year($) {
   my ($year) = @_;
-  
+
   return 0 if $year % 4;
   return 1 if $year % 100;
   return 0 if $year % 400;
-  
-  return 1; 
+
+  return 1;
 } # _is_leap_year
 
-sub _dateToEpoch ($) {
+sub _dateToEpoch($) {
   my ($date) = @_;
-  
+
   my $year    = substr $date,  0, 4;
   my $month   = substr $date,  5, 2;
   my $day     = substr $date,  8, 2;
   my $hour    = substr $date, 11, 2;
   my $minute  = substr $date, 14, 2;
   my $seconds = substr $date, 17, 2;
-  
+
   my $days;
 
   for (my $i = 1970; $i < $year; $i++) {
     $days += _is_leap_year ($i) ? 366 : 365;
   } # for
-  
+
   my @monthDays = (
     0,
-    31, 
+    31,
     59,
     90,
     120,
@@ -295,40 +295,40 @@ sub _dateToEpoch ($) {
     304,
     334,
   );
-  
+
   $days += $monthDays[$month - 1];
-  
+
   $days++
     if _is_leap_year ($year) and $month > 2;
-    
+
  $days += $day - 1;
-  
+
   return ($days   * $SECS_IN_DAY)
        + ($hour   * $SECS_IN_HOUR)
        + ($minute * $SECS_IN_MIN)
        + $seconds;
 } # _dateToEpoch
 
-sub _epochToDate ($) {
+sub _epochToDate($) {
   my ($epoch) = @_;
-  
+
   my $year = 1970;
   my ($month, $day, $hour, $minute, $seconds);
   my $leapYearSecs = 366 * $SECS_IN_DAY;
   my $yearSecs     = $leapYearSecs - $SECS_IN_DAY;
-  
+
   while () {
     my $amount = _is_leap_year ($year) ? $leapYearSecs : $yearSecs;
-    
+
     last
       if $amount > $epoch;
-      
+
     $epoch -= $amount;
     $year++;
   } # while
-  
+
   my $leapYearAdjustment = _is_leap_year ($year) ? 1 : 0;
-  
+
   if ($epoch >= (334 + $leapYearAdjustment) * $SECS_IN_DAY) {
     $month = '12';
     $epoch -= (334 + $leapYearAdjustment) * $SECS_IN_DAY;
@@ -372,18 +372,18 @@ sub _epochToDate ($) {
   $epoch   = $epoch % $SECS_IN_HOUR;
   $minute  = int ($epoch / $SECS_IN_MIN);
   $seconds = $epoch % $SECS_IN_MIN;
-  
+
   $day     = "0$day"     if $day     < 10;
   $hour    = "0$hour"    if $hour    < 10;
   $minute  = "0$minute"  if $minute  < 10;
   $seconds = "0$seconds" if $seconds < 10;
-  
-  return "$year-$month-$day $hour:$minute:$seconds";
-} # _pochToDate
 
-sub _parseCondition ($) {
+  return "$year-$month-$day $hour:$minute:$seconds";
+} # _epochToDate
+
+sub _parseCondition($) {
   my ($self, $condition) = @_;
-  
+
   # Parse simple conditions only
   my ($field, $operator, $value);
 
@@ -391,7 +391,7 @@ sub _parseCondition ($) {
     $field    = $1;
     $operator = $2;
     $value    = $3;
-    
+
     if ($operator eq '==' or $operator eq '=') {
       if ($value !~ /^null$/i) {
         $operator = $CQPerlExt::CQ_COMP_OP_EQ;
@@ -425,26 +425,26 @@ sub _parseCondition ($) {
     } elsif ($operator =~ /^is\s+not\s+null$/i) {
       $operator = $CQPerlExt::CQ_COMP_OP_IS_NOT_NULL;
     } elsif ($operator =~ /^in$/i) {
-      $operator = $CQPerlExt::CQ_COMP_OP_IN;  
+      $operator = $CQPerlExt::CQ_COMP_OP_IN;
     } elsif ($operator =~ /^not\s+in$/) {
-      $operator = $CQPerlExt::CQ_COMP_OP_NOT_IN;  
+      $operator = $CQPerlExt::CQ_COMP_OP_NOT_IN;
     } else {
       $self->_setError ("I can't understand the operator $operator");
-      
+
       $operator = undef;
-      
+
       return 1;
     } # if
   } else {
     # TODO: How to handle more complicated $condition....
     $self->_setError ("I can't understand the conditional expression "
                     . $condition);
-    
+
     $operator = undef;
-    
+
     return 1;
   } # if
-  
+
   # Trim quotes if any:
   if ($value =~ /^\s*\'/) {
     $value =~ s/^\s*\'//;
@@ -453,27 +453,27 @@ sub _parseCondition ($) {
     $value =~ s/^\s*\"//;
     $value =~ s/\"\s*$//;
   } # if
-  
+
   # Trim leading and trailing whitespace
   $value =~ s/^\s+//;
   $value =~ s/\s+$//;
-  
-  return ($field, $operator, $value); 
+
+  return ($field, $operator, $value);
 } # _parseCondition
 
-sub _parseConditional ($$;$);
-sub _parseConditional ($$;$) {
+sub _parseConditional($$;$);
+sub _parseConditional($$;$) {
   my ($self, $query, $condition, $filterOperator) = @_;
 
   return if $condition eq '';
-  
+
   my ($field, $operator, $value);
-  
+
   if ($condition =~ /(.+?)\s+(and|or)\s+(.+)/i) {
     my $leftSide    = $1;
     my $conjunction = lc $2;
     my $rightSide   = $3;
-    
+
     if ($conjunction eq 'and') {
       unless ($filterOperator) {
         $filterOperator = $query->BuildFilterOperator ($CQPerlExt::CQ_BOOL_OP_AND);
@@ -489,39 +489,39 @@ sub _parseConditional ($$;$) {
     } # if 
 
     $self->_setCondition ($self->_parseCondition ($leftSide), $filterOperator);
-      
+
     $self->_parseConditional ($query, $rightSide, $filterOperator);
   } else {
     unless ($condition =~ $operatorRE) {
       $self->_setError ("Unable to parse condition \"$condition\"");
-      
+
       return;
     } # unless
-    
+
     $filterOperator = $query->BuildFilterOperator ($CQPerlExt::CQ_BOOL_OP_AND)
       unless $filterOperator;
-    
+
     $self->_setCondition ($self->_parseCondition ($condition), $filterOperator);
   } # if
-  
+
   # Actually clear error...
   $self->_setError;
-  
+
   return;
 } # _parseConditional
 
-sub _setCondition ($$$) {
+sub _setCondition($$$) {
   my ($self, $field, $operator, $value, $filterOperator) = @_;
-  
+
   return unless $operator;
-  
+
   if ($operator == $CQPerlExt::CQ_COMP_OP_IS_NULL or
       $operator == $CQPerlExt::CQ_COMP_OP_IS_NOT_NULL) {
     eval {$filterOperator->BuildFilter ($field, $operator, [()])};
-      
+
     if ($@) {
       $self->_setError ($@);
-        
+
       carp $@;
     } # if
   } else {
@@ -532,38 +532,38 @@ sub _setCondition ($$$) {
         $operator == $CQPerlExt::CQ_COMP_OP_IN          or
         $operator == $CQPerlExt::CQ_COMP_OP_NOT_IN) {
       my @values = split /,\s*/, $value;
-       
+
       eval {$filterOperator->BuildFilter ($field, $operator, \@values)};
-      
+
       if ($@) {
         $self->_setError ($@);
-        
+
         carp $@;
       } # if
     } else {
       eval {$filterOperator->BuildFilter ($field, $operator, [$value])};
-      
+
       if ($@) {
         $self->_setError ($@);
-        
+
         carp $@;
       } # if
     } # if
   } # if
-  
+
   return;
 } # _setCondition
 
-sub _setFields ($@) {
+sub _setFields($@) {
   my ($self, $table, @fields) = @_;
 
   my $entityDef;
-  
+
   eval {$entityDef = $self->{session}->GetEntityDef ($table)};
-  
+
   if ($@) {
     $self->_setError ($@, -1);
-    
+
     return;
   } # if
 
@@ -572,85 +572,65 @@ sub _setFields ($@) {
       unless ($self->{returnSystemFields}) {
         next if $entityDef->IsSystemOwnedFieldDefName ($_);
       } # unless
-             
+
       push @fields, $_;
     } # for
   } # unless 
 
-  # Always return dbid 
+  # Always return dbid
   push @fields, 'dbid' unless grep {$_ eq 'dbid'} @fields;
 
-  return @fields;  
+  return @fields;
 } # _setFields
 
-sub _setError (;$$) {
+sub _setError(;$$) {
   my ($self, $errmsg, $error) = @_;
-  
+
   $error ||= 0;
-  
+
   if ($errmsg and $errmsg ne '') {
     $error = 1;
-    
+
     $self->{errmsg} = $errmsg;
   } else {
     $self->{errmsg} = '';
   } # if
-  
+
   $self->error ($error);
 
   return;
 } # _setError
 
-sub _setFieldValue ($$$$) {
+sub _setFieldValue($$$$) {
   my ($self, $entity, $table, $fieldName, $fieldValue) = @_;
-  
+
   my $errmsg = '';
 
   my $entityDef = $self->{session}->GetEntityDef ($table);
-  
+
   return $errmsg if $entityDef->IsSystemOwnedFieldDefName ($fieldName);
-    
+
   unless (ref $fieldValue eq 'ARRAY') {
     # This is one of those rare instances where it is important to surround a
-    # bare variable with double quotes otherwise the CQ API will wrongly 
+    # bare variable with double quotes otherwise the CQ API will wrongly
     # evaluate $fieldValue if $fieldValue is a simple number (e.g. 0, 1, etc.)
     $errmsg = $entity->SetFieldValue ($fieldName, "$fieldValue") if $fieldValue;
   } else {
     for (@$fieldValue) {
       $errmsg = $entity->AddFieldValue ($fieldName, $_);
-    
+
       return $errmsg unless $errmsg eq '';
     } # for
   } # unless
-  
+
   return $errmsg;
 } # _setFieldValues
 
-sub _UTCTime ($) {
-  my ($datetime) = @_;
-  
-  my @localtime = localtime;
-  my ($sec, $min, $hour, $mday, $mon, $year) = gmtime (
-    _dateToEpoch ($datetime) - (timegm (@localtime) - timelocal (@localtime))
-  );
-      
-  $year += 1900;
-  $mon++;
-
-  $sec  = '0' . $sec  if $sec  < 10;  
-  $min  = '0' . $min  if $min  < 10;  
-  $hour = '0' . $hour if $hour < 10;  
-  $mon  = '0' . $mon  if $mon  < 10;
-  $mday = '0' . $mday if $mday < 10;
-      
-  return "$year-$mon-${mday}T$hour:$min:${sec}Z";  
-} # _UTCTime
-
-sub _UTC2Localtime ($) {
+sub _UTC2Localtime($) {
   my ($utcdatetime) = @_;
 
   return unless $utcdatetime;
-    
+
   # If the field does not look like a UTC time then just return it.
   return $utcdatetime unless $utcdatetime =~ /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/;
 
@@ -664,7 +644,7 @@ sub _UTC2Localtime ($) {
   );
 } # _UTC2Localtime
 
-sub add ($$;@) {
+sub add($$;@) {
   my ($self, $table, $values, @ordering) = @_;
 
 =pod
@@ -691,10 +671,10 @@ Hash reference of name/value pairs for the insertion
 
 Array containing field names that need to be processed in order. Not all fields
 mentioned in the $values hash need be mentioned here. If you have fields that
-must be set in a particular order you can mention them here. So, if you're 
-adding the Defect record, but you need Project set before Platform,  you need 
+must be set in a particular order you can mention them here. So, if you're
+adding the Defect record, but you need Project set before Platform,  you need
 only pass in an @ordering of qw(Project Platform). They will be done first, then
-all of the rest of the fields in the $values hash. If you have no ordering 
+all of the rest of the fields in the $values hash. If you have no ordering
 dependencies then you can simply omit @ordering.
 
 Note that the best way to determine if you have an ordering dependency try using
@@ -727,21 +707,21 @@ The DBID of the newly added record or undef if error.
 
   unless ($self->connected) {
     $self->_setError ('You must connect to Clearquest before you can call add');
-    
+
     return;
   } # unless
 
   my %values = %$values;
   my $entity;
-  
+
   eval {$entity = $self->{session}->BuildEntity ($table)};
-   
+
   if ($@) {
     $self->_setError ("Unable to create new $table record:\n$@");
-    
+
     return;
   } # if
-  
+
   # First process all fields in @ordering, if specified
   for (@ordering) {
     if ($values{$_}) {
@@ -749,36 +729,36 @@ The DBID of the newly added record or undef if error.
     } else {
       $self->_setError ("$_ from the ordering array is not present in the value hash", -1);
     } # if
-    
+
     last unless $self->{errmsg} eq '';
   } # for
-  
+
   return unless $self->{errmsg} eq '';
-  
+
   # Now process the rest of the values
   for my $fieldName (keys %values) {
     next if grep {$fieldName eq $_} @ordering;
 
     $self->{errmsg} = $self->_setFieldValue ($entity, $table, $fieldName, $values{$fieldName});
-    
+
     last unless $self->{errmsg} eq '';
   } # for
 
   $self->_setError ($self->{errmsg});
-  
+
   return unless $self->{errmsg} eq '';
 
   $self->{errmsg} = $self->_commitRecord ($entity);
   $self->{error}  = $self->{errmsg} eq '' ? 0 : 1;
-  
+
   my $dbid = $entity->GetFieldValue ('dbid')->GetValue;
-   
+
   return $dbid;
 } # add
 
-sub connect (;$$$$) {
+sub connect(;$$$$) {
   my ($self, $username, $password, $database, $dbset) = @_;
-  
+
 =pod
 
 =head2 connect (;$$$$)
@@ -825,10 +805,10 @@ Returns:
 
 =for html </blockquote>
 
-=cut  
-  
+=cut
+
   return unless $self->{module} eq 'api';
-  
+
   eval {require CQPerlExt};
 
   croak "Unable to use Rational's CQPerlExt library - "
@@ -838,34 +818,34 @@ Returns:
   $self->{password} = $password if $password;
   $self->{database} = $database if $database;
   $self->{dbset}    = $dbset    if $dbset;
-  
+
   $self->{session} = CQSession::Build ();
-  
+
   $self->{loggedin} = 0;
-  
+
   eval {
     $self->{session}->UserLogon ($self->{username},
                                  $self->{password},
                                  $self->{database},
                                  $self->{dbset});
   };
-  
+
   if ($@) {
     chomp ($@);
-    
+
     $self->_setError ($@, 1);
   } else {
     $self->{loggedin} = 1;
-    
+
     $self->_setError ($_, 0);
-  } # if                               
-  
+  } # if
+
   return $self->{loggedin};
 } # connect
 
-sub connected () {
+sub connected() {
   my ($self) = @_;
-  
+
 =pod
 
 =head2 connected ()
@@ -897,11 +877,11 @@ Returns:
 =for html </blockquote>
 
 =cut
-  
-  return $self->{loggedin};  
+
+  return $self->{loggedin};
 } # connected
 
-sub connection ($) {
+sub connection($) {
   my ($self, $fullyQualify) = @_;
 
 =pod
@@ -932,8 +912,8 @@ Returns:
 
 =item $connectionStr
 
-A string describing the current connection. Generally 
-<username>@<database>[/<dbset>]. Note that <dbset> is only displayed if it is 
+A string describing the current connection. Generally
+<username>@<database>[/<dbset>]. Note that <dbset> is only displayed if it is
 not the default DBSet as defined in cq.conf.
 
 =back
@@ -951,19 +931,19 @@ not the default DBSet as defined in cq.conf.
   } else {
     $connectionStr .= '/' . $self->dbset () unless $self->dbset eq $DEFAULT_DBSET;
   } # if
-  
+
   return $connectionStr; 
 } # connection
 
-sub checkErr (;$$$) {
+sub checkErr(;$$$) {
   my ($self, $msg, $die, $log) = @_;
-  
+
 =pod
 
 =head2 checkErr (;$$)
 
 Checks for error in the last Clearquest method call and prints error to STDERR.
-Optionally prints a user message if $msg is specified. Dies if $die is true 
+Optionally prints a user message if $msg is specified. Dies if $die is true
 
 Parameters:
 
@@ -1000,7 +980,7 @@ Returns 0 for no error, non-zero if error.
 =cut
 
   $die ||= 0;
-  
+
   if ($self->{error}) {
     if ($msg) {
       $msg .= "\n" . $self->errmsg . "\n";
@@ -1013,19 +993,19 @@ Returns 0 for no error, non-zero if error.
       croak $msg;
     } else {
       if ($log) {
-      	$log->err($msg);
+        $log->err($msg);
       } else {
         print STDERR "$msg\n";
       } # if
-      
+
       return $self->{error};
     } # if
   } # if
-  
+
   return 0;
 } # checkErr
 
-sub database () {
+sub database() {
   my ($self) = @_;
 
 =pod
@@ -1063,7 +1043,7 @@ Returns:
   return $self->{database};
 } # database
 
-sub dbset () {
+sub dbset() {
   my ($self) = @_;
 
 =pod
@@ -1096,12 +1076,12 @@ Returns:
 
 =for html </blockquote>
 
-=cut  
+=cut
 
   return $self->{dbset};
 } # dbset
 
-sub dbsets () {
+sub dbsets() {
   my ($self) = @_;
 
 =pod
@@ -1140,14 +1120,14 @@ An array of dbsets
 
   unless ($self->connected) {
     $self->_setError ('You must connect to Clearquest before you can call DBSets', '-1');
-    
+
     return;
   } # unless
 
   return @{$self->{session}->GetInstalledDbSets};
 } # dbsets
 
-sub delete ($;$) {
+sub delete($;$) {
   my ($self, $table, $key) = @_;
 
 =pod
@@ -1188,38 +1168,38 @@ Error message or blank if no error
 
 =for html </blockquote>
 
-=cut  
+=cut
 
   my $entity;
-  
+
   eval {$entity = $self->{session}->GetEntity ($table, $key)};
-  
+
   if ($@) {
     $self->_setError ($@, 1);
-    
+
     return $@;
   } # if
-  
+
   eval {$self->{session}->DeleteEntity ($entity, 'Delete')};
-  
+
   if ($@) {
     $self->_setError ($@, 1);
-    
+
     return $@;
   } # if
 
   return  '';
 } # delete
 
-sub DESTROY () {
+sub DESTROY() {
   my ($self) = @_;
-  
+
   CQSession::Unbuild ($self->{session}) if $self->{session};
 
   return;
 } # DESTROY
 
-sub disconnect () {
+sub disconnect() {
   my ($self) = @_;
 
 =pod
@@ -1255,15 +1235,15 @@ Returns:
 =cut
 
   CQSession::Unbuild ($self->{session});
-    
+
   undef $self->{session};
-  
+
   $self->{loggedin} = 0;
-  
+
   return;
 } # disconnect
 
-sub errmsg (;$) {
+sub errmsg(;$) {
   my ($self, $errmsg) = @_;
 
 =pod
@@ -1301,13 +1281,13 @@ Last $errmsg
 =cut
 
   $self->{errmsg} = $errmsg if $errmsg;
-  
+
   return $self->{errmsg};
 } # errmsg
 
-sub error (;$) {
+sub error(;$) {
   my ($self, $error) = @_;
-  
+
 =pod
 
 =head2 error ($error)
@@ -1343,7 +1323,7 @@ Last error
 =for html </blockquote>
 
 =cut
-  
+
   # Watch here as $error can very well be 0 which "if $error" would evaluate
   # to false leaving $self->{error} undefined
   $self->{error} = $error if defined $error;
@@ -1351,9 +1331,9 @@ Last error
   return $self->{error};
 } # error
 
-sub fieldType ($$) {
+sub fieldType($$) {
   my ($self, $table, $fieldName) = @_;
-  
+
 =pod
 
 =head2 fieldType ($table, $fieldname)
@@ -1393,7 +1373,7 @@ Fieldtype enum
 =for html </blockquote>
 
 =cut
-  
+
   return $UNKNOWN unless $self->{loggedin};
 
   # If we've already computed the fieldTypes for the fields in this table then
@@ -1407,20 +1387,20 @@ Fieldtype enum
     } # if
   } # if
 
-  my $entityDef = $self->{session}->GetEntityDef ($table); 
+  my $entityDef = $self->{session}->GetEntityDef ($table);
 
   for (@{$entityDef->GetFieldDefNames}) {
     $FIELDS{$table}{$_} = $entityDef->GetFieldDefType ($_);
-  } # for 
+  } # for
 
   if (defined $FIELDS{$table}{$fieldName}) {
     return $FIELDS{$table}{$fieldName}
   } else {
     return $UNKNOWN
-  } # if  
+  } # if
 } # fieldType
 
-sub fieldTypeName ($$) {
+sub fieldTypeName($$) {
   my ($self, $table, $fieldName) = @_;
 
 =pod
@@ -1462,14 +1442,14 @@ Fieldtype name
 =for html </blockquote>
 
 =cut
-  
+
   my $fieldType = $self->fieldType ($table, $fieldName);
-  
+
   return $UNKNOWN unless $fieldType;
-  
+
   if ($fieldType == $STRING) {
     return "STRING";
-  } elsif ($fieldType == $MULTILINE_STRING) { 
+  } elsif ($fieldType == $MULTILINE_STRING) {
     return "MULTILINE_STRING";
   } elsif ($fieldType == $INT) {
     return "INT";
@@ -1494,13 +1474,13 @@ Fieldtype name
   } elsif ($fieldType == $RECORD_TYPE) {
     return "RECORD_TYPE";
   } elsif ($fieldType == $UNKNOWN) {
-    return "UNKNOWN";   
+    return "UNKNOWN";
   } # if
 } # fieldTypeName
 
-sub find ($;$@) {
+sub find($;$@) {
   my ($self, $table, $condition, @fields) = @_;
-  
+
 =pod
 
 =head2 find ($;$@)
@@ -1521,14 +1501,14 @@ Name of the table to search
 
 =item $condition
 
-Condition to use. If you want all records then pass in undef. Only simple 
-conditions are supported. You can specify compound conditions (e.g. field1 == 
-'foo' and field1 == 'bar' or field2 is not null). No parenthesizing is 
+Condition to use. If you want all records then pass in undef. Only simple
+conditions are supported. You can specify compound conditions (e.g. field1 ==
+'foo' and field1 == 'bar' or field2 is not null). No parenthesizing is
 supported (yet).
 
 The following conditionals are supported
 
-=over 
+=over
 
 =item Equal (==|=)
 
@@ -1556,13 +1536,13 @@ Note that "is not null" is currently not working in the REST module (it works
 in the api and thus also in the client/server model). This because the
 OLSC spec V1.0 does not support it.
 
-As for "Like"", you'll need to specify "<fieldname> like '%var%'" for the 
+As for "Like"", you'll need to specify "<fieldname> like '%var%'" for the
 condition.
 
 "In" is only available in the REST interface as that's what OLSC supports. It's
 syntax would be "<fieldname> In 'value1', 'value2', 'value3'..."
 
-Also conditions can be combined with (and|or) so in the api you could do "in" 
+Also conditions can be combined with (and|or) so in the api you could do "in"
 as "<fieldname> = 'value1 or <fieldname> = 'value2" or <fieldname> = 'value3'".
 
 Complicated expressions with parenthesis like "(Project = 'Athena' or Project =
@@ -1597,32 +1577,32 @@ is also returned.
 
   unless ($self->connected) {
     $self->_setError ('You must connect to Clearquest before you can call find', '-1');
-    
+
     return;
   } # unless
-  
+
   my $entityDef;
-  
+
   eval {$entityDef = $self->{session}->GetEntityDef ($table)};
-  
+
   if ($@) {
     $self->_setError ($@, -1);
-    
+
     return ($@, -1);
   } # if
-  
+
   @fields = $self->_setFields ($table, @fields);
-  
+
   return unless @fields;
-    
+
   my $query = $self->{session}->BuildQuery ($table);
-  
+
   for (@fields) {
     eval {$query->BuildField ($_)};
-    
+
     if ($@) {
       $self->_setError ($@);
-      
+
       carp $@;
     } # if
   } # for
@@ -1630,16 +1610,16 @@ is also returned.
   $self->_parseConditional ($query, $condition);
 
   return if $self->error;
-  
+
   my $result  = $self->{session}->BuildResultSet ($query);
   my $nbrRecs = $result->ExecuteAndCountRecords;
-  
+
   $self->_setError;
-  
+
   my %resultSet = (
     result => $result
   );
-  
+
   if (wantarray) {
     return (\%resultSet, $nbrRecs);
   } else {
@@ -1647,16 +1627,16 @@ is also returned.
   } # if
 } # find
 
-sub findIDs ($) {
+sub findIDs($) {
   my ($str) = @_;
-  
+
 =pod
 
 =head2 findIDs ($)
 
 Given a $str or a reference to an array of strings, this function returns a list
 of Clearquest IDs found in the $str. If called in a scalar context this function
-returns a comma separated string of IDs found. Note that duplicate IDs are 
+returns a comma separated string of IDs found. Note that duplicate IDs are
 eliminated. Also, the lists of IDs may refer to different Clearquest databases.
 
 Parameters:
@@ -1690,13 +1670,13 @@ Either an array of CQ IDs or a comma separated list of CQ IDs.
 =cut
 
   $str = join ' ', @$str if ref $str eq 'ARRAY';
-    
+
   my @IDs = $str =~ /([A-Za-z]\w{1,4}\d{8})/gs;
 
   my %IDs;
-    
+
   map { $IDs{$_} = 1; } @IDs;
-    
+
   if (wantarray) {
     return keys %IDs;
   } else {
@@ -1704,7 +1684,7 @@ Either an array of CQ IDs or a comma separated list of CQ IDs.
   } # if
 } # findIDs
 
-sub get ($$;@) {
+sub get($$;@) {
   my ($self, $table, $id, @fields) = @_;
 
 =pod
@@ -1749,24 +1729,24 @@ Hash of name/value pairs for all the fields in $table
 
   unless ($self->connected) {
     $self->_setError ('You must connect to Clearquest before you can call get', '-1');
-    
+
     return;
   } # unless
 
   @fields = $self->_setFields ($table, @fields);
-  
+
   return unless @fields;
-  
+
   my $entity;
-  
+
   eval {$entity = $self->{session}->GetEntity ($table, $id)};
 
   if ($@) {
     $self->_setError ($@);
-    
+
     return;
-  } # if 
-  
+  } # if
+
   my %record;
 
   for (@fields) {
@@ -1777,7 +1757,7 @@ Hash of name/value pairs for all the fields in $table
     } else {
       $record{$_}   = $entity->GetFieldValue ($_)->GetValue;
       $record{$_} ||= '' if $self->{emptyStringForUndef};
-      
+
       # Fix any UTC dates
       if ($fieldType == $CQPerlExt::CQ_DATE_TIME) {
         $record{$_} = _UTC2Localtime ($record{$_});
@@ -1786,18 +1766,18 @@ Hash of name/value pairs for all the fields in $table
   } # for
 
   $self->_setError;
-  
+
   return %record;
 } # get
 
-sub getDBID ($$;@) {
+sub getDBID($$;@) {
   my ($self, $table, $dbid, @fields) = @_;
 
 =pod
 
 =head2 getDBID ($$;@)
 
-Return a record that you have the dbid 
+Return a record that you have the dbid
 
 Parameters:
 
@@ -1818,7 +1798,7 @@ The $dbid to use to retrieve the record
 Array of field names to retrieve (Default: All fields)
 
 Note: Avoid getting all fields for large records. It will be slow and bloat your
-script's memory usage. 
+script's memory usage.
 
 =back
 
@@ -1842,22 +1822,22 @@ Hash of name/value pairs for all the fields in $table
 
   unless ($self->connected) {
     $self->_setError ('You must connect to Clearquest before you can call getDBID', '-1');
-    
+
     return;
   } # unless
-  
+
   @fields = $self->_setFields ($table, @fields);
 
   my $entity;
-  
+
   eval {$entity = $self->{session}->GetEntityByDbId ($table, $dbid)};
 
   if ($@) {
     $self->_setError ($@);
-    
+
     return;
-  } # if 
-  
+  } # if
+
   my %record;
 
   for (@fields) {
@@ -1877,11 +1857,11 @@ Hash of name/value pairs for all the fields in $table
   } # for
 
   $self->_setError;
-  
+
   return %record;
 } # getDBID
 
-sub getDynamicList ($) {
+sub getDynamicList($) {
   my ($self, $list) = @_;
 
 =pod
@@ -1921,13 +1901,13 @@ An array of entries from the dynamic list
 =cut
 
   return () unless $self->connected;
-  
+
   return @{$self->{session}->GetListMembers ($list)};
 } # getDynamicList
 
-sub getNext ($) {
+sub getNext($) {
   my ($self, $result) = @_;
-  
+
 =pod
 
 =head2 getNext ($)
@@ -1966,7 +1946,7 @@ Hash of name/value pairs for the @fields specified to find.
 
   unless ($self->connected) {
     $self->_setError ('You must connect to Clearquest before you can call getNext', '-1');
-    
+
     return;
   } # unless
 
@@ -1999,12 +1979,12 @@ while () {
     # If lastDBID != thisDBID then set lastDBID to thisDBID so we can process
     # this group
     $result->{lastDBID} = $result->{thisDBID};
-    
+
     delete $result->{lastRecord};
   } # unless
-    
+
   my $nbrColumns = $result->{result}->GetNumberOfColumns;
-  
+
   my $column = 1;
 
   # Format %record  
@@ -2015,14 +1995,14 @@ while () {
     # Fix any UTC dates - _UTC2Localtime will only modify data if the data 
     # matches a UTC datetime.
     $value = _UTC2Localtime ($value) if $value;
-    
+
     $value ||= '' if $self->{emptyStringForUndef};
 
     $record{$name} = $value;
   } # while
 
   %{$result->{lastRecord}} = %record unless $result->{lastRecord};
-  
+
   # Store this record's DBID
   $result->{thisDBID} = $record{dbid};
 
@@ -2033,7 +2013,7 @@ while () {
       for my $field (keys %record) {
         # If the field is blank then skip it
         next if $record{$field} eq '';
-        
+
         # Here we check the field in %lastRecord to see if it was a reference
         # list with more than one entry.
         if (ref \$result->{lastRecord}{$field} eq 'ARRAY') {
@@ -2047,7 +2027,7 @@ while () {
           # If the field is the same value then no change, no array. We do next
           # to start processing the next field
           next if $result->{lastRecord}{$field} eq $record{$field};
-          
+
           # Changed $lastRecord{$_} to a reference to an ARRAY
           $result->{lastRecord}{$field} = [$result->{lastRecord}{$field}, $record{$field}];
         } else {
@@ -2056,32 +2036,32 @@ while () {
             unless grep {/^$record{$field}$/} @{$result->{lastRecord}{$field}};
         } # if
       } # for
-    
+
       # Transfer %lastRecord -> %record
       %record = %{$result->{lastRecord}};      
     } else {
       %record = %{$result->{lastRecord}};
-      
+
       last;
     } # if
   } # if
-  
+
   # The $lastDBID is now $thisDBID
   $result->{lastDBID} = $result->{thisDBID};
-  
+
   # Update %lastRecord
   %{$result->{lastRecord}} = %record;
 } # while
-  
+
   $self->_setError;
-  
+
   # Never return dbid...
   delete $record{dbid};
 
   return %record;
 } # getNext
 
-sub id2db ($) {
+sub id2db($) {
   my ($ID) = @_;
 
 =pod
@@ -2127,9 +2107,9 @@ Returns the name of the database the ID is part of or undef if not found.
   } # if
 } # id2db
 
-sub key ($$) {
+sub key($$) {
   my ($self, $table, $dbid) = @_;
-  
+
 =pod
 
 =head2 key ($$)
@@ -2170,18 +2150,18 @@ Returns:
 
   unless ($self->connected) {
     $self->_setError ('You must connect to Clearquest before you can call key', '-1');
-    
+
     return;
   } # unless
 
   my $entity;
-  
+
   eval {$entity = $self->{session}->GetEntityByDbId ($table, $dbid)};
-  
+
   return $entity->GetDisplayName;
 } # key
 
-sub modify ($$$$;@) {
+sub modify($$$$;@) {
   my ($self, $table, $key, $action, $values, @ordering) = @_;
 
 =pod
@@ -2216,10 +2196,10 @@ Hash reference containing name/value that have the new values for the fields
 
 Array containing field names that need to be processed in order. Not all fields
 mentioned in the $values hash need be mentioned here. If you have fields that
-must be set in a particular order you can mention them here. So, if you're 
-modifying the Defect record, but you need Project set before Platform,  you need 
+must be set in a particular order you can mention them here. So, if you're
+modifying the Defect record, but you need Project set before Platform,  you need
 only pass in an @ordering of qw(Project Platform). They will be done first, then
-all of the rest of the fields in the $values hash. If you have no ordering 
+all of the rest of the fields in the $values hash. If you have no ordering
 dependencies then you can simply omit @ordering.
 
 Note that the best way to determine if you have an ordering dependency try using
@@ -2250,18 +2230,18 @@ The $errmsg, if any, when performing the update (empty string for success)
 
   unless ($self->connected) {
     $self->_setError ('You must connect to Clearquest before you can call modify', '-1');
-    
+
     return $self->{errmsg};
   } # unless
 
   my %record = $self->get ($table, $key, qw(dbid));
-  
+
   return $self->modifyDBID ($table, $record{dbid}, $action, $values, @ordering);
 } # modify
 
-sub modifyDBID ($$$$;@) {
+sub modifyDBID($$$$;@) {
   my ($self, $table, $dbid, $action, $values, @ordering) = @_;
-  
+
 =pod
 
 =head2 modifyDBID ($$$%)
@@ -2310,30 +2290,31 @@ The $errmsg, if any, when performing the update (empty string for success)
 =for html </blockquote>
 
 =cut
+
   $action ||= 'Modify';
-  
+
   my %values = ();
 
   %values = %$values if $values;
-  
+
   my $entity;
 
   eval {$entity = $self->{session}->GetEntityByDbId ($table, $dbid)};
 
   if ($@) {
     $self->_setError ($@);
-    
+
     return;
   } # if 
-  
+
   eval {$entity->EditEntity ($action)};
-  
+
   if ($@) {
     $self->_setError ($@);
-    
+
     return $@;
   } # if
-     
+
   # First process all fields in @ordering, if specified
   for (@ordering) {
     if ($values{$_}) {
@@ -2341,32 +2322,32 @@ The $errmsg, if any, when performing the update (empty string for success)
     } else {
       $self->_setError ("$_ from the ordering array is not present in the value hash", -1);
     } # if
-    
+
     last unless $self->{errmsg} eq '';
   } # for
-  
+
   return $self->{errmsg} unless $self->{errmsg} eq '';
-  
+
   # Now process the rest of the values
   for my $fieldName (keys %values) {
     next if grep {$fieldName eq $_} @ordering;
 
     $self->{errmsg} = $self->_setFieldValue ($entity, $table, $fieldName, $values{$fieldName});
-    
+
     last unless $self->{errmsg} eq '';
   } # for
 
   $self->_setError ($self->{errmsg});
-  
+
   return $self->{errmsg} unless $self->{errmsg} eq '';
 
   $self->{errmsg} = $self->_commitRecord ($entity);
   $self->{error}  = $self->{errmsg} eq '' ? 0 : 1;
-    
+
   return $self->{errmsg};  
 } # modifyDBID
 
-sub module () {
+sub module() {
   my ($self) = @_;
 
 =pod
@@ -2399,12 +2380,12 @@ Returns:
 
 =for html </blockquote>
 
-=cut  
+=cut
 
   return $self->{module};
 } # module
 
-sub new (;%) {
+sub new(;%) {
   my ($class, %parms) = @_;
 
 =pod
@@ -2444,7 +2425,7 @@ Database set to connect to
 =item CQ_MODULE
 
 One of 'rest', 'api' or 'client' (Default: From cq.conf). This determines which
-backend module will be used. 
+backend module will be used.
 
 =back
 
@@ -2468,7 +2449,7 @@ Returns:
   $parms{CQ_USERNAME} ||= $OPTS{CQ_USERNAME};
   $parms{CQ_PASSWORD} ||= $OPTS{CQ_PASSWORD};
   $parms{CQ_DBSET}    ||= $OPTS{CQ_DBSET};
-  
+
   my $self = bless {
     server              => $parms{CQ_SERVER},
     port                => $parms{CQ_PORT},
@@ -2481,40 +2462,40 @@ Returns:
   }, $class;
 
   my $module = delete $parms{CQ_MODULE};
-  
+
   $module ||= $OPTS{CQ_MODULE};
-  
+
   $module = lc $module;
-  
+
   if ($module eq 'rest') {
     require Clearquest::REST;
-  
+
     $self->{webhost} = $parms{CQ_WEBHOST} || $OPTS{CQ_WEBHOST};
-    
+
     $self = Clearquest::REST->new ($self);
   } elsif ($module eq 'client') {
     require Clearquest::Client;
-  
+
     $self->{server} = $parms{CQ_SERVER} || $OPTS{CQ_SERVER};
     $self->{port}   = $parms{CQ_PORT}   || $OPTS{CQ_PORT};
-    
+
     $self = Clearquest::Client->new ($self);
   } elsif ($module ne 'api') {
     croak "Unknown interface requested - $module";
   } # if
-  
+
   $self->{module} = $module;
-  
+
   # Save reference to instaniated instance of this object to insure that global
   # variables are properly disposed of
   push @objects, $self;
-  
+
   return $self;
 } # new
 
-sub server () {
+sub server() {
   my ($self) = @_;
-  
+
 =pod
 
 =head2 server
@@ -2548,12 +2529,12 @@ server name that we are talking to.
 
 =for html </blockquote>
 
-=cut  
-  
+=cut
+
   return $self->{server};
 } # server
 
-sub setOpts (%) {
+sub setOpts(%) {
   my ($self, %opts) = @_;
 
 =pod
@@ -2576,14 +2557,14 @@ Options to set. The only options currently supported are emptyStringForUndef
 and returnSystemFields. If set emptyStringForUndef will return empty strings for
 empty fields instead of undef. Default: Empty fields are represented with undef.
 
-System-owned fields are used internally by IBM Rational ClearQuest to maintain 
-information about the database. You should never modify system fields directly 
+System-owned fields are used internally by IBM Rational ClearQuest to maintain
+information about the database. You should never modify system fields directly
 as it could corrupt the database. If returnSystemFields is set then system
 fields will be returned. Default: System fields will not be returned unless
-explicitly stated in the @fields parameter. This means that if you do not 
+explicitly stated in the @fields parameter. This means that if you do not
 specify any fields in @fields, all fields will be returned except system fields,
 unless you set returnSystemFields via this method or you explicitly mention the
-system field in your @fields parameter. 
+system field in your @fields parameter.
 
 =for html </blockquote>
 
@@ -2599,15 +2580,17 @@ Returns:
 
 =for html </blockquote>
 
-=cut  
+=cut
 
   $self->{emptyStringForUndef} = $opts{emptyStringForUndef}
     if $opts{emptyStringForUndef};
   $self->{returnSystemFields}  = $opts{returnSystemFields}
     if $opts{returnSystemFields};
+
+  return
 } # setOpts
 
-sub getOpt ($) {
+sub getOpt($) {
   my ($self, $option) = @_;
 
 =pod
@@ -2626,7 +2609,7 @@ Parameters:
 
 =back
 
-Option to retrieve. If non-existant then undef is returned. 
+Option to retrieve. If non-existant then undef is returned.
 
 =for html </blockquote>
 
@@ -2642,10 +2625,10 @@ Returns:
 
 =for html </blockquote>
 
-=cut  
+=cut
 
   my @validOpts = qw (emptyStringForUndef returnSystemFields);
-  
+
   if (grep {$option eq $_} @validOpts) {
     return $self->{$option};
   } else {
@@ -2653,7 +2636,7 @@ Returns:
   } # if
 } # getOpt
 
-sub username () {
+sub username() {
   my ($self) = @_;
 
 =pod
@@ -2686,14 +2669,14 @@ Returns:
 
 =for html </blockquote>
 
-=cut  
+=cut
 
   return $self->{username};
 } # username
 
-sub webhost () {
+sub webhost() {
   my ($self) = @_;
-  
+
   return $self->{webhost};
 } # webhost
 
