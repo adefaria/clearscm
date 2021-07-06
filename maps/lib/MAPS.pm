@@ -1937,10 +1937,10 @@ sub Whitelist ($$;$$) {
   # Now call MAPSDeliver
   my $status = system "$FindBin::Bin/MAPSDeliver $userid /tmp/MAPSMessage.$$";
 
-  unlink "/tmp/MAPSMessage.$$";
-
   if ($status == 0) {
     Logmsg("whitelist", $sender, "Delivered message");
+  
+    unlink "/tmp/MAPSMessage.$$";
   } else { 
     Error("Unable to deliver message - is MAPSDeliver setgid? - $!");
   } # if
