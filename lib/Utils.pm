@@ -79,6 +79,7 @@ our @EXPORT = qw (
   PipeOutput
   PipeOutputArray
   ReadFile
+  RequiredFields
   RedirectOutput
   StartPipe
   Stats
@@ -978,6 +979,67 @@ Returns:
 
   exit 1;
 } # Usage
+
+sub RequiredFields($$) {
+
+=pod
+
+=head2 RequiredFields($total, $log)
+
+Check if a list of fields are contained in a hash
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $fields
+
+Array reference to a list of field names that are required
+
+=item $rec
+
+Hash reference whose key values we are checking
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item Message
+
+Returns either an empty string or a string naming the first missing required
+field
+
+=back
+
+=for html </blockquote>
+
+=cut
+
+  my ($fields, $rec) = @_;
+
+  for my $fieldname (@$fields) {
+    my $found = 0;
+
+    for (keys %$rec) {
+      if ($fieldname eq $_) {
+        $found = 1;
+        last;
+      } # if
+    } # for
+
+    return "$fieldname is required" unless $found;
+  } # for
+
+  return;
+} # RequiredFields
 
 END {
   StopPipe;
