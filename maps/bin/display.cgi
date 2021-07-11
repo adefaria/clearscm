@@ -79,7 +79,10 @@ sub Body($) {
 
   my $parser = MIME::Parser->new();
 
+  # For some strange reason MIME::Parser has started having some problems
+  # with writing out tmp files...
   $parser->output_to_core(1);
+  $parser->tmp_to_core(1);
 
   my $entity = $parser->parse_data ($message);
 
