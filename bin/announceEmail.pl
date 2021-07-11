@@ -125,6 +125,8 @@ sub notify($) {
   my $cmd = "notify-send -i $icon -t $timeout '$msg'";
 
   Execute $cmd;
+
+  return;
 } # notify
 
 sub interrupted {
@@ -234,6 +236,10 @@ sub MonitorMail() {
 
     # Google Talk doesn't like #
     $subject =~ s/\#//g;
+
+    # Remove long strings of numbers like order numbers. They are uninteresting
+    my $longNumber = 5;
+    $subject =~ s/\s+\S*\d{$longNumber,}\S*\s*//g;
 
     # Now speak it!
     my $logmsg = "From $from $subject";
