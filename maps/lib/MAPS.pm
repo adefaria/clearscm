@@ -20,22 +20,27 @@ use warnings;
 use DBI;
 use Carp;
 use FindBin;
-use vars qw(@ISA @EXPORT);
 use Exporter;
 
 use MAPSLog;
-use MAPSFile;
-use MAPSUtil;
 use MIME::Entity;
+
+use Display;
+use MyDB;
+use Utils;
+use DateUtils;
+
+use base qw(Exporter);
+
+our $db;
+
+our $Version = '2.0';
 
 # Globals
 my $userid = $ENV{MAPS_USERNAME} ? $ENV{MAPS_USERNAME} : $ENV{USER};
 my %useropts;
-my $DB;
 
-@ISA = qw(Exporter);
-
-@EXPORT = qw(
+our @EXPORT = qw(
   Add2Blacklist
   Add2Nulllist
   Add2Whitelist
@@ -45,19 +50,22 @@ my $DB;
   AddUser
   AddUserOptions
   Blacklist
+  CheckEmail
   CleanEmail
   CleanLog
   CleanList
-  CountMsg
+  CountEmail
+  CountList
+  CountLog
   Decrypt
   DeleteEmail
   DeleteList
-  DeleteLog
   Encrypt
   FindEmail
   FindList
   FindLog
   FindUser
+  FindUsers
   ForwardMsg
   GetContext
   GetEmail
@@ -78,7 +86,6 @@ my $DB;
   ReadMsg
   ResequenceList
   ReturnList
-  ReturnListEntry
   ReturnMsg
   ReturnMessages
   ReturnSenders
@@ -91,272 +98,346 @@ my $DB;
   UpdateUserOptions
   UserExists
   Whitelist
-  count
-  countlog
-  count_distinct
 );
 
 my $mapsbase = "$FindBin::Bin/..";
 
-sub Add2Blacklist($$$) {
-  # Add2Blacklist will add an entry to the blacklist
-  my ($sender, $userid, $comment) = @_;
+# Insternal routines
+sub _cleanTables($$;$) {
+  my ($table, $timestamp, $dryrun) = @_;
 
+  my $count     = 0;
+  my $msg       = 'Records deleted';
+  my $condition = "userid = '$userid' and timestamp < '$timestamp'";
+
+  if ($dryrun) {
+    return $db->count($table, $condition);
+  } else {
+    return $db->delete($table, $condition);
+  } # if
+} # _cleanTables
+
+sub _retention2Days($) {
+  my ($retention) = @_;
+
+  # Of the retnetion periods I'm thinking of where they are <n> and then 
+  # something like (days|weeks|months|years) none are tricky except for months
+  # because months, unlike (days|weeks|years) are ill-defined. Are there 28, 29
+  # 30 or 31 days in a month? Days are simple <n> days. Weeks are simple <n> * 7
+  # days. Years are simple - just change the year (a little oddity of 365 or
+  # 366) days this year? To keep things simple, we will ignore the oddities of
+  # leap years and just use 30 for number of days in month. We really don't need
+  # to be that accurate here...
+  #
+  # BTW we aren't checking for odd things like 34320 weeks or 5000 years...
+  if ($retention =~ /(\d+)\s+(day|days)/) {
+    return $1;
+  } elsif ($retention =~ /(\d+)\s+(week|weeks)/){
+    return $1 * 7;
+  } elsif ($retention =~ /(\d+)\s+(month|months)/) {
+    return $1 * 30;
+  } elsif ($retention =~ /(\d+)\s+(year|years)/) {
+    return $1 * 365;
+  } # if
+} # _retention2Days
+
+sub _getnext() {
+  return $db->getnext;
+} # _getnext
+
+sub OpenDB($$) {
+  my ($username, $password) = @_;
+
+  my $dbname   = 'MAPS';
+  my $dbserver = $ENV{MAPS_SERVER} || 'localhost';
+
+  $db = MyDB->new($username, $password, $dbname, $dbserver);
+
+  croak "Unable to instantiate MyDB ($username\@$dbserver:$dbname)" unless $db;
+} # OpenDB
+
+BEGIN {
+  my $MAPS_username = "maps";
+  my $MAPS_password = "spam";
+
+  OpenDB($MAPS_username, $MAPS_password);
+} # BEGIN
+
+sub Add2Blacklist(%) {
+  my (%params) = @_;
+
+  # Add2Blacklist will add an entry to the blacklist
   # First SetContext to the userid whose black list we are adding to
-  SetContext($userid);
+  SetContext($params{userid});
 
   # Add to black list
-  AddList("black", $sender, 0, $comment);
+  $params{sequence} = 0;
+  my ($err, $msg) = AddList(%params);
 
   # Log that we black listed the sender
-  Info("Added $sender to " . ucfirst $userid . "'s black list");
+  Info("Added $params{sender} to " . ucfirst $params{userid} . "'s black list");
 
   # Delete old emails
-  my $count = DeleteEmail($sender);
+  my $count = DeleteEmail(
+    userid => $params{userid},
+    sender => $params{sender},
+  );
 
   # Log out many emails we managed to remove
-  Info("Removed $count emails from $sender");
+  Info("Removed $count emails from $params{sender}");
 
-  return;
+  return $count;
 } # Add2Blacklist
 
-sub Add2Nulllist($$;$$) {
-  # Add2Nulllist will add an entry to the nulllist
-  my ($sender, $userid, $comment, $hit_count) = @_;
+sub Add2Nulllist(%) {
+  my (%params) = @_;
 
   # First SetContext to the userid whose null list we are adding to
-  SetContext($userid);
+  SetContext($params{userid});
 
   # Add to null list
-  AddList("null", $sender, 0, $comment, $hit_count);
+  $params{sequence} = 0;
+  my ($err, $msg) = AddList(%params);
 
   # Log that we null listed the sender
-  Info("Added $sender to " . ucfirst $userid . "'s null list");
+  Info("Added $params{sender} to " . ucfirst $params{userid }. "'s null list");
 
   # Delete old emails
-  my $count = DeleteEmail($sender);
+  my $count = DeleteEmail(
+    userid => $params{userid},
+    sender => $params{sender},
+  );
 
   # Log out many emails we managed to remove
-  Info("Removed $count emails from $sender");
+  Info("Removed $count emails from $params{sender}");
 
   return;
 } # Add2Nulllist
 
-sub Add2Whitelist($$;$) {
-  # Add2Whitelist will add an entry to the whitelist
-  my ($sender, $userid, $comment) = @_;
+sub Add2Whitelist(%) {
+  my (%params) = @_;
 
+  # Add2Whitelist will add an entry to the whitelist
   # First SetContext to the userid whose white list we are adding to
-  SetContext($userid);
+  SetContext($params{userid});
 
   # Add to white list
-  AddList('white', $sender, 0, $comment);
+  $params{sequence} = 0;
+  my ($err, $msg) = AddList(%params);
+
+  return -$err, $msg if $err;
 
   # Log that we registered a user
-  Logmsg("registered", $sender, "Registered new sender");
+  Logmsg(
+    userid  => $params{userid},
+    type    => 'registered',
+    sender  => $params{sender},
+    message => 'Registered new sender',
+  );
 
   # Check to see if there are any old messages to deliver
-  my $handle = FindEmail($sender);
+  ($err, $msg) = $db->find('email', "sender = '$params{sender}'", ['userid', 'sender', 'data']);
 
-  my ($dbsender, $subject, $timestamp, $message);
+  return ($err, $msg) if $err;
 
   # Deliver old emails
-  my $messages      = 0;
-  my $return_status = 0;
+  my $messages = 0;
+  my $status   = 0;
 
-  while (($userid, $dbsender, $subject, $timestamp, $message) = GetEmail($handle)) {
-    last unless $userid;
+  while (my $rec = $db->getnext) {
+    last unless $rec->{userid};
 
-    $return_status = Whitelist($sender, $message);
+    $status = Whitelist($rec->{sender}, $rec->data);
 
-    last if $return_status;
+    last if $status;
 
     $messages++;
   } # while
 
-  # Done with $handle
-  $handle->finish;
-
   # Return if we has a problem delivering email
-  return $return_status if $return_status;
+  return -1, 'Problem delivering some email' if $status;
 
-  # Remove delivered messages.
-  DeleteEmail($sender);
+  # Remove delivered messages
+  DeleteEmail(
+    userid => $params{userid},
+    sender => $params{sender},
+  );
 
-  return $messages;
+  return $messages, 'Messages delivered';
 } # Add2Whitelist
 
-sub AddEmail($$$) {
-  my ($sender, $subject, $data) = @_;
+sub AddEmail(%) {
+  my (%rec) = @_;
 
-  # "Sanitize" some fields so that characters that are illegal to SQL are escaped
-  $sender = 'Unknown' if (!defined $sender || $sender eq '');
-  $sender  = $DB->quote($sender);
-  $subject = $DB->quote($subject);
-  $data    = $DB->quote($data);
+  CheckParms(['userid', 'sender', 'subject', 'data'], \%rec);
 
-  my $timestamp = UnixDatetime2SQLDatetime(scalar(localtime));
-  my $statement = "insert into email values (\"$userid\", $sender, $subject, \"$timestamp\", $data)";
+  $rec{timestamp} = UnixDatetime2SQLDatetime(scalar(localtime));
 
-  $DB->do ($statement)
-    or DBError('AddEmail: Unable to do statement', $statement);
-
-  return;
+  return $db->add('email', %rec);
 } # AddEmail
 
-sub AddList($$$;$$$) {
-  my ($listtype, $pattern, $sequence, $comment, $hit_count, $last_hit) = @_;
+sub AddList(%) {
+  my (%rec) = @_;
 
-  $hit_count //= CountMsg($pattern);
+  CheckParms(['userid', 'type', 'sender', 'sequence'], \%rec);
 
-  my ($user, $domain)  = split /\@/, $pattern;
+  croak "Type $rec{type} not valid. Must be one of white, black or null" 
+    unless $rec{type} =~ /(white|black|null)/;
 
-  if (!$domain || $domain eq '') {
-    $domain  = 'NULL';
-    $pattern = $DB->quote($user);
-  } else {
-    $domain  = "'$domain'";
+  croak "Sender must contain \@" unless $rec{sender} =~ /\@/;
 
-    if ($user eq '') {
-      $pattern = 'NULL';
-    } else {
-      $pattern = $DB->quote($user);
-    } # if
-  } # if
+  $rec{retention} //= '';
+  $rec{retention}   = lc $rec{retention};
 
-  if (!$comment || $comment eq '') {
-    $comment = 'NULL';
-  } else {
-    $comment = $DB->quote($comment);
-  } # if
+  $rec{hit_count} //= $db->count(
+    'email',
+    "userid = '$rec{userid}' and sender like '$rec{sender}%'"
+  );
 
-  # Get next sequence #
-  if ($sequence == 0) {
-    $sequence = GetNextSequenceNo($userid, $listtype);
-  } # if
+  ($rec{pattern}, $rec{domain}) = split /\@/, delete $rec{sender};
 
-  $last_hit //= UnixDatetime2SQLDatetime(scalar (localtime));
+  $rec{sequence} = GetNextSequenceNo(%rec);
 
-  my $statement = "insert into list values (\"$userid\", \"$listtype\", $pattern, $domain, $comment, $sequence, $hit_count, \"$last_hit\")";
+  $rec{last_hit} //= UnixDatetime2SQLDatetime(scalar (localtime));
 
-  $DB->do($statement)
-    or DBError('AddList: Unable to do statement', $statement);
-
-  return;
+  return $db->add('list', %rec);
 } # AddList
 
-sub AddLog ($$$) {
-  my ($type, $sender, $msg) = @_;
+sub AddLog(%) {
+  my (%params) = @_;
 
   my $timestamp = UnixDatetime2SQLDatetime(scalar(localtime));
-  my $statement;
 
-  # Use quote to protect ourselves
-  $msg = $DB->quote($msg);
-
-  if ($sender eq '') {
-    $statement = "insert into log values (\"$userid\", \"$timestamp\", null, \"$type\", $msg)";
-  } else {
-    $statement = "insert into log values (\"$userid\", \"$timestamp\", \"$sender\", \"$type\", $msg)";
-  } # if
-
-  $DB->do($statement)
-    or DBError('AddLog: Unable to do statement', $statement);
-
-  return;
+  return $db->add('log', %params);
 } # AddLog
 
-sub AddUser($$$$) {
-  my ($userid, $realname, $email, $password) = @_;
+sub AddUser(%) {
+  my (%rec) = @_;
 
-  $password = Encrypt($password, $userid);
+  CheckParms(['userid', 'name', 'email', 'password'], \%rec);
 
-  if (UserExists($userid)) {
-    return 1;
-  } else {
-    my $statement = "insert into user values ('$userid', '$realname', '$email', '$password')";
+  return 1 if UserExists($rec{userid});
 
-    $DB->do($statement)
-      or DBError('AddUser: Unable to do statement', $statement);
-  } # if
-
-  return 0;
+  return $db->add('user', %rec);
 } # Adduser
 
-sub AddUserOptions($%) {
-  my ($userid, %options) = @_;
+sub AddUserOptions(%) {
+  my (%rec) = @_;
 
-  for (keys %options) {
-    return 1 if !UserExists($userid);
+  croak('Userid is required') unless $rec{userid};
+  croak('No options to add')  unless $rec{options};
 
-    my $statement = "insert into useropts values ('$userid', '$_', '$options{$_}')";
+  return (1, "User doesn't exists") unless UserExist($rec{userid}); 
 
-    $DB->do($statement)
-      or DBError('AddUserOption: Unable to do statement', $statement);
+  my %useropts = delete $rec{userid};
+  my %opts     = delete $rec{options};
+
+  my ($err, $msg);
+
+  for my $key (%opts) {
+    $useropts{name}  = $_;
+    $useropts{value} = $opts{$_};
+
+    ($err, $msg) = $db->add('useropts', %useropts);
+
+    last if $err;
   } # for
 
-  return 0;
+  return ($err, $msg) if $err;
 } # AddUserOptions
 
-sub Blacklist($%) {
+sub Blacklist(%) {
   # Blacklist will send a message back to the $sender telling them that
   # they've been blacklisted. Currently we save a copy of the message.
   # In the future we should just disregard the message.
-  my ($sender, $sequence, $hit_count, @msg)  = @_;
+  my (%rec) = @_;
 
   # Check to see if this sender has already emailed us.
-  my $msg_count = CountMsg($sender);
+  my $msg_count = $db->count('email', "userid='$rec{userid}' and sender like '%$rec{sender}%'");
 
   if ($msg_count < 5) {
     # Bounce email
-    SendMsg($sender, "Your email has been discarded by MAPS", "$mapsbase/blacklist.html", @msg);
-    Logmsg("blacklist", $sender, "Sent blacklist reply");
+    my @spammsg = split "\n", $rec{data};
+
+    SendMsg(
+      userid  => $rec{userid},
+      sender  => $rec{sender},
+      subject => 'Your email has been discarded by MAPS',
+      msgfile => "$mapsbase/blacklist.html",
+      data    => $rec{data},
+    );
+
+    Logmsg(
+      userid  => $userid,
+      type    => 'blacklist',
+      sender  => $rec{sender},
+      message => 'Sent blacklist reply',
+    );
   } else {
-    Logmsg("mailloop", $sender, "Mail loop encountered");
+    Logmsg(
+      userid  => $userid,
+      type    => 'mailloop',
+      sender  => $rec{sender},
+      message => 'Mail loop encountered',
+    );
   } # if
 
-  RecordHit("black", $sequence, ++$hit_count) if $sequence;
+  $rec{hit_count}++ if $rec{sequence};
+
+  RecordHit(
+    userid    => $userid,
+    type      => 'black',
+    sequence  => $rec{sequence},
+    hit_count => $rec{hit_count},
+  );
 
   return;
 } # Blacklist
 
+sub CheckEmail(;$$) {
+  my ($username, $domain) = @_;
+
+  return lc "$username\@$domain" if $username and $domain;
+
+  # Check to see if a full email address in either $username or $domain
+  if ($username) {
+    if ($username =~ /(.*)\@(.*)/) {
+      return lc "$1\@$2";
+    } # if
+  } elsif ($domain) {
+    if ($domain =~ /(.*)\@(.*)/) {
+      return lc  "$1\@$2";
+    } else {
+      return "\@$domain";
+    } # if
+  } # if
+} # CheckEmail
+
 sub CheckOnList ($$;$) {
-  # CheckOnList will check to see if the $sender is on the $listfile.
-  # Return 1 if found 0 if not.
+  # CheckOnList will check to see if the $sender is on the list.  Return 1 if 
+  # found 0 if not.
   my ($listtype, $sender, $update) = @_;
 
   $update //= 1;
 
   my $status = 0;
-  my ($rule, $sequence, $hit_count);
+  my ($rule, $sequence);
 
-  my $statement = 'select pattern, domain, comment, sequence, hit_count '
-                . "from list where userid = '$userid' and type = '$listtype' "
-                . 'order by sequence';
+  my $table      = 'list';
+  my $condition  = "userid='$userid' and type='$listtype'";
 
-  my $sth = $DB->prepare($statement)
-    or DBError('CheckOnList: Unable to prepare statement', $statement);
+  my ($err, $errmsg) = $db->find($table, $condition, '*', 'order by sequence');
 
-  $sth->execute
-    or DBError('CheckOnList: Unable to execute statement', $statement);
+  my ($email_on_file, $rec);
 
-  while (my @row = $sth->fetchrow_array) {
-    last if !@row;
-
-       $hit_count = pop (@row);
-       $sequence  = pop (@row);
-    my $comment   = pop (@row);
-    my $domain    = pop (@row);
-    my $pattern   = pop (@row);
-    my $email_on_file;
-
-    unless ($domain) {
-      $email_on_file = $pattern;
+  while ($rec = $db->getnext) {
+    unless ($rec->{domain}) {
+      $email_on_file = $rec->{pattern};
     } else {
-      unless ($pattern) {
-        $email_on_file = '@' . $domain;
+      unless ($rec->{pattern}) {
+        $email_on_file = '@' . $rec->{domain};
       } else {
-        $email_on_file = $pattern . '@' . $domain;
+        $email_on_file = $rec->{pattern} . '@' . $rec->{domain};
       } # if
     } # unless
 
@@ -373,579 +454,349 @@ sub CheckOnList ($$;$) {
     # "@ti.com" would also match "@tixcom.com"!
     my $search_for = $email_on_file =~ /\@/
                    ? "$email_on_file\$"
-                   : !defined $domain
+                   : !defined $rec->{domain}
                    ? "$email_on_file\@"
                    : $email_on_file;
     if ($sender and $sender =~ /$search_for/i) {
-      $rule   = "Matching rule: ($listtype:$sequence) \"$email_on_file\"";
-      $rule  .= " - $comment" if $comment and $comment ne '';
+      $rule   = "Matching rule: ($listtype:$rec->{sequence}) \"$email_on_file\"";
+      $rule  .= " - $rec->{comment}" if $rec->{comment};
       $status = 1;
 
-      RecordHit($listtype, $sequence, ++$hit_count) if $update;
+      $rec->{hit_count} //= 0;
+
+      RecordHit(
+        userid    => $userid,
+        type      => $listtype,
+        sequence  => $rec->{sequence},
+        hit_count => $rec->{hit_count} + 1,
+      ) if $update;
 
       last;
     } # if
   } # while
 
-  $sth->finish;
-
-  return ($status, $rule, $sequence, $hit_count);
+  return ($status, $rule, $rec->{sequence}, $rec->{hit_count});
 } # CheckOnList
 
-sub CleanEmail($) {
-  my ($timestamp) = @_;
+sub CleanEmail($;$) {
+  my ($timestamp, $dryrun) = @_;
 
-  # First see if anything needs to be deleted
-  my $count = 0;
-
-  my $statement = "select count(*) from email where userid = '$userid' and timestamp < '$timestamp'";
-
-  # Prepare statement
-  my $sth = $DB->prepare($statement)
-    or DBError('CleanEmail: Unable to prepare statement', $statement);
-
-  # Execute statement
-  $sth->execute
-    or DBError('CleanEmail: Unable to execute statement', $statement);
-
-  # Get return value, which should be how many entries were deleted
-  my @row = $sth->fetchrow_array;
-
-  # Done with $sth
-  $sth->finish;
-
-  # Retrieve returned value
-  unless ($row[0]) {
-    $count = 0
-  } else {
-    $count = $row[0];
-  } # unless
-
-  # Just return if there's nothing to delete
-  return $count if ($count == 0);
-
-  # Delete emails for userid whose older than $timestamp
-  $statement = "delete from email where userid = '$userid' and timestamp < '$timestamp'";
-
-  # Prepare statement
-  $sth = $DB->prepare($statement)
-    or DBError('CleanEmail: Unable to prepare statement', $statement);
-
-  # Execute statement
-  $sth->execute
-    or DBError('CleanEmail: Unable to execute statement', $statement);
-
-  return $count;
+  return _cleanTables 'email', $timestamp, $dryrun;
 } # ClearEmail
 
-sub CleanLog($) {
-  my ($timestamp) = @_;
+sub CleanLog($;$) {
+  my ($timestamp, $dryrun) = @_;
 
-  # First see if anything needs to be deleted
-  my $count = 0;
-
-  my $statement = "select count(*) from log where userid = '$userid' and timestamp < '$timestamp'";
-
-  # Prepare statement
-  my $sth = $DB->prepare($statement)
-    or DBError($DB, 'CleanLog: Unable to prepare statement', $statement);
-
-  # Execute statement
-  $sth->execute
-    or DBError('CleanLog: Unable to execute statement', $statement);
-
-  # Get return value, which should be how many entries were deleted
-  my @row = $sth->fetchrow_array;
-
-  # Done with $sth
-  $sth->finish;
-
-  # Retrieve returned value
-  unless ($row[0]) {
-    $count = 0
-  } else {
-    $count = $row[0];
-  } # unless
-
-  # Just return if there's nothing to delete
-  return $count if ($count == 0);
-
-  # Delete log entries for userid whose older than $timestamp
-  $statement = "delete from log where userid = '$userid' and timestamp < '$timestamp'";
-
-  # Prepare statement
-  $sth = $DB->prepare($statement)
-    or DBError('CleanLog: Unable to prepare statement', $statement);
-
-  # Execute statement
-  $sth->execute
-    or DBError('CleanLog: Unable to execute statement', $statement);
-
-  return $count;
+  return _cleanTables('log', $timestamp, $dryrun);
 } # CleanLog
 
-sub CleanList($;$) {
-  my ($timestamp, $listtype) = @_;
+sub CleanList(%) {
+  my (%params) = @_;
 
-  $listtype //= 'null';
+  CheckParms(['userid', 'type'], \%params);
+
+  my $dryrunstr = $params{dryrun} ? '(dryrun)' : '';
+
+  my $table     = 'list';
+  my $condition = "userid='$params{userid}' and type='$params{type}'";
+  my $count     = 0;
+
+  # First let's go through the list to see if we have an domain level entry
+  # (e.g. @spammer.com) and also individual entries (baddude@spammer.com) then
+  # we don't really need any of the individual entries since the domain block
+  # covers them.
+  $db->find($table, $condition, ['domain'], ' and pattern is null');
+
+  while (my $domains = $db->getnext) {
+    for my $recs ($db->get($table, $condition, ['sequence', 'pattern', 'domain'],
+                      " and domain='$domains->{domain}' and pattern is not null")) {
+      if (@$recs and not $params{dryrun}) {
+        for my $rec (@$recs) {
+          DeleteList(
+            userid   => $params{userid},
+            type     => $params{type},
+            sequence => $rec->{sequence},
+          );
+
+          $params{log}->msg("Deleted $params{userid}:$params{type}:$rec->{sequence} "
+                            .  "$rec->{pattern}\@$rec->{domain} $dryrunstr")
+            if $params{log};
+
+          $count++;
+        } # for
+      } elsif (@$recs) {
+        if ($params{log}) {
+          $params{log}->msg("The domain $domains->{domain} has the following subrecords");
+
+          for my $rec (@$recs) {
+            $params{log}->msg("$rec->{pattern}\@$rec->{domain}");
+          } # for
+        } # if
+      } # if
+    } # for
+  } # while
+
+  my $msg    = 'Records deleted';
+  $condition = "userid='$params{userid}' and type='$params{type}' and retention is not null";
 
   # First see if anything needs to be deleted
-  my $count = 0;
+  return (0, $msg) unless $db->count($table, $condition);
 
-  my $statement = "select count(*) from list where userid = '$userid' and type = '$listtype' and last_hit < '$timestamp'";
+  my ($err, $errmsg) = $db->find($table, $condition);
 
-  # Prepare statement
-  my $sth = $DB->prepare($statement)
-    or DBError($DB, 'CleanList: Unable to prepare statement', $statement);
+  croak "Unable to find $params{type} entries for $condition - $errmsg" if $err;
 
-  # Execute statement
-  $sth->execute
-    or DBError('CleanList: Unable to execute statement', $statement);
+  my $todaysDate = Today2SQLDatetime;
 
-  # Get return value, which should be how many entries were deleted
-  my @row = $sth->fetchrow_array;
+  while (my $rec = $db->getnext) {
+    my $days = _retention2Days($rec->{retention});
 
-  # Done with $sth
-  $sth->finish;
+    my $agedDate = SubtractDays($todaysDate, $days); 
 
-  # Retrieve returned value
-  $count = $row[0] ? $row[0] : 0;
+    # If last_hit < retentiondays then delete
+    if (Compare($rec->{last_hit}, $agedDate) == -1) {
+      unless ($params{dryrun}) {
+        DeleteList(
+          userid   => $params{userid},
+          type     => $params{type},
+          sequence => $rec->{sequence},
+        );
 
-  # Just return if there's nothing to delete
-  return $count if ($count == 0);
+        if ($params{log}) {
+          $rec->{pattern} //= '';
+          $rec->{domain}  //= '';
 
-  # Get data for these entries
-  $statement = "select type, sequence, hit_count from list where userid = '$userid' and type = '$listtype' and last_hit < '$timestamp'";
+          $params{log}->msg("Deleted $rec->{userid}:$params{type}:$rec->{sequence} "
+                                  .  "$rec->{pattern}\@$rec->{domain} $dryrunstr");
+          $params{log}->dbug("last hit = $rec->{last_hit} < agedDate = $agedDate");
+        } # if
 
-  # Prepare statement
-  $sth = $DB->prepare($statement)
-    or DBError('CleanList: Unable to prepare statement', $statement);
-
-  # Execute statement
-  $sth->execute
-    or DBError('CleanList: Unable to execute statement', $statement);
-
-  $count = 0;
-
-  while (my @row = $sth->fetchrow_array) {
-    last if !@row;
-
-    my $hit_count = pop(@row);
-    my $sequence  = pop(@row);
-    my $listtype  = pop(@row);
-
-    if ($hit_count == 0) {
-      $count++;
-
-      $statement = "delete from list where userid='$userid' and type='$listtype' and sequence=$sequence";
-      $DB->do($statement)
-        or DBError('CleanList: Unable to execute statement', $statement);
+        $count++;
+      } # unless
     } else {
-      # Age entry: Sometimes entries are initially very popular and
-      # the $hit_count gets very high quickly. Then the domain is
-      # abandoned and no activity happens. One case recently observed
-      # was for phentermine.com. The $hit_count initially soared to
-      # 1920 within a few weeks. Then it all stopped as of
-      # 07/13/2007. Obvisously this domain was shutdown. With the
-      # previous aging algorithm of simply subtracting 1 this
-      # phentermine.com entry would hang around for over 5 years!
-      #
-      # So the tack here is to age the entry by 10% until the $hit_count
-      # is less than 30 then we revert to the old method of subtracting 1.
-      if ($hit_count < 30) {
-        $hit_count--;
-      } else {
-        $hit_count = int($hit_count / 1.1);
-      } # if
-
-      $statement = "update list set hit_count=$hit_count where userid='$userid' and type='$listtype' and sequence=$sequence;";
-      $DB->do($statement)
-        or DBError('CleanList: Unable to execute statement', $statement);
+      $params{log}->dbug("$rec->{userid}:$params{type}:$rec->{sequence}: nodelete $dryrunstr "
+                       . "last hit = $rec->{last_hit} >= agedDate = $agedDate")
+        if $params{log};
     } # if
   } # while
 
-  ResequenceList($userid, $listtype);
+  ResequenceList(
+    userid => $params{userid},
+    type   => $params{type},
+  ) if $count and !$params{dryrun};
 
-  return $count;
+  return wantarray ? ($count, $msg) : $count; 
 } # CleanList
 
-sub CloseDB() {
-  $DB->disconnect;
+sub CountEmail(%) {
+  my (%params) = @_;
 
-  return;
-} # CloseDB
+  CheckParms(['userid'], \%params);
 
-sub CountMsg($) {
-  my ($sender) = @_;
+  my $table      = 'email';
+  my $condition  = "userid='$params{userid}'";
+     $condition .= " and $params{additional}" if $params{additional};
 
-  return count('email', "userid = '$userid' and sender like '%$sender%'");
-} # CountMsg
+  return $db->count($table, $condition);
+} # CountEmail
 
-sub DBError($$) {
-  my ($msg, $statement) = @_;
+sub CountList(%) {
+  my (%params) = @_;
 
-  print 'MAPS::' . $msg . "\nError #" . $DB->err . ' ' . $DB->errstr . "\n";
+  CheckParms(['userid', 'type'], \%params);
 
-  if ($statement) {
-    print "SQL Statement: $statement\n";
-  } # if
+  my $table     = 'list';
+  my $condition = "userid='$params{userid}' and type='$params{type}'";
 
-  exit $DB->err;
-} # DBError
+  return $db->count($table, $condition);
+} # CountList
+
+sub CountLog(%) {
+  my (%params) = @_;
+
+  CheckParms(['userid'], \%params);
+
+  my ($additional_condition) = delete $params{additional} || '';
+
+  my $condition  = "userid='$userid'";
+     $condition .= " and $additional_condition" if $additional_condition;
+
+  return $db->count_distinct('log', 'sender', $condition);
+} # CountLog
 
 sub Decrypt ($$) {
   my ($password, $userid) = @_;
 
-  my $statement = "select decode('$password','$userid')";
-
-  my $sth = $DB->prepare($statement)
-    or DBError('Decrypt: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('Decrypt: Unable to execute statement', $statement);
-
-  # Get return value, which should be the encoded password
-  my @row = $sth->fetchrow_array;
-
-  # Done with $sth
-  $sth->finish;
-
-  return $row[0]
+  return $db->decode($password, $userid);
 } # Decrypt
 
-sub DeleteEmail($) {
-  my $sender = shift;
+sub DeleteEmail(%) {
+  my (%rec) = @_;
 
-  my ($username, $domain) = split /@/, $sender;
+  my $table = 'email';
+
+  CheckParms(['userid', 'sender'], \%rec);
+
+  my ($username, $domain) = split /@/, $rec{sender};
   my $condition;
 
-  if ($username eq '') {
-    $condition = "userid = '$userid' and sender like '%\@$domain'";
+  if ($username) {
+    $condition = "userid = '$rec{userid}' and sender = '$rec{sender}'";
   } else {
-    $condition = "userid = '$userid' and sender = '$sender'";
+    $condition = "userid = '$rec{userid}' and sender like '%\@$domain'";
   } # if
 
-  # First see if anything needs to be deleted
-  my $count = count('email', $condition);
-
-  # Just return if there's nothing to delete
-  return $count if ($count == 0);
-
-  my $statement = 'delete from email where ' . $condition;
-
-  $DB->do($statement)
-    or DBError('DeleteEmail: Unable to execute statement', $statement);
-
-  return $count;
+  return $db->delete($table, $condition);
 } # DeleteEmail
 
-sub DeleteList($$) {
-  my ($type, $sequence) = @_;
+sub DeleteList(%) {
+  my (%rec) = @_;
 
-  # First see if anything needs to be deleted
-  my $count = count('list', "userid = '$userid' and type = '$type' and sequence = '$sequence'");
+  CheckParms(['userid', 'type', 'sequence'], \%rec);
 
-  # Just return if there's nothing to delete
-  return $count if ($count == 0);
+  my $condition = "userid = '$rec{userid}' and "
+                . "type = '$rec{type}' and "
+                . "sequence = $rec{sequence}";
 
-  my $statement = "delete from list where userid = '$userid' and type = '$type' and sequence = '$sequence'";
-
-  $DB->do($statement)
-    or DBError('DeleteList: Unable to execute statement', $statement);
-
-  return $count;
+  return $db->delete('list', $condition);
 } # DeleteList
-
-sub DeleteLog($) {
-  my ($sender) = @_;
-
-  my ($username, $domain) = split /@/, $sender;
-  my $condition;
-
-  if ($username eq '') {
-    $condition = "userid = '$userid' and sender like '%\@$domain'";
-  } else {
-    $condition = "userid = '$userid' and sender = '$sender'";
-  } # if
-
-  # First see if anything needs to be deleted
-  my $count = count('log', $condition);
-
-  # Just return if there's nothing to delete
-  return $count if ($count == 0);
-
-  my $statement = 'delete from log where ' . $condition;
-
-  $DB->do($statement)
-    or DBError('DeleteLog: Unable to execute statement', $statement);
-
-  return $count;
-} # DeleteLog
 
 sub Encrypt($$) {
   my ($password, $userid) = @_;
 
-  my $statement = "select encode('$password','$userid')";
-
-  my $sth = $DB->prepare($statement)
-    or DBError('Encrypt: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('Encrypt: Unable to execute statement', $statement);
-
-  # Get return value, which should be the encoded password
-  my @row = $sth->fetchrow_array;
-
-  # Done with $sth
-  $sth->finish;
-
-  return $row[0];
+  return $db->encode($password, $userid);
 } # Encrypt
 
-sub FindEmail(;$$) {
-  my ($sender, $date) = @_;
+sub FindEmail(%) {
+  my (%params) = @_;
 
-  my $statement;
+  CheckParms(['userid'], \%params);
 
-  $sender //= '';
-  $date   //= '';
+  my $table      = 'email';
+  my $condition  = "userid='$params{userid}'";
+     $condition .= " and sender='$params{sender}'"       if $params{sender};
+     $condition .= " and timestamp='$params{timestamp}'" if $params{timestamp};
 
-  $statement  = "select * from email where userid = '$userid'";
-
-  # Add conditions if present
-  $statement .= " and sender = '$sender'"  if $sender;
-  $statement .= " and timestamp = '$date'" if $date;
-
-  my $sth = $DB->prepare($statement)
-    or DBError('FindEmail: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('FindEmail: Unable to execute statement', $statement);
-
-  return $sth;
+  return $db->find($table, $condition);
 } # FindEmail
 
-sub FindList($;$) {
+sub FindList(%) {
+  my (%params) = @_;
+
   my ($type, $sender) = @_;
 
-  my $statement;
+  CheckParms(['userid', 'type'], \%params);
 
-  unless ($sender) {
-    $statement = "select * from list where userid = '$userid' and type = '$type'";
-  } else {
-    my ($pattern, $domain) = split /\@/, $sender;
-    $statement = "select * from list where userid = '$userid' and type = '$type' " .
-                 "and pattern = '$pattern' and domain = '$domain'";
-  } # unless
+  my $table     = 'list';
+  my $condition = "userid='$params{userid}' and type='$params{type}'";
 
-  # Prepare statement
-  my $sth = $DB->prepare($statement)
-    or DBError('FindList: Unable to prepare statement', $statement);
+  if ($params{sender}) {
+    my ($username, $domain) = split /\@/, $params{sender};
 
-  # Execute statement
-  $sth->execute
-    or DBError('FindList: Unable to execute statement', $statement);
+    # Split will return '' if either username or domain is missing. This messes
+    # up SQL's find as '' ~= NULL. Therefore we only specify username or domain
+    # if it is present.
+    $condition .= " and pattern='$username'" if $username;
+    $condition .= " and domain='$domain'"    if $domain;
+  } # if
 
-  # Get return value, which should be how many entries were deleted
-  return $sth;
+  return $db->find($table, $condition);
 } # FindList
 
 sub FindLog($) {
   my ($how_many) = @_;
 
   my $start_at = 0;
-  my $end_at   = countlog();
+  my $end_at   = CountLog(
+    userid => $userid,
+  );
 
   if ($how_many < 0) {
     $start_at = $end_at - abs ($how_many);
     $start_at = 0 if ($start_at < 0);
   } # if
 
-  my $statement = "select * from log where userid = '$userid' order by timestamp limit $start_at, $end_at";
+  my $table      = 'log';
+  my $condition  = "userid='$userid'";
+  my $additional = "order by timestamp limit $start_at, $end_at";
 
-  # Prepare statement
-  my $sth = $DB->prepare($statement)
-    or DBError('FindLog: Unable to prepare statement', $statement);
-
-  # Execute statement
-  $sth->execute
-    or DBError('FindLog: Unable to execute statement', $statement);
-
-  # Get return value, which should be how many entries were deleted
-  return $sth;
+  return $db->find($table, $condition, '*', $additional);
 } # FindLog
 
-sub FindUser(;$) {
-  my ($userid) = @_;
+sub FindUser(%) {
+  my (%params) = @_;
 
-  my $statement;
+  my $table     = 'user';
+  my $condition = '';
 
-  if (!defined $userid || $userid eq '') {
-    $statement = 'select * from user';
-  } else {
-    $statement = "select * from user where userid = '$userid'";
-  } # if
+  $condition = "userid='$userid'" if $params{userid};
 
-  my $sth = $DB->prepare($statement)
-    or DBError('FindUser: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('FindUser: Unable to execute statement', $statement);
-
-  return $sth;
+  return $db->find($table, $condition, $params{fields});
 } # FindUser
+
+sub FindUsers() {
+  return $db->find('user', '', ['userid']);
+} # FindUsers
+
+sub GetEmail() {
+  goto &_getnext;
+} # GetEmail
 
 sub GetContext() {
   return $userid;
 } # GetContext
 
-sub GetEmail($) {
-  my ($sth) = @_;
-
-  my @email;
-
-  if (@email = $sth->fetchrow_array) {
-    my $message   = pop @email;
-    my $timestamp = pop @email;
-    my $subject   = pop @email;
-    my $sender    = pop @email;
-    my $userid    = pop @email;
-    return $userid, $sender, $subject, $timestamp, $message;
-  } else {
-    return;
-  } # if
-} # GetEmail
-
-sub GetList($) {
-  my ($sth) = @_;
-
-  my @list;
-
-  if (@list = $sth->fetchrow_array) {
-    my $last_hit  = pop @list;
-    my $hit_count = pop @list;
-    my $sequence  = pop @list;
-    my $comment   = pop @list;
-    my $domain    = pop @list;
-    my $pattern   = pop @list;
-    my $type      = pop @list;
-    my $userid    = pop @list;
-    return $userid, $type, $pattern, $domain, $comment, $sequence, $hit_count, $last_hit;
-  } else {
-    return;
-  } # if
+sub GetList() {
+  goto &_getnext;
 } # GetList
 
-sub GetLog($) {
-  my ($sth) = @_;
-
-  my @log;
-
-  if (@log = $sth->fetchrow_array) {
-    my $message   = pop @log;
-    my $type      = pop @log;
-    my $sender    = pop @log;
-    my $timestamp = pop @log;
-    my $userid    = pop @log;
-    return $userid, $timestamp, $sender, $type, $message;
-  } else {
-    return;
-  } # if
+sub GetLog() {
+  goto &_getnext;
 } # GetLog
 
-sub GetNextSequenceNo($$) {
-  my ($userid, $listtype) = @_;
+sub GetNextSequenceNo(%) {
+  my (%rec) = @_;
 
-  my $count = count ('list', "userid = '$userid' and type = '$listtype'");
+  CheckParms(['userid', 'type'], \%rec);
+
+  my $table     = 'list';
+  my $condition = "userid='$rec{userid}' and type='$rec{type}'";
+
+  my $count = $db->count('list', $condition);
 
   return $count + 1;
 } # GetNextSequenceNo
 
-sub GetUser($) {
-  my ($sth) = @_;
-
-  my @user;
-
-  if (@user = $sth->fetchrow_array) {
-    my $password = pop @user;
-    my $email    = pop @user;
-    my $name     = pop @user;
-    my $userid   = pop @user;
-    return ($userid, $name, $email, $password);
-  } else {
-    return;
-  } # if
+sub GetUser() {
+  goto &_getnext;
 } # GetUser
 
 sub GetUserInfo($) {
   my ($userid) = @_;
 
-  my $statement = "select name, email from user where userid='$userid'";
+  my $userinfo = $db->getone('user', "userid='$userid'", ['name', 'email']);
 
-  my $sth = $DB->prepare($statement)
-    or DBError('GetUserInfo: Unable to prepare statement', $statement);
+  return %{$db->getone('user', "userid='$userid'", ['name', 'email'])};
 
-  $sth->execute
-    or DBError('GetUserInfo: Unable to execute statement', $statement);
-
-  my @userinfo   = $sth->fetchrow_array;
-  my $user_email = lc (pop @userinfo);
-  my $username   = lc (pop @userinfo);
-
-  $sth->finish;
-
-  return ($username, $user_email);
+  return %$userinfo;
 } # GetUserInfo
 
 sub GetUserOptions($) {
   my ($userid) = @_;
 
-  my $statement = "select * from useropts where userid = '$userid'";
+  my $table     = 'useropts';
+  my $condition = "userid='$userid'";
 
-  my $sth = $DB->prepare($statement)
-    or DBError('GetUserOptions: Unable to prepare statement', $statement);
+  $db->find($table, $condition);
 
-  $sth->execute
-    or DBError('GetUserOptions: Unable to execute statement', $statement);
+  my %useropts;
 
-  my @useropts;
-
-  # Empty hash
-  %useropts = ();
-
-  while (@useropts = $sth->fetchrow_array) {
-    my $value = pop @useropts;
-    my $name  = pop @useropts;
-
-    pop @useropts;
-
-    $useropts{$name} = $value;
+  while (my $rec = $db->getnext) {
+    $useropts{$rec->{name}} = $rec->{value};
   } # while
-
-  $sth->finish;
 
   return %useropts;
 } # GetUserOptions
-
-sub GetRows ($) {
-  my ($statement) = @_;
-
-  my $sth = $DB->prepare($statement)
-    or DBError('Unable to prepare statement' , $statement);
-
-  $sth->execute
-    or DBError('Unable to execute statement' , $statement);
-
-  my @array;
-
-  while (my @row = $sth->fetchrow_array) {
-    for (@row) {
-      push @array, $_;
-    } # for
-  } # while
-
-  return @array;
-} # GetRows
 
 sub Login($$) {
   my ($userid, $password) = @_;
@@ -956,7 +807,7 @@ sub Login($$) {
   my $dbpassword = UserExists($userid);
 
   # Return -1 if user doesn't exist
-  return -1 if !$dbpassword;
+  return -1 unless $dbpassword;
 
   # Return -2 if password does not match
   if ($password eq $dbpassword) {
@@ -971,10 +822,20 @@ sub Nulllist($;$$) {
   # Nulllist will simply discard the message.
   my ($sender, $sequence, $hit_count) = @_;
 
-  RecordHit("null", $sequence, ++$hit_count) if $sequence;
+  RecordHit(
+    userid    => $userid,
+    type      => 'null',
+    sequence  => $sequence,
+    hit_count => ++$hit_count,
+  ) if $sequence;
 
   # Discard Message
-  Logmsg("nulllist", $sender, "Discarded message");
+  Logmsg(
+    userid  => $userid,
+    type    => 'nulllist',
+    sender  => $sender,
+    message => 'Discarded message'
+  );
 
   return;
 } # Nulllist
@@ -988,7 +849,7 @@ sub OnBlacklist($;$) {
 sub OnNulllist($;$) {
   my ($sender, $update) = @_;
 
-  return CheckOnList("null", $sender, $update);
+  return CheckOnList('null', $sender, $update);
 } # CheckOnNulllist
 
 sub OnWhitelist($;$$) {
@@ -996,67 +857,25 @@ sub OnWhitelist($;$$) {
 
   SetContext($userid) if $userid;
 
-  return CheckOnList("white", $sender, $update);
+  return CheckOnList('white', $sender, $update);
 } # OnWhitelist
 
-sub OpenDB($$) {
-  my ($username, $password) = @_;
-
-  my $dbname   = 'MAPS';
-  my $dbdriver = 'mysql';
-  my $dbserver = $ENV{MAPS_SERVER} || 'localhost';
-
-  if (!$DB || $DB eq '') {
-    #$dbserver='localhost';
-    $DB = DBI->connect("DBI:$dbdriver:$dbname:$dbserver", $username, $password, {PrintError => 0})
-      or croak "Couldn't connect to $dbname database as $username\n" . $DBI::errstr;
-  } # if
-
-  return $DB;
-} # OpenDB
-
-BEGIN {
-  my $MAPS_username = "maps";
-  my $MAPS_password = "spam";
-
-  OpenDB($MAPS_username, $MAPS_password);
-} # BEGIN
-
-END {
-  CloseDB;
-} # END
-
-
 sub OptimizeDB() {
-  my $statement = 'lock tables email read, list read, log read, user read, useropts read';
-  my $sth = $DB->prepare($statement)
-      or DBError('OptimizeDB: Unable to prepare statement', $statement);
+  my @tables = qw(email list log user useropts);
 
-  $sth->execute
-    or DBError('OptimizeDB: Unable to execute statement', $statement);
+  my ($err, $msg) = $db->lock('read', \@tables);
 
-  $statement = 'check table email, list, log, user, useropts';
-  $sth = $DB->prepare($statement)
-      or DBError('OptimizeDB: Unable to prepare statement', $statement);
+  croak "Unable to lock table - $msg" if $err; 
 
-  $sth->execute
-    or DBError('OptimizeDB: Unable to execute statement', $statement);
+  ($err, $msg) = $db->check(\@tables);
 
-  $statement = 'unlock tables';
-  $sth = $DB->prepare($statement)
-      or DBError('OptimizeDB: Unable to prepare statement', $statement);
+  croak 'Unable to check tables ' . $msg if $err;
 
-  $sth->execute
-    or DBError('OptimizeDB: Unable to execute statement', $statement);
+  ($err, $msg) = $db->optimize(\@tables);
 
-  $statement = 'optimize table email, list, log, user, useropts';
-  $sth = $DB->prepare($statement)
-      or DBError('OptimizeDB: Unable to prepare statement', $statement);
+  croak 'Unable to optimize tables ' . $msg if $err;
 
-  $sth->execute
-    or DBError('OptimizeDB: Unable to execute statement', $statement);
-
-  return;
+  return $db->unlock();
 } # OptimizeDB
 
 sub ReadMsg($) {
@@ -1157,487 +976,170 @@ sub ReadMsg($) {
   return $sender, $sender_long, $reply_to, $subject, join "\n", @data;
 } # ReadMsg
 
-sub RecordHit($$$) {
-  my ($listtype, $sequence, $hit_count) = @_;
+sub RecordHit(%) {
+  my (%rec) = @_;
+
+  CheckParms(['userid', 'type', 'sequence', ], \%rec);
 
   my $current_date = UnixDatetime2SQLDatetime(scalar(localtime));
 
-  my $statement = "update list set hit_count=$hit_count, last_hit='$current_date' where userid='$userid' and type='$listtype' and sequence=$sequence";
+  my $table     = 'list';
+  my $condition = "userid='rec{userid} and type=$rec{type} and sequence='$rec{sequence}";
 
-  $DB->do($statement)
-    or DBError('RecordHit: Unable to do statement', $statement);
-
-  return;
+  return $db->modify(
+    table     => $table,
+    condition => $condition,
+    %rec,
+  );
 } # RecordHit
 
-sub ResequenceList($$) {
-  my ($userid, $type) = @_;
+sub ResequenceList(%) {
+  my (%params) = @_;
 
-  return 1 if $type ne 'white' && $type ne 'black' && $type ne 'null';
+  CheckParms(['userid', 'type'], \%params);
 
-  return 2 unless UserExists($userid);
+  # Data checks
+  return 1 unless $params{type} =~ /(white|black|null)/;
+  return 2 unless UserExists($params{userid});
 
-  my $statement = 'lock tables list write';
-  my $sth = $DB->prepare($statement)
-      or DBError('ResquenceList: Unable to prepare statement', $statement);
+  my $table     = 'list';
+  my $condition = "userid='$params{userid}' and type ='$params{type}'";
 
-  $sth->execute
-    or DBError('ResequenceList: Unable to execute statement', $statement);
+  # Lock the table
+  $db->lock('write', $table);
 
-  # Now get all of the list entries renumbering as we go
-  $statement = <<"END";
-select
-  pattern,
-  domain,
-  comment,
-  sequence,
-  hit_count,
-  last_hit
-from
-  list
-where
-  userid = '$userid' and
-  type   = '$type'
-order by
-  hit_count desc
-END
-
-  $sth = $DB->prepare($statement)
-    or DBError('ResequenceList: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('ResequenceList: Unable to execute statement', $statement);
-
-  my $sequence = 1;
-  my @new_rows;
-
-  while (my @row = $sth->fetchrow_array) {
-    last if !@row;
-
-    my %record = (
-      last_hit     => pop @row,
-      hit_count    => pop @row,
-      new_sequence => $sequence++,
-      old_sequence => pop @row,
-      comment      => $DB->quote(pop @row) || '',
-      domain       => $DB->quote(pop @row) || '',
-      pattern      => $DB->quote(pop @row) || '',
-    );
-
-    push @new_rows, \%record;
-  } # while
+  # Get all records for $userid and $type
+  my $listrecs = $db->get($table, $condition);
 
   # Delete all of the list entries for this $userid and $type
-  $statement = "delete from list where userid='$userid' and type='$type'";
+  my ($count, $msg) = $db->delete($table, $condition);
 
-  $DB->do($statement)
-    or DBError('ResequenceList: Unable to do statement', $statement);
-
-  # Re-add list with new sequence numbers
-  for (@new_rows) {
-    my %record = %$_;
-    my $statement = <<"END";
-insert into
-  list
-values (
-  '$userid',
-  '$type',
-  $record{pattern},
-  $record{domain},
-  $record{comment},
-  '$record{new_sequence}',
-  '$record{hit_count}',
-  '$record{last_hit}'
-)
-END
-
-  $DB->do($statement)
-    or DBError('ResequenceList: Unable to do statement', $statement);
-  } # for
-
-  $statement = 'unlock tables';
-  $sth = $DB->prepare($statement)
-      or DBError('OptimizeDB: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('OptimizeDB: Unable to execute statement', $statement);
-
-  return 0;
-} # ResequenceList
-
-sub ResequenceListold($$) {
-  my ($userid, $type) = @_;
-
-  return 1 if $type ne 'white' && $type ne 'black' && $type ne 'null';
-
-  return 2 unless UserExists($userid);
-
-  my $statement = "select sequence from list where userid = '$userid' "
-                . " and type = '$type' order by sequence";
-
-  my $sth = $DB->prepare($statement)
-    or DBError('ResequenceList: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('ResequenceList: Unable to execute statement', $statement);
-
+  # Now re-add list entries renumbering them
   my $sequence = 1;
 
-  while (my @row = $sth->fetchrow_array) {
-    last if !@row;
+  for (@$listrecs) {
+    $_->{sequence} = $sequence++;
 
-    my $old_sequence = pop @row;
+    my ($err, $msg) = $db->add($table, %$_);
 
-    if ($old_sequence != $sequence) {
-      my $update_statement = "update list set sequence = $sequence " .
-                             "where userid = '$userid' and " .
-                             "type = '$type' and sequence = $old_sequence";
+    croak $msg if $err;
+  } # for
 
-      $DB->do($update_statement)
-        or DBError('ResequenceList: Unable to do statement', $statement);
-    } # if
-
-    $sequence++;
-  } # while
+  $db->unlock;
 
   return 0;
 } # ResequenceList
 
-sub ReturnEmails($$$;$$) {
-  my ($userid, $type, $start_at, $nbr_emails, $date) = @_;
+sub ReturnList(%) {
+  my (%params) = @_;
 
-  $start_at ||= 0;
+  CheckParms(['userid', 'type'], \%params);
 
-  my $statement;
+  my $start_at = delete $params{start_at} || 0;
+  my $lines    = delete $params{lines}    || 10;
 
-  if ($date) {
-    my $sod = $date . ' 00:00:00';
-    my $eod = $date . ' 23:59:59';
+  my $table      = 'list';
+  my $condition  = "userid='$params{userid}' and type='$params{type}'";
+  my $additional = "order by sequence limit $start_at, $lines";
 
-    if ($type eq 'returned') {
-      $statement = <<"END";
-select
-  log.sender
-from
-  log,
-  email
-where
-  log.sender    = email.sender and
-  log.userid    = '$userid'    and
-  log.timestamp > '$sod'       and
-  log.timestamp < '$eod'       and
-  log.type      = '$type'
-group by
-  log.sender
-limit
-  $start_at, $nbr_emails
-END
-    } else {
-      $statement = <<"END";
-select
-  sender
-from
-  log
-where
-  userid    = '$userid'    and
-  timestamp > '$sod'       and
-  timestamp < '$eod'       and
-  type      = '$type'
-group by
-  sender
-limit
-  $start_at, $nbr_emails
-END
-    } # if
-  } else {
-    if ($type eq 'returned') {
-      $statement = <<"END";
-select
-  log.sender
-from
-  log,
-  email
-where
-  log.sender   = email.sender and
-  log.userid   = '$userid'    and
-  log.type     = '$type'
-group by 
-  log.sender
-order by
-  log.timestamp desc
-limit
-  $start_at, $nbr_emails
-END
-    } else {
-      $statement = <<"END";
-select
-  sender
-from
-  log
-where
-  userid   = '$userid'    and
-  type     = '$type'
-group by
-  sender
-order by
-  timestamp desc
-limit
-  $start_at, $nbr_emails
-END
-    } # if
-  } # if
-
-  my $sth = $DB->prepare($statement)
-    or DBError('ReturnEmails: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('ReturnEmails: Unable to execute statement', $statement);
-
-  my @emails;
-
-  while (my $sender = $sth->fetchrow_array) {
-    my $earliestDate;
-
-    # Get emails for this sender. Format an array of subjects and timestamps.
-    my @messages;
-
-    $statement = "select timestamp, subject from email where userid = '$userid' " .
-                 "and sender = '$sender'";
-
-    my $sth2 = $DB->prepare($statement)
-      or DBError('ReturnEmails: Unable to prepare statement', $statement);
-
-    $sth2->execute
-      or DBError('ReturnEmails: Unable to execute statement', $statement);
-
-    while (my @row = $sth2->fetchrow_array) {
-      my $subject = pop @row;
-      my $date    = pop @row;
-
-      if ($earliestDate) {
-        my $earliestDateShort = substr $earliestDate, 0, 10;
-        my $dateShort         = substr $date,         0, 10;
-
-        if ($earliestDateShort eq $dateShort and
-            $earliestDate > $date) {
-          $earliestDate = $date if $earliestDateShort eq $dateShort;
-        } # if
-      } else {
-        $earliestDate = $date;
-      } # if
-
-      push @messages, [$subject, $date];
-    } # while
-
-    # Done with sth2
-    $sth2->finish;
-
-    $earliestDate ||= '';
-
-    unless ($type eq 'returned') {
-      push @emails, [$earliestDate, [$sender, @messages]];
-    } else {
-      push @emails, [$earliestDate, [$sender, @messages]]
-        if @messages > 0;
-    } # unless
-  } # while
-
-  # Done with $sth
-  $sth->finish;
-
-  return @emails;
-} # ReturnEmails
-
-sub ReturnList($$$) {
-  my ($type, $start_at, $lines) = @_;
-
-  $lines ||= 10;
-
-  my $statement;
-
-  if ($start_at) {
-    $statement = "select * from list where userid = '$userid' " .
-                 "and type = '$type' order by sequence "        .
-                 "limit $start_at, $lines";
-  } else {
-    $statement = "select * from list where userid = '$userid' "        .
-                 "and type = '$type' order by sequence";
-  } # if
-
-  my $sth = $DB->prepare($statement)
-    or DBError('ReturnList: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('ReturnList: Unable to execute statement', $statement);
-
-  my @list;
-  my $i = 0;
-
-  while (my @row = $sth->fetchrow_array) {
-    last if $i++ > $lines;
-
-    my %list;
-
-    $list{last_hit}  = pop @row;
-    $list{hit_count} = pop @row;
-    $list{sequence}  = pop @row;
-    $list{comment}   = pop @row;
-    $list{domain}    = pop @row;
-    $list{pattern}   = pop @row;
-    $list{type}      = pop @row;
-    $list{userid}    = pop @row;
-    push @list, \%list;
-  } # for
-
-  return @list;
+  return $db->get($table, $condition, '*', $additional);
 } # ReturnList
 
-sub ReturnListEntry($$) {
-  my ($type, $sequence) = @_;
+sub ReturnMsg(%) {
+  my (%params) = @_;
 
-  my $statement = "select * from list where userid = '$userid' "        .
-                 "and type = '$type' and sequence = '$sequence'";
-
-  my $sth = $DB->prepare($statement)
-    or DBError('ReturnListEntry: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('ReturnListEntry: Unable to execute statement', $statement);
-
-  my %list;
-  my @row = $sth->fetchrow_array;
-
-  $list{sequence} = pop @row;
-  $list{comment}  = pop @row;
-  $list{domain}   = pop @row;
-  $list{pattern}  = pop @row;
-  $list{type}     = pop @row;
-  $list{userid}   = pop @row;
-
-  return %list;
-} # ReturnListEntry
-
-# Added reply_to. Previously we passed reply_to into here as sender. This
-# caused a problem in that we were filtering as per sender but logging it
-# as reply_to. We only need reply_to for SendMsg so as to honor reply_to
-# so we now pass in both sender and reply_to
-sub ReturnMsg($$$$) {
   # ReturnMsg will send back to the $sender the register message.
   # Messages are saved to be delivered when the $sender registers.
-  my ($sender, $reply_to, $subject, $data) = @_;
+  #
+  # Added reply_to. Previously we passed reply_to into here as sender. This
+  # caused a problem in that we were filtering as per sender but logging it
+  # as reply_to. We only need reply_to for SendMsg so as to honor reply_to
+  # so we now pass in both sender and reply_to
+
+  CheckParms(['userid', 'sender', 'reply_to', 'subject', 'data'], \%params);
+
+  #my ($sender, $reply_to, $subject, $data) = @_;
 
   # Check to see if this sender has already emailed us.
-  my $msg_count = CountMsg($sender);
+  my $msg_count = $db->count('email', "userid='$userid' and sender like '%$params{sender}%'");
 
   if ($msg_count < 5) {
     # Return register message
-    my @msg;
+    SendMsg(
+      userid   => $params{userid},
+      sender   => $params{reply_to},
+      subject  => 'Your email has been returned by MAPS',
+      msgfile  => "$mapsbase/register.html",
+      data     => $params{data},
+    ) if $msg_count == 0;
 
-    for (split /\n/,$data) {
-      push @msg, "$_\n";
-    } # for
+    Logmsg(
+      userid  => $params{userid},
+      type    => 'returned',
+      sender  => $params{sender},
+      message => 'Sent register reply',
+    );
 
-    SendMsg($reply_to,
-            "Your email has been returned by MAPS",
-            "$mapsbase/register.html",
-            GetContext,
-            @msg)
-      if $msg_count == 0;
-    Logmsg("returned", $sender, "Sent register reply");
     # Save message
-    SaveMsg($sender, $subject, $data);
+    SaveMsg($params{sender}, $params{subject}, $params{data});
   } else {
-    Add2Nulllist($sender, GetContext, "Auto Null List - Mail loop");
-    Logmsg("mailloop", $sender, "Mail loop encountered");
+    Add2Nulllist($params{sender}, GetContext, "Auto Null List - Mail loop");
+
+    Logmsg(
+      userid  => $params{userid},
+      type    => 'mailloop',
+      sender  => $params{sender},
+      message => 'Mail loop encountered',
+    );
   } # if
 
   return;
 } # ReturnMsg
 
-sub ReturnMessages($$) {
-  my ($userid, $sender) = @_;
+sub ReturnMessages(%) {
+  my (%params) = @_;
 
-  my $statement = <<"END";
-select
-  subject,
-  timestamp
-from
-  email
-where
-  userid = '$userid' and
-  sender = '$sender'
-group by
-  timestamp desc
-END
+  CheckParms(['userid', 'sender'], \%params);
 
-  my $sth = $DB->prepare($statement)
-    or DBError('ReturnMessages: Unable to prepare statement', $statement);
+  my $table      = 'email';
+  my $condition  = "userid='$params{userid}' and sender='$params{sender}'";
+  my $fields     = ['subject', 'timestamp'];
+  my $additional = 'group by timestamp desc';
 
-  $sth->execute
-    or DBError('ReturnMessages: Unable to execute statement', $statement);
-
-  my @messages;
-
-  while (my @row = $sth->fetchrow_array) {
-    my $date    = pop @row;
-    my $subject = pop @row;
-
-    push @messages, [$subject, $date];
-  } # while
-
-  $sth->finish;
-
-  return @messages;
+  return $db->get($table, $condition, $fields, $additional);
 } # ReturnMessages
 
-# This subroutine returns an array of senders in reverse chronological
-# order based on time timestamp from the log table of when we returned
-# their message. The complication here is that a single sender may
-# send multiple times in a single day. So if spammer@foo.com sends
-# spam @ 1 second after midnight and then again at 2 Pm there will be
-# at least two records in the log table saying that we returned his
-# email. Getting records sorted by timestamp desc will have
-# spammer@foo.com listed twice. But we want him listed only once, as
-# the first entry in the returned array. Plus we may be called
-# repeatedly with different $start_at's. Therefore we need to process
-# the whole list of returns for today, eliminate duplicate entries for
-# a single sender then slice the resulting array.
-sub ReturnSenders($$$;$$) {
-  my ($userid, $type, $start_at, $nbr_emails, $date) = @_;
+sub ReturnSenders(%) {
+  my (%params) = @_;
+  # This subroutine returns an array of senders in reverse chronological
+  # order based on time timestamp from the log table of when we returned
+  # their message. The complication here is that a single sender may
+  # send multiple times in a single day. So if spammer@foo.com sends
+  # spam @ 1 second after midnight and then again at 2 Pm there will be
+  # at least two records in the log table saying that we returned his
+  # email. Getting records sorted by timestamp desc will have
+  # spammer@foo.com listed twice. But we want him listed only once, as
+  # the first entry in the returned array. Plus we may be called
+  # repeatedly with different $start_at's. Therefore we need to process
+  # the whole list of returns for today, eliminate duplicate entries for
+  # a single sender then slice the resulting array.
+  CheckParms(['userid', 'type', 'lines'], \%params);
 
-  $start_at ||= 0;
+  my $table      = 'log';
+  my $condition  = "userid='$params{userid}' and type='$params{type}'";
+  my $additional = 'order by timestamp desc';
 
-  my $dateCond = '';
+  $params{start_at} ||= 0;
 
-  if ($date) {
-    my $sod = $date . ' 00:00:00';
-    my $eod = $date . ' 23:59:59';
-
-    $dateCond = "and timestamp > '$sod' and timestamp < '$eod'";
+  if ($params{date}) {
+    $condition .= "and timestamp > '$params{date} 00:00:00' and "
+               .      "timestamp < '$params{date} 23:59:59'";
   } # if
 
-  my $statement = <<"END";
-select
-  sender,
-  timestamp
-from
-  log
-where
-  userid = '$userid' and
-  type   = '$type'
-  $dateCond
-order by 
-  timestamp desc
-END
-
-  my $sth = $DB->prepare($statement)
-    or DBError('ReturnSenders: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('ReturnSenders: Unable to execute statement', $statement);
+  $db->find($table, $condition, '*', $additional);
 
   # Watch the distinction between senders (plural) and sender (singular)
-  my (%senders, %sendersByTimestamp);
+  my %senders;
 
   # Run through the results and add to %senders by sender key. This
   # results in a hash that has the sender in it and the first
@@ -1645,20 +1147,14 @@ END
   # above select statement, and we've narrowed it down to only log
   # message that occurred for the given $date, we will have a hash
   # containing 1 sender and the latest timestamp for the day.
-  while (my $senderRef = $sth->fetchrow_hashref) {
-    my %sender = %{$senderRef};
-
-    $senders{$sender{sender}} = $sender{timestamp}
-      unless $senders{$sender{sender}};
+  while (my $rec = $db->getnext) {
+    $senders{$rec->{sender}} = $rec->{timestamp}
+      unless $senders{$rec->{sender}};
   } # while
-
-  $sth->finish;
 
   # Make a hash whose keys are the timestamp (so we can later sort on
   # them).
-  while (my ($key, $value) = each %senders) {
-    $sendersByTimestamp{$value} = $key;
-  } # while
+  my %sendersByTimestamp = reverse %senders;
 
   my @senders;
 
@@ -1667,60 +1163,60 @@ END
     for (sort { $b cmp $a } keys %sendersByTimestamp);
 
   # Finally slice for the given range
-  my $end_at = $start_at + $nbr_emails - 1;
+  my $end_at = $params{start_at} + $params{lines} - 1;
 
   $end_at = (@senders - 1)
     if $end_at > @senders;
 
-  return (@senders) [$start_at .. $end_at];
+  return (@senders) [$params{start_at} .. $end_at];
 } # ReturnSenders
 
 sub SaveMsg($$$) {
   my ($sender, $subject, $data) = @_;
 
-  AddEmail($sender, $subject, $data);
+  AddEmail(
+    userid  => $userid,
+    sender  => $sender,
+    subject => $subject,
+    data    => $data,
+  );
 
   return;
 } # SaveMsg
 
-sub SearchEmails($$) {
-  my ($userid, $searchfield) = @_;
+sub SearchEmails(%) {
+  my (%params) = @_;
+
+  CheckParms(['userid', 'search'], \%params);
+
+  my $table      = 'email';
+  my $fields     = ['sender', 'subject', 'timestamp'];
+  my $condition  = "userid='$params{userid}' and (sender like '\%$params{search}\%' "
+                 . "or subject like '\%$params{search}\%')";
+  my $additional = 'order by timestamp desc';
+
+  my ($err, $msg) = $db->find($table, $condition, $fields, $additional);
 
   my @emails;
 
-  my $statement =
-    "select sender, subject, timestamp from email where userid = '$userid' and (
-     sender like '%$searchfield%' or subject like '%$searchfield%')
-     order by timestamp desc";
-
-  my $sth = $DB->prepare($statement)
-    or DBError('SearchEmails: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('SearchEmails: Unable to execute statement', $statement);
-
-  while (my @row = $sth->fetchrow_array) {
-    my $date    = pop @row;
-    my $subject = pop @row;
-    my $sender  = pop @row;
-
-    push @emails, [$sender, $subject, $date];
+  while (my $rec = $db->getnext) {
+    push @emails, $rec;
   } # while
-
-  $sth->finish;
 
   return @emails;
 } # SearchEmails
 
-sub SendMsg($$$$@) {
+sub SendMsg(%) {
   # SendMsg will send the message contained in $msgfile.
-  my ($sender, $subject, $msgfile, $userid, @spammsg) = @_;
+  my (%params) = @_;
+
+  #my ($sender, $subject, $msgfile, $userid, @spammsg) = @_;
 
   my @lines;
 
   # Open return message template file
-  open my $return_msg_file, '<', $msgfile
-    or die "Unable to open return msg file ($msgfile): $!\n";
+  open my $return_msg_file, '<', $params{msgfile}
+    or die "Unable to open return msg file ($params{msgfile}): $!\n";
 
   # Read return message template file and print it to $msg_body
   while (<$return_msg_file>) {
@@ -1730,7 +1226,7 @@ sub SendMsg($$$$@) {
     } # if
     if (/\$sender/) {
       # Replace sender
-      s/\$sender/$sender/;
+      s/\$sender/$params{sender}/;
     } #if
 
     push @lines, $_;
@@ -1741,13 +1237,15 @@ sub SendMsg($$$$@) {
   # Create the message, and set up the mail headers:
   my $msg = MIME::Entity->build(
     From    => "MAPS\@DeFaria.com",
-    To      => $sender,
-    Subject => $subject,
+    To      => $params{sender},
+    Subject => $params{subject},
     Type    => "text/html",
     Data    => \@lines
   );
 
   # Need to obtain the spam message here...
+  my @spammsg = split "\n", $params{data};
+
   $msg->attach(
     Type        => "message",
     Disposition => "attachment",
@@ -1768,12 +1266,9 @@ sub SendMsg($$$$@) {
 sub SetContext($) {
   my ($to_user) = @_;
 
-  my $old_user = $userid;
-
   if (UserExists($to_user)) {
     $userid = $to_user;
 
-    GetUserOptions($userid);
     return GetUserInfo $userid;
   } else {
     return 0;
@@ -1784,96 +1279,61 @@ sub Space($) {
   my ($userid) = @_;
 
   my $total_space = 0;
-  my %msg_space;
+  my $table       = 'email';
+  my $condition   = "userid='$userid'";
 
-  my $statement = "select * from email where userid = '$userid'";
-  my $sth = $DB->prepare($statement)
-    or DBError('Unable to prepare statement', $statement);
+  $db->find($table, $condition);
 
-  $sth->execute
-    or DBError('Unable to execute statement', $statement);
-
-  while (my @row = $sth->fetchrow_array) {
-    last if !@row;
-
-    my $data      = pop @row;
-    my $timestamp = pop @row;
-    my $subject   = pop @row;
-    my $sender    = pop @row;
-    my $user      = pop @row;
-
-    my $msg_space =
-      length ($userid)    +
-      length ($sender)    +
-      length ($subject)   +
-      length ($timestamp) +
-      length ($data);
-
-    $total_space        += $msg_space;
-    $msg_space{$sender} += $msg_space;
+  while (my $rec = $db->getnext) {
+    $total_space +=
+      length($rec->{userid})    +
+      length($rec->{sender})    +
+      length($rec->{subject})   +
+      length($rec->{timestamp}) +
+      length($rec->{data});
   } # while
 
-  $sth->finish;
-
-  return wantarray ? %msg_space : $total_space;
+  return $total_space;
 } # Space
 
-sub UpdateList($$$$$$$) {
-  my ($userid, $type, $pattern, $domain, $comment, $hit_count, $sequence) = @_;
+sub UpdateList(%) {
+  my (%rec) = @_;
 
-  if (!$pattern || $pattern eq '') {
-    $pattern = 'NULL';
-  } else {
-    $pattern = "'" . quotemeta ($pattern) . "'";
+  CheckParms(['userid', 'type', 'sequence'], \%rec);
+
+  my $table     = 'list';
+  my $condition = "userid = '$rec{userid}' and type = '$rec{type}' and sequence = $rec{sequence}";
+
+  if ($rec{pattern} =~ /\@/ and !$rec{domain}) {
+    ($rec{pattern}, $rec{domain}) = split /\@/, $rec{pattern};
+  } elsif (!$rec{pattern} and $rec{domain} =~ /\@/) {
+    ($rec{pattern}, $rec{domain}) = split /\@/, $rec{domain};
+  } elsif (!$rec{pattern} and !$rec{domain}) {
+    return "Must specify either Username or Domain";
   } # if
 
-  if (!$domain || $domain eq '') {
-    $domain = 'NULL';
-  } else {
-    $domain = "'" . quotemeta ($domain) . "'";
+  $rec{pattern}   //= 'null';
+  $rec{domain}    //= 'null';
+  $rec{comment}   //= 'null';
+
+  if ($rec{retention}) {
+    $rec{retention} = lc $rec{retention};
   } # if
 
-  if (!$comment || $comment eq '') {
-    $comment = 'NULL';
-  } else {
-    $comment = "'" . quotemeta ($comment) . "'";
-  } # if
-
-  if (!$hit_count || $hit_count eq '') {
-    $hit_count = 0;
-  #} else {
-  # TODO: Check if numeric
-  } # fi
-
-  my $statement =
-    'update list set ' .
-    "pattern = $pattern, domain = $domain, comment = $comment, hit_count = $hit_count " .
-    "where userid = '$userid' and type = '$type' and sequence = $sequence";
-
-  $DB->do($statement)
-    or DBError('UpdateList: Unable to do statement', $statement);
-
-  return 0;
+  return $db->update($table, $condition, %rec);
 } # UpdateList
 
-sub UpdateUser($$$$) {
-  my ($userid, $fullname, $email, $password) = @_;
+sub UpdateUser(%) {
+  my (%rec) = @_;
 
-  return 1 if !UserExists($userid);
+  CheckParms(['userid', 'name', 'email'], \%rec);
 
-  my $statement;
+  return 1 unless UserExists($rec{userid});
 
-  if (!defined $password || $password eq '') {
-    $statement = "update user set userid='$userid', name='$fullname', email='$email' where userid='$userid'";
-  } else {
-    $password = Encrypt $password, $userid;
-    $statement = "update user set userid='$userid', name='$fullname', email='$email', password='$password' where userid='$userid'";
-  } # if
+  my $table = 'user';
+  my $condition = "userid='$rec{userid}'";
 
-  $DB->do($statement)
-    or DBError('UpdateUser: Unable to do statement', $statement);
-
-  return 0;
+  return $db->update($table, $condition, %rec);
 } # UpdateUser
 
 sub UpdateUserOptions ($@) {
@@ -1881,12 +1341,10 @@ sub UpdateUserOptions ($@) {
 
   return unless UserExists($userid);
 
-  for (keys(%options)) {
-    my $statement = "update useropts set value='$options{$_}' where userid='$userid' and name='$_'";
+  my $table     = 'useropts';
+  my $condition = "userid='$userid' and name="; 
 
-    $DB->do($statement)
-      or DBError('UpdateUserOption: Unable to do statement', $statement);
-  } # for
+  $db->update($table, "$condition'$_'", (name=>$_, value=>$options{$_})) for (keys %options);
 
   return;
 } # UpdateUserOptions
@@ -1896,28 +1354,14 @@ sub UserExists($) {
 
   return 0 unless $userid;
 
-  my $statement = "select userid, password from user where userid = '$userid'";
+  my $table     = 'user';
+  my $condition = "userid='$userid'";
 
-  my $sth = $DB->prepare($statement)
-      or DBError('UserExists: Unable to prepare statement', $statement);
+  my $rec = $db->get($table, $condition);
 
-  $sth->execute
-    or DBError('UserExists: Unable to execute statement', $statement);
+  return 0 if scalar(@$rec) == 0;
 
-  my @userdata = $sth->fetchrow_array;
-
-  $sth->finish;
-
-  return 0 if scalar(@userdata) == 0;
-
-  my $dbpassword = pop @userdata;
-  my $dbuserid   = pop @userdata;
-
-  if ($dbuserid ne $userid) {
-    return 0;
-  } else {
-    return $dbpassword;
-  } # if
+  return $rec->[0]{password};
 } # UserExists
 
 sub Whitelist ($$;$$) {
@@ -1940,90 +1384,26 @@ sub Whitelist ($$;$$) {
   unlink "/tmp/MAPSMessage.$$";
 
   if ($status == 0) {
-    Logmsg("whitelist", $sender, "Delivered message");
+    Logmsg(
+      userid  => $userid,
+      type    => 'whitelist',
+      sender  => $sender, 
+      message => 'Delivered message',
+    );
   } else { 
     Error("Unable to deliver message - is MAPSDeliver setgid? - $!");
   } # if
 
-  RecordHit("white", $sequence, ++$hit_count) if $sequence;
+  $hit_count++ if $sequence;
+
+  RecordHit(
+    userid   => $userid,
+    type     => 'white',
+    sequence => $sequence,
+    hit_count => $hit_count,
+  );
 
   return $status;
 } # Whitelist
-
-sub count($$) {
-  my ($table, $condition) = @_;
-
-  my $statement;
-
-  if ($condition) {
-    $statement = "select count(*) from $table where $condition";
-  } else {
-    $statement = "select count(*) from $table";
-  } # if
-
-  my $sth = $DB->prepare($statement)
-    or DBError('count: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('count: Unable to execute statement', $statement);
-
-  # Get return value, which should be how many message there are
-  my @row = $sth->fetchrow_array;
-
-  # Done with $sth
-  $sth->finish;
-
-  my $count;
-
-  # Retrieve returned value
-  unless ($row[0]) {
-    $count = 0
-  } else {
-    $count = $row[0];
-  } # unless
-
-  return $count
-} # count
-
-sub count_distinct($$$) {
-  my ($table, $column, $condition) = @_;
-
-  my $statement;
-
-  if ($condition) {
-    $statement = "select count(distinct $column) from $table where $condition";
-  } else {
-    $statement = "select count(distinct $column) from $table";
-  } # if
-
-  my $sth = $DB->prepare($statement)
-    or DBError('count: Unable to prepare statement', $statement);
-
-  $sth->execute
-    or DBError('count: Unable to execute statement', $statement);
-
-  # Get return value, which should be how many message there are
-  my @row = $sth->fetchrow_array;
-
-  # Done with $sth
-  $sth->finish;
-
-  # Retrieve returned value
-  unless ($row[0]) {
-    return 0;
-  } else {
-    return $row[0];
-  } # unless
-} # count_distinct
-
-sub countlog(;$) {
-  my ($additional_condition) = @_;
-
-  my $condition = "userid=\'$userid\' ";
-
-  $condition .= "and $additional_condition" if $additional_condition;
-
-  return count_distinct('log', 'sender', $condition);
-} # countlog
 
 1;

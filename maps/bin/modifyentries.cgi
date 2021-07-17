@@ -9,14 +9,14 @@
 # Modified:     $Date: 2013/06/12 14:05:47 $
 # Language:     perl
 #
-# (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
+# (c) Copyright 2000-2021, Andrew@DeFaria.com, all rights reserved.
 #
 ################################################################################
 use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -49,22 +49,31 @@ sub ReturnSequenceNbrs {
 # Main
 my $i = 0;
 
-foreach (ReturnSequenceNbrs) {
-  UpdateList(
-    $userid,
-    $type,
-    param("pattern$_"),
-    param("domain$_"),
-    param("comment$_"),
-    param("hit_count$_"),
-    $_,
+for (ReturnSequenceNbrs) {
+  my %rec = (
+    userid    => $userid,
+    type      => $type,
+    sequence  => $_,
   );
+
+  $rec{pattern}   = param "pattern$_";
+  $rec{domain}    = param "domain$_";
+  $rec{comment}   = param "comment$_";
+  $rec{hit_count} = param "hit_count$_";
+  $rec{retention} = param "retention$_";
+
+  $rec{hit_count} = 0 unless $rec{hit_count};
+
+  my ($err, $msg) = UpdateList(%rec);
+
+  croak $msg if $err;
+
   $i++;
 } # for
 
-if ($i eq 0) {
+if ($i == 0) {
   print redirect ("/maps/php/list.php?type=$type&next=$next&message=Unable to update entries");
-} elsif ($i eq 1) {
+} elsif ($i == 1) {
   print redirect ("/maps/php/list.php?type=$type&next=$next&message=Modified entry");
 } else {
   print redirect ("/maps/php/list.php?type=$type&next=$next&message=Modified entries");

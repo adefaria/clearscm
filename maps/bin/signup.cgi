@@ -16,7 +16,8 @@ use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -35,7 +36,6 @@ my $history           = param('history');
 my $days              = param('days');
 my $dates             = param('dates');
 my $tag_and_forward   = param('tag_and_forward');
-my $message;
 
 sub MyError {
   my $errmsg = shift;
@@ -80,9 +80,14 @@ sub Body {
     MyError 'Passwords do not match';
   } # if
 
-  my $status = AddUser($userid, $fullname, $email, $password);
+  my $status = AddUser(
+    userid   => $userid,
+    name     => $fullname,
+    email    => $email,
+    password => $password,
+  );
 
-  if ($status ne 0) {
+  if ($status != 0) {
     MyError 'Username already exists';
   } # if
 
@@ -94,7 +99,7 @@ sub Body {
     'Tag&Forward' => $tag_and_forward,
   );
 
-  my $status = AddUserOptions($userid, %options);
+  $status = AddUserOptions($userid, %options);
 
   if ($status == 0) {
     print redirect ("/maps/?errormsg=User account \"$userid\" created.<br>You may now login");
@@ -103,6 +108,8 @@ sub Body {
   } else {
     MyError "Unable to add useropts for \"$userid\"";
   } # if
+  
+  return;
 } # Body
 
 Body;

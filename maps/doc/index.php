@@ -11,8 +11,7 @@ include "MAPS.php"
 <body>
 
 <div class="heading">
-  <h2 class="header" align="center">
-  <font class="standout">MAPS</font> Spam Elimination System!</h2>
+  <h2 class="header" align="center">Spam Elimination System!</h2>
 </div>
 
 <div class="content">

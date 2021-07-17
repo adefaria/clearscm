@@ -17,23 +17,19 @@ package MAPSLog;
 use strict;
 use warnings;
 
-use FindBin;
+use base qw(Exporter);
 
 use MAPS;
-use MAPSUtil;
 
-use vars qw(@ISA @EXPORT);
-use Exporter;
+use DateUtils;
+use Utils;
 
-@ISA = qw (Exporter);
-
-@EXPORT = qw (
+our @EXPORT = qw (
   Debug
   Error
   GetStats
   Info
   Logmsg
-  getstats
   @Types
 );
 
@@ -52,16 +48,18 @@ sub nbr_msgs($) {
   return FindEmail($sender);
 } # nbr_msgs
 
-sub GetStats(;$$) {
-  my ($nbr_days, $date) = @_;
+sub GetStats(%) {
+  my (%params) = @_;
 
-  $nbr_days ||= 1;
-  $date     ||= Today2SQLDatetime();
+  CheckParms(['userid'], \%params);
+
+  $params{days} ||= 1;
+  $params{date} ||= Today2SQLDatetime;
 
   my %dates;
 
-  while ($nbr_days > 0) {
-    my $ymd = substr $date, 0, 10;
+  while ($params{days} > 0) {
+    my $ymd = substr $params{date}, 0, 10;
     my $sod = $ymd . ' 00:00:00';
     my $eod = $ymd . ' 23:59:59';
 
@@ -70,50 +68,55 @@ sub GetStats(;$$) {
     for (@Types) {
       my $condition = "type=\'$_\' and (timestamp > \'$sod\' and timestamp < \'$eod\')";
 
-      # Not sure why I need to qualify countlog
-      $stats{$_} = MAPS::countlog($condition);
+      $stats{$_} = MAPS::CountLog(
+        userid     => $params{userid},
+        additional => $condition,
+      );
     } # for
 
     $dates{$ymd} = \%stats;
 
-    $date = SubtractDays $date, 1;
-    $nbr_days--;
+    $params{date} = SubtractDays $params{date}, 1;
+    $params{days}--;
   } # while
 
   return %dates
 } # GetStats
 
-sub Logmsg($$$) {
-  my ($type, $sender, $msg) = @_;
+sub Logmsg(%) {
+  my(%params) = @_;
 
-  # Todo: Why do I need to specify MAPS:: here?
-  MAPS::AddLog($type, $sender, $msg);
+  CheckParms(['userid', 'type', 'message'], \%params);
 
-  return;
+  # TODO Why do I need to qualify this?
+  return MAPS::AddLog(%params);
 } # logmsg
 
-sub Debug($) {
-  my ($msg) = @_;
+sub Debug(%) {
+  my (%params) = @_;
 
-  Logmsg('debug', '', $msg);
-
-  return;
+  return Logmsg(
+    userid  => $params{userid},
+    type    => 'debug',
+    message => $params{message});
 } # Debug
 
-sub Error($) {
-  my ($msg) = @_;
+sub Error(%) {
+  my (%params) = @_;
 
-  Logmsg('error', '', $msg);
+  return Logmsg(
+    userid  => $params{userid},
+    type    => 'error',
+    message => $params{message});
+  } # Error
 
-  return;
-} # Error
+sub Info(%) {
+  my (%params) = @_;
 
-sub Info($) {
-  my ($msg) = @_;
-
-  Logmsg('info', '', $msg);
-
-  return;
+  return Logmsg(
+    userid  => $params{userid},
+    type    => 'info',
+    message => $params{message});
 } # info
 
 1;

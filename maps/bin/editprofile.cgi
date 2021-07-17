@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -29,12 +29,9 @@ my $userid;
 my $table_name = 'profile';
 
 sub Body() {
-  my $handle = FindUser($userid);
+  FindUser(userid => $userid);
 
-  my ($fullname, $email, $password);
-  ($_, $fullname, $email, $password) = GetUser($handle);
-
-  $handle->finish;
+  my $rec = GetUser;
 
   my %options = GetUserOptions($userid);
 
@@ -45,6 +42,7 @@ sub Body() {
   };
   print start_table {
     -align       => 'center',
+    -bgcolor     => 'white',
     -id          => $table_name,
     -border      => 1,
     -cellspacing => 0,
@@ -62,7 +60,7 @@ sub Body() {
       textfield {-class => 'inputfield',
                  -size  => 50,
                  -name  => 'fullname',
-                 -value => $fullname}),
+                 -value => $rec->{name}}),
     td {-class  => 'notetext'},'Specify your full name'
   ]) . "\n";
   print Tr [
@@ -71,7 +69,7 @@ sub Body() {
       textfield {-class => 'inputfield',
                  -size  => 50,
                  -name  => 'email',
-                 -value => $email}),
+                 -value => $rec->{email}}),
     td {-class  => 'notetext'},'Your email address is used if you are a ' .
     i ("Tag &amp; Forward") .
       ' user. This is the email address that MAPS will forward your email to after it tags it. This email address is also used in case you forget your password so that we can email you your password.'
@@ -165,6 +163,8 @@ sub Body() {
     submit (-name       => 'submit',
             -value      => 'Update Profile'));
   print end_form;
+
+  return;
 } # Body
 
 # Main
@@ -179,6 +179,8 @@ $userid = Heading(
   $table_name,
   @scripts
 );
+
+$userid //= $ENV{USER};
 
 SetContext $userid;
 NavigationBar $userid;

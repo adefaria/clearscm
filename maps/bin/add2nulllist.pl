@@ -14,7 +14,9 @@ use Display;
 # Highly specialized!
 my $userid = $ENV{USER};
 my $Userid;
-my $type = "null";
+my $type = 'null';
+
+die "TODO: Test this script";
 
 sub GetItems($) {
   my ($filename) = @_;
@@ -34,6 +36,7 @@ sub GetItems($) {
     $item{domain}    = $address[1];
     $item{comment}   = $fields[1] ? $fields[1] : '';
     $item{hit_count} = $fields[2] ? $fields[2] : 0;
+    $item{retention} = $fields[3];
 
     push @items, \%item;
   } # while
@@ -44,46 +47,63 @@ sub GetItems($) {
 } # GetItems
 
 sub Add2List(@) {
-  my @items = @_;
+  my (@items) = @_;
 
-  my $sender  = '';
-  my $nextseq = GetNextSequenceNo($userid, $type);
+  my $item;
 
-  for (@items) {
-    my %item = %{$_};
+  my $item->{sequence} = GetNextSequenceNo(
+    userid => $userid,
+    type   => $type,
+  );
 
-    my $pattern   = $item{pattern};
-    my $domain    = $item{domain};
-    my $comment   = $item{comment};
-    my $hit_count = $item{hit_count};
+  $item->{userid} = $userid;
+  $item->{type}   = $type;
 
-    display_nolf "Adding $pattern\@$domain ($comment) to null list ($nextseq)...";
+  for $item (@items) {
+    display_nolf "Adding $item->{pattern}\@$item->{domain} ($item->{comment}) to null list ($item->{sequence})...";
 
-    last if ((!defined $pattern || $pattern eq '') &&
-             (!defined $domain  || $domain  eq ''));
+    last unless $item->{pattern} or $item->{domain};
 
-    $sender = lc ("$pattern\@$domain");
+    $item->{sender} = CheckEmail $item->{pattern}, $item->{domain};
 
-    if (OnNulllist($sender)) {
+    my ($status, $rule) = OnNulllist($item->{sender}, $userid);
+
+    if ($status == 0) {
       display ' Already on list';
     } else {
-      Add2Nulllist($sender, $userid, $comment, $hit_count);
+      my ($message, $msg) = Add2Nulllist(%$item);
+
       display ' done';
 
       # Now remove this entry from the other lists (if present)
       for my $otherlist ('white', 'black') {
-        my $sth = FindList($otherlist, $sender);
-        my ($sequence, $count);
+        FindList(
+          userid => $item->{userid},
+          type   => $otherlist,
+          sender => $item->{sender}
+        );
 
-        ($_, $_, $_, $_, $_, $sequence) = GetList($sth);
+        my $seq = GetList;
 
-        if ($sequence) {
-          $count = DeleteList($otherlist, $sequence);
+        if ($seq->{sequence}) {
+          my $count = DeleteList(
+            userid   => $item->{userid}
+            type     => $otherlist,
+            sequence => $seq->{sequence}
+          );
+
+          display "Removed $item->{sender} from ${Userid}'s " . ucfirst $otherlist . ' list'
+            if $count > 0;
+
+          ResequenceList(
+            userid => $rec{userid},
+            type   => $otherlist,
+          );
         } # if
       } # for
     } # if
 
-    $nextseq++;
+    $item->{sequence}++;
   } # while
 
   return;

@@ -1,4 +1,4 @@
-<?php 
+<?php
 ////////////////////////////////////////////////////////////////////////////////
 //
 // File:	$RCSFile$
@@ -20,15 +20,14 @@ include "MAPS.php";
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
 <head>
   <title>MAPS: Space Usage</title>
-  <?php 
+  <?php
     MAPSHeader ();
     $Userid = ucfirst ($userid);
   ?>
 </head>
 <body>
 <div class="heading">
-<h2 class="header" align="center"><font class="standout">MAPS</font>
-Space Usage for <?php echo $Userid?></h2>
+<h2 class="header" align="center">Space Usage for <?php echo $Userid?></h2>
 </div>
 <div class="content">
   <?php
@@ -37,7 +36,7 @@ Space Usage for <?php echo $Userid?></h2>
     NavigationBar ($userid);
 
     $space = Space();
-    
+
     $one_meg = 1024 * 1024;
 
     if ($space > $one_meg) {

@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -30,15 +30,15 @@ use MIME::Parser;
 use MIME::Base64;
 use MIME::Words qw(:all);
 
-my $userid      = cookie('MAPSUser');
-my $sender      = param('sender');
+my $userid = cookie('MAPSUser');
+my $sender = param('sender');
 
 # CGI will replace '+' with ' ', which many mailers are starting to do,
 # so add it back
 $sender =~ s/ /\+/;
 
-my $msg_date    = param('msg_date');
-my $table_name  = 'message';
+my $msg_date   = param('msg_date');
+my $table_name = 'message';
 
 sub ParseEmail(@) {
   my (@header) = @_;
@@ -73,15 +73,20 @@ sub Body($) {
   my ($date) = @_;
 
   # Find unique message using $date
-  my $handle = FindEmail $sender, $date;
+  my ($err, $msg) = FindEmail(
+    userid    => $userid,
+    sender    => $sender,
+    timestamp => $date,
+  );
 
-  my ($userid, $sender, $subject, $timestamp, $message) = GetEmail $handle;
+  my $rec = GetEmail;
 
   my $parser = MIME::Parser->new();
 
   $parser->output_to_core(1);
+  $parser->tmp_to_core(1);
 
-  my $entity = $parser->parse_data ($message);
+  my $entity = $parser->parse_data($rec->{data});
 
   my %header = ParseEmail @{($entity->header)[0]};
 
@@ -93,7 +98,8 @@ sub Body($) {
                         -cellpadding  => 0,
                         -width        => "100%"});
     print start_table ({-align        => "center",
-                        -bgcolor      => "#d4d0c8",
+                        -bgcolor      => 'steelblue',
+                        #-bgcolor      => "#d4d0c8",
                         -border       => 0,
                         -cellspacing  => 2,
                         -cellpadding  => 2,
@@ -103,7 +109,8 @@ sub Body($) {
                         -border       => 0,
                         -cellspacing  => 0,
                         -cellpadding  => 2,
-                        -bgcolor      => "#ece9d8",
+                        -bgcolor      => 'black',
+                        #-bgcolor      => "#ece9d8",
                         -width        => "100%"}) . "\n";
 
     for (keys (%header)) {
@@ -112,10 +119,12 @@ sub Body($) {
       my $str = decode_mimewords($header{$_});
 
       print Tr ([
-        th ({-align    => "right",
-             -bgcolor  => "#ece9d8",
-             -width    => "8%"}, "$_:") . "\n" .
-        td ({-bgcolor  => "white"}, $str)
+        th ({-align    => 'right',
+             -bgcolor  => 'steelblue',
+             -style    => 'color: white',
+             #-bgcolor  => "#ece9d8",
+             -width    => "8%"}, ucfirst "$_:") . "\n" .
+        td ({-bgcolor  => 'white'}, $str)
       ]);
     } # for
 
@@ -123,8 +132,8 @@ sub Body($) {
     print "</td></tr>";
     print end_table;
 
-  print start_table ({-align        => "center",
-                      -bgcolor      => "black",
+  print start_table ({-align        => 'center',
+                      -bgcolor      => 'steelblue',
                       -border       => 0,
                       -cellspacing  => 0,
                       -cellpadding  => 2,
@@ -134,7 +143,7 @@ sub Body($) {
                       -border       => 0,
                       -cellspacing  => 0,
                       -cellpadding  => 2,
-                      -bgcolor      => "white",
+                      -bgcolor      => 'white',
                       -width        => "100%"}) . "\n";
   print "<tbody><tr><td>\n";
 
@@ -146,7 +155,7 @@ sub Body($) {
       print $entity->{ME_Bodyhandle}{MBS_Data};
     } else {
       print '<pre>';
-      $entity->print_body;
+      print $entity->print_body;
       print '</pre>';
     } # if
   } else {
@@ -160,9 +169,9 @@ sub Body($) {
             # There should be an easier way to get this but I couldn't find one.
             my $encoding = ${$subpart->{mail_inet_head}{mail_hdr_hash}{'Content-Transfer-Encoding'}[0]};
             if ($encoding =~ /base64/) {
-              $subpart->bodyhandle->print();
+              $subpart->bodayhandle->print;
             } else {
-              $subpart->print_body;
+              print $subpart->print_body;
             } # if
             last;
           } elsif ($subpart->mime_type eq 'multipart/related') {
@@ -185,7 +194,7 @@ sub Body($) {
             $part->bodyhandle->print();
           } else {
             print '<pre>';
-            $part->print_body;
+            print $part->print_body;
             print '</pre>';
           } # if
         } # if
@@ -208,6 +217,8 @@ $userid = Heading(
   '',
   $table_name,
 );
+
+$userid //= $ENV{USER};
 
 SetContext($userid);
 NavigationBar($userid);

@@ -187,9 +187,15 @@ sub ProcessMsgs ($$$) {
 
     if ($onlist) {
       verbose "Blacklisting $sender";
-      my @msg = split /\n/, $data;
 
-      Blacklist $sender, $sequence, $hit_count, @msg;
+      Blacklist(
+        userid    => $userid,
+        sender    => $sender,
+        sequence  => $sequence,
+        hit_count => $hit_count,
+        data      => $data,
+      );
+
       next;
     } # if 
 
@@ -204,7 +210,13 @@ sub ProcessMsgs ($$$) {
 
     # Return processing:
     verbose "Returning message from $sender";
-    ReturnMsg $sender, $reply_to, $subject, $data;
+    ReturnMsg(
+      userid   => $userid,
+      sender   => $sender,
+      reply_to => $reply_to,
+      subject  => $subject,
+      data     => $data,
+    );
   } # while
 } # ProcessMsgs
 
@@ -220,9 +232,9 @@ GetOptions(
 my $msgfile;
 
 if ($ARGV[0] and $ARGV[0] ne "") {
-  open $msgfile, $ARGV[0];
+  open $msgfile, '<', $ARGV[0];
 
-  if (!$msgfile) {
+  unless ($msgfile) {
     Error "Unable to open file ($ARGV[0]): $!\n";
     exit 1;
   } # if
@@ -232,9 +244,9 @@ if ($ARGV[0] and $ARGV[0] ne "") {
 
 verbose "Starting MAPS....";
 
-my ($username, $user_email) = SetContext $userid
+my %userOptions = SetContext $userid
   or die "$userid is not a registered MAPS user\n";
 
-ProcessMsgs $msgfile, $username, $user_email;
+ProcessMsgs $msgfile, $userOptions{name}, $userOptions{email};
 
 exit 0;

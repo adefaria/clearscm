@@ -14,31 +14,35 @@
 package MAPSWeb;
 
 use strict;
-#use warnings;
+use warnings;
+
+use base qw(Exporter);
+
+use DateUtils;
 
 use MAPS;
 use MAPSLog;
-use MAPSUtil;
 
-use CGI qw (:standard *table start_Tr end_Tr start_div end_div);
-use vars qw (@ISA @EXPORT);
+use CGI qw(:standard *table start_Tr end_Tr start_div end_div);
 
-use Exporter;
-
-@ISA = qw (Exporter);
-
-@EXPORT = qw (
-  Debug
+our @EXPORT = qw(
+  DebugWeb
   DisplayError
   Footing
   Heading
   NavigationBar
 );
 
-sub getquickstats($) {
-  my ($date) = @_;
+sub getquickstats(%) {
+  my (%params) = @_;
 
-  my %dates = GetStats (1, $date);
+  my %dates = GetStats(
+    userid => $params{userid},
+    days   => 1,
+    date   => $params{date},
+  );
+
+  my $date = $params{date};
 
   for (@MAPSLog::Types) {
     $dates{$date}{processed} += $dates{$date}{$_};
@@ -47,19 +51,24 @@ sub getquickstats($) {
   return %dates;
 } # getquickstats
 
-sub displayquickstats() {
+sub displayquickstats($) {
+  my ($userid) = @_;
+
   # Quick stats are today only.
   my $today = Today2SQLDatetime;
   my $time  = substr $today, 11;
   my $date  = substr $today, 0, 10;
-  my %dates = getquickstats $date;
+  my %dates = getquickstats(
+    userid => $userid,
+    date   => $date
+  );
 
   print start_div {-class => 'quickstats'};
-  print h4 {-class    => 'header',
+  print h4 {-class    => 'todaysactivity',
             -align    => 'center'},
     'Today\'s Activity';
   print p {-align     => 'center'},
-    b ('as of ' . FormatTime ($time));
+    b ('as of ' . FormatTime($time));
   print start_table {
     -align       => 'center',
     -border      => 0,
@@ -132,10 +141,10 @@ sub Footing(;$) {
   return;
 } # Footing
 
-sub Debug($) {
+sub DebugWeb($) {
   my ($msg) = @_;
 
-  print br, font ({ -class => 'error' }, 'DEBUG: '), $msg;
+  print br, font({ -class => 'error' }, 'DEBUG: '), $msg;
 
   return;
 } # Debug
@@ -143,8 +152,11 @@ sub Debug($) {
 sub DisplayError($) {
   my ($errmsg) = @_;
 
-  print h3 ({-class => 'error',
-             -align => 'center'}, 'ERROR: ' . $errmsg);
+  print h3({
+    -class => 'error',
+    -align => 'center'},
+    'ERROR: ' . $errmsg
+  );
 
   Footing;
 
@@ -154,13 +166,13 @@ sub DisplayError($) {
 # This subroutine puts out the header for web pages. It is called by
 # various cgi scripts thus has a few parameters.
 sub Heading($$$$;$$@) {
-  my ($action,             # One of getcookie, setcookie, unsetcookie
-      $userid,             # User id (if setting a cookie)
-      $title,              # Title string
-      $h1,                 # H1 header
-      $h2,                 # H2 header (optional)
-      $table_name,         # Name of table in page, if any
-      @scripts)    = @_;   # Array of JavaScript scripts to include
+  my ($action,          # One of getcookie, setcookie, unsetcookie
+      $userid,          # User id (if setting a cookie)
+      $title,           # Title string
+      $h1,              # H1 header
+      $h2,              # H2 header (optional)
+      $table_name,      # Name of table in page, if any
+      @scripts) = @_;   # Array of JavaScript scripts to include
 
   my @java_scripts;
   my $cookie;
@@ -205,48 +217,48 @@ sub Heading($$$$;$$@) {
     );
   } # if
 
-  print
-    header (-title  => "MAPS: $title",
-            -cookie => $cookie);
+  print header(
+    -title  => $title,
+    -cookie => $cookie
+  );
 
-  if (defined $table_name) {
-    print
-      start_html (-title    => "MAPS: $title",
-                  -author   => 'Andrew\@DeFaria.com',
-                  -style    => {-src    => '/maps/css/MAPSStyle.css'},
-                  -onResize => "AdjustTableWidth (\"$table_name\");",
-                  -head     => [
-            Link ({-rel  => 'icon',
-                   -href => '/maps/MAPS.png',
-                   -type => 'image/png'}),
-            Link ({-rel  => 'shortcut icon',
-                   -href => '/maps/favicon.ico'})
-                  ],
-          -script    => @java_scripts);
+  if ($table_name) {
+    print start_html(
+      -title    => $title,
+      -author   => 'Andrew\@DeFaria.com',
+      -style    => {-src    => '/maps/css/MAPSStyle.css'},
+      -onResize => "AdjustTableWidth (\"$table_name\");",
+      -head     => [
+      Link({-rel  => 'icon',
+        -href => '/maps/MAPS.png',
+        -type => 'image/png'}),
+      Link({-rel  => 'shortcut icon',
+        -href => '/maps/favicon.ico'})
+      ],
+      -script    => @java_scripts);
   } else {
-    print
-      start_html (-title  => "MAPS: $title",
-                  -author => 'Andrew\@DeFaria.com',
-                  -style  => {-src    => '/maps/css/MAPSStyle.css'},
-                  -head   => [
-             Link ({-rel  => 'icon',
-                    -href => '/maps/MAPS.png',
-                    -type => 'image/png'}),
-             Link ({-rel  => 'shortcut icon',
-                    -href => '/maps/favicon.ico'})],
-                   -script    => @java_scripts);
+    print start_html(
+      -title  => $title,
+      -author => 'Andrew\@DeFaria.com',
+      -style  => {-src    => '/maps/css/MAPSStyle.css'},
+      -head   => [
+      Link({-rel  => 'icon',
+        -href => '/maps/MAPS.png',
+        -type => 'image/png'}),
+      Link({-rel  => 'shortcut icon',
+        -href => '/maps/favicon.ico'})],
+        -script    => @java_scripts);
   } # if
 
   print start_div {class => 'heading'};
-  print h2 {-align => 'center',
-            -class => 'header'},
-    font ({-class  => 'standout'}, 'MAPS'),
-      $h1;
+  print h2 {
+    -align => 'center',
+    -class => 'header'}, $h1;
 
   if (defined $h2 && $h2 ne '') {
-    print h3 {-align => 'center',
-              -class => 'header'},
-      $h2;
+    print h3 {
+      -align => 'center',
+      -class => 'header'}, $h2;
   } # if
   print end_div;
 
@@ -261,7 +273,8 @@ sub NavigationBar($) {
 
   print start_div {-id => 'leftbar'};
 
-  if (!defined $userid) {
+  unless ($userid) {
+    print h2({-align => 'center'}, font({-color => 'white'}, "MAPS $MAPS::Version"));
     print div ({-class => 'username'}, 'Welcome to MAPS');
     print div ({-class => 'menu'},
       (a {-href => '/maps/doc/'},
@@ -278,7 +291,9 @@ sub NavigationBar($) {
         'Help<br>'),
     );
   } else {
+    print h2({-align => 'center'}, font({-color => 'white'}, "MAPS $MAPS::Version"));
     print div ({-class => 'username'}, 'Welcome '. ucfirst $userid);
+
     print div ({-class => 'menu'},
       (a {-href => '/maps/'},
         'Home<br>'),
@@ -301,6 +316,9 @@ sub NavigationBar($) {
       (a {-href => '/maps/?logout=yes'},
         'Logout'),
     );
+
+    displayquickstats($userid);
+
     print start_div {-class => 'search'};
     print start_form {-method => 'get',
                       -action => '/maps/bin/search.cgi',
@@ -316,8 +334,6 @@ sub NavigationBar($) {
     print end_form;
     print end_div;
 
-    displayquickstats;
-
     print start_div {-class => 'search'};
     print start_form {-method => 'post',
                 -action   => 'javascript://',
@@ -331,11 +347,14 @@ sub NavigationBar($) {
                  -maxlength => 255,
                  -value     => '',
                  -onclick   => "document.address.email.value = '';"};
+    print p "";
     print end_form;
     print end_div;
   } # if
 
   print end_div;
+
+  return;
 } # NavigationBar
 
 1;

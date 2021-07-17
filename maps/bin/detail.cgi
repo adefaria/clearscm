@@ -16,30 +16,30 @@ use strict;
 use warnings;
 
 use MIME::Words qw(:all);
+
+use CGI qw(:standard *table start_td end_td start_Tr end_Tr start_div end_div);
+use CGI::Carp 'fatalsToBrowser';
+
 use FindBin;
-$0 = $FindBin::Script;
+
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
 
 use MAPS;
 use MAPSLog;
-use MAPSUtil;
 use MAPSWeb;
-use CGI qw(:standard *table start_td end_td start_Tr end_Tr start_div end_div);
-use CGI::Carp 'fatalsToBrowser';
+use DateUtils;
 
-my $type   = param('type');
-my $next   = param('next');
-my $lines  = param('lines');
-my $date   = param('date');
+my $type   = param 'type';
+my $next   = param 'next';
+my $lines  = param 'lines';
+my $date   = param 'date';
 
 $date ||= '';
 
-my $userid;
-my $current;
-my $last;
-my $prev;
-my $total;
+my ($userid, $current, $last, $prev, $total);
+
 my $table_name = 'detail';
 
 my %types = (
@@ -73,7 +73,7 @@ my %types = (
   ]
 );
 
-sub MakeButtons {
+sub MakeButtons($) {
   my ($type) = @_;
 
   my $prev_button = $prev >= 0 ?
@@ -91,10 +91,10 @@ sub MakeButtons {
     $buttons = $buttons .
       submit ({-name    => 'action',
                -value   => 'Blacklist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) .
+               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
       submit ({-name    => 'action',
                -value   => 'Nulllist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) .
+               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
       submit ({-name    => 'action',
                -value   => 'Reset',
                -onClick => 'return ClearAll (document.detail);'});
@@ -102,10 +102,10 @@ sub MakeButtons {
     $buttons = $buttons .
       submit ({-name    => 'action',
                -value   => 'Whitelist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) .
+               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
       submit ({-name    => 'action',
                -value   => 'Nulllist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) .
+               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
       submit ({-name    => 'action',
                -value   => 'Reset',
                -onClick => 'return ClearAll (document.detail);'});
@@ -113,10 +113,10 @@ sub MakeButtons {
     $buttons = $buttons .
       submit ({-name    => 'action',
                -value   => 'Whitelist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) .
+               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
       submit ({-name    => 'action',
                -value   => 'Blacklist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) .
+               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
       submit ({-name    => 'action',
                -value   => 'Reset',
                -onClick => 'return ClearAll (document.detail);'});
@@ -124,13 +124,13 @@ sub MakeButtons {
     $buttons = $buttons .
       submit ({-name    => 'action',
                -value   => 'Whitelist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) .
+               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
       submit ({-name    => 'action',
                -value   => 'Blacklist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) .
+               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
       submit ({-name    => 'action',
                -value   => 'Nulllist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) .
+               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
       submit ({-name    => 'action',
                -value   => 'Reset',
                -onClick => 'return ClearAll (document.detail);'});
@@ -139,7 +139,7 @@ sub MakeButtons {
   return $buttons . $next_button;
 } # MakeButtons
 
-sub PrintTable {
+sub Body($) {
   my ($type) = @_;
 
   my $current = $next + 1;
@@ -171,9 +171,32 @@ sub PrintTable {
     ];
   print end_div;
 
-  for my $sender (ReturnSenders($userid, $type, $next, $lines, $date)) {
-    my @msgs  = ReturnMessages($userid, $sender);
-    my @msgs2 = @msgs;
+  for my $sender (ReturnSenders(
+    userid   => $userid,
+    type     => $type,
+    start_at => $next,
+    lines    => $lines,
+    date     => $date
+  )) {
+    my $msgs = ReturnMessages(
+      userid => $userid,
+      sender => $sender,
+    );
+
+    # This is for the purposes of supplying a subject line if the mailto address
+    # is clicked on. It's kludgy because we are simply grabbing the subject line
+    # of the first email sent where there may be many emails from this sender.
+    # Still it is often the right subject (or a good enough one)
+    #
+    # A little tricky here because of transliteration. If I test for
+    # $msg->[0]{subject} when $msg->[0] is essentially empty I create the hash
+    # making it non empty. Therefore I need to first test if $msgs->[0] exists
+    # first.
+    my $heading = '';
+
+    if ($msgs->[0]) {
+      $heading = $msgs->[0]{subject} if $msgs->[0]{subject};
+    } # if
 
     my ($onlist, $seq);
 
@@ -191,15 +214,15 @@ sub PrintTable {
     } # unless
 
     if ($rule) {
-      $rule =~ s/Matching rule: \(//;
-      $rule =~ s/\)//;
-
-      if ($rule =~ /(\w+):(\d+)/) {
+      if ($rule =~ /\((\w+):(\d+)\)\s+"(.*)"/) {
         my $list     = $1;
-        my $sequence = $2 - 1;
-        my $link     = "<a href=\"/maps/php/list.php?type=$list&next=$sequence\">$list:$2</a>/$hit_count";
+        my $sequence = $2;
+        my $next     = $sequence - 1;
+        $rule        = $3;
 
-        $rule =~ s/\w+:\d+/$link/;
+        $rule =~ s/\\@/\@/;
+
+        $rule = "<a href=\"/maps/php/list.php?type=$list&next=$next\">$list:$sequence</a>/$hit_count $rule";
       } # if
     } # if
 
@@ -223,7 +246,6 @@ sub PrintTable {
                    -bgcolor     => '#d4d0c8'};
 
     # Get subject line
-    my $heading = $msgs2[0][0] || '';
     $heading = "?subject=$heading" if $heading;
     print
       td {-class   => 'tablelabel',
@@ -241,21 +263,17 @@ sub PrintTable {
 
     my $messages = 1;
 
-    for (@msgs) {
-      my $msg_date  = pop @{$_};
-      my $link_date = $msg_date;
-      my $subject   = pop @{$_};
-
-      if ($date eq substr ($msg_date, 0, 10)) {
-        $msg_date = b font {-color => 'green'}, SQLDatetime2UnixDatetime $msg_date;
+    for my $rec (@$msgs) {
+      if ($date eq substr ($rec->{timestamp}, 0, 10)) {
+        $rec->{date} = b font {-color => 'green'}, SQLDatetime2UnixDatetime $rec->{timestamp};
       } else {
-        $msg_date = SQLDatetime2UnixDatetime $msg_date;
+        $rec->{date} = SQLDatetime2UnixDatetime $rec->{timestamp};
       } # if
 
-      $subject = $subject eq '' ? '&lt;Unspecified&gt;' : $subject;
-      $subject = decode_mimewords ($subject);
-      $subject =~ s/\>/&gt;/g;
-      $subject =~ s/\</&lt;/g;
+      $rec->{subject} //= '&lt;Unspecified&gt;';
+      $rec->{subject} = decode_mimewords ($rec->{subject});
+      $rec->{subject} =~ s/\>/&gt;/g;
+      $rec->{subject} =~ s/\</&lt;/g;
 
       print
         start_table {-class       => 'tablerightdata',
@@ -275,10 +293,10 @@ sub PrintTable {
           td {-class   => 'subject',
               -valign  => 'middle',
               -bgcolor => '#ffffff'},
-           a {-href    => "display.cgi?sender=$sender;msg_date=$link_date"}, $subject,
+           a {-href    => "display.cgi?sender=$sender;msg_date=$rec->{timestamp}"}, $rec->{subject},
           td {-class   => 'date',
               -width   => '150',
-              -valign  => 'middle'}, $msg_date
+              -valign  => 'middle'}, $rec->{date},
         ];
       print end_table;
     } # for
@@ -300,20 +318,20 @@ sub PrintTable {
   print end_form;
 
   return;
-} # PrintTable
+} # Body
 
 # Main
 my $condition;
 my @scripts = ('ListActions.js');
 
-my $heading_date =$date ne '' ? ' on ' . FormatDate ($date) : '';
+my $heading_date =$date ne '' ? ' on ' . FormatDate ($date, 1) : '';
 
 $userid = Heading(
   'getcookie',
   '',
   (ucfirst ($type) . ' Report'),
-  $types {$type} [0],
-  $types {$type} [1] . $heading_date,
+  $types{$type} [0],
+  $types{$type} [1] . $heading_date,
   $table_name,
   @scripts
 );
@@ -329,16 +347,18 @@ unless ($lines) {
 } # unless
 
 if ($date eq '') {
-  $condition .= "userid = '$userid' and type = '$type'";
+  $condition .= "type = '$type'";
 } else {
   my $sod = $date . ' 00:00:00';
   my $eod = $date . ' 23:59:59';
 
-  $condition .= "userid = '$userid' and type = '$type' "
-              . "and timestamp > '$sod' and timestamp < '$eod' ";
+  $condition .= "type = '$type' and timestamp > '$sod' and timestamp < '$eod'";
 } # if
 
-$total = count_distinct('log', 'sender', $condition);
+$total = CountLog(
+  userid     => $userid,
+  additional => $condition,
+);
 
 $next ||= 0;
 
@@ -350,7 +370,7 @@ if (($next - $lines) > 0) {
   $prev = $next == 0 ? -1 : 0;
 } # if
 
-PrintTable($type);
+Body($type);
 
 Footing($table_name);
 

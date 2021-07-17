@@ -1,4 +1,4 @@
-<?php 
+<?php
 include "site-functions.php";
 include "MAPS.php"
 ?>
@@ -11,12 +11,11 @@ include "MAPS.php"
 <body>
 
 <div class="heading">
-  <h2 class="header" align="center">
-  <font class="standout">MAPS</font> Requirements</h2>
+  <h2 class="header" align="center">Requirements</h2>
 </div>
 
 <div class="content">
-  <?php 
+  <?php
   OpenDB ();
   SetContext ($userid);
   NavigationBar ($userid);

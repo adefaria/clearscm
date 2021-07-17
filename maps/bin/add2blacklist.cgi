@@ -16,92 +16,122 @@ use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
+
+use Utils;
 
 use MAPS;
 use MAPSLog;
 use MAPSWeb;
-use MAPSUtil;
 
 use CGI qw/:standard *table/;
 use CGI::Carp 'fatalsToBrowser';
 
-my $userid;
-my $Userid;
-my $type = 'black';
+sub Add2List(%) {
+  my (%rec) = @_;
 
-sub Add2List() {
-  my $sender  = '';
-  my $nextseq = GetNextSequenceNo($userid, $type);
+  CheckParms(['userid', 'type'], \%rec);
+
+  my $nextseq = GetNextSequenceNo(%rec);
+
+  my $Userid = ucfirst $rec{userid};
 
   while () {
-    my $pattern	= param "pattern$nextseq";
-    my $domain	= param "domain$nextseq";
-    my $comment	= param "comment$nextseq";
+    $rec{pattern}   = param "pattern$nextseq";
+    $rec{domain}    = param "domain$nextseq";
+    $rec{comment}   = param "comment$nextseq";
+    $rec{hit_count} = param "hit_count$nextseq";
+    $rec{retention} = param "retention$nextseq";
 
-    last if ((!defined $pattern || $pattern eq '') &&
-             (!defined $domain  || $domain  eq ''));
+    last unless $rec{pattern} or $rec{domain};
 
-    $sender = CheckEmail $pattern, $domain;
+    $rec{sender} = CheckEmail $rec{pattern}, $rec{domain};
 
-    my ($status, $rule) = OnBlacklist($sender);
+    my ($status, $rule) = OnBlacklist($rec{sender});
 
     if ($status != 0) {
-      print br {-class => 'error'}, "The email address $sender is already on ${Userid}'s $type list";
+      print br {-class => 'error'},
+        "The email address $rec{sender} is already on ${Userid}'s $rec{type} list";
     } else {
-      Add2Blacklist($sender, $userid, $comment);
-      print br "The email address, $sender, has been added to ${Userid}'s $type list";
+      my ($messages, $msg) = Add2Blacklist(%rec);
+
+      if ($messages < -1) {
+        print br {-class => 'error'}, "Unable to add $rec{sender} to $rec{type} list";
+        return;
+      } else {
+        print br "The email address, $rec{sender}, has been added to ${Userid}'s $rec{type} list";
+      } # if
 
       # Now remove this entry from the other lists (if present)
       for my $otherlist ('white', 'null') {
-        my $sth = FindList $otherlist, $sender;
-        my ($sequence, $count);
+        FindList(
+          userid => $rec{userid},
+          type   => $otherlist,
+          sender => $rec{sender},
+        );
 
-        ($_, $_, $_, $_, $_, $sequence) = GetList($sth);
+        my $seq = GetList;
 
-        if ($sequence) {
-          $count = DeleteList($otherlist, $sequence);
-          print br "Removed $sender from ${Userid}'s " . ucfirst $otherlist . ' list'
-            if $count > 0;
+        if ($seq->{sequence}) {
+          my $err;
 
-          ResequenceList($userid, $otherlist);
+          ($err, $msg) = DeleteList(
+            userid   => $rec{userid},
+            type     => $otherlist,
+            sequence => $seq->{sequence},
+          );
+
+          croak $msg if $err < 0;
+
+          print br "Removed $rec{sender} from ${Userid}'s " . ucfirst $otherlist . ' list'
+            if $err > 0;
+
+          ResequenceList(
+            userid => $rec{userid},
+            type   => $otherlist,
+          );
         } # if
       } # for
     } # if
 
     $nextseq++;
   } # while
+
+  return;
 } # Add2List
 
 # Main
-$userid = Heading(
+my $userid = Heading(
   'getcookie',
   '',
   'Add to Black List',
   'Add to Black List',
 );
 
-$Userid = ucfirst $userid;
+$userid ||= $ENV{USER};
+
+my $type = 'black';
 
 SetContext($userid);
 
 NavigationBar($userid);
 
-Add2List;
+Add2List(
+  userid => $userid,
+  type   => $type,
+);
 
 print start_form {
-  -method	=> 'post',
-  -action	=> 'processaction.cgi',
-  -name		=> 'list'
+  -method => 'post',
+  -action => 'processaction.cgi',
+  -name   => 'list',
 };
 
 print '<p></p><center>',
-  hidden ({-name => 'type',
-     -default    => $type}),
-  submit ({-name => 'action',
-     -value      => 'Add'}),
+  hidden ({-name => 'type',   -default => $type}),
+  submit ({-name => 'action', -value   => 'Add'}),
   '</center>';
 
 Footing;

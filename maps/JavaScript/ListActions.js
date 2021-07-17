@@ -1,13 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// File:	$RCSFile$
-// Revision:	$Revision: 1.1 $
-// Description:	This JavaScript performs some simple validations for the 
-//		actions buttons on the list page.
-// Author:	Andrew@DeFaria.com
-// Created:	Fri Nov 29 14:17:21  2002
-// Modified:	$Date: 2013/06/12 14:05:47 $
-// Language:	JavaScript
+// File:        $RCSFile$
+// Revision:    $Revision: 1.1 $
+// Description: This JavaScript performs some simple validations for the 
+//              actions buttons on the list page.
+// Author:      Andrew@DeFaria.com
+// Created:     Fri Nov 29 14:17:21  2002
+// Modified:    $Date: 2013/06/12 14:05:47 $
+// Language:    JavaScript
 //
 // (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
 //
@@ -91,29 +91,45 @@ function CheckEntry (form) {
   var current_entry     = "";
   var current_entry_nbr = 0;
 
-  var digits	= /[^\d]+(\d+)/;
-  var parmname	= /([^\d]+)\d+/;
+  var digits   = /[^\d]+(\d+)/;
+  var parmname = /([^\d]+)\d+/;
+  var retention = /\d+\s(day|days|week|weeks|month|months|year|years)$/i;
 
   for (var i = 0; i < form.length; i++) {
     var e = form.elements [i];
     if (e.type == "text") {
       var name = e.name;
-      var parm = name.match (parmname);
-      var nbr  = name.match (digits);
+      var parm = name.match(parmname);
+      var nbr  = name.match(digits);
       if (current_entry_nbr == 0) {
-	current_entry_nbr = nbr [1];
+        current_entry_nbr = nbr[1];
       } // if
-      if (nbr [1] == current_entry_nbr) {
-	if (parm [1] == "pattern" || parm [1] == "domain") {
-	  current_entry = current_entry + e.value;
-	} // if
+      if (nbr[1] == current_entry_nbr) {
+        if (parm[1] == "pattern" || parm[1] == "domain") {
+          current_entry = current_entry + e.value;
+        } // if
+        if (parm[1] == "retention") {
+          if (e.value != '' && e.value.match(retention) == null) {
+            alert("Retention must be specified in terms of days, weeks, months "
+                + "or years for entry #" + current_entry_nbr + ". Not \"" + e.value + "\"");
+            return false;
+          } // if
+        } // if
+        if (parm[1] == "hit_count") {
+          if (e.value == 0 || e.value == '' || parseInt(e.value)) {
+            // Do nothing
+          } else {
+            alert("Hit Count must be numeric for entry #" + current_entry_nbr);
+            return false;
+          } // if
+        } // if
       } else {
-	if (current_entry == "") {
-	  alert ("You must specify a value for Username and/or Domain for entry #" + current_entry_nbr);
-	  return false;
-	} // if
-	current_entry_nbr = nbr [1];
-	current_entry	  = e.value;
+        if (current_entry == "") {
+          alert ("You must specify a value for Username and/or Domain for entry #" + current_entry_nbr);
+          return false;
+        } // if
+        current_entry_nbr = nbr[1];
+        current_entry     = e.value;
       } // if
     } // if
   } // for

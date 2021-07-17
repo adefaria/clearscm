@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -28,10 +28,12 @@ use CGI qw(:standard);
 my $userid;
 
 if (param "user") {
-  $userid = param("user");
+  $userid = param 'user';
 } else {
-  $userid = cookie("MAPSUser");
+  $userid = cookie 'MAPSUser';
 } # if
+
+$userid //= $ENV{USER};
 
 my $sender = param("sender");
 
@@ -43,6 +45,8 @@ sub Heading() {
     print h3 {-align => "center",
               -class => "header"},
     "MAPS: Checking address $sender";
+
+  return;
 } # Heading
 
 sub Body() {
@@ -75,21 +79,21 @@ sub Body() {
     ($onlist, $rule) = OnBlacklist($sender, 0);
 
     if ($onlist) {
-      print div {-align	=> "center"},
-           font {-color	=> "black"},
+      print div {-align => "center"},
+           font {-color => "black"},
             "Messages from", b ($sender), "will be", b ("blacklisted"), br, hr;
       print $rule;
     } else {
       ($onlist, $rule) = OnNulllist($sender, 0);
 
       if ($onlist) {
-        print div {-align	=> "center"},
-          font {-color	=> "grey"},
+        print div {-align => "center"},
+             font {-color => "grey"},
             "Messages from", b ($sender), "will be", b ("discarded"), br, hr;
         print $rule;
       } else {
-        print div {-align	=> "center"},
-          font {-color	=> "red"},
+        print div {-align => "center"},
+             font {-color => "red"},
             "Messages from", b ($sender), "will be", b ("returned");
       } # if
     } # if
@@ -99,10 +103,14 @@ sub Body() {
     submit(-name      => "submit",
            -value     => "Close",
            -onClick   => "window.close (self)");
+
+  return;
 } # Body
 
 sub Footing() {
   print end_html;
+
+  return;
 } # Footing
 
 # Main

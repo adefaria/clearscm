@@ -1,4 +1,4 @@
-<?php 
+<?php
 ////////////////////////////////////////////////////////////////////////////////
 //
 // File:	$RCSFile$
@@ -31,8 +31,7 @@ if (!$top) {
 </head>
 <body>
 <div class="heading">
-<h2 class="header" align="center"><font class="standout">MAPS</font>
-Returned Messages by Domain</h2>
+<h2 class="header" align="center">Returned Messages by Domain</h2>
 </div>
 <div class="content">
   <?php

@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+local $0 = $FindBin::Script;
 
 use CGI qw/:standard *table start_div end_div/;
 
@@ -43,8 +43,7 @@ sub MyHeading {
                 ]);
   print
     h2 ({-class => "header", -align => "center"},
-      font ({-class => "standout"}, "MAPS"),
-        "Mail Authorization and Permission System");
+      "Mail Authorization and Permission System");
 
   if ($errormsg) {
     DisplayError $errormsg;
@@ -114,6 +113,8 @@ sub Body {
   ];
   print end_table;
   print end_div;
+
+  return;
 } # Body
 
 if (!$userid) {

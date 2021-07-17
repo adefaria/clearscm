@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -36,7 +36,10 @@ sub MyFooting() {
             -value   => "Close Window",
             -onClick => "window.close ()")
   );
+
   print end_html;
+
+  return;
 } # MyFooting
 
 sub MyError($) {
@@ -60,9 +63,10 @@ sub MyHeading() {
   print
     h2 ({-class     => "header",
          -align     => "center"},
-      font ({-class => "standout"}, 
-      "MAPS"), "Registration Results"
-	  );
+      'Registration Results'
+  );
+
+  return;
 } # MyHeading
 
 # Main
