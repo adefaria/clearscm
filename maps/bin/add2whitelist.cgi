@@ -20,6 +20,7 @@ use FindBin;
 local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
 
 use Utils;
 

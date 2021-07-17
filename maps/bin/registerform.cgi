@@ -21,6 +21,7 @@ local $0 = $FindBin::Script;
 use CGI qw/:standard *table start_div end_div/;
 
 use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
 
 use MAPS;
 use MAPSWeb;

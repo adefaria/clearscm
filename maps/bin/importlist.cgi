@@ -56,6 +56,7 @@ use FindBin;
 local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
 
 use Getopt::Long;
 use Pod::Usage;

@@ -61,7 +61,8 @@ use FindBin;
 use File::Temp qw (tempfile);
 use Net::Domain qw (hostdomain);
 
-use lib "$FindBin::Bin/../lib", "$FindBin::Bin/../../lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
 
 use MAPS;
 use MAPSLog;
@@ -72,10 +73,6 @@ use Utils;
 my $verbose   = 0;
 my $execute   = 1;
 my $userid    = $ENV{USER};
-
-my $logpath   = "$FindBin::Bin/../log";
-my $logfile   = "$logpath/debug.log";
-my $forwardto = $ENV{MAPS_FORWARDTO} || 'adefaria@gmail.com';
 
 # For some reason I'm not parsing messages correctly but it only seems to
 # happen when the message is piped in from the MTA. This routine will
@@ -125,17 +122,6 @@ sub ProcessMsgs ($$$) {
 
   while (!eof *$msgfile) {
     my ($sender, $sender_long, $reply_to, $subject, $data) = ReadMsg (*$msgfile);
-
-    #if ($forwardto) {
-      # Forward a copy
-      #open my $mail, '|', "/usr/lib/sendmail $forwardto"
-        #or die "Unable to open pipe to sendmail - $!";
-
-      #print $mail "$data\n";
-
-      #close $mail
-        #or die "Unable to forward email to $forwardto - $!";      
-    #} # if
 
     my ($onlist, $rule, $sequence, $hit_count);
 
@@ -226,7 +212,6 @@ GetOptions(
   'verbose'     => sub { set_verbose },
   'debug'       => sub { set_debug },
   'execute!'    => \$execute,
-  'forwardto=s' => \$forwardto
 ) || Usage;
 
 my $msgfile;
