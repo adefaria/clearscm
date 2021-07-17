@@ -71,7 +71,7 @@ create table list (
 --            for the null and black lists where one might want to insure that
 --            a particular domain (e.g. @talentburst.com) will never come off
 --            of the nulllist.
---  retention         varchar (40),
+  retention         varchar (40),
   key user_index    (userid),
   key user_listtype (userid, type),
   unique            (userid, type, sequence),

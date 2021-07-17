@@ -306,7 +306,7 @@ sub AddList(%) {
 sub AddLog(%) {
   my (%params) = @_;
 
-  my $timestamp = UnixDatetime2SQLDatetime(scalar(localtime));
+  $params{timestamp} = UnixDatetime2SQLDatetime(scalar(localtime));
 
   return $db->add('log', %params);
 } # AddLog
