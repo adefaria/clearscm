@@ -119,6 +119,10 @@ while (my $rec = GetUser) {
 } # while
 
 # Now optimize the database
-OptimizeDB if $opts{optimize};
+if ($opts{optimized}) {
+  OptimizeDB;
+
+  $log->msg('Database optimized');
+} # if
 
 exit;
