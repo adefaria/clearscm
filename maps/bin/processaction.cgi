@@ -102,7 +102,10 @@ sub PrintInputLine ($$$$$) {
       ($pattern, $domain) = split /\@/, $email;
     } # if
 
-    $hit_count = CountMsg($email);
+    $hit_count = CountEmail(
+      userid => $userid,
+      additional => "sender like '%$email%'",
+    );
   } # if
 
   print Tr [

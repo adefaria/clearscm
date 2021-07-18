@@ -291,7 +291,7 @@ sub AddList(%) {
 
   $rec{hit_count} //= $db->count(
     'email',
-    "userid = '$rec{userid}' and sender like '$rec{sender}%'"
+    "userid = '$rec{userid}' and sender like '%$rec{sender}%'"
   );
 
   ($rec{pattern}, $rec{domain}) = split /\@/, delete $rec{sender};
