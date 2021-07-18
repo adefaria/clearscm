@@ -64,7 +64,7 @@ my %opts = (
   optimize => 1,
 );
 
-my ($userid, $log, %total);
+my ($log, %total);
 
 sub CleanUp($) {
   my ($userid) = @_;
@@ -73,14 +73,15 @@ sub CleanUp($) {
 
   my $timestamp = SubtractDays(Today2SQLDatetime, $options{History});
 
-  $total{'Emails cleaned'}      = CleanEmail $timestamp;
-  $total{'Log entries removed'} = CleanLog   $timestamp;
+  $total{'Emails cleaned'}      = CleanEmail $timestamp, $opts{dryrun};
+  $total{'Log entries removed'} = CleanLog   $timestamp, $opts{dryrun};
 
   for (qw(white black null)) {
     $total{"${_}list entries removed"} = CleanList(
       userid => $userid,
       type   => $_,
       log    => $log,
+      dryrun => $opts{dryrun},
     );
   } # for
 
@@ -98,6 +99,7 @@ GetOptions(
   'debug',
   'userid=s',
   'optimize!',
+  'dryrun',
 ) or pod2usage;
 
 $log = Logger->new(
@@ -106,8 +108,6 @@ $log = Logger->new(
 );
 
 FindUser(%opts{userid});
-
-#$~ = "REPORT" if $verbose;
 
 while (my $rec = GetUser) {
   SetContext($rec->{userid});

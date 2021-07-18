@@ -570,9 +570,9 @@ sub CleanList(%) {
                                   .  "$rec->{pattern}\@$rec->{domain} $dryrunstr");
           $params{log}->dbug("last hit = $rec->{last_hit} < agedDate = $agedDate");
         } # if
-
-        $count++;
       } # unless
+
+      $count++;
     } else {
       $params{log}->dbug("$rec->{userid}:$params{type}:$rec->{sequence}: nodelete $dryrunstr "
                        . "last hit = $rec->{last_hit} >= agedDate = $agedDate")
