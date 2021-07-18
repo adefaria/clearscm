@@ -1013,7 +1013,7 @@ sub ResequenceList(%) {
   $db->lock('write', $table);
 
   # Get all records for $userid and $type
-  my $listrecs = $db->get($table, $condition);
+  my $listrecs = $db->get($table, $condition,'*', 'order by hit_count desc');
 
   # Delete all of the list entries for this $userid and $type
   my ($count, $msg) = $db->delete($table, $condition);
