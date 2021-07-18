@@ -54,6 +54,7 @@ use Getopt::Long;
 use Pod::Usage;
 
 use DateUtils;
+use Display;
 use Logger;
 use MAPS;
 use Utils;
@@ -61,6 +62,8 @@ use Utils;
 my %opts = (
   usage    => sub { pod2usage },
   help     => sub { pod2usage (-verbose => 2)},
+  verbose  => sub { set_verbose },
+  debug    => sub { set_debug },
   optimize => 1,
 );
 

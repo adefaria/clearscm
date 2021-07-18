@@ -106,14 +106,14 @@ my $mapsbase = "$FindBin::Bin/..";
 sub _cleanTables($$;$) {
   my ($table, $timestamp, $dryrun) = @_;
 
-  my $count     = 0;
-  my $msg       = 'Records deleted';
   my $condition = "userid = '$userid' and timestamp < '$timestamp'";
 
   if ($dryrun) {
     return $db->count($table, $condition);
   } else {
-    return $db->delete($table, $condition);
+    my ($count, $msg) = $db->delete($table, $condition);
+
+    return $count;
   } # if
 } # _cleanTables
 
@@ -500,6 +500,7 @@ sub CleanList(%) {
   my $table     = 'list';
   my $condition = "userid='$params{userid}' and type='$params{type}'";
   my $count     = 0;
+  my $msg;
 
   # First let's go through the list to see if we have an domain level entry
   # (e.g. @spammer.com) and also individual entries (baddude@spammer.com) then
@@ -536,11 +537,12 @@ sub CleanList(%) {
     } # for
   } # while
 
-  my $msg    = 'Records deleted';
   $condition = "userid='$params{userid}' and type='$params{type}' and retention is not null";
 
   # First see if anything needs to be deleted
-  return (0, $msg) unless $db->count($table, $condition);
+  ($count, $msg) = $db->count($table, $condition);
+
+  return 0 unless $count;
 
   my ($err, $errmsg) = $db->find($table, $condition);
 
@@ -583,9 +585,9 @@ sub CleanList(%) {
   ResequenceList(
     userid => $params{userid},
     type   => $params{type},
-  ) if $count and !$params{dryrun};
+  ) if $count && !$params{dryrun};
 
-  return wantarray ? ($count, $msg) : $count; 
+  return $count;
 } # CleanList
 
 sub CountEmail(%) {
