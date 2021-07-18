@@ -544,6 +544,8 @@ sub CleanList(%) {
 
   return 0 unless $count;
 
+  $count = 0;
+
   my ($err, $errmsg) = $db->find($table, $condition);
 
   croak "Unable to find $params{type} entries for $condition - $errmsg" if $err;
