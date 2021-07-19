@@ -458,7 +458,9 @@ sub CheckOnList ($$;$) {
                    ? "$email_on_file\@"
                    : $email_on_file;
     if ($sender and $sender =~ /$search_for/i) {
-      $rule   = "Matching rule: ($listtype:$rec->{sequence}) \"$email_on_file\"";
+      my $comment = $rec->{comment} ? " - $rec->{comment}" : '';
+
+      $rule   = "Matching rule: ($listtype:$rec->{sequence}) \"$email_on_file$comment\"";
       $rule  .= " - $rec->{comment}" if $rec->{comment};
       $status = 1;
 
