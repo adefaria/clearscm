@@ -137,7 +137,12 @@ sub MakeButtons($) {
                -onClick => 'return ClearAll (document.detail);'});
   } # if
 
-  return $buttons . $next_button;
+  print div {
+    -align => 'center',
+    -class => 'toolbar',
+  }, $buttons . $next_button;
+
+  return;
 } # MakeButtons
 
 sub Body($) {
@@ -152,6 +157,9 @@ sub Body($) {
     -action => 'processaction.cgi',
     -name   => 'detail'
   };
+
+  MakeButtons $type;
+
   print start_table({-align        => 'center',
                      -id           => $table_name,
                      -border       => 0,
@@ -159,18 +167,15 @@ sub Body($) {
                      -cellpadding  => 0,
                      -width        => '100%'}) . "\n";
 
-  my $buttons = MakeButtons $type;
-
-  print start_div {-class => 'toolbar'};
   print
     Tr [
-      td {-class  => 'tablebordertopleft',
-          -valign => 'middle'},
-      td {-class  => 'tablebordertopright',
-          -valign => 'middle',
-          -align  => 'center'}, $buttons,
+      td {-class  => 'tablebordertopleft'},  '&nbsp;',
+      th {-class  => 'tableborder'},         'Sender',
+      th {-class  => 'tableborder'},         'List',
+      th {-class  => 'tableborder'},         'Hit Count',
+      th {-class  => 'tableborder'},         'Rule',
+      th {-class  => 'tablebordertopright'}, 'Comment',
     ];
-  print end_div;
 
   for my $sender (ReturnSenders(
     userid   => $userid,
@@ -214,55 +219,71 @@ sub Body($) {
       } # unless
     } # unless
 
+    my ($list, $sequence, $comment);
+
+    # Parse rule
     if ($rule) {
-      if ($rule =~ /\((\w+):(\d+)\)\s+"(.*)"/) {
-        my $list     = $1;
-        my $sequence = $2;
-        my $next     = $sequence - 1;
-        $rule        = $3;
-
-        $rule =~ s/\\@/\@/;
-
-        $rule = "<a href=\"/maps/php/list.php?type=$list&next=$next\">$list:$sequence</a>/$hit_count $rule";
+      if ($rule =~ /\((\w+):(\d+)\)\s+"(\S*)"/) {
+        $list     = $1;
+        $sequence = $2;
+        $rule     = $3;
+        $comment  = '';
+      } elsif ($rule =~ /\((\w+):(\d+)\)\s+"(\S*) - (.*)"/) {
+        $list     = $1;
+        $sequence = $2;
+        $rule     = $3;
+        $comment  = $4;
       } # if
+
+      $rule =~ s/\\@/\@/;
     } # if
 
     $next++;
-    print
-      start_Tr {-valign => 'middle'};
-    print
-      td {-class => 'tableborder'}, small ($next,
-        checkbox {-name  => "action$next",
-                  -label => ''}),
-          hidden ({-name    => "email$next",
-                   -default => $sender});
-    print
-      start_td {-align => 'left'};
-    print
-      start_table {-class       => 'tablerightdata',
-                   -cellpadding => 2,
-                   -callspacing => 0,
-                   -border      => 0,
-                   -width       => '100%',
-                   -bgcolor     => '#d4d0c8'};
+
+    # Start Sender line
+    my $rowspan = @$msgs + 1;
+
+    print start_Tr {-valign => 'middle'};
+    print td {
+      -class => 'tableborder',
+      -rowspan => $rowspan,
+    }, small ($next,
+      checkbox {
+        -name  => "action$next",
+        -label => ''
+      }), hidden({
+        -name    => "email$next",
+        -default => $sender
+      });
 
     # Get subject line
     $heading = "?subject=$heading" if $heading;
-    print
-      td {-class   => 'tablelabel',
-          -valign  => 'middle',
-          -width   => '40'}, 'Sender:',
-      td {-class   => 'sender',
-          -valign  => 'middle',
-          -width   => '40%'},
-        a {-href   => "mailto:$sender$heading"}, $sender,
-      td {
-          -valign  => 'middle'},
-          $rule;
-    print
-      end_table;
 
-    my $messages = 1;
+    print td {
+      -class => 'sender',
+    }, a {
+      -href  => "mailto:$sender$heading",
+    }, " $sender";
+
+    my $listlink = ($list and $sequence) ? "$list:$sequence" : '&nbsp;';
+
+    print td {
+      -class => 'tabledata',
+      -align => 'right',
+    }, a {
+      href  => "/maps/php/list.php?type=$list&next=" . ($sequence - 1),
+    }, $listlink,
+    td {
+      -class => 'tabledata',
+      -align => 'right',
+    }, "$hit_count&nbsp;",
+    td {
+      -class => 'tabledata',
+    }, $rule,
+    td {
+      -class => 'tablerightdata',
+    }, $comment;
+    print end_Tr;
 
     for my $rec (@$msgs) {
       if ($date eq substr ($rec->{timestamp}, 0, 10)) {
@@ -277,46 +298,35 @@ sub Body($) {
       $rec->{subject} =~ s/\</&lt;/g;
 
       print
-        start_table {-class       => 'tablerightdata',
-                     -cellpadding => 2,
-                     -cellspacing => 2,
-                     -border      => 0,
-                     -width       => '100%'};
-      print
         Tr [
-          td {-class   => 'msgnbr',
-              -valign  => 'middle',
-              -rowspan => 2,
-              -width   => '2%'}, $messages++,
-          td {-class   => 'tablelabel',
-              -valign  => 'middle',
-              -width   => '45'}, 'Subject:',
-          td {-class   => 'subject',
-              -valign  => 'middle',
-              -bgcolor => '#ffffff'},
-           a {-href    => "display.cgi?sender=$sender;msg_date=$rec->{timestamp}"}, $rec->{subject},
-          td {-class   => 'date',
+          td {
+            -class   => 'subject',
+            -valign  => 'middle',
+            -bgcolor => '#ffffff',
+            -colspan => 4,
+          }, a {-href    => "display.cgi?sender=$sender;msg_date=$rec->{timestamp}"
+           }, '&nbsp;&nbsp;&nbsp;&nbsp;' . $rec->{subject},
+          td {-class   => 'tablerightdata',
               -width   => '150',
-              -valign  => 'middle'}, $rec->{date},
+              -valign  => 'middle',
+              -align   => 'right'}, span {-class => 'date'}, $rec->{date},
         ];
-      print end_table;
     } # for
-    print end_td;
-    print end_Tr;
   } # for
 
-  print start_div {-class => 'toolbar'};
   print
     Tr [
-      td {-class  => 'tableborderbottomleft',
-          -valign => 'middle'},
-      td {-class  => 'tableborderbottomright',
-          -valign => 'middle'},
-      $buttons
+      td {-class  => 'tableborderbottomleft'},  '&nbsp;',
+      th {-class  => 'tableborder'},            '&nbsp;',
+      th {-class  => 'tableborder'},            '&nbsp;',
+      th {-class  => 'tableborder'},            '&nbsp;',
+      th {-class  => 'tableborder'},            '&nbsp;',
+      th {-class  => 'tableborderbottomright'}, '&nbsp;'
     ];
-  print end_div;
   print end_table;
   print end_form;
+
+  MakeButtons $type;
 
   return;
 } # Body

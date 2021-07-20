@@ -127,7 +127,15 @@ sub Body {
       td {-class   => "dateright",
           -width   => "115"}, SQLDatetime2UnixDatetime $rec->{timestamp},
     ];
-  } # foreach
+  } # for
+
+  print
+    Tr [
+      td {-class  => 'tableborderbottomleft'},  '&nbsp;',
+      td {-class  => 'tableborder'},            '&nbsp;',
+      td {-class  => 'tableborder'},            '&nbsp;',
+      td {-class  => 'tableborderbottomright'}, '&nbsp;'
+    ];
   print end_table;
 
   return;

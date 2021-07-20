@@ -80,7 +80,9 @@ sub CleanUp($) {
   $total{'Log entries removed'} = CleanLog   $timestamp, $opts{dryrun};
 
   for (qw(white black null)) {
-    $total{"${_}list entries removed"} = CleanList(
+    my $listname = ucfirst($_) . 'list entries removed';
+
+    $total{$listname} = CleanList(
       userid => $userid,
       type   => $_,
       log    => $log,

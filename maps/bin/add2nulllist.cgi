@@ -47,7 +47,7 @@ sub Add2List(%) {
     $rec{hit_count} = param "hit_count$nextseq";
     $rec{retention} = param "retention$nextseq";
 
-    last unless $rec{pattern }or $rec{domain};
+    last unless $rec{pattern} or $rec{domain};
 
     $rec{sender} = CheckEmail $rec{pattern}, $rec{domain};
 
