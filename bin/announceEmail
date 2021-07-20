@@ -6,10 +6,6 @@ case $1 in
     # IMAP server. So instead we use this cheap method of sleeping for a while
     # as the network should be back by then. A better method would be to poll
     # looking for the network to come back up but that's tricker to implement.
-    #
-    # Seems like one kill is not enough. Try 2 - spaced a minute apart
-    sleep 60
-    killall -USR2 announceEmail.pl
     sleep 60
     killall -USR2 announceEmail.pl
     ;;

@@ -40,7 +40,7 @@ $Date: 2019/04/04 13:40:10 $
  Where:
    -usa|ge       Print this usage
    -h|elp        Detailed help
-   -v|erbose     Verbose mode (Default: -verbose)
+   -v|erbose     Verbose mode (Default: Not verbose)
    -de|bug       Turn on debugging (Default: Off)
 
    -user|name    User name to log in with (Default: $USER)
@@ -125,6 +125,8 @@ sub notify($) {
   my $cmd = "notify-send -i $icon -t $timeout '$msg'";
 
   Execute $cmd;
+
+  return;
 } # notify
 
 sub interrupted {
@@ -139,17 +141,9 @@ sub interrupted {
   return;
 } # interrupted
 
+sub restart;
+
 sub Connect2IMAP;
-
-sub restart {
-  my $msg = "Re-establishing connection to $opts{imap} as $opts{username}";
-
-  $log->dbug($msg);
-
-  Connect2IMAP;
-
-  goto MONITORMAIL;
-} # restart
 
 $SIG{USR1} = \&interrupted;
 $SIG{USR2} = \&restart;
@@ -235,6 +229,10 @@ sub MonitorMail() {
     # Google Talk doesn't like #
     $subject =~ s/\#//g;
 
+    # Remove long strings of numbers like order numbers. They are uninteresting
+    my $longNumber = 5;
+    $subject =~ s/\s+\S*\d{$longNumber,}\S*\s*//g;
+
     # Now speak it!
     my $logmsg = "From $from $subject";
 
@@ -272,6 +270,16 @@ sub MonitorMail() {
 
   return;
 } # MonitorMail
+
+sub restart {
+  my $msg = "Re-establishing connection to $opts{imap} as $opts{username}";
+
+  $log->dbug($msg);
+
+  Connect2IMAP;
+
+  MonitorMail;
+} # restart
 
 END {
   # If $log is not yet defined then the exit is not unexpected
