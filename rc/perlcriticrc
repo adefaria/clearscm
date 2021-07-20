@@ -50,3 +50,6 @@ allow = %SIG
 # complicated - it's more it's complication than the number of characters.
 [RegularExpressions::RequireExtendedFormatting]
 minimum_regex_length_to_complain_about = 50
+
+# I'm OK with homonyms
+[-Subroutines::ProhibitBuiltinHomonyms]
