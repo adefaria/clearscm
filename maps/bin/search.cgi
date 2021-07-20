@@ -21,6 +21,7 @@ local $0 = $FindBin::Script;
 use lib "$FindBin::Bin/../lib";
 use lib "$FindBin::Bin/../../lib";
 
+use DateUtils;
 use MAPS;
 use MAPSWeb;
 
@@ -124,7 +125,7 @@ sub Body {
       td {-class   => "subject"},
           a {-href => "display.cgi?sender=$rec->{sender}"}, $rec->{subject},
       td {-class   => "dateright",
-          -width   => "115"}, SQLDatetime2UnixDatetime $rec->{date},
+          -width   => "115"}, SQLDatetime2UnixDatetime $rec->{timestamp},
     ];
   } # foreach
   print end_table;
