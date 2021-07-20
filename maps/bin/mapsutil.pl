@@ -15,7 +15,7 @@
 use strict;
 use warnings;
 
-use 5.030;
+use 5.026;
 
 # For use of the given/when (See https://perlmaven.com/switch-case-statement-in-perl5)
 no warnings 'experimental';
