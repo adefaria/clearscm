@@ -255,13 +255,14 @@ my $VERSION  = '$Revision: 1.1 $';
 
 my (%opts, %funcs, %allcmds, %modules, $debugshVer);
 
-%opts = GetConfig "$FindBin::Bin/etc/$FindBin::Script.conf";
+%opts = GetConfig "$FindBin::Bin/../etc/$FindBin::Script.conf";
 
 my $debugshPid;
 my $name = 'RAiD';
 
-error "$name is not supported on 64 bit versions of Perl", 1
-  if $Config{archname} =~ /64/;
+# Not sure why this was not supported on 64 bit Perls...
+#error "$name is not supported on 64 bit versions of Perl", 1
+#  if $Config{archname} =~ /64/;
 
 my %raidCmds = (
   appiddisplay  => {
@@ -419,16 +420,16 @@ sub parseh ($) {
       # does not previously appear, even if abbreviated. So we can't have say
       # a new command - "my command" - when we already had a command such as
       # "my command is nice".
-      foreach (keys %funcs) {
+      for (keys %funcs) {
         error "Ambiguous command \"$userinput\" & \"$_\" found in $h", 1
           if /^$userinput /;
-      } # foreach
+      } # for
 
       # Now test for the other way where we already have "my command" in %funcs
       # and we are trying to add "my command is nice".
       my $str;
 
-      foreach my $word (split /\s+/, $userinput) {
+      for my $word (split /\s+/, $userinput) {
         if ($str) {
           $str .= " $word";
         } else {
@@ -438,7 +439,7 @@ sub parseh ($) {
         # See if this exactly matches any existing key
         error "Ambiguous command \"$userinput\" & \"$_\" found in $h", 1
           if $funcs{$str};
-      } # foreach
+      } # for
 
       $funcs{$userinput}{funcname}    = $funcname;    undef $funcname;
       $funcs{$userinput}{help}        = $help;        undef $help;
@@ -541,23 +542,23 @@ sub loadModules ($) {
 
   closedir $rc;
 
-  foreach (@modules) {
+  for (@modules) {
     my $moduleFile = "$rcdir/$_";
     my $module     = moduleName $moduleFile;
     my %funcs      = parseh $moduleFile; 
 
-    foreach (keys %funcs) {
+    for (keys %funcs) {
       error "Duplicate definition $_ found in $moduleFile", 1
         if defined $moduleFuncs{$_};
 
       $moduleFuncs{$_} = $funcs{$_};
-    } # foreach
+    } # for
 
     $modules{$module} = {
       moduleFile => $moduleFile,
       loaded     => 0,
     };
-  } # foreach
+  } # for
 
   return %moduleFuncs;
 } # loadModules
@@ -569,13 +570,13 @@ sub modules () {
 @<<<<<<<<<<<<<<<<<<<<<<<<<<<< @<<<<<<<<<
 $moduleName,$moduleStatus
 .
-  foreach $moduleName (sort keys %modules) {
+  for $moduleName (sort keys %modules) {
     next if $moduleName eq 'DbgSh';
 
     $moduleStatus = ($modules{$moduleName}{loaded}) ? 'loaded' : 'not loaded';
 
     write;
-  } # foreach
+  } # for
 
   return;
 } # modules
@@ -689,7 +690,7 @@ sub load ($;$) {
   # Rebuild %allcmds
   %allcmds = %raidCmds;
 
-  $allcmds{$_} = $funcs{$_} foreach (keys %funcs);
+  $allcmds{$_} = $funcs{$_} for (keys %funcs);
 
   # Set cmds
   $CmdLine::cmdline->set_cmds (%allcmds);
@@ -836,7 +837,7 @@ sub init () {
   } # if 
 
   # Load commands from config file (Type 2 commands)
-  foreach (keys %opts) {
+  for (keys %opts) {
     my $cmd;
 
     if (/^type2_(\S+)/) {
@@ -852,16 +853,16 @@ sub init () {
       prototype => "$cmd <cmd>",
       help      => "Send <cmd> (AppID $opts{$_}) to debugsh",
     };
-  } # foreach
+  } # for
 
   # Now combine %funcs, which contain all type 1 and type 2 commands, and
   # %raidCmds, which contain raid commands like load, unload, perl, restart,
   # etc.
   %allcmds = %raidCmds;
 
-  foreach (keys %funcs) {
+  for (keys %funcs) {
     $allcmds{$_} = $funcs{$_};
-  } # foreach
+  } # for
 
   # Initialize debugsh
   my $result = debugshInit;
@@ -920,7 +921,7 @@ sub cmds ($%) {
       $searchStr = $1;
     } # if
 
-    foreach (sort {
+    for (sort {
       $funcs{$a}{type} <=> $funcs{$b}{type} ||
              $a        cmp        $b
     } keys %funcs) {
@@ -957,7 +958,7 @@ sub cmds ($%) {
          $line .= " - $funcs{$_}{help}" if $funcs{$_}{help};
 
       push @output, $line;
-    } # foreach
+    } # for
 
     $CmdLine::cmdline->handleOutput ('', @output);
   } # if
@@ -1009,14 +1010,14 @@ sub callc ($@) {
   # Check to see if we know about this $cmd
   my $found;
 
-  foreach (keys %funcs) {
+  for (keys %funcs) {
     next unless /^$cmd$/i;
 
     if ($cmd eq $_) {
       $found = 1;
       last;
     } # if
-  } # foreach
+  } # for
 
   unless ($found) {
     error "Unknown command: $cmd";
@@ -1223,7 +1224,7 @@ sub evaluate ($) {
     } # if
 
     # Process parms
-    foreach my $parm (@parms) {
+    for my $parm (@parms) {
       # Strip () if they are there
       $parm =~ s/^\s*\(//;
       $parm =~ s/\)\s*$//;
@@ -1233,7 +1234,7 @@ sub evaluate ($) {
       $parm =~ s/\s+$//;
 
       $parm = oct ($parm) if $parm =~ /^0/;
-    } # foreach
+    } # for
 
     $result = callc $userinput, @parms;
   } else {
@@ -1328,16 +1329,16 @@ $CmdLine::cmdline->set_prompt (set_prompt);
 $CmdLine::cmdline->set_cmds (%allcmds);
 $CmdLine::cmdline->set_eval (\&evaluate);
 
-while ((($line, $result) = $CmdLine::cmdline->get)) {
-  last unless defined $line;
+while (($line, $result) = $CmdLine::cmdline->get) {
+  last unless $line;
   next if $line =~ /^\s*($|\#)/;
-  
+
   $result = evaluate $line;
 
-  if (defined $result) {
+  if ($result) {
     if (ref \$result eq 'SCALAR') {
       if ($line =~ /^\s*(\S+)/) {
-  $cmd = $1;
+        $cmd = $1;
       } # if
 
       # We used to output only for raidcmds...
