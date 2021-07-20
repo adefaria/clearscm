@@ -403,6 +403,8 @@ sub CheckEmail(;$$) {
   if ($username) {
     if ($username =~ /(.*)\@(.*)/) {
       return lc "$1\@$2";
+    } else {
+      return lc "$username\@";
     } # if
   } elsif ($domain) {
     if ($domain =~ /(.*)\@(.*)/) {
