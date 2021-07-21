@@ -629,7 +629,7 @@ sub CountLog(%) {
   my $condition  = "userid='$userid'";
      $condition .= " and $additional_condition" if $additional_condition;
 
-  return $db->count_distinct('log', 'sender', $condition);
+  return $db->count('log', $condition);
 } # CountLog
 
 sub Decrypt ($$) {

@@ -294,7 +294,7 @@ img {
   background:                 SteelBlue;
   color:                      white;
   font-style:                 bold;
-  font-size:                  14;
+  font-size:                  14px;
   text-align:                 center;
   -moz-border-radius-topleft: 7px;
   border-top-left-radius:     7px;
@@ -304,7 +304,7 @@ img {
   background:                  SteelBlue;
   color:                       white;
   font-style:                  bold;
-  font-size:                   14;
+  font-size:                   14px;
   text-align:                  center;
   -moz-border-radius-topright: 7px;
   border-top-right-radius:     7px;
@@ -314,7 +314,7 @@ img {
   background:                 SteelBlue;
   color:                      white;
   font-style:                 bold;
-  font-size:                  14;
+  font-size:                  14px;
   text-align:                 center;
   -moz-border-radius-topleft: 7px;
   border-top-left-radius:     7px;
@@ -324,7 +324,7 @@ img {
   background:                 SteelBlue;
   color:                       white;
   font-style:                  bold;
-  font-size:                   14;
+  font-size:                   14px;
   text-align:                  center;
   -moz-border-radius-topright: 7px;
   border-top-right-radius:     7px;
@@ -334,7 +334,7 @@ img {
   background:                    SteelBlue;
   color:                         white;
   font-style:                    bold;
-  font-size:                     14;
+  font-size:                     14px;
   text-align:                    center;
   -moz-border-radius-bottomleft: 7px;
   border-bottom-left-radius:     7px;
@@ -344,7 +344,7 @@ img {
   background:                     SteelBlue;
   color:                          white;
   font-style:                     bold;
-  font-size:                      14;
+  font-size:                      14px;
   text-align:                     center;
   -moz-border-radius-bottomright: 7px;
   border-bottom-right-radius:     7px;
@@ -354,7 +354,7 @@ img {
   background: SteelBlue;
   color:      white;
   font-style: bold;
-  font-size:  14;
+  font-size:  14px;
   text-align: center;
 }
 
@@ -404,39 +404,39 @@ img {
 
 .tableleftdata {
   background:    White;
-  color:         Red;
+  color:         black;
   border-left:   solid 3px SteelBlue;
   border-bottom: 1px dotted #ccc;
-  font-size:     14;
+  font-size:     12px;
 }
 .tableleftrightdata {
   background:    #c1dffc;
   border-right:  solid 3px SteelBlue;
   border-left:   solid 1px SteelBlue;
   border-bottom: 1px dotted #ccc;
-  font-size:     14;
+  font-size:     12px;
 }
 .tablerightleftdata {
   background:    #c1dffc;
   border-right:  solid 1px SteelBlue;
   border-left:   solid 3px SteelBlue;
   border-bottom: 1px dotted #ccc;
-  font-size:     14;
+  font-size:     12px;
 }
 .tablerightdata {
   background:    White;
   border-right:  solid 3px SteelBlue;
   border-left:   1px dotted #ccc;
   border-bottom: 1px dotted #ccc;
-  font-size:     14;
+  font-size:     12px;
 }
 .tablebottomleft {
   background:                    White;
-  color:                         Red;
+  color:                         black;
   border-left:                   solid 3px SteelBlue;
   border-right:                  1px dotted #ccc;
   border-bottom:                 solid 3px SteelBlue;
-  font-size:                     14;
+  font-size:                     14px;
   -moz-border-radius-bottomleft: 7px;
   border-bottom-left-radius:     7px;
 }
@@ -445,7 +445,7 @@ img {
   border-right:                   solid 3px SteelBlue;
   border-left:                    1px dotted #ccc;
   border-bottom:                  solid 3px SteelBlue;
-  font-size:                      14;
+  font-size:                      14px;
   -moz-border-radius-bottomright: 7px;
   border-bottom-right-radius:     7px;
 }
@@ -453,14 +453,14 @@ img {
   background:    White;
   border-left:   1px dotted #ccc;
   border-bottom: solid 3px SteelBlue;
-  font-size:     14;
+  font-size:     14px;
 }
 .tablebottomlefttotal {
   background:                    #c1dffc;
   border-left:                   solid 3px SteelBlue;
   border-bottom:                 solid 3px SteelBlue;
   border-right:                  1px dotted #ccc;
-  font-size:                     14;
+  font-size:                     14px;
   -moz-border-radius-bottomleft: 7px;
   border-bottom-left-radius:     7px;
 }
@@ -468,7 +468,7 @@ img {
   background:                     #c1dffc;
   border-right:                   solid 3px SteelBlue;
   border-bottom:                  solid 3px SteelBlue;
-  font-size:                      14;
+  font-size:                      14px;
   -moz-border-radius-bottomright: 7px;
   border-bottom-right-radius:     7px;
 }
@@ -477,17 +477,18 @@ img {
   border-bottom: solid 3px SteelBlue;
   border-top:    solid 1px SteelBlue;
   border-right:  1px dotted #ccc;
-  font-size:     14;
+  font-size:     14px;
 }
 .tabledata {
   background:    White;
   border-left:   1px dotted #ccc;
   border-bottom: 1px dotted #ccc;
-  font-size:     14;
+  font-size:     14px;
 }
+
 .date {
   background: White;
-  font-size:  10px;
+  font-size:  12px;
 }
 
 .dateright {
@@ -501,50 +502,68 @@ img {
 /* Special anchor effects */
 .sender {
   background:  White;
+  border-top:  1px dotted #ccc;
+  border-left: 1px dotted #ccc;
   font-family: arial, sans-serif;
-  font-size:   12px;
-  font-weight: bold;
+  font-size:   14px;
 }
-
 .sender a:link {
-  color: Red;
+  color: steelblue;
 }
-
-.sender a:visited {
-  color: #0054e3;
-}
-
 .sender a:hover {
-  color:      White;
-  background: Red;
+  color:      red;
+  background: white;
 }
 
-.sender a:active {
-  color: Yellow;
+.senderbottom {
+  background:    White;
+  border-top:    1px dotted #ccc;
+  border-left:   1px dotted #ccc;
+  border-bottom: solid 3px SteelBlue;
+  font-size:     14px;
+}
+.senderbottom a:link {
+  color: steelblue;
+}
+.senderbottom a:hover {
+  color:      red;
+  background: white;
 }
 
 .subject {
-  background:  White;
-  font-family: arial, sans-serif;
-  font-size:   10px;
-  font-weight: bold;
+  background:     white;
+  border-top:     1px dotted #ccc;
+  border-left:    1px dotted #ccc;
+  font-family:    arial, sans-serif;
+  font-size:      16px;
 }
-
 .subject a:link {
-  color: #0000ee;
+  color: #b11;
 }
-
 .subject a:visited {
-  color: #cc33cc;
+  color: grey;
 }
-
 .subject a:hover {
-  color:      White;
-  background: #0054e3;
+  color:      blue;
+  background: white;
 }
 
-.subject a:active {
-  color: #ff0000;
+.subjectbottom {
+  background:    White;
+  border-top:    1px dotted #ccc;
+  border-left:   1px dotted #ccc;
+  border-bottom: solid 3px SteelBlue;
+  font-size:     16px;
+}
+.subjectbottom a:link {
+  color: #b11;
+}
+.subjectbottom a:visited {
+  color: grey;
+}
+.subjectbottom a:hover {
+  color:      blue;
+  background: white;
 }
 
 /* Menu anchors */

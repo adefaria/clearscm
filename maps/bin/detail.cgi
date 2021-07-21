@@ -9,7 +9,7 @@
 # Modified:     $Date: 2013/06/12 14:05:47 $
 # Language:     perl
 #
-# (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
+# (c) Copyright 2000-2021, Andrew@DeFaria.com, all rights reserved.
 #
 ################################################################################
 use strict;
@@ -177,21 +177,42 @@ sub Body($) {
       th {-class  => 'tablebordertopright'}, 'Comment',
     ];
 
-  for my $sender (ReturnSenders(
+  my @senders = ReturnSenders(
     userid   => $userid,
     type     => $type,
     start_at => $next,
     lines    => $lines,
     date     => $date
-  )) {
+  );
+
+  for my $sender (@senders) {
     my $msgs = ReturnMessages(
       userid => $userid,
       sender => $sender,
     );
 
+    my $leftclass    = 'tableleftdata';
+    my $dataclass    = 'tabledata';
+    my $rightclass   = 'tablerightdata';
+    my $senderclass  = 'sender';
+    my $subjectclass = 'subject';
+
+    # Check to see if this is the last line
+    if ((($next + 1) % $lines) == (@senders % $lines)) {
+      # We always "bottom" the first column
+      $leftclass = 'tablebottomleft';
+
+      # Check to see if there any message lines to display
+      unless (@$msgs) {
+        $dataclass   = 'tablebottomdata';
+        $rightclass  = 'tablebottomright';
+        $senderclass = 'senderbottom';
+      } # unless
+    } # if
+
     # This is for the purposes of supplying a subject line if the mailto address
     # is clicked on. It's kludgy because we are simply grabbing the subject line
-    # of the first email sent where there may be many emails from this sender.
+    # of the first email sent where there may be many emails from this sender
     # Still it is often the right subject (or a good enough one)
     #
     # A little tricky here because of transliteration. If I test for
@@ -245,47 +266,59 @@ sub Body($) {
 
     print start_Tr {-valign => 'middle'};
     print td {
-      -class => 'tableborder',
+      -class   => $leftclass,
+      -align   => 'right',
+      -valign  => 'middle',
       -rowspan => $rowspan,
-    }, small ($next,
+    }, $next,
       checkbox {
-        -name  => "action$next",
-        -label => ''
-      }), hidden({
+        -name   => "action$next",
+        -label  => '',
+        -valign => 'middle',
+      };
+
+      print hidden({
         -name    => "email$next",
-        -default => $sender
+        -default => $sender,
       });
 
     # Get subject line
     $heading = "?subject=$heading" if $heading;
 
     print td {
-      -class => 'sender',
+      -class => $senderclass,
     }, a {
       -href  => "mailto:$sender$heading",
-    }, " $sender";
+    }, "&nbsp;$sender";
 
     my $listlink = ($list and $sequence) ? "$list:$sequence" : '&nbsp;';
 
     print td {
-      -class => 'tabledata',
+      -class => $dataclass,
       -align => 'right',
     }, a {
       href  => "/maps/php/list.php?type=$list&next=" . ($sequence - 1),
     }, $listlink,
     td {
-      -class => 'tabledata',
+      -class => $dataclass,
       -align => 'right',
     }, "$hit_count&nbsp;",
     td {
-      -class => 'tabledata',
+      -class => $dataclass,
     }, $rule,
     td {
-      -class => 'tablerightdata',
+      -class => $rightclass,
     }, $comment;
     print end_Tr;
 
     for my $rec (@$msgs) {
+      # We increased $next earlier so do not add 1 here
+      if (($next % $lines) == (@senders % $lines)) {
+        $dataclass    = 'tablebottomdata';
+        $rightclass   = 'tablebottomright';
+        $subjectclass = 'subjectbottom';
+      } # if
+
       if ($date eq substr ($rec->{timestamp}, 0, 10)) {
         $rec->{date} = b font {-color => 'green'}, SQLDatetime2UnixDatetime $rec->{timestamp};
       } else {
@@ -300,29 +333,18 @@ sub Body($) {
       print
         Tr [
           td {
-            -class   => 'subject',
-            -valign  => 'middle',
-            -bgcolor => '#ffffff',
+            -class   => $subjectclass,
             -colspan => 4,
-          }, a {-href    => "display.cgi?sender=$sender;msg_date=$rec->{timestamp}"
+          }, a {
+            -href  => "display.cgi?sender=$sender;msg_date=$rec->{timestamp}",
            }, '&nbsp;&nbsp;&nbsp;&nbsp;' . $rec->{subject},
-          td {-class   => 'tablerightdata',
+          td {-class   => $rightclass,
               -width   => '150',
-              -valign  => 'middle',
-              -align   => 'right'}, span {-class => 'date'}, $rec->{date},
+              -align   => 'right'}, span {-class => 'date'}, $rec->{date} . '&nbsp',
         ];
     } # for
   } # for
 
-  print
-    Tr [
-      td {-class  => 'tableborderbottomleft'},  '&nbsp;',
-      th {-class  => 'tableborder'},            '&nbsp;',
-      th {-class  => 'tableborder'},            '&nbsp;',
-      th {-class  => 'tableborder'},            '&nbsp;',
-      th {-class  => 'tableborder'},            '&nbsp;',
-      th {-class  => 'tableborderbottomright'}, '&nbsp;'
-    ];
   print end_table;
   print end_form;
 

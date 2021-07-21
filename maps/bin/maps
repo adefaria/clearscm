@@ -120,8 +120,8 @@ sub ProcessMsgs ($$$) {
 
   return unless $execute;
 
-  while (!eof *$msgfile) {
-    my ($sender, $sender_long, $reply_to, $subject, $data) = ReadMsg (*$msgfile);
+  while (!eof $msgfile) {
+    my ($sender, $sender_long, $reply_to, $subject, $data) = ReadMsg ($msgfile);
 
     my ($onlist, $rule, $sequence, $hit_count);
 
@@ -232,6 +232,6 @@ verbose "Starting MAPS....";
 my %userOptions = SetContext $userid
   or die "$userid is not a registered MAPS user\n";
 
-ProcessMsgs $msgfile, $userOptions{name}, $userOptions{email};
+ProcessMsgs $msgfile, $userOptions{name}, lc $userOptions{email};
 
 exit 0;

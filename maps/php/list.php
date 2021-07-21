@@ -103,8 +103,7 @@ $this_page = $next / $lines + 1;
   </div>
   <table border="0" cellspacing="0" cellpadding="4" width="100%" align="center" name="list">
     <tr>
-      <th class="tableleftend">Seq</th>
-      <th class="tableheader">Mark</th>
+      <th class="tableleftend">&nbsp;</th>
       <th class="tableheader">Username</th>
       <th class="tableheader">@</th>
       <th class="tableheader">Domain</th>
@@ -114,7 +113,7 @@ $this_page = $next / $lines + 1;
       <th class="tablerightend">Comments</th>
     </tr>
 
-    <?php DisplayList ($type, $next, $lines)?>
+    <?php DisplayList($type, $next, $lines)?>
 
   </table>
   <br>

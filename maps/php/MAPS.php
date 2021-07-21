@@ -405,9 +405,9 @@ function DisplayList($type, $next, $lines) {
     or DBError("DisplayList: Unable to execute query: ", $statement);
 
   for ($i = 0; $i < $lines; $i++) {
-    $row = mysqli_fetch_array ($result);
+    $row = mysqli_fetch_array($result);
 
-    if (!isset ($row ["sequence"])) {
+    if (!isset ($row["sequence"])) {
       break;
     } // if
 
@@ -433,8 +433,7 @@ function DisplayList($type, $next, $lines) {
     $rightclass = ($i == $lines || $sequence == $total || $sequence == $last) ?
       "tablebottomright" : "tablerightdata";
 
-    print "<td class=$leftclass align=center>"  . $sequence  . "</td>";
-    print "<td class=$dataclass align=center><input type=checkbox name=action" . $sequence . " value=on></td>\n";
+    print "<td class=$leftclass align=right>"   . $sequence  . "<input type=checkbox name=action" . $sequence . " value=on></td>\n";
     print "<td class=$dataclass align=right>"   . $username  . "</td>";
     print "<td class=$dataclass align=center>@</td>";
     print "<td class=$dataclass align=left><a href=\"http://$domain\" target=_blank>$domain</a></td>";
