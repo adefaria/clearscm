@@ -69,7 +69,7 @@ sub Add2List(@) {
 
     my ($status, $rule) = OnNulllist($item->{sender}, $userid);
 
-    if ($status == 0) {
+    if ($status) {
       display ' Already on list';
     } else {
       my ($message, $msg) = Add2Nulllist(%$item);
@@ -88,16 +88,16 @@ sub Add2List(@) {
 
         if ($seq->{sequence}) {
           my $count = DeleteList(
-            userid   => $item->{userid}
+            userid   => $item->{userid},
             type     => $otherlist,
-            sequence => $seq->{sequence}
+            sequence => $seq->{sequence},
           );
 
           display "Removed $item->{sender} from ${Userid}'s " . ucfirst $otherlist . ' list'
             if $count > 0;
 
           ResequenceList(
-            userid => $rec{userid},
+            userid => $item->{userid},
             type   => $otherlist,
           );
         } # if

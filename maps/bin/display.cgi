@@ -170,7 +170,7 @@ sub Body($) {
             # There should be an easier way to get this but I couldn't find one.
             my $encoding = ${$subpart->{mail_inet_head}{mail_hdr_hash}{'Content-Transfer-Encoding'}[0]};
             if ($encoding =~ /base64/) {
-              $subpart->bodayhandle->print;
+              $subpart->bodyhandle->print;
             } else {
               print $subpart->print_body;
             } # if

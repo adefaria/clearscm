@@ -54,7 +54,7 @@ sub getquickstats(%) {
 sub displayquickstats($) {
   my ($userid) = @_;
 
-  # Quick stats are today only.
+  # Quick stats are today only
   my $today = Today2SQLDatetime;
   my $time  = substr $today, 11;
   my $date  = substr $today, 0, 10;
@@ -94,6 +94,7 @@ sub displayquickstats($) {
 
     my $value = $dates{$date}{$_};
     my $percent;
+
     if ($_ eq 'mailloop' || $_ eq 'registered') {
       $percent = 'n/a';
     } else {
@@ -101,16 +102,22 @@ sub displayquickstats($) {
         0 : $dates{$date}{$_} / $dates{$date}{processed} * 100;
       $percent = sprintf '%5.1f%s', $percent, '%';
     } # if
-    my $stat = $value == 0 ?
-      0 : a {-href => "detail.cgi?type=$_;date=$date"}, $value;
-    print
-      td {-class => 'smalllabel'}, ucfirst ($_);
-    print
-      td {-class => 'smallnumber'}, $stat;
-    print
-      td {-class => 'smallnumber'}, $percent;
+
+    my $report = ucfirst $_;
+
+    if ($value) {
+      $report  = a {-href => "detail.cgi?type=$_;date=$date"}, $report;
+      $value   = a {-href => "detail.cgi?type=$_;date=$date"}, $value;
+      $percent = a {-href => "detail.cgi?type=$_;date=$date"}, $percent;
+    } # if
+
+    print td {-class => 'smalllabel'},  $report,
+          td {-class => 'smallnumber'}, $value,
+          td {-class => 'smallnumber'}, $percent;
+
     print end_Tr;
-  } # foreach
+  } # for
+
   print end_table;
   print end_div;
 

@@ -68,8 +68,9 @@ sub GetStats(%) {
     for (@Types) {
       my $condition = "type=\'$_\' and (timestamp > \'$sod\' and timestamp < \'$eod\')";
 
-      $stats{$_} = MAPS::CountLog(
+      $stats{$_} = MAPS::CountLogDistinct(
         userid     => $params{userid},
+        column     => 'sender',
         additional => $condition,
       );
     } # for

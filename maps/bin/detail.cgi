@@ -240,7 +240,11 @@ sub Body($) {
       } # unless
     } # unless
 
-    my ($list, $sequence, $comment);
+    $hit_count //= '';
+
+    my $list     = '';
+    my $sequence = 0;
+    my $comment  = '';
 
     # Parse rule
     if ($rule) {
@@ -259,6 +263,7 @@ sub Body($) {
       $rule =~ s/\\@/\@/;
     } # if
 
+    $sequence //= 0;
     $next++;
 
     # Start Sender line
@@ -311,12 +316,18 @@ sub Body($) {
     }, $comment;
     print end_Tr;
 
+    my $msgnbr = 0;
+
     for my $rec (@$msgs) {
+      $msgnbr++;
+
       # We increased $next earlier so do not add 1 here
       if (($next % $lines) == (@senders % $lines)) {
         $dataclass    = 'tablebottomdata';
-        $rightclass   = 'tablebottomright';
-        $subjectclass = 'subjectbottom';
+        $rightclass   = 'tablebottomright' if $msgnbr == @$msgs;
+
+        # Only subjectbottom the last message
+        $subjectclass = 'subjectbottom' if $msgnbr == @$msgs;
       } # if
 
       if ($date eq substr ($rec->{timestamp}, 0, 10)) {
@@ -336,11 +347,11 @@ sub Body($) {
             -class   => $subjectclass,
             -colspan => 4,
           }, a {
-            -href  => "display.cgi?sender=$sender;msg_date=$rec->{timestamp}",
+            -href    => "display.cgi?sender=$sender;msg_date=$rec->{timestamp}",
            }, '&nbsp;&nbsp;&nbsp;&nbsp;' . $rec->{subject},
-          td {-class   => $rightclass,
-              -width   => '150',
-              -align   => 'right'}, span {-class => 'date'}, $rec->{date} . '&nbsp',
+          td {-class => $rightclass,
+              -width => '150',
+              -align => 'right'}, span {-class => 'date'}, $rec->{date} . '&nbsp',
         ];
     } # for
   } # for
@@ -388,8 +399,10 @@ if ($date eq '') {
   $condition .= "type = '$type' and timestamp > '$sod' and timestamp < '$eod'";
 } # if
 
-$total = CountLog(
+# Need to count distinct on sender
+$total = CountLogDistinct(
   userid     => $userid,
+  column     => 'sender',
   additional => $condition,
 );
 

@@ -53,7 +53,7 @@ sub Add2List(%) {
 
     my ($status, $rule) = OnWhitelist($rec{sender}, $rec{userid});
 
-    if ($status != 0) {
+    if ($status) {
       print br {-class => 'error'},
         "The email address $rec{sender} is already on ${Userid}'s $rec{type} list";
     } else {

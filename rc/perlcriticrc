@@ -53,3 +53,6 @@ minimum_regex_length_to_complain_about = 50
 
 # I'm OK with homonyms
 [-Subroutines::ProhibitBuiltinHomonyms]
+
+# I'm OK with so called ambiguous names
+[-NamingConventions::ProhibitAmbiguousNames]

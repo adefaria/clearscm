@@ -57,6 +57,7 @@ our @EXPORT = qw(
   CountEmail
   CountList
   CountLog
+  CountLogDistinct
   Decrypt
   DeleteEmail
   DeleteList
@@ -223,6 +224,7 @@ sub Add2Whitelist(%) {
 
   # Add to white list
   $params{sequence} = 0;
+
   my ($err, $msg) = AddList(%params);
 
   return -$err, $msg if $err;
@@ -247,7 +249,7 @@ sub Add2Whitelist(%) {
   while (my $rec = $db->getnext) {
     last unless $rec->{userid};
 
-    $status = Whitelist($rec->{sender}, $rec->data);
+    $status = Whitelist($rec->{sender}, $rec->{data});
 
     last if $status;
 
@@ -630,6 +632,19 @@ sub CountLog(%) {
      $condition .= " and $additional_condition" if $additional_condition;
 
   return $db->count('log', $condition);
+} # CountLog
+
+sub CountLogDistinct(%) {
+  my (%params) = @_;
+
+  CheckParms(['userid', 'column'], \%params);
+
+  my ($additional_condition) = delete $params{additional} || '';
+
+  my $condition  = "userid='$userid'";
+     $condition .= " and $additional_condition" if $additional_condition;
+
+  return $db->count_distinct('log', $params{column}, $condition);
 } # CountLog
 
 sub Decrypt ($$) {

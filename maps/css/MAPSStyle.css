@@ -81,25 +81,19 @@ body {
   margin:           2px;
   width:            125px;
 }
-
-.smallnumber a:link {
-  color:         yellow;
+.quickstats a:link {
+  color:           white;
   text-decoration: none;
 }
-
-.smallnumber a:visited {
+.quickstats a:visited {
   color: white;
-  font-weight: bold;
-  background-color: yellow;
 }
-.smallnumber a:hover {
-  color: yellow;
-  background: blue;
-}
-
 .quickstats a:hover {
-  background: blue;
-  color:      white;
+  color:      steelblue;
+  background: white;
+}
+.quickstats a:active {
+  color: Yellow;
 }
 
 .toolbar a:hover {
@@ -436,7 +430,7 @@ img {
   border-left:                   solid 3px SteelBlue;
   border-right:                  1px dotted #ccc;
   border-bottom:                 solid 3px SteelBlue;
-  font-size:                     14px;
+  font-size:                     12px;
   -moz-border-radius-bottomleft: 7px;
   border-bottom-left-radius:     7px;
 }
@@ -570,21 +564,17 @@ img {
 .menu {
   font-weight: bold;
 }
-
 .menu a:link {
   color:           White;
   text-decoration: none;
 }
-
 .menu a:visited {
   color: White;
 }
-
 .menu a:hover {
   color:      Yellow;
   background: none;
 }
-
 .menu a:active {
   color: Yellow;
 }
@@ -593,20 +583,16 @@ img {
 .intromenu {
   font-weight: bold;
 }
-
 .intromenu a:link {
   color: Red;
 }
-
 .intromenu a:visited {
   color: white;
 }
-
 .intromenu a:hover {
   color:      White;
   background: Red;
 }
-
 .intromenu a:active {
   color: Yellow;
 }

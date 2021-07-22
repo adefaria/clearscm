@@ -104,9 +104,11 @@ sub CheckParms($$) {
 
   my $msg = RequiredFields($requiredFields, $rec);
 
-  my $function = (caller(1))[3];
+  my $function   = (caller(1))[3];
+  my $calledFrom = (caller(2))[3];
+  my $lineNbr    = (caller(2))[2];
 
-  croak "Internal error: $function: $msg" if $msg;
+  croak "Internal error: $function called from $calledFrom:$lineNbr\n\nThe field $msg" if $msg;
 
   return;
 } # CheckParms
@@ -255,7 +257,7 @@ STDOUT then do so in the $command passed in.
 
   chomp @output;
 
-  wantarray ? return ($status, @output) : $status;
+  return wantarray ? ($status, @output) : $status;
 } # Execute
 
 sub GetChildren(;$) {
@@ -804,6 +806,8 @@ Returns:
     print $out "$_\n";
   } # for
 
+  close $out;
+  
   return;
 } # RedirectOutput
 
