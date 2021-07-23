@@ -44,7 +44,7 @@ sub getquickstats(%) {
 
   my $date = $params{date};
 
-  for (@MAPSLog::Types) {
+  for (@Types) {
     $dates{$date}{processed} += $dates{$date}{$_};
   } # for
 
@@ -69,11 +69,15 @@ sub displayquickstats($) {
     'Today\'s Activity';
   print p {-align     => 'center'},
     b ('as of ' . FormatTime($time));
+
+  print start_div {-id => 'quickwrap'};
+
   print start_table {
-    -align       => 'center',
-    -border      => 0,
     -cellspacing => 0,
-    -cellpadding => 2};
+    -border      => 0,
+    -align       => 'center',
+    -cellpadding => 2,
+  };
   print start_Tr {-align => 'right'};
   print
     td {-class => 'smalllabel',
@@ -89,9 +93,10 @@ sub displayquickstats($) {
       'n/a';
   print end_Tr;
 
-  for (@MAPSLog::Types) {
+  for (@Types) {
     print start_Tr {-align => 'right'};
 
+    my $foo = $_;
     my $value = $dates{$date}{$_};
     my $percent;
 
@@ -105,13 +110,9 @@ sub displayquickstats($) {
 
     my $report = ucfirst $_;
 
-    if ($value) {
-      $report  = a {-href => "detail.cgi?type=$_;date=$date"}, $report;
-      $value   = a {-href => "detail.cgi?type=$_;date=$date"}, $value;
-      $percent = a {-href => "detail.cgi?type=$_;date=$date"}, $percent;
-    } # if
+    $report  = a {-href => "detail.cgi?type=$_;date=$date"}, $report if $value;
 
-    print td {-class => 'smalllabel'},  $report,
+    print td {-class => 'link'},  $report,
           td {-class => 'smallnumber'}, $value,
           td {-class => 'smallnumber'}, $percent;
 
@@ -119,6 +120,7 @@ sub displayquickstats($) {
   } # for
 
   print end_table;
+  print end_div;
   print end_div;
 
   return;

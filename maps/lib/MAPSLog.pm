@@ -24,6 +24,7 @@ use MAPS;
 use DateUtils;
 use Utils;
 
+our @ISA = qw(Exporter);
 our @EXPORT = qw (
   Debug
   Error
@@ -34,12 +35,12 @@ our @EXPORT = qw (
 );
 
 our @Types = (
+  'nulllist',
   'returned',
   'whitelist',
   'blacklist',
   'registered',
   'mailloop',
-  'nulllist'
 );
 
 sub nbr_msgs($) {

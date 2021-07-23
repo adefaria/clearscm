@@ -220,9 +220,9 @@ function displayquickstats() {
   $current_time = date("g:i:s a");
 
   // Start quickstats
-  print "<div class=quickstats>";
-  print "<h4 align=center class=todaysactivity>Today's Activity</h4>";
-  print "<p align=center><b>as of $current_time</b></p>";
+  print "<div class=\"quickstats\">";
+  print "<h4 align=\"center\" class=\"todaysactivity\">Today's Activity</h4>";
+  print "<p align=\"center\"><b>as of $current_time</b></p>";
 
   $processed     = $dates[$today]["processed"];
   $returned      = $dates[$today]["returned"];
@@ -240,20 +240,21 @@ function displayquickstats() {
   $nulllist_pct  = $processed == 0 ? 0 :
     number_format ($nulllist / $processed * 100, 1, ".", "");
 
-  $returned_link = $returned == 0 ? 0 :
-    "<a href=/maps/bin/detail.cgi?type=returned;date=$today>$returned</a>";
-  $whitelist_link = $whitelist == 0 ? 0 :
-    "<a href=/maps/bin/detail.cgi?type=whitelist;date=$today>$whitelist</a>";
-  $blacklist_link = $blacklist == 0 ? 0 :
-    "<a href=/maps/bin/detail.cgi?type=blacklist;date=$today>$blacklist</a>";
-  $registered_link = $registered == 0 ? 0 :
-    "<a href=/maps/bin/detail.cgi?type=registered;date=$today>$registered</a>";
-  $mailloop_link = $mailloop == 0 ? 0 :
-    "<a href=/maps/bin/detail.cgi?type=mailloop;date=$today>$mailloop</a>";
-  $nulllist_link = $nulllist == 0 ? 0 :
-    "<a href=/maps/bin/detail.cgi?type=nulllist;date=$today>$nulllist</a>";
+  $returned_link = $returned == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=returned;date=$today\">";
+  $whitelist_link = $whitelist == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=whitelist;date=$today\">";
+  $blacklist_link = $blacklist == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=blacklist;date=$today\">";
+  $registered_link = $registered == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=registered;date=$today\">";
+  $mailloop_link = $mailloop == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=mailloop;date=$today>\"";
+  $nulllist_link = $nulllist == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=nulllist;date=$today\">";
 
 print <<<EOT
+<div id="quickwrap">
 <table cellpadding="2" border="0" align="center" cellspacing="0">
   <tr align="right">
     <td align="right" class="smalllabel">Processed</td>
@@ -261,36 +262,37 @@ print <<<EOT
     <td align="right" class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">Returned</td>
-    <td class=smallnumber>$returned_link
+    <td class="link">${nulllist_link}Nulllist</a></td>
+    <td class="smallnumber">$nulllist</td>
+    <td class="smallnumber">$nulllist_pct%</td>
+  </tr>
+  <tr align="right">
+    <td class="link">${returned_link}Returned</a></td>
+    <td class=smallnumber>$returned</td>
     <td class="smallnumber">$returned_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">Whitelist</td>
-    <td class="smallnumber">$whitelist_link
+    <td class="link">${whitelist_link}Whitelist</a></td>
+    <td class="smallnumber">$whitelist</td>
     <td class="smallnumber">$whitelist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">Blacklist</td>
-    <td class="smallnumber">$blacklist_link
+    <td class="link">${blacklist_link}Blacklist</a></td>
+    <td class="smallnumber">$blacklist</td>
     <td class="smallnumber">$blacklist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">Registered</td>
-    <td class="smallnumber">$registered_link
+    <td class="link">${registered_link}Registered</a></td>
+    <td class="smallnumber">$registered</td>
     <td class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">Mailloop</td>
-    <td class="smallnumber">$mailloop_link
+    <td class="link">${mailloop_link}Mailloop</a></td>
+    <td class="smallnumber">$mailloop</td>
     <td class="smallnumber">n/a</td>
-  </tr>
-  <tr align="right">
-    <td class="smalllabel">Nulllist</td>
-    <td class="smallnumber">$nulllist_link
-    <td class="smallnumber">$nulllist_pct%</td>
   </tr>
 </table>
+</div>
 </div>
 EOT;
 } // displayquickstats

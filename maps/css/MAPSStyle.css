@@ -75,14 +75,44 @@ body {
   width:        125px;
 }
 
+#quickwrap {
+  width: 130px;
+}
+#quickwrap table {
+  width:           100%;
+  table-layout:    fixed;
+  border-collapse: collapse;
+  background:      #579;
+}
+#quickwrap td.link a {
+  float:           left;
+  width:           10px;
+  margin-left:     -60px;
+  padding:         0 60px;
+  position:        relative;
+  text-decoration: none;
+  color:           white;
+  font-size:       12px;
+  font-weight:     bold;
+}
+#quickwrap td.link a:hover {
+  background:      #c1dffc;
+  color:           steelblue;
+}
+table tr:hover td {
+  background:      #c1dffc;
+  color:           steelblue;
+}
+
 .quickstats {
-  font-size:        10px;
+  font-size:        12px;
+  font-weight:      bold;
   line-height:      10px;
   margin:           2px;
   width:            125px;
 }
 .quickstats a:link {
-  color:           white;
+  color:           #c1dffc;
   text-decoration: none;
 }
 .quickstats a:visited {
@@ -91,9 +121,6 @@ body {
 .quickstats a:hover {
   color:      steelblue;
   background: white;
-}
-.quickstats a:active {
-  color: Yellow;
 }
 
 .toolbar a:hover {

@@ -34,7 +34,7 @@ use base qw(Exporter);
 
 our $db;
 
-our $Version = '2.0';
+our $VERSION = '2.0';
 
 # Globals
 my $userid = $ENV{MAPS_USERNAME} ? $ENV{MAPS_USERNAME} : $ENV{USER};
@@ -155,6 +155,8 @@ sub OpenDB($$) {
   $db = MyDB->new($username, $password, $dbname, $dbserver);
 
   croak "Unable to instantiate MyDB ($username\@$dbserver:$dbname)" unless $db;
+
+  return;
 } # OpenDB
 
 BEGIN {
@@ -346,6 +348,7 @@ sub AddUserOptions(%) {
   } # for
 
   return ($err, $msg) if $err;
+  return;
 } # AddUserOptions
 
 sub Blacklist(%) {
@@ -797,11 +800,7 @@ sub GetUser() {
 sub GetUserInfo($) {
   my ($userid) = @_;
 
-  my $userinfo = $db->getone('user', "userid='$userid'", ['name', 'email']);
-
   return %{$db->getone('user', "userid='$userid'", ['name', 'email'])};
-
-  return %$userinfo;
 } # GetUserInfo
 
 sub GetUserOptions($) {
@@ -1292,7 +1291,7 @@ sub SetContext($) {
   if (UserExists($to_user)) {
     $userid = $to_user;
 
-    return GetUserInfo $userid;
+    return GetUserOptions $userid;
   } else {
     return 0;
   } # if
@@ -1327,11 +1326,11 @@ sub UpdateList(%) {
   my $table     = 'list';
   my $condition = "userid = '$rec{userid}' and type = '$rec{type}' and sequence = $rec{sequence}";
 
-  if ($rec{pattern} =~ /\@/ and !$rec{domain}) {
+  if ($rec{pattern} =~ /\@/ && !$rec{domain}) {
     ($rec{pattern}, $rec{domain}) = split /\@/, $rec{pattern};
-  } elsif (!$rec{pattern} and $rec{domain} =~ /\@/) {
+  } elsif (!$rec{pattern} && $rec{domain} =~ /\@/) {
     ($rec{pattern}, $rec{domain}) = split /\@/, $rec{domain};
-  } elsif (!$rec{pattern} and !$rec{domain}) {
+  } elsif (!$rec{pattern} && !$rec{domain}) {
     return "Must specify either Username or Domain";
   } # if
 
