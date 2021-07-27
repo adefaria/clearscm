@@ -160,6 +160,8 @@ sub Body($) {
 
   MakeButtons $type;
 
+  print start_div {-id => 'highlightrow'};
+
   print start_table({-align        => 'center',
                      -id           => $table_name,
                      -border       => 0,
@@ -169,7 +171,7 @@ sub Body($) {
 
   print
     Tr [
-      td {-class  => 'tablebordertopleft'},  '&nbsp;',
+      th {-class  => 'tablebordertopleft'},  '',
       th {-class  => 'tableborder'},         'Sender',
       th {-class  => 'tableborder'},         'List',
       th {-class  => 'tableborder'},         'Hit Count',
@@ -357,9 +359,11 @@ sub Body($) {
   } # for
 
   print end_table;
-  print end_form;
+  print end_div;
 
   MakeButtons $type;
+
+  print end_form;
 
   return;
 } # Body

@@ -75,6 +75,49 @@ body {
   width:        125px;
 }
 
+#highlightrow table tr:hover td {
+  background:      #c1dffc;
+  color:           steelblue;
+}
+
+#quickstats {
+    background-color: #579;
+}
+#quickstats table {
+  width:            100%;
+  overflow:         hidden;
+  border-collapse:  collapse;
+}
+#quickstats tr {
+    color:          white;
+    display:        block;
+}
+#quickstats tr:hover {
+  background:       #c1dffc;
+  color:            steelblue;
+}
+#quickstats a {
+  color:            white;
+  text-decoration:  none;
+}
+#quickstats td a:hover {
+  background:       #c1dffc;
+  color:            steelblue;
+}
+#quickstats tr td:first-child {
+  position:         relative;
+}
+#quickstats a:before {
+  content:          '';
+  position:         absolute;
+  left:             0;
+  top:              0;
+  bottom:           0;
+  display:          block;
+  width:            142px;
+}
+
+
 #quickwrap {
   width: 130px;
 }
@@ -95,11 +138,12 @@ body {
   font-size:       12px;
   font-weight:     bold;
 }
+
 #quickwrap td.link a:hover {
   background:      #c1dffc;
   color:           steelblue;
 }
-table tr:hover td {
+#quickwrap table tr:hover td {
   background:      #c1dffc;
   color:           steelblue;
 }
@@ -159,12 +203,16 @@ table tr:hover td {
   font-weight: bold;
   line-height: 12px;
   font-size:   12px;
+  text-align:  left;
+  width:       68px;
 }
 
 .smallnumber {
   color:       white;
   line-height: 12px;
   font-size:   12px;
+  text-align:  right;
+  width:       25px;
 }
 
 .header {
@@ -504,6 +552,7 @@ img {
   background:    White;
   border-left:   1px dotted #ccc;
   border-bottom: 1px dotted #ccc;
+  border-top:    1px dotted #ccc;
   font-size:     14px;
 }
 

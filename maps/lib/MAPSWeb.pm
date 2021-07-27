@@ -70,7 +70,7 @@ sub displayquickstats($) {
   print p {-align     => 'center'},
     b ('as of ' . FormatTime($time));
 
-  print start_div {-id => 'quickwrap'};
+  print start_div {-id => 'quickstats'};
 
   print start_table {
     -cellspacing => 0,

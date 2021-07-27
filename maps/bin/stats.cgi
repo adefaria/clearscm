@@ -28,7 +28,7 @@ use MAPSLog;
 use MAPSWeb;
 use DateUtils;
 
-use CGI qw (:standard *table start_Tr end_Tr);
+use CGI qw (:standard *table start_Tr end_Tr start_div end_div);
 use CGI::Carp 'fatalsToBrowser';
 
 my $nbr_days = param('nbr_days');
@@ -40,6 +40,8 @@ $date = defined $date ? $date : Today2SQLDatetime;
 
 sub Body($) {
   my ($userid) = @_;
+
+  print start_div {-id => 'highlightrow'};
 
   print start_table ({-align       => 'center',
                       -id          => $table_name,
@@ -117,6 +119,7 @@ sub Body($) {
 
   print end_Tr;
   print end_table;
+  print end_div;
 
   return;
 } # Body

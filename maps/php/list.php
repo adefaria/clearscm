@@ -60,7 +60,7 @@ $this_page = $next / $lines + 1;
 </div>
 
 <div class="content">
-  <?php NavigationBar ($userid)?>
+  <?php NavigationBar($userid)?>
   <form method="post" action="/maps/bin/processaction.cgi" name="list">
   <div align="center">
   <?php
@@ -101,6 +101,7 @@ $this_page = $next / $lines + 1;
       onclick="return ClearAll (document.list);">
     <?php print $next_button?>
   </div>
+  <div id="highlightrow">
   <table border="0" cellspacing="0" cellpadding="4" width="100%" align="center" name="list">
     <tr>
       <th class="tableleftend">&nbsp;</th>
@@ -118,6 +119,7 @@ $this_page = $next / $lines + 1;
   </table>
   <br>
   </form>
+  </div>
   <div align=center>
     <form method="post" enctype="multipart/form-data"
       action="/maps/bin/importlist.cgi?type=<?php echo $type?>">

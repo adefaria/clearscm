@@ -254,40 +254,40 @@ function displayquickstats() {
     "<a href=\"/maps/bin/detail.cgi?type=nulllist;date=$today\">";
 
 print <<<EOT
-<div id="quickwrap">
+<div id="quickstats">
 <table cellpadding="2" border="0" align="center" cellspacing="0">
   <tr align="right">
-    <td align="right" class="smalllabel">Processed</td>
+    <td align="left" class="smalllabel">Processed</td>
     <td align="right" class="smallnumber">$processed</td>
     <td align="right" class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="link">${nulllist_link}Nulllist</a></td>
+    <td class="smalllabel">${nulllist_link}Nulllist</a></td>
     <td class="smallnumber">$nulllist</td>
     <td class="smallnumber">$nulllist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="link">${returned_link}Returned</a></td>
+    <td class="smalllabel">${returned_link}Returned</a></td>
     <td class=smallnumber>$returned</td>
     <td class="smallnumber">$returned_pct%</td>
   </tr>
   <tr align="right">
-    <td class="link">${whitelist_link}Whitelist</a></td>
+    <td class="smalllabel">${whitelist_link}Whitelist</a></td>
     <td class="smallnumber">$whitelist</td>
     <td class="smallnumber">$whitelist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="link">${blacklist_link}Blacklist</a></td>
+    <td class="smalllabel">${blacklist_link}Blacklist</a></td>
     <td class="smallnumber">$blacklist</td>
     <td class="smallnumber">$blacklist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="link">${registered_link}Registered</a></td>
+    <td class="smalllabel">${registered_link}Registered</a></td>
     <td class="smallnumber">$registered</td>
     <td class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="link">${mailloop_link}Mailloop</a></td>
+    <td class="smalllabel">${mailloop_link}Mailloop</a></td>
     <td class="smallnumber">$mailloop</td>
     <td class="smallnumber">n/a</td>
   </tr>
@@ -479,11 +479,11 @@ function ListDomains($top = 10) {
   $result = mysqli_query($db, $statement)
     or DBError("ListDomains: Unable to execute query: ", $statement);
 
+  print "<div id=highlightrow>";
   print <<<END
   <table border="0" cellspacing="0" cellpadding="4" align="center" name="domainlist">
     <tr>
-      <th class="tableleftend">Mark</th>
-      <th class="tableheader">Ranking</th>
+      <th class="tableleftend">&nbsp;</th>
       <th class="tableheader">Domain</th>
       <th class="tablerightend">Returns</th>
     </tr>
@@ -491,21 +491,19 @@ END;
 
   // Get results
   for ($i = 0; $i < $top; $i++) {
-    $row = mysqli_fetch_array ($result);
+    $row = mysqli_fetch_array($result);
     $domain = $row["domain"];
     $nbr    = $row["nbr"];
 
     print "<tr>";
     $ranking = $i + 1;
     if ($i < $top - 1) {
-      print "<td class=tableleftdata align=center><input type=checkbox name=action" . $i . " value=on></td>\n";
-      print "<td align=center class=tabledata>" . $ranking . "</td>";
+      print "<td align=center class=tableleftdata>" . $ranking . "<input type=checkbox name=action" . $i . " value=on></td>\n";
       print "<td class=tabledata><a href=\"http://$domain\">$domain</as></td>";
       print "<input type=hidden name=email$i value=\"@$domain\">";
       print "<td align=center class=tablerightdata>$nbr</td>";
     } else {
-      print "<td class=tablebottomleft align=center><input type=checkbox name=action" . $i . " value=on></td>\n";
-      print "<td align=center class=tablebottomdata>" . $ranking . "</td>";
+      print "<td align=center class=tablebottomleft>" . $ranking . "<input type=checkbox name=action" . $i . " value=on></td>\n";
       print "<td class=tablebottomdata><a href=\"http://$domain\">$domain</a></td>";
       print "<input type=hidden name=email$i value=\"@$domain\">";
       print "<td align=center class=tablebottomright>$nbr</td>";
@@ -519,6 +517,7 @@ END;
     </td>
   </tr>
 <table>
+</div>
 END;
 } // ListDomains
 
