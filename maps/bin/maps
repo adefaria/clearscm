@@ -46,7 +46,8 @@ $Date: 2013/06/12 14:05:47 $
    -v|erbose:         Be verbose
    -de|bug:           Output debug messages
 
-   -[no]e|xecute:     Set execute mode.         
+   -[no]e|xecute:     Set execute mode.
+   -f|ile <file>:     File to use as a test message
 
 # (c) Copyright 2000-2021, Andrew@DeFaria.com, all rights reserved.
 
@@ -56,6 +57,7 @@ use strict;
 use warnings;
 
 use Getopt::Long;
+use Pod::Usage;
 use Email::Valid;
 use FindBin;
 use File::Temp qw (tempfile);
@@ -68,11 +70,16 @@ use MAPS;
 use MAPSLog;
 
 use Display;
+use Logger;
 use Utils;
 
-my $verbose   = 0;
-my $execute   = 1;
-my $userid    = $ENV{USER};
+my %opts = (
+  execute => 1,
+);
+
+my $userid = $ENV{USER};
+
+my $log;
 
 # For some reason I'm not parsing messages correctly but it only seems to
 # happen when the message is piped in from the MTA. This routine will
@@ -118,7 +125,7 @@ sub ValidDomainUser($) {
 sub ProcessMsgs ($$$) {
   my ($msgfile, $username, $user_email) = @_;
 
-  return unless $execute;
+  return unless $opts{execute};
 
   while (!eof $msgfile) {
     my ($sender, $sender_long, $reply_to, $subject, $data) = ReadMsg ($msgfile);
@@ -148,7 +155,7 @@ sub ProcessMsgs ($$$) {
     if ($sender eq $user_email and
             (lc ($sender_long) !~ lc ("\"$username\" <$user_email>") and
              lc ($sender_long) !~ lc ("$username <$user_email>"))) {
-      verbose "Nulllisting message from sender ($sender_long) pretending to be $user_email";
+      $log->msg("Nulllisting message from sender ($sender_long) pretending to be $user_email");
       Nulllist $sender;
       next;
     } # if
@@ -158,10 +165,12 @@ sub ProcessMsgs ($$$) {
 
     if ($onlist) {
       if (ValidDomainUser $sender) {
-        verbose "Whitelisting $sender";
+        $log->msg("Whitelisting $sender");
+
         Whitelist $sender, $data, $sequence, $hit_count;
       } else {
-        verbose "Sender from this domain but user not found";
+        $log->msg("Sender from this domain but user not found");
+
         Nulllist $sender;
       } # if
 
@@ -172,7 +181,7 @@ sub ProcessMsgs ($$$) {
     ($onlist, $rule, $sequence, $hit_count) = OnBlacklist $sender;
 
     if ($onlist) {
-      verbose "Blacklisting $sender";
+      $log->msg("Blacklisting $sender");
 
       Blacklist(
         userid    => $userid,
@@ -189,13 +198,14 @@ sub ProcessMsgs ($$$) {
     ($onlist, $rule, $sequence, $hit_count) = OnNulllist $sender;
 
     if ($onlist) {
-      verbose "Nulllisting $sender";
+      $log->msg("Nulllisting $sender");
       Nulllist $sender, $sequence, $hit_count;
       next;
     } # if
 
     # Return processing:
-    verbose "Returning message from $sender";
+    $log->msg("Returning message from $sender");
+
     ReturnMsg(
       userid   => $userid,
       sender   => $sender,
@@ -208,11 +218,18 @@ sub ProcessMsgs ($$$) {
 
 # Main
 GetOptions(
-  'user=s'      => \$userid,
-  'verbose'     => sub { set_verbose },
-  'debug'       => sub { set_debug },
-  'execute!'    => \$execute,
-) || Usage;
+  \%opts,
+  'user=s',
+  'verbose',
+  'debug',
+  'execute!',
+) or pod2usage;
+
+$log = Logger->new(
+  path        => '/var/local/log',
+  timestamped => 'yes',
+  append      => 'yes',
+);
 
 my $msgfile;
 
@@ -220,18 +237,18 @@ if ($ARGV[0] and $ARGV[0] ne "") {
   open $msgfile, '<', $ARGV[0];
 
   unless ($msgfile) {
-    Error "Unable to open file ($ARGV[0]): $!\n";
+    $log->err("Unable to open file ($ARGV[0]): $!");
     exit 1;
   } # if
 } else {
   $msgfile = SaveStdin;
 } # if 
 
-verbose "Starting MAPS....";
+# Get user
+FindUser(userid => $userid);
 
-my %userOptions = SetContext $userid
-  or die "$userid is not a registered MAPS user\n";
+my $user = GetUser;
 
-ProcessMsgs $msgfile, $userOptions{name}, lc $userOptions{email};
+ProcessMsgs $msgfile, $user->{name}, lc $user->{email};
 
 exit 0;

@@ -61,14 +61,17 @@ my ($userid, $msgfile) = @ARGV;
 die 'User id not specified' unless $userid;
 die 'Msgfile not specified' unless $msgfile;
 
-my $err = DeliverMail($userid, $msgfile);
+my $errmsg = DeliverMail($userid, $msgfile);
 
-if ($err) {
-  OpenDB('maps', 'spam');
+if ($errmsg) {
+  #OpenDB('maps', 'spam');
 
   SetContext($userid);
 
-  Error($err);
+  Error(
+    userid  => $userid,
+    message => $errmsg,
+  );
 
   exit 1;
 } # if
