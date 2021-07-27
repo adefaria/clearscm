@@ -156,7 +156,9 @@ sub ProcessMsgs ($$$) {
             (lc ($sender_long) !~ lc ("\"$username\" <$user_email>") and
              lc ($sender_long) !~ lc ("$username <$user_email>"))) {
       $log->msg("Nulllisting message from sender ($sender_long) pretending to be $user_email");
+
       Nulllist $sender;
+
       next;
     } # if
 
@@ -165,11 +167,11 @@ sub ProcessMsgs ($$$) {
 
     if ($onlist) {
       if (ValidDomainUser $sender) {
-        $log->msg("Whitelisting $sender");
+        $log->msg("Whitelisting $sender - Rule: $rule:$sequence/$hit_count");
 
         Whitelist $sender, $data, $sequence, $hit_count;
       } else {
-        $log->msg("Sender from this domain but user not found");
+        $log->msg("Sender ($sender) from this domain but user not found");
 
         Nulllist $sender;
       } # if
@@ -181,7 +183,7 @@ sub ProcessMsgs ($$$) {
     ($onlist, $rule, $sequence, $hit_count) = OnBlacklist $sender;
 
     if ($onlist) {
-      $log->msg("Blacklisting $sender");
+      $log->msg("Blacklisting $sender - Rule: $rule:$sequence/$hit_count");
 
       Blacklist(
         userid    => $userid,
@@ -198,7 +200,7 @@ sub ProcessMsgs ($$$) {
     ($onlist, $rule, $sequence, $hit_count) = OnNulllist $sender;
 
     if ($onlist) {
-      $log->msg("Nulllisting $sender");
+      $log->msg("Nulllisting $sender - Rule: $rule:$sequence/$hit_count");
       Nulllist $sender, $sequence, $hit_count;
       next;
     } # if
