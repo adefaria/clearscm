@@ -1187,8 +1187,7 @@ sub ReturnSenders(%) {
   # Finally slice for the given range
   my $end_at = $params{start_at} + $params{lines} - 1;
 
-  $end_at = (@senders - 1)
-    if $end_at > @senders;
+  $end_at = (@senders - 1) if $end_at >= @senders;
 
   return (@senders) [$params{start_at} .. $end_at];
 } # ReturnSenders
