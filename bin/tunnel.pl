@@ -71,6 +71,8 @@ use Logger;
 use Speak;
 use Utils;
 
+local $0 = $FindBin::Script;
+
 my $VERSION  = '$Revision: 1.0 $';
   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 

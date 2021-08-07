@@ -8,6 +8,7 @@ case $1 in
     # looking for the network to come back up but that's tricker to implement.
     #
     # Seems like one kill is not enough. Try 2 - spaced a minute apart
+    /usr/local/bin/setsound.sh 35
     sleep 60
     killall -USR2 announceEmail.pl
     sleep 60

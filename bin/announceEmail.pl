@@ -33,7 +33,7 @@ $Date: 2019/04/04 13:40:10 $
 
  Usage: announceEmail.pl [-usa|ge] [-h|elp] [-v|erbose] [-de|bug]
                          [-use|rname <username>] [-p|assword <password>]
-                         [-i|map <server>]
+                         [-i|map <server>] [-t|imeout <secs>]
                          [-an|nouce] [-ap|pend] [-da|emon] [-n|name <name>]
                          [-uses|sl] [-useb|locking]
 
@@ -46,6 +46,7 @@ $Date: 2019/04/04 13:40:10 $
    -user|name    User name to log in with (Default: $USER)
    -p|assword    Password to use (Default: prompted)
    -i|map        IMAP server to talk to (Default: defaria.com)
+   -t|imeout <s> Timeout IMAP idle call (Sefault: 600 seconds or 10 minutes)
 
    -an|nounce    Announce startup (Default: False)
    -ap|pend      Append to logfile (Default: Noappend)
@@ -86,6 +87,8 @@ use Speak;
 use TimeUtils;
 use Utils;
 
+local $0 = "$FindBin::Script " . join ' ', @ARGV;
+
 my $defaultIMAPServer = 'defaria.com';
 my $IMAP;
 my %unseen;
@@ -114,6 +117,7 @@ my %opts = (
   verbose     => sub { set_verbose },
   debug       => sub { set_debug },
   daemon      => 1,
+  timeout     => 600, # 10 minutes
   username    => $ENV{USER},
   password    => $ENV{PASSWORD},
   imap        => $defaultIMAPServer,
@@ -143,18 +147,16 @@ sub interrupted {
 
 sub Connect2IMAP;
 
-sub restart {
-  my $msg = "Re-establishing connection to $opts{imap} as $opts{username}";
-
-  $log->dbug($msg);
-
-  Connect2IMAP;
-
-  goto MONITORMAIL;
-} # restart
+#sub restart {
+#  $log->dbug("Re-establishing connection to $opts{imap} as $opts{username}");
+#
+#  Connect2IMAP;
+#
+#  goto MONITORMAIL;
+#} # restart
 
 $SIG{USR1} = \&interrupted;
-$SIG{USR2} = \&restart;
+#$SIG{USR2} = \&restart;
 
 sub unseenMsgs() {
   $IMAP->select('inbox') or
@@ -190,7 +192,7 @@ sub Connect2IMAP() {
 } # Connect2IMAP
 
 sub MonitorMail() {
-  MONITORMAIL:
+#  MONITORMAIL:
   $log->dbug("Top of MonitorMail loop");
 
   # First close and reselect the INBOX to get its current status
@@ -269,20 +271,27 @@ sub MonitorMail() {
 
   # Re-establish callback
   $log->dbug("Evaling idle");
-  eval { $IMAP->idle(\&MonitorMail) };
+  eval { $IMAP->idle(\&MonitorMail, $opts{timeout}) };
+
+  $log->err("Unable to set IMAP Idle - AS $@", 1) if $@;
+  $log->msg("IMAP Idle for $opts{name} timed out in " . howlong $startTime, time);
 
   # If we return from idle then the server went away for some reason. With Gmail
-  # the server seems to time out around 30-40 minutes. Here we simply reconnect
-  # to the imap server and continue to MonitorMail.
-  restart;
+  # the server seems to time out around 30-40 minutes. Here we simply return
+  # back to main which will re-establish the connection and call us again.
+  unless ($IMAP->get_response_code('timeout')) {
+    my $errstr = $IMAP->get_last_error;
 
-  return;
+    $log->dbug("$opts{name} went away - $errstr");
+  } # unless
+
+  return 0;
 } # MonitorMail
 
 END {
   # If $log is not yet defined then the exit is not unexpected
   if ($log) {
-    my $msg = "$FindBin::Script ending unexpectedly!";
+    my $msg = "$FindBin::Script $opts{name} ended unexpectedly!";
 
     speak $msg, $log;
 
@@ -302,6 +311,7 @@ GetOptions(
   'name=s',
   'password=s',
   'imap=s',
+  'timeout=i',
   'usessl',
   'useblocking',
   'announce!',
@@ -333,8 +343,6 @@ $log = Logger->new(
   append      => $opts{append},
 );
 
-Connect2IMAP;
-
 if ($opts{username} =~ /(.*)\@/) {
   $opts{user} = $1;
 } else {
@@ -343,11 +351,20 @@ if ($opts{username} =~ /(.*)\@/) {
 
 my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
 
-speak $msg, $log if $opts{announce};
+# Changed to loop here - better than using a goto. This kinda kills the idea of
+# using siguser2 to interrupt announceEmail.pl to kick it into re-establishing 
+# the connection.
+while () {
+  Connect2IMAP;
 
-$log->msg($msg);
+  speak $msg, $log if $opts{announce};
 
-MonitorMail;
+  $log->msg($msg);
+
+  MonitorMail;
+
+  $log->dbug("$opts{name} timed out! Re-establishing connection");
+} # while
 
 # Should not get here
 $log->err("Falling off the edge of $0", 1);
