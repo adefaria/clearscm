@@ -321,7 +321,7 @@ sub NavigationBar($) {
       (a {-href => '/maps/doc/'},
         'Help<br>'),
       (a {-href => '/maps/adm/'},
-        'MAPS<br>'),
+        'Admin<br>'),
       (a {-href => '/maps/?logout=yes'},
         'Logout'),
     );
