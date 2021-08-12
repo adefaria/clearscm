@@ -18,13 +18,13 @@ function checkaddress (form, user) {
   }
 
   var features = 
-    "height=320"	+ "," +
-    "location=no"	+ "," +
-    "menubar=no"	+ "," +
-    "status=no"		+ "," +
-    "toolbar=no"	+ "," +
-    "scrollbar=yes"	+ "," +
-    "width=600";
+    "height=320"    + "," +
+    "location=no"   + "," +
+    "menubar=no"    + "," +
+    "status=no"     + "," +
+    "toolbar=no"    + "," +
+    "scrollbar=yes" + "," +
+    "width=800";
 
   var url = "/maps/bin/checkaddress.cgi?";
 

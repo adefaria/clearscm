@@ -122,6 +122,12 @@ sub ValidDomainUser($) {
   return defined $uid ? 1 : 0;
 } # ValidDomainUser
 
+sub formatRule($) {
+  my ($rec) = @_;
+
+  return "Rule: $rec->{pattern}\@$rec->{domain}:$rec->{sequence}/$rec->{hit_count}";
+} # formatRule
+
 sub ProcessMsgs ($$$) {
   my ($msgfile, $username, $user_email) = @_;
 
@@ -130,7 +136,7 @@ sub ProcessMsgs ($$$) {
   while (!eof $msgfile) {
     my ($sender, $sender_long, $reply_to, $subject, $data) = ReadMsg ($msgfile);
 
-    my ($onlist, $rule, $sequence, $hit_count);
+    my ($onlist, $rec, $sequence, $hit_count);
 
     # Algorithm change: We now first check to see if the sender is not found
     # in the message and skip it if so. Then we handle if we are the sender
@@ -163,13 +169,13 @@ sub ProcessMsgs ($$$) {
     } # if
 
     # Check whitelist:
-    ($onlist, $rule, $sequence, $hit_count) = OnWhitelist $sender;
+    ($onlist, $rec) = OnWhitelist $sender;
 
     if ($onlist) {
       if (ValidDomainUser $sender) {
-        $log->msg("Whitelisting $sender - Rule: $rule:$sequence/$hit_count");
+        $log->msg("Whitelisting $sender - Rule: " . formatRule($rec));
 
-        Whitelist $sender, $data, $sequence, $hit_count;
+        Whitelist $sender, $data, $rec->{sequence}, $rec->{hit_count};
       } else {
         $log->msg("Sender ($sender) from this domain but user not found");
 
@@ -180,16 +186,16 @@ sub ProcessMsgs ($$$) {
     } # if
 
     # Check blacklist:
-    ($onlist, $rule, $sequence, $hit_count) = OnBlacklist $sender;
+    ($onlist, $rec) = OnBlacklist $sender;
 
     if ($onlist) {
-      $log->msg("Blacklisting $sender - Rule: $rule:$sequence/$hit_count");
+      $log->msg("Blacklisting $sender - Rule: " . formatRule($rec));
 
       Blacklist(
         userid    => $userid,
         sender    => $sender,
-        sequence  => $sequence,
-        hit_count => $hit_count,
+        sequence  => $rec->{sequence},
+        hit_count => $rec->{hit_count},
         data      => $data,
       );
 
@@ -197,11 +203,12 @@ sub ProcessMsgs ($$$) {
     } # if 
 
     # Check nulllist:
-    ($onlist, $rule, $sequence, $hit_count) = OnNulllist $sender;
+    ($onlist, $rec) = OnNulllist $sender;
 
     if ($onlist) {
-      $log->msg("Nulllisting $sender - Rule: $rule:$sequence/$hit_count");
-      Nulllist $sender, $sequence, $hit_count;
+      #$log->msg("Nulllisting $sender - Rule: $rule:$sequence/$hit_count");
+      $log->msg("Nulllisting $sender - Rule: " . formatRule($rec));
+      Nulllist $sender, $rec->{sequence}, $rec->{hit_count};
       next;
     } # if
 

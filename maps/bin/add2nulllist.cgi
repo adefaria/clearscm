@@ -51,7 +51,7 @@ sub Add2List(%) {
 
     $rec{sender} = CheckEmail $rec{pattern}, $rec{domain};
 
-    my ($status, $rule) = OnNulllist($rec{sender});
+    my ($status) = OnNulllist($rec{sender});
 
     if ($status) {
       print br {-class => 'error'},

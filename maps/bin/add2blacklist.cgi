@@ -50,7 +50,7 @@ sub Add2List(%) {
 
     $rec{sender} = CheckEmail $rec{pattern}, $rec{domain};
 
-    my ($status, $rule) = OnBlacklist($rec{sender});
+    my ($status) = OnBlacklist($rec{sender});
 
     if ($status) {
       print br {-class => 'error'},
