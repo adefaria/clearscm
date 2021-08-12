@@ -310,6 +310,10 @@ sub AddList(%) {
 sub AddLog(%) {
   my (%params) = @_;
 
+  # Some email senders are coming in mixed case. We don't want that
+  $params{pattern} = $params{pattern} ? lc $params{pattern} : '';
+  $params{domain}  = $params{domain}  ? lc $params{domain}  : '';
+
   $params{timestamp} = UnixDatetime2SQLDatetime(scalar(localtime));
 
   return $db->add('log', %params);
@@ -419,6 +423,68 @@ sub CheckEmail(;$$) {
     } # if
   } # if
 } # CheckEmail
+
+sub CheckOnList2 ($$;$) {
+  # CheckOnList will check to see if the $sender is on the list.  Return 1 if
+  # found 0 if not.
+  my ($listtype, $sender, $update) = @_;
+
+  $update //= 1;
+
+  my ($status, $rule, $sequence);
+
+  my $table      = 'list';
+  my $condition  = "userid='$userid' and type='$listtype'";
+
+  my ($err, $errmsg) = $db->find($table, $condition, '*', 'order by sequence');
+
+  my ($email_on_file, $rec);
+
+  while ($rec = $db->getnext) {
+    unless ($rec->{domain}) {
+      $email_on_file = $rec->{pattern};
+    } else {
+      unless ($rec->{pattern}) {
+        $email_on_file = '@' . $rec->{domain};
+      } else {
+        $email_on_file = $rec->{pattern} . '@' . $rec->{domain};
+      } # if
+    } # unless
+
+    # Escape some special characters
+    $email_on_file =~ s/\@/\\@/;
+    $email_on_file =~ s/^\*/.\*/;
+
+    # We want to terminate the search string with a "$" iff there's an
+    # "@" in there. This is because some "email_on_file" may have no
+    # domain (e.g. "mailer-daemon" with no domain). In that case we
+    # don't want to terminate the search string with a "$" rather we
+    # wish to terminate it with an "@". But in the case of say
+    # "@ti.com" if we don't terminate the search string with "$" then
+    # "@ti.com" would also match "@tixcom.com"!
+    my $search_for = $email_on_file =~ /\@/
+                   ? "$email_on_file\$"
+                   : !defined $rec->{domain}
+                   ? "$email_on_file\@"
+                   : $email_on_file;
+    if ($sender and $sender =~ /$search_for/i) {
+      $status = 1;
+
+      $rec->{hit_count} //= 0;
+
+      RecordHit(
+        userid    => $userid,
+        type      => $listtype,
+        sequence  => $rec->{sequence},
+        hit_count => $rec->{hit_count} + 1,
+      ) if $update;
+
+      last;
+    } # if
+  } # while
+
+  return ($status, $rec);
+} # CheckOnList2
 
 sub CheckOnList ($$;$) {
   # CheckOnList will check to see if the $sender is on the list.  Return 1 if 
@@ -865,13 +931,13 @@ sub Nulllist($;$$) {
 sub OnBlacklist($;$) {
   my ($sender, $update) = @_;
 
-  return CheckOnList('black', $sender, $update);
+  return CheckOnList2('black', $sender, $update);
 } # OnBlacklist
 
 sub OnNulllist($;$) {
   my ($sender, $update) = @_;
 
-  return CheckOnList('null', $sender, $update);
+  return CheckOnList2('null', $sender, $update);
 } # CheckOnNulllist
 
 sub OnWhitelist($;$$) {
@@ -879,7 +945,7 @@ sub OnWhitelist($;$$) {
 
   SetContext($userid) if $userid;
 
-  return CheckOnList('white', $sender, $update);
+  return CheckOnList2('white', $sender, $update);
 } # OnWhitelist
 
 sub OptimizeDB() {
@@ -1174,20 +1240,27 @@ sub ReturnSenders(%) {
       unless $senders{$rec->{sender}};
   } # while
 
-  # Make a hash whose keys are the timestamp (so we can later sort on
-  # them).
-  my %sendersByTimestamp = reverse %senders;
+  my (@unsorted, @senders);
 
-  my @senders;
+  # Here we have a hash in %senders that has email address and timestamp. In the
+  # past we would merely create a reverse hash by timestamp and sort that. The
+  # The problem is that it is possible for two emails to come in with the same
+  # timestamp. By reversing the hash we clobber any row that has a dumplicte
+  # timestamp. But we want to sort on timestamp. So first we convers this hash
+  # to an array of hashes and then we can sort by timestamp later.
+  while (my ($key, $value) = each %senders) {
+    push @unsorted, {
+      sender    => $key,
+      timestamp => $value,
+    };
+  } # while
 
-  # Sort by timestamp desc and push on to the @senders array
-  push @senders, $sendersByTimestamp{$_}
-    for (sort { $b cmp $a } keys %sendersByTimestamp);
+  push @senders, $_->{sender} for sort { $b->{timestamp} cmp $a->{timestamp}} @unsorted;
 
   # Finally slice for the given range
-  my $end_at = $params{start_at} + $params{lines} - 1;
+  my $end_at = $params{start_at} + ($params{lines} - 1);
 
-  $end_at = (@senders - 1) if $end_at >= @senders;
+  $end_at = (@senders) - 1 if $end_at >= @senders;
 
   return (@senders) [$params{start_at} .. $end_at];
 } # ReturnSenders
