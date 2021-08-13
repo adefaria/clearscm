@@ -311,8 +311,7 @@ sub AddLog(%) {
   my (%params) = @_;
 
   # Some email senders are coming in mixed case. We don't want that
-  $params{pattern} = $params{pattern} ? lc $params{pattern} : '';
-  $params{domain}  = $params{domain}  ? lc $params{domain}  : '';
+  $params{sender} = $params{sender} ? lc $params{sender} : '';
 
   $params{timestamp} = UnixDatetime2SQLDatetime(scalar(localtime));
 
