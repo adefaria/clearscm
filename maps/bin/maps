@@ -206,9 +206,10 @@ sub ProcessMsgs ($$$) {
     ($onlist, $rec) = OnNulllist $sender;
 
     if ($onlist) {
-      #$log->msg("Nulllisting $sender - Rule: $rule:$sequence/$hit_count");
       $log->msg("Nulllisting $sender - Rule: " . formatRule($rec));
+
       Nulllist $sender, $rec->{sequence}, $rec->{hit_count};
+
       next;
     } # if
 

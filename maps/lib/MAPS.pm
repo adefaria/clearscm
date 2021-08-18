@@ -1066,12 +1066,18 @@ sub ReadMsg($) {
 sub RecordHit(%) {
   my (%rec) = @_;
 
-  CheckParms(['userid', 'type', 'sequence', ], \%rec);
-
-  my $current_date = UnixDatetime2SQLDatetime(scalar(localtime));
+  CheckParms(['userid', 'type', 'sequence'], \%rec);
 
   my $table     = 'list';
   my $condition = "userid='$rec{userid}' and type='$rec{type}' and sequence='$rec{sequence}'";
+
+  # We don't need these fields in %rec as we are not updating them
+  delete $rec{sequence};
+  delete $rec{type};
+  delete $rec{userid};
+
+  # We are, however, updating last_hit
+  $rec{last_hit} = UnixDatetime2SQLDatetime(scalar(localtime));
 
   return $db->modify($table, $condition, %rec);
 } # RecordHit
