@@ -1071,13 +1071,9 @@ sub RecordHit(%) {
   my $current_date = UnixDatetime2SQLDatetime(scalar(localtime));
 
   my $table     = 'list';
-  my $condition = "userid='rec{userid} and type=$rec{type} and sequence='$rec{sequence}";
+  my $condition = "userid='$rec{userid}' and type='$rec{type}' and sequence='$rec{sequence}'";
 
-  return $db->modify(
-    table     => $table,
-    condition => $condition,
-    %rec,
-  );
+  return $db->modify($table, $condition, %rec);
 } # RecordHit
 
 sub ResequenceList(%) {
