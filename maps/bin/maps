@@ -125,7 +125,7 @@ sub ValidDomainUser($) {
 sub formatRule($) {
   my ($rec) = @_;
 
-  return "Rule: $rec->{pattern}\@$rec->{domain}:$rec->{sequence}/$rec->{hit_count}";
+  return "$rec->{pattern}\@$rec->{domain}:$rec->{sequence}/$rec->{hit_count}";
 } # formatRule
 
 sub ProcessMsgs ($$$) {
