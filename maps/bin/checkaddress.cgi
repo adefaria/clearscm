@@ -42,12 +42,16 @@ sub formatRule($$$) {
   my ($list, $email_on_file, $rec) = @_;
 
   my $next  = $rec->{sequence} - 1;
-  my $rule  = "Rule: $email_on_file (";
+  my $rule  = 'Rule: "';
+     $rule .= $rec->{pattern} || '';
+     $rule .= '@';
+     $rule .= $rec->{domain}  || '';
+     $rule .= '" - ';
      $rule .= a {
        -href   => "/maps/php/list.php?type=$list&next=$next",
        -target => '_blank',
      }, "$list:$rec->{sequence}";
-     $rule .= ')' . br;
+     $rule .= br;
 
      if ($rec->{retention}) {
        $rule .= "Retention: " . $rec->{retention} . br;
