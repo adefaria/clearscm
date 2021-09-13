@@ -1,5 +1,4 @@
-#!/usr/bin/perl
-#################################################################################
+################################################################################
 #
 # File:         $RCSfile: MAPS.pm,v $
 # Revision:     $Revision: 1.1 $
@@ -39,6 +38,7 @@ our $VERSION = '2.0';
 # Globals
 my $userid = $ENV{MAPS_USERNAME} ? $ENV{MAPS_USERNAME} : $ENV{USER};
 my %useropts;
+my $mailLoopMax = 5;
 
 our @EXPORT = qw(
   Add2Blacklist
@@ -363,7 +363,7 @@ sub Blacklist(%) {
   # Check to see if this sender has already emailed us.
   my $msg_count = $db->count('email', "userid='$rec{userid}' and sender like '%$rec{sender}%'");
 
-  if ($msg_count < 5) {
+  if ($msg_count < $mailLoopMax) {
     # Bounce email
     my @spammsg = split "\n", $rec{data};
 
@@ -966,67 +966,67 @@ sub OptimizeDB() {
 } # OptimizeDB
 
 sub ReadMsg($) {
-  # Reads an email message file from $input. Returns sender, subject,
-  # date and data, which is a copy of the entire message.
   my ($input) = @_;
 
-  my $sender          = '';
-  my $sender_long     = '';
-  my $envelope_sender = '';
-  my $reply_to        = '';
-  my $subject         = '';
-  my $data            = '';
-  my @data;
+  my (%msgInfo, @data, $envelope_sender);
 
-  # Find first message's "From " line indicating start of message
+  # Reads an email message file from $input. Returns sender, subject, date and
+  # data, which is a copy of the entire message. Find first message's "From "
+  # line indicating start of message.
   while (<$input>) {
     chomp;
     last if /^From /;
   } # while
 
   # If we hit eof here then the message was garbled. Return indication of this
-  if (eof($input)) {
-    $data = "Garbled message - unable to find From line";
-    return $sender, $sender_long, $reply_to, $subject, $data;
-  } # if
+  return if eof($input);
 
   if (/From (\S*)/) {
-    $envelope_sender = $1;
-    $sender_long     = $envelope_sender;
+    $msgInfo{sender_long} = $envelope_sender = $1;
   } # if
 
   push @data, $_ if /^From /;
 
   while (<$input>) {
-    chomp;
+    chomp; chop if /\r$/;
+
     push @data, $_;
 
     # Blank line indicates start of message body
-    last if ($_ eq "" || $_ eq "\r");
+    last if ($_ eq '' || $_ eq "\r");
 
     # Extract sender's address
-    if (/^from: .*/i) {
-      $_ = substr ($_, 6);
+    if (/^from: (.*)/i) {
+      $msgInfo{sender_long} = $msgInfo{sender} = $1;
 
-      $sender_long = $_;
-
-      if (/<(\S*)@(\S*)>/) {
-        $sender = lc ("$1\@$2");
-      } elsif (/(\S*)@(\S*)\ /) {
-        $sender = lc ("$1\@$2");
-      } elsif (/(\S*)@(\S*)/) {
-        $sender = lc ("$1\@$2");
+      if ($msgInfo{sender} =~ /<(\S*)@(\S*)>/) {
+        $msgInfo{sender} = lc ("$1\@$2");
+      } elsif ($msgInfo{sender} =~ /(\S*)@(\S*)\ /) {
+        $msgInfo{sender} = lc ("$1\@$2");
+      } elsif ($msgInfo{sender} =~ /(\S*)@(\S*)/) {
+        $msgInfo{sender} = lc ("$1\@$2");
       } # if
-    } elsif (/^subject: .*/i) {
-      $subject = substr ($_, 9);
-    } elsif (/^reply-to: .*/i) {
-      $_ = substr ($_, 10);
-      if (/<(\S*)@(\S*)>/) {
-        $reply_to = lc ("$1\@$2");
-      } elsif (/(\S*)@(\S*)\ /) {
-        $reply_to = lc ("$1\@$2");
-      } elsif (/(\S*)@(\S*)/) {
-        $reply_to = lc ("$1\@$2");
+    } elsif (/^subject: (.*)/i) {
+      $msgInfo{subject} = $1;
+    } elsif (/^reply-to: (.*)/i) {
+      $msgInfo{reply_to} = $1;
+
+      if ($msgInfo{reply_to} =~ /<(\S*)@(\S*)>/) {
+        $msgInfo{reply_to} = lc ("$1\@$2");
+      } elsif ($msgInfo{reply_to} =~ /(\S*)@(\S*)\ /) {
+        $msgInfo{reply_to} = lc ("$1\@$2");
+      } elsif ($msgInfo{reply_to} =~ /(\S*)@(\S*)/) {
+        $msgInfo{reply_to} = lc ("$1\@$2");
+      } # if
+    } elsif (/^to: (.*)/i) {
+      $msgInfo{to} = $1;
+
+      if ($msgInfo{to} =~ /<(\S*)@(\S*)>/) {
+        $msgInfo{to} = lc ("$1\@$2");
+      } elsif ($msgInfo{to} =~ /(\S*)@(\S*)\ /) {
+        $msgInfo{to} = lc ("$1\@$2");
+      } elsif ($msgInfo{to} =~ /(\S*)@(\S*)/) {
+        $msgInfo{to} = lc ("$1\@$2");
       } # if
     } # if
   } # while
@@ -1036,31 +1036,38 @@ sub ReadMsg($) {
     chomp;
 
     last if (/^From /);
+
     push @data, $_;
   } # while
 
   # Set file pointer back by length of the line just read
-  seek ($input, -length () - 1, 1) if !eof $input;
+  seek ($input, -length() - 1, 1) if !eof $input;
 
   # Sanitize email addresses
-  $envelope_sender =~ s/\<//g;
-  $envelope_sender =~ s/\>//g;
-  $envelope_sender =~ s/\"//g;
-  $envelope_sender =~ s/\'//g;
-  $sender          =~ s/\<//g;
-  $sender          =~ s/\>//g;
-  $sender          =~ s/\"//g;
-  $sender          =~ s/\'//g;
-  $reply_to        =~ s/\<//g;
-  $reply_to        =~ s/\>//g;
-  $reply_to        =~ s/\"//g;
-  $reply_to        =~ s/\'//g;
+  $envelope_sender   =~ s/\<//g;
+  $envelope_sender   =~ s/\>//g;
+  $envelope_sender   =~ s/\"//g;
+  $envelope_sender   =~ s/\'//g;
+
+  $msgInfo{sender}   =~ s/\<//g;
+  $msgInfo{sender}   =~ s/\>//g;
+  $msgInfo{sender}   =~ s/\"//g;
+  $msgInfo{sender}   =~ s/\'//g;
+
+  if ($msgInfo{reply_to}) {
+    $msgInfo{reply_to} =~ s/\<//g;
+    $msgInfo{reply_to} =~ s/\>//g;
+    $msgInfo{reply_to} =~ s/\"//g;
+    $msgInfo{reply_to} =~ s/\'//g;
+  } # if
 
   # Determine best addresses
-  $sender    = $envelope_sender if $sender eq "";
-  $reply_to  = $sender          if $reply_to eq "";
+  $msgInfo{sender}   = $envelope_sender unless $msgInfo{sender};
+  $msgInfo{reply_to} = $msgInfo{sender} unless $msgInfo{reply_to};
 
-  return $sender, $sender_long, $reply_to, $subject, join "\n", @data;
+  $msgInfo{data} = join "\n", @data;
+
+  return %msgInfo;
 } # ReadMsg
 
 sub RecordHit(%) {
@@ -1152,7 +1159,7 @@ sub ReturnMsg(%) {
   # Check to see if this sender has already emailed us.
   my $msg_count = $db->count('email', "userid='$userid' and sender like '%$params{sender}%'");
 
-  if ($msg_count < 5) {
+  if ($msg_count < $mailLoopMax) {
     # Return register message
     SendMsg(
       userid   => $params{userid},
@@ -1467,7 +1474,7 @@ sub Whitelist ($$;$$) {
 
   # Dump message into a file
   open my $message, '>', "/tmp/MAPSMessage.$$"
-    or Error("Unable to open message file (/tmp/MAPSMessage.$$): $!\n"), return -1;
+    or error("Unable to open message file (/tmp/MAPSMessage.$$): $!\n"), return -1;
 
   print $message $data;
 
@@ -1485,8 +1492,8 @@ sub Whitelist ($$;$$) {
       sender  => $sender, 
       message => 'Delivered message',
     );
-  } else { 
-    Error("Unable to deliver message - is MAPSDeliver setgid? - $!");
+  } else {
+    error("Unable to deliver message - is MAPSDeliver setgid? - $!", $status);
   } # if
 
   $hit_count++ if $sequence;

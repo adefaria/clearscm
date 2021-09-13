@@ -106,7 +106,7 @@ sub Debug(%) {
 sub Error(%) {
   my (%params) = @_;
 
-CheckParms(['userid', 'message'], \%params);
+  CheckParms(['userid', 'message'], \%params);
 
   return Logmsg(
     userid  => $params{userid},

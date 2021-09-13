@@ -134,7 +134,7 @@ sub ProcessMsgs ($$$) {
   return unless $opts{execute};
 
   while (!eof $msgfile) {
-    my ($sender, $sender_long, $reply_to, $subject, $data) = ReadMsg ($msgfile);
+    my %msgInfo = ReadMsg $msgfile;
 
     my ($onlist, $rec, $sequence, $hit_count);
 
@@ -156,72 +156,78 @@ sub ProcessMsgs ($$$) {
     # Finally, we handle return processing
 
     # Discard any email with an invalid email address
-    next unless Email::Valid->address($sender);
+    next unless Email::Valid->address($msgInfo{sender});
 
-    if ($sender eq $user_email and
-            (lc ($sender_long) !~ lc ("\"$username\" <$user_email>") and
-             lc ($sender_long) !~ lc ("$username <$user_email>"))) {
-      $log->msg("Nulllisting message from sender ($sender_long) pretending to be $user_email");
+    if ($msgInfo{sender} eq $user_email and
+            (lc ($msgInfo{sender_long}) !~ lc ("\"$username\" <$user_email>") and
+             lc ($msgInfo{sender_long}) !~ lc ("$username <$user_email>"))) {
+      $log->msg("Nulllisting message from sender ($msgInfo{sender_long}) pretending to be $user_email");
 
-      Nulllist $sender;
+      next;
+    } # if
+
+    # Discard messges coming from andrew@clearscm.com because I don't send from
+    # that email address
+    if (lc $msgInfo{to} eq 'andrew@clearscm.com') {
+      $log->msg("Nullisting message from Andrew\@ClearSCM.com since I don't send from that email address");
 
       next;
     } # if
 
     # Check whitelist:
-    ($onlist, $rec) = OnWhitelist $sender;
+    ($onlist, $rec) = OnWhitelist $msgInfo{sender};
 
     if ($onlist) {
-      if (ValidDomainUser $sender) {
-        $log->msg("Whitelisting $sender - Rule: " . formatRule($rec));
+      if (ValidDomainUser $msgInfo{sender}) {
+        $log->msg("Whitelisting $msgInfo{sender} - Rule: " . formatRule($rec));
 
-        Whitelist $sender, $data, $rec->{sequence}, $rec->{hit_count};
+        Whitelist $msgInfo{sender}, $msgInfo{data}, $rec->{sequence}, $rec->{hit_count};
       } else {
-        $log->msg("Sender ($sender) from this domain but user not found");
+        $log->msg("Sender ($msgInfo{sender}) from this domain but user not found");
 
-        Nulllist $sender;
+        Nulllist $msgInfo{sender};
       } # if
 
       next;
     } # if
 
     # Check blacklist:
-    ($onlist, $rec) = OnBlacklist $sender;
+    ($onlist, $rec) = OnBlacklist $msgInfo{sender};
 
     if ($onlist) {
-      $log->msg("Blacklisting $sender - Rule: " . formatRule($rec));
+      $log->msg("Blacklisting $msgInfo{sender} - Rule: " . formatRule($rec));
 
       Blacklist(
         userid    => $userid,
-        sender    => $sender,
+        sender    => $msgInfo{sender},
         sequence  => $rec->{sequence},
         hit_count => $rec->{hit_count},
-        data      => $data,
+        data      => $msgInfo{data},
       );
 
       next;
     } # if 
 
     # Check nulllist:
-    ($onlist, $rec) = OnNulllist $sender;
+    ($onlist, $rec) = OnNulllist $msgInfo{sender};
 
     if ($onlist) {
-      $log->msg("Nulllisting $sender - Rule: " . formatRule($rec));
+      $log->msg("Nulllisting $msgInfo{sender} - Rule: " . formatRule($rec));
 
-      Nulllist $sender, $rec->{sequence}, $rec->{hit_count};
+      Nulllist $msgInfo{sender}, $rec->{sequence}, $rec->{hit_count};
 
       next;
     } # if
 
     # Return processing:
-    $log->msg("Returning message from $sender");
+    $log->msg("Returning message from $msgInfo{sender}");
 
     ReturnMsg(
       userid   => $userid,
-      sender   => $sender,
-      reply_to => $reply_to,
-      subject  => $subject,
-      data     => $data,
+      sender   => $msgInfo{sender},
+      reply_to => $msgInfo{reply_to},
+      subject  => $msgInfo{subject},
+      data     => $msgInfo{data},
     );
   } # while
 } # ProcessMsgs
@@ -243,7 +249,7 @@ $log = Logger->new(
 
 my $msgfile;
 
-if ($ARGV[0] and $ARGV[0] ne "") {
+if ($ARGV[0] and $ARGV[0] ne '') {
   open $msgfile, '<', $ARGV[0];
 
   unless ($msgfile) {

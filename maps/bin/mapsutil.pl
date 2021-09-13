@@ -242,18 +242,18 @@ sub LoadEmail($) {
   my $nbr_msgs;
 
   while (!eof $file) {
-    my ($sender, $reply_to, $subject, $data) = ReadMsg (*$file);
+    my %msgInfo = ReadMsg *$file;
 
     $nbr_msgs++;
 
     AddEmail(
       userid  => $userid,
-      sender  => $sender,
-      subject => $subject,
-      data    => $data,
+      sender  => $msgInfo{sender},
+      subject => $msgInfo{subject},
+      data    => $msgInfo{data},
     );
 
-    Info("Added message from $sender to email");
+    Info("Added message from $msgInfo{sender} to email");
   } # while
 
   if ($nbr_msgs == 0) {
