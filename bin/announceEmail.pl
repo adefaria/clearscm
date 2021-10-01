@@ -46,7 +46,7 @@ $Date: 2019/04/04 13:40:10 $
    -user|name    User name to log in with (Default: $USER)
    -p|assword    Password to use (Default: prompted)
    -i|map        IMAP server to talk to (Default: defaria.com)
-   -t|imeout <s> Timeout IMAP idle call (Sefault: 600 seconds or 10 minutes)
+   -t|imeout <s> Timeout IMAP idle call (Sefault: 1200 seconds or 20 minutes)
 
    -an|nounce    Announce startup (Default: False)
    -ap|pend      Append to logfile (Default: Noappend)
@@ -108,8 +108,9 @@ my @greetings = (
   "What's this? A new message",
 );
 
-my $icon    = '/home/andrew/.icons/Thunderbird.jpg';
-my $timeout = 5 * 1000;
+my $icon          = '/home/andrew/.icons/Thunderbird.jpg';
+my $notifyTimeout = 5 * 1000;
+my $IMAPTimeout   = 20 * 60;
 
 my %opts = (
   usage       => sub { pod2usage },
@@ -117,7 +118,7 @@ my %opts = (
   verbose     => sub { set_verbose },
   debug       => sub { set_debug },
   daemon      => 1,
-  timeout     => 600, # 10 minutes
+  timeout     => $IMAPTimeout,
   username    => $ENV{USER},
   password    => $ENV{PASSWORD},
   imap        => $defaultIMAPServer,
@@ -126,7 +127,7 @@ my %opts = (
 sub notify($) {
   my ($msg) = @_;
 
-  my $cmd = "notify-send -i $icon -t $timeout '$msg'";
+  my $cmd = "notify-send -i $icon -t $notifyTimeout '$msg'";
 
   Execute $cmd;
 
@@ -146,17 +147,20 @@ sub interrupted {
 } # interrupted
 
 sub Connect2IMAP;
+sub MonitorMail;
 
-#sub restart {
-#  $log->dbug("Re-establishing connection to $opts{imap} as $opts{username}");
-#
-#  Connect2IMAP;
-#
-#  goto MONITORMAIL;
-#} # restart
+sub restart {
+  my $msg = "Re-establishing connection to $opts{imap} as $opts{username}";
+
+  $log->dbug($msg);
+
+  Connect2IMAP;
+
+  MonitorMail;
+} # restart
 
 $SIG{USR1} = \&interrupted;
-#$SIG{USR2} = \&restart;
+$SIG{USR2} = \&restart;
 
 sub unseenMsgs() {
   $IMAP->select('inbox') or
@@ -192,7 +196,7 @@ sub Connect2IMAP() {
 } # Connect2IMAP
 
 sub MonitorMail() {
-#  MONITORMAIL:
+  MONITORMAIL:
   $log->dbug("Top of MonitorMail loop");
 
   # First close and reselect the INBOX to get its current status
@@ -256,9 +260,9 @@ sub MonitorMail() {
     # midnight but that's ok. I want midnight to 6 Am as silent time.
     $log->dbug("About to speak/log");
     if ($hour >= 7) {
-      $log->dbug("Calling speak");
-      speak $msg, $log;
       $log->msg($logmsg);
+      $log->dbug("Calling speak");
+      speak $msg;
     } else {
       $log->msg("$logmsg [silent]");
     } # if
@@ -270,28 +274,37 @@ sub MonitorMail() {
   my $startTime = time;
 
   # Re-establish callback
-  $log->dbug("Evaling idle");
-  eval { $IMAP->idle(\&MonitorMail, $opts{timeout}) };
+  $log->msg("Calling IMAP->idle");
+  eval {
+    $IMAP->idle(\&MonitorMail, $opts{timeout})
+  };
 
-  $log->err("Unable to set IMAP Idle - AS $@", 1) if $@;
-  $log->msg("IMAP Idle for $opts{name} timed out in " . howlong $startTime, time);
+  my $msg = 'Returned from IMAP->idle ';
+
+  if ($@) {
+    speak($msg . $@, $log);
+  } else {
+    $log->msg($msg . 'no error');
+  } # if
 
   # If we return from idle then the server went away for some reason. With Gmail
-  # the server seems to time out around 30-40 minutes. Here we simply return
-  # back to main which will re-establish the connection and call us again.
+  # the server seems to time out around 30-40 minutes. Here we simply reconnect
+  # to the imap server and continue to MonitorMail.
   unless ($IMAP->get_response_code('timeout')) {
-    my $errstr = $IMAP->get_last_error;
+    $msg = "IMAP Idle for $opts{name} timed out in " . howlong $startTime, time;
 
-    $log->dbug("$opts{name} went away - $errstr");
+    speak $msg;
+
+    $log->msg($msg);
   } # unless
 
-  return 0;
+  restart;
 } # MonitorMail
 
 END {
   # If $log is not yet defined then the exit is not unexpected
   if ($log) {
-    my $msg = "$FindBin::Script $opts{name} ended unexpectedly!";
+    my $msg = "$FindBin::Script $opts{name} ending unexpectedly!";
 
     speak $msg, $log;
 
@@ -343,6 +356,8 @@ $log = Logger->new(
   append      => $opts{append},
 );
 
+Connect2IMAP;
+
 if ($opts{username} =~ /(.*)\@/) {
   $opts{user} = $1;
 } else {
@@ -351,20 +366,11 @@ if ($opts{username} =~ /(.*)\@/) {
 
 my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
 
-# Changed to loop here - better than using a goto. This kinda kills the idea of
-# using siguser2 to interrupt announceEmail.pl to kick it into re-establishing 
-# the connection.
-while () {
-  Connect2IMAP;
+speak $msg if $opts{announce};
 
-  speak $msg, $log if $opts{announce};
+$log->msg($msg);
 
-  $log->msg($msg);
-
-  MonitorMail;
-
-  $log->dbug("$opts{name} timed out! Re-establishing connection");
-} # while
+MonitorMail;
 
 # Should not get here
 $log->err("Falling off the edge of $0", 1);
