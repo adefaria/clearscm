@@ -110,7 +110,6 @@ function Login($userid, $password) {
 
   // Check if user exists
   $dbpassword = UserExists($userid);
-  print "dbpassword = $dbpassword<br>";
 
   // Return -1 if user doesn't exist
   if ($dbpassword == -1) {
