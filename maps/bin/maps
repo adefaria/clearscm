@@ -169,7 +169,7 @@ sub ProcessMsgs ($$$) {
     # Discard messges coming from andrew@clearscm.com because I don't send from
     # that email address
     if (lc $msgInfo{to} eq 'andrew@clearscm.com') {
-      $log->msg("Nullisting message from Andrew\@ClearSCM.com since I don't send from that email address");
+      $log->msg("Nulllisting message from Andrew\@ClearSCM.com since I don't send from that email address");
 
       next;
     } # if

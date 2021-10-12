@@ -203,7 +203,10 @@ sub LoadListFile($) {
 
   my $sequence = 0;
 
-  Info("Adding $listfilename to $listtype list");
+  Info(
+    userid  => $userid,
+    message => "Adding $listfilename to $listtype list",
+  );
 
   while ($listfile) {
     chomp;
@@ -253,18 +256,21 @@ sub LoadEmail($) {
       data    => $msgInfo{data},
     );
 
-    Info("Added message from $msgInfo{sender} to email");
+    Info(
+      userid  => $userid,
+      message => "Added message from $msgInfo{sender} to email"
+    );
   } # while
 
   if ($nbr_msgs == 0) {
-    say "No messages found to load";
+    print "No messages found to load";
   } elsif ($nbr_msgs == 1) {
-    say "Loaded 1 message";
+    print "Loaded 1 message";
   } else {
-    say "Loaded $nbr_msgs messages";
+    print "Loaded $nbr_msgs messages";
   } # if
 
-  say "from $file";
+  say " from $filename";
 } # LoadEmail
 
 sub DumpEmail($) {
