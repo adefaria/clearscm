@@ -119,6 +119,8 @@ fi
 # Source bash_completion (if present) (too slow for Windows)
 if [ -r /etc/bash_completion -a $ARCHITECTURE != "cygwin" ]; then
   source /etc/bash_completion
+elif [ -r /usr/local/etc/bash_completion ]; then
+  source /usr/local/etc/bash_completion
 fi
 
 # Windows aliases

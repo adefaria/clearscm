@@ -23,24 +23,8 @@ SYSNAME=$(echo ${SYSNAME:0:1} | tr [:lower:] [:upper:])$(echo ${SYSNAME:1}   | t
 
 # Aliasing
 case "$SYSNAME" in
-  Az25jzhxkb2d)
-    SYSNAME="Venus"
-    ;;
-
-  Cdvra99a0983)
-    SYSNAME="Dev"
-    ;;
-
-  Cuvra99a0983)
-    SYSNAME="UAT"
-    ;;
-
-  Crvra99a0983)
-    SYSNAME="BCP"
-    ;;
-
-  Cpvra99a0983)
-    SYSNAME="Production"
+  Andrews-macbook-pro)
+    SYSNAME="cPanel"
     ;;
 
 esac
