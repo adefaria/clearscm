@@ -18,6 +18,7 @@ use FindBin;
 local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
 
 use MAPS;
 use MAPSWeb;
@@ -35,9 +36,6 @@ sub PrintList($) {
 
   my $year = substr((scalar(localtime)), 20, 4);
 
-  my ($pattern, $domain, $comment, $hit_count, $last_hit);
-  my $sth = FindList($type);
-
   print "\################################################################################\n";
   print "\#\n";
   print "\# MAPS:\t\tMail Authorization and Permission System (MAPS)\n";
@@ -48,16 +46,23 @@ sub PrintList($) {
   print "\#\n";
   print "\################################################################################\n";
 
-  while (($_, $_, $pattern, $domain, $comment, $_, $hit_count, $last_hit) = GetList($sth)) {
-    last if !(defined $pattern or defined $domain);
+  FindList(
+    userid   => $userid,
+    type     => $type,
+  );
 
-    $pattern //= '';
-    $domain  //= '';
+  while (my $rec = GetList) {
+    $rec->{pattern}   //= '';
+    $rec->{domain}    //= '';
+    $rec->{comment}   //= '';
+    $rec->{hit_count} //= 0;
+    $rec->{last_hit}  //= '';
+    $rec->{retention} //= '';
 
-    if ($domain eq '') {
-      print "$pattern,$comment,$hit_count,$last_hit\n";
+    if ($rec->{domain} eq '') {
+      print "$rec->{pattern},$rec->{comment},$rec->{hit_count},$rec->{last_hit},$rec->{retention}\n";
     } else {
-      print "$pattern\@$domain,$comment,$hit_count,$last_hit\n";
+      print "$rec->{pattern}\@$rec->{domain},$rec->{comment},$rec->{hit_count},$rec->{last_hit},$rec->{retention}\n";
     } # if
   } # while
 

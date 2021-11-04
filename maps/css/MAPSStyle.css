@@ -8,10 +8,9 @@
 /* (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved.         */
 /************************************************************************/
 body {
-  background-color:  #fff;
-  background-image:  url(/maps/images/Pattern1.gif);
+  background-color:  #def;
   background-repeat: repeat-y;
-  color:             black;
+  color:             white;
   font-family:       trebuchet MS, trebuchet, verdana, arial, sans-serif;
   font-size:         14px;
   margin:            0px;
@@ -27,16 +26,18 @@ body {
   line-height: 18px;
   height:      auto;
   left:        2px;
+  background-color: #579;
+  color:       white;
   position:    absolute;
   top:         5px;
   width:       135px;
 }
 
 .username {
-  color:         white;
+  color:         yellow;
   font-family:   veranda, arial;
   font-style:    bold;
-  font-size:     14px;
+  font-size:     16px;
   margin-left:   2px;
   margin-bottom: 5px;
   text-align:    center;
@@ -44,9 +45,6 @@ body {
 }
 
 .menu {
-  background-color: #579;
-  background-image: url(/maps/images/world.gif);
-  border:           2px groove black;
   font-family:      verdana, geneva, arial, helvetica, sans-serif;
   font-size:        14px;
   font-weight:      bold;
@@ -57,7 +55,6 @@ body {
 }
 
 .intromenu {
-  background-color: #579;
   border:           2px groove black;
   font-family:      verdana, geneva, arial, helvetica, sans-serif;
   font-size:        14px;
@@ -69,9 +66,6 @@ body {
 }
 
 .search {
-  background:   #4682b4;
-  border:       2px groove black;
-  color:        white;
   font-family:  veranda, arial;
   font:         bold;
   font-size:    70%;
@@ -81,23 +75,96 @@ body {
   width:        125px;
 }
 
+#highlightrow table tr:hover td {
+  background:      #c1dffc;
+  color:           steelblue;
+}
+
+#quickstats {
+    background-color: #579;
+}
+#quickstats table {
+  width:            100%;
+  overflow:         hidden;
+  border-collapse:  collapse;
+}
+#quickstats tr {
+    color:          white;
+    display:        block;
+}
+#quickstats tr:hover {
+  background:       #c1dffc;
+  color:            steelblue;
+}
+#quickstats a {
+  color:            white;
+  text-decoration:  none;
+}
+#quickstats td a:hover {
+  background:       #c1dffc;
+  color:            steelblue;
+}
+#quickstats tr td:first-child {
+  position:         relative;
+}
+#quickstats a:before {
+  content:          '';
+  position:         absolute;
+  left:             0;
+  top:              0;
+  bottom:           0;
+  display:          block;
+  width:            142px;
+}
+
+
+#quickwrap {
+  width: 130px;
+}
+#quickwrap table {
+  width:           100%;
+  table-layout:    fixed;
+  border-collapse: collapse;
+  background:      #579;
+}
+#quickwrap td.link a {
+  float:           left;
+  width:           10px;
+  margin-left:     -60px;
+  padding:         0 60px;
+  position:        relative;
+  text-decoration: none;
+  color:           white;
+  font-size:       12px;
+  font-weight:     bold;
+}
+
+#quickwrap td.link a:hover {
+  background:      #c1dffc;
+  color:           steelblue;
+}
+#quickwrap table tr:hover td {
+  background:      #c1dffc;
+  color:           steelblue;
+}
+
 .quickstats {
-  background-color: #ffffcc;
-  border:           2px groove #336699;
-  color:            black;
-  font-size:        10px;
+  font-size:        12px;
+  font-weight:      bold;
   line-height:      10px;
   margin:           2px;
   width:            125px;
 }
-
 .quickstats a:link {
+  color:           #c1dffc;
   text-decoration: none;
 }
-
+.quickstats a:visited {
+  color: white;
+}
 .quickstats a:hover {
-  background: blue;
-  color:      white;
+  color:      steelblue;
+  background: white;
 }
 
 .toolbar a:hover {
@@ -105,7 +172,7 @@ body {
 }
 
 .content {
-  background:  #fff;
+  background:  #def;
   border:      0.1px solid #fff;
   color:       black;
   font-family: trebuchet MS, trebuchet, verdana, arial, sans-serif;
@@ -132,20 +199,24 @@ body {
 }
 
 .smalllabel {
-  color:       #993333;
+  color:       white;
   font-weight: bold;
   line-height: 12px;
   font-size:   12px;
+  text-align:  left;
+  width:       68px;
 }
 
 .smallnumber {
-  color:       black;
+  color:       white;
   line-height: 12px;
   font-size:   12px;
+  text-align:  right;
+  width:       25px;
 }
 
 .header {
-  color:       #000099;
+  color:       steelblue;
   line-height: 12px;
   font-weight: bold;
 }
@@ -155,9 +226,10 @@ body {
 }
 
 .found {
-  color:      black;
-  background: #ffffcc;
+  color:      white;
+  background: steelblue;
   font-style: italic;
+  font-weight: bold;
 }
 
 .error {
@@ -181,7 +253,7 @@ body {
 }
 
 .inputfield {
-  background:     #ece9d8;
+  background:     #c1dffc;
   color:          Black;
   font-family:    Veranda, Times;
   font-size:      12px;
@@ -189,10 +261,20 @@ body {
   padding-bottom: 0px;
 }
 
+.inputfieldright {
+  background:     #c1dffc;
+  color:          Black;
+  font-family:    Veranda, Times;
+  font-size:      12px;
+  padding-top:    0px;
+  padding-bottom: 0px;
+  text-align:     right;
+}
+
 #searchfield {
   font-size:            95%;
   font-weight:          normal;
-  background:           #4693c5;
+  background:           #c1dffc;
   border:               solid 1px #00507d;
   border-bottom-color:  #007de1;
   border-right-color:   #007de1;
@@ -219,9 +301,18 @@ body {
   font-weight: italic;
 }
 
+.todaysActivity {
+  color:     yellow;
+}
+
 /* Headers */
-h1, h2, h3, h4, h5 {
+h1, h2, h3 {
   color: #000099;
+}
+
+h4 {
+  color:       yellow;
+  font-weight: bold;
 }
 
 h1 {
@@ -269,70 +360,70 @@ img {
 
 /* Table colors */
 .tableleftend {
-  background:                 #804000;
+  background:                 SteelBlue;
   color:                      white;
   font-style:                 bold;
-  font-size:                  14;
+  font-size:                  14px;
   text-align:                 center;
   -moz-border-radius-topleft: 7px;
   border-top-left-radius:     7px;
 }
 
 .tablerightend {
-  background:                  #804000;
+  background:                  SteelBlue;
   color:                       white;
   font-style:                  bold;
-  font-size:                   14;
+  font-size:                   14px;
   text-align:                  center;
   -moz-border-radius-topright: 7px;
   border-top-right-radius:     7px;
 }
 
 .tablebordertopleft { 
-  background:                 #804000;
+  background:                 SteelBlue;
   color:                      white;
   font-style:                 bold;
-  font-size:                  14;
+  font-size:                  14px;
   text-align:                 center;
   -moz-border-radius-topleft: 7px;
   border-top-left-radius:     7px;
 }
 
 .tablebordertopright { 
-  background:                 #804000;
+  background:                 SteelBlue;
   color:                       white;
   font-style:                  bold;
-  font-size:                   14;
+  font-size:                   14px;
   text-align:                  center;
   -moz-border-radius-topright: 7px;
   border-top-right-radius:     7px;
 }
 
 .tableborderbottomleft { 
-  background:                    #804000;
+  background:                    SteelBlue;
   color:                         white;
   font-style:                    bold;
-  font-size:                     14;
+  font-size:                     14px;
   text-align:                    center;
   -moz-border-radius-bottomleft: 7px;
   border-bottom-left-radius:     7px;
 }
 
 .tableborderbottomright { 
-  background:                     #804000;
+  background:                     SteelBlue;
   color:                          white;
   font-style:                     bold;
-  font-size:                      14;
+  font-size:                      14px;
   text-align:                     center;
   -moz-border-radius-bottomright: 7px;
   border-bottom-right-radius:     7px;
 }
 
 .tableborder {
-  background: #804000;
+  background: SteelBlue;
   color:      white;
   font-style: bold;
-  font-size:  14;
+  font-size:  14px;
   text-align: center;
 }
 
@@ -353,7 +444,7 @@ img {
 }
 
 .tablelabel {
-  background:         #ece9d8;
+  background:         White;
   text-align:         right;
   font-family:        arial, sans-serif;
   font-size:          10px;
@@ -363,7 +454,7 @@ img {
 }
 
 .tableheader {
-  background:  #804000;
+  background:  SteelBlue;
   color:       white;
   text-align:  center;
   font-family: arial, sans-serif;
@@ -381,168 +472,185 @@ img {
 }
 
 .tableleftdata {
-  background:    #ffffee;
-  border-left:   solid 3px #804000;
+  background:    White;
+  color:         black;
+  border-left:   solid 3px SteelBlue;
   border-bottom: 1px dotted #ccc;
-  font-size:     14;
+  font-size:     12px;
 }
 .tableleftrightdata {
-  background:    #ece9d8;
-  border-right:  solid 3px #804000;
-  border-left:   solid 1px #804000;
+  background:    #c1dffc;
+  border-right:  solid 3px SteelBlue;
+  border-left:   solid 1px SteelBlue;
   border-bottom: 1px dotted #ccc;
-  font-size:     14;
+  font-size:     12px;
 }
 .tablerightleftdata {
-  background:    #ece9d8;
-  border-right:  solid 1px #804000;
-  border-left:   solid 3px #804000;
+  background:    #c1dffc;
+  border-right:  solid 1px SteelBlue;
+  border-left:   solid 3px SteelBlue;
   border-bottom: 1px dotted #ccc;
-  font-size:     14;
+  font-size:     12px;
 }
 .tablerightdata {
-  background:    #ffffee;
-  border-right:  solid 3px #804000;
+  background:    White;
+  border-right:  solid 3px SteelBlue;
   border-left:   1px dotted #ccc;
   border-bottom: 1px dotted #ccc;
-  font-size:     14;
+  font-size:     14px;
 }
 .tablebottomleft {
-  background:                    #ffffee;
-  border-left:                   solid 3px #804000;
+  background:                    White;
+  color:                         black;
+  border-left:                   solid 3px SteelBlue;
   border-right:                  1px dotted #ccc;
-  border-bottom:                 solid 3px #804000;
-  font-size:                     14;
+  border-bottom:                 solid 3px SteelBlue;
+  font-size:                     12px;
   -moz-border-radius-bottomleft: 7px;
   border-bottom-left-radius:     7px;
 }
 .tablebottomright {
-  background:                     #ffffee;
-  border-right:                   solid 3px #804000;
+  background:                     White;
+  border-right:                   solid 3px SteelBlue;
   border-left:                    1px dotted #ccc;
-  border-bottom:                  solid 3px #804000;
-  font-size:                      14;
+  border-bottom:                  solid 3px SteelBlue;
+  font-size:                      14px;
   -moz-border-radius-bottomright: 7px;
   border-bottom-right-radius:     7px;
 }
 .tablebottomdata {
-  background:    #ffffee;
+  background:    White;
   border-left:   1px dotted #ccc;
-  border-bottom: solid 3px #804000;
-  font-size:     14;
+  border-bottom: solid 3px SteelBlue;
+  font-size:     14px;
 }
 .tablebottomlefttotal {
-  background:                    #ece9d8;
-  border-left:                   solid 3px #804000;
-  border-bottom:                 solid 3px #804000;
+  background:                    #c1dffc;
+  border-left:                   solid 3px SteelBlue;
+  border-bottom:                 solid 3px SteelBlue;
   border-right:                  1px dotted #ccc;
-  font-size:                     14;
+  font-size:                     14px;
   -moz-border-radius-bottomleft: 7px;
   border-bottom-left-radius:     7px;
 }
 .tablebottomrighttotal {
-  background:                     #ece9d8;
-  border-right:                   solid 3px #804000;
-  border-bottom:                  solid 3px #804000;
-  font-size:                      14;
+  background:                     #c1dffc;
+  border-right:                   solid 3px SteelBlue;
+  border-bottom:                  solid 3px SteelBlue;
+  font-size:                      14px;
   -moz-border-radius-bottomright: 7px;
   border-bottom-right-radius:     7px;
 }
 .tablebottomtotal {
-  background:    #ece9d8;
-  border-bottom: solid 3px #804000;
-  border-top:    solid 1px #804000;
+  background:    #c1dffc;
+  border-bottom: solid 3px SteelBlue;
+  border-top:    solid 1px SteelBlue;
   border-right:  1px dotted #ccc;
-  font-size:     14;
+  font-size:     14px;
 }
 .tabledata {
-  background:    #ffffee;
+  background:    White;
   border-left:   1px dotted #ccc;
   border-bottom: 1px dotted #ccc;
-  font-size:     14;
+  border-top:    1px dotted #ccc;
+  font-size:     14px;
 }
 
 .date {
-  background: #ffffee;
-  font-size:  10px;
+  background: White;
+  font-size:  12px;
 }
 
 .dateright {
-  background:    #ffffee;
+  background:    White;
   font-size:     10px;
-  border-right:  solid 3px #804000;
+  border-right:  solid 3px SteelBlue;
   border-left:   1px dotted #ccc;
   border-bottom: 1px dotted #ccc;
 }
 
 /* Special anchor effects */
 .sender {
-  background:  #ffffee;
+  background:  White;
+  border-top:  1px dotted #ccc;
+  border-left: 1px dotted #ccc;
   font-family: arial, sans-serif;
-  font-size:   12px;
-  font-weight: bold;
+  font-size:   14px;
 }
-
 .sender a:link {
-  color: Red;
+  color: steelblue;
 }
-
-.sender a:visited {
-  color: #0054e3;
-}
-
 .sender a:hover {
-  color:      White;
-  background: Red;
+  color:      red;
+  background: white;
 }
 
-.sender a:active {
-  color: Yellow;
+.senderbottom {
+  background:    White;
+  border-top:    1px dotted #ccc;
+  border-left:   1px dotted #ccc;
+  border-bottom: solid 3px SteelBlue;
+  font-size:     14px;
+}
+.senderbottom a:link {
+  color: steelblue;
+}
+.senderbottom a:hover {
+  color:      red;
+  background: white;
 }
 
 .subject {
-  background:  #ffffee;
-  font-family: arial, sans-serif;
-  font-size:   10px;
-  font-weight: bold;
+  background:     white;
+  border-top:     1px dotted #ccc;
+  border-left:    1px dotted #ccc;
+  font-family:    arial, sans-serif;
+  font-size:      16px;
 }
-
 .subject a:link {
-  color: #0000ee;
+  color: #b11;
 }
-
 .subject a:visited {
-  color: #cc33cc;
+  color: grey;
 }
-
 .subject a:hover {
-  color:      White;
-  background: #0054e3;
+  color:      blue;
+  background: white;
 }
 
-.subject a:active {
-  color: #ff0000;
+.subjectbottom {
+  background:    White;
+  border-top:    1px dotted #ccc;
+  border-left:   1px dotted #ccc;
+  border-bottom: solid 3px SteelBlue;
+  font-size:     16px;
+}
+.subjectbottom a:link {
+  color: #b11;
+}
+.subjectbottom a:visited {
+  color: grey;
+}
+.subjectbottom a:hover {
+  color:      blue;
+  background: white;
 }
 
 /* Menu anchors */
 .menu {
   font-weight: bold;
 }
-
 .menu a:link {
   color:           White;
   text-decoration: none;
 }
-
 .menu a:visited {
   color: White;
 }
-
 .menu a:hover {
   color:      Yellow;
   background: none;
 }
-
 .menu a:active {
   color: Yellow;
 }
@@ -551,20 +659,16 @@ img {
 .intromenu {
   font-weight: bold;
 }
-
 .intromenu a:link {
   color: Red;
 }
-
 .intromenu a:visited {
   color: white;
 }
-
 .intromenu a:hover {
   color:      White;
   background: Red;
 }
-
 .intromenu a:active {
   color: Yellow;
 }

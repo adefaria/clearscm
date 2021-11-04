@@ -33,19 +33,20 @@ $Date: 2019/04/04 13:40:10 $
 
  Usage: announceEmail.pl [-usa|ge] [-h|elp] [-v|erbose] [-de|bug]
                          [-use|rname <username>] [-p|assword <password>]
-                         [-i|map <server>]
+                         [-i|map <server>] [-t|imeout <secs>]
                          [-an|nouce] [-ap|pend] [-da|emon] [-n|name <name>]
                          [-uses|sl] [-useb|locking]
 
  Where:
    -usa|ge       Print this usage
    -h|elp        Detailed help
-   -v|erbose     Verbose mode (Default: Not verbose)
+   -v|erbose     Verbose mode (Default: -verbose)
    -de|bug       Turn on debugging (Default: Off)
 
    -user|name    User name to log in with (Default: $USER)
    -p|assword    Password to use (Default: prompted)
    -i|map        IMAP server to talk to (Default: defaria.com)
+   -t|imeout <s> Timeout IMAP idle call (Sefault: 1200 seconds or 20 minutes)
 
    -an|nounce    Announce startup (Default: False)
    -ap|pend      Append to logfile (Default: Noappend)
@@ -86,6 +87,8 @@ use Speak;
 use TimeUtils;
 use Utils;
 
+local $0 = "$FindBin::Script " . join ' ', @ARGV;
+
 my $defaultIMAPServer = 'defaria.com';
 my $IMAP;
 my %unseen;
@@ -105,8 +108,9 @@ my @greetings = (
   "What's this? A new message",
 );
 
-my $icon    = '/home/andrew/.icons/Thunderbird.jpg';
-my $timeout = 5 * 1000;
+my $icon          = '/home/andrew/.icons/Thunderbird.jpg';
+my $notifyTimeout = 5 * 1000;
+my $IMAPTimeout   = 20 * 60;
 
 my %opts = (
   usage       => sub { pod2usage },
@@ -114,6 +118,7 @@ my %opts = (
   verbose     => sub { set_verbose },
   debug       => sub { set_debug },
   daemon      => 1,
+  timeout     => $IMAPTimeout,
   username    => $ENV{USER},
   password    => $ENV{PASSWORD},
   imap        => $defaultIMAPServer,
@@ -122,7 +127,7 @@ my %opts = (
 sub notify($) {
   my ($msg) = @_;
 
-  my $cmd = "notify-send -i $icon -t $timeout '$msg'";
+  my $cmd = "notify-send -i $icon -t $notifyTimeout '$msg'";
 
   Execute $cmd;
 
@@ -141,9 +146,18 @@ sub interrupted {
   return;
 } # interrupted
 
-sub restart;
-
 sub Connect2IMAP;
+sub MonitorMail;
+
+sub restart {
+  my $msg = "Re-establishing connection to $opts{imap} as $opts{username}";
+
+  $log->dbug($msg);
+
+  Connect2IMAP;
+
+  MonitorMail;
+} # restart
 
 $SIG{USR1} = \&interrupted;
 $SIG{USR2} = \&restart;
@@ -246,9 +260,9 @@ sub MonitorMail() {
     # midnight but that's ok. I want midnight to 6 Am as silent time.
     $log->dbug("About to speak/log");
     if ($hour >= 7) {
-      $log->dbug("Calling speak");
-      speak $msg, $log;
       $log->msg($logmsg);
+      $log->dbug("Calling speak");
+      speak $msg;
     } else {
       $log->msg("$logmsg [silent]");
     } # if
@@ -260,31 +274,37 @@ sub MonitorMail() {
   my $startTime = time;
 
   # Re-establish callback
-  $log->dbug("Evaling idle");
-  eval { $IMAP->idle(\&MonitorMail) };
+  $log->msg("Calling IMAP->idle");
+  eval {
+    $IMAP->idle(\&MonitorMail, $opts{timeout})
+  };
+
+  my $msg = 'Returned from IMAP->idle ';
+
+  if ($@) {
+    speak($msg . $@, $log);
+  } else {
+    $log->msg($msg . 'no error');
+  } # if
 
   # If we return from idle then the server went away for some reason. With Gmail
   # the server seems to time out around 30-40 minutes. Here we simply reconnect
   # to the imap server and continue to MonitorMail.
+  unless ($IMAP->get_response_code('timeout')) {
+    $msg = "IMAP Idle for $opts{name} timed out in " . howlong $startTime, time;
+
+    speak $msg;
+
+    $log->msg($msg);
+  } # unless
+
   restart;
-
-  return;
 } # MonitorMail
-
-sub restart {
-  my $msg = "Re-establishing connection to $opts{imap} as $opts{username}";
-
-  $log->dbug($msg);
-
-  Connect2IMAP;
-
-  MonitorMail;
-} # restart
 
 END {
   # If $log is not yet defined then the exit is not unexpected
   if ($log) {
-    my $msg = "$FindBin::Script ending unexpectedly!";
+    my $msg = "$FindBin::Script $opts{name} ending unexpectedly!";
 
     speak $msg, $log;
 
@@ -304,6 +324,7 @@ GetOptions(
   'name=s',
   'password=s',
   'imap=s',
+  'timeout=i',
   'usessl',
   'useblocking',
   'announce!',

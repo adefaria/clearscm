@@ -16,27 +16,28 @@ use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
 
 use MAPS;
 use MAPSWeb;
 
 use CGI qw (:standard);
 
-my $userid;
-my $Userid;
-my $fullname          = param('fullname');
-my $email             = param('email');
-my $old_password      = param('old_password');
-my $new_password      = param('new_password');
-my $repeated_password = param('repeated_password');
-my $mapspop           = param('MAPSPOP');
-my $history           = param('history');
-my $days              = param('days');
-my $dates             = param('dates');
-my $tag_and_forward   = param('tag_and_forward');
+my ($userid, $Userid);
+my $name              = param 'fullname';
+my $email             = param 'email';
+my $old_password      = param 'old_password';
+my $new_password      = param 'new_password';
+my $repeated_password = param 'repeated_password';
+my $mapspop           = param 'MAPSPOP';
+my $history           = param 'history';
+my $days              = param 'days';
+my $dates             = param 'dates';
+my $tag_and_forward   = param 'tag_and_forward';
 
 sub Body {
   my %options = (
@@ -47,7 +48,7 @@ sub Body {
     'Tag&Forward' => $tag_and_forward,
   );
 
-  if ($old_password && $old_password ne '') {
+  if ($old_password) {
     my $dbpassword             = UserExists($userid);
     my $encrypted_old_password = Encrypt($old_password, $userid);
 
@@ -56,7 +57,24 @@ sub Body {
     } # if
   } # if
 
-  if (UpdateUser($userid, $fullname, $email, $new_password) != 0) {
+  if ($new_password) {
+    unless ($old_password) {
+      DisplayError "You must provide your old password in order to change it";
+    } else {
+      if ($repeated_password ne $new_password) {
+        DisplayError "Your new password does not match your repeat password";
+      } else {
+        $new_password = Encrypt($new_password, $userid);
+      } # if
+    } # unless
+  } # if
+
+  if (UpdateUser(
+    userid   => $userid,
+    name     => $name,
+    email    => $email,
+    password => $new_password,
+  ) != 0) {
     DisplayError "Unable to update user record for user $userid";
   } # if
 
@@ -67,6 +85,8 @@ sub Body {
   print h2 {-class => 'header',
             -align => 'center'},
     "${Userid}'s profile has been updated";
+
+  return;
 } # Body
 
 $userid = Heading (
@@ -75,9 +95,16 @@ $userid = Heading (
   'Update Profile',
   "Update user's profile",
 );
+
+$userid //= $ENV{USER};
+
 $Userid = ucfirst $userid;
 
 SetContext($userid);
 NavigationBar($userid);
-Body();
-Footing();
+
+Body;
+
+Footing;
+
+exit;

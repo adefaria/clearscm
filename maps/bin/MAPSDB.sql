@@ -50,7 +50,7 @@ create table email (
   key sender_index (sender)
 ); -- email
 
--- whitelist: Table holds the users' whitelists
+-- list: Table holds the users' various lists
 create table list (
   userid            varchar (128)                   not null,
   type              enum ("white", "black", "null") not null,
@@ -60,6 +60,18 @@ create table list (
   sequence          smallint,
   hit_count         integer,
   last_hit          datetime,
+
+-- Retention: This field indicates how much time must pass before an inactive
+--            list entry should be scrubbed. Null indicates retain forever.
+--            other values include "x day(s)", "x month(s)", "x year(s)". So,
+--            for example, a user on the white list may have its retention set
+--            to say 1 year and when mapsscrub runs, if last_hit is older than
+--            a year the whitelist entry would be removed. If, however, 
+--            retention is null then the record is kept forever. This is useful
+--            for the null and black lists where one might want to insure that
+--            a particular domain (e.g. @talentburst.com) will never come off
+--            of the nulllist.
+  retention         varchar (40),
   key user_index    (userid),
   key user_listtype (userid, type),
   unique            (userid, type, sequence),
@@ -89,5 +101,5 @@ create table log (
 
 -- Create users
 -- New 8.0 syntax...
-create user 'maps'@'localhost' identified by 'spam';
+--create user 'maps'@'localhost' identified by 'spam';
 grant all privileges on MAPS.* to 'maps'@'localhost';

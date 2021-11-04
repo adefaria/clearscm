@@ -35,7 +35,7 @@ $email		= $row [email];
 $password	= $row [password];
 $subject	= "Your MAPS Password";
 
-// Decode password 
+// Decode password
 $statement = "select decode(\"$password\",\"$userid\")";
 
 $result = mysql_query ($statement);
@@ -78,8 +78,7 @@ $mailed = mail($to, $subject, $message, $headers);
 <body>
 
 <div class="heading">
-  <h2 class="header" align="center">
-  <font class="standout">MAPS</font> Password Retrieval</h2>
+  <h2 class="header" align="center">Password Retrieval</h2>
 </div>
 
 <div class="content">

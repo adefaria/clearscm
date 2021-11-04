@@ -204,6 +204,7 @@ GetOptions (
   'sleep=i',
   'lockscreen',
   'bgdirs=s@',
+  'mate',
 ) || Usage;
 
 local $0 = "$FindBin::Script " . join ' ', @argvCopy;
@@ -225,8 +226,16 @@ for (my $i = 0; $i < scalar @{$opts{bgdirs}}; $i++) {
 
 # Using gsettings
 my $setbg       = "gsettings";
-my $setbgOpts   = "set org.gnome.desktop.background picture-uri \"file://";
-my $setLockOpts = "set org.gnome.desktop.screensaver picture-uri \"file://";
+
+my ($setbgOpts, $setLockOpts);
+
+if ($opts{mate}) {
+  $setbgOpts   = 'set org.mate.background picture-filename ';
+  $setLockOpts = 'set org.mate.background picture-filename ';
+} else {
+  $setbgOpts   = "set org.gnome.desktop.background picture-uri \"file://";
+  $setLockOpts = "set org.gnome.desktop.screensaver picture-uri \"file://";
+} # if
 
 my @images = fillPictures;
 
@@ -262,7 +271,8 @@ while () {
   } else {
     $pickNewImages = 1;
 
-    my $cmd = "$setbg $setbgOpts$bgimage\" 2> /dev/null";
+    my $cmd = $opts{mate} ? "$setbg $setbgOpts\"$bgimage\" 2> /dev/null"
+                          : "$setbg $setbgOpts$bgimage\" 2> /dev/null";
 
     ($status, @output) = Execute $cmd;
 
@@ -275,7 +285,8 @@ while () {
     } # if
 
     if ($opts{lockscreen}) {
-      $cmd = "$setbg $setLockOpts$lockimage\" 2> /dev/null";
+      $cmd = $opts{mate} ? "$setbg $setLockOpts\"$lockimage\" 2> /dev/null"
+                         : "$setbg $setLockOpts$lockimage\" 2> /dev/null";
 
       ($status, @output) = Execute $cmd;
 

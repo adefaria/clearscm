@@ -46,7 +46,8 @@ $Date: 2013/06/12 14:05:47 $
    -v|erbose:         Be verbose
    -de|bug:           Output debug messages
 
-   -[no]e|xecute:     Set execute mode.         
+   -[no]e|xecute:     Set execute mode.
+   -f|ile <file>:     File to use as a test message
 
 # (c) Copyright 2000-2021, Andrew@DeFaria.com, all rights reserved.
 
@@ -56,26 +57,29 @@ use strict;
 use warnings;
 
 use Getopt::Long;
+use Pod::Usage;
 use Email::Valid;
 use FindBin;
 use File::Temp qw (tempfile);
 use Net::Domain qw (hostdomain);
 
-use lib "$FindBin::Bin/../lib", "$FindBin::Bin/../../lib";
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
 
 use MAPS;
 use MAPSLog;
 
 use Display;
+use Logger;
 use Utils;
 
-my $verbose   = 0;
-my $execute   = 1;
-my $userid    = $ENV{USER};
+my %opts = (
+  execute => 1,
+);
 
-my $logpath   = "$FindBin::Bin/../log";
-my $logfile   = "$logpath/debug.log";
-my $forwardto = $ENV{MAPS_FORWARDTO} || 'adefaria@gmail.com';
+my $userid = $ENV{USER};
+
+my $log;
 
 # For some reason I'm not parsing messages correctly but it only seems to
 # happen when the message is piped in from the MTA. This routine will
@@ -118,26 +122,21 @@ sub ValidDomainUser($) {
   return defined $uid ? 1 : 0;
 } # ValidDomainUser
 
+sub formatRule($) {
+  my ($rec) = @_;
+
+  return "$rec->{pattern}\@$rec->{domain}:$rec->{sequence}/$rec->{hit_count}";
+} # formatRule
+
 sub ProcessMsgs ($$$) {
   my ($msgfile, $username, $user_email) = @_;
 
-  return unless $execute;
+  return unless $opts{execute};
 
-  while (!eof *$msgfile) {
-    my ($sender, $sender_long, $reply_to, $subject, $data) = ReadMsg (*$msgfile);
+  while (!eof $msgfile) {
+    my %msgInfo = ReadMsg $msgfile;
 
-    #if ($forwardto) {
-      # Forward a copy
-      #open my $mail, '|', "/usr/lib/sendmail $forwardto"
-        #or die "Unable to open pipe to sendmail - $!";
-
-      #print $mail "$data\n";
-
-      #close $mail
-        #or die "Unable to forward email to $forwardto - $!";      
-    #} # if
-
-    my ($onlist, $rule, $sequence, $hit_count);
+    my ($onlist, $rec, $sequence, $hit_count);
 
     # Algorithm change: We now first check to see if the sender is not found
     # in the message and skip it if so. Then we handle if we are the sender
@@ -157,84 +156,115 @@ sub ProcessMsgs ($$$) {
     # Finally, we handle return processing
 
     # Discard any email with an invalid email address
-    next unless Email::Valid->address($sender);
+    next unless Email::Valid->address($msgInfo{sender});
 
-    if ($sender eq $user_email and
-            (lc ($sender_long) !~ lc ("\"$username\" <$user_email>") and
-             lc ($sender_long) !~ lc ("$username <$user_email>"))) {
-      verbose "Nulllisting message from sender ($sender_long) pretending to be $user_email";
-      Nulllist $sender;
+    if ($msgInfo{sender} eq $user_email and
+            (lc ($msgInfo{sender_long}) !~ lc ("\"$username\" <$user_email>") and
+             lc ($msgInfo{sender_long}) !~ lc ("$username <$user_email>"))) {
+      $log->msg("Nulllisting message from sender ($msgInfo{sender_long}) pretending to be $user_email");
+
+      next;
+    } # if
+
+    # Discard messges coming from andrew@clearscm.com because I don't send from
+    # that email address
+    if (lc $msgInfo{to} eq 'andrew@clearscm.com') {
+      $log->msg("Nulllisting message from Andrew\@ClearSCM.com since I don't send from that email address");
+
       next;
     } # if
 
     # Check whitelist:
-    ($onlist, $rule, $sequence, $hit_count) = OnWhitelist $sender;
+    ($onlist, $rec) = OnWhitelist $msgInfo{sender};
 
     if ($onlist) {
-      if (ValidDomainUser $sender) {
-        verbose "Whitelisting $sender";
-        Whitelist $sender, $data, $sequence, $hit_count;
+      if (ValidDomainUser $msgInfo{sender}) {
+        $log->msg("Whitelisting $msgInfo{sender} - Rule: " . formatRule($rec));
+
+        Whitelist $msgInfo{sender}, $msgInfo{data}, $rec->{sequence}, $rec->{hit_count};
       } else {
-        verbose "Sender from this domain but user not found";
-        Nulllist $sender;
+        $log->msg("Sender ($msgInfo{sender}) from this domain but user not found");
+
+        Nulllist $msgInfo{sender};
       } # if
 
       next;
     } # if
 
     # Check blacklist:
-    ($onlist, $rule, $sequence, $hit_count) = OnBlacklist $sender;
+    ($onlist, $rec) = OnBlacklist $msgInfo{sender};
 
     if ($onlist) {
-      verbose "Blacklisting $sender";
-      my @msg = split /\n/, $data;
+      $log->msg("Blacklisting $msgInfo{sender} - Rule: " . formatRule($rec));
 
-      Blacklist $sender, $sequence, $hit_count, @msg;
+      Blacklist(
+        userid    => $userid,
+        sender    => $msgInfo{sender},
+        sequence  => $rec->{sequence},
+        hit_count => $rec->{hit_count},
+        data      => $msgInfo{data},
+      );
+
       next;
     } # if 
 
     # Check nulllist:
-    ($onlist, $rule, $sequence, $hit_count) = OnNulllist $sender;
+    ($onlist, $rec) = OnNulllist $msgInfo{sender};
 
     if ($onlist) {
-      verbose "Nulllisting $sender";
-      Nulllist $sender, $sequence, $hit_count;
+      $log->msg("Nulllisting $msgInfo{sender} - Rule: " . formatRule($rec));
+
+      Nulllist $msgInfo{sender}, $rec->{sequence}, $rec->{hit_count};
+
       next;
     } # if
 
     # Return processing:
-    verbose "Returning message from $sender";
-    ReturnMsg $sender, $reply_to, $subject, $data;
+    $log->msg("Returning message from $msgInfo{sender}");
+
+    ReturnMsg(
+      userid   => $userid,
+      sender   => $msgInfo{sender},
+      reply_to => $msgInfo{reply_to},
+      subject  => $msgInfo{subject},
+      data     => $msgInfo{data},
+    );
   } # while
 } # ProcessMsgs
 
 # Main
 GetOptions(
-  'user=s'      => \$userid,
-  'verbose'     => sub { set_verbose },
-  'debug'       => sub { set_debug },
-  'execute!'    => \$execute,
-  'forwardto=s' => \$forwardto
-) || Usage;
+  \%opts,
+  'user=s',
+  'verbose',
+  'debug',
+  'execute!',
+) or pod2usage;
+
+$log = Logger->new(
+  path        => '/var/local/log',
+  timestamped => 'yes',
+  append      => 'yes',
+);
 
 my $msgfile;
 
-if ($ARGV[0] and $ARGV[0] ne "") {
-  open $msgfile, $ARGV[0];
+if ($ARGV[0] and $ARGV[0] ne '') {
+  open $msgfile, '<', $ARGV[0];
 
-  if (!$msgfile) {
-    Error "Unable to open file ($ARGV[0]): $!\n";
+  unless ($msgfile) {
+    $log->err("Unable to open file ($ARGV[0]): $!");
     exit 1;
   } # if
 } else {
   $msgfile = SaveStdin;
 } # if 
 
-verbose "Starting MAPS....";
+# Get user
+FindUser(userid => $userid);
 
-my ($username, $user_email) = SetContext $userid
-  or die "$userid is not a registered MAPS user\n";
+my $user = GetUser;
 
-ProcessMsgs $msgfile, $username, $user_email;
+ProcessMsgs $msgfile, $user->{name}, lc $user->{email};
 
 exit 0;

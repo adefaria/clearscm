@@ -3,7 +3,7 @@
 #
 # File:         $RCSfile: add2whitelist.cgi,v $
 # Revision:     $Revision: 1.1 $
-# Description:  Add an email address to the blacklist
+# Description:  Add an email address to the whitlist
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Jan 16 20:25:32 PST 2006
 # Modified:     $Date: 2013/06/12 14:05:47 $
@@ -16,79 +16,110 @@ use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
+
+use Utils;
 
 use MAPS;
 use MAPSLog;
 use MAPSWeb;
-use MAPSUtil;
 
 use CGI qw/:standard *table/;
 use CGI::Carp 'fatalsToBrowser';
 
-my $userid;
-my $Userid;
-my $type = 'white';
+sub Add2List(%) {
+  my (%rec) = @_;
 
-sub Add2List() {
-  my $sender  = '';
-  my $nextseq = GetNextSequenceNo($userid, $type);
+  CheckParms(['userid', 'type'], \%rec);
+
+  my $nextseq = GetNextSequenceNo(%rec);
+
+  my $Userid = ucfirst $rec{userid};
 
   while () {
-    my $pattern = param "pattern$nextseq";
-    my $domain  = param "domain$nextseq";
-    my $comment = param "comment$nextseq";
+    $rec{pattern}   = param "pattern$nextseq";
+    $rec{domain}    = param "domain$nextseq";
+    $rec{comment}   = param "comment$nextseq";
+    $rec{hit_count} = param "hit_count$nextseq";
+    $rec{retention} = param "retention$nextseq";
 
-    last if ((!defined $pattern || $pattern eq '') &&
-             (!defined $domain  || $domain  eq ''));
+    last unless $rec{pattern} or $rec{domain};
 
-    $sender = CheckEmail $pattern, $domain;
+    $rec{sender} = CheckEmail $rec{pattern}, $rec{domain};
 
-    my ($status, $rule) = OnWhitelist($sender, $userid);
+    my ($status) = OnWhitelist($rec{sender}, $rec{userid});
 
-    if ($status != 0) {
-      print br {-class => 'error'}, "The email address $sender is already on ${Userid}'s $type list";
+    if ($status) {
+      print br {-class => 'error'},
+        "The email address $rec{sender} is already on ${Userid}'s $rec{type} list";
     } else {
-      my $messages = Add2Whitelist($sender, $userid, $comment);
+      my ($messages, $msg) = Add2Whitelist(%rec);
 
-      print br "The email address, $sender, has been added to ${Userid}'s $type list";
+      if ($messages < -1) {
+        print br {-class => 'error'}, "Unable to add $rec{sender} to $rec{type} list\n$msg";
+        return;
+      } else {
+        print br "The email address, $rec{sender}, has been added to ${Userid}'s $rec{type} list";
+      } # if
+
       if ($messages > 0) {
         if ($messages == 1) {
           print br 'Your previous message has been delivered';
         } else {
           print br "Your previous $messages messages have been delivered";
         } # if
-      } elsif ($messages == -1) {
-        print br {-class => 'error'}, 'Unable to deliver message';
-      } else {
+      } elsif ($messages == 0) {
         print br 'Unable to find any old messages but future messages will now be delivered.';
+      } elsif ($messages < 0) {
+        print br {-class => 'error'}, $msg;
+
+        return;
       } # if
 
       # Now remove this entry from the other lists (if present)
       for my $otherlist ('black', 'null') {
-        my $sth = FindList($otherlist, $sender);
-        my ($sequence, $count);
+        FindList(
+          userid => $rec{userid},
+          type   => $otherlist,
+          sender => $rec{sender},
+        );
 
-        ($_, $_, $_, $_, $_, $sequence) = GetList($sth);
+        my $seq = GetList;
 
-        if ($sequence) {
-          $count = DeleteList($otherlist, $sequence);
-          print br "Removed $sender from ${Userid}'s " . ucfirst $otherlist . ' list'
-            if $count > 0;
+        if ($seq->{sequence}) {
+          my $err;
 
-          ResequenceList($userid, $otherlist);
+          ($err, $msg) = DeleteList(
+            userid   => $rec{userid},
+            type     => $otherlist,
+            sequence => $seq->{sequence},
+          );
+
+          croak $msg if $err < 0;
+
+          print br "Removed $rec{sender} from ${Userid}'s " . ucfirst $otherlist . ' list'
+            if $err > 0;
+
+          ResequenceList(
+            userid => $rec{userid},
+            type   => $otherlist,
+          );
         } # if
       } # for
     } # if
 
     $nextseq++;
   } # while
+
+  return;
 } # Add2List
 
 # Main
-$userid = Heading(
+my $userid = Heading(
   'getcookie',
   '',
   'Add to White List',
@@ -97,13 +128,16 @@ $userid = Heading(
 
 $userid ||= $ENV{USER};
 
-$Userid = ucfirst $userid;
-
 SetContext($userid);
 
 NavigationBar($userid);
 
-Add2List;
+my $type = 'white';
+
+Add2List(
+  userid => $userid,
+  type   => $type,
+);
 
 print start_form {
   -method => 'post',

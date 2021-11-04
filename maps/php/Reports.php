@@ -1,4 +1,4 @@
-<?php 
+<?php
 ////////////////////////////////////////////////////////////////////////////////
 //
 // File:	$RCSFile$
@@ -24,8 +24,7 @@ include "MAPS.php";
 </head>
 <body>
 <div class="heading">
-<h2 class="header" align="center"><font class="standout">MAPS</font>
-Reports</h2>
+<h2 class="header" align="center">Reports</h2>
 </div>
 <div class="content">
   <?php

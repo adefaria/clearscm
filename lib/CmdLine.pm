@@ -118,10 +118,11 @@ our %opts;
 
 my %builtin_cmds = (
   history       => {
-    help        => 'history [<start> <end>]',
-    description => 'Displays cmd history. You can specify where to <start> and where to <end>.
-Default is to list only the last screen full lines of history
-(as denoted by $LINES).'
+    help        => 'history [[start] [end]]',
+    description => 
+      "Displays cmd history. You can specify where to <start> and where to <end>\n"
+    . "Default is to list only the last screen full lines of history (as denoted\n"
+    . "by \$LINES).",
   },
 
   help          => {
@@ -129,45 +130,56 @@ Default is to list only the last screen full lines of history
     description => 'Displays help.',
   },
 
+  helpall       => {
+    help        => 'helpall',
+    description => 'Display all help, including builtin commands', 
+  },
+
   savehist      => {
-    help        => 'savehist <file> [<start> <end>]',
-    description => 'Saves a section of the history to a file. You can specify where to <start>
-and where to <end>. Default is to save all of the history to
-the specified file.',
+    help        => 'savehist [file] [[start] [end]]',
+    description => 
+      "Saves a section of the history to a file. You can specify where to <start>\n"
+    . "and where to <end>. Default is to save all of the history to the specified\n"
+    . "file.",
   },
 
   get           => {
-    help        => 'get <var>',
+    help        => 'get [var]',
     description => 'Gets a variable.',
   },
 
   set           => {
-    help        => 'set <var>=<expression>',
-    description => 'Sets a variable. Note that expression can be any valid expression.',
+    help        => 'set [var]=[expression]',
+    description => 
+      'Sets a variable. Note that expression can be any valid expression.',
   },
 
   vars          => {
     help        => 'vars',
-    description => 'Displays all known variables.',
+    description => 
+      'Displays all known variables.',
   },
 
   source        => {
-    help        => 'source <file>',
-    description => 'Run commands from a file.',
+    help        => 'source [file]',
+    description => 
+      'Run commands from a file.',
   },
 
   color         => {
-    help        => 'color [<on|off>]',
-    description => 'Turn on|off color. With no options displays status of color.',
+    help        => 'color [(on|off)]',
+    description => 
+      'Turn on|off color. With no options displays status of color.',
   },
 
   trace         => {
-    help        => 'trace [<on|off>]',
-    description => 'Turn on|off tracing. With no options displays status of trace.',
+    help        => 'trace [(on|off)]',
+    description => 
+      'Turn on|off tracing. With no options displays status of trace.',
   },
 );
 
-sub _cmdCompletion ($$) {
+sub _cmdCompletion($$) {
   my ($text, $state) = @_;
 
   return unless %_cmds;
@@ -184,13 +196,13 @@ sub _cmdCompletion ($$) {
   return;
 } # _cmdCompletion
 
-sub _complete ($$$$) {
+sub _complete($$$$) {
   my ($text, $line, $start, $end) = @_;
 
-  return $_cmdline->completion_matches ($text, \&CmdLine::_cmdCompletion);
+  return $_cmdline->completion_matches($text, \&CmdLine::_cmdCompletion);
 } # _complete
 
-sub _gethelp () {
+sub _gethelp() {
   my ($self) = @_;
 
   return unless %_cmds;
@@ -205,15 +217,17 @@ sub _gethelp () {
 
   # Sometimes we are called by ReadLine's callback and can't pass $self
   if (ref $self eq 'CmdLine') {
-    $self->help ($line);
+    $self->help($line);
   } else {
-    $CmdLine::cmdline->help ($line);
+    $CmdLine::cmdline->help($line);
   } # if  
 
   $_cmdline->on_new_line;
+
+  return;
 } # _gethelp
 
-sub _interpolate ($) {
+sub _interpolate($) {
   my ($self, $str) = @_;
 
   # Skip interpolation for the perl command (Note this is raid specific)
@@ -225,13 +239,13 @@ sub _interpolate ($) {
       my $varname = $1;
 
       if (defined $self->{vars}{$varname}) {
-	if ($self->{vars}{$varname} =~ / /) {
-	  $str =~ s/\$$varname/\'$self->{vars}{$varname}\'/;
-	} else {
+        if ($self->{vars}{$varname} =~ / /) {
+          $str =~ s/\$$varname/\'$self->{vars}{$varname}\'/;
+        } else {
           $str =~ s/\$$varname/$self->{vars}{$varname}/;
-	} # if
+        } # if
       } else {
-	$str =~ s/\$$varname//;
+       $str =~ s/\$$varname//;
       } # if
     } # if
   } # while
@@ -239,10 +253,10 @@ sub _interpolate ($) {
   return $str;
 } # _interpolate
 
-sub _builtinCmds ($) {
+sub _builtinCmds($) {
   my ($self, $line) = @_;
 
-  unless (defined $line) {
+  unless ($line) {
     display '';
     return 'exit';
   } # unless
@@ -271,12 +285,10 @@ sub _builtinCmds ($) {
   return
     unless $cmd;
 
-  my @parms;
-
   # Search for matches of partial commands
   my $foundCmd;
 
-  for (keys %builtin_cmds) {    
+  for (keys %builtin_cmds) {
     if ($_ eq $cmd) {
       # Exact match - honor it
       $foundCmd = $cmd;
@@ -301,32 +313,34 @@ sub _builtinCmds ($) {
   } # if
 
   if ($builtin_cmds{$cmd}) {
-    if ($line =~ /^\s*help\s*(.*)/i) {
+    if ($line =~ /^\s*helpall\s*$/i) {
+      $self->help('', 1);
+    } elsif ($line =~ /^\s*help\s*(.*)/i) {
       if ($1 =~ /(.+)$/) {
-        $self->help ($1);
+        $self->help($1);
       } else {
         $self->help;
       } # if
     } elsif ($line =~ /^\s*history\s*(.*)/i) {
       if ($1 =~ /(\d+)\s+(\d+)\s*$/) {
-        $self->history ('list', $1, $2);
+        $self->history('list', $1, $2);
       } elsif ($1 =~ /^\s*$/) {
-        $self->history ('list');
+        $self->history('list');
       } else {
         error "Invalid usage";
-        $self->help ('history');
+        $self->help('history');
       } # if
     } elsif ($line =~ /^\s*savehist\s*(.*)/i) {
       if ($1 =~ /(\S+)\s+(\d+)\s+(\d+)\s*$/) {
-        $self->history ('save', $1, $2, $3);
+        $self->history('save', $1, $2, $3);
       } else {
         error 'Invalid usage';
-        $self->help ('savehist');
+        $self->help('savehist');
       } # if
     } elsif ($line =~ /^\s*get\s*(.*)/i) {
       if ($1 =~ (/^\$*(\S+)\s*$/)) {
-        my $value = $self->_get ($1);
-        
+        my $value = $self->_get($1);
+
         if ($value) {
           display "$1 = $value";
         } else {
@@ -334,19 +348,19 @@ sub _builtinCmds ($) {
         } # if
       } else {
         error 'Invalid usage';
-        $self->help ('get');
+        $self->help('get');
       } # if
     } elsif ($line =~ /^\s*set\s*(.*)/i) {
       if ($1 =~ /^\$*(\S+)\s*=\s*(.*)/) {
-        $self->_set ($1, $2)
+        $self->_set($1, $2)
       } else {
         error 'Invalid usage';
-        $self->help ('set');
+        $self->help('set');
       } # if
     } elsif ($line =~ /^\s*source\s+(\S+)/i) {
-      $result = $self->source ($1);
+      $result = $self->source($1);
     } elsif ($line =~ /^\s*vars\s*/) {
-      $self->vars ($line);
+      $self->vars($line);
     } elsif ($line =~ /^\s*color\s*(.*)/i) {
       if ($1 =~ /(1|on)/i) {
         $opts{color} = 1;
@@ -354,7 +368,7 @@ sub _builtinCmds ($) {
           if $ENV{ANSI_COLORS_DISABLED};
       } elsif ($1 =~ /(0|off)/i) {
         $opts{trace} = 0;
-        $ENV{ANSI_COLORS_DISABLED} = 1;
+        local $ENV{ANSI_COLORS_DISABLED} = 1;
       } elsif ($1 =~ /\s*$/) {
         if ($ENV{ANSI_COLORS_DISABLED}) {
           display 'Color is currently off';
@@ -363,7 +377,7 @@ sub _builtinCmds ($) {
         } # if
       } else {
         error 'Invalid usage';
-        $self->help ('color');
+        $self->help('color');
       } # if
     } elsif ($line =~ /^\s*trace\s*(.*)/i) {
       if ($1 =~ /(1|on)/i) {
@@ -378,7 +392,7 @@ sub _builtinCmds ($) {
         } # if
       } else {
         error 'Invalid usage';
-        $self->help ('trace');
+        $self->help('trace');
       } # if
     } # if
   } # if
@@ -386,7 +400,7 @@ sub _builtinCmds ($) {
   return ($cmd, $line, $result);
 } # _builtinCmds
 
-sub _interrupt () {
+sub _interrupt() {
   # Announce that we have hit an interrupt
   print color ('yellow') . "<Control-C>\n" . color ('reset');
 
@@ -404,9 +418,9 @@ sub _interrupt () {
   return;
 } # _interrupt
 
-sub _displayMatches ($$$) {
+sub _displayMatches($$$) {
   my ($matches, $numMatches, $maxLength) = @_;
-  
+
   # Work on a copy... (Otherwise we were getting "Attempt to free unreferenced
   # scalar" internal errors from perl)
   my @Matches;
@@ -442,8 +456,8 @@ sub _displayMatches ($$$) {
 
   return;
 } # _displayMatches
-  
-sub new (;$$%) {
+
+sub new(;$$%) {
   my ($class, $histfile, $eval, %cmds) = @_;
 
 =pod
@@ -501,13 +515,13 @@ Returns:
 
 =cut
 
-  my $self = bless {
-    histfile => $histfile,
-  }, $class;
-
   my $me = get_me;
 
   $histfile ||= "$ENV{HOME}/.${me}_hist";
+
+  my $self = bless {
+    histfile => $histfile,
+  }, $class;
 
   error "Creating bogus .${me}_hist file!"
     if $me eq '-' or $me eq '';
@@ -536,13 +550,13 @@ Returns:
   $self->{prompt} = "$me:";
 
   # Set commands
-  $self->set_cmds (%cmds);
+  $self->set_cmds(%cmds);
 
   # Set some ornamentation
   $_cmdline->ornaments ('s,e,u,') unless $Config{cppflags} =~ /win32/i;
 
   # Read in history
-  $self->set_histfile ($histfile);
+  $self->set_histfile($histfile);
 
   # Generator function for completion matches
   $_attribs = $_cmdline->Attribs;
@@ -555,7 +569,7 @@ Returns:
   # The following functionality requires Term::ReadLine::Gnu
   if ($_haveGnu) {
     # Bind a key to display completion
-    $_cmdline->add_defun ('help-on-command', \&CmdLine::_gethelp, ord ("\cl"));
+    $_cmdline->add_defun('help-on-command', \&CmdLine::_gethelp, ord ("\cl"));
 
     # Save a handy copy of RL_PROMPT_[START|END]_IGNORE
     $self->{ignstart} = $_cmdline->RL_PROMPT_START_IGNORE;
@@ -564,13 +578,13 @@ Returns:
 
   if ($Config{cppflags} =~ /win32/i) {
     $opts{trace} = 0;
-    $ENV{ANSI_COLORS_DISABLED} = 1;
+    local $ENV{ANSI_COLORS_DISABLED} = 1;
   } # if
 
   return $self;
 } # new
 
-sub get () {
+sub get() {
   my ($self) = @_;
 
 =pod
@@ -643,22 +657,20 @@ Returns:
       POSIX::sigaction (&POSIX::SIGINT, $oldaction);
     } # if
 
-    $line = $self->_interpolate ($line)
+    $line = $self->_interpolate($line)
       if $line;
 
-    $self->{cmdnbr}++
-      unless $self->{sourcing};
+    $self->{cmdnbr}++ unless $self->{sourcing};
 
-    ($cmd, $line, $result) = $self->_builtinCmds ($line);
+    ($cmd, $line, $result) = $self->_builtinCmds($line);
 
-    $line = ''
-      unless $cmd;
+    $line = '' unless $cmd;
   } while ($cmd and $builtin_cmds{$cmd});
 
   return ($line, $result);
 } # get
 
-sub set_cmds (%) {
+sub set_cmds(%) {
   my ($self, %cmds) = @_;
 
 =pod
@@ -706,7 +718,7 @@ Returns:
   return;
 } # set_cmds
 
-sub set_prompt ($) {
+sub set_prompt($) {
   my ($self, $prompt) = @_;
 
 =pod
@@ -750,7 +762,7 @@ Returns:
   return $return;
 } # set_prompt
 
-sub set_histfile ($) {
+sub set_histfile($) {
   my ($self, $histfile) = @_;
 
 =pod
@@ -799,7 +811,8 @@ Returns:
     } # if
 
     # Determine the number of lines in the history file
-    open my $hist, '<', $histfile;
+    open my $hist, '<', $histfile
+      or croak "Unable to open history file $histfile";
 
     # Set cmdnbr
     for (<$hist>) {}
@@ -811,7 +824,7 @@ Returns:
   return;
 } # set_histfile
 
-sub set_eval (;\&) {
+sub set_eval(;\&) {
   my ($self, $eval) = @_;
 
 =pod
@@ -856,8 +869,8 @@ Returns:
   return $returnEval;
 } # set_eval
 
-sub help (;$) {
-  my ($self, $cmd) = @_;
+sub help(;$$) {
+  my ($self, $cmd, $builtins) = @_;
 
 =pod
 
@@ -900,6 +913,8 @@ Returns:
 
   my @help;
 
+  $builtins ||= 0;
+
   $cmd ||= '';
   $cmd =~ s/^\s+//;
   $cmd =~ s/\s+$//;
@@ -913,15 +928,12 @@ Returns:
       if (/$searchStr/i) {
         $helpFound = 1;
 
-        my $cmdcolor = $builtin_cmds{$_} ? color ('cyan') : color ('magenta');
-        my $boldOn   = $builtin_cmds{$_} ? color ('white on_cyan') : color ('white on_magenta');
-        my $boldOff  = color ('reset') . $cmdcolor;
+        my $cmdcolor = $builtin_cmds{$_} ? color('cyan') : color('magenta');
 
-           $cmd  = "$cmdcolor$_";
-           $cmd =~ s/($searchStr)/$boldOn$1$boldOff/g;
-           $cmd .= " $_cmds{$_}{parms}"  if $_cmds{$_}{parms};
-           $cmd .= color ('reset');
-           $cmd .= " - $_cmds{$_}{help}" if $_cmds{$_}{help};
+        $cmd  = "$cmdcolor$_";
+        $cmd .= " $_cmds{$_}{parms}"  if $_cmds{$_}{parms};
+        $cmd .= color('reset');
+        $cmd .= " - $_cmds{$_}{help}" if $_cmds{$_}{help};
 
         push @help, $cmd;
 
@@ -939,6 +951,8 @@ Returns:
     } # if
   } else {
     for (sort keys %_cmds) {
+      next if $builtin_cmds{$_} and not $builtins;
+
       my $cmdcolor = $builtin_cmds{$_} ? color ('cyan') : color ('magenta');
 
       my $cmd  = "$cmdcolor$_";
@@ -955,12 +969,12 @@ Returns:
     } # for
   } # if
 
-  $self->handleOutput ($cmd, @help);
+  $self->handleOutput($cmd, @help);
 
   return;
 } # help
 
-sub history (;$) {
+sub history(;$) {
   my ($self, $action) = @_;
 
 =pod
@@ -1031,7 +1045,7 @@ Returns:
     $_cmdline->add_history ($line);
     display $line;
 
-    my ($cmd, $result) = $self->_builtinCmds ($line);
+    my ($cmd, $result) = $self->_builtinCmds($line);
 
     if ($builtin_cmds{$cmd}) {
       return;
@@ -1106,7 +1120,7 @@ Returns:
   return;
 } # history
 
-sub _get ($$) {
+sub _get($$) {
   my ($self, $name) = @_;
 
 =pod
@@ -1147,7 +1161,7 @@ Returns:
   return $self->{vars}{$name}
 } # _get
 
-sub _set ($$) {
+sub _set($$) {
   my ($self, $name, $value) = @_;
 
 =pod
@@ -1192,14 +1206,13 @@ Returns:
   my $returnValue = $self->{vars}{$name};
 
   if (defined $value) {
-    $value = $self->_interpolate ($value);
+    $value = $self->_interpolate($value);
 
     # Do not call eval if we are setting result - otherwise we recurse
     # infinitely.
     unless ($name eq 'result') {
       no strict;
-      $value = $self->{eval} ($value)
-        if $self->{eval};
+      $value = $self->{eval}($value) if $self->{eval};
       use strict;
     } # unless
 
@@ -1211,7 +1224,7 @@ Returns:
   return $returnValue;
 } # _set
 
-sub vars ($) {
+sub vars($) {
   my ($self, $cmd) = @_;
 
 =pod
@@ -1251,10 +1264,12 @@ Returns:
   push @output, "$_ = $self->{vars}{$_}"
     for (keys %{$self->{vars}});
 
-  $self->handleOutput ($cmd, @output);
+  $self->handleOutput($cmd, @output);
+
+  return;
 } # vars
 
-sub handleOutput ($@) {
+sub handleOutput($@) {
   my ($self, $line, @output) = @_;
 
 =pod
@@ -1357,7 +1372,7 @@ Returns:
   return;
 } # handleOutput
 
-sub source ($) {
+sub source($) {
   my ($self, $file) = @_;
 
 =pod
@@ -1437,7 +1452,7 @@ Returns:
     next if $builtin_cmds{$cmd};
 
     no strict;
-    $result = $self->{eval} ($line);
+    $result = $self->{eval}($line);
     use strict;
 
     if (defined $result) {
@@ -1459,7 +1474,7 @@ Returns:
 sub DESTROY {
   my ($self) = @_;
 
-  $_cmdline->WriteHistory ($self->{histfile})
+  $_cmdline->WriteHistory($self->{histfile})
     if $_cmdline and $_haveGnu;
 
   return;

@@ -1,4 +1,4 @@
-<?php 
+<?php
 ////////////////////////////////////////////////////////////////////////////////
 //
 // File:	$RCSFile$
@@ -48,8 +48,7 @@ if (isset ($userid)) {
 <body>
 
 <div class="heading">
-  <h2 class="header" align="center">
-  <font class="standout">MAPS</font> Spam Elimination</h2>
+  <h2 class="header" align="center">Spam Elimination</h2>
 </div>
 
 <div class="content">

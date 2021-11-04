@@ -17,16 +17,18 @@ use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
 
 use MAPS;
 use MAPSLog;
-use MAPSUtil;
 use MAPSWeb;
+use DateUtils;
 
-use CGI qw (:standard *table start_Tr end_Tr);
+use CGI qw (:standard *table start_Tr end_Tr start_div end_div);
 use CGI::Carp 'fatalsToBrowser';
 
 my $nbr_days = param('nbr_days');
@@ -36,7 +38,11 @@ my $table_name = 'stats';
 
 $date = defined $date ? $date : Today2SQLDatetime;
 
-sub Body {
+sub Body($) {
+  my ($userid) = @_;
+
+  print start_div {-id => 'highlightrow'};
+
   print start_table ({-align       => 'center',
                       -id          => $table_name,
                       -border      => 0,
@@ -53,13 +59,17 @@ sub Body {
 
   print th {-class => 'tablerightend'}, 'Total';
 
-  my %dates = GetStats($nbr_days, $date);
+  my %dates = GetStats(
+    userid => $userid,
+    days   => $nbr_days,
+    date   => $date
+  );
   my %totals;
 
   for my $date (sort {$b cmp $a} (keys (%dates))) {
     print start_Tr;
     print td {-class => 'tablerightleftdata',
-              -align => 'center'}, FormatDate $date;
+              -align => 'center'}, FormatDate $date, 1;
 
     my $day_total = 0;
 
@@ -90,11 +100,11 @@ sub Body {
   my $grand_total = 0;
 
   print start_Tr;
-  print th {-class	=> 'tablebottomlefttotal'}, 'Totals';
+  print th {-class => 'tablebottomlefttotal'}, 'Totals';
 
   for (@Types) {
-    if ($totals{$_} eq 0) {
-      print td {-class	=> 'tablebottomtotal'}, '&nbsp;';
+    if ($totals{$_} == 0) {
+      print td {-class => 'tablebottomtotal'}, '&nbsp;';
     } else {
       print td {-class => 'tablebottomtotal',
                 -align => 'center'},
@@ -109,6 +119,9 @@ sub Body {
 
   print end_Tr;
   print end_table;
+  print end_div;
+
+  return;
 } # Body
 
 # Main
@@ -121,16 +134,18 @@ my $userid = Heading (
   $table_name
 );
 
+$userid //= $ENV{USER};
+
 SetContext($userid);
 
-if (!$nbr_days) {
+unless ($nbr_days) {
   my %options = GetUserOptions $userid;
   $nbr_days = $options{Dates};
-} # if
+} # unless
 
 NavigationBar($userid);
 
-Body;
+Body($userid);
 
 Footing($table_name);
 

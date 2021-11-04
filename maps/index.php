@@ -1,8 +1,9 @@
-<?php 
+<?php
 include "site-functions.php";
 include "MAPS.php";
 
-$logout = $_REQUEST[logout];
+$logout   = $_REQUEST[logout];
+$errormsg = $_REQUEST[errormsg];
 
 if (isset ($logout)) {
   setcookie ("MAPSUser", "", time()+60*60*24*30, "/maps");
@@ -23,14 +24,13 @@ if (isset ($logout)) {
 <body>
 
 <div class="heading">
-  <h2 class="header" align="center">
-  <font class="standout">MAPS</font> Mail Authorization and Permission System</h2>
+  <h2 class="header" align="center">Mail Authorization and Permission System</h2>
   <h3 class="header" align="center">Spam Elimination System</h3>
 </div>
 
 <div class="content">
   <?php
-    OpenDB ();
+    OpenDB();
     NavigationBar ("");
   ?>
 
@@ -49,8 +49,8 @@ if (isset ($logout)) {
 
   <form method="post" action="php/main.php"
    enctype="application/x-www-form-urlencoded">
-  
-  <table cellpadding="2" bgcolor="white" width="40%" cellspacing="0" 
+
+  <table cellpadding="2" bgcolor="white" width="40%" cellspacing="0"
    border="0" align="center">
 
   <tr>

@@ -16,9 +16,10 @@ use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
 
 use MAPS;
 
@@ -28,12 +29,40 @@ use CGI qw(:standard);
 my $userid;
 
 if (param "user") {
-  $userid = param("user");
+  $userid = param 'user';
 } else {
-  $userid = cookie("MAPSUser");
+  $userid = cookie 'MAPSUser';
 } # if
 
-my $sender = param("sender");
+$userid //= $ENV{USER};
+
+my $sender = param 'sender';
+
+sub formatRule($$$) {
+  my ($list, $email_on_file, $rec) = @_;
+
+  my $next  = $rec->{sequence} - 1;
+  my $rule  = 'Rule: "';
+     $rule .= $rec->{pattern} || '';
+     $rule .= '@';
+     $rule .= $rec->{domain}  || '';
+     $rule .= '" - ';
+     $rule .= a {
+       -href   => "/maps/php/list.php?type=$list&next=$next",
+       -target => '_blank',
+     }, "$list:$rec->{sequence}";
+     $rule .= br;
+
+     if ($rec->{retention}) {
+       $rule .= "Retention: " . $rec->{retention} . br;
+     } # if
+
+     if ($rec->{comment}) {
+       $rule .= "Comment: " . $rec->{comment};
+     } # if
+
+  return $rule;
+} # formatRule
 
 sub Heading() {
   print
@@ -43,10 +72,12 @@ sub Heading() {
     print h3 {-align => "center",
               -class => "header"},
     "MAPS: Checking address $sender";
+
+  return;
 } # Heading
 
 sub Body() {
-  my ($onlist, $rule);
+  my ($onlist, $rec);
 
   # Algorithm change: We now first check to see if the sender is not found
   # in the message and skip it if so. Then we handle if we are the sender
@@ -64,32 +95,39 @@ sub Body() {
   # Then we process nulllist people.
   #
   # Finally, we handle return processing
-  ($onlist, $rule) = OnWhitelist($sender, $userid, 0);
+
+  # Some email addresses have a '+' in them (e.g. 
+  # wipro+autoreply@talent.icims.com). The problem is that CGI.pm replaces the
+  # '+' with a space. Now email addresses cannot contain spaces so we're gonna
+  # assume that a space in the email should be a '+'.
+  $sender =~ s/\s/\+/g;
+
+  ($onlist, $rec) = OnWhitelist($sender, $userid, 0);
 
   if ($onlist) {
     print div {-align => "center"},
       font {-color => "green"},
         "Messages from", b ($sender), "will be", b ("delivered"), br, hr;
-    print $rule;
+    print formatRule('white', $sender, $rec);
   } else {
-    ($onlist, $rule) = OnBlacklist($sender, 0);
+    ($onlist, $rec) = OnBlacklist($sender, 0);
 
     if ($onlist) {
-      print div {-align	=> "center"},
-           font {-color	=> "black"},
+      print div {-align => "center"},
+           font {-color => "black"},
             "Messages from", b ($sender), "will be", b ("blacklisted"), br, hr;
-      print $rule;
+      print formatRule('black', $sender, $rec);
     } else {
-      ($onlist, $rule) = OnNulllist($sender, 0);
+      ($onlist, $rec) = OnNulllist($sender, 0);
 
       if ($onlist) {
-        print div {-align	=> "center"},
-          font {-color	=> "grey"},
+        print div {-align => "center"},
+             font {-color => "grey"},
             "Messages from", b ($sender), "will be", b ("discarded"), br, hr;
-        print $rule;
+        print formatRule('null', $sender, $rec);
       } else {
-        print div {-align	=> "center"},
-          font {-color	=> "red"},
+        print div {-align => "center"},
+             font {-color => "red"},
             "Messages from", b ($sender), "will be", b ("returned");
       } # if
     } # if
@@ -99,10 +137,14 @@ sub Body() {
     submit(-name      => "submit",
            -value     => "Close",
            -onClick   => "window.close (self)");
+
+  return;
 } # Body
 
 sub Footing() {
   print end_html;
+
+  return;
 } # Footing
 
 # Main

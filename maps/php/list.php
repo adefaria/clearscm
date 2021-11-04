@@ -2,13 +2,13 @@
 <?php
 ////////////////////////////////////////////////////////////////////////////////
 //
-// File:	$RCSFile$
-// Revision:	$Revision: 1.1 $
-// Description:	Process lists
-// Author:	Andrew@DeFaria.com
-// Created:	Fri Nov 29 14:17:21  2002
-// Modified:	$Date: 2013/06/12 14:05:48 $
-// Language:	PHP
+// File:        $RCSFile$
+// Revision:    $Revision: 1.1 $
+// Description: Process lists
+// Author:      Andrew@DeFaria.com
+// Created:     Fri Nov 29 14:17:21  2002
+// Modified:    $Date: 2013/06/12 14:05:48 $
+// Language:    PHP
 //
 // (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
 //
@@ -31,9 +31,9 @@
   <title>MAPS: Manage <?php echo "$Type"?> List</title>
   <script language="JavaScript1.2" src="/maps/JavaScript/ListActions.js"
    type="text/javascript"></script>
-<?php 
+<?php
 // Connect to MySQL
-OpenDB ();
+OpenDB();
 
 // Set User context
 SetContext ($userid);
@@ -56,15 +56,14 @@ $this_page = $next / $lines + 1;
 <body>
 
 <div class="heading">
-  <h2 class="header" align="center">
-  <font class="standout">MAPS</font> Manage <?php echo "$Userid's "; echo $Type?> List</h2>
+  <h2 class="header" align="center">Manage <?php echo "$Userid's "; echo $Type?> List</h2>
 </div>
 
 <div class="content">
-  <?php NavigationBar ($userid)?>
+  <?php NavigationBar($userid)?>
   <form method="post" action="/maps/bin/processaction.cgi" name="list">
   <div align="center">
-  <?php 
+  <?php
     if ($message != "") {
       print "<center><font class=\"error\">$message</font></center>";
     } // if
@@ -80,14 +79,13 @@ $this_page = $next / $lines + 1;
       } // if
     } // for
     print "</select>";
-    //print "next: $next last_page: $last_page";
-    print "&nbsp;of <a href=\"/maps/php/list.php?type=$type&next=" . 
+    print "&nbsp;of <a href=\"/maps/php/list.php?type=$type&next=" .
           ($last_page - 1) * $lines . "\">$last_page</a>";
   ?>
   </div>
   <div class="toolbar" align="center">
     <?php
-    $prev_button = $prev >= 0 ? 
+    $prev_button = $prev >= 0 ?
       "<a href=list.php?type=$type&next=$prev><img src=/maps/images/previous.gif border=0 alt=Previous align=middle accesskey=p></a>" : "";
     $next_button = ($next + $lines) < $total ?
       "<a href=list.php?type=$type&next=" . ($next + $lines) . "><img src=/maps/images/next.gif border=0 alt=Next align=middle accesskey=n></a>" : "";
@@ -103,28 +101,34 @@ $this_page = $next / $lines + 1;
       onclick="return ClearAll (document.list);">
     <?php print $next_button?>
   </div>
+  <div id="highlightrow">
   <table border="0" cellspacing="0" cellpadding="4" width="100%" align="center" name="list">
     <tr>
-      <th class="tableleftend">Seq</th>
-      <th class="tableheader">Mark</th>
+      <th class="tableleftend">&nbsp;</th>
       <th class="tableheader">Username</th>
       <th class="tableheader">@</th>
       <th class="tableheader">Domain</th>
       <th class="tableheader">Hit Count</th>
       <th class="tableheader">Last Hit</th>
+      <th class="tableheader">Retention</th>
       <th class="tablerightend">Comments</th>
     </tr>
 
-    <?php DisplayList ($type, $next, $lines)?>
+    <?php DisplayList($type, $next, $lines)?>
 
   </table>
   <br>
   </form>
+  </div>
   <div align=center>
+    <form method="post" enctype="multipart/form-data"
+      action="/maps/bin/importlist.cgi?type=<?php echo $type?>">
     <a href="/maps/bin/exportlist.cgi?type=<?php echo $type?>">
     <input type=submit name=export value="Export List"></a>
-    <a href="/maps/bin/importlist.cgi?type=<?php echo $type?>">
-    <input type=submit name=import value="Import List"></a>
+      <input type="submit" value="Import List"></input>
+      <input type="file" id="list" name="filename"></input>
+      <input type="hidden" name="type" value="<?php echo $type?>"></input>
+    </form>
   </div>
   <?php copyright (2001)?>
 

@@ -77,6 +77,8 @@ use Utils;
 my ($script) = ($FindBin::Script =~ /^(.*)\.pl/);
 my $log;
 
+local $0 = $script;
+
 my %opts = (
   usage   => sub { pod2usage },
   help    => sub { pod2usage(-verbose => 2)},

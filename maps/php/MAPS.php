@@ -50,7 +50,7 @@ function DBError($msg, $statement) {
 function OpenDB() {
   global $db;
 
-  $db = mysqli_connect("localhost", "maps", "spam")
+  $db = mysqli_connect("127.0.0.1", "maps", "spam")
     or DBError("OpenDB: Unable to connect to database server", "Connect");
 
   mysqli_select_db($db, "MAPS")
@@ -74,7 +74,7 @@ function SetContext($new_userid) {
 function Encrypt($password, $userid) {
   global $db;
 
-  $statement = "select encode(\"$password\",\"$userid\")";
+  $statement = "select hex(aes_encrypt(\"$password\",\"$userid\"))";
 
   $result = mysqli_query($db, $statement)
     or DBError("Encrypt: Unable to execute statement", $statement);
@@ -219,9 +219,9 @@ function displayquickstats() {
   $current_time = date("g:i:s a");
 
   // Start quickstats
-  print "<div class=quickstats>";
-  print "<h4 align=center class=header>Today's Activity</h4>";
-  print "<p align=center><b>as of $current_time</b></p>";
+  print "<div class=\"quickstats\">";
+  print "<h4 align=\"center\" class=\"todaysactivity\">Today's Activity</h4>";
+  print "<p align=\"center\"><b>as of $current_time</b></p>";
 
   $processed     = $dates[$today]["processed"];
   $returned      = $dates[$today]["returned"];
@@ -239,57 +239,59 @@ function displayquickstats() {
   $nulllist_pct  = $processed == 0 ? 0 :
     number_format ($nulllist / $processed * 100, 1, ".", "");
 
-  $returned_link = $returned == 0 ? 0 :
-    "<a href=/maps/bin/detail.cgi?type=returned;date=$today>$returned</a>";
-  $whitelist_link = $whitelist == 0 ? 0 :
-    "<a href=/maps/bin/detail.cgi?type=whitelist;date=$today>$whitelist</a>";
-  $blacklist_link = $blacklist == 0 ? 0 :
-    "<a href=/maps/bin/detail.cgi?type=blacklist;date=$today>$blacklist</a>";
-  $registered_link = $registered == 0 ? 0 :
-    "<a href=/maps/bin/detail.cgi?type=registered;date=$today>$registered</a>";
-  $mailloop_link = $mailloop == 0 ? 0 :
-    "<a href=/maps/bin/detail.cgi?type=mailloop;date=$today>$mailloop</a>";
-  $nulllist_link = $nulllist == 0 ? 0 :
-    "<a href=/maps/bin/detail.cgi?type=nulllist;date=$today>$nulllist</a>";
+  $returned_link = $returned == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=returned;date=$today\">";
+  $whitelist_link = $whitelist == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=whitelist;date=$today\">";
+  $blacklist_link = $blacklist == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=blacklist;date=$today\">";
+  $registered_link = $registered == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=registered;date=$today\">";
+  $mailloop_link = $mailloop == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=mailloop;date=$today>\"";
+  $nulllist_link = $nulllist == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=nulllist;date=$today\">";
 
 print <<<EOT
+<div id="quickstats">
 <table cellpadding="2" border="0" align="center" cellspacing="0">
   <tr align="right">
-    <td align="right" class="smalllabel">Processed</td>
+    <td align="left" class="smalllabel">Processed</td>
     <td align="right" class="smallnumber">$processed</td>
     <td align="right" class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">Returned</td>
-    <td class=smallnumber>$returned_link
+    <td class="smalllabel">${nulllist_link}Nulllist</a></td>
+    <td class="smallnumber">$nulllist</td>
+    <td class="smallnumber">$nulllist_pct%</td>
+  </tr>
+  <tr align="right">
+    <td class="smalllabel">${returned_link}Returned</a></td>
+    <td class=smallnumber>$returned</td>
     <td class="smallnumber">$returned_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">Whitelist</td>
-    <td class="smallnumber">$whitelist_link
+    <td class="smalllabel">${whitelist_link}Whitelist</a></td>
+    <td class="smallnumber">$whitelist</td>
     <td class="smallnumber">$whitelist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">Blacklist</td>
-    <td class="smallnumber">$blacklist_link
+    <td class="smalllabel">${blacklist_link}Blacklist</a></td>
+    <td class="smallnumber">$blacklist</td>
     <td class="smallnumber">$blacklist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">Registered</td>
-    <td class="smallnumber">$registered_link
+    <td class="smalllabel">${registered_link}Registered</a></td>
+    <td class="smallnumber">$registered</td>
     <td class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">Mailloop</td>
-    <td class="smallnumber">$mailloop_link
+    <td class="smalllabel">${mailloop_link}Mailloop</a></td>
+    <td class="smallnumber">$mailloop</td>
     <td class="smallnumber">n/a</td>
-  </tr>
-  <tr align="right">
-    <td class="smalllabel">Nulllist</td>
-    <td class="smallnumber">$nulllist_link
-    <td class="smallnumber">$nulllist_pct%</td>
   </tr>
 </table>
+</div>
 </div>
 EOT;
 } // displayquickstats
@@ -315,7 +317,8 @@ function NavigationBar($userid) {
 
   if (!isset ($userid) || $userid == "") {
     print <<<END
-  <div class="username">Welcome to MAPS</div>
+    <h2 align='center'><font style="color: white">MAPS 2.0</font></h2>
+    <div class="username">Welcome to MAPS</div>
     <div class="menu">
     <a href="/maps/doc/">What is MAPS?</a><br>
     <a href="/maps/doc/SPAM.php">What is SPAM?</a><br>
@@ -328,7 +331,8 @@ END;
   } else {
     $Userid = ucfirst($userid);
     print <<<END
-  <div class="username">Welcome $Userid</div>
+    <h2 align='center'><font style="color: white">MAPS 2.0</font></h2>
+    <div class="username">Welcome $Userid</div>
     <div class="menu">
     <a href="/maps/">Home</a><br>
     <a href="/maps/bin/stats.cgi">Statistics</a><br>
@@ -342,6 +346,9 @@ END;
     <a href="/maps/?logout=yes">Logout</a>
     </div>
 END;
+
+    displayquickstats();
+
     print <<<END
   <div class="search">
   <form method="get" action="/maps/bin/search.cgi" name="search">
@@ -352,8 +359,6 @@ END;
   </div>
 END;
 
-    displayquickstats();
-
     print <<<END
   <div class="search">
   <form "method"=post action="javascript://" name="address"
@@ -362,6 +367,7 @@ END;
     <input type="text" class="searchfield" id="searchfield" name="email"
      size="20" maxlength="255" value="" onclick="document.address.email.value = '';">
   </form>
+  <p></p>
   </div>
 END;
   } // if
@@ -400,9 +406,9 @@ function DisplayList($type, $next, $lines) {
     or DBError("DisplayList: Unable to execute query: ", $statement);
 
   for ($i = 0; $i < $lines; $i++) {
-    $row = mysqli_fetch_array ($result);
+    $row = mysqli_fetch_array($result);
 
-    if (!isset ($row ["sequence"])) {
+    if (!isset ($row["sequence"])) {
       break;
     } // if
 
@@ -411,6 +417,7 @@ function DisplayList($type, $next, $lines) {
     $domain    = $row["domain"]    == "" ? "&nbsp;" : $row["domain"];
     $hit_count = $row["hit_count"] == "" ? "&nbsp;" : $row["hit_count"];
     $last_hit  = $row["last_hit"]  == "" ? "&nbsp;" : $row["last_hit"];
+    $retention = $row["retention"] == "" ? "&nbsp;" : $row["retention"];
     $comments  = $row["comment"]   == "" ? "&nbsp;" : $row["comment"];
 
     // Remove time from last hit
@@ -427,13 +434,13 @@ function DisplayList($type, $next, $lines) {
     $rightclass = ($i == $lines || $sequence == $total || $sequence == $last) ?
       "tablebottomright" : "tablerightdata";
 
-    print "<td class=$leftclass align=center>"  . $sequence  . "</td>";
-    print "<td class=$dataclass align=center><input type=checkbox name=action" . $sequence . " value=on></td>\n";
+    print "<td class=$leftclass align=right>"   . $sequence  . "<input type=checkbox name=action" . $sequence . " value=on></td>\n";
     print "<td class=$dataclass align=right>"   . $username  . "</td>";
     print "<td class=$dataclass align=center>@</td>";
     print "<td class=$dataclass align=left><a href=\"http://$domain\" target=_blank>$domain</a></td>";
     print "<td class=$dataclass align=right>"   . $hit_count . "</td>";
     print "<td class=$dataclass align=center>"  . $last_hit  . "</td>";
+    print "<td class=$dataclass align=right>"   . $retention . "</td>";
     print "<td class=$rightclass align=left>"   . $comments  . "</td>";
     print "</tr>";
   } // for
@@ -471,11 +478,11 @@ function ListDomains($top = 10) {
   $result = mysqli_query($db, $statement)
     or DBError("ListDomains: Unable to execute query: ", $statement);
 
+  print "<div id=highlightrow>";
   print <<<END
   <table border="0" cellspacing="0" cellpadding="4" align="center" name="domainlist">
     <tr>
-      <th class="tableleftend">Mark</th>
-      <th class="tableheader">Ranking</th>
+      <th class="tableleftend">&nbsp;</th>
       <th class="tableheader">Domain</th>
       <th class="tablerightend">Returns</th>
     </tr>
@@ -483,22 +490,20 @@ END;
 
   // Get results
   for ($i = 0; $i < $top; $i++) {
-    $row = mysqli_fetch_array ($result);
+    $row = mysqli_fetch_array($result);
     $domain = $row["domain"];
     $nbr    = $row["nbr"];
 
     print "<tr>";
     $ranking = $i + 1;
     if ($i < $top - 1) {
-      print "<td class=tableleftdata align=center><input type=checkbox name=action" . $i . " value=on></td>\n";
-      print "<td align=center class=tabledata>" . $ranking . "</td>";
-      print "<td class=tabledata>$domain</td>";
+      print "<td align=center class=tableleftdata>" . $ranking . "<input type=checkbox name=action" . $i . " value=on></td>\n";
+      print "<td class=tabledata><a href=\"http://$domain\">$domain</as></td>";
       print "<input type=hidden name=email$i value=\"@$domain\">";
       print "<td align=center class=tablerightdata>$nbr</td>";
     } else {
-      print "<td class=tablebottomleft align=center><input type=checkbox name=action" . $i . " value=on></td>\n";
-      print "<td align=center class=tablebottomdata>" . $ranking . "</td>";
-      print "<td class=tablebottomdata>$domain</td>";
+      print "<td align=center class=tablebottomleft>" . $ranking . "<input type=checkbox name=action" . $i . " value=on></td>\n";
+      print "<td class=tablebottomdata><a href=\"http://$domain\">$domain</a></td>";
       print "<input type=hidden name=email$i value=\"@$domain\">";
       print "<td align=center class=tablebottomright>$nbr</td>";
     } // if
@@ -511,6 +516,7 @@ END;
     </td>
   </tr>
 <table>
+</div>
 END;
 } // ListDomains
 

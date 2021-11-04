@@ -68,7 +68,10 @@ use Term::ReadKey;
 use OSDep;
 use Display;
 
+our $pipe;
+
 our @EXPORT = qw (
+  CheckParms
   EnterDaemonMode
   Execute
   GetChildren
@@ -87,7 +90,7 @@ our @EXPORT = qw (
   Usage
 );
 
-sub _restoreTerm () {
+sub _restoreTerm() {
   # In case the user hits Ctrl-C
   print "\nControl-C\n";
 
@@ -96,7 +99,21 @@ sub _restoreTerm () {
   exit;
 } # _restoreTerm
 
-sub EnterDaemonMode (;$$$) {
+sub CheckParms($$) {
+  my ($requiredFields, $rec) = @_;
+
+  my $msg = RequiredFields($requiredFields, $rec);
+
+  my $function   = (caller(1))[3];
+  my $calledFrom = (caller(2))[3];
+  my $lineNbr    = (caller(2))[2];
+
+  croak "Internal error: $function called from $calledFrom:$lineNbr\n\nThe field $msg" if $msg;
+
+  return;
+} # CheckParms
+
+sub EnterDaemonMode(;$$$) {
   my ($logfile, $errorlog, $pidfile) = @_;
 
 =pod
@@ -190,7 +207,7 @@ Returns:
   return;
 } # EnterDaemonMode
 
-sub Execute ($) {
+sub Execute($) {
   my ($cmd) = @_;
 
 =pod
@@ -240,10 +257,10 @@ STDOUT then do so in the $command passed in.
 
   chomp @output;
 
-  return ($status, @output);
+  return wantarray ? ($status, @output) : $status;
 } # Execute
 
-sub GetChildren (;$) {
+sub GetChildren(;$) {
   my ($pid) = @_;
 
 =pod
@@ -292,7 +309,7 @@ Returns:
 
   chomp @output;
 
-  foreach (@output) {
+  for (@output) {
     # Skip the pstree process and the parent process - we want only
     # our children.
     next if /pstree/ or /\($pid\)/;
@@ -300,12 +317,12 @@ Returns:
     if (/\((\d+)\)/) {
       push @children, $1;
     } # if
-  } # foreach
+  } # for
 
   return @children;
 } # GetChildren
 
-sub GetPassword (;$) {
+sub GetPassword(;$) {
   my ($prompt) = @_;
 
 =pod
@@ -386,7 +403,7 @@ Returns:
   return $password;
 } # GetPassword
 
-sub InArray ($@) {
+sub InArray($@) {
   my ($item, @array) = @_;
 
 =pod
@@ -427,9 +444,9 @@ Returns:
 
 =cut
 
-  foreach (@array) {
+  for (@array) {
     return $TRUE if $item eq $_;
-  } # foreach
+  } # for
 
   return $FALSE;
 } # InArray
@@ -467,8 +484,7 @@ In a scalar context just the 1 minute load average.
 
 =for html </blockquote>
 
-=cut  
-
+=cut
   # TODO: Make it work on Windows...
   return if $^O =~ /win/i;
 
@@ -488,9 +504,7 @@ In a scalar context just the 1 minute load average.
   }
 } # LoadAvg
 
-our $pipe;
-
-sub StartPipe ($;$) {
+sub StartPipe($;$) {
   my ($to, $existingPipe) = @_;
 
 =pod
@@ -546,7 +560,7 @@ Returns:
   } # if
 } # StartPipe
 
-sub PipeOutputArray ($@) {
+sub PipeOutputArray($@) {
   my ($to, @output) = @_;
 
 =pod
@@ -564,7 +578,7 @@ Parameters:
 =item $to
 
 String representing the other end of the pipe to pipe @output to
- 
+
 =item @output
 
 Output to pipe
@@ -587,19 +601,19 @@ Returns:
 
 =cut
 
-  open my $pipe, '|', $to 
+  open my $pipe, '|-', $to 
     or error "Unable to open pipe - $!", 1;
 
-  foreach (@output) {
+  for (@output) {
     chomp;
 
     print $pipe "$_\n";
-  } # foreach
+  } # for
 
   return close $pipe;
 } # PipeOutputArray
 
-sub PipeOutput ($;$) {
+sub PipeOutput($;$) {
   my ($line, $topipe) = @_;
 
 =pod
@@ -649,7 +663,7 @@ Returns:
   return;
 } # PipeOutput
 
-sub StopPipe (;$) {
+sub StopPipe(;$) {
   my ($pipeToStop) = @_;
 
 =pod
@@ -693,9 +707,9 @@ Returns:
   return;
 } # StopPipe
 
-sub PageOutput (@) {
+sub PageOutput(@) {
   my (@output) = @_;
-  
+
 =pod
 
 =head2 PageOutput (@ouput)
@@ -734,13 +748,13 @@ Returns:
     PipeOutputArray $ENV{PAGER}, @output;
   } else {
     print "$_\n"
-      foreach (@output);
+      for (@output);
   } # if
-  
+
   return;
 } # PageOutput
 
-sub RedirectOutput ($$@) {
+sub RedirectOutput($$@) {
   my ($to, $mode, @output) = @_;
 
 =pod
@@ -787,15 +801,17 @@ Returns:
   open my $out, $mode, $to
     or croak "Unable to open $to for writing - $!";
 
-  foreach (@output) {
+  for (@output) {
     chomp;
     print $out "$_\n";
-  } # foreach
+  } # for
 
-  return; 
+  close $out;
+  
+  return;
 } # RedirectOutput
 
-sub ReadFile ($) {
+sub ReadFile($) {
   my ($filename) = @_;
 
 =pod
@@ -849,11 +865,11 @@ Returns:
 
     my @cleansed_lines;
 
-    foreach (@lines) {
+    for (@lines) {
       chomp;
       chop if /\r/;
       push @cleansed_lines, $_ if !/^#/; # Discard comment lines
-    } # foreach
+    } # for
 
     return @cleansed_lines;
   } else {
@@ -863,7 +879,7 @@ Returns:
   } # if
 } # ReadFile
 
-sub Stats ($;$) {
+sub Stats($;$) {
   my ($total, $log) = @_;
 
 =pod
@@ -921,7 +937,7 @@ Returns:
       display $msg; 
     } # if
 
-    foreach (sort keys %$total) {
+    for (sort keys %$total) {
       $msg = $total->{$_} . "\t $_";
 
       if ($log) {
@@ -929,13 +945,13 @@ Returns:
       } else {
         display $msg;
       } # if
-    } # foreach
+    } # for
   } # if
 
   return;
 } # Stats
 
-sub Usage (;$) {
+sub Usage(;$) {
   my ($msg) = @_;
 
 =pod
@@ -972,8 +988,7 @@ Returns:
 
 =cut
 
-  display $msg
-    if $msg;
+  display $msg if $msg;
 
   system "perldoc $0";
 

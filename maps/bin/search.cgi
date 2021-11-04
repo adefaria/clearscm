@@ -16,23 +16,24 @@ use strict;
 use warnings;
 
 use FindBin;
-$0 = $FindBin::Script;
+local $0 = $FindBin::Script;
 
 use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../../lib";
 
+use DateUtils;
 use MAPS;
 use MAPSWeb;
-use MAPSUtil;
+
 use CGI qw (:standard *table start_Tr start_td start_div end_Tr end_td end_div);
 use CGI::Carp "fatalsToBrowser";
 
 my $str   = param('str');
 my $next  = param('next');
 my $lines = param('lines');
-my $userid;
-my $prev;
-my $total;
-my $last;
+
+my ($userid, $prev, $total, $last);
+
 my $table_name = 'searchresults';
 
 sub MakeButtons {
@@ -73,9 +74,10 @@ sub HighlightSearchStr {
 } # HighlightSearchStr
 
 sub Body {
-  my @emails;
-
-  @emails = SearchEmails $userid, $str;
+  my @emails = SearchEmails(
+    userid => $userid,
+    search => $str,
+  );
 
   my $current = $next + 1;
 
@@ -103,14 +105,11 @@ sub Body {
       th {-class => "tablerightend"}, "Date"
     ];
 
-  foreach (@emails) {
-    my $sender  = shift @{$_};
-    my $subject = shift @{$_};
-    my $date    = shift @{$_};
+  for my $rec (@emails) {
+    my $display_sender = HighlightSearchStr $rec->{sender};
 
-    my $display_sender  = HighlightSearchStr $sender;
-    $subject = HighlightSearchStr $subject;
-    $subject = $subject eq "" ? "&lt;Unspecified&gt;" : $subject;
+    $rec->{subject} //= '&lt;Unspecified&gt;';
+    $rec->{subject} = HighlightSearchStr $rec->{subject};
 
     $next++;
 
@@ -120,16 +119,26 @@ sub Body {
          (checkbox {-name  => "action$next",
                     -label => ""}),
           hidden ({-name   => "email$next",
-         -default  => $sender}),
+         -default  => $rec->{sender}}),
       td {-class   => "sender"}, 
-          a {-href => "mailto:$sender"}, $display_sender,
+          a {-href => "mailto:$rec->{sender}"}, $display_sender,
       td {-class   => "subject"},
-          a {-href => "display.cgi?sender=$sender"}, $subject,
+          a {-href => "display.cgi?sender=$rec->{sender}"}, $rec->{subject},
       td {-class   => "dateright",
-          -width   => "115"}, SQLDatetime2UnixDatetime $date
+          -width   => "115"}, SQLDatetime2UnixDatetime $rec->{timestamp},
     ];
-  } # foreach
+  } # for
+
+  print
+    Tr [
+      td {-class  => 'tableborderbottomleft'},  '&nbsp;',
+      td {-class  => 'tableborder'},            '&nbsp;',
+      td {-class  => 'tableborder'},            '&nbsp;',
+      td {-class  => 'tableborderbottomright'}, '&nbsp;'
+    ];
   print end_table;
+
+  return;
 } # Body
 
 # Main
@@ -145,6 +154,8 @@ $userid = Heading (
   @scripts
 );
 
+$userid //= $ENV{USER};
+
 SetContext $userid;
 NavigationBar $userid;
 
@@ -155,12 +166,14 @@ if (!$lines) {
   $lines = $options{"Page"};
 } # if
 
-$total = count "email",
-  "userid = \"$userid\" and (subject like \"%$str%\" or sender like \"%$str%\")";
+$total = CountEmail(
+  userid     => $userid,
+  additional => "(subject like '%$str%' or sender like '%$str%')",
+);
 
 DisplayError "Nothing matching!" if $total eq 0;
 
-$next = !defined $next ? 0 : $next;
+$next //= 0;
 $last = $next + $lines < $total ? $next + $lines : $total;
 
 if (($next - $lines) > 0) {
