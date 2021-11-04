@@ -1481,7 +1481,22 @@ sub Whitelist ($$;$$) {
   close $message;
 
   # Now call MAPSDeliver
-  my $status = system "$FindBin::Bin/MAPSDeliver $userid /tmp/MAPSMessage.$$";
+  my ($status, @output) = Execute "$FindBin::Bin/MAPSDeliver $userid /tmp/MAPSMessage.$$";
+  #my $status = system "$FindBin::Bin/MAPSDeliver $userid /tmp/MAPSMessage.$$";
+
+  if ($status != 0) {
+    my $msg =  "Unable to deliver message (message left at /tmp/MAPSMessage.%%\n\n";
+       $msg .= join "\n", @output;
+
+    Logmsg(
+      userid  => $userid,
+      type    => 'whitelist',
+      sender  => $sender,
+      message => $msg,
+    );
+
+    Error ($msg, 1);
+  } # if
 
   unlink "/tmp/MAPSMessage.$$";
 

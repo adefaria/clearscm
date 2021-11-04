@@ -2,8 +2,8 @@
 include "site-functions.php";
 include "MAPS.php";
 
-$logout   = $_REQUEST[logout];
-$errormsg = $_REQUEST[errormsg];
+$logout   = $_REQUEST['logout'];
+$errormsg = $_REQUEST['errormsg'];
 
 if (isset ($logout)) {
   setcookie ("MAPSUser", "", time()+60*60*24*30, "/maps");
