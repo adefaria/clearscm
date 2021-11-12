@@ -11,7 +11,7 @@
   pager = less -RX
   packedGitLimit=128m
   packedGitWindowSize=128m
-	excludesfile = /home/andrew/.gitignore
+  excludesfile = /home/andrew/.gitignore
 
 [color]
   status=auto
@@ -55,8 +55,12 @@
 [push]
   default = simple
 [http]
-	sslVerify = false
+  sslVerify = false
 [credential]
-	helper = store --file ~/.git-credentials
+  helper = store --file ~/.git-credentials
 [pull]
-	rebase = false
+  rebase = false
+[merge]
+  tool = meld
+[mergetoo "meld"]
+  cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"

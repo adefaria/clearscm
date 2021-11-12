@@ -124,9 +124,11 @@ Returns:
   # backoff a little and try again.
   my $attempts   = 0;
   my $maxretries = 3;
-  my $backoff    = 2;
 
   my ($status, @output);
+
+  # Log message to log file if $log was passed in.
+  $log->msg($msg) if $log;
 
   while ($attempts++ < $maxretries) {
     ($status, @output) = Execute "/usr/local/bin/gt \"$msg\"";
@@ -140,9 +142,9 @@ Returns:
         error $errmsg;
       } # if
 
-      sleep $backoff++;
+      sleep int rand 10;
     } else {
-      return; # We said our piece...
+      return;
     } # if
   } # while
 
