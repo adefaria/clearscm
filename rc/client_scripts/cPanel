@@ -1,0 +1,27 @@
+#!/bin/bash
+################################################################################
+#
+# File:         $RCSfile: Audience,v $
+# Revision:	$Revision: 1.0 $
+# Description:	Client specific start up for Audience
+# Author:       Andrew@ClearSCM.com
+# Created:      Fri Nov  8 13:50:01 PST 2013
+# Modified:     $Date: $
+# Language:     bash
+#
+# (c) Copyright 2013, ClearSCM, Inc., all rights reserved.
+#
+################################################################################
+append_to_path /usr/local/cpanel/3rdparty/lib/path-bin
+append_to_path /usr/local/cpanel/3rdparty/bin
+append_to_path /usr/local/cpanel/build-tools
+append_to_path /usr/local/sbin
+append_to_path /usr/local/bin
+append_to_path /usr/sbin
+append_to_path /opt/cpanel/composer/bin
+append_to_path /opt/cplint/bin
+append_to_path /root/bin
+
+export CDPATH=/usr/local
+
+alias ulc="cd /usr/local/cpanel"
