@@ -27,4 +27,11 @@ case "$SYSNAME" in
     SYSNAME="cPanel"
     ;;
 
+  10-2-99-60)
+    SYSNAME="Sandbox"
+    ;;
+
+  10-2-99-106)
+    SYSNAME="SandboxAL"
+    ;;
 esac
