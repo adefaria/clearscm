@@ -1,42 +1,44 @@
-ForwardX11 yes
-ForwardX11Trusted yes
 StrictHostKeyChecking no
+LogLevel ERROR
 
-Host *
-  ServerAliveInterval 300
-  ServerAliveCountMax 2
+Host jupiter cpanel github.com
+  ForwardX11 no
+  ForwardX11Trusted no
+
+Host jupiter
+  Port 2222
+
+Host cpanel
+  User andrewdefaria
 
 Host home
   Hostname defaria.com
   User andrew
   IdentityFile		~/.ssh/id_ecdsa
- 
-Host gerrit-rtp
-  Hostname gerrit-ccxsw.rtp.broadcom.com
-  User svcccxswgit
 
-Host vdi
-  Hostname sjrvda0482.sjs.avagotech.net
+Host nightly
+  Hostname 10.2.96.137
 
-Host eca-rtp-02
-  Hostname eca-rtp-02.rtp.broadcom.com
-  User ccxswbuild
+Host sandboxal
+  Hostname 10.2.99.106
+  IdentityFile		~/.ssh/cpanelkey
 
-Host eca-rtp-04
-  Hostname eca-rtp-04.rtp.broadcom.com
-  User ccxswbuild
+Host sandbox
+  Hostname 10.2.99.60
+  IdentityFile		~/.ssh/cpanelkey
 
-Host git-ric
-  Hostname git-ccxsw.ric.broadcom.com
-  User ccxswbuild
+Host 10.2.* sandbox*
+  ForwardAgent yes
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+  AddKeysToAgent yes
+  IdentitiesOnly yes
+  ForwardX11 no
+  ForwardX11Trusted no
+  User root
 
-Host git-rtp
-  Hostname git-ccxsw.rtp.broadcom.com
-  User ccxswbuild
-
-Host git-sj
-  Hostname git-ccxsw.sj.broadcom.com
-  User ccxswbuild
-  
-Host jira-dev
-  Hostname jira-rtp-06.rtp.broadcom.com
+Host *
+  ServerAliveInterval 300
+  ServerAliveCountMax 2
+  ForwardX11 yes
+  ForwardX11Trusted yes
