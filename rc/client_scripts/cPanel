@@ -24,6 +24,15 @@ append_to_path /root/bin
 
 export CDPATH=/usr/local
 export ulc=/usr/local/cpanel
+export CPANEL_TEAM='scrum'
+
+#alias ulc="cd /usr/local/cpanel"
+alias cperl="$ulc/3rdparty/bin/perl"
+
+# Unset PERLTIDY and PERLCRITIC as those variable override looking for
+# ~/.perltidyrc and ~/.perlcriticrc.
+unset PERLTIDY
+unset PERLCRITIC
 
 # This is the completer function for ulc. This completes any path that comes
 # after the ulc as a path completion relative to $ulc
@@ -46,5 +55,3 @@ function ulc {
     cd $ulc
   fi
 } # ulc
-#alias ulc="cd /usr/local/cpanel"
-alias cperl="$ulc/3rdparty/bin/perl"
