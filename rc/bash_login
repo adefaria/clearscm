@@ -312,6 +312,9 @@ for script in $(\ls ~/.rc/client_scripts); do
   fi
 done
 
+# Set prompt as client customization may have changed things
+set_prompt
+
 # Set display to local
 
 export DISPLAY=${DISPLAY:-:0}

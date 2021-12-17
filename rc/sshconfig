@@ -1,7 +1,7 @@
 StrictHostKeyChecking no
 LogLevel ERROR
 
-Host jupiter cpanel github.com
+Host jupiter cpanel github.com sandbox sandboxal
   ForwardX11 no
   ForwardX11Trusted no
 
@@ -27,6 +27,9 @@ Host sandbox
   Hostname 10.2.99.60
   IdentityFile		~/.ssh/cpanelkey
 
+Host enterprise.cpanel.net
+  IdentityFile		~/.ssh/cpanelkey
+
 Host 10.2.* sandbox*
   ForwardAgent yes
   StrictHostKeyChecking no
@@ -40,5 +43,3 @@ Host 10.2.* sandbox*
 Host *
   ServerAliveInterval 300
   ServerAliveCountMax 2
-  ForwardX11 yes
-  ForwardX11Trusted yes

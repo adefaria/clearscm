@@ -15,6 +15,8 @@
 ESC=$(echo "\033")
 CR=$(echo "\015")
 
+export WIZARD="Wizard"
+
 view_name=
 
 # Function to set the title bar. Works on the terminal emulators listed.
@@ -90,7 +92,7 @@ function title {
 # view and a string to indicate that you are root.
 function set_title {
   if [ $($id -u) -eq 0 ]; then
-    root="Wizard "
+    root="$WIZARD "
   else
     root=
   fi
@@ -124,9 +126,9 @@ function set_prompt {
          "$TERM" = "xtermc"         -o \
          "$TERM" = "xterm-256color" -o \
          "$TERM" = "vt220" ]; then
-      ROOT="\[${ROOT_COLOR}\]Wizard\[$NORMAL\] "
+      ROOT="\[${ROOT_COLOR}\]$WIZARD\[$NORMAL\] "
     else
-      ROOT="Wizard "
+      ROOT="$WIZARD "
     fi
   else
     ROOT=""
