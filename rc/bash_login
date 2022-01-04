@@ -248,7 +248,7 @@ if [ "$TERM" = "hpterm"         -o \
 fi
 
 # Miscellaneous:
-if [ -x $(type -p less) ]; then
+if type -p less > /dev/null; then
    export LESS=eiXP"?f%f :[stdin] .?pt(%pt\%):?bt(%bt bytes):-.."
    alias more="less -sr"
    export PAGER="less -sr"
