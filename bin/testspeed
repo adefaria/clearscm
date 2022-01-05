@@ -1,0 +1,13 @@
+#!/bin/bash
+# Test internet speed
+
+speedtest=/System/bin/speedtest.sh
+datafile=/System/Data/$(hostname).speedtest.csv
+
+# If creating file initially add csv headers
+if [ ! -f $datafile ]; then
+  $speedtest --csv-header > $datafile
+fi
+
+# Now test speed
+$speedtest --csv >> $datafile

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# We need our sj function...
+source ~/.rc/functions
+
+# Get the PID of the running setbg process
+setbgPID=$(sj setbg | awk '{print $2}')
+
+# Check to make sure it's not blank, meaning no setbg process running
+if [ -s "$setbgPID" ]; then
+  echo "There is no setbg process running"
+  exit 1
+fi
+
+# Check to see if setbgPID has multiple processes. Multiple processes
+# should never happen but if we get more than one PID back then they
+# will be listed side by side with spaces, so check that.
+echo $setbgPID | grep -q ' '
+
+if [ $? = 0 ]; then
+  echo "There are multiple setbg processes???"
+  exit 1
+fi
+
+setbgPicture=$(cat ~/.setbg)
+rm "$setbgPicture" && kill -USR1 $setbgPID

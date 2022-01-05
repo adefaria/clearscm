@@ -1,0 +1,3 @@
+#!/bin/bash 
+# Fixes screen when the gnome-panel gets stuck on the right side.
+xrandr --output HDMI-0 --primary

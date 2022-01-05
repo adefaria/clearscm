@@ -1,0 +1,3 @@
+#!/bin/bash
+dropbox stop > /dev/null 2>&1
+dbus-launch dropbox start -i > /dev/null 2>&1

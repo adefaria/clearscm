@@ -1,0 +1,40 @@
+#!/bin/bash
+expireTime=1200
+systems="\
+  earth\
+  mars\
+  defaria.com\
+"
+
+function notify {
+  #zenity --notification --text "$1" 2> /dev/null
+  notify-send --expire-time=$expireTime "$1"
+}
+
+function yesno {
+  question=$1
+
+  zenity --question --text "$question" --width=300 2> /dev/null
+}
+    
+update=$1;
+
+for system in $systems; do
+  notify "Checking $system for updates"
+  ssh $system sudo apt-get -qq update
+  ssh $system apt list --upgradeable 2> /dev/null | grep -v "^Listing" > /tmp/check4update.list
+
+  if [ $(wc -l /tmp/check4update.list 2> /dev/null | cut -f1 -d' ') -ne 0 ]; then
+    cat /tmp/check4update.list
+
+    if yesno "There are updates for $system\nApply them now?" ]; then
+      ssh $system sudo /opt/clearscm/bin/update-system
+    else
+      notify "$system not updated"
+    fi
+  else
+    notify "$system is up to date"
+  fi
+
+  rm -f /tmp/check4update.list
+done
