@@ -103,8 +103,8 @@ Returns:
 
 =cut
 
-  if (-f "$FindBin::Bin/shh") {
-    $msg .= ' [silent]';
+  if (-f "$FindBin::Bin/../data/shh") {
+    $msg .= ' [silent shh]';
     if ($log) {
       $log->msg($msg);
     } else {

@@ -1,13 +1,14 @@
 #!/bin/bash
 timeout=5000 # 5 seconds
+touchfile=/opt/clearscm/data/shh
 
 # This just toggles the creation of the /opt/clearscm/bin/shh file
-if [ -f /opt/clearscm/bin/shh ]; then
-  rm /opt/clearscm/bin/shh
+if [ -f $touchfile ]; then
+  rm $touchfile
   cp ~/.icons/ShhOff.png ~/.icons/Shh.png
   notify-send -t $timeout "Announcements turned on"
 else
-  touch /opt/clearscm/bin/shh
+  touch $touchfile
   cp ~/.icons/ShhOn.png ~/.icons/Shh.png
   # Note that a -t 0 will keep the notification up. This way we can
   # be visually reminded that we are not receiving audio announcements
