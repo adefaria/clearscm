@@ -262,9 +262,9 @@ sub MonitorMail() {
     if ($hour >= 7) {
       $log->msg($logmsg);
       $log->dbug("Calling speak");
-      speak $msg;
+      speak $msg, $log;
     } else {
-      $log->msg("$logmsg [silent]");
+      $log->msg("$logmsg [silent nighttime]");
     } # if
 
     $unseen{$_} = 1;
@@ -274,7 +274,7 @@ sub MonitorMail() {
   my $startTime = time;
 
   # Re-establish callback
-  $log->msg("Calling IMAP->idle");
+  $log->dbug("Calling IMAP->idle");
   eval {
     $IMAP->idle(\&MonitorMail, $opts{timeout})
   };
