@@ -35,6 +35,13 @@ domain=${1:-CERTBOT_DOMAIN}
 #                     CERTBOT_VALIDATION
 value=${2:-CERTBOT_VALIDATION}
 
+logfile=/tmp/debug.log
+
+function log {
+  #echo $1
+  echo $1 >> $logfile
+} # log
+
 # Dreamhost key - generate at https://panel.dreamhost.com/?tree=home.api 
 key=KHY6UJQXD9MEJZHR
 
@@ -43,12 +50,12 @@ url="https://api.dreamhost.com/?key=$key"
 
 # Remove a TXT record. Oddly you must also specify the value.
 function removeTXT {
-  echo "Removing TXT record $CERTBOT_DOMAIN_DOMAIN = $CERTBOT_VALIDATION"
+  log "Removing TXT record $CERTBOT_DOMAIN = $CERTBOT_VALIDATION"
   cmd="$url&unique_id=$(uuidgen)&cmd=dns-remove_record&record=$CERTBOT_DOMAIN&type=TXT&value=$CERTBOT_VALIDATION"
 
   response=$(wget -O- -q "$cmd")
 
-  echo "$response"
+  log "$response"
 } # removeTXT
 
 removeTXT
