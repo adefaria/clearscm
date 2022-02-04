@@ -6,11 +6,15 @@ touchfile=/opt/clearscm/data/shh
 if [ -f $touchfile ]; then
   rm $touchfile
   cp ~/.icons/ShhOff.png ~/.icons/Shh.png
-  notify-send -t $timeout "Announcements turned on"
 else
+  # Stop currently playing audio
+  killall play
+  # Stop any Google TTS
+  kill -9 $(cat /tmp/simple_google_tts.pid)
+  # Clean up tmp
+  rm -rf /tmp/simple_google_tts.*
+  # Touch shh file
   touch $touchfile
+  # Change the icon
   cp ~/.icons/ShhOn.png ~/.icons/Shh.png
-  # Note that a -t 0 will keep the notification up. This way we can
-  # be visually reminded that we are not receiving audio announcements
-  notify-send -t 0 "Announcements turned off"
 fi

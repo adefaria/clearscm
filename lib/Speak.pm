@@ -83,7 +83,7 @@ Otherwise the text in the clipboard will be used.
 
 =item $log
 
-If provided, errors and messages will be logged to the logfile, otherwise stdout
+If provided, errors and messages will be logged to the logfile, otherwise to speak.log
 
 =back
 
@@ -103,13 +103,16 @@ Returns:
 
 =cut
 
+  $log = Logger->new(
+    path        => '/var/local/log',
+    name        => 'speak',
+    timestamped => 'yes',
+    append      => 1,
+  ) unless $log;
+
   if (-f "$FindBin::Bin/../data/shh") {
     $msg .= ' [silent shh]';
-    if ($log) {
-      $log->msg($msg);
-    } else {
-      verbose $msg;
-    } # if
+    $log->msg($msg);
 
     return;
   } # if
@@ -120,40 +123,15 @@ Returns:
   # Handle the case where $msg is a filehandle
   $msg = <$msg> if ref $msg eq 'GLOB';
 
-  # We can't have two speakers going at the same time so if we have an error
-  # backoff a little and try again.
-  my $attempts   = 0;
-  my $maxretries = 3;
-
-  my ($status, @output);
-
   # Log message to log file if $log was passed in.
-  $log->msg($msg) if $log;
+  $log->msg($msg);
 
-  while ($attempts++ < $maxretries) {
-    ($status, @output) = Execute "/usr/local/bin/gt \"$msg\"";
+  my ($status, @output) = Execute "/usr/local/bin/gt \"$msg\"";
 
-    if ($status) {
-      my $errmsg = "Unable to speak (Status: $status) - " . join "\n", @output;
+  if ($status) {
+    my $errmsg = "Unable to speak (Status: $status) - " . join "\n", @output;
 
-      if ($log) {
-        $log->err($errmsg);
-      } else {
-        error $errmsg;
-      } # if
-
-      sleep int rand 10;
-    } else {
-      return;
-    } # if
-  } # while
-
-  my $errmsg = 'Maximum retries exceeded - terminating';
-
-  if ($log) {
-    $log->err($errmsg, $status);
-  } else {
-    error $errmsg, $status;
+    $log->err($errmsg);
   } # if
 
   return;

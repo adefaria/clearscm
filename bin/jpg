@@ -1,6 +1,0 @@
-#!/bin/bash
-#
-# Simple script to save an image in the clipboard to a file
-save_file=/tmp/image.jpg
-
-xclip -selection clipboard -t image/jpeg -o > $save_file
