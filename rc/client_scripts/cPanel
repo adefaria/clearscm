@@ -1,10 +1,10 @@
 #!/bin/bash
 ################################################################################
 #
-# File:         $RCSfile: Audience,v $
+# File:         $RCSfile: cPanel,v $
 # Revision:	$Revision: 1.0 $
-# Description:	Client specific start up for Audience
-# Author:       Andrew@ClearSCM.com
+# Description:	Client specific start up for cPanel
+# Author:       Andrew@DeFaria.com
 # Created:      Fri Nov  8 13:50:01 PST 2013
 # Modified:     $Date: $
 # Language:     bash
@@ -15,12 +15,22 @@
 prepend_to_path /usr/local/cpanel/build-tools
 prepend_to_path /usr/local/cpanel/3rdparty/lib/path-bin
 prepend_to_path /usr/local/cpanel/3rdparty/bin
+prepend_to_path /usr/local/cpanel/bin
 append_to_path /usr/local/sbin
 append_to_path /usr/local/bin
 append_to_path /usr/sbin
 append_to_path /opt/cpanel/composer/bin
 append_to_path /opt/cplint/bin
 append_to_path /root/bin
+
+# Find code!
+codePath=$(dirname $(find ~/.vscode-server/bin -name code))
+
+if [ -n "$codePath" ]; then
+  append_to_path $codePath
+else
+  echo "Warning - unable to find code"
+fi
 
 # Intended to be used for root
 WIZARD="CPanel"
@@ -29,6 +39,7 @@ export CDPATH=/usr/local
 export ulc=/usr/local/cpanel
 export ulp=/usr/local/cp-monitoring-cpanel-plugin
 export ulw=/usr/local/cp-monitoring-whm-plugin
+export ulb=/usr/local/cp-banners-plugin
 export CPANEL_TEAM='scrum'
 
 #alias ulc="cd /usr/local/cpanel"
@@ -81,4 +92,14 @@ function ulw {
     cd $ulw
   fi
 } # ulw
+
+function ulb {
+  path=$1
+
+  if [ -s "$1" ]; then
+    cd $ulb/$path
+  else
+    cd $ulb
+  fi
+} # ulb
 
