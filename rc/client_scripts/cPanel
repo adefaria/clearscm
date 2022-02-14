@@ -24,12 +24,13 @@ append_to_path /opt/cplint/bin
 append_to_path /root/bin
 
 # Find code!
-codePath=$(dirname $(find ~/.vscode-server/bin -name code))
-
-if [ -n "$codePath" ]; then
-  append_to_path $codePath
-else
-  echo "Warning - unable to find code"
+if [ -d ~/.vscode-server ]; then
+  codePath=$(dirname $(find ~/.vscode-server/bin -name code))
+  if [ -n "$codePath" ]; then
+    append_to_path $codePath
+  else
+    echo "Warning - unable to find code"
+  fi
 fi
 
 # Intended to be used for root

@@ -28,10 +28,15 @@ case "$SYSNAME" in
     ;;
 
   10-2-99-60)
-    SYSNAME="Sandbox"
+    SYSNAME="Sandbox Centos"
     ;;
 
   10-2-99-106)
-    SYSNAME="SandboxAL"
+    SYSNAME="Sandbox AlmaLinux"
     ;;
+
+  10-2-98-185)
+    SYSNAME="Sandbox Ubuntu"
+    ;;
+
 esac
