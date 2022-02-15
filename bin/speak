@@ -100,4 +100,4 @@ if ($opts{clipboard}) {
   } # if
 } # if
 
-speak quotemeta $msg;
+speak $msg;

@@ -126,6 +126,13 @@ Returns:
   # Log message to log file if $log was passed in.
   $log->msg($msg);
 
+  # Quote the message
+  #$msg = quotemeta $msg;
+
+  # Change some characters that mess up speech
+  $msg =~ s#\"#\\"#g;
+  $msg =~ s#\$#\\\$#g;
+
   my ($status, @output) = Execute "/usr/local/bin/gt \"$msg\"";
 
   if ($status) {
