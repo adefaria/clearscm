@@ -252,9 +252,7 @@ sub MonitorMail() {
 
     my $greeting = $greetings[int rand $#greetings];
     my $msg      = "$greeting from $from... $subject";
-       $msg      =~ s/\"/\\"/g;
-
-    my $hour = (localtime)[2];
+    my $hour     = (localtime)[2];
 
     # Only announce if after 6 Am. Note this will announce up until
     # midnight but that's ok. I want midnight to 6 Am as silent time.
