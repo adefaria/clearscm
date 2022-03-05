@@ -2,3 +2,10 @@
 .pydevproject
 .includepath
 .vscode/
+
+# For some reason something keeps deleting my .gitignore file especially
+# in projects like /opt/songbook so I'm gonna reloate them here
+/opt/songbook/Tonight Only.lst
+/opt/songbook/.pydevproject
+/opt/songbook/.vscode
+/opt/songbook/.project
