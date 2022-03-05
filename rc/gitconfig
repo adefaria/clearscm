@@ -1,6 +1,6 @@
 [user]
   name = Andrew DeFaria
-  email = Andrew@DeFaria.com
+  email = A.DeFaria@cpanel.net
 
 [pack]
   windowMemory=128m
@@ -11,7 +11,7 @@
   pager = less -RX
   packedGitLimit=128m
   packedGitWindowSize=128m
-  excludesfile = /home/andrew/.gitignore
+  excludesfile = ~/.gitignore
 
 [color]
   status=auto
