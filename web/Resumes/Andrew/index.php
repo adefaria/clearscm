@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
   <meta name="GENERATOR" content="Mozilla/4.61 [en] (Win98; U) [Netscape]">
-  <title>ClearSCM: Our People: Andrew DeFaria - President</title>
+  <title>Andrew DeFaria's Resume</title>
   <link rel="stylesheet" type="text/css" media="screen" href="/css/Article.css">
   <link rel="stylesheet" type="text/css" media="print"  href="/css/Print.css">
   <link rel="SHORTCUT ICON" href="http://clearscm.com/favicon.ico" type="image/png">
@@ -108,7 +108,7 @@ function stoptimer () {
 
 <body onload="blink()" onunload="stoptimer()" id="homepage">
 
-<?php heading ();?>
+<!--<?php heading ();?>-->
 
 <div id="page">
   <div id="content">
