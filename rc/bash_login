@@ -324,8 +324,13 @@ done
 set_prompt
 
 # Set display to local
-
 export DISPLAY=${DISPLAY:-:0}
+
+# New tmp location
+if [ -d /System/tmp ]; then
+  export TMP=/System/tmp
+fi
+
 # Reset home in case it changed
 HOME=$saved_home
 

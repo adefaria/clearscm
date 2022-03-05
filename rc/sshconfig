@@ -1,7 +1,11 @@
 StrictHostKeyChecking no
 LogLevel ERROR
 
-Host jupiter cpanel github.com sandbox sandboxal
+Host mars earth home defaria.com
+  ForwardX11 yes
+  ForwardX11Trusted yes
+  
+Host jupiter cpanel github.com sandbox sandboxal sandboxu
   ForwardX11 no
   ForwardX11Trusted no
 
@@ -15,9 +19,6 @@ Host home
   Hostname defaria.com
   User andrew
   IdentityFile		~/.ssh/id_ecdsa
-
-Host nightly
-  Hostname 10.2.96.137
 
 Host sandbox
   Hostname 10.2.99.60
