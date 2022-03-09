@@ -161,7 +161,7 @@ sub ProcessMsgs ($$$) {
     if ($msgInfo{sender} eq $user_email and
             (lc ($msgInfo{sender_long}) !~ lc ("\"$username\" <$user_email>") and
              lc ($msgInfo{sender_long}) !~ lc ("$username <$user_email>"))) {
-      $log->msg("Nulllisting message from sender ($msgInfo{sender_long}) pretending to be $user_email");
+      $log->msg("Nulllisting message from sender ($msgInfo{sender_long}) pretending to be $user_email - Subject: $msgInfo{subject}");
 
       next;
     } # if
@@ -169,7 +169,7 @@ sub ProcessMsgs ($$$) {
     # Discard messges coming from andrew@clearscm.com because I don't send from
     # that email address
     if (lc $msgInfo{to} eq 'andrew@clearscm.com') {
-      $log->msg("Nulllisting message from Andrew\@ClearSCM.com since I don't send from that email address");
+      $log->msg("Nulllisting message from Andrew\@ClearSCM.com since I don't send from that email address - Subject: $msgInfo{subject}");
 
       next;
     } # if
@@ -179,11 +179,11 @@ sub ProcessMsgs ($$$) {
 
     if ($onlist) {
       if (ValidDomainUser $msgInfo{sender}) {
-        $log->msg("Whitelisting $msgInfo{sender} - Rule: " . formatRule($rec));
+        $log->msg("Whitelisting $msgInfo{sender} - Rule: " . formatRule($rec) . " - Subject: $msgInfo{subject}");
 
         Whitelist $msgInfo{sender}, $msgInfo{data}, $rec->{sequence}, $rec->{hit_count};
       } else {
-        $log->msg("Sender ($msgInfo{sender}) from this domain but user not found");
+        $log->msg("Sender ($msgInfo{sender}) from this domain but user not found - Subject: $msgInfo{subject}");
 
         Nulllist $msgInfo{sender};
       } # if
@@ -195,7 +195,7 @@ sub ProcessMsgs ($$$) {
     ($onlist, $rec) = OnBlacklist $msgInfo{sender};
 
     if ($onlist) {
-      $log->msg("Blacklisting $msgInfo{sender} - Rule: " . formatRule($rec));
+      $log->msg("Blacklisting $msgInfo{sender} - Rule: " . formatRule($rec) . " - Subject: $msgInfo{subject}");
 
       Blacklist(
         userid    => $userid,
@@ -212,7 +212,7 @@ sub ProcessMsgs ($$$) {
     ($onlist, $rec) = OnNulllist $msgInfo{sender};
 
     if ($onlist) {
-      $log->msg("Nulllisting $msgInfo{sender} - Rule: " . formatRule($rec));
+      $log->msg("Nulllisting $msgInfo{sender} - Rule: " . formatRule($rec) . " - Subject: $msgInfo{subject}");
 
       Nulllist $msgInfo{sender}, $rec->{sequence}, $rec->{hit_count};
 
@@ -220,7 +220,7 @@ sub ProcessMsgs ($$$) {
     } # if
 
     # Return processing:
-    $log->msg("Returning message from $msgInfo{sender}");
+    $log->msg("Returning message from $msgInfo{sender} - Subject: $msgInfo{subject}");
 
     ReturnMsg(
       userid   => $userid,
