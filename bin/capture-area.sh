@@ -1,2 +1,2 @@
 #!/bin/bash
-gnome-screenshot -caf /System/tmp/Screenshot-$(date +%F@%T).png
+gnome-screenshot -caf /System/tmp/Screenshots/$(date +%F@%T).png
