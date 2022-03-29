@@ -73,6 +73,7 @@ Uploads is included and new pictures can arrive everyday.
 
 use strict;
 use warnings;
+use experimental qw(signatures);
 
 use FindBin;
 use Getopt::Long;
@@ -150,28 +151,29 @@ sub fillPictures () {
   return @images;
 } # fillPictures
 
-sub writeHistory($) {
-  my ($msg) = @_;
-
+sub writeHistory($msg) {
   open my $hist, '>>', "$ENV{HOME}/.$FindBin::Script.hist"
     or error "Unable to open $ENV{HOME}/.$FindBin::Script.hist for append - $!", 1;
 
   $msg = localtime() . $msg;
 
-  display $msg, $hist;
+  print $hist $msg;
 
   close $hist;
 } # writeHistory
 
-sub updateSetBG($$) {
-  my ($bgimage, $lockimage) = @_;
+sub writeSetBG ($filename, $image) {
+  open my $file, '>', $filename
+    or error "Unable to open $filename for writing - $!", 1;
 
-  open my $setbg, '>', "$ENV{HOME}/.$FindBin::Script"
-    or error "Unable to open $ENV{HOME}/.$FindBin::Script for writing - $!", 1;
+  print $file "$image\n";
 
-  display $bgimage, $setbg;
+  close $file;
+} # writeSetBG
 
-  close $setbg;
+sub updateSetBG($bgimage, $lockimage) {
+  writeSetBG "$ENV{HOME}/.$FindBin::Script", $bgimage;
+  writeSetBG "$ENV{HOME}/.$FindBin::Script.lock", $lockimage;
 
   my $msg  = ":$bgimage";
      $msg .= " lock:$lockimage" if $opts{lockscreen};
@@ -231,7 +233,7 @@ my ($setbgOpts, $setLockOpts);
 
 if ($opts{mate}) {
   $setbgOpts   = 'set org.mate.background picture-filename ';
-  $setLockOpts = 'set org.mate.background picture-filename ';
+  $setLockOpts = 'set org.mate.screensaver picture-filename ';
 } else {
   $setbgOpts   = "set org.gnome.desktop.background picture-uri \"file://";
   $setLockOpts = "set org.gnome.desktop.screensaver picture-uri \"file://";
