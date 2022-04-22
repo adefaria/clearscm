@@ -23,6 +23,8 @@ append_to_path /opt/cpanel/composer/bin
 append_to_path /opt/cplint/bin
 append_to_path /root/bin
 
+# Useful aliases
+alias makesb4='pushd $ulc; make -j4 sandbox; popd'
 # Find code!
 if [ -d ~/.vscode-server ]; then
   codePath=$(dirname $(find ~/.vscode-server/bin -name code))
@@ -42,6 +44,10 @@ export ulp=/usr/local/cp-monitoring-cpanel-plugin
 export ulw=/usr/local/cp-monitoring-whm-plugin
 export ulb=/usr/local/cp-banners-plugin
 export CPANEL_TEAM='scrum'
+
+# EA Tools
+export EATOOLS_BUILD_DIR=~/git/ea-tools/SOURCES/
+export EATOOLS_BIN_DIR=~/git/ea-tools/SOURCES/
 
 #alias ulc="cd /usr/local/cpanel"
 alias perl="$ulc/3rdparty/bin/perl"
