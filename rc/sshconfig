@@ -1,11 +1,11 @@
 StrictHostKeyChecking no
 LogLevel ERROR
 
-Host mars earth home defaria.com
+Host mars earth home defaria.com sandboxu
   ForwardX11 yes
   ForwardX11Trusted yes
   
-Host jupiter cpanel github.com sandbox sandboxal sandboxu
+Host jupiter cpanel github.com sandbox sandboxal
   ForwardX11 no
   ForwardX11Trusted no
 
@@ -30,9 +30,6 @@ Host sandboxu
 
 Host sandboxal
   Hostname 10.2.99.106
-  IdentityFile		~/.ssh/cpanelkey
-
-Host enterprise.cpanel.net
   IdentityFile		~/.ssh/cpanelkey
 
 Host 10.2.* sandbox*

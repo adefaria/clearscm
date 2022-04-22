@@ -1,12 +1,7 @@
 #!/bin/bash
 
-# Odd. Seems the following causes wget to use IPv6 instead of IPv4. Well
-# recently we turned off IPv6 because we suspect this causes our WiFi 
-# dropout problem. But then this hangs.
-#wget -O /tmp/calendar.$$.ics 'https://www.google.com/calendar/ical/adefaria%40gmail.com/public/basic.ics' >> /tmp/updateCalendar.$$.log 2>&1
-wget --no-check-certificate -O /tmp/calendar.$$.ics 'https://172.217.11.174/calendar/ical/adefaria%40gmail.com/public/basic.ics' >> /tmp/updateCalendar.$$.log 2>&1
+wget -O /tmp/calendar.$$.ics https://calendar.google.com/calendar/ical/adefaria%40gmail.com/public/basic.ics > /tmp/updateCalendar.$$.log 2>&1
 wget -O /tmp/meetups.$$.ics 'http://www.meetup.com/events/ical/10426135/8dfdd0ffaaedecf720c5faf0cf3871b7ee5f5c1e/going' >> /tmp/updateCalendar.$$.log 2>&1
-
 wget -4 -O /tmp/tripit.$$.ics 'http://www.tripit.com/feed/ical/private/06C4F90D-EFEFB9C5FDB17EC5FCB327DE31A54D96/tripit.ics' >> /tmp/updateCalendar.$$.log 2>&1
 
 # Now let's combine the files. First strip off the END:CALENDAR from the main 
