@@ -1,0 +1,32 @@
+#!/usr/local/cpanel/3rdparty/bin/perl
+
+# cpanel - t/medium/Cpanel-LogReader.t             Copyright 2022 cPanel, L.L.C.
+#                                                           All rights reserved.
+# copyright@cpanel.net                                         http://cpanel.net
+# This code is subject to the cPanel license. Unauthorized copying is prohibited
+
+use strict;
+use warnings;
+
+use feature 'say';
+use experimental qw(signatures);
+
+use FindBin;
+
+use lib "$FindBin::Bin/../lib";
+
+use JIRA      ();
+use GetConfig ();
+
+my $home = $ENV{HOME};
+my $conf = "$ENV{HOME}/.jira";
+
+my %opts = GetConfig::GetConfig($conf);
+
+my $jira = JIRA->new(%opts);
+
+my $caseID = 'ART-1928';
+
+my $case = $jira->getIssue($caseID);
+
+say "$caseID: $case->{fields}{summary}";
