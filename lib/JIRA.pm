@@ -37,7 +37,6 @@ use warnings;
 use feature 'say';
 use experimental qw(signatures);
 
-use Display;
 use Carp;
 
 use JIRA::REST;
@@ -96,6 +95,8 @@ JIRA Object
     $opts{URL} = "http://$opts{server}/rest/api/latest";
 
     $opts{rest} = JIRA::REST->new( $opts{URL}, $opts{username}, $opts{password} );
+
+    #$opts{rest} = JIRA::REST->new( { url => $opts{URL}, anonymous => 1 } );
 
     return bless \%opts, $class;
 }
@@ -199,6 +200,10 @@ Perl hash of the fields in the next JIRA issue
 
     return %{ $result->{issues}[0]{fields} };
 }    # getNextIssue
+
+sub status ($self) {
+    return $self->{rest}{rest}->responseCode();
+}
 
 sub getIssues ( $self, $condition, $start, $max, @fields ) {
 
