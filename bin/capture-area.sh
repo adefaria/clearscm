@@ -9,8 +9,9 @@ function yesno {
 }
 
 mate-screenshot -ac
+aplay ~/Conf/CameraClick.wav
 
-file="$screenshot_directory/Screenshots/$(date +%F@%T).png
+file="$screenshot_directory/$(date +%F@%T).png"
 
 if yesno "Save screenshot as $file?"; then
   xclip -selection clipboard -t image/png -o > $file

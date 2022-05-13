@@ -63,10 +63,10 @@ contents of the bgdirs incase it has changed and display a new image". This is
 useful for script to be able to alert setbg that something has changed. For
 example, a script named rmbg might look at ~/.setbg to get the name of the
 current background image file and remove it then signal setbg with SIGUSR1 to
-have it re-evaluate the state of bgdirs. 
+have it re-evaluate the state of bgdirs.
 
 Finally setbg will perform the this re-evaluation at midnight everyday. This is
-useful because we point setbg to look at -bgdirs from Dropbox where Camera 
+useful because we point setbg to look at -bgdirs from Dropbox where Camera
 Uploads is included and new pictures can arrive everyday.
 
 =cut
