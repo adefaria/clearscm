@@ -51,6 +51,8 @@ export EATOOLS_BIN_DIR=~/git/ea-tools/SOURCES/
 
 #alias ulc="cd /usr/local/cpanel"
 alias perl="$ulc/3rdparty/bin/perl"
+alias stencilwatch='npx stencil test --spec --watchAll'
+alias stencilwatche2e='npx stencil test --spec --e2e --watchAll'
 
 # Unset PERLTIDY and PERLCRITIC as those variable override looking for
 # ~/.perltidyrc and ~/.perlcriticrc.
