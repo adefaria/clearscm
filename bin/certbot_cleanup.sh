@@ -22,27 +22,39 @@
 # (c) Copyright 2021, ClearSCM, Inc., all rights reserved
 #
 ################################################################################
-# The following are environment variables that certbot passes to us
-#
-# CERTBOT_DOMAIN:     Domain being authenticated. For example,
-#                     _acme-challenge.example.com for a wildcart cert or
-#                     _acme-challenge.subdomain.example.com for a subdomain
-#                     Note: Pass in $1 for testing or use the default of
-#                     CERTBOT_DOMAIN
-domain=${1:-CERTBOT_DOMAIN}
-
-# CERTBOT_VALIDATION: The validation string. Pass in $2 or use the default of
-#                     CERTBOT_VALIDATION
-value=${2:-CERTBOT_VALIDATION}
-
-logfile=/tmp/debug.log
+logfile="/tmp/$(basename $0).log"
+rm -f $logfile
 
 function log {
-  #echo $1
-  echo $1 >> $logfile
+    echo $1 >> $logfile
 } # log
 
-# Dreamhost key - generate at https://panel.dreamhost.com/?tree=home.api 
+log "Starting $0"
+
+# The following are environment variables that certbot passes to us
+#
+# CERTBOT_DOMAIN:     Domain being authenticated.
+# CERTBOT_VALIDATION: Validation string for domain
+#
+# Check that CERTBOT_DOMAIN and CERTBOT_VALIDATION have been passed in properly
+if [ -z "$CERTBOT_DOMAIN"]; then
+    log "CERTBOT_DOMAIN not passed in!"
+    exit 1
+else
+    log "CERTBOT_DOMAIN = $CERTBOT_DOMAIN"
+fi
+
+if [ -z "$CERTBOT_VALIDATION"]; then
+    log "CERTBOT_VALIDATION not passed in!"
+    exit 1
+else
+    log "CERTBOT_VALIDATION = $CERTBOT_VALIDATION"
+fi
+
+# My DNS registar is Dreamhost. These variables are specific to their DNS API.
+# Yours will probably be different.
+#
+# Dreamhost key - generate at https://panel.dreamhost.com/?tree=home.api
 key=KHY6UJQXD9MEJZHR
 
 # URL where the REST endpoint is
@@ -50,12 +62,13 @@ url="https://api.dreamhost.com/?key=$key"
 
 # Remove a TXT record. Oddly you must also specify the value.
 function removeTXT {
-  log "Removing TXT record $CERTBOT_DOMAIN = $CERTBOT_VALIDATION"
-  cmd="$url&unique_id=$(uuidgen)&cmd=dns-remove_record&record=$CERTBOT_DOMAIN&type=TXT&value=$CERTBOT_VALIDATION"
-
-  response=$(wget -O- -q "$cmd")
-
-  log "$response"
+    log "Removing TXT record $CERTBOT_DOMAIN = $CERTBOT_VALIDATION"
+    cmd="$url&unique_id=$(uuidgen)&cmd=dns-remove_record&record=_acme-challenge.$CERTBOT_DOMAIN&type=TXT&value=$CERTBOT_VALIDATION"
+    log "cmd: $cmd"
+    
+    response=$(wget -O- -q "$cmd")
+    
+    log "Response = $response"
 } # removeTXT
 
 removeTXT
