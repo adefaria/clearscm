@@ -1,0 +1,159 @@
+################################################################################
+#
+# File:         pdl-config.src
+# Description:  Parameter Source File for the ADL system configuration script
+#               pdl-config. This file is required by the pdl-config script
+#               in order to run.
+#               See below for useful comments.
+# Author:       Kevin Lister (C) - kel@cup.hp.com
+# Date:         3.11.99
+# Language:     Korn Shell
+#
+# (c) Copyright 1991, Hewlett-Packard Company, all rights reserved.
+#
+# Revision History
+# 4.1.99      kel added the WORKSTATION variable. Setting the WORKSTATION
+#             variable to yes will set the machine up with a graphics console
+#             login using CDE.
+#
+################################################################################
+# Useful (hopefully) Comments Section
+#
+# Do not make your changes to the varibales in the comment section. Change
+# the variables at the end of this file.
+#
+# Below you will find all of the ENV variables that the pdl-config script
+# will use to configure the system.
+# Descriptions for these variables can be found below, read on.
+#
+# Set the INTERACTIVE ENV variable to yes if you wish to have a chance to view
+# the configuration parameters the script will use before proceeding. Set to
+# no otherwise.
+#
+# INTERACTIVE=yes
+#
+# Set the WORKSTATION variable to yes if you are installing a system that will
+# have a graphics console monitor attached. Setting WORKSTATION to no disbales
+# CDE on the console.
+#
+# WORKSTATION=no
+#
+# You can have ClearCase 3.2 installed automatically by setting CLEARCASE
+# to yes. If you do not want ClearCase, set to no.
+#
+# CLEARCASE=yes
+#
+# If you want the Patch bundle (see below) and Optional Software installed
+# set SWINSTALL to yes.
+#
+# SWINSTALL=yes
+#
+# If you plan to use a 100Mbit network interface then set FAST_ENET to yes
+# to have the correct drivers installed. Set to no if you don't.
+#
+# FAST_ENET=yes
+#
+# Set the location of the logfile for the configure script using the LOGFILE
+# variable.
+#
+# LOGFILE=/pdl-config.log
+#
+# The /etc/motd file will be set up with the information contained in the next
+# several variables. The /etc/issue and /etc/gettydefs files will also be
+# setup by using the MACHINE_NAME variable. You should set these to something
+# that makes sense.
+#
+# OWNER_NAME="ADL Support"
+# OWNER_EMAIL=pdl-support@cup.hp.com
+# OWNER_EXTENSION=t-447-5790
+# MACHINE_USAGE="X Terminal Server"
+# LOCATION=RDC
+# MACHINE_NAME=Generic
+#
+# The next several variables set up the depot server name, depot path and
+# names of the software bundles and products to install. It is likely that you
+# you will only need to change ENET_DRVRS. Set ENET_DRVRS to 100BT-HSC for a
+# J282 (780). Set ENET_DRVRS to SX00306 for a 755. The default for XTERM_SVR
+# is "". If you really don't want patches and optional software then set
+# PATCHES and OPTIONAL to "". You should never need to modify PRODUCTS, DEPOT
+# or OPTIONS.
+#
+# PATCHES=Patches-Generic
+# OPTIONAL="OptionalSoftware SysMonSoftware VUEtoCDE"
+# XTERM_SVR="ENWARE netstation"
+# ENET_DRVRS=100BT-HSC
+# ENET_DRVRS=SX00306
+# PRODUCTS="$PATCHES $OPTIONAL $XTERM_SVR $ENET_DRVRS"
+# DEPOT=pdliux01:/depots/10.20
+# OPTIONS="autoreboot=true"
+#
+# Finally, the next several variables set up the ftp server, directory and
+# filename of the shell archive that the script uses to unpack all kinds
+# of useful files and symlinks. You should never have to modify these.
+#
+# FTP_SERVER=15.0.98.138
+# FTP_USER=anonymous
+# FTP_PASSWD=$LOGNAME@$(uname -n).cup.hp.com
+# SHAR_DIR=productivity/pdl-config
+# SHAR_FILE=pdl-config.shar
+#
+# END of Useful Comments Section
+################################################################################
+#
+##
+### Change these to suit your fancy.
+##
+#
+
+INTERACTIVE=yes
+WORKSTATION=no
+CLEARCASE=yes
+SWINSTALL=yes
+FAST_ENET=no
+LOGFILE=/pdl-config.log
+
+#
+##
+### /etc/motd setup
+##
+#
+
+OWNER_NAME="PDL Support"
+OWNER_EMAIL=pdl-support@cup.hp.com
+OWNER_EXTENSION=t-447-????
+MACHINE_USAGE="Change Me"
+LOCATION=RDC
+MACHINE_NAME=GENERIC
+
+#
+##
+### Patches and Optional Software
+##
+#
+
+PATCHES=Patches-VUServer
+OPTIONAL="OptionalSoftware SysMonSoftware VUEtoCDE"
+XTERM_SVR=""
+ENET_DRVRS=""
+PRODUCTS="$PATCHES $OPTIONAL $XTERM_SVR $ENET_DRVRS"
+
+#
+##
+### Depot Server Information
+##
+#
+
+DEPOT=pdliux01:/depots/10.20
+OPTIONS="autoreboot=true"
+
+#
+##
+### Shell Archive Server and Location
+##
+#
+
+FTP_SERVER=15.0.98.138
+FTP_USER=anonymous
+FTP_PASSWD=$LOGNAME@$(uname -n).cup.hp.com
+SHAR_DIR=productivity/pdl-config
+SHAR_FILE=pdl-config.shar

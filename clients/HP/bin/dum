@@ -1,0 +1,19 @@
+#!/bin/bash
+################################################################################
+#
+# File:         dum
+# Description:  Outputs disk usage in Megabytes (what a concept! :-)
+# Author:       Andrew@DeFaria.com
+# Created:      Mon Nov 13 16:14:30 1995
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+lines=${LINES:-24}
+du "$@"                          	2> /dev/null	|
+  sort -nr						|
+  awk '{
+    filename=substr ($0, length ($1) + 2, (length ($0) - length ($1)) - 1);
+    printf "%.3f%s%s\n", $1/1024, "\t", filename
+  }'							|
+  head -$lines

@@ -1,0 +1,83 @@
+#!/bin/env /usr/local/bin/perl
+################################################################################
+#
+# File:         fsmon
+# Revision:     0.1
+# Description:  Monitor filesystem growth
+#
+# Author:       Andrew@ClearSCM.com
+# Created:      Thu Dec 11 10:39:12 MST 2008
+# Modified:
+# Language:     Perl
+#
+# (c) Copyright 2008, ClearSCM, Inc., all rights reserved.
+#
+#################################################################################
+use strict;
+use warnings;
+
+use FindBin;
+use Getopt::Long;
+use Net::Domain qw(hostname);
+
+use lib ($FindBin::Bin, "/cleartrig/ent/SNSD/muos/ccadm_tools/vobs/ranccadm/scripts/lib");
+
+use Display;
+use Rexec;
+use Filesystem;
+use FsmonDB;
+
+# This is a non-standard, but commonly used prompt around here. For
+# EAST systems they use a terminator of "]$" as in "[p6258c@ceast1
+# p6258c]$ " however on ranray it's more like "[ranray/home/pwit]
+# ". So we look for both.
+use constant PROMPT => qr'(\]\$|\] $)';
+
+my %_opts;
+
+sub usage (;$) {
+  my ($msg) = $_;
+
+  my $usage = "ERROR: $msg\n\n" if $msg;
+
+  $usage .= <<END;
+Usage: $FindBin::Script\t[-us|age] [-v|erbose] [-d|ebug]
+
+  -us|age:	     Display usage
+  -ve|rbose:	     Turn on verbose mode
+  -d|ebug:	     Turn on debug mode
+END
+
+  my $pager = $ENV{PAGER} ? $ENV{PAGER} : "more";
+
+  system "echo \"$usage\" | $pager";
+
+  exit 1 if $msg;
+} # usage
+
+# Main
+
+GetOptions (
+  \%_opts,
+  verbose	=> sub { set_verbose },
+  debug		=> sub { set_debug },
+  usage		=> sub { usage; exit 0 },
+);
+
+# Connect to database
+my $fsmondb = new FsmonDB ("fsmonadm", "fsmonadm");
+
+# Take a snapshot of all systems
+verbose "Taking snapshots...";
+
+foreach ($fsmondb->getSystem) {
+  verbose "Snapshotting $_";
+
+#  my ($errno, $errmsg) = $fsmondb->snapshot ($_, PROMPT);
+  my ($errno, $errmsg) = $fsmondb->snapshot ($_);
+
+  warning "Unable to take snapshot of $_\n$errmsg"
+    if $errno != 0;
+} # foreach
+
+verbose "Done";

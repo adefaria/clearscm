@@ -1,0 +1,50 @@
+#! /bin/sh
+# upate the cron entries for the user name who is running this script
+#
+# Get info
+#
+echo Updating the cron entries for `whoami`
+TMP="/tmp/$$.`whoami`"
+TMP2="/tmp/2.$$.`whoami`"
+
+crontab -l > $TMP
+cp $TMP $TMP2
+
+vi $TMP
+
+echo "Changes made:"
+if diff $TMP2 $TMP
+then
+	exit 0
+fi
+
+echo "Install this new crontab file for `whoami` (y or n)?  \c"
+
+while true
+do
+	read response
+	case $response in
+		Y | y)	
+			crontab $TMP
+			echo "Done."
+			break
+			;;
+
+		N | n)
+			/bin/rm -f $TMP $TMP2
+			exit 0
+			;;
+		Q | q)
+			/bin/rm -f $TMP $TMP2
+			exit 0
+			;;
+
+		*)
+			echo  "	Please specify either Y or N. (Type Q to quit.)   \c"
+			;;
+	esac
+done
+
+/bin/rm -f $TMP $TMP2
+
+exit 0

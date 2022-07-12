@@ -1,0 +1,284 @@
+#!/usr/bin/ksh
+
+# Logfile
+logfile=make_motd.log
+
+## Set global env variables
+# Set me
+me=${0##*/}
+
+# Set OS
+OS=$(uname -r | cut -c3-)
+
+unames=$(uname -s)
+unamen=$(uname -n)
+unamer=$(uname -r)
+unamev=$(uname -v)
+unamem=$(model)
+unamei=$(uname -i)
+unamel=$(uname -l)
+
+# Set step_nbr
+integer step_nbr=0
+
+function error {
+  print -u2 "$me: Error: $1"
+} # error
+
+function warning {
+  print -u2 "$me: Warning: $1"
+} # warning
+
+function display {
+  print "$1"
+} # display
+
+function info {
+  display "$me: Info: $1"
+} # info
+
+function verbose {
+  if [ ! -z "$verbose" ]; then
+    display "$1"
+  fi
+} # verbose
+
+function debug {
+  if [ ! -z "$debug" ]; then
+    print -u2 "$me: Debug: $1"
+  fi
+} # debug
+
+function usage {
+  display "$me [-v|verbose] [-d|debug] [-usage]"
+  display "        -v|verbose:     Turns on verbose mode"
+  display "        -d|debug:       Turns on debug mode"
+  display "        -usage:         Print this usage message"
+  display " "
+  display "The following options will be prompted for if not supplied on the"
+  display "command line. If any parameter has spaces in it then you need to"
+  display "surround it in quotes (e.g. -owners_fullname \"Andrew DeFaria\"."
+  display "You'll probably need to do this for the first 3 in the list below:"
+  display " "
+  display "     -owners_fullname  Specify owners full name"
+  display "     -machine_usage    Specify what this machine is to be used for"
+  display "     -location         Specify where this machine is located"
+  display "     -owners_email     Specify email address (no @cup.hp.com)"
+  display "     -owners_extension Specify phone extenstion in the format of"
+  display "                       7-XXXX (the t-44 will be prepended)"
+  display "     -new_machine_name Specify the name of this system (REQUIRED)"
+
+  error "$1"
+  exit 1
+} # usage
+
+function step {
+  let step_nbr=step_nbr+1
+  display "Step #$step_nbr: $@"
+} # step
+
+function display_options {
+  display "Setup this machine according to the following profile:"
+  print  -
+--------------------------------------------------------------------------------
+
+  display "Machine Name:\t\t$new_machine_name"
+  display "Machine Usage:\t\t$machine_usage"
+  display "Macine Location:\t$location"
+  display "Owner's Fullname:\t$owners_fullname"
+  display "Owner's Email:\t\t$owners_email"
+  display "Owner's Extension:\t$owners_extension"
+} # display_options
+
+# Set initial parm values
+display
+display "\t\tWelcome to the motd creation script"
+display
+verbose=
+debug=
+owners_fullname=
+owners_email=
+owners_extension=
+machine_usage=
+location=
+new_machine_name=
+
+if [ $(id -u) -ne 0 ]; then
+        error "Must be root to create or modify /etc/motd"
+        exit 1
+fi
+
+# Get parameters
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+      ;;
+
+    -v|-verbose)
+      verbose=yes
+      ;;
+
+    -d|-debug)
+      debug=yes
+      ;;
+
+    -owners_fullname)
+      if [ $# -le 1 ]; then
+        usage "Owner's Full Name is not specified!"
+      fi
+      shift
+      owners_fullname="$1"
+      ;;
+
+    -machine_usage)
+      if [ $# -le 1 ]; then
+        usage "Machine Usage was not specified!"
+      fi
+      shift
+      machine_usage="$1"
+      ;;
+
+    -location)
+      if [ $# -le 1 ]; then
+        usage "Location was not specified!"
+      fi
+      shift
+      location="$1"
+      ;;
+
+    -owners_email)
+      if [ $# -le 1 ]; then
+        usage "Owner's Email was not specified!"
+      fi
+      shift
+      owners_email="$1"
+      ;;
+
+    -owners_extension)
+      if [ $# -le 1 ]; then
+        usage "Owner's Extention was not specified!"
+      fi
+      shift
+      owners_extension="$1"
+      ;;
+
+    -new_machine_name)
+      if [ $# -le 1 ]; then
+        usage "New Machine Name not specified!"
+      fi
+      shift
+      new_machine_name="$1"
+      ;;
+
+    *)
+      usage "Unrecognized parameter $1"
+      ;;
+  esac
+  shift
+done
+
+# Prompt for options not specified on the command line
+
+if [ "_$owners_fullname" = "_" ]; then
+  print "Owner's Fullname"
+  print "> \c"
+  read owners_fullname
+  if [ "_$owners_fullname" = "_" ]; then
+    owners_fullname=Unknown
+  fi
+fi
+
+if [ "_$machine_usage" = "_" ]; then
+  print "What is this machine used for?"
+  print "> \c"
+  read machine_usage
+  if [ "_$machine_usage" = "_" ]; then
+    machine_usage="This machine is used by \<whom\> for \<what\>"
+  fi
+fi
+
+if [ "_$location" = "_" ]; then
+  print "Where is this machine located?"
+  print "> \c"
+  read location
+  if [ "_$location" = "_" ]; then
+    location="\<Physical Location\>"
+  fi
+fi
+
+if [ "_$owners_email" = "_" ]; then
+  print "Owner's Email address:"
+  print "(Should be the same as username. This script will supply the @cup.hp.com)"
+  print "> \c"
+  read owners_email
+  if [ "_$owners_email" = "_" ]; then
+    owners_email=Unknown
+  fi
+fi
+
+if [ "_$owners_extension" = "_" ]; then
+  print "Owner's Phone extention:"
+  print "(Should be of the format 7-XXXX This script will prepend \"t-44\" to"
+  print "the entered extension)"
+  print "> \c"
+  read owners_extension
+  if [ "_$owners_extension" = "_" ]; then
+    owners_extension=7-XXXX
+  fi
+fi
+
+until [ "_$new_machine_name" != "_" ]; do
+  new_machine_name="garbage"
+  print "New machine name:"
+  print "> \c"
+  read new_machine_name
+
+  if [ "_$new_machine_name" = "_" ]; then
+    error "Must enter a new machine name"
+  fi
+done
+
+display_options
+
+display
+display "Continue Installation (Y/n)?\c"
+answer=y
+read answer
+case "$answer" in
+  y|Y|yes|Yes|YES|"")
+    continue
+    ;;
+  *)
+    display "Installation aborted. Rerun $me if you wish to install again"
+    exit 1
+    ;;
+esac
+
+function do_installation {
+#display_options
+
+banner $new_machine_name > /etc/motd
+echo $unames $unamen $unamer $unamev $unamem $unamei $unamel >> /etc/motd
+cat >> /etc/motd <<:END
+
+*******************************************************************************
+* This is a private system operated for the Hewlett-Packard Company business. *
+* Authorization from HP management is required to use this system.  	      *
+* Use by unauthorized persons is prohibited.                                  *
+*******************************************************************************
+For System Support: Mon-Fri 8:00-5:00 Email (site-ux@cup.hp.com)
+Phone: t-447-1212 After hours/weekend Pre-arrange: t-447-0629
+-------------------------------------------------------------------------------
+Usage:    $machine_usage
+Owner:    $owners_fullname ($owners_email@cup.hp.com) Phone:
+t-44$owners_extension
+Location: $location
+-------------------------------------------------------------------------------
+:END
+
+display "/etc/motd successfully created"
+
+} # do_installation
+
+do_installation | tee $logfile

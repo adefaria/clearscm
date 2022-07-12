@@ -1,0 +1,202 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         files4cr
+# Description:  This script will go through CVS looking for files that have
+#		the passed in CR #.
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Dec 17 12:18:21 PST 2004
+# Language:     Perl
+#
+# (c) Copyright 2004, LynxWorks Inc., all rights reserved
+#
+################################################################################
+use warnings;
+use strict;
+
+# Options
+my $verbose	= 0;
+my $debug	= 0;
+my $execute	= 0;
+my $local	= "";
+
+my $cr;
+
+sub verbose {
+  my $msg = shift;
+
+  print "$msg\n" if $verbose;
+} # verbose
+
+sub debug {
+  my $msg = shift;
+
+  print "DEBUG: $msg\n" if $debug;
+} # debug
+
+sub Usage {
+  my $msg = shift;
+
+  print "ERROR: $msg\n\n" if defined $msg;
+
+  print "Usage: files4cr [-v] [-d] [-l] [-x] [-u] <cr>\n";
+  print "\nWhere:\n\n";
+  print "\t-v:\t\tTurn on verbose mode (Default: off)\n";
+  print "\t-d:\t\tTurn on debug mode (Default: off)\n";
+  print "\t-l:\t\tLocal directory only, no recursion\n";
+  print "\t-x:\t\tTurn on execute mode (Default: off)\n";
+  print "\t-u:\t\tDisplay usage\n";
+  print "\tcr\t\tCR number to search for\n";
+  exit 1;
+} # Usage
+
+sub GetFiles4 {
+  my $cr	= shift;
+  my $local	= shift;
+
+  # Perform a cvs log command and grep through the output
+  print "Gathering CVS info..." if $verbose;
+  my @output = grep {
+    /^Working file: /	or
+    /^revision /	or
+    /^date: /		or
+    /^\s*CR#/		or
+    /^\s*CR /
+  } `cvs -q log $local 2>/dev/null`;
+  verbose " done";
+
+  # Now process this array. Entries may look like:
+  #
+  # Working file: <filename>
+  # revision <revision>
+  # date:...
+  # revision <revision>
+  # date:...
+  # CR Number: <cr>
+  #
+  # It's quite possible that there are no CR numbers for a file. It's also
+  # possible that there is the same CR number for multiple revisions! For
+  # example:
+  #
+  # Working file: <filename>
+  # revision 10.2
+  # date:...
+  # CR Number: 1000
+  # revision 10.1
+  # date:...
+  # CR Number: 1000
+  #
+  # In this case we want to return the <filename> and 10.2.
+
+  my %files;
+  my $filename;
+  my $revision;
+
+  while ($_ = shift @output) {
+    chomp;
+    chop if /\r/;
+
+    if (/^Working file: (.*)/) {
+      $filename = $1;
+      debug "file: $filename";
+    } elsif (/^revision (.*)/) {
+      $revision = $1;
+      debug "revision: $revision";
+    } elsif (/^date:.*state: (.*);.*/) {
+      # Check to see if dead!
+      if ($1 eq "dead") {
+	# Indicate we're dead by setting $revision to blank.
+	debug "Dead file encountered $filename";
+	$revision= "";
+      } # if
+    } elsif (/^CR Number: (\d*)$/	or
+	     /^CR# (\d*)$/		or
+             /^CR # (\d*)$/	 	or
+             /^\s*CR (\d*)/) {
+      debug "CR: $1";
+      if ($cr eq $1) {
+	$files{$filename} = $revision;
+	debug "Set $filename: $revision";
+
+        # Now skip to next file
+	do {
+	  $_ = shift @output;
+	} while @output and !/^Working file: /;
+	unshift @output, $_;
+      } # if
+    } else {
+      verbose "Unknown line encountered: $_\n";
+    } # if
+  } # foreach
+
+  return %files;
+} # GetFiles4
+
+sub GetWorkingRev {
+  my $filename = shift;
+
+  my @output = grep { /Working revision:/ } `cvs status $filename`;
+
+  if (defined $output [0] and $output [0] =~ /Working revision:\s*(\S*)/) {
+    return $1;
+  } # if
+
+  return undef;
+} # GetWorkingRev
+
+# Get args
+while ($ARGV [0]) {
+  if ($ARGV [0] eq "-d") {
+    $debug = 1;
+  } elsif ($ARGV [0] eq "-v") {
+    $verbose = 1;
+  } elsif ($ARGV [0] eq "-l") {
+    $local = $ARGV [0];
+  } elsif ($ARGV [0] eq "-x") {
+    $execute = 1;
+  } elsif ($ARGV [0] eq "-u") {
+    Usage;
+  } # if
+
+  $cr = $ARGV [0];
+
+  shift (@ARGV);
+} # while
+
+Usage "No CR specified to process" if !defined $cr;
+
+my %files = GetFiles4 $cr, $local;
+
+foreach (keys %files) {
+  if ($files{$_} eq "") {
+    print "$_: Is dead\n";
+    next;
+  } # if
+
+  my $working_revision	= GetWorkingRev $_;
+  my $up_to_date	= 0;
+
+  if (defined $working_revision and $working_revision eq $files{$_}) {
+    $up_to_date = 1;
+  } # if
+
+  if ($execute) {
+    print "cvs update -r$files{$_}  $_";
+
+    if (!$up_to_date) {
+      `cvs update -r$files{$_} $_`;
+      print " - Updated\n";
+    } else {
+      print " - Already up to date\n";
+    } # if
+  } else {
+    print "$_: $files{$_}";
+
+    if ($up_to_date) {
+      print " - Already up to date\n";
+    } else {
+      print " - Out of date\n";
+    } # if
+  } # if
+} # foreach
+

@@ -1,0 +1,111 @@
+#!/bin/ksh
+################################################################################
+#
+# File:         allmach
+# Description:  Runs an arbitrary command on all machines
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Apr 30 14:17:40 PDT 1999
+# Language:     Korn Shell
+# Modifications:Added trapping of INT so that you can abort a non-responding
+#               machine.
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-$HOME/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Set machines
+machines=${machines:-$adm_base/data/machines}
+
+if [ "$1" = "-f" ]; then
+  shift
+  machines="$1"
+  shift
+fi
+
+if [ "$1" = "-r" ]; then
+  root_remsh=true
+  shift
+fi
+
+if [ ! -f $machines ]; then
+  error "Unable to find $machines file!" 1
+fi
+
+function trap_intr {
+  display "${machines[i]}:$cmd interrupted"
+  display "(A)bort $me or (C)ontinue with next machine? \c"
+  read response
+  typeset -l response=$response
+
+  case "$response" in
+    a|abort)
+      display "Aborting $me..."
+      exit
+    ;;
+  esac
+  display "Continuing on with the next machine..."
+} # trap_intr
+
+# Build up data arrays. Note this is done because if we remsh while in a pipe
+# Sun will not allow a simple remsh with no command (boo!)
+# Column 1 Machine name
+# Column 2 Model
+# Column 3 OS Version
+# Column 4 ClearCase Version (if applicable)
+# Column 5 Owner (if known)
+# Column 6 Usage (if known)
+oldIFS=$IFS
+IFS=":"
+integer nbr_of_machines=0
+sed -e "/^#/d" $machines |
+  while read machine model osversion ccversion owner phone usage location;
+do
+  machines[nbr_of_machines]=$machine
+  models[nbr_of_machines]=$model
+  #osversions[nbr_of_machines]=$osversion
+  #ccversions[nbr_of_machines]=$ccversion
+  #owners[nbr_of_machines]=$owner
+  #phones[nbr_of_machines]=$phone
+  #usages[nbr_of_machines]=$usage
+  #locations[nbr_of_machines]=$location
+  let nbr_of_machines=nbr_of_machines+1
+done
+IFS="$oldIFS"
+
+# This loop executes the command
+trap trap_intr INT
+integer i=0
+while [ $i -lt $nbr_of_machines ]; do
+  export currmachine=${machines[i]}
+  # Execute command. Note if no command is given then the effect is to
+  # rlogin to each machine.
+  print -u2 "${machines[i]}\c"
+  print -u2 ":$@"
+  cmd="$@"
+  if [ $# -gt 0 ]; then
+    if [ "$root_remsh" = "true" ]; then
+      remsh ${machines[i]} -n -l root "$cmd"
+    else
+      remsh ${machines[i]} -n "$cmd"
+    fi
+  else
+    if [ "$root_remsh" = "true" ]; then
+      remsh ${machines[i]} -l root
+    else
+      remsh ${machines[i]}
+    fi
+  fi
+  let i=i+1
+done
+trap - INT

@@ -1,0 +1,58 @@
+#!/bin/bash
+################################################################################
+#
+# File:         setup_ssmtp
+# Description:  This script sets up ssmtp mail configuration
+# Author:       Andrew@DeFaria.com
+# Created:      Wed Jan  9 12:57:13  2002
+# Language:     Bash Shell
+# Modifications:<modifications>
+#
+# (c) Copyright 2002, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Setup /etc/ssmtp config directory
+ssmtp_dir=/etc/ssmtp
+domain=${domain:-defaria.com}
+mail_server=10.1.1.101
+
+mkdir -p $ssmtp_dir
+chmod 700 $ssmtp_dir
+
+# Make some simple aliases. Alias $USER to the proper email address and then
+# alias root, Administrator and postmaster to the user's address thus making
+# the user "god" of smtp on this machine only.
+cat > $ssmtp_dir/revaliases <<EOF
+# sSMTP aliases
+# 
+# Format:       local_account:outgoing_address:mailhub
+#
+# Example: root:your_login@your.domain:mailhub.your.domain:[port]
+# where [port] is an optional port number that defaults to 25.
+$USER:$USER@$domain:$mail_server:25
+root:$USER@$domain:$mail_server:25
+Administrator:$USER@$domain:$mail_server:25
+postmaster:$USER@$domain:$mail_server:25
+EOF
+
+# Get a downshifted hostname
+hostname=$(hostname | tr '[:upper:]' '[:lower:]')
+
+# Make ssmtp.conf
+cat > $ssmtp_dir/ssmtp.conf <<EOF
+# ssmtp.conf: Config file for Cygwin's sstmp sendmail
+#
+# The person who gets all mail for userids < 10
+root=postmaster
+# The place where the mail goes. The actual machine name is required
+# no MX records are consulted. Commonly mailhosts are named mail.domain.com
+# The example will fit if you are in domain.com and you mailhub is so named.
+mailhub=$mail_server
+# Where will the mail seem to come from?
+#rewriteDomain=$USER.$domain
+# The full hostname
+hostname=$hostname.$domain
+# Set this to never rewrite the "From:" line (unless not given) and to
+# use that address in the "from line" of the envelope.
+#FromLineOverride=YES
+EOF
