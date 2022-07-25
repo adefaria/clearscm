@@ -1,0 +1,131 @@
+#!/bin/ksh
+################################################################################
+#
+# File:         machine_stats
+# Description:  Displays statistical information about all machines
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Apr 30 14:13:56 PDT 1999
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-$HOME/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Set machines
+machines=${machines:-$adm_base/data/machines}
+
+if [ ! -f $machines ]; then
+  print -u2 "$me: Error: Unable to find $machines file!"
+  exit 1
+fi
+
+total_machines=$(grep -cv "^#" $machines)
+total_infrastructure=$(grep -v "^#" $machines | grep -c ":Infrastructure:")
+total_test=$(grep -v "^#" $machines | grep -c ":Test:")
+total_desktop=$(grep -v "^#" $machines | grep -c ":Desktop:")
+total_unknown=$(grep -v "^#" $machines | cut -f9 -d: | grep -c "Unknown")
+total_5_6=$(grep -v "^#" $machines | grep -c "5\.6\:")
+total_5_6_other=$(grep -v "^#" $machines | grep -c "5\.6[^:]")
+total_11_00=$(grep -v "^#" $machines | grep -c "B\.11\.00")
+total_11_11=$(grep -v "^#" $machines | grep -c "B\.11\.11")
+total_10_30=$(grep -v "^#" $machines | grep -c "B\.10\.30")
+total_10_20=$(grep -v "^#" $machines | grep -c "B\.10\.20")
+total_10_10=$(grep -v "^#" $machines | grep -c "B\.10\.10")
+total_10_01=$(grep -v "^#" $machines | grep -c "B\.10\.01")
+total_4_0_cc=$(grep -v "^#" $machines | grep -c "4\.0\:")
+total_3_2_cc=$(grep -v "^#" $machines | grep -c "3\.2\:")
+total_3_2_1_cc=$(grep -v "^#" $machines | grep -c "3\.2\.1")
+total_eclipse01=$(grep -v "^#" $machines | awk -F: '{print $11}' | grep -c
+"01")
+total_eclipse02=$(grep -v "^#" $machines | awk -F: '{print $11}' | grep -c
+"02")
+total_eclipse03=$(grep -v "^#" $machines | awk -F: '{print $11}' | grep -c
+"03")
+total_eclipseno=$(grep -v "^#" $machines | awk -F: '{print $11}' | grep -c
+"No Eclipse")
+let total_cc=total_4_0_cc+total_3_2_cc+total_3_2_1_cc
+
+print "PDL Machines"
+let
+hp_machines=total_11_00+total_11_11+total_10_30+total_10_20+total_10_10+total_10_01
+
+if [ $hp_machines -gt 0 ]; then
+  print " "
+  print "HP-UX Versions:"
+  print - ---------------
+  if [ $total_11_00 -gt 0 ]; then
+    print "Total 11.00 .................. $total_11_00"
+  fi
+  if [ $total_11_11 -gt 0 ]; then
+    print "Total 11.11 .................. $total_11_11"
+  fi
+  if [ $total_10_30 -gt 0 ]; then
+    print "Total 10.30 .................. $total_10_30"
+  fi
+  if [ $total_10_20 -gt 0 ]; then
+    print "Total 10.20 .................. $total_10_20"
+  fi
+  if [ $total_10_10 -gt 0 ]; then
+    print "Total 10.10 .................. $total_10_10"
+  fi
+  if [ $total_10_01 -gt 0 ]; then
+    print "Total 10.01 .................. $total_10_01"
+  fi
+fi
+let sun_machines=total_5_6+total_5_6_other
+if [ $sun_machines -gt 0 ]; then
+  print " "
+  print "Sun Versions:"
+  print - -------------
+  print "5.6 .......................... $total_5_6"
+  print "5.6 (other) .................. $total_5_6_other"
+fi
+print " "
+print "Total Machines ............... $total_machines"
+print " "
+print "ClearCase Machines:"
+print - -------------------
+if [ $total_4_0_cc -gt 0 ]; then
+  print "4.0 .......................... $total_4_0_cc"
+fi
+if [ $total_3_2_cc -gt 0 ]; then
+  print "3.2 .......................... $total_3_2_cc"
+fi
+if [ $total_3_2_1_cc -gt 0 ]; then
+  print "3.2.1 ........................ $total_3_2_1_cc"
+fi
+if [ $total_eclipse01 -gt 0 ]; then
+  print "Eclipse 01 ................... $total_eclipse01"
+fi
+if [ $total_eclipse02 -gt 0 ]; then
+  print "Eclipse 02 ................... $total_eclipse02"
+fi
+if [ $total_eclipse03 -gt 0 ]; then
+  print "Eclipse 03 ................... $total_eclipse03"
+fi
+if [ $total_eclipseno -gt 0 ]; then
+  print "No Eclipse ................... $total_eclipseno"
+fi
+print " "
+print "Total ClearCase Machines ..... $total_cc"
+
+print
+print "Machine classes:"
+print - -----------------
+print "Infrastructure ............... $total_infrastructure"
+print "Test ......................... $total_test"
+print "Desktop ...................... $total_desktop"
+if [ $total_unknown -gt 0 ]; then
+  print "Unknown ...................... $total_unknown"
+fi

@@ -1,0 +1,241 @@
+#!/bin/bash
+################################################################################
+#
+# File:         cygwin_setup
+# Description:  This script will perform additional setup to configure the
+#		local machine into the cygwin enviornment for Salira
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Oct  5 15:30:16  2001
+# Modified:
+# Language:     Bash Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Global variables
+commonserver=sonscentral
+commonarea=common
+adm=//$commonserver/$commonarea/adm
+homeserver=sonscentral
+homeshare=users
+ccserver=sons-clearcase
+anonymous_ftp_server=sons-clearcase
+viewshare=views
+printerserver=sons-mrp
+printers="\
+  LJ4050PCL6\
+  LJ45500-Color\
+  LJ8150\
+"
+defaultprinter=LJ8150
+
+# Current machine's OS.
+OS=$(uname -s | cut -f2 -d-)
+
+# Current machine's hostname
+hostname=$(echo $(hostname) | tr [:upper:] [:lower:])
+
+# Setup standard mounts
+#
+# Home directory
+echo "Step 1 of 10: Setting up /home mount point"
+mount -tsf //$homeserver/$homeshare /home
+
+# Clearcase views
+echo "Step 2 of 10: Setting up /view mount point"
+if [ $hostname = $ccserver ]; then
+  mount -tsf C:/ClearCaseStorage/Views /view
+else
+  mount -tsf //$ccserver/$viewshare /view
+fi
+
+# Set cygdrive prefix to /dev
+echo "Step 3 of 10: Setting cygdrive-prefix to /dev"
+mount -s --change-cygdrive-prefix /dev
+
+# Remove user level cygdrive-prefix (Need to do this with regedit
+regedit /s \\\\$commonserver\\$commonarea\\FixCygwin.reg 
+
+# Link passwd file
+echo "Step 4 of 10: Create common password file"
+if [ ! -f /etc/passwd.local ]; then
+  if [ ! -L /etc/passwd ]; then
+    cp /etc/passwd /etc/passwd.local
+  fi
+fi
+
+if [ ! -L /etc/passwd ]; then
+  if [ "$OS" != "4.0" ]; then
+    rm /etc/passwd
+    ln -s //$commonserver/$commonarea/passwd /etc/passwd
+  else
+    cp //$commonserver/$commonarea/passwd /etc/passwd
+  fi
+else
+  if [ "$OS" = "4.0" ]; then
+    # Fix up NT 4.0 machines (they don't like symlinked /etc/passwd files!)
+    rm /etc/passwd
+    cp //$commonserver/$commonarea/passwd /etc/passwd
+  fi
+fi
+
+# Link group file
+echo "Step 5 of 10: Create common group file"
+if [ ! -f /etc/group.local ]; then
+  if [ ! -L /etc/group ]; then
+    cp /etc/group /etc/group.local
+  fi
+fi
+
+if [ ! -L /etc/group ]; then
+  rm /etc/group
+  ln -s //$commonserver/$commonarea/group /etc/group
+fi
+
+# Link /etc/profile
+echo "Step 6 of 10: Linking /etc/profile to common profile file"
+if [ ! -f /etc/profile.orig ]; then
+  if [ ! -L /etc/profile ]; then
+    cp /etc/profile /etc/profile.orig
+  fi
+fi
+
+if [ ! -L /etc/profile ]; then
+  rm /etc/profile
+  ln -s //$commonserver/$commonarea/profile /etc/profile
+fi
+
+# Setup printer mount
+echo "Step 7 of 10: Setting up printers"
+for printer in $printers; do
+  mount -bsf //$printerserver/$printer /dev/$printer
+done
+
+# Mount default printer
+mount -bsf //$printerserver/$defaultprinter /dev/lp
+
+# Install internet services
+echo "Step 8 of 10: Installing internet services"
+
+# First save any pre-existing /etc/motd
+if [ -f /etc/motd ]; then
+  cp /etc/motd /etc/motd.$$
+fi
+
+rm -f /etc/ftpusers /etc/ftpwelcome /etc/inetd.conf /etc/motd /etc/shells
+iu-config > /dev/null
+
+# In order to allow anonymous ftp access we need to clear /etc/ftpusers.
+# Do this only for the $anonymous_ftp_server for now
+if [ $hostname = $anonymous_ftp_server ]; then
+  cat /dev/null > /etc/ftpusers
+fi
+
+# Now replace that saved /etc/motd if it existed, otherwise remove the boring
+# /etc/motd that iu-config creates. First check to see if the user has a 
+# personalized /etc/motd in /etc/motd.save
+if [ -f /etc/motd.save ]; then
+  # User had a personalized motd so move it into place and remove any prior
+  # copies
+  mv /etc/motd.save /etc/motd
+  rm -f /etc/motd.$$
+elif [ -f /etc/motd.$$ ]; then
+  # Reinstall previous motd
+  # First update uname -a line
+  uname -a > /etc/motd
+
+  # Remove old uname -a line if present
+  grep -ve "^cygwin" /etc/motd.$$ >> /etc/motd.$$
+
+  # Cleanup
+  rm -f /etc/motd.$$
+else
+  # No saved motd or previous motd. Remove /etc/motd which will cause us
+  # to prompt for the information later.
+  rm /etc/motd
+fi
+
+# Need to hardlink /usr/bin/cygwin1.dll & /usr/sbin/cygwin1.dll
+# 12/17/2001: Stopped hardlinking cygwin1.dll. Enforcing having Windows system
+# environment variables instead. For this we need Cygwin's bin in the path. 
+# User should also set CYGWIN=ntsec in a Windows system environment variable.
+if [ -f /usr/sbin/cygwin1.dll ]; then
+  rm -f /usr/sbin/cygwin1.dll
+  #ln /usr/bin/cygwin1.dll /usr/sbin/cygwin1.dll
+  echo "Warning: Please make sure that you have a Windows *SYSTEM* environment"
+  echo "         variable named CYGWIN set to the value of \"ntsec\" and that"
+  echo "         you have <Cygwin>\bin inserted into the Windows *SYSTEM*"
+  echo "         environment variable named PATH"
+fi
+
+# Set up anonymous ftp iff we are on the $anonymous_ftp_server
+if [ $hostname = $anonymous_ftp_server ]; then
+  # Toggle on write access to ~ftp/bin
+  chmod +w ~ftp/bin
+
+  # Remove old copies of ls and cygwin1.dll
+  rm -f ~ftp/bin/ls.exe 
+  rm -f ~ftp/bin/cygwin1.dll
+
+  # Install new copies (Note hardlinks will not work here since ~ftp/bin is
+  # on another file system. Doing an ln simply does a copy anyway)
+  # 12/17/2001: Skipping copying of cygwin1.dll as noted above
+  cp /bin/cygwin1.dll ~ftp/bin/cygwin1.dll
+  cp /bin/ls.exe ~ftp/bin/ls.exe
+
+  # Set security
+  chmod 555 ~ftp/bin/cygwin1.dll
+  chmod 111 ~ftp/bin/ls.exe
+  chown Administrator ~ftp/bin/cygwin1.dll 
+  chown Administrator ~ftp/bin/ls.exe
+  chmod -w ~ftp/bin
+fi
+
+# Install inetd as a service
+/usr/sbin/inetd --install-as-service
+
+# Start inetd service
+inetd_started=$(net start | grep -i inetd)
+
+if [ -z "$inetd_started" ]; then
+  net start inetd
+fi
+
+# Setup SMTP
+$adm/bin/setup_ssmtp
+
+# Setup cron
+$adm/bin/setup_cron
+
+# Create /etc/motd
+echo "Step 9 of 10: Gathering machine specific information"
+if [ ! -f /etc/motd ]; then
+  $adm/bin/make_motd
+  made_motd=true
+else
+  echo "Skipped: Machine info already gathered"
+fi
+
+# Fixup /etc/ftpwelcome
+host=$(hostname | tr [:upper:] [:lower:])
+echo "Welcome to $host's ftp service" > /etc/ftpwelcome
+
+# Update machines file
+echo "Step 10 of 10: Registering this machine (This takes a few seconds)"
+if [ ! -z "$made_motd" ]; then
+  $adm/bin/update_machine_info
+else
+  echo "Skipped: Machine already registered"
+fi
+
+# Sneaky other fixes...
+# Link /bin/more.exe -> /bin/less.exe
+if [ ! -L /bin/more.exe ]; then
+  ln -s /bin/less.exe /bin/more.exe
+fi
+
+# Finished
+echo "Done"

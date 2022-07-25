@@ -1,0 +1,43 @@
+#!/bin/bash
+################################################################################
+#
+# File:         root
+# Description:  A script to go into "wizard" mode
+# Author:       Andrew@DeFaria.com
+# Created:      Mon May 17 07:35:59 PDT 1999
+# Language:     Bash shell
+#
+# (c) Copyright 1999, Andrew DeFaria, all rights reserved.
+#
+################################################################################
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-$HOME/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+if [ ! -x $(type -p sudo) ]; then
+  warning "$me: Warning: Unable to find sudo!"
+  exit 1
+fi
+
+if [ $# -gt 0 ]; then
+  # Execute the commands
+  sudo $@ 
+else
+  # Become a "wizard"!
+  sudo -s
+
+  if [ -x ~/.rc/functions ]; then
+    # Source in ksh functions (needed for set_title and set_prompt)
+    . ~/.rc/functions
+    # Reset title and prompt (if you can)
+    set_title
+    set_prompt
+  fi
+fi

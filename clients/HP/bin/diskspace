@@ -1,0 +1,112 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         diskspace
+# Description:  Check filesystems to see if they are becoming too full
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Mar 12 10:17:44 PST 2004
+# Language:     Perl
+# Modifications:
+#
+# (c) Copyright 2004, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+use strict;
+use warnings;
+use File::Spec;
+
+my ($me, $abs_path, $lib_path, $bin_path, $log_path);
+
+BEGIN {
+  # Extract relative path and basename from script name.
+  $0 =~ /(.*)[\/\\](.*)/;
+
+  $abs_path     = (!defined $1) ? "." : File::Spec->rel2abs ($1);
+  $me           = (!defined $2) ? $0  : $2;
+
+  # Setup paths
+  $bin_path             = "$abs_path";
+  $lib_path             = "$abs_path/../../lib";
+  $log_path             = "$abs_path/../../log";
+
+  # Add the appropriate path to our modules to @INC array.
+  unshift (@INC, "$lib_path");
+} # BEGIN
+
+use Display;
+
+my $threshold = 90;
+
+sub Usage {
+  my $msg = shift;
+
+  display "ERROR: $msg\n" if defined $msg;
+
+  display "$me\t[-v] [-d] [-u] [ -n | -l ]";
+  display "\t-v\tTurn on verbose mode";
+  display "\t-d\tTurn on debug mode";
+  display "\t-u\tThis usage message";
+  display "\t-t\tThreshold (0-100)";
+
+  exit 1;
+} # Usage
+
+sub CheckFilesystemSpace {
+  my $filesystem = shift;
+
+  # Isolate the disk usage line
+  my @diskusage = `df -k $filesystem`;
+
+  # Get fields
+  $_ = $diskusage [1];
+  my ($fs, $blocks, $used, $available, $used_percent, $mounted_on) = split;
+
+  if ($used_percent =~ /(\d+)%/) {
+    $used_percent = $1;
+  } # if
+
+  $available = sprintf ("%.3f", $available / 1024);
+
+  # Check if over threshold and report
+  if ($used_percent <= $threshold ) {
+    verbose "$mounted_on is $used_percent% full - $available Megs left";
+  } else {
+    warning "$mounted_on is $used_percent% full - $available Megs left";
+  } # if
+} # CheckFilesystemSpace
+
+sub CheckLocalFilesystems {
+  my @local_filesystems = `df -k`;
+
+  @local_filesystems = grep {/^\/dev/} @local_filesystems;
+
+  foreach (@local_filesystems) {
+    my ($fs, $blocks, $used, $available, $used_percent, $mounted_on) = split;
+    CheckFilesystemSpace $mounted_on;
+  } # foreach
+} # CheckLocalFilesystems
+
+# Get parameters
+while ($ARGV [0]) {
+  if ($ARGV [0] eq "-v") {
+    set_verbose;
+  } elsif ($ARGV [0] eq "-d") {
+    set_debug;
+  } elsif ($ARGV [0] eq "-t") {
+    shift (@ARGV);
+    if (!$ARGV [0]) {
+      Usage "Must specify threshold after -t";
+    } else {
+      $threshold = $ARGV [0];
+    } # if
+  } elsif ($ARGV [0] eq "-u") {
+    Usage;
+  } else {
+    Usage "Unknown argument found: " . $ARGV [0];
+  } # if
+
+  shift (@ARGV);
+} # while
+
+debug "Theshold: $threshold";
+CheckLocalFilesystems;

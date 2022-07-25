@@ -1,0 +1,17 @@
+#!/bin/bash
+tag=$1
+file=""
+revision=""
+cvs -q log 2>/dev/null | grep -E "(Working file: |$tag)" | grep -B1 $tag |
+  while read line; do
+    if [[ $line == Working\ file:\ * ]]; then
+      file=$(echo $line | sed "s/Working file: //")
+    elif [[ $line == $tag* ]]; then
+      revision=$(echo $line | sed "s/$tag: //")
+    fi
+    if [ "$file" != "" -a "$revision" != "" ]; then
+      echo cvs update -r$revision $file
+      file=""
+      revision=""
+    fi
+  done

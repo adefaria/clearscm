@@ -1,0 +1,37 @@
+#!/usr/bin/bash
+################################################################################
+#
+# File:         packet2vob
+# RCS:          $Header: packet2vob,v 1.1 97/04/23 13:11:08 defaria Exp $
+# Description:  A script to display what vob the packet is for
+# Author:       Andrew DeFaria, California Language Labs
+# Created:      Fri Feb 28 07:53:14 PST 1997
+# Modified:     
+# Language:     Korn Shell
+# Package:      N/A
+# Status:       Experimental (Do Not Distribute)
+#
+# (c) Copyright 1995, Hewlett-Packard Company, all rights reserved.
+#
+################################################################################
+alias ct=/usr/atria/bin/cleartool
+alias mt=/usr/atria/bin/multitool
+
+if [ $# -eq 1 ]; then
+  packets="*"
+else
+  packets="$@"
+fi
+
+if [ ! -f $RGY/vob_object ]; then
+  print -u2 "Unable to to interogate the registry ($RGY/vob_object)"
+  exit 1
+fi
+
+for packet in $packets; do
+  familyid=$(mt lspacket $packet 2> /dev/null | grep "family" | awk '{print $5}')
+  uuid=$(grep $familyid $RGY/vob_object | cut -f4 -d';' | cut -c14-)
+  vob=$(ct lsvob -long -uuid $uuid | grep "Tag:" | awk '{print $2}')
+  host=$(ct lsvob -long -uuid $uuid | grep "Server host:" | awk '{print $3}')
+  print "$packet $host:$vob"
+done

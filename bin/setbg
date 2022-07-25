@@ -63,16 +63,17 @@ contents of the bgdirs incase it has changed and display a new image". This is
 useful for script to be able to alert setbg that something has changed. For
 example, a script named rmbg might look at ~/.setbg to get the name of the
 current background image file and remove it then signal setbg with SIGUSR1 to
-have it re-evaluate the state of bgdirs. 
+have it re-evaluate the state of bgdirs.
 
 Finally setbg will perform the this re-evaluation at midnight everyday. This is
-useful because we point setbg to look at -bgdirs from Dropbox where Camera 
+useful because we point setbg to look at -bgdirs from Dropbox where Camera
 Uploads is included and new pictures can arrive everyday.
 
 =cut
 
 use strict;
 use warnings;
+use experimental qw(signatures);
 
 use FindBin;
 use Getopt::Long;
@@ -150,28 +151,29 @@ sub fillPictures () {
   return @images;
 } # fillPictures
 
-sub writeHistory($) {
-  my ($msg) = @_;
-
+sub writeHistory($msg) {
   open my $hist, '>>', "$ENV{HOME}/.$FindBin::Script.hist"
     or error "Unable to open $ENV{HOME}/.$FindBin::Script.hist for append - $!", 1;
 
   $msg = localtime() . $msg;
 
-  display $msg, $hist;
+  print $hist $msg;
 
   close $hist;
 } # writeHistory
 
-sub updateSetBG($$) {
-  my ($bgimage, $lockimage) = @_;
+sub writeSetBG ($filename, $image) {
+  open my $file, '>', $filename
+    or error "Unable to open $filename for writing - $!", 1;
 
-  open my $setbg, '>', "$ENV{HOME}/.$FindBin::Script"
-    or error "Unable to open $ENV{HOME}/.$FindBin::Script for writing - $!", 1;
+  print $file "$image\n";
 
-  display $bgimage, $setbg;
+  close $file;
+} # writeSetBG
 
-  close $setbg;
+sub updateSetBG($bgimage, $lockimage) {
+  writeSetBG "$ENV{HOME}/.$FindBin::Script", $bgimage;
+  writeSetBG "$ENV{HOME}/.$FindBin::Script.lock", $lockimage;
 
   my $msg  = ":$bgimage";
      $msg .= " lock:$lockimage" if $opts{lockscreen};
@@ -231,7 +233,7 @@ my ($setbgOpts, $setLockOpts);
 
 if ($opts{mate}) {
   $setbgOpts   = 'set org.mate.background picture-filename ';
-  $setLockOpts = 'set org.mate.background picture-filename ';
+  $setLockOpts = 'set org.mate.screensaver picture-filename ';
 } else {
   $setbgOpts   = "set org.gnome.desktop.background picture-uri \"file://";
   $setLockOpts = "set org.gnome.desktop.screensaver picture-uri \"file://";

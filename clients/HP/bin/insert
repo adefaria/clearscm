@@ -1,0 +1,522 @@
+#!/usr/bin/ksh
+
+# Logfile
+logfile=/new.system.1.log
+
+## Set global env variables
+# Set me
+me=${0##*/}
+
+# Set OS
+OS=$(uname -r | cut -c3-)
+
+# Get configfiles from Bismol (IP address is used because the machine is not
+# currently setup enough to know how to resolve bismol to an IP address)
+configfiles_machine=15.0.96.154
+
+# Set step_nbr
+integer step_nbr=0
+
+# Filename for configuration files
+configfiles=${OS}configfiles.shar
+
+function error {
+  print -u2 "$me: Error: $1"
+} # error
+
+function warning {
+  print -u2 "$me: Warning: $1"
+} # warning
+
+function display {
+  print "$1"
+} # display
+
+function info {
+  display "$me: Info: $1"
+} # info
+
+function verbose {
+  if [ ! -z "$verbose" ]; then
+    display "$1"
+  fi
+} # verbose
+
+function debug {
+  if [ ! -z "$debug" ]; then
+    print -u2 "$me: Debug: $1"
+  fi
+} # debug
+
+function usage {
+  display "$ME -c/learcase [-v|verbose] [-d|debug] [-usage]"
+  display "     -c/learcase     Perform ClearCase installation"
+  display "        -v|verbose:     Turns on verbose mode"
+  display "        -d|debug:       Turns on debug mode"
+  display "        -usage:         Print this usage message"
+  display " "
+  display "The following options will be prompted for if not supplied on the"
+  display "command line. If any parameter has spaces in it then you need to"
+  display "surround it in quotes (e.g. -owners_fullname \"Andrew DeFaria\"."
+  display "You'll probably need to do this for the first 3 in the list below:"
+  display " "
+  display "     -owners_fullname  Specify owners full name"
+  display "     -machine_usage    Specify what this machine is to be used for"
+  display "     -location         Specify where this machine is located"
+  display "     -owners_email     Specify email address (no @cup.hp.com)"
+  display "     -owners_extension Specify phone extenstion in the format of"
+  display "                       7-XXXX (the t-44 will be prepended)"
+  display "     -new_machine_name Specify the name of this system (REQUIRED)"
+
+  error "$1"
+  exit 1
+} # usage
+
+function step {
+  let step_nbr=step_nbr+1
+  display "Step #$step_nbr: $@"
+} # step
+
+function get_configfiles {
+  user=anonymous
+  passwd=$LOGNAME@$(uname -n).cup.hp.com
+  directory=pub/Configuration
+  cd /
+  ftp -n $configfiles_machine <<@EOD
+user $user $passwd
+cd $directory
+get $configfiles
+quit
+@EOD
+
+  return $?
+} # get_configfiles
+
+function export_disks {
+  # First check to see if all local disks are exported
+  cut -f1 -d' ' /etc/xtab > /tmp/xtab
+  bdf -t hfs | grep "/dev" | grep -v "/stand" | awk '{print $NF}' >
+/tmp/exports
+
+  if $(diff /tmp/exports /tmp/xtab > /dev/null 2>&1); then
+    verbose "All local disks exported"
+  else
+    verbose "Some local disks are not exported"
+    if [ "$mode" != "check" ]; then
+      verbose "Fixing the problem..."
+      cp /etc/exports /etc/exports.old
+      cp /tmp/exports /etc/exports
+      verbose "Exporting all disks..."
+      /usr/sbin/exportfs -a
+      verbose "Done"
+    fi
+  fi
+} # export_disks
+
+function display_options {
+  display "Setup this machine according to the following profile:"
+  print  -
+--------------------------------------------------------------------------------
+
+  display "Clearcase:\t\t\c"
+  if [ "_$clearcase" = "_" ]; then
+    display "No"
+  else
+    display "Yes"
+  fi
+
+  display "Verbose Mode:\t\t\c"
+  if [ "_$verbose" = "_" ]; then
+    display "Off"
+  else
+    display "On"
+  fi
+
+  display "Debug Mode:\t\t\c"
+  if [ "_$debug" = "_" ]; then
+    display "Off"
+  else
+    display "On"
+  fi
+
+  display "Machine Name:\t\t$new_machine_name"
+  display "Machine Usage:\t\t$machine_usage"
+  display "Macine Location:\t$location"
+  display "Owner's Fullname:\t$owners_fullname"
+  display "Owner's Email:\t\t$owners_email"
+  display "Owner's Extension:\t$owners_extension"
+} # display_options
+
+# Set initial parm values
+display
+display "\t\tWelcome to the new system setup script"
+display "\t\tThis is the first script of 4 that you"
+display "\t\twill need to run to setup a new Virtual"
+display "\t\tWorkstation Server or Buildpool Server."
+display
+clearcase=
+verbose=
+debug=
+owners_fullname=
+owners_email=
+owners_extension=
+machine_usage=
+location=
+new_machine_name=
+
+# Get parameters
+while [ $# -ge 1 ]; do
+  case "$1" in
+    -usage)
+      usage
+      ;;
+
+    -v|-verbose)
+      verbose=yes
+      ;;
+
+    -d|-debug)
+      debug=yes
+      ;;
+
+    -c|-clearcase)
+      clearcase=y
+      ;;
+
+    -owners_fullname)
+      if [ $# -le 1 ]; then
+        usage "Owner's Full Name is not specified!"
+      fi
+      shift
+      owners_fullname="$1"
+      ;;
+
+    -machine_usage)
+      if [ $# -le 1 ]; then
+        usage "Machine Usage was not specified!"
+      fi
+      shift
+      machine_usage="$1"
+      ;;
+
+    -location)
+      if [ $# -le 1 ]; then
+        usage "Location was not specified!"
+      fi
+      shift
+      location="$1"
+      ;;
+
+    -owners_email)
+      if [ $# -le 1 ]; then
+        usage "Owner's Email was not specified!"
+      fi
+      shift
+      owners_email="$1"
+      ;;
+
+    -owners_extension)
+      if [ $# -le 1 ]; then
+        usage "Owner's Extention was not specified!"
+      fi
+      shift
+      owners_extension="$1"
+      ;;
+
+    -new_machine_name)
+      if [ $# -le 1 ]; then
+        usage "New Machine Name not specified!"
+      fi
+      shift
+      new_machine_name="$1"
+      ;;
+
+    *)
+      usage "Unrecognized parameter $1"
+      ;;
+  esac
+  shift
+done
+
+# Prompt for options not specified on the command line
+
+if [ "_$clearcase" = "_" ]; then
+  print "Do you wish to install Clearcase?"
+  print "[y/n]> \c"
+  read clearcase
+  if [ "_$clearcase" = "_" ]; then
+    error "You must specify y or n"
+    exit 1 fi
+fi
+
+if [ "_$owners_fullname" = "_" ]; then
+  print "Owner's Fullname"
+  print "> \c"
+  read owners_fullname
+  if [ "_$owners_fullname" = "_" ]; then
+    owners_fullname=Unknown
+  fi
+fi
+
+if [ "_$machine_usage" = "_" ]; then
+  print "What is this machine used for?"
+  print "> \c"
+  read machine_usage
+  if [ "_$machine_usage" = "_" ]; then
+    machine_usage="This machine is used by \<whom\> for \<what\>"
+  fi
+fi
+
+if [ "_$location" = "_" ]; then
+  print "Where is this machine located?"
+  print "> \c"
+  read location
+  if [ "_$location" = "_" ]; then
+    location="\<Physical Location\>"
+  fi
+fi
+
+if [ "_$owners_email" = "_" ]; then
+  print "Owner's Email address:"
+  print "(Should be the same as username. This script will supply the cup.hp.com)"
+  print "> \c"
+  read owners_email
+  if [ "_$owners_email" = "_" ]; then
+    owners_email=Unknown
+  fi
+fi
+
+if [ "_$owners_extension" = "_" ]; then
+  print "Owner's Phone extention:"
+  print "(Should be of the format 7-XXXX This script will prepend \"t-44\" to"
+  print "the entered extension)"
+  print "> \c"
+  read owners_extension
+  if [ "_$owners_extension" = "_" ]; then
+    owners_extension=7-XXXX
+  fi
+fi
+
+until [ "_$new_machine_name" != "_" ]; do
+  new_machine_name="garbage"
+  print "New machine name:"
+  print "> \c"
+  read new_machine_name
+
+  if [ "_$new_machine_name" = "_" ]; then
+    error "Must enter a new machine name"
+  fi
+done
+
+if [ $(id -u) -ne 0 ]; then
+  error "Must be root to execute this command"
+  exit 1
+fi
+
+display_options
+
+display
+display "Continue Installation (Y/n)?\c"
+answer=y
+read answer
+case "$answer" in
+  y|Y|yes|Yes|YES|"")
+    continue
+    ;;
+  *)
+    display "Installation aborted. Rerun $me if you wish to install again"
+    exit 1
+    ;;
+esac
+
+function do_installation {
+display_options
+
+step "Get configuration files"
+
+get_configfiles
+
+if [ $? -ne 0 ]; then
+  error "Unable to ftp $configfiles from $configfiles_machine"
+  exit 1
+fi
+
+step "Unpack configuration files"
+
+cd /
+sh $configfiles >> $logfile 2>&1
+rm -f $configfiles
+
+step "Change GenericSysName in /etc/issue"
+
+sed "s/GenericSysName/$new_machine_name/" /etc/issue > /etc/issue.new
+mv /etc/issue /etc/issue.old
+mv /etc/issue.new /etc/issue
+
+step "Allow Access to at(1)"
+
+touch /var/adm/cron/at.deny
+rm -f /var/adm/cron/at.allow
+
+step "Setup ClearCase Build Hosts File"
+echo `uname -n` > /.bldhost.hppa
+cat /etc/bldhost.hppa >> /.bldhost.hppa
+rm /etc/bldhost.hppa
+
+step "Symlink /nfs -> /net"
+
+ln -s /net /nfs 2>> $logfile
+
+step "Symlink /usr/preserve -> /var/preserve"
+
+ln -s /var/preserve /usr/preserve 2>> $logfile
+
+step "Setup Application Server"
+
+/net/bismol/app/admin/bin/setup
+
+step "Setup Mother of All Passwords (AKA MoA)"
+
+/net/bismol/app/admin/bin/mkpass -f
+
+step "Create /etc/motd"
+
+banner $new_machine_name > /etc/motd
+uname -a >> /etc/motd
+cat >> /etc/motd <<:END
+
+*******************************************************************************
+* This is a private system operated for the Hewlett-Packard Company business. *
+* Authorization from HP management is required to use this system.            *
+* Use by unauthorized persons is prohibited.                                  *
+*******************************************************************************
+For System Support: Mon-Fri 8:00-5:00 Email (site-ux@cup.hp.com)
+Phone: t-447-1212 After hours/weekend Pre-arrange: t-447-0629
+-------------------------------------------------------------------------------
+Usage:    $machine_usage
+Owner:    $owners_fullname ($owners_email@cup.hp.com) Phone:
+t-44$owners_extension
+Location: $location
+-------------------------------------------------------------------------------
+:END
+
+step "Edit /etc/gettydefs: Change \"Console login:\" to \"$new_machine_name login:\""
+
+sed "s/Console Login:/$new_machine_name Login:/" /etc/gettydefs \
+  > /etc/gettydefs.new
+mv /etc/gettydefs /etc/gettydefs.old
+mv /etc/gettydefs.new /etc/gettydefs
+
+step "Ninstalling lp, adm and net3 packages"
+
+/usr/local/bin/ninstall -h bismol lp adm net3 >> $logfile 2>&1
+
+step "Run netdaemon.dy"
+
+/usr/adm/netdist/netdaemon.dy 2>> $logfile
+
+step "Fix /usr/sbin/rlp"
+
+chmod +x /usr/sbin/rlp
+
+step "Install root crontab"
+
+crontab /crontab.root >> $logfile 2>&1
+rm -f /crontab.root
+
+step "Allow usage of crontab for ordinary users"
+
+touch /var/adm/cron/cron.deny
+rm -f /var/adm/cron/cron.allow
+
+if [ "$clearcase" = "y" ]; then
+  step "Make symlink for the Build Environment"
+
+  ln -s /CLO/BUILD_ENV/usr/lib /usr/shlib 2>> $logfile
+
+  step "Symlinking clearmake for parallel build support"
+
+  ln -s /usr/eclipse/bin/clearmake /usr/contrib/bin/clearmake
+fi
+
+step "Adjust nfsd/biod's"
+
+integer nfsd=4
+integer biod=4
+case $(uname -m) in
+  9000/712|9000/715)
+    ;;
+
+  9000/755)
+    nfsd=24
+    biod=8
+    ;;
+
+  9000/780|9000/813|9000/829|9000/849|9000/889|9000/898)
+    nfsd=48
+    biod=16
+    ;;
+
+  *)
+     warning "Unknown machine model $(uname -m)!"
+     warning "Leaving nfsd/biod's as default"
+     ;;
+esac
+
+if [ $nfsd -ne 4 ]; then
+  cp /etc/rc.config.d/nfsconf /etc/rc.config.d/nfsconf.old
+  sed "s/NUM_NFSD=4/NUM_NFSD=$nfsd/" /etc/rc.config.d/nfsconf \
+   > /etc/rc.config.d/nfsconf.new
+  mv /etc/rc.config.d/nfsconf.new /etc/rc.config.d/nfsconf
+  sed "s/NUM_NFSIOD=4/NUM_NFSIOD=$biod/" /etc/rc.config.d/nfsconf \
+   > /etc/rc.config.d/nfsconf.new
+  mv /etc/rc.config.d/nfsconf.new /etc/rc.config.d/nfsconf
+fi
+
+step "Setting up for 9.x build environment"
+
+mv /usr/lib/libisamstub.1 /usr/lib/libisamstub.0
+cp /net/bismol/app/admin/lib/libisamstub.1 /usr/lib/libisamstub.1
+chmod 555 /usr/lib/libisamstub.1
+chown bin:bin /usr/lib/libisamstub.1
+
+step "Setup DTS"
+
+ln -s /net/bismol/aspirin/DTS /usr/DTS 2>> $logfile
+
+step "Setup automounter to use hard mounts"
+
+echo "/net -hosts -intr" > /etc/auto_master
+
+step "Link /var/mail"
+
+mv /var/mail /var/mail.orig
+ln -s /net/cllmail/var/mail/ /var/mail
+
+step "Fix Root's name entry in /etc/passwd.loc"
+
+sed "s/Root user/Root\@$(uname -n)/" /etc/passwd.loc > /tmp/passwd.loc
+mv /tmp/passwd.loc /etc/passwd.loc
+
+step "Fix permissions on /dev/lan*"
+
+chmod 644 /dev/lan*
+
+step "Installing OptionalSoftware"
+
+display
+display "This step will take several minutes and then the machine will
+reboot."
+display "After the machine is back up continue with new.system.2."
+
+/usr/sbin/swinstall
+        -s wampus:/Depots/$OS \
+        -x autoreboot=true \
+        OptionalSoftware \
+>> $logfile 2>&1
+
+info "Swinstall complete, system will reboot if there were no errors"
+
+} # do_installation
+
+do_installation | tee $logfile

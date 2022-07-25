@@ -1,0 +1,166 @@
+#!/usr/local/cpanel/3rdparty/bin/perl
+
+# cpanel - t/medium/Cpanel-LogReader.t             Copyright 2022 cPanel, L.L.C.
+#                                                           All rights reserved.
+# copyright@cpanel.net                                         http://cpanel.net
+# This code is subject to the cPanel license. Unauthorized copying is prohibited
+
+use strict;
+use warnings;
+
+=pod
+
+=head1 NAME jira
+
+Get info about a JIRA case
+
+=head1 VERSION
+
+=over
+
+=item Author
+
+Andrew DeFaria <Andrew.DeFaria@WebPros.com>
+
+=item Revision:
+
+$Revision: 1.0 $
+
+=item Created:
+
+Monday, April 25 2022
+
+=item Modified:
+
+Monday, April 25 2022
+
+=back
+
+=head1 SYNOPSIS
+
+ Usage: jira [-assignee]  [-reporter] [-username <username>] [-password <password>] [-server <server>]
+             <case ID(s)>
+
+ Where:
+
+ -usa|ge:      Displays this usage
+ -h|elp:       Display full help
+ -a|ssginee:   Display assignee info
+ -r|eporter:   Display Reporter info
+ -st|atus:     Display status
+ -use|rname:   Username for JIRA
+ -p|assword:   Password for JIRA
+ -se|rver:     JIRA server (Default: jira.cpanel.net)
+ <case ID(s)>
+
+=head1 DESCRIPTION
+
+This script looks up a JIRA case and displays its summary. It can also display
+the reporter and assignee. More fields can be added later on.
+
+Note: Case ID (e.g. ART-1928) can be just a number and if so "ART-" will be
+prepended.
+
+Credentials should be put in ~/.jira and the file properly secured
+
+    username: <username>
+    password: <password>
+    server:   <jira.cpanel.net>
+
+If server is not specified jira.cpanel.net will be assumed
+
+=cut
+
+use feature 'say';
+use experimental qw(signatures);
+
+use Getopt::Long;
+use Pod::Usage;
+
+use FindBin;
+
+use lib "$FindBin::Bin/../lib";
+
+use JIRA      ();
+use GetConfig ();
+
+my $conf = "$ENV{HOME}/.jira";
+
+my %opts = GetConfig::GetConfig($conf);
+
+$opts{usage} = sub { pod2usage };
+$opts{help}  = sub {
+    pod2usage( -verbose => 2 );
+};
+
+sub display_info ($case) {
+    say "$case->{key}: $case->{fields}{summary}";
+
+    my $assignee;
+
+    if ( $opts{assignee} ) {
+        if ( $case->{fields}{assignee} ) {
+            $assignee = "$case->{fields}{assignee}{displayName} <$case->{fields}{assignee}{emailAddress}>";
+        }
+        else {
+            $assignee = 'Unassigned';
+        }
+
+        say "Assigned to: $assignee";
+    }
+
+    if ( $opts{reporter} ) {
+        say "Reporter: $case->{fields}{reporter}{displayName} <$case->{fields}{reporter}{emailAddress}>";
+    }
+
+    if ( $opts{status} ) {
+        say "Status: $case->{fields}{status}{name}";
+    }
+
+    return;
+}
+
+GetOptions(
+    \%opts,
+    'usage',
+    'help',
+    'assignee',
+    'reporter',
+    'status',
+    'username=s',
+    'password=s',
+    'server=s',
+) || pod2usage;
+
+pod2usage("ERROR: A case ID required\n") unless $ARGV[0];
+
+$opts{server} //= 'jira.cpanel.net';
+
+my $jira = JIRA->new(%opts);
+
+my @cases = @ARGV;
+
+for my $caseID (@cases) {
+    if ( $caseID =~ /^(\d+)$/ ) {
+        $caseID = "ART-$1";
+    }
+
+    my $case;
+    my $status = 0;
+
+    eval { $case = $jira->getIssue($caseID); };
+
+    if ( $jira->status() == 401 ) {
+        die "Unable to authenticate username/password\n";
+    }
+    elsif ( $jira->status() == 404 ) {
+        say STDERR "ERROR: $caseID does not exist";
+    }
+    elsif ( $jira->status == 200 ) {
+        display_info($case) if $jira->status == 200;
+
+    }
+    else {
+        die "ERROR: Unknown status returned - $status\n";
+    }
+}

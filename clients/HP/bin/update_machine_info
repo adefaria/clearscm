@@ -1,0 +1,110 @@
+#!/bin/ksh
+################################################################################
+#
+# File:         update_machine_info
+# Description:  Updates machine infor file (/vob/admin/machines)
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Apr 30 14:13:56 PDT 1999
+# Language:     Korn Shell
+#
+# (c) Copyright 2001, Andrew@DeFaria.com, all rights reserved
+#
+################################################################################
+# Set me to command name
+me=$(basename $0)
+
+# Set adm_base
+adm_base=${adm_base:-$HOME/adm}
+
+# Set adm_fpath
+adm_fpath=${adm_fpath:-$adm_base/functions}
+
+# Source functions
+. $adm_fpath/common
+
+# Set machines
+machines=${machines:-$adm_base/data/machines}
+
+tmp_file=/tmp/machines.$$
+machine=$(uname -n)
+ip=$(getip $machine)
+mod=$(uname -m)
+osversion=$(uname -r)
+
+verbose=false
+
+while getopts v OPT; do
+  case $OPT in
+    v) verbose=true
+    ;;
+  esac
+done
+
+if [ -x /usr/atria/bin/cleartool ]; then
+  ccversion=$(/usr/atria/bin/cleartool -version | grep "ClearCase version" |
+\
+    cut -f3 -d' ')
+  eclipseid=`ls -ld /usr/eclipse/etc 2> /dev/null | awk -F'> ' '{print $2}'
+\
+    | awk -F/ '{print $3}'`
+  [ $? -ne 0 ] && eclipseid="No Eclipse" || eclipseid=${eclipseid#eclipse}
+else
+  ccversion="Non ClearCase Machine"
+  eclipseid="No Eclipse"
+fi
+
+owner=Unknown
+usage=Unknown
+location=Unknown
+phone=Unknown
+class=Unknown
+
+# Unix doesn't really have a way to store such information such as owner,
+# usage and location. Attempt to ascertain this info from /etc/motd.
+if [ -f /etc/motd ]; then
+  usage=$(grep "^Usage:" /etc/motd | tr -s " " | cut -f2- -d" ")
+  owner=$(grep "^Owner:" /etc/motd | tr -s " " | cut -f2- -d" ")
+  phone=$(grep "^Phone:  " /etc/motd | tr -s " " | cut -f2- -d" ")
+  class=$(grep "^Class:" /etc/motd | tr -s " " | cut -f2- -d" ")
+  location=$(grep "^Location:" /etc/motd | tr -s " " | cut -f2- -d" ")
+fi
+
+rm -f $tmp_file
+
+if [ $verbose = "true" ]; then
+  print "Machine: $machine"
+  print "IP Address: $ip"
+  print "Model: $mod"
+  print "OS Version: $osversion"
+  print "ClearCase Version: $ccversion"
+  print "Owner: $owner"
+  print "Phone: $phone"
+  print "Usage: $usage"
+  print "Class: $class"
+  print "Location: $location\n"
+  print "Eclipse ID: $eclispeid\n"
+  print "Updating machine list...\c"
+fi
+
+# Add machine if not already present
+grep "^$machine" $machines > /dev/null 2>&1
+
+if [ $? -ne 0 ]; then
+  print "$machine" >> $machines
+fi
+
+while read line; do
+  if [ "$(print $line | cut -f1 -d:)" = $machine ]; then
+    print
+"$machine:$ip:$mod:$osversion:$ccversion:$owner:$phone:$usage:$class:$location:$eclipseid"
+>> $tmp_file
+  else
+    print $line >> $tmp_file
+  fi
+done < $machines
+
+mv $tmp_file $machines
+
+if [ $verbose = "true" ]; then
+  print "done"
+fi

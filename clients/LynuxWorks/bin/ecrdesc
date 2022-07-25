@@ -1,0 +1,65 @@
+#!/usr/bin/perl
+################################################################################
+#
+# File:         ecrdesc
+# Description:  This script will dump out the description for the ECR #(s) 
+#		passed in.
+# Author:       Andrew@DeFaria.com
+# Created:      Fri Jan  7 15:35:13 PST 2005
+# Language:     Perl
+#
+# (c) Copyright 2005, LynxWorks Inc., all rights reserved
+#
+################################################################################
+use strict;
+use warnings;
+use DBI;
+
+my $DB;
+
+# Called when a database error has occurred
+sub DBError {
+  my $msg       = shift;
+  my $statement = shift;
+
+  print $msg . "\nError #" . $DB->err . " " . $DB->errstr . "\n";
+
+  if (defined $statement) {
+    print "SQL Statement: $statement\n";
+  } # if
+
+  exit $DB->err;
+} # DBError
+
+# Connect to database. Note this is using anonymous access (read only)
+$DB = DBI->connect("DBI:Informix:lynxmigr1")
+  or DBError "Unable to open database";
+
+# Loop through ECR #s from the command line
+foreach my $ecr (@ARGV) {
+  print "ECR #: $ecr\n";
+
+  my $statement	= "select description from defect where pkey=\"$ecr\"";
+  my $sth	= $DB->prepare ($statement)
+    or DBError "Unable to prepare statement", $statement;
+
+  $sth->execute ()
+    or DBError "Unable to execute statement", $statement;
+
+  # Defect records are unique per pkey (AKA ECR) there for there will
+  # only be one entry in @row. Also the description is returned as one
+  # large string.
+  my @row = $sth->fetchrow_array;
+
+  if (!@row) {
+    # @row is empty if there was no ECR by that number
+    print "Nothing found!\n";
+  } else {
+    my $desc = pop @row;
+    print "Description:\n" . "-" x 80 . "\n" . $desc . "\n" . "-" x 80 . "\n";
+  } # if
+} # foreach
+
+$DB->disconnect;
+
+exit;

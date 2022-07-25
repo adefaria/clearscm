@@ -75,9 +75,10 @@ use warnings;
 
 use FindBin;
 use Getopt::Long;
-use Pod::Usage;
 use Mail::IMAPTalk;
 use MIME::Base64;
+use Pod::Usage;
+use Proc::ProcessTable;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -88,6 +89,16 @@ use TimeUtils;
 use Utils;
 
 local $0 = "$FindBin::Script " . join ' ', @ARGV;
+
+my $processes = Proc::ProcessTable->new;
+
+for my $process (@{$processes->table}) {
+  if ($process->cmndline eq $0 and $process->pid != $$) { 
+    verbose "$FindBin::Script already running";
+
+    exit 0;
+  } # if
+} # for
 
 my $defaultIMAPServer = 'defaria.com';
 my $IMAP;

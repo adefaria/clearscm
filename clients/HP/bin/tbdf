@@ -1,0 +1,76 @@
+#! /bin/sh
+
+# tbdf (total bdf 'cause it shows the total K bytes used)
+#
+# written by Tom Bukowski 1990,1991
+#  tbdf version 2.2   Jan 4, 1993
+# @(#)  tbdf version 3.0   Aug 19, 1996
+
+egrepCmd=''
+
+if [ $# -eq 0 ];then
+        command=`mount|cut -d' ' -f1-4|grep -v ':'| cut -d' ' -f1`
+
+elif [ $1 = 'help' -o $1 = 'HELP' ];then
+
+        echo "Usage: $0 [-r][-rv] [pattern]"
+        echo '\n  options:'
+        echo '    -r  <pattern> total all filesystems beginning with
+pattern'
+        echo '    -rv <pattern> total all filesystems excluding pattern\n'
+
+        exit
+
+elif [ $1 != "-r" -a $1 != "-rv" ];then
+        command=$*
+
+elif [ $1 = "-r" -o $1 = "-rv" ];then
+
+        test $1 = '-rv' && opt='-v'
+        shift
+        egrepCmd=$1
+        if [ $# -gt 1 ];then
+                while [ $# -gt 0 ]
+                do
+                        egrepCmd="$egrepCmd|^$1"
+                        shift
+                done
+        fi
+
+        command=`mount |\
+        awk '{printf"%s %s %s\n",$1,$2,$3 }' |\
+        grep -v : |\
+        cut -d' ' -f1 |\
+        egrep $opt $egrepCmd |\
+        awk '{ print $NF }'`
+        test -z "$command" && exit
+
+fi
+
+if [ -x /usr/bin/nawk ];then
+ AWK=/usr/bin/nawk
+else
+ AWK=awk
+fi
+
+bdf $command |\
+$AWK '
+{
+        print
+        if ( NR > 1 )
+           if ( NF == 6) {
+                Kbytes_total += $2
+                Used_total += $3
+                Avail_total += $4
+           } else
+            if ( NF == 5 ) {
+                Kbytes_total += $1
+                Used_total += $2
+                Avail_total += $3
+            }
+
+}
+        END { printf"%43s\n","------  ------  ------"
+              printf"%27d %7d %7d\n",Kbytes_total,Used_total,Avail_total
+            }'
+
