@@ -105,7 +105,7 @@ my %opts = (
 
 my %totals;
 
-sub displayStats () {
+sub displayStats() {
   my $statsFile = Logger->new(
     name      => ".$FindBin::Script.stats",
     path      => $ENV{HOME},
@@ -125,7 +125,7 @@ sub displayStats () {
   return;
 } # displayStats
 
-sub fillPictures () {
+sub fillPictures($signame = undef) {
   my @images;
 
   $totals{bgdirs} = 0;
@@ -162,7 +162,7 @@ sub writeHistory($msg) {
   close $hist;
 } # writeHistory
 
-sub writeSetBG ($filename, $image) {
+sub writeSetBG($filename, $image) {
   open my $file, '>', $filename
     or error "Unable to open $filename for writing - $!", 1;
 
@@ -183,7 +183,7 @@ sub updateSetBG($bgimage, $lockimage) {
   return;
 } # updateSetBG
 
-sub SwitchWallPaper {
+sub SwitchWallPaper($saigname) {
   # We don't need to do anything here, just handle the interrupt and
   # let the while loop continue.
   debug 'SwitchWallPaper: Interrupt received';
