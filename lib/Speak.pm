@@ -126,6 +126,8 @@ Returns:
   # Log message to log file if $log was passed in.
   $log->msg($msg);
 
+  $msg = quotemeta $msg;
+
   my ($status, @output) = Execute "/usr/local/bin/gt \"$msg\"";
 
   if ($status) {
