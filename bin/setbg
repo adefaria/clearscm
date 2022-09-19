@@ -157,7 +157,7 @@ sub writeHistory($msg) {
 
   $msg = localtime() . $msg;
 
-  print $hist $msg;
+  print $hist "$msg\n";
 
   close $hist;
 } # writeHistory
