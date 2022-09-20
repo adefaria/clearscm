@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# Apparently using png screws up sometimes so let's try using good old jpg
 timeout=10
 screenshot_directory=/tmp
 
@@ -8,11 +10,13 @@ function yesno {
   zenity --question --text "$question" --width=300 --timeout=$timeout 2> /dev/null
 }
 
-mate-screenshot -wc
+sleep 1
+
+gnome-screenshot --window --clipboard
 aplay ~/Conf/CameraClick.wav
 
-file="$screenshot_directory/$(date +%F@%T).png"
+file="$screenshot_directory/$(date +%F@%T).jpg"
 
 if yesno "Save screenshot as $file?"; then
-  xclip -selection clipboard -t image/png -o > $file
+  xclip -selection clipboard -t image/jpeg -o > $file
 fi
