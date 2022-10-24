@@ -12,7 +12,7 @@
 #
 # See also:     https://help.dreamhost.com/hc/en-us/articles/217555707-DNS-API-commands
 #
-# Crontab:      0 0 20/3 * * certbot renew
+# Crontab:      0 0 20 */3 * certbot renew
 #
 # Author:       Andrew@DeFaria.com
 # Created:      Fri 04 Jun 2021 11:20:16 PDT
@@ -65,9 +65,9 @@ function removeTXT {
     log "Removing TXT record $CERTBOT_DOMAIN = $CERTBOT_VALIDATION"
     cmd="$url&unique_id=$(uuidgen)&cmd=dns-remove_record&record=_acme-challenge.$CERTBOT_DOMAIN&type=TXT&value=$CERTBOT_VALIDATION"
     log "cmd: $cmd"
-    
+
     response=$(wget -O- -q "$cmd")
-    
+
     log "Response = $response"
 } # removeTXT
 

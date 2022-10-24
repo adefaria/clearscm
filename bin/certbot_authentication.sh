@@ -14,7 +14,7 @@
 #
 # See also:     https://help.dreamhost.com/hc/en-us/articles/217555707-DNS-API-commands
 #
-# Crontab:      0 0 20/3 * * certbot renew
+# Crontab:      0 0 20 */3 * certbot renew
 #
 # Note:         If you symlink /etc/letsencrypt/renewal-hooks/{pre|post|deploy}
 #               to the proper scripts then all you need is certbox renew. Also

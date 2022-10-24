@@ -17,7 +17,7 @@
 #
 # See also:     https://help.dreamhost.com/hc/en-us/articles/217555707-DNS-API-commands
 #
-# Crontab:      0 0 20/3 * * certbot renew
+# Crontab:      0 0 20 */3 * certbot renew
 #
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Oct 24 11:53:38 AM PDT 2022
