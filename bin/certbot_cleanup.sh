@@ -12,11 +12,11 @@
 #
 # See also:     https://help.dreamhost.com/hc/en-us/articles/217555707-DNS-API-commands
 #
-# Crontab:      0 0 1 * * certbot renew --manual-auth-hook /path/to/certbot_authentication.sh --manual-cleanup-hook /path/to/certbot_cleanup.sh
+# Crontab:      0 0 20/3 * * certbot renew
 #
 # Author:       Andrew@DeFaria.com
 # Created:      Fri 04 Jun 2021 11:20:16 PDT
-# Modified:
+# Modified:     Mon Oct 24 11:53:38 AM PDT 2022
 # Language:     Bash
 #
 # (c) Copyright 2021, ClearSCM, Inc., all rights reserved
