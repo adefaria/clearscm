@@ -43,7 +43,7 @@ export ulc=/usr/local/cpanel
 export ulp=/usr/local/cp-monitoring-cpanel-plugin
 export ulw=/usr/local/cp-monitoring-whm-plugin
 export ulb=/usr/local/cp-banners-plugin
-export CPANEL_TEAM='scrum'
+export CPANEL_TEAM='release'
 
 # EA Tools
 export EATOOLS_BUILD_DIR=~/git/ea-tools/SOURCES/
@@ -58,6 +58,9 @@ alias stencilwatche2e='npx stencil test --spec --e2e --watchAll'
 # ~/.perltidyrc and ~/.perlcriticrc.
 unset PERLTIDY
 unset PERLCRITIC
+
+# This is a closer call to how cplint is called by merge_request
+alias cplintm="cplint --branched-from=upstream/$(cat /usr/local/cpanel/.branched_from)"
 
 # This is the completer function for ulc. This completes any path that comes
 # after the ulc as a path completion relative to $ulc
