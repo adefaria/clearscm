@@ -1,7 +1,7 @@
 StrictHostKeyChecking no
 LogLevel ERROR
 
-Host mars earth home defaria.com sandboxu sandboxal
+Host sandbox sandboxu sandboxal mars earth home defaria.com
   ForwardX11 yes
   ForwardX11Trusted yes
   
@@ -20,17 +20,17 @@ Host home
   User andrew
   IdentityFile		~/.ssh/id_ecdsa
 
-Host sandbox
-  HostName 10.2.99.60
+#Host sandbox
+#  HostName 10.2.99.60
 
-Host sandboxu
-  HostName 10.2.98.185
+#Host sandboxu
+#  HostName 10.2.98.185
 
-Host sandboxal
-  HostName sandboxal
+#Host sandboxal
+#  HostName sandboxal
 
-Host sandboxal2
-  HostName sandboxal2
+#Host sandboxal2
+#  HostName sandboxal2
 
 Host 10.2.* sandbox*
   ForwardAgent yes
