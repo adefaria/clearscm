@@ -7,7 +7,7 @@
 #               onto the Synology. We should have already obtained new Let's
 #               Encrypt certs and have placed them into /System/Certificates.
 #               Now we just need to restart nginx on the Synology. This works
-#               because /usr/syno/etc/certificates/_archive already has been
+#               because /usr/syno/etc/certificate/_archive already has been
 #               configured to look at /System/Certificates for new certs.
 #
 #               The restarting of nginx on Synology is large and takes time. You
@@ -17,7 +17,7 @@
 #
 # See also:     https://help.dreamhost.com/hc/en-us/articles/217555707-DNS-API-commands
 #
-# Crontab:      0 0 20 */3 * certbot renew
+# Crontab:      0 0 20 Jan,Apr,Jul,Oct * certbot renew
 #
 # Author:       Andrew@DeFaria.com
 # Created:      Mon Oct 24 11:53:38 AM PDT 2022
@@ -27,7 +27,12 @@
 # (c) Copyright 2021, ClearSCM, Inc., all rights reserved
 #
 ################################################################################
-logfile="/tmp/$(basename $0).log"
+certdir="/System/Certificates"
+
+mkdir -p $certdir
+
+logfile="$certdir/$(basename $0).log"
+
 rm -f $logfile
 
 function log {

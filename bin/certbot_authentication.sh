@@ -14,7 +14,7 @@
 #
 # See also:     https://help.dreamhost.com/hc/en-us/articles/217555707-DNS-API-commands
 #
-# Crontab:      0 0 20 */3 * certbot renew
+# Crontab:      0 0 20 Jan,Apr,Jul,Oct * certbot renew
 #
 # Note:         If you symlink /etc/letsencrypt/renewal-hooks/{pre|post|deploy}
 #               to the proper scripts then all you need is certbox renew. Also
@@ -29,7 +29,12 @@
 # (c) Copyright 2021, ClearSCM, Inc., all rights reserved
 #
 ################################################################################
-logfile="/tmp/$(basename $0).log"
+certdir=/System/Certificates
+
+mkdir -p $certdir
+
+logfile="$certdir/$(basename $0).log"
+
 rm -f $logfile
 
 function log {
@@ -115,9 +120,6 @@ verifyPropagation
 # If we get here then new certs are produced but need to be made available
 # for importation to the Synology. $certdir is a directory that is on the
 # Synology mounted via NFS.
-certdir=/System/Data/Certificates
-
-mkdir -p $certdir
 cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/privkey.pem     $certdir && chmod 444 $certdir/privkey.pem
 cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/cert.pem        $certdir && chmod 444 $certdir/cert.pem
 cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/chain.pem       $certdir && chmod 444 $certdir/chain.pem

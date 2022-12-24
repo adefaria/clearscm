@@ -12,7 +12,7 @@
 #
 # See also:     https://help.dreamhost.com/hc/en-us/articles/217555707-DNS-API-commands
 #
-# Crontab:      0 0 20 */3 * certbot renew
+# Crontab:      0 0 20 Jan,Apr,Jul,Oct * certbot renew
 #
 # Author:       Andrew@DeFaria.com
 # Created:      Fri 04 Jun 2021 11:20:16 PDT
@@ -22,7 +22,12 @@
 # (c) Copyright 2021, ClearSCM, Inc., all rights reserved
 #
 ################################################################################
-logfile="/tmp/$(basename $0).log"
+certdir="/System/Certificates"
+
+mkdir -p $certdir
+
+logfile="$certdir/$(basename $0).log"
+
 rm -f $logfile
 
 function log {
@@ -75,3 +80,6 @@ removeTXT
 
 # Removal is instanteous but propagation will take some time. No need to wait
 # around though...
+
+# Now deploy new certs
+/opt/clearscm/bin/certbot_deploy.sh
