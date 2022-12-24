@@ -1,0 +1,1 @@
+php_value include_path ".:/opt/defaria.com//php:/opt/clearscm/maps/php:/opt/clearscm/web/php:/usr/share/php"

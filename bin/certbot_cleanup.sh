@@ -12,17 +12,22 @@
 #
 # See also:     https://help.dreamhost.com/hc/en-us/articles/217555707-DNS-API-commands
 #
-# Crontab:      0 0 1 * * certbot renew --manual-auth-hook /path/to/certbot_authentication.sh --manual-cleanup-hook /path/to/certbot_cleanup.sh
+# Crontab:      0 0 20 Jan,Apr,Jul,Oct * certbot renew
 #
 # Author:       Andrew@DeFaria.com
 # Created:      Fri 04 Jun 2021 11:20:16 PDT
-# Modified:
+# Modified:     Mon Oct 24 11:53:38 AM PDT 2022
 # Language:     Bash
 #
 # (c) Copyright 2021, ClearSCM, Inc., all rights reserved
 #
 ################################################################################
-logfile="/tmp/$(basename $0).log"
+certdir="/System/Certificates"
+
+mkdir -p $certdir
+
+logfile="$certdir/$(basename $0).log"
+
 rm -f $logfile
 
 function log {
@@ -65,9 +70,9 @@ function removeTXT {
     log "Removing TXT record $CERTBOT_DOMAIN = $CERTBOT_VALIDATION"
     cmd="$url&unique_id=$(uuidgen)&cmd=dns-remove_record&record=_acme-challenge.$CERTBOT_DOMAIN&type=TXT&value=$CERTBOT_VALIDATION"
     log "cmd: $cmd"
-    
+
     response=$(wget -O- -q "$cmd")
-    
+
     log "Response = $response"
 } # removeTXT
 
@@ -75,3 +80,6 @@ removeTXT
 
 # Removal is instanteous but propagation will take some time. No need to wait
 # around though...
+
+# Now deploy new certs
+/opt/clearscm/bin/certbot_deploy.sh
