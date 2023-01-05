@@ -30,7 +30,7 @@ function in_git_repo {
 
 function git () {
   # Need to reset title since we put the branch name in the titlebar
-  git=$(which git)
+  git=$(/usr/bin/which git)
 
   if [ "${git:0:3}" != "no " ]; then
     if [ "$1" = "checkout" -o "$1" = "co" ]; then

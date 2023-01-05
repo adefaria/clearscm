@@ -31,7 +31,7 @@ case "$SYSNAME" in
     SYSNAME="Sandbox Centos"
     ;;
 
-  10-2-99-106)
+  10-2-96-67)
     SYSNAME="Sandbox AlmaLinux"
     ;;
 
