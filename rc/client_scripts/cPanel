@@ -44,10 +44,16 @@ export ulp=/usr/local/cp-monitoring-cpanel-plugin
 export ulw=/usr/local/cp-monitoring-whm-plugin
 export ulb=/usr/local/cp-banners-plugin
 export CPANEL_TEAM='release'
+# NOTE: To trim down the amount of time for make sandbox, you may define
+# the environment variable SANDBOX_LOCALES which is a space separated list
+# of locales to build. You can add the following to your .bash_profile to
+# only build English and Spanish.
+#export SANDBOX_LOCALES=en
 
 # EA Tools
-export EATOOLS_BUILD_DIR=~/git/ea-tools/SOURCES/
-export EATOOLS_BIN_DIR=~/git/ea-tools/SOURCES/
+export EATOOLS_BUILD_DIR=/usr/local/ea-tools/SOURCES/
+export EATOOLS_BIN_DIR=/usr/local/ea-tools/SOURCES/
+export OBS_USERNAME=A.defaria
 
 #alias ulc="cd /usr/local/cpanel"
 alias perl="$ulc/3rdparty/bin/perl"
