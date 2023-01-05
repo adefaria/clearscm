@@ -55,18 +55,18 @@ function stoptimer () {
 
   $count++;
 
-  fclose($resumeHit);
+  //fclose($resumeHit);
 
   $resumeHit = fopen ('.resumehits', 'w');
 
-  fwrite($resumeHit, $count);
-  fclose($resumeHit);
+  //fwrite($resumeHit, $count);
+  //fclose($resumeHit);
 
-  $resumeHist = fopen('.resume.hist', 'a');
+  //$resumeHist = fopen('.resume.hist', 'a');
   $date = date(DATE_RFC822);
 
-  fwrite($resumeHist, "$_SERVER[REMOTE_ADDR] read resume at $date\n");
-  fclose($resumeHist);
+  //fwrite($resumeHist, "$_SERVER[REMOTE_ADDR] read resume at $date\n");
+  //fclose($resumeHist);
 
   $msg  = '<html><body>';
   $msg .= '<h1>Somebody just visited your resume.</h1>';

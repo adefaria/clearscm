@@ -1,5 +1,4 @@
 #!/bin/bash
-timeout=5000 # 5 seconds
 touchfile=/opt/clearscm/data/shh
 
 # This just toggles the creation of the /opt/clearscm/bin/shh file
@@ -8,9 +7,11 @@ if [ -f $touchfile ]; then
   cp ~/.icons/ShhOff.png ~/.icons/Shh.png
 else
   # Stop currently playing audio
-  killall play
+  killall play 2> /dev/null
   # Stop any Google TTS
-  kill -9 $(cat /tmp/simple_google_tts.pid)
+  if [ -f /tmp/simple_google_tts.pid ]; then
+    kill -9 $(cat /tmp/simple_google_tts.pid)
+  fi
   # Clean up tmp
   rm -rf /tmp/simple_google_tts.*
   # Touch shh file
