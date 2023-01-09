@@ -24,7 +24,7 @@ Andrew DeFaria <Andrew.DeFaria@WebPros.com>
 
 =item Revision:
 
-$Revision: 1.0 $
+$Revision: 1.1 $
 
 =item Created:
 
@@ -32,7 +32,7 @@ Monday, April 25 2022
 
 =item Modified:
 
-Monday, April 25 2022
+Friday, October 21, 2022
 
 =back
 
@@ -58,7 +58,7 @@ Monday, April 25 2022
 This script looks up a JIRA case and displays its summary. It can also display
 the reporter and assignee. More fields can be added later on.
 
-Note: Case ID (e.g. ART-1928) can be just a number and if so "ART-" will be
+Note: Case ID (e.g. CPANEL-1928) can be just a number and if so "CPANEL-" will be
 prepended.
 
 Credentials should be put in ~/.jira and the file properly secured
@@ -67,7 +67,10 @@ Credentials should be put in ~/.jira and the file properly secured
     password: <password>
     server:   <jira.cpanel.net>
 
-If server is not specified jira.cpanel.net will be assumed
+If server is not specified jira.cpanel.net will be assumed.
+
+Note: If you don't specify a case ID then an attempt will be made to determine
+      the case ID from the branch name.
 
 =cut
 
@@ -83,6 +86,7 @@ use lib "$FindBin::Bin/../lib";
 
 use JIRA      ();
 use GetConfig ();
+use Utils     ();
 
 my $conf = "$ENV{HOME}/.jira";
 
@@ -132,6 +136,18 @@ GetOptions(
     'server=s',
 ) || pod2usage;
 
+unless ( $ARGV[0] ) {
+
+    # Try to get case number from branch
+    my ( $status, @output ) = Utils::Execute("git branch --show-current 2>&1");
+
+    unless ($status) {
+        $output[0] =~ /\w+-(\d+)/;
+
+        $ARGV[0] = $1;
+    }
+}
+
 pod2usage("ERROR: A case ID required\n") unless $ARGV[0];
 
 $opts{server} //= 'jira.cpanel.net';
@@ -142,7 +158,7 @@ my @cases = @ARGV;
 
 for my $caseID (@cases) {
     if ( $caseID =~ /^(\d+)$/ ) {
-        $caseID = "ART-$1";
+        $caseID = "CPANEL-$1";
     }
 
     my $case;
