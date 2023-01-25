@@ -283,7 +283,7 @@ sub NavigationBar($) {
   print start_div {-id => 'leftbar'};
 
   unless ($userid) {
-    print h2({-align => 'center'}, font({-color => 'white'}, "MAPS $MAPS::Version"));
+    print h2({-align => 'center'}, font({-color => 'white'}, "MAPS $MAPS::VERSION"));
     print div ({-class => 'username'}, 'Welcome to MAPS');
     print div ({-class => 'menu'},
       (a {-href => '/maps/doc/'},
@@ -300,7 +300,7 @@ sub NavigationBar($) {
         'Help<br>'),
     );
   } else {
-    print h2({-align => 'center'}, font({-color => 'white'}, "MAPS $MAPS::Version"));
+    print h2({-align => 'center'}, font({-color => 'white'}, "MAPS $MAPS::VERSION"));
     print div ({-class => 'username'}, 'Welcome '. ucfirst $userid);
 
     print div ({-class => 'menu'},
