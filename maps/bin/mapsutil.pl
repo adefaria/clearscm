@@ -374,10 +374,11 @@ $~ = "USERLIST";
 } # ShowUsers
 
 sub ShowEmail() {
+  my @fields = qw(userid timestamp sender subject);
   my ($err, $msg) = $MAPS::db->find(
     'email',
     "userid='$userid'",
-    qw(userid timestamp sender subject),
+    \@fields,
   );
 
 my ($timestamp, $sender, $subject);
@@ -391,9 +392,9 @@ $~ = "EMAIL";
   while (my $rec = $MAPS::db->getnext) {
     last unless $rec->{userid};
 
-   $timestamp = $rec->{timestamp};
-   $sender    = $rec->{sender};
-   $subject   = $rec->{subject};
+   $timestamp = $rec->{timestamp} || '<undef>';
+   $sender    = $rec->{sender}    || '<undef>';
+   $subject   = $rec->{subject}   || '<undef>';
 
     write();
   } # while
