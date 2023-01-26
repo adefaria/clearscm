@@ -287,7 +287,8 @@ sub Body($) {
     if ($rec) {
       my $listlink = ($rec->{type} and $rec->{sequence}) ? "$rec->{type}:$rec->{sequence}" : '';
 
-      $rec->{comment} //= '';
+      $rec->{comment}    //= '';
+      $rec->{retention} //= '';
 
       print td {
         -class => $dataclass,
