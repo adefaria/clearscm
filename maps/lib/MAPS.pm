@@ -1473,19 +1473,20 @@ sub Whitelist ($$;$$) {
   my $userid = GetContext;
 
   # Dump message into a file
-  open my $message, '>', "/tmp/MAPSMessage.$$"
-    or error("Unable to open message file (/tmp/MAPSMessage.$$): $!\n"), return -1;
+  my $msgfile = "/tmp/MAPSMessage.$$";
+
+  open my $message, '>', $msgfile
+    or error("Unable to open message file ($msgfile): $!\n"), return -1;
 
   print $message $data;
 
   close $message;
 
   # Now call MAPSDeliver
-  my ($status, @output) = Execute "$FindBin::Bin/MAPSDeliver $userid /tmp/MAPSMessage.$$";
-  #my $status = system "$FindBin::Bin/MAPSDeliver $userid /tmp/MAPSMessage.$$";
+  my ($status, @output) = Execute "$FindBin::Bin/MAPSDeliver $userid $msgfile";
 
   if ($status != 0) {
-    my $msg =  "Unable to deliver message (message left at /tmp/MAPSMessage.%%\n\n";
+    my $msg =  "Unable to deliver message (message left at $msgfile\n\n";
        $msg .= join "\n", @output;
 
     Logmsg(
@@ -1498,7 +1499,7 @@ sub Whitelist ($$;$$) {
     Error ($msg, 1);
   } # if
 
-  unlink "/tmp/MAPSMessage.$$";
+  unlink $msgfile;
 
   if ($status == 0) {
     Logmsg(
