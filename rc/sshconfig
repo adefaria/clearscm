@@ -1,7 +1,7 @@
 StrictHostKeyChecking no
 LogLevel ERROR
 
-Host sandbox sandboxu sandboxc7 mars earth home defaria.com
+Host sandbox sandboxu sandboxc7 mars earth home defaria.com training
   ForwardX11 yes
   ForwardX11Trusted yes
 
@@ -20,7 +20,7 @@ Host home
   User andrew
   IdentityFile		~/.ssh/id_ecdsa
 
-Host 10.2.* sandbox*
+Host 10.2.* sandbox* training
   ForwardAgent yes
   StrictHostKeyChecking no
   UserKnownHostsFile /dev/null
