@@ -315,7 +315,13 @@ for script in $(\ls ~/.rc/client_scripts); do
   # git tracks mode. So we can't have it executable while at home. So
   # instead we will look if we are on a 10. network (i.e. at cPanel)
   # verses a 192. network at home.
-  if [[ $(/bin/hostname -i) =~ 10\. && $script = "cPanel" ]]; then
+  if [ $ARCHITECTURE = 'Darwin' ]; then
+    ip=$(ipconfig getifaddr en0)
+  else
+    ip=$(/bin/hostname -i)
+  fi
+
+  if [[ $ip =~ 10\. && $script = "cPanel" ]]; then
     source ~/.rc/client_scripts/$script
   fi
 done
