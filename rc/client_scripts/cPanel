@@ -38,7 +38,7 @@ fi
 # Intended to be used for root
 WIZARD="CPanel"
 
-export CDPATH=/usr/local
+#export CDPATH=/usr/local
 export ulc=/usr/local/cpanel
 export ulp=/usr/local/cp-monitoring-cpanel-plugin
 export ulw=/usr/local/cp-monitoring-whm-plugin
