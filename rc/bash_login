@@ -201,6 +201,7 @@ fi
 alias ll="ls -la"
 alias whence="type -p"
 alias mroe=more
+alias gti=git
 
 if [ $ARCHITECTURE = "cygwin" ]; then
   alias host=nslookup
