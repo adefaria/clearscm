@@ -142,9 +142,9 @@ unless ( $ARGV[0] ) {
     my ( $status, @output ) = Utils::Execute("git branch --show-current 2>&1");
 
     unless ($status) {
-        $output[0] =~ /\w+-(\d+)/;
-
-        $ARGV[0] = $1;
+        if ($output[0] =~ /(\w+-)*(\d+)/) {
+            $ARGV[0] = $2;
+	}
     }
 }
 
