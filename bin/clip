@@ -1,0 +1,10 @@
+#!/bin/bash
+if [ -z "$1" ]; then 
+  echo "Usage: $0 <file to copy to clipboard>"
+  exit 1
+elif [ ! -f "$1" ]; then
+  echo "The file \"$1\" does not exist"
+  exit 1
+fi
+
+xclip -selection clipboard < "$1"

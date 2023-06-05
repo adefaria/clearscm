@@ -8,8 +8,6 @@ systems="\
 "
 
 function notify {
-  #zenity --notification --text "$1" 2> /dev/null
-  notify-send --expire-time=$expireTime "$1"
   echo $1
 }
 

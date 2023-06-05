@@ -128,6 +128,7 @@ Returns:
 
   #$msg = quotemeta $msg;
   $msg =~ s/\$/\\\$/g;
+  $msg =~ s/"/\\"/g;
 
   my ($status, @output) = Execute "/usr/local/bin/gt \"$msg\"";
 
