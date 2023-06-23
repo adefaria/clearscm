@@ -22,9 +22,10 @@ append_to_path /usr/sbin
 append_to_path /opt/cpanel/composer/bin
 append_to_path /opt/cplint/bin
 append_to_path /root/bin
+append_to_path /usr/local/cpanel/t/qa/bin
 
 # Useful aliases
-alias makesb='pushd $ulc; make -j4 sandbox; popd'
+alias makesb='pushd $ulc; make -j8 sandbox; popd'
 # Find code!
 if [ -d ~/.vscode-server ]; then
   codePath=$(dirname $(find ~/.vscode-server/bin -name code))
@@ -51,10 +52,9 @@ export CPANEL_TEAM='release'
 #export SANDBOX_LOCALES=en
 
 # EA Tools
-export EATOOLS_BUILD_DIR=/usr/local/cpanel-pkgs/ea-tools/build/
-export EATOOLS_BIN_DIR=/usr/local/cpanel-pkgs/ea-tools/bin/
+export EATOOLS_BUILD_DIR=~/git/ea-tools/SOURCES/
+export EATOOLS_BIN_DIR=~/git/ea-tools/SOURCES/
 export OBS_USERNAME=A.defaria
-et refresh --ea-tools > /dev/null
 
 #alias ulc="cd /usr/local/cpanel"
 alias perl="$ulc/3rdparty/bin/perl"
