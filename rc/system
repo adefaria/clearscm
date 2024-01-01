@@ -39,4 +39,8 @@ case "$SYSNAME" in
     SYSNAME="Sandbox Ubuntu"
     ;;
 
+  Defaria)
+    SYSNAME="DeFaria"
+    ;;
+
 esac
