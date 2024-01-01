@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh -x
+echo "Gathering System76 logs"
 mkdir ~/system76
 journalctl > ~/system76/journal.log
 dmesg > ~/system76/dmesg.log
@@ -11,6 +12,6 @@ df -h / > ~/system76/df
 lsblk -f > ~/system76/lsblk
 cp /etc/fstab ~/system76/fstab
 cp /etc/os-release ~/system76/os-release
-tar czf system76-log.tgz ~/system76/*
+tar -czf system76-log.tgz ~/system76/*
 rm ~/system76/*
 rmdir ~/system76

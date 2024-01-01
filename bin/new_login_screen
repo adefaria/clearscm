@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Change the login screen to a random image from /Pictures/Login Screens
+new_background=$(find /Pictures/Login\ Screens/ -type f | shuf -n 1)
+
+rm -f /Pictures/current_wallpaper && ln -s "$new_background" /Pictures/current_wallpaper
+
+sudo /opt/clearscm/bin/ubuntu-gdm-set-background --image /Pictures/current_wallpaper > /dev/null 2>&1
+exit 0
