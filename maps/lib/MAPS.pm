@@ -1200,7 +1200,8 @@ sub ReturnMessages(%) {
   my $table      = 'email';
   my $condition  = "userid='$params{userid}' and sender='$params{sender}'";
   my $fields     = ['subject', 'timestamp'];
-  my $additional = 'group by timestamp desc';
+  my $additional = 'group by timestamp order by timestamp desc';
+
 
   return $db->get($table, $condition, $fields, $additional);
 } # ReturnMessages
@@ -1223,7 +1224,7 @@ sub ReturnSenders(%) {
 
   my $table      = 'log';
   my $condition  = "userid='$params{userid}' and type='$params{type}'";
-  my $additional = 'order by timestamp desc';
+  my $additional = 'group by timestamp order by timestamp desc';
 
   $params{start_at} ||= 0;
 
