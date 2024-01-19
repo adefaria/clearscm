@@ -1,4 +1,5 @@
 #!/bin/bash
+timeout=5
 expireTime=1200
 systems="\
   earth\
@@ -7,8 +8,6 @@ systems="\
 "
 
 function notify {
-  #zenity --notification --text "$1" 2> /dev/null
-  notify-send --expire-time=$expireTime "$1"
   echo $1
 }
 
@@ -38,4 +37,13 @@ for system in $systems; do
   fi
 
   rm -f /tmp/check4update.list
+
+  reboot=$(ssh $system " if [ -e /var/run/reboot-required ]; then echo 1; else echo 0; fi")
+  if [ $reboot = 1 ]; then
+    if yesno "$system needs to be rebooted\nReboot now?" ]; then
+      ssh $system sudo reboot
+    else
+      notify "$system not rebooted"
+    fi
+  fi
 done

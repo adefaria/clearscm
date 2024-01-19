@@ -11,6 +11,8 @@
 # (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
 #
 ################################################################################
+export SHELL=/bin/bash
+
 # The following will set HOME, temporarily, to the directory of my $HOME so that
 # somebody other than me can envoke my startup scripts. I use this mainly for
 # when I become root with sudo -s and what a better environment that the bare
@@ -203,6 +205,9 @@ alias whence="type -p"
 alias mroe=more
 alias gti=git
 
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
 if [ $ARCHITECTURE = "cygwin" ]; then
   alias host=nslookup
 fi

@@ -1,6 +1,6 @@
 [user]
   name = Andrew DeFaria
-  email = A.DeFaria@cpanel.net
+  email = Andrew@DeFaria.com
 
 [pack]
   windowMemory=128m
@@ -64,3 +64,10 @@
   tool = meld
 [mergetoo "meld"]
   cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+[gui]
+	recentrepo = /opt/clearscm
