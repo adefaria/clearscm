@@ -314,3 +314,13 @@ function group {
     fi
   fi
 } # group
+
+function new_vm () {
+  instance_name=qap2-$(openssl rand -hex 4)
+  openstack server create -f value -c image --flavor 17321b9b-0f32-441b-bf5c-ac5d75cbff2e --image $1 --key-name "Testsuite Keypair" --user-data ~/Desktop/cloud.config $instance_name --wait;
+  ip=$(openstack server show -f value -c addresses $instance_name | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b");
+  echo "Copying over ssh key..."
+  while ! ssh-copy-id -i ~/.ssh/cpanelkey.pub $ip; do sleep 10; done
+  #while ! ssh -q $ip exit; do sleep 10; done;
+  echo $ip;
+}

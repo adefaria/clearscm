@@ -15,10 +15,19 @@ Host jupiter
 Host cpanel
   User andrewdefaria
 
+Host bluesuedecrew
+  Hostname wpsq.siteocity.com
+  User bluesued
+
 Host home
   Hostname defaria.com
   User andrew
   IdentityFile		~/.ssh/id_ecdsa
+
+Host enterprise.cpanel.net
+  User git
+  PubkeyAcceptedAlgorithms +ssh-rsa
+  HostkeyAlgorithms +ssh-rsa
 
 Host 10.2.* sandbox* training
   ForwardAgent yes
