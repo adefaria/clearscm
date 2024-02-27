@@ -1,6 +1,5 @@
 [user]
   name = Andrew DeFaria
-  email = Andrew@DeFaria.com
 
 [pack]
   windowMemory=128m
@@ -12,12 +11,33 @@
   packedGitLimit=128m
   packedGitWindowSize=128m
   excludesfile = ~/.gitignore
+	execludsfile = /root/.gitignore
+
+[branch]
+  autoSetupRemote = true
 
 [color]
-  status=auto
-  diff=auto
   branch=auto
+  diff=auto
+  status=auto
+  showbranch=auto
+  ui=true
 
+[color "branch"]
+	current = yellow reverse
+	local = yellow
+	remote = green
+
+[color "diff"]
+	meta = yellow bold
+	frag = magenta bold
+	old = red bold
+	new = green bold
+
+[color "status"]
+	added = yellow
+	changed = green
+	untracked = cyan
 [diff]
   tool = meld
 
@@ -46,20 +66,28 @@
   ci=commit
   st=status
   br=branch
+  aa = !git add . && git amend
+  amend = !git log -n 1 --pretty=tformat:%s%n%n%b | git commit -F - --amend
+  ls=show --pretty=format: --name-only
   hist=log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
   type=cat-file -t
   dump=cat-file -p
   dlog=log --decorate
   oldest-ancestor = !bash -c 'diff -u <(git rev-list --first-parent "${1:-master}") <(git rev-list --first-parent "${2:-HEAD}") | sed -ne \"s/^ //p\" | head -1' -
+  cplint = !PERL5LIB='' cplint --branched-from HEAD^ --skip CommitMessages -v warn
+  cplintv = !PERL5LIB='' cplint --branched-from $(head -1 .branched_from) --skip CommitMessages -v warn
 
 [push]
-  default = simple
+  default = current
+
 [http]
   sslVerify = false
 [credential]
   helper = store --file ~/.git-credentials
 [pull]
   rebase = false
+[fetch]
+	prune = true
 [merge]
   tool = meld
 [mergetoo "meld"]

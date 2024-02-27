@@ -2,6 +2,7 @@
 .pydevproject
 .includepath
 .perldb.hist
+.plsignore
 
 # For some reason something keeps deleting my .gitignore file especially
 # in projects like /opt/songbook so I'm gonna reloate them here
