@@ -51,6 +51,7 @@ Friday, October 21, 2022
  -use|rname:   Username for JIRA
  -p|assword:   Password for JIRA
  -se|rver:     JIRA server (Default: jira.cpanel.net)
+ -p|roject:    JIRA Project to preface number only requests
  <case ID(s)>
 
 =head1 DESCRIPTION
@@ -134,7 +135,10 @@ GetOptions(
     'username=s',
     'password=s',
     'server=s',
+    'project=s',
 ) || pod2usage;
+
+$opts{project} = $ENV{JIRA_PROJECT} unless ( $opts{project} );
 
 unless ( $ARGV[0] ) {
 
@@ -142,9 +146,9 @@ unless ( $ARGV[0] ) {
     my ( $status, @output ) = Utils::Execute("git branch --show-current 2>&1");
 
     unless ($status) {
-        if ($output[0] =~ /(\w+-)*(\d+)/) {
+        if ( $output[0] =~ /(\w+-)*(\d+)/ ) {
             $ARGV[0] = $2;
-	}
+        }
     }
 }
 
@@ -158,7 +162,7 @@ my @cases = @ARGV;
 
 for my $caseID (@cases) {
     if ( $caseID =~ /^(\d+)$/ ) {
-        $caseID = "CPANEL-$1";
+        $caseID = "$opts{project}-$1";
     }
 
     my $case;
