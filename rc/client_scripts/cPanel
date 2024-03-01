@@ -25,7 +25,9 @@ append_to_path /root/bin
 append_to_path /usr/local/cpanel/t/qa/bin
 
 # Useful aliases
-alias makesb='pushd $ulc; make -j8 sandbox; popd'
+alias makesb='pushd $ulc; make -j8 sandbox; if [ $? == 0 ]; then echo -e ${GREEN}Successful${NORMAL}; else echo -e ${RED}Failed${NORMAL}; fi; popd'
+alias sqlite=sqlite3
+
 # Find code!
 if [ -d ~/.vscode-server ]; then
   codePath=$(dirname $(find ~/.vscode-server/bin -name code))
