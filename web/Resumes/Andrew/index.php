@@ -39,84 +39,84 @@ function stoptimer () {
   Google Analytics -->
 
   <?php
-  include "clearscm.php";
-  menu_css ();
+include "clearscm.php";
+menu_css();
 
-  // Record hit
-  $dir = dirname(__FILE__);
+// Record hit
+$dir = dirname(__FILE__);
 
-  if (file_exists("$dir/.resumehits")) {
+if (file_exists("$dir/.resumehits")) {
     $resumeHit = fopen("$dir/.resumehits", 'r');
 
     fscanf($resumeHit, "%d\n", $count);
-  } else {
+} else {
     $count = 0;
-  } // if
+} // if
 
-  $count++;
+$count++;
 
-  //fclose($resumeHit);
+//fclose($resumeHit);
 
-  $resumeHit = fopen ('.resumehits', 'w');
+$resumeHit = fopen('.resumehits', 'w');
 
-  //fwrite($resumeHit, $count);
-  //fclose($resumeHit);
+//fwrite($resumeHit, $count);
+//fclose($resumeHit);
 
-  //$resumeHist = fopen('.resume.hist', 'a');
-  $date = date(DATE_RFC822);
+//$resumeHist = fopen('.resume.hist', 'a');
+$date = date(DATE_RFC822);
 
-  //fwrite($resumeHist, "$_SERVER[REMOTE_ADDR] read resume at $date\n");
-  //fclose($resumeHist);
+//fwrite($resumeHist, "$_SERVER[REMOTE_ADDR] read resume at $date\n");
+//fclose($resumeHist);
 
-  $msg  = '<html><body>';
-  $msg .= '<h1>Somebody just visited your resume.</h1>';
-  $msg .= "<p>Here's what I know about them:</p>";
+$msg = '<html><body>';
+$msg .= '<h1>Somebody just visited your resume.</h1>';
+$msg .= "<p>Here's what I know about them:</p>";
 
-  $me = false;
+$me = false;
 
-  foreach ($_SERVER as $key => $value) {
+foreach ($_SERVER as $key => $value) {
     if (preg_match("/^REMOTE/", $key)) {
-      $msg .= "$key: $value<br>";
+        $msg .= "$key: $value<br>";
 
-      if ($key == 'REMOTE_ADDR') {
-        // Skip me...
-        if ($value == '70.181.192.116') {
-          $me = true;
-          break;
-      } // if
+        if ($key == 'REMOTE_ADDR') {
+            // Skip me...
+            if ($value == '70.181.192.116') {
+                $me = true;
+                break;
+            } // if
 
-        exec("whois $value", $output, $result);
+            exec("whois $value", $output, $result);
 
-        foreach ($output as $line) {
-         $msg .= "$line<br>";
-        } // foreach
-      } // if
+            foreach ($output as $line) {
+                $msg .= "$line<br>";
+            } // foreach
+        } // if
     } // if
-  } // foreach
+} // foreach
 
-  if (!$me) {
-    $msg     .= '</body></html>';
-    $headers  = "MIME-Version: 1.0\r\n";
+if (!$me) {
+    $msg .= '</body></html>';
+    $headers = "MIME-Version: 1.0\r\n";
     $headers .= "Content-type: text/html; charset=iso-8859-1\r\n";
     $headers .= "From: Resume Reporter <ResumeReporter@DeFaria.com>";
 
     $subject = "Another resume hit. This makes $count visits to your resume";
     //mail("andrew@defaria.com", $subject, $msg, $headers);
-  } // if
+} // if
 ?>
 </head>
 
 <body onload="blink()" onunload="stoptimer()" id="homepage">
 
-<!--<?php heading ();?>-->
+<!--<?php heading();?>-->
 
 <div id="page">
   <div id="content">
-    <?php start_box ("cs2")?>
+    <?php start_box("cs2")?>
       <h2 align=center><a href="https://defaria.com">Andrew DeFaria</a></h2>
       <address style="text-align:center">
-      870 Soft Wind #4<br>
-      Vista, California 92081<br>
+      2010 West San Marcos Blvd Unit 33<br>
+      San Marcos, California 92078<br>
       </address>
       <p style="text-align:center">
       Phone: 408-596-4937</a><br>
@@ -136,12 +136,12 @@ function stoptimer () {
   <tr>
     <td align="center">
       <center>
-      <font size=-1>For the most up to date copy of this resume see <a href="https://defaria.com/resume">https://defaria.com/resume</a></font>
+      <font size=-1>For the most up-to-date copy of this resume see <a href="https://defaria.com/resume">https://defaria.com/resume</a></font>
       </center>
     </td>
   </tr>
 </table>
-    <?php end_box ();?>
+    <?php end_box();?>
 
     <h2>Certifications and Class Work</h2>
 
@@ -184,13 +184,13 @@ function stoptimer () {
 
   <h3>Objective</h3>
 
-  <p>To work with state of the art operating systems and networks to
-  insure the smooth running of an organization's information flow.</p>
+  <p>To work with state-of-the-art operating systems and networks to
+  ensure the smooth running of an organization's information flow.</p>
 
   <h3>Hardware</h3>
 
   <p>Workstations and servers from Sun, HP, Microsoft Windows as well as various
-  other manufactures of Linux systems.</p>
+  other manufacturers of Linux systems.</p>
 
   <h3>Operating Systems</h3>
 
@@ -304,9 +304,8 @@ function stoptimer () {
 
   <p>
     A.A.S. in Computer Science from Union County College in Scotch Plains, New
-    Jersey. Continued studies at Fairleigh Dickenson University,  San Jose State
-
-    University, Mission College and Chico State in pursuit of my degree.</p>
+    Jersey. I continued my studies at Fairleigh Dickenson University,  San Jose State
+    University, Mission College, and Chico State in pursuit of my degree.</p>
 
   <h3>References</h3>
 
@@ -345,31 +344,38 @@ function stoptimer () {
 
   <p><i>July 2007 - Present</i></p>
 
-  <h3>Perl Developer - Wells Fargo <i>(July 2019 - Present)</i></h3>
+  <h3>Perl Developer - Cpanel/WebPros <i>(October 2021 - Present)</i></h3>
+
+  <p>Working on the Artemis Team implementing bug fixes and improvements to WHM as
+  well as becoming accustomed to Cpanel's large code base and systems. Moved to
+  the Release Team performing bug fixes and release activities. Worked on the WordPress
+  Squared team implementing improvements and bug fixes on the backend</p>
+
+  <h3>Perl Developer - Wells Fargo <i>(July 2019 - February 2021)</i></h3>
 
   <p>Responsible for maintaining a Perl application written using the Dancer
   framework called UserPro. Tightened security by standardizing access to
-  database as well as implemented an auditing facility for changes made to
+  lthe database as well as implemented an auditing facility for changes made to
   database records.</p>
 
   <h3>Solaris Administrator, PuppetMaster - General Dynamics <i>(March 2018 - April 2019)</i></h3>
 
-  <p>For this technology refresh of over a decade ago, I was instrumental in
-  setting up and maintain dozens of Solaris 5.11 zone systems and served as the
-  primary Solaris System Administrator. This includes setup of many services
-  like NIS, DNS, NTP, SMTP, AutoFS as well as a standard set of tools.
+  <p>For this technology refresh over a decade ago, I was instrumental in
+  setting up and maintaining dozens of Solaris 5.11 zone systems and served as the
+  primary Solaris System Administrator. This includes the setup of many services
+  like NIS, DNS, NTP, SMTP, and AutoFS as well as a standard set of tools.
 
   <p>Introduced <span class="standout">Puppet</span> to the group and served as
   the <span class="standout">Puppet Master</span>.</p>
 
-  <p>Created Windows based <span class="standout">VMs</span> for specific roles
-  such as <span class="standout"BuildForge Console</span>, Application server,
+  <p>Created Windows-based <span class="standout">VMs</span> for specific roles
+  such as <span class="standout">BuildForge Console</span>, Application server,
   Domain Controllers, etc. These were managed under <span
   class="standout">vCenter</span>.</p>
 
   <p>Developed <span class="standout">Perl</span> scripts for validation testing
   of <span class="standout">Clearcase</span> and <span class="standout">Clearquest</span>.
-  Developed a Clearcase enhanced monitoring tool to monitor servers, loadavg and
+  Developed a Clearcase enhanced monitoring tool to monitor servers, loadavg, and
   filesystems as well as Clearcase objects like VOBs and views.</p>
 
   <h3>Devops Engineer - Broadcom <i>(August 2016 - January 2018)</i></h3>
@@ -388,7 +394,7 @@ function stoptimer () {
   href="https://en.wikipedia.org/wiki/Registration_Data_Access_Protocol">RDAP</a>
   server for testing SLA compliance of various TLD registrars around the world.</p>
 
-  <h3>JIRA/Perforce/Linux Administrator - Knowles <i>(Mardch 2014 - April 2016)</i></h3>
+  <h3>JIRA/Perforce/Linux Administrator - Knowles <i>(March 2014 - April 2016)</i></h3>
 
   <p>Initially wrote scripts to import data from
   <span class="standout">Bugzilla</span> and other sources to
@@ -397,17 +403,17 @@ function stoptimer () {
   (<span class="standout">Centos</span>/<span
   class="standout">Ubuntu</span>/<span class="standout">Redhat Enterprise</span>)
   managing VM images in vSphere,
-  <span class="standout">Perforce</span>, <span class="standout">Swarm</span>,
+  <span class="standout">Perforce</span>, <span class="standout">Swarm</span>, and
   <span class="standout">Git Fusion</span>.</p>
 
   <p>Added functionality to custom build system that utilized <span
   class="standout">Perl</span>/<span class="standout">PHP</span>/<span
   class="standout">Apache</span>/<span class="standout">Linux</span>/<span
   class="standout">Windows</span> servers to allow engineers in the field to
-  remotely perform customized builds. Integrated Bugzilla and Perforce (P4DTG).
+  perform customized builds remotely. Integrated Bugzilla and Perforce (P4DTG).
   Assisted with JIRA setup and integration of <span
-  class="standout">Salesforce</span> with JIRA. Assisted in the migration
-  for users to new Knowles domain.</p>
+  class="standout">Salesforce</span> with JIRA and assisted in the migration
+  of users to the new Knowles domain.</p>
 
   <h3>Build Release Engineer - Axcient <i>(July 2013 - December 2013)</i></h3>
 
@@ -424,19 +430,19 @@ function stoptimer () {
   Using ClearSCM's <a
   href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase.pm">Clearquest</a>,
   <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/Server.pm">Clearquest::Server</a>,
-  <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/Client.pm">Clearquest::Client</a>
+  <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/Client.pm">Clearquest::Client</a>,
   and <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>
   modules created <span class="standout">Perforce</span> and <span class="standout">Git</span>
-  triggers to automate builds updating Clearquest in the process.</p>
+  triggers to automate builds updating Clearquest.</p>
 
   <p>Migrated a project from their unsupported build environment into the standard
   <span class="standout"><a
   href="http://www.electric-cloud.com/products/electriccommander.php">Electric
   Commander</a></span>/<span class="standout">Perforce</span> based solution
-  using <span class="standout">Cygwin</span>, <span class="standout">bash</span>
+  using <span class="standout">Cygwin</span>, <span class="standout">bash</span>,
   and <span class="standout">LSF</span> to farm builds out to a pool of <span
   class="standout">Windows</span> servers to perform builds. Builds were done
-  using <span class="standout">Visual Studio</span> 8.0, 9.0 and 10.0 on Windows
+  using <span class="standout">Visual Studio</span> 8.0, 9.0, and 10.0 on Windows
   Servers triggered by Perforce triggers at code checkin.</p>
 
   <h3>Perl Developer - Tellabs <i>(March 2011 - December 2011)</i></h3>
@@ -453,7 +459,7 @@ function stoptimer () {
   href="http://clearscm.com/php/scm_man.php?file=lib/CmdLine.pm">Cmdline.pm</a>.
   This Perl process utilized <span class="standout">Inline::C</span> to
   interface to the developer libraries and provide a consistent interface for
-  the various command line debuggers developed by various different groups.</p>
+  the various command line debuggers developed by various groups.</p>
 
   <h3>Clearcase/Clearquest Administrator - General Electric Healthcare <i>(January 2010 - October 2010)</i></h3>
 
@@ -461,7 +467,7 @@ function stoptimer () {
   class="standout">Clearquest UCM</span> administration. Developed an <a
   href="http://clearscm.com/php/scm_man.php?file=cc/etf.pl">Evil Twin Finder</a>
   in Perl. Worked with <span class="standout">Build Forge</span> (IBM's CI tool
-  similar to <span class="standout">Jenkins</span>) jobs to automate work flow.
+  similar to <span class="standout">Jenkins</span>) jobs to automate workflow.
   Assisted in consultations with UCM concepts such as component/composite
   baselines and projects. Wrote Perl scripts for conversions of Clearquest data
   with other systems (Siebel).</p>
@@ -476,24 +482,23 @@ function stoptimer () {
   integrates <span class="standout">UCM</span>/Clearquest integrated environment
   into one tool and ported it to Linux.</p>
 
-  <p>Instrumental in establishment of Perl standards and introduction of Perl
+  <p>Instrumental in the establishment of Perl standards and introduction of Perl
   tools such as <a href="http://perlcritic.com/">Perl::Critic</a>
   and <a href="http://perltidy.sourceforge.net/">Perl::Tidy</a>.
-  Worked at promoting usage of CPAN modules.</p>
+  Worked at promoting the usage of CPAN modules.</p>
 
   <p>Developed an extensive test driver application in Perl to interface and
   drive tests using <a href="https://www.nethawk.fi/products/nethawk_simulators/">NetHawk
   EAST Simulators</a> as well as interfacing to other simulators and external
-  hardware. The system automates the running of regression tests, official
+  hardware. The system automates the running of regression tests, and official
   testing before the customer, assists with validation of test results,
-  collecting of log files, checking log files into Clearcase and records status
+  collecting of log files, checking log files into Clearcase, and records status
   into a MySQL database. Developed a PHP web page to present the data in various
-  forms including graphs, reports, exporting to CSV files and emailing of
+  forms including graphs, reports, exporting to CSV files, and emailing of
   reports. Implemented maintenance programs to scrub and keep the data clean.
   This system was instrumental in Functional Quality Testing for the <a
   href="http://en.wikipedia.org/wiki/Mobile_User_Objective_System">MUOS</a>
-  program. This reduced the time it took to certify testing with the military several
-  fold.</p>
+  program. This reduced the time it took to certify testing with the military severalfold.</p>
 
   <p>Worked on many enhancements to the extensive Clearquest system in use at
   GD. Designed and developed the record set implementing node configurations.
@@ -502,7 +507,7 @@ function stoptimer () {
 
   <p>Developed a server process (daemon) to process baseline records that were
   then tracked by Clearquest. Implemented scripts to create baseline records
-  from other automated process such as Build Forge. Tied together baseline
+  from other automated processes such as Build Forge. Tied together baseline
   records with node configurations through action hook code.</p>
 
   <hr noshade>
@@ -521,14 +526,14 @@ function stoptimer () {
 
   <h3>Build Release Engineer - Hewlett Packard <i>(February 2006 - October 2006)</i></h3>
 
-  <p>Managed and executed day to day build and release duties. Served as
+  <p>Managed and executed day-to-day build and release duties. Served as
   <span class="standout">Clearcase/Clearquest</span> Administrator as well as
   overall support of systems. Assisted with creating UCM streams and handling of
   rebase and delivery issues for engineers and the build/release process. Wrote
   <span class="standout">UCM triggers</span> to notify users of deliveries from
-  UCM development streams. Created baselines for official builds. Took over day
-  to day build and release duties. Created a build script that united the
-  various quick and dirty build scripts that were oriented per stream and per
+  UCM development streams. Created baselines for official builds. Took over
+  day-to-day build and release duties. Created a build script that united the
+  various quick and dirty build scripts that were oriented per stream and
   build option. This standardized the build process. Augmented this build script
   to be a daemon that continually builds software when deliveries are detected.
   Wrote a build status web page that tracks and monitors the continuous
@@ -539,7 +544,7 @@ function stoptimer () {
   process to perform simple continuous integration. Created a dynamic web page
   to show Junit test history.
 
-  <h3>Clearcase/Clearquest Administator - Broadcom <i>(September 2005 - January 2006)</i></h3>
+  <h3>Clearcase/Clearquest Administrator - Broadcom <i>(September 2005 - January 2006)</i></h3>
 
   <p>Served as <span class="standout">Clearcase/Clearquest</span> Administrator
   as well as overall support of systems. Developed several <a href="http://clearscm.com/clearcase/triggers.php">triggers</a>
@@ -547,14 +552,14 @@ function stoptimer () {
   script which automates the maintenance of triggers.</p>
 
   <p>Developed a complex <a hef="http://clearscm.com/clearquest/db.php">Perl script</a>
-  to merge two Clearquest databases to a new database with many schema changes.
-  This script handled all aspects of the conversion including changing non US
+  to merge two Clearquest databases into a new database with many schema changes.
+  This script handled all aspects of the conversion including changing non-US
   ASCII characters found in the data to their HTML equivalents, dynamic creation
   of dynamic lists, field renaming and dynamically creating new stateless
   records as needed.</p>
 
   <p>Developed a script to better handle merging from UCM deliveries and rebases
-  by delaying any non automatic merges to the end of the process as well as
+  by delaying any non-automatic merges to the end of the process as well as
   handle binary element merge. This process, written in Perl, utilized PerlTk to
   present the user with a GUI dialog box to choose which version of the binary
   file to merge.</p>
@@ -563,23 +568,23 @@ function stoptimer () {
   Multimedia group.</p>
 
   <p>Wrote several other scripts including one to interface CVS to IMS (a defect
-  tracking system) recording the change set at commit time, a script to strip
+  tracking system) recording the change set at commit time, and a script to strip
   out MIME/HTML and attachments for defects submitted to GNATS (another defect
-  tracking system). Also implemented several script to log Clearcase activity,
-  check Clearcase's pulse and gather site and vob statistics. These scripts were
-  the start for creation of a set Object Oriented Perl modules to encapsulate
-  Clearcase in a Perl like manner (still in development).</p>
+  tracking system). Also implemented several scripts to log Clearcase activity,
+  check Clearcase's pulse, and gather site and vob statistics. These scripts were
+  the start of the creation of a set Object Oriented Perl modules to encapsulate
+  Clearcase in a Perl-like manner (still in development).</p>
 
   <h3>Build Engineer - Lynuxworks <i>(December 2004 - September 2005)</i></h3>
 
   <p>Served as a build engineer in the Integration Group responsible for
-  building LynxOS (Linux RTOS) as well as tool chains, testing, releasing and
+  building LynxOS (Linux RTOS) as well as toolchains, testing, releasing, and
   process improvement. LynuxWorks uses CVS for version control.</p>
 
-  <p>Developed a process of providing full text search of the company's defect
+  <p>Developed a process of providing a full-text search of the company's defect
   database using Perl and Htdig (See <a href="http://clearscm.com/scripts/ecrd">ECRDig</a>).
-  Developed a web based report to show CVS activity as well as several other CVS
-  related utilities(See <a href="https://defaria.com/Resume/cvs_utilities">CVS
+  Developed a web-based report to show CVS activity as well as several other
+  CVS-related utilities(See <a href="https://defaria.com/Resume/cvs_utilities">CVS
   Utilities</a>) as well as report on the differences between two CVS tags.</p>
 
   <p>Automated the build process so that nightly builds could be performed.
@@ -589,11 +594,11 @@ function stoptimer () {
   <h3>Clearcase Administrator - Ameriquest <i>(March 2004 - December 2005)</i></h3>
 
   <p>Served as Clearcase/Clearquest administrator to this major mortgage
-  company. As Ameriquest is just starting out I have been busy with importing
+  company. As Ameriquest is just starting I have been busy with importing
   source code from flat file systems as well as PVCS and Visual Source Safe.
   Also setting up vobs and regions taking into account security restrictions
   and concerns. Assisted with designing of the Multisite scheme to India.
-  Participated in design of UCM model to be used for Ameriquest.</p>
+  Participated in the design of the UCM model to be used for Ameriquest.</p>
 
   <hr noshade>
 
@@ -610,14 +615,14 @@ function stoptimer () {
 
   <p>I also served in the role of Release Engineer managing the build process.
   I employed wide usage of <a href="http://cygwin.com/">Cygwin</a>, which is a
-  product that provides an extremely workable Unix like environment and
+  product that provides an extremely workable Unix-like environment, and
   engineered a build environment around that using GNU make and other standard
   Unix and GNU utilities. When users complained that building remotely was slow
-  I performed an analysis on build performance. I also performed Build Stress
+  I performed an analysis of build performance. I also performed Build Stress
   Testing where I characterized the effect of multiple simultaneous builds
   performed on the server.</p>
 
-  <p>I also setup and developed their Clearquest bug tracking system as well
+  <p>I also set up and developed their Clearquest bug tracking system as well
   as served as an advisor/expert on Clearcase issues, branching strategies,
   labeling and release management.</p>
 
@@ -648,24 +653,23 @@ function stoptimer () {
 
   <h3>Unix Systems Administrator - Hewlett Packard <i>(August 1999 - February 2001)</i></h2>
 
-  <p>Setup security system automating the running of Medusa (an internal
+  <p>Set up a security system automating the running of Medusa (an internal
   security audit tool) on approximately 100 machines. Reports are generated
-  automatically and are viewable on the web. Setup and maintained security
-  related patch depots.</p>
+  automatically and are viewable on the web. Set up and maintained security-related
+  patch depots.</p>
 
   <p>Implemented nightly automation for the lab's machines including security
   checks, automatic installation of line printer models, etc. This automation
   was bundled into an SD-UX bundle.</p>
-
   <p>Migrated user data to HP NetStorage 6000. Worked extensively with HP
-  NetStorage 6000 Support on problems with this machines OS and interfacing with
+  NetStorage 6000 Support on problems with this machine's OS and interfacing with
   Windows 2000.</p>
 
   <P>Migrated HP-UX applications from one application server to another.
 
-  <p>Participated in several critical planned networked down times where the
+  <p>Participated in several critical planned networked downtimes where the
   team was able to implement changes to the infrastructure, including migration
-  to Clearcase 4.0, migration of project and user data to HP NetStorage 6000's
+  to Clearcase 4.0, migration of project and user data to HP NetStorage 6000s,
   and other such changes.</p>
 
   <p>Set up Netscape Enterprise Web Server and iPlanet 4.1 Web Server.</p>
@@ -673,10 +677,10 @@ function stoptimer () {
   <h3>Clearcase Administrator - Cisco <i>(March 1999 August 1999)</i></h3>
 
   <p>Served as Clearcase/Unix Systems Administrator. Responsible for all
-  Clearcase operations in CNS/AD on Sun Solaris, HP-UX, Windows NT 4.0 and
+  Clearcase operations in CNS/AD on Sun Solaris, HP-UX, Windows NT 4.0, and
   Windows 2000. Assisted in creating additional View and Vob servers and
   balancing the Clearcase load amongst them. Participated in Rational's Beta
-  program for Windows 2000. Installed, tested and documented Clearcase on
+  program for Windows 2000. Installed, tested, and documented Clearcase on
   Windows 2000 as well as Windows NT 4.0.</p>
 
   <p>Assisted in recovery of a catastrophic disk failure in a critical vob.
@@ -689,7 +693,7 @@ function stoptimer () {
   <h3>Build Engineer - Sun Microsystems <i>(December 1998 - March 1999)</i></h3>
 
   <p>Worked on the Sunpeak Configuration Management team performing promotions
-  of code updates into test and production environments. Also worked on
+  of code updates in test and production environments. Also worked on
   improving the process flow of promotions utilizing make and rdist.</p>
 
   <hr noshade>
@@ -705,23 +709,23 @@ function stoptimer () {
   multisited between several other labs and I am responsible for resolving
   Multisite problems. I also serve as general System Administrator, overseeing
   approximately 400 machines in the lab. I help institute policies and
-  procedures to keep the network running smoothly. Also participate in the
-  design and restructuring the network topology and Clearcase topology by bring
-  in many Kittyhawks, Mohawks and Bravehawks (about 40 of them) for use as
-  Clearcase Vob, View and Build, Mail, Application, X Terminal and Web servers.
-  Assist in documenting setup and configuration as well as trouble shooting and
-  handling of patches for all lab wide shared resources.</p>
+  procedures to keep the network running smoothly. Also participated in the
+  design and restructuring of the network topology and Clearcase topology by bringing
+  in many Kittyhawks, Mohawks, and Bravehawks (about 40 of them) for use as
+  Clearcase Vob, View and Build, Mail, Application, X Terminal, and Web servers.
+  Assist in documenting setup and configuration as well as troubleshooting and
+  handling of patches for all lab-wide shared resources.</p>
 
-  <p>Responsible for setup and running of Windows NT domain, account setup and
+  <p>Responsible for set up and running of Windows NT domain, account setup, and
   print serving. Setup and evaluated Clearcase 3.2 on NT. Developed backup
   strategy for NT systems. Maintain a repository of software tools as well as
   evaluated and recommended several PC packages for lab usage. Main point of
-  contact for Windows 95/NT problem solving in the lab. Also sought after by
+  contact for Windows 95/NT problem-solving in the lab. Also sought after by
   many people in Hewlett Packard relating to both PC and Unix configurations and
   problem solving.</p>
 
-  <p>Also served as webmaster for the lab as well as consult on HTML questions
-  and design issues. Installed, configured and maintain the <a href="http://home.netscape.com/">Netscape</a>
+  <p>Also served as webmaster for the lab as well as consulted on HTML questions
+  and design issues. Installed, configured, and maintained the <a href="http://home.netscape.com/">Netscape</a>
   Suitespot Servers including the Enterprise and Directory servers. Developed
   several web pages and forms for the lab as well as run
   <a href="https://web.archive.org/web/20001109171100/https://defaria.com/Quicken">The
@@ -731,7 +735,7 @@ function stoptimer () {
   software packages without the need for individual system administration
   utilizing scripting and NFS heavily.</p>
 
-  <p>Prior to the Productivity Project I worked on COBOL/SoftBench product
+  <p>Before the Productivity Project, I worked on the COBOL/SoftBench product
   which consists of encapsulating some core HP Micro Focus COBOL tools using C++
   3.0 and the SoftBench Encapsulator libraries. Also, working on porting an
   X/Motif application to MS Windows 3.1. The code is written using C++ 3.0 on
@@ -741,8 +745,8 @@ function stoptimer () {
   COBOL/SoftBench in that it involved some SoftBench encapsulations using a
   language called edl.</p>
 
-  <p>Worked producing Ada Bindings to Xlib, Xt and Motif. This involved using a
-  modified C compiler to translate C header and source files to Ada declarations
+  <p>Worked producing Ada Bindings to Xlib, Xt, and Motif. This involved using a
+  modified C compiler to translate the C header and source files to Ada declarations
   and function prototypes. Using this methodology we were able to migrate our
   product from X11 R3 and Motif 1.0 to X11 R4 and Motif 1.1 in one week!</p>
 
@@ -758,15 +762,15 @@ function stoptimer () {
 
   <h2>Copyright (GPL)</h2>
 
-  <?php start_box ("cs2")?>
+  <?php start_box("cs2")?>
     <a name="copyleft"></a>
       <p style="color:#666">This resume is freely available; you can
       redistribute it and/or modify it under the terms of the GNU
       General Public License as published by the Free Software
       Foundation; either version 2 of the License, or (at your option)
       any later version. This means that if you modify this resume you
-      must include a copy of the original source or refer to its origin
-      at <a href="http://clearscm.com/Resumes/Andrew">http://clearscm.com/Resumes/Andrew</a>.</p>
+      must include a copy of the source or refer to its origin
+      at <a href="https://defaria.com/resumes">https://defaria.com/resume</a>.</p>
 
       <p style="color:#666">This resume is distributed in the hope
       that it will be useful, but WITHOUT ANY WARRANTY; without even
@@ -779,9 +783,9 @@ function stoptimer () {
       the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
       Boston, MA 02111-1307, USA.</p>
     </font>
-  <?php end_box ();?>
+  <?php end_box();?>
 
-  <?php copyright ("1988");?>
+  <?php copyright("1988");?>
 
 <script language="JavaScript" src="/JavaScript/Menus.js" type="text/javascript"></script>
 
