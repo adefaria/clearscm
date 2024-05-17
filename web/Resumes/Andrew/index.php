@@ -55,18 +55,18 @@ if (file_exists("$dir/.resumehits")) {
 
 $count++;
 
-//fclose($resumeHit);
+fclose($resumeHit);
 
 $resumeHit = fopen('.resumehits', 'w');
 
-//fwrite($resumeHit, $count);
-//fclose($resumeHit);
+fwrite($resumeHit, $count);
+fclose($resumeHit);
 
-//$resumeHist = fopen('.resume.hist', 'a');
+$resumeHist = fopen('.resume.hist', 'a');
 $date = date(DATE_RFC822);
 
-//fwrite($resumeHist, "$_SERVER[REMOTE_ADDR] read resume at $date\n");
-//fclose($resumeHist);
+fwrite($resumeHist, "$_SERVER[REMOTE_ADDR] read resume at $date\n");
+fclose($resumeHist);
 
 $msg = '<html><body>';
 $msg .= '<h1>Somebody just visited your resume.</h1>';
@@ -80,7 +80,7 @@ foreach ($_SERVER as $key => $value) {
 
         if ($key == 'REMOTE_ADDR') {
             // Skip me...
-            if ($value == '70.181.192.116') {
+            if ($value == '208.113.131.137') {
                 $me = true;
                 break;
             } // if
@@ -96,12 +96,14 @@ foreach ($_SERVER as $key => $value) {
 
 if (!$me) {
     $msg .= '</body></html>';
+
     $headers = "MIME-Version: 1.0\r\n";
     $headers .= "Content-type: text/html; charset=iso-8859-1\r\n";
     $headers .= "From: Resume Reporter <ResumeReporter@DeFaria.com>";
 
     $subject = "Another resume hit. This makes $count visits to your resume";
-    //mail("andrew@defaria.com", $subject, $msg, $headers);
+
+    mail("andrew@defaria.com", $subject, $msg, $headers);
 } // if
 ?>
 </head>
