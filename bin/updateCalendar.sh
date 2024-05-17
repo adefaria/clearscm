@@ -100,7 +100,7 @@ mv calendar.ics ~/Documents/calendar.ics
 dos2unix -q ~/Documents/calendar.ics
 
 # Restart rainlendar2
-export DISPLAY=:1
+export DISPLAY=:0
 killall rainlendar2
 rainlendar2 > rainlendar2.log 2>&1 &
 

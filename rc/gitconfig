@@ -100,3 +100,5 @@
 	smudge = git-lfs smudge -- %f
 [gui]
 	recentrepo = /opt/clearscm
+[maintenance]
+	repo = /opt/songbook.master
