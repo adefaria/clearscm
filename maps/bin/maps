@@ -239,6 +239,7 @@ GetOptions(
   'verbose',
   'debug',
   'execute!',
+  'file',
 ) or pod2usage;
 
 $log = Logger->new(

@@ -1,5 +1,6 @@
 [user]
-  name = Andrew DeFaria
+	name = Andrew DeFaria
+	email = Andrew@DeFaria.com
 
 [pack]
   windowMemory=128m
