@@ -120,8 +120,12 @@ if (!$me) {
       </address>
       <p style="text-align:center">
       Phone: 408-596-4937</a><br>
-      Email: <a href="mailto:Andrew@DeFaria.com">Andrew@DeFaria.com</a><br>
-<table align="center" width="500">
+      Email: <a href="mailto:Andrew@DeFaria.com">Andrew@DeFaria.com</a><br><br>
+      <a href="Resume.docx">Download an MS Word copy</a><br>
+      For the most up-to-date copy of this resume see <a href="https://defaria.com/resume">https://defaria.com/resume</a>
+
+
+<!-- <table align="center" width="500">
   <tr>
     <td>
       <marquee behavior="alternate" onmouseover="this.stop()" onmouseout="this.start()"><a id="blink" href="Resume.docx">Download an MS Word copy!</a></marquee><br>
@@ -140,7 +144,7 @@ if (!$me) {
       </center>
     </td>
   </tr>
-</table>
+</table> -->
     <?php end_box();?>
 
     <h2>Certifications and Class Work</h2>
@@ -344,171 +348,19 @@ if (!$me) {
 
   <p><i>July 2007 - Present</i></p>
 
-  <h3>Perl Developer - Cpanel/WebPros <i>(October 2021 - Present)</i></h3>
+  <p>During this time I ran a consulting firm specializing in Build Engineering,
+  Linux Administration and Version Control Systems. I provided my services to
+  many clients like Wells Fargo, General Dynamics, Broadcom, ICANN, and General
+  Electric.</p>
 
-  <p>Working on the Artemis Team implementing bug fixes and improvements to WHM as
-  well as becoming accustomed to Cpanel's large code base and systems. Moved to
-  the Release Team performing bug fixes and release activities. Worked on the WordPress
-  Squared team implementing improvements and bug fixes on the backend</p>
+  <p>In my contracting roles I've often served as a Perl developer writing scripts
+  automating tasks in build systems, test systems as well as complete applications. I
+  also served as administrator for various subsystems that today's software businesses
+  often emply like Puppet/Ansible, Clearcase/Clearquest, Git, Perforce, Jenkins,
+  and JIRA. I'm well versed in Linux administration and even use Linux exclusively
+  in my home. I am the kind of guy who will dig into a customers needs and work
+  at devising a custom solution to the problem.</p>
 
-  <h3>Perl Developer - Wells Fargo <i>(July 2019 - February 2021)</i></h3>
-
-  <p>Responsible for maintaining a Perl application written using the Dancer
-  framework called UserPro. Tightened security by standardizing access to
-  lthe database as well as implemented an auditing facility for changes made to
-  database records.</p>
-
-  <h3>Solaris Administrator, PuppetMaster - General Dynamics <i>(March 2018 - April 2019)</i></h3>
-
-  <p>For this technology refresh over a decade ago, I was instrumental in
-  setting up and maintaining dozens of Solaris 5.11 zone systems and served as the
-  primary Solaris System Administrator. This includes the setup of many services
-  like NIS, DNS, NTP, SMTP, and AutoFS as well as a standard set of tools.
-
-  <p>Introduced <span class="standout">Puppet</span> to the group and served as
-  the <span class="standout">Puppet Master</span>.</p>
-
-  <p>Created Windows-based <span class="standout">VMs</span> for specific roles
-  such as <span class="standout">BuildForge Console</span>, Application server,
-  Domain Controllers, etc. These were managed under <span
-  class="standout">vCenter</span>.</p>
-
-  <p>Developed <span class="standout">Perl</span> scripts for validation testing
-  of <span class="standout">Clearcase</span> and <span class="standout">Clearquest</span>.
-  Developed a Clearcase enhanced monitoring tool to monitor servers, loadavg, and
-  filesystems as well as Clearcase objects like VOBs and views.</p>
-
-  <h3>Devops Engineer - Broadcom <i>(August 2016 - January 2018)</i></h3>
-
-  <p>Converted an internal project from a <span class="standout">Jenkins</span>/
-  <span class="standout">Perforce</span> build system to the Broadcom/Avago
-  standard of <span class="standout">Electric Commander</span>/
-  <span class="standout">Git</span>. Developed Perl scripts to sign executables
-  and remotely execute commands on Windows systems using <span
-  class="standout">Cygwin/ssh</span> thus streamlining and standardizing remote
-  building and signing of executables.</p>
-
-  <h3>Python Developer - ICANN <i>(May 2016 - July 2016)</i></h3>
-
-  <p>Developed <a
-  href="https://en.wikipedia.org/wiki/Registration_Data_Access_Protocol">RDAP</a>
-  server for testing SLA compliance of various TLD registrars around the world.</p>
-
-  <h3>JIRA/Perforce/Linux Administrator - Knowles <i>(March 2014 - April 2016)</i></h3>
-
-  <p>Initially wrote scripts to import data from
-  <span class="standout">Bugzilla</span> and other sources to
-  <span class="standout">JIRA</span> thus automating the migration of several
-  projects. Also administered <span class="standout">Linux</span> servers
-  (<span class="standout">Centos</span>/<span
-  class="standout">Ubuntu</span>/<span class="standout">Redhat Enterprise</span>)
-  managing VM images in vSphere,
-  <span class="standout">Perforce</span>, <span class="standout">Swarm</span>, and
-  <span class="standout">Git Fusion</span>.</p>
-
-  <p>Added functionality to custom build system that utilized <span
-  class="standout">Perl</span>/<span class="standout">PHP</span>/<span
-  class="standout">Apache</span>/<span class="standout">Linux</span>/<span
-  class="standout">Windows</span> servers to allow engineers in the field to
-  perform customized builds remotely. Integrated Bugzilla and Perforce (P4DTG).
-  Assisted with JIRA setup and integration of <span
-  class="standout">Salesforce</span> with JIRA and assisted in the migration
-  of users to the new Knowles domain.</p>
-
-  <h3>Build Release Engineer - Axcient <i>(July 2013 - December 2013)</i></h3>
-
-  <p>Worked as a <span class="standout">Build and Release Engineer</span> for
-  AxOS. The Axcient product is a customized derivative of <span
-  class="standout">Ubuntu</span>. The SCM system being used is <span
-  class="standout">git</span>. Developed and standardized procedures for
-  performing builds.</p>
-
-  <h3>Clearquest Administrator - Broadcom <i>(December 2011 - December 2013)</i></h3>
-
-  <p><span class="standout">Clearquest Designer</span>: Maintained Clearquest
-  instances implementing functionality with <span class="standout">Visual Basic</span>.
-  Using ClearSCM's <a
-  href="http://clearscm.com/php/scm_man.php?file=lib/Clearcase.pm">Clearquest</a>,
-  <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/Server.pm">Clearquest::Server</a>,
-  <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/Client.pm">Clearquest::Client</a>,
-  and <a href="http://clearscm.com/php/scm_man.php?file=lib/Clearquest/REST.pm">Clearquest::REST</a>
-  modules created <span class="standout">Perforce</span> and <span class="standout">Git</span>
-  triggers to automate builds updating Clearquest.</p>
-
-  <p>Migrated a project from their unsupported build environment into the standard
-  <span class="standout"><a
-  href="http://www.electric-cloud.com/products/electriccommander.php">Electric
-  Commander</a></span>/<span class="standout">Perforce</span> based solution
-  using <span class="standout">Cygwin</span>, <span class="standout">bash</span>,
-  and <span class="standout">LSF</span> to farm builds out to a pool of <span
-  class="standout">Windows</span> servers to perform builds. Builds were done
-  using <span class="standout">Visual Studio</span> 8.0, 9.0, and 10.0 on Windows
-  Servers triggered by Perforce triggers at code checkin.</p>
-
-  <h3>Perl Developer - Tellabs <i>(March 2011 - December 2011)</i></h3>
-
-  <p>Automated various informational systems using <span
-  class="standout">Perl</span>/<span class="standout">MySQL</span>/<span
-  class="standout">Oracle</span>, and the web.</p>
-
-  <p>Developed a command line debugger called <a
-  href="http://clearscm.com/php/scm_man.php?file=bin/raid">RAID</a> (a Real
-  Aid In Debugging) which provided a consistent interface with complete command
-  history and variable substitution courtesy of a Perl module that I wrote
-  called <a
-  href="http://clearscm.com/php/scm_man.php?file=lib/CmdLine.pm">Cmdline.pm</a>.
-  This Perl process utilized <span class="standout">Inline::C</span> to
-  interface to the developer libraries and provide a consistent interface for
-  the various command line debuggers developed by various groups.</p>
-
-  <h3>Clearcase/Clearquest Administrator - General Electric Healthcare <i>(January 2010 - October 2010)</i></h3>
-
-  <p>Performed <span class="standout">Clearcase</span>/<span
-  class="standout">Clearquest UCM</span> administration. Developed an <a
-  href="http://clearscm.com/php/scm_man.php?file=cc/etf.pl">Evil Twin Finder</a>
-  in Perl. Worked with <span class="standout">Build Forge</span> (IBM's CI tool
-  similar to <span class="standout">Jenkins</span>) jobs to automate workflow.
-  Assisted in consultations with UCM concepts such as component/composite
-  baselines and projects. Wrote Perl scripts for conversions of Clearquest data
-  with other systems (Siebel).</p>
-
-  <h3>Clearcase/Clearquest/Release Engineer - General Dynamics <i>(June 2007 - October 2009)</i></h3>
-
-  <p><span class="standout">Clearcase</span>/<span class="standout">Clearquest</span>
-  Administrator, <span class="standout">Build Release</span> and
-  <span class="standout">Automation</span> using <span
-  class="standout">Perl</span> scripts. Updated <span
-  class="standout">C++</span>/<span class="standout">Qt</span> application that
-  integrates <span class="standout">UCM</span>/Clearquest integrated environment
-  into one tool and ported it to Linux.</p>
-
-  <p>Instrumental in the establishment of Perl standards and introduction of Perl
-  tools such as <a href="http://perlcritic.com/">Perl::Critic</a>
-  and <a href="http://perltidy.sourceforge.net/">Perl::Tidy</a>.
-  Worked at promoting the usage of CPAN modules.</p>
-
-  <p>Developed an extensive test driver application in Perl to interface and
-  drive tests using <a href="https://www.nethawk.fi/products/nethawk_simulators/">NetHawk
-  EAST Simulators</a> as well as interfacing to other simulators and external
-  hardware. The system automates the running of regression tests, and official
-  testing before the customer, assists with validation of test results,
-  collecting of log files, checking log files into Clearcase, and records status
-  into a MySQL database. Developed a PHP web page to present the data in various
-  forms including graphs, reports, exporting to CSV files, and emailing of
-  reports. Implemented maintenance programs to scrub and keep the data clean.
-  This system was instrumental in Functional Quality Testing for the <a
-  href="http://en.wikipedia.org/wiki/Mobile_User_Objective_System">MUOS</a>
-  program. This reduced the time it took to certify testing with the military severalfold.</p>
-
-  <p>Worked on many enhancements to the extensive Clearquest system in use at
-  GD. Designed and developed the record set implementing node configurations.
-  Implemented required forms and action hook code. Designed and developed Perl
-  scripts to initially load data into the new records.</p>
-
-  <p>Developed a server process (daemon) to process baseline records that were
-  then tracked by Clearquest. Implemented scripts to create baseline records
-  from other automated processes such as Build Forge. Tied together baseline
-  records with node configurations through action hook code.</p>
 
   <hr noshade>
 
@@ -516,89 +368,10 @@ if (!$me) {
 
   <p><i>February 2004 - June 2007</i></p>
 
-  <h3>Clearcase/Clearquest Administrator - Texas Instruments <i>(October 2006 - June 2007)</i></h3>
-
-  <p><span class="standout">Clearcase</span>/<span
-  class="standout">Clearquest</span> Administrator. Wrote a <span
-  class="standout">Perl</span>/<span class="standout">Oracle</span>
-  application to track information about projects worldwide. Automated Clearcase
-  license usage reporting and load balancing of Clearquest web servers.</p>
-
-  <h3>Build Release Engineer - Hewlett Packard <i>(February 2006 - October 2006)</i></h3>
-
-  <p>Managed and executed day-to-day build and release duties. Served as
-  <span class="standout">Clearcase/Clearquest</span> Administrator as well as
-  overall support of systems. Assisted with creating UCM streams and handling of
-  rebase and delivery issues for engineers and the build/release process. Wrote
-  <span class="standout">UCM triggers</span> to notify users of deliveries from
-  UCM development streams. Created baselines for official builds. Took over
-  day-to-day build and release duties. Created a build script that united the
-  various quick and dirty build scripts that were oriented per stream and
-  build option. This standardized the build process. Augmented this build script
-  to be a daemon that continually builds software when deliveries are detected.
-  Wrote a build status web page that tracks and monitors the continuous
-  building. Created a dynamic web page to show Junit test history. Converted
-  Windows build from bat files and scheduled tasks -> Cygwin and cron thus
-  making the build script identical on both Linux and Windows. Wrote triggers
-  to notify users of deliveries. Baselined official builds. Automated the build
-  process to perform simple continuous integration. Created a dynamic web page
-  to show Junit test history.
-
-  <h3>Clearcase/Clearquest Administrator - Broadcom <i>(September 2005 - January 2006)</i></h3>
-
-  <p>Served as <span class="standout">Clearcase/Clearquest</span> Administrator
-  as well as overall support of systems. Developed several <a href="http://clearscm.com/clearcase/triggers.php">triggers</a>
-  as well as ported my <a href="http://clearscm.com/clearcase/triggers.php">mktriggers</a>
-  script which automates the maintenance of triggers.</p>
-
-  <p>Developed a complex <a hef="http://clearscm.com/clearquest/db.php">Perl script</a>
-  to merge two Clearquest databases into a new database with many schema changes.
-  This script handled all aspects of the conversion including changing non-US
-  ASCII characters found in the data to their HTML equivalents, dynamic creation
-  of dynamic lists, field renaming and dynamically creating new stateless
-  records as needed.</p>
-
-  <p>Developed a script to better handle merging from UCM deliveries and rebases
-  by delaying any non-automatic merges to the end of the process as well as
-  handle binary element merge. This process, written in Perl, utilized PerlTk to
-  present the user with a GUI dialog box to choose which version of the binary
-  file to merge.</p>
-
-  <p>Designed and developed another Clearquest database for the Mobile
-  Multimedia group.</p>
-
-  <p>Wrote several other scripts including one to interface CVS to IMS (a defect
-  tracking system) recording the change set at commit time, and a script to strip
-  out MIME/HTML and attachments for defects submitted to GNATS (another defect
-  tracking system). Also implemented several scripts to log Clearcase activity,
-  check Clearcase's pulse, and gather site and vob statistics. These scripts were
-  the start of the creation of a set Object Oriented Perl modules to encapsulate
-  Clearcase in a Perl-like manner (still in development).</p>
-
-  <h3>Build Engineer - Lynuxworks <i>(December 2004 - September 2005)</i></h3>
-
-  <p>Served as a build engineer in the Integration Group responsible for
-  building LynxOS (Linux RTOS) as well as toolchains, testing, releasing, and
-  process improvement. LynuxWorks uses CVS for version control.</p>
-
-  <p>Developed a process of providing a full-text search of the company's defect
-  database using Perl and Htdig (See <a href="http://clearscm.com/scripts/ecrd">ECRDig</a>).
-  Developed a web-based report to show CVS activity as well as several other
-  CVS-related utilities(See <a href="https://defaria.com/Resume/cvs_utilities">CVS
-  Utilities</a>) as well as report on the differences between two CVS tags.</p>
-
-  <p>Automated the build process so that nightly builds could be performed.
-  Developed a web application that allows one to maintain CVS account
-  information including account creation, setting/resetting of password, etc.</p>
-
-  <h3>Clearcase Administrator - Ameriquest <i>(March 2004 - December 2005)</i></h3>
-
-  <p>Served as Clearcase/Clearquest administrator to this major mortgage
-  company. As Ameriquest is just starting I have been busy with importing
-  source code from flat file systems as well as PVCS and Visual Source Safe.
-  Also setting up vobs and regions taking into account security restrictions
-  and concerns. Assisted with designing of the Multisite scheme to India.
-  Participated in the design of the UCM model to be used for Ameriquest.</p>
+  <p>Operating as a 1099 business, I performed consulting services for clients
+  like Hewlett Packard, Broadcom, Lynuxworks and Ameriquest. Services included
+  Build Release engineering, and Clearcase/Clearquest engineering as well as
+  hardening of systems security.</p>
 
   <hr noshade>
 
@@ -644,57 +417,6 @@ if (!$me) {
   (SuSE) and Solaris as well as browser testing (Netscape).</p>
 
   <p>Implemented test scaffolding in TCL/TK for test automation.</p>
-
-  <hr noshade>
-
-  <h2>DeFaria.com</h2>
-
-  <p><i>December 1998 - February 2001</i></p>
-
-  <h3>Unix Systems Administrator - Hewlett Packard <i>(August 1999 - February 2001)</i></h2>
-
-  <p>Set up a security system automating the running of Medusa (an internal
-  security audit tool) on approximately 100 machines. Reports are generated
-  automatically and are viewable on the web. Set up and maintained security-related
-  patch depots.</p>
-
-  <p>Implemented nightly automation for the lab's machines including security
-  checks, automatic installation of line printer models, etc. This automation
-  was bundled into an SD-UX bundle.</p>
-  <p>Migrated user data to HP NetStorage 6000. Worked extensively with HP
-  NetStorage 6000 Support on problems with this machine's OS and interfacing with
-  Windows 2000.</p>
-
-  <P>Migrated HP-UX applications from one application server to another.
-
-  <p>Participated in several critical planned networked downtimes where the
-  team was able to implement changes to the infrastructure, including migration
-  to Clearcase 4.0, migration of project and user data to HP NetStorage 6000s,
-  and other such changes.</p>
-
-  <p>Set up Netscape Enterprise Web Server and iPlanet 4.1 Web Server.</p>
-
-  <h3>Clearcase Administrator - Cisco <i>(March 1999 August 1999)</i></h3>
-
-  <p>Served as Clearcase/Unix Systems Administrator. Responsible for all
-  Clearcase operations in CNS/AD on Sun Solaris, HP-UX, Windows NT 4.0, and
-  Windows 2000. Assisted in creating additional View and Vob servers and
-  balancing the Clearcase load amongst them. Participated in Rational's Beta
-  program for Windows 2000. Installed, tested, and documented Clearcase on
-  Windows 2000 as well as Windows NT 4.0.</p>
-
-  <p>Assisted in recovery of a catastrophic disk failure in a critical vob.
-  Assisted with implementing a backup strategy with Arcserve Open. Helped
-  evaluate system monitoring packages.</p>
-
-  <p>As CNS/AD was in a secured and isolated network, learned and assisted users
-  with ssh/scp.</p>
-
-  <h3>Build Engineer - Sun Microsystems <i>(December 1998 - March 1999)</i></h3>
-
-  <p>Worked on the Sunpeak Configuration Management team performing promotions
-  of code updates in test and production environments. Also worked on
-  improving the process flow of promotions utilizing make and rdist.</p>
 
   <hr noshade>
 
@@ -757,37 +479,6 @@ if (!$me) {
   <p>Performed destructive testing on MPE/XL 1.0-1.3. Wrote several programs to
   stress the OS. Submitted 300+ Service Requests many of which appeared on Must
   Fix lists.</p>
-
-  <hr noshade>
-
-  <h2>Copyright (GPL)</h2>
-
-  <?php start_box("cs2")?>
-    <a name="copyleft"></a>
-      <p style="color:#666">This resume is freely available; you can
-      redistribute it and/or modify it under the terms of the GNU
-      General Public License as published by the Free Software
-      Foundation; either version 2 of the License, or (at your option)
-      any later version. This means that if you modify this resume you
-      must include a copy of the source or refer to its origin
-      at <a href="https://defaria.com/resumes">https://defaria.com/resume</a>.</p>
-
-      <p style="color:#666">This resume is distributed in the hope
-      that it will be useful, but WITHOUT ANY WARRANTY; without even
-      the implied warranty of MERCHANTABILITY or FITNESS FOR A
-      PARTICULAR PURPOSE.  See the GNU General Public License for more
-      details.</p>
-
-      <p style="color:#666">You should have received a copy of the GNU
-      General Public License along with this resume; if not, write to
-      the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-      Boston, MA 02111-1307, USA.</p>
-    </font>
-  <?php end_box();?>
-
-  <?php copyright("1988");?>
-
-<script language="JavaScript" src="/JavaScript/Menus.js" type="text/javascript"></script>
 
 </body>
 </html>
