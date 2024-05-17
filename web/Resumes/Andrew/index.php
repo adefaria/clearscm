@@ -73,6 +73,7 @@ $msg .= '<h1>Somebody just visited your resume.</h1>';
 $msg .= "<p>Here's what I know about them:</p>";
 
 $me = false;
+$myip = '75.80.5.95';
 
 foreach ($_SERVER as $key => $value) {
     if (preg_match("/^REMOTE/", $key)) {
@@ -80,7 +81,7 @@ foreach ($_SERVER as $key => $value) {
 
         if ($key == 'REMOTE_ADDR') {
             // Skip me...
-            if ($value == '208.113.131.137') {
+            if ($value == $myip) {
                 $me = true;
                 break;
             } // if
