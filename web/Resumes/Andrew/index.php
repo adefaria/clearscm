@@ -347,9 +347,18 @@ if (!$me) {
 
   <br>
 
+  <h2>Perl Developer - Cpanel/WebPros</h2>
+
+  <p><i>October 2021 - Present</i></p>
+
+  <p>Working on the Artemis Team implementing bug fixes and improvements to WHM
+  as well as becoming accustomed to Cpanel's large code base and systems. Moved
+  to the Release Team performing bug fixes and release activities. Worked on the
+  WordPress Squared team implementing improvements and bug fixes on the backend</p>
+
   <h2>ClearSCM, Inc</h2>
 
-  <p><i>July 2007 - Present</i></p>
+  <p><i>July 2007 - September 2021</i></p>
 
   <p>During this time I ran a consulting firm specializing in Build Engineering,
   Linux Administration and Version Control Systems. I provided my services to
