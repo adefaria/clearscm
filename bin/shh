@@ -5,6 +5,7 @@ touchfile=/opt/clearscm/data/shh
 if [ -f $touchfile ]; then
   rm $touchfile
   cp ~/.icons/ShhOff.png ~/.icons/Shh.png
+  /opt/clearscm/bin/say "Speech has been reactivated"
 else
   # Stop currently playing audio
   killall play 2> /dev/null
