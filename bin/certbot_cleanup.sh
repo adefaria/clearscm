@@ -42,14 +42,14 @@ log "Starting $0"
 # CERTBOT_VALIDATION: Validation string for domain
 #
 # Check that CERTBOT_DOMAIN and CERTBOT_VALIDATION have been passed in properly
-if [ -z "$CERTBOT_DOMAIN"]; then
+if [ -z "$CERTBOT_DOMAIN" ]; then
     log "CERTBOT_DOMAIN not passed in!"
     exit 1
 else
     log "CERTBOT_DOMAIN = $CERTBOT_DOMAIN"
 fi
 
-if [ -z "$CERTBOT_VALIDATION"]; then
+if [ -z "$CERTBOT_VALIDATION" ]; then
     log "CERTBOT_VALIDATION not passed in!"
     exit 1
 else
@@ -74,6 +74,8 @@ function removeTXT {
     response=$(wget -O- -q "$cmd")
 
     log "Response = $response"
+    log "For some reason this has been reporting no_such_record"
+    log "Check dreamhost.com to make sure it's removed"
 } # removeTXT
 
 removeTXT
