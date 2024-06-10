@@ -106,8 +106,8 @@ rainlendar2 > rainlendar2.log 2>&1 &
 
 # Cleanup
 rm -rf			\
-  allison.ics	\
-  meetups.ics	\
-  tripit.ics	\
+  allison.ics		\
+  meetups.ics		\
+  tripit.ics		\
   bsc.ics		\
   updateCalendar.log

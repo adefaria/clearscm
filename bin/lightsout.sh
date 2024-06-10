@@ -9,12 +9,6 @@ if [ "$1" = "-a" ]; then
   fi
 fi
 
-#if [ $host = "earth" ]; then
-  export DISPLAY=:1
-#else
-#  export DISPLAY=:0
-#fi
-
 sleep 2
 /usr/local/bin/setdpms.sh
 xset dpms force off

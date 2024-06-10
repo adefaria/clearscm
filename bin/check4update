@@ -14,6 +14,7 @@ function notify {
 
 function yesno {
   question=$1
+  say $question
 
   zenity --question --text "$question" --width=300 2> /dev/null
 }
@@ -40,7 +41,7 @@ for system in $systems; do
   rm -f /tmp/check4update.list
 
   reboot=$(ssh $system " if [ -e /var/run/reboot-required ]; then echo 1; else echo 0; fi")
-  if [ $reboot = 1 ]; then
+  if [ "$reboot" = 1 ]; then
     if yesno "$system needs to be rebooted\nReboot now?" ]; then
       ssh $system sudo reboot
     else
