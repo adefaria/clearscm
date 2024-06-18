@@ -1,0 +1,253 @@
+/************************************************************************/
+/*									*/
+/* File:	TableBorders.css					*/
+/* Description: Define tables with borders				*/
+/* Author:	Andrew@DeFaria.com					*/
+/* Created:     Mon Nov  3 21:55:05 PST 2003				*/
+/* Language:	Cascading Style Sheet					*/
+/*									*/
+/* (c) Copyright 2004, Andrew@DeFaria.com, all rights reserved.		*/
+/*									*/
+/************************************************************************/
+
+/* Table headers */
+th.th {
+  border-style:		solid;
+  border-color:		black;
+  border-top-width:	2pt;
+  border-bottom-width:	0pt;
+  border-left-width:	1pt;
+  border-right-width:	0pt;
+  padding:		3px;
+  background:		teal;
+  color:		white;
+  font-size:		12px;
+}
+
+th.tht {
+  border-style:		solid;
+  border-color:		black;
+  border-top-width:	2pt;
+  border-bottom-width:	0pt;
+  border-left-width:	1pt;
+  border-right-width:	0pt;
+  padding:		3px;
+  background:		teal;
+  color:		white;
+  font-size:		16px;
+  -moz-border-radius-topleft:	10px;
+  -moz-border-radius-topright:	10px;
+}
+
+/* Table Header Top Left */
+th.thtl {
+  border-style:		solid;
+  border-color:		black;
+  border-top-width:	2pt;
+  border-bottom-width:	0pt;
+  border-left-width:	2pt;
+  border-right-width:	0pt;
+  padding:		3px;
+  background:		teal;
+  color:		white;
+  font-size:		12px;
+  -moz-border-radius-topleft:	10px;
+}
+
+/* Table Header Top Right */
+th.thtr {
+  border-style:		solid;
+  border-color:		black;
+  border-top-width:	2pt;
+  border-bottom-width:	0pt;
+  border-left-width:	1pt;
+  border-right-width:	2pt;
+  padding:		3px;
+  background:		teal;
+  color:		white;
+  font-size:		12px;
+  -moz-border-radius-topright:	10px;
+}
+
+/* Table Header Left */
+th.thl {
+  border-style:		solid;
+  border-color:		black;
+  border-top-width:	2pt;
+  border-bottom-width:	1pt;
+  border-left-width:	2pt;
+  border-right-width:	1pt;
+  padding:		3px;
+  background:		teal;
+  color:		white;
+  font-size:		12px;
+}
+
+/* Table Header Bottom Left */
+th.thbl {
+  border-style:		solid;
+  border-color:		black;
+  border-top-width:	1pt;
+  border-bottom-width:	2pt;
+  border-left-width:	2pt;
+  border-right-width:	1pt;
+  padding:		3px;
+  background:		teal;
+  color:		white;
+  font-size:		12px;
+}
+
+/* Table Data Top Left */
+td.tdtl {
+  border-style:		solid;
+  border-color:		black;
+  border-right-width:	0pt;
+  border-left-width:	2pt;
+  border-top-width:	2pt;
+  border-bottom-width:	0pt;
+  padding:		5px;
+  background:		white;
+  color:		black;
+  font-size:		12px;
+}
+
+/* Table Data Bottom Left */
+td.tdbl {
+  border-style:		solid;
+  border-color:		black;
+  border-right-width:	0pt;
+  border-left-width:	2pt;
+  border-top-width:	1pt;
+  border-bottom-width:	2pt;
+  padding:		5px;
+  background:		white;
+  color:		black;
+  font-size:		12px;
+}
+
+/* Table Data Bottom Right */
+td.tdbr {
+  border-style:		solid;
+  border-color:		black;
+  border-right-width:	2pt;
+  border-left-width:	1pt;
+  border-top-width:	1pt;
+  border-bottom-width:	2pt;
+  padding:		5px;
+  background:		white;
+  color:		black;
+  font-size:		12px;
+}
+
+/* Table Data Bottom */
+td.tdb {
+  border-style:		solid;
+  border-color:		black;
+  border-right-width:	0pt;
+  border-left-width:	1pt;
+  border-top-width:	1pt;
+  border-bottom-width:	2pt;
+  padding:		5px;
+  background:		white;
+  color:		black;
+  font-size:		12px;
+}
+
+/* Table Data */
+td.td {
+  border-style:		solid;
+  border-color:		black;
+  border-right-width:	0pt;
+  border-left-width:	1pt;
+  border-top-width:	1pt;
+  border-bottom-width:	0pt;
+  padding:		5px;
+  background:		white;
+  color:		black;
+  font-size:		12px;
+}
+
+/* Table Data Left */
+td.tdl {
+  border-style:		solid;
+  border-color:		black;
+  border-right-width:	0pt;
+  border-left-width:	2pt;
+  border-top-width:	1pt;
+  border-bottom-width:	0pt;
+  padding:		5px;
+  background:		white;
+  color:		black;
+  font-size:		12px;
+}
+
+/* Table Data Right */
+td.tdr {
+  border-style:		solid;
+  border-color:		black;
+  border-right-width:	2pt;
+  border-left-width:	1pt;
+  border-top-width:	1pt;
+  border-bottom-width:	0pt;
+  padding:		5px;
+  background:		white;
+  color:		black;
+  font-size:		12px;
+}
+
+/* Table Data Top Right */
+td.tdtr {
+  border-style:		solid;
+  border-color:		black;
+  border-right-width:	2pt;
+  border-left-width:	1pt;
+  border-top-width:	2pt;
+  border-bottom-width:	0pt;
+  padding:		5px;
+  background:		white;
+  color:		black;
+  font-size:		12px;
+}
+
+/* Table Data Top Right (right?) */
+td.tdtrr {
+  border-style:		solid;
+  border-color:		black;
+  border-right-width:	2pt;
+  border-left-width:	1pt;
+  border-top-width:	2pt;
+  border-bottom-width:	0pt;
+  padding:		5px;
+  background:		white;
+  color:		black;
+  font-size:		12px;
+  -moz-border-radius-topright:	10px;
+}
+
+/* Table Data Right */
+td.tdr {
+  border-style:		solid;
+  border-color:		black;
+  border-right-width:	2pt;
+  border-left-width:	1pt;
+  border-top-width:	1pt;
+  border-bottom-width:	0pt;
+  padding:		5px;
+  background:		white;
+  color:		black;
+  font-size:		12px;
+}
+
+/* Table Data Top */
+td.tdt {
+  border-style:		solid;
+  border-color:		black;
+  border-right-width:	0pt;
+  border-left-width:	1pt;
+  border-top-width:	2pt;
+  border-bottom-width:	0pt;
+  padding:		5px;
+  background:		white;
+  color:		black;
+  font-size:		12px;
+}

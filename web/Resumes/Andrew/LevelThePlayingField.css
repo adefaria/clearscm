@@ -1,0 +1,195 @@
+/*****************************************************************************
+lpf.css -- Level the Playing Field. Majorly modified form of
+"undohtml.css" (C) 2004 by Tantek Celik. Some Rights Reserved. His
+style sheet is licensed under a Creative Commons License.
+
+See http://creativecommons.org/licenses/by/2.0
+
+Modifications made by Paul Pomeroy, July 2005.
+
+Whatever isn't Tantek's, consider it free for the taking but as I have
+no idea what your requirments may be and no control over how you use
+the following, all risks are assumed by you. Okay?
+
+Purpose: undo some of the default styling of common (X)HTML browsers
+so all browers can start from the same settings (or as close as
+possible)
+*****************************************************************************/
+* {
+  /* IE5/Mac likes this, doesn't like ...:relative;. */
+  /* hide from IE5/Mac */ 
+  position:   static;
+  /* rumored to help with some IE problems (other than IE5/Mac. */
+  position:   relative;
+  /* IE sometimes decides to center stuff for the heck of it */
+  text-align: left; 
+  font-size:  1em;
+}
+
+body {
+  margin:  0;
+  padding: 0;
+}
+
+/*ul,
+ol,*/
+
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+pre,
+form,
+body,
+html,
+p,
+blockquote,
+fieldset,
+input {
+  margin:  0;
+}
+
+dt {
+  padding-left: 12px;
+}
+
+blockquote {
+  padding-left:  25px;
+}
+
+/*****************************************************************************
+No list-markers by default, since lists are used more often for semantics
+*****************************************************************************/
+/* ul,ol { list-style:none; }*/
+
+/*****************************************************************************
+Link underlines tend to make hypertext less readable, because
+underlines obscure the shapes of the lower halves of words
+*****************************************************************************/
+:link,:visited {
+  text-decoration:  none;
+}
+
+/*****************************************************************************
+Try getting rid of blue linked borders. 
+*****************************************************************************/
+a {
+  border:      none;
+  font-weight: bold;
+}
+
+a:link {
+  color:  red;
+  text-decoration: underline;
+}
+
+a:visited {
+  color:  teal;
+  text-decoration: underline;
+}
+
+a:active { 
+  color:  red;
+  text-decoration: underline;
+}
+
+a:hover {
+  color:      blue;
+  background: #ffff80;
+  text-decoration: underline;
+}
+
+a img,
+:link img,
+:visited img {
+  border:  none;
+}
+
+/*****************************************************************************
+Now set up the default fonts and font sizes...
+
+We'll start with a size of 12px (1em = 12px)
+*****************************************************************************/
+
+body {
+  font-family: verdana, arial, sans-serif;
+  font-size:   75%; /* assumes a 14-16px default size */
+  line-height: 137%;
+}
+
+/*****************************************************************************
+Let IE use percentage for base font size so it can still zoom
+text. Everyone else we'll give a pixel value to ...
+*****************************************************************************/
+html>body {
+  font-size:  12px; /* For everyone except IE ... */
+}
+
+p {
+  font-size:  1.0em; /* ~12px */
+}
+
+h1, h2, h3, h4, h5, h6 { /* georgia is a better x-browser font */
+  font-family:   georgia, "new century schoolbook", times, serif;
+  margin-top:    4px;
+  margin-bottom: 10px;
+  color:         #993333;
+}
+
+h1 {
+  font-weight:    normal;
+}
+h2, h3, h4, h5, h6 {
+  font-weight:    bolder;
+}
+
+
+h1 {
+  font-size:    2em;
+  font-variant: small-caps;
+  text-align:   center;
+}
+
+h2 {
+  font-size:    1.75em;
+  font-variant: small-caps;
+  font-weight:  bolder;
+}
+
+h3 {
+  font-size:    1.5em;
+  font-weight:  bolder;
+}
+
+h4 {
+  font-size:   1.25em;
+  font-style:  italic;
+}
+
+h5 {
+  font-size:   1.0em;
+  font-style:  italic;
+}
+
+h6 {
+  font-size:    0.8em;
+  font-weight:  bold;
+}
+
+.standout {
+  font-family:   verdana,
+                 arial,
+                 sans-serif;
+  font-size:     12px;
+  color:         #933;
+  line-height:   13px;
+  font-weight:   bold;
+  margin-bottom: 10px;
+}
+
+.dim {
+  color:    #999;
+}

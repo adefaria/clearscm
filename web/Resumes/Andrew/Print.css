@@ -1,0 +1,134 @@
+/************************************************************************/
+/* File:	Print.css				                                           		*/
+/* Description: A printer version of the standard Cascading Style Sheet */
+/*	            definitions for site. This basically removes the menu   */
+/*              on the left hand side so that printed output is more    */
+/*              readable.			                                    			*/
+/* Author:      Andrew@DeFaria.com                                      */
+/* Created:     Mon Jan 17 10:45:57 PST 2005                            */
+/* Language:    Cascading Style Sheet                                   */
+/*                                                                      */
+/* (c) Copyright 2005, Andrew@DeFaria.com, all rights reserved.         */
+/*                                                                      */
+/************************************************************************/
+@import url(Code.css);
+
+body {
+  background: white;
+  margin: 3px;
+  padding: 2px;
+  /* font-family: trebuchet MS, trebuchet, verdana, sans-serif, arial; */
+  font-family: Raleway;
+  font-size: 10pt;
+  color: black;
+}
+
+.heading {
+  margin-top: 5px;
+  padding: 5px;
+}
+
+/* Turn off menus */
+#imenus0 li a,
+#imenus0 .imctitle {
+  display: none;
+}
+
+#imouter0 {
+  display: none;
+}
+
+/* Turn off heading */
+.head {
+  display: none;
+}
+
+.filtered {
+  display: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: #00498b;
+  font-family: verdana,
+    sans-serif,
+    arial;
+}
+
+h1 {
+  text-align: center;
+}
+
+h2 {
+  font-family: Raleway SemiBold;
+  font-size: 14pt;
+}
+
+h3 {
+  font-family: Raleway SemiBold;
+  font-size: 12pt;
+}
+
+#content {
+  font-size: 10pt;
+}
+
+#content p {
+  color: black;
+  font-family: helvetica;
+  font-size: 10pt;
+}
+
+/* Turn on underlining of links for clarity on paper */
+a {
+  color: #4A7184;
+  text-decoration: underline;
+  font-weight: bold;
+  font-family: helvetica;
+  font-size: 10pt;
+  font-weight: bold;
+}
+
+a:link {
+  color: #0080c0;
+}
+
+/* For img's that happen to be links, don't put that silly    */
+/* border!                                                    */
+img {
+  border: none;
+}
+
+font {
+  font-family: helvetica;
+  font-weight: normal;
+  text-transform: none;
+}
+
+p {
+  color: black;
+  font-family: helvetica;
+  font-size: 10pt;
+}
+
+ul {
+  color: black;
+  font-family: helvetica;
+  font-size: 10pt;
+}
+
+li {
+  font-family: helvetica;
+  font-size: 10pt;
+}
+
+#foot p {
+  color: #aaa;
+  font-size: 80%;
+  text-align: center;
+  border-bottom: 1px dotted #ccc;
+  border-top: 1px dotted #ccc;
+}
