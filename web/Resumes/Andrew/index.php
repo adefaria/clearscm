@@ -124,6 +124,8 @@ if (!$me) {
       408-596-4937 <a href="mailto:Andrew@DeFaria.com">Andrew@DeFaria.com</a>
       </p>
 
+      <p style="text-align:center">Download an <a href="Resume.docx">MS Word copy of this resume</a></p>
+
     <?php end_box();?>
 
     <h2>PROFESSIONAL SUMMARY</h2>
