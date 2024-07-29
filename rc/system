@@ -19,7 +19,7 @@ export SYSNAME=$(uname -n)
 SYSNAME=${SYSNAME%%\.*}
 
 # Set to initial cap
-SYSNAME=$(echo ${SYSNAME:0:1} | tr [:lower:] [:upper:])$(echo ${SYSNAME:1}   | tr [:upper:] [:lower:])
+SYSNAME=$(echo ${SYSNAME:0:1} | tr '[:lower:]' '[:upper:]')$(echo ${SYSNAME:1}   | tr '[:upper:]' '[:lower:]')
 
 # Aliasing
 case "$SYSNAME" in
@@ -44,3 +44,4 @@ case "$SYSNAME" in
     ;;
 
 esac
+set +x
