@@ -68,13 +68,14 @@ END
 
 my $heading	= "<h1>Helpdesk Report as of 20070801</h1>";
 my $subject	= "Helpdesk Report";
-my $to		= "Andrew\@DeFaria.com";
+my $to  		= 'adefaria@gmail.com,aliberry7777@gmail.com';
+my $cc      = 'qxsq6trp3@mozmail.com';
 
 # Main
 display "Calling mail";
 mail (
   to            => $to,
-  port          => 1025,
+  cc            => $cc,
   subject       => $subject,
   mode          => "html",
   heading       => $heading,

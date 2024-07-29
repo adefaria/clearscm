@@ -275,10 +275,11 @@ Returns:
 
   # Now write the headers
   $smtp->data;
-  $smtp->datasend("From: $randomizedFrom\n");
+  $smtp->datasend("From: $randomizedFrom\n") if $parms{randomizeFrom};
   $smtp->datasend("Reply-To: $from\n");
-  $smtp->datasend("To: $_\n") for (@to);
-  $smtp->datasend("Cc: $_\n") for (@cc);
+  $smtp->datasend("To: $parms{to}\n") if $parms{to};
+  $smtp->datasend("Cc: $parms{cc}\n") if $parms{cc};
+  $smtp->datasend("Bcc: $parms{bcc}\n") if $parms{bcc};
   $smtp->datasend("Subject: $subject\n");
   $smtp->datasend("Content-Type: $mode\n");
   $smtp->datasend("\n");
