@@ -90,7 +90,7 @@ use Display;
 use Mail;
 use Utils;
 
-my $VERSION = '1.0';
+my $VERSION = '1.6';
 
 my $exec = 1;
 my ($tag, $sign);
@@ -181,8 +181,9 @@ while (<$nagsIn>) {
     verbose "Nagging $email with $msgfile...";
 
     my $footing = '';
+    my $heading = '';
 
-    $footing = tag $sent, $date
+    $heading = tag $sent, $date
       if $tag;
 
     $footing .= sign
@@ -200,6 +201,7 @@ while (<$nagsIn>) {
       to            => $email,
       subject       => $subject,
       mode          => 'html',
+      heading       => $heading,
       data          => $msg,
       footing       => $footing,
       randomizeFrom => 1,
