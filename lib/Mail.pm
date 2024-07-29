@@ -216,13 +216,14 @@ Returns:
 
   # If from isn't specified we'll use a default
   my $from = $parms{from} || $config{SMTPFROM};
+  my $randomizedFrom;
 
   if ($parms{randomizeFrom}) {
     # Generate a random From address
     my $username = randStr;
     my $domain   = randStr;
 
-    $from = "$username\@defaria.com";
+    $randomizedFrom = "Nag <$username\@$domain.com>";
   } # if
 
   my $me = "Mail::mail";
@@ -274,7 +275,8 @@ Returns:
 
   # Now write the headers
   $smtp->data;
-  $smtp->datasend("From: $from\n");
+  $smtp->datasend("From: $randomizedFrom\n");
+  $smtp->datasend("Reply-To: $from\n");
   $smtp->datasend("To: $_\n") for (@to);
   $smtp->datasend("Cc: $_\n") for (@cc);
   $smtp->datasend("Subject: $subject\n");
