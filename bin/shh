@@ -6,7 +6,8 @@ if [ -f $touchfile ]; then
   rm $touchfile
   cp ~/.icons/ShhOff.png ~/.icons/Shh.png
   # Tell mate-panel to refresh itself
-  killall -USR1 mate-panel
+  killall mate-panel
+  setsid mate-panel &
   /opt/clearscm/bin/say "Speech has been reactivated"
 else
   # Stop currently playing audio
@@ -22,6 +23,6 @@ else
   # Change the icon
   cp ~/.icons/ShhOn.png ~/.icons/Shh.png
   # Tell mate-panel to refresh itself
-  killall -USR1 mate-panel
+  killall mate-panel
+  setsid mate-panel &
 fi
-
