@@ -88,8 +88,6 @@ use Speak;
 use TimeUtils;
 use Utils;
 
-local $0 = "$FindBin::Script " . join ' ', @ARGV;
-
 my $processes = Proc::ProcessTable->new;
 
 for my $process (@{$processes->table}) {
@@ -339,6 +337,8 @@ GetOptions(
   'announce!',
   'append',
 ) || pod2usage;
+
+local $0 = "$FindBin::Script " . join ' ', @ARGV;
 
 unless ($opts{password}) {
   verbose "I need $opts{username}'s password";
