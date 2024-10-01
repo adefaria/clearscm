@@ -5,7 +5,6 @@ systems="\
   earth\
   mars\
   defaria.com\
-  defaria2.com\
 "
 
 function notify {
