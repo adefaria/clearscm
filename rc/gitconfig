@@ -102,3 +102,5 @@
 	recentrepo = /opt/clearscm
 [maintenance]
 	repo = /opt/songbook.master
+[safe]
+	directory = /usr/local/googletalk
