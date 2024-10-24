@@ -1,0 +1,28 @@
+#!/bin/bash
+# Fix things that DMS update breaks
+
+if [ $(id -u) -ne 0 ]; then
+  echo "You must be root"
+  exit 1
+fi
+
+mkdir -p /opt
+chmod 755 /opt
+
+if [ ! -h /opt/clearscm ]; then ln -s /System/clearscm          /opt/clearscm; fi
+if [ ! -h /Audiobooks   ]; then ln -s /volume1/Media/Audiobooks /Audiobooks;   fi
+if [ ! -h /docker       ]; then ln -s /volume1/docker           /docker;       fi
+if [ ! -h /downloads    ]; then ln -s /volume1/downloads        /downloads;    fi
+if [ ! -h /Pictures     ]; then ln -s /volume1/Media/Pictures   /Pictures;     fi
+if [ ! -h /Music        ]; then ln -s /volume1/Media/Music      /Music;        fi
+if [ ! -h /System       ]; then ln -s /volume1/Media/System     /System;       fi
+if [ ! -h /Videos       ]; then ln -s /volume1/Media/Videos     /Videos;       fi
+
+# Fix up rc
+cd ~root
+
+.rc/setup_rc
+
+cd ~andrew
+
+.rc/setup_rc
