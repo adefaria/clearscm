@@ -91,12 +91,12 @@ use Utils;
 my $processes = Proc::ProcessTable->new;
 
 for my $process (@{$processes->table}) {
-  if ($process->cmndline eq $0 and $process->pid != $$) { 
+  if ($process->cmndline eq $0 and $process->pid != $$) {
     verbose "$FindBin::Script already running";
 
     exit 0;
-  } # if
-} # for
+  }    # if
+}    # for
 
 my $defaultIMAPServer = 'defaria.com';
 my $IMAP;
@@ -122,15 +122,15 @@ my $notifyTimeout = 5 * 1000;
 my $IMAPTimeout   = 20 * 60;
 
 my %opts = (
-  usage       => sub { pod2usage },
-  help        => sub { pod2usage(-verbose => 2)},
-  verbose     => sub { set_verbose },
-  debug       => sub { set_debug },
-  daemon      => 1,
-  timeout     => $IMAPTimeout,
-  username    => $ENV{USER},
-  password    => $ENV{PASSWORD},
-  imap        => $defaultIMAPServer,
+  usage    => sub {pod2usage},
+  help     => sub {pod2usage (-verbose => 2)},
+  verbose  => sub {set_verbose},
+  debug    => sub {set_debug},
+  daemon   => 1,
+  timeout  => $IMAPTimeout,
+  username => $ENV{USER},
+  password => $ENV{PASSWORD},
+  imap     => $defaultIMAPServer,
 );
 
 sub notify($) {
@@ -141,7 +141,7 @@ sub notify($) {
   Execute $cmd;
 
   return;
-} # notify
+}    # notify
 
 sub interrupted {
   if (get_debug) {
@@ -150,10 +150,10 @@ sub interrupted {
   } else {
     notify ('Turning on debugging');
     set_debug 1;
-  } # if
+  }    # if
 
   return;
-} # interrupted
+}    # interrupted
 
 sub Connect2IMAP;
 sub MonitorMail;
@@ -161,93 +161,94 @@ sub MonitorMail;
 sub restart {
   my $msg = "Re-establishing connection to $opts{imap} as $opts{username}";
 
-  $log->dbug($msg);
+  $log->dbug ($msg);
 
   Connect2IMAP;
 
   MonitorMail;
-} # restart
+}    # restart
 
 $SIG{USR1} = \&interrupted;
 $SIG{USR2} = \&restart;
 
 sub unseenMsgs() {
-  $IMAP->select('inbox') or
-    $log->err("Unable to select inbox: " . get_last_error(), 1);
+  $IMAP->select ('inbox')
+    or $log->err ("Unable to select inbox: " . get_last_error (), 1);
 
-  return map { $_=> 0 } @{$IMAP->search('not', 'seen')};
-} # unseenMsgs 
+  return map {$_ => 0} @{$IMAP->search ('not', 'seen')};
+}    # unseenMsgs
 
 sub Connect2IMAP() {
-  $log->dbug("Connecting to $opts{imap} as $opts{username}");
+  $log->dbug ("Connecting to $opts{imap} as $opts{username}");
 
   # Destroy any old connections
   undef $IMAP;
 
-  $IMAP = Mail::IMAPTalk->new(
+  $IMAP = Mail::IMAPTalk->new (
     Server      => $opts{imap},
     Username    => $opts{username},
     Password    => $opts{password},
     UseSSL      => $opts{usessl},
     UseBlocking => $opts{useblocking},
-  ) or $log->err("Unable to connect to IMAP server $opts{imap}: $@", 1);
+  ) or $log->err ("Unable to connect to IMAP server $opts{imap}: $@", 1);
 
-  $log->dbug("Connected to $opts{imap} as $opts{username}");
+  $log->dbug ("Connected to $opts{imap} as $opts{username}");
 
   # Focus on INBOX only
-  $IMAP->select('inbox');
+  $IMAP->select ('inbox');
 
   # Setup %unseen to have each unseen message index set to 0 meaning not read
   # aloud yet
   %unseen = unseenMsgs;
 
   return;
-} # Connect2IMAP
+}    # Connect2IMAP
 
 sub MonitorMail() {
   MONITORMAIL:
-  $log->dbug("Top of MonitorMail loop");
+  $log->dbug ("Top of MonitorMail loop");
 
   # First close and reselect the INBOX to get its current status
   $IMAP->close;
-  $IMAP->select('INBOX')
-    or $log->err("Unable to select INBOX - ". $IMAP->errstr(), 1);
+  $IMAP->select ('INBOX')
+    or $log->err ("Unable to select INBOX - " . $IMAP->errstr (), 1);
 
-  $log->dbug("Closed and reselected INBOX");
+  $log->dbug ("Closed and reselected INBOX");
+
   # Go through all of the unseen messages and add them to %unseen if they were
   # not there already from a prior run and read
   my %newUnseen = unseenMsgs;
 
   # Now clean out any messages in %unseen that were not in the %newUnseen and
   # marked as previously read
-  $log->dbug("Cleaning out unseen");
+  $log->dbug ("Cleaning out unseen");
   for (keys %unseen) {
     if (defined $newUnseen{$_}) {
       if ($unseen{$_}) {
         delete $newUnseen{$_};
-      } # if
+      }    # if
     } else {
-      delete $unseen{$_}
-    } # if
-  } # for
+      delete $unseen{$_};
+    }    # if
+  }    # for
 
-  $log->dbug("Processing new unseen messages");
+  $log->dbug ("Processing new unseen messages");
   for (keys %newUnseen) {
     next if $unseen{$_};
 
-    my $envelope = $IMAP->fetch($_, '(envelope)');
+    my $envelope = $IMAP->fetch ($_, '(envelope)');
     my $from     = $envelope->{$_}{envelope}{From};
     my $subject  = $envelope->{$_}{envelope}{Subject};
-       $subject //= 'Unknown subject';
+    $subject //= 'Unknown subject';
 
     # Extract the name only when the email is of the format "name <email>"
     if ($from =~ /^"?(.*?)"?\s*\<(\S*)>/) {
       $from = $1 if $1 ne '';
-    } # if
+    }    # if
 
     if ($subject =~ /=?\S+?(Q|B)\?(.+)\?=/) {
-      $subject = decode_base64($2);
-    } # if
+      $subject = decode_base64 ($2);
+    }    # if
 
     # Google Talk doesn't like #
     $subject =~ s/\#//g;
@@ -262,51 +263,59 @@ sub MonitorMail() {
     my $greeting = $greetings[int rand $#greetings];
     my $msg      = "$greeting from $from... $subject";
     my $hour     = (localtime)[2];
+    my $wday     = (localtime)[6];
 
     # Only announce if after 6 Am. Note this will announce up until
     # midnight but that's ok. I want midnight to 6 Am as silent time.
-    $log->dbug("About to speak/log");
-    if ($hour >= 7) {
-      $log->msg($logmsg);
-      $log->dbug("Calling speak");
+    # Allison change! On weekends only, quiet announcedEmail from 10 pm till
+    # 10 am.
+    $log->dbug ("About to speak/log");
+
+    if ($wday == 5 && $hour >= 10) {    # Friday night
+      $log->$msg ("$logmsg [silent Friday night]");
+    } elsif ($wday == 0 or $wday == 6) {    # Saturday / Sunday
+      if ($hour >= 10) {
+        $log->$msg ("$logmsg [silent Saturday or Sunday morning]");
+      }
+    } elsif ($hour >= 7) {
+      $log->msg  ($logmsg);
+      $log->dbug ("Calling speak");
       speak $msg, $log;
     } else {
-      $log->msg("$logmsg [silent nighttime]");
-    } # if
+      $log->msg ("$logmsg [silent nighttime]");
+    }                                       # if
 
     $unseen{$_} = 1;
-  } # for
+  }    # for
 
   # Let's time things
   my $startTime = time;
 
   # Re-establish callback
-  $log->dbug("Calling IMAP->idle");
-  eval {
-    $IMAP->idle(\&MonitorMail, $opts{timeout})
-  };
+  $log->dbug ("Calling IMAP->idle");
+  eval {$IMAP->idle (\&MonitorMail, $opts{timeout})};
 
   my $msg = 'Returned from IMAP->idle ';
 
   if ($@) {
-    speak($msg . $@, $log);
+    speak ($msg . $@, $log);
   } else {
-    $log->msg($msg . 'no error');
-  } # if
+    $log->msg ($msg . 'no error');
+  }    # if
 
   # If we return from idle then the server went away for some reason. With Gmail
   # the server seems to time out around 30-40 minutes. Here we simply reconnect
   # to the imap server and continue to MonitorMail.
-  unless ($IMAP->get_response_code('timeout')) {
+  unless ($IMAP->get_response_code ('timeout')) {
     $msg = "IMAP Idle for $opts{name} timed out in " . howlong $startTime, time;
 
     speak $msg;
 
-    $log->msg($msg);
-  } # unless
+    $log->msg ($msg);
+  }    # unless
 
   restart;
-} # MonitorMail
+}    # MonitorMail
 
 END {
   # If $log is not yet defined then the exit is not unexpected
@@ -315,27 +324,16 @@ END {
 
     speak $msg, $log;
 
-    $log->err($msg);
-  } # if
-} # END
+    $log->err ($msg);
+  }    # if
+}    # END
 
 ## Main
-GetOptions(
-  \%opts,
-  'usage',
-  'help',
-  'verbose',
-  'debug',
-  'daemon!',
-  'username=s',
-  'name=s',
-  'password=s',
-  'imap=s',
-  'timeout=i',
-  'usessl',
-  'useblocking',
-  'announce!',
-  'append',
+GetOptions (
+  \%opts,        'usage',     'help',       'verbose',
+  'debug',       'daemon!',   'username=s', 'name=s',
+  'password=s',  'imap=s',    'timeout=i',  'usessl',
+  'useblocking', 'announce!', 'append',
 ) || pod2usage;
 
 local $0 = "$FindBin::Script " . join ' ', @ARGV;
@@ -343,22 +341,23 @@ local $0 = "$FindBin::Script " . join ' ', @ARGV;
 unless ($opts{password}) {
   verbose "I need $opts{username}'s password";
   $opts{password} = GetPassword;
-} # unless
+}    # unless
 
 $opts{name} //= $opts{imap};
 
 if ($opts{username} =~ /.*\@(.*)$/) {
   $opts{name} = $1;
-} # if
+}    # if
 
 if ($opts{daemon}) {
+
   # Perl complains if we reference $DB::OUT only once
   no warnings;
   EnterDaemonMode unless defined $DB::OUT or get_debug;
   use warnings;
-} # if
+}    # if
 
-$log = Logger->new(
+$log = Logger->new (
   path        => '/var/local/log',
   name        => "$Logger::me.$opts{name}",
   timestamped => 'yes',
@@ -371,15 +370,15 @@ if ($opts{username} =~ /(.*)\@/) {
   $opts{user} = $1;
 } else {
   $opts{user} = $opts{username};
-} # if
+}    # if
 
 my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
 
 speak $msg, $log if $opts{announce};
 
-$log->msg($msg);
+$log->msg ($msg);
 
 MonitorMail;
 
 # Should not get here
-$log->err("Falling off the edge of $0", 1);
+$log->err ("Falling off the edge of $0", 1);
