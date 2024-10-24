@@ -345,7 +345,7 @@ HOME=$saved_home
 export GIT_SSH=/usr/bin/ssh
 
 # Attempt to fix agent problem
-if [ -z "$SSH_AGENT_PID" ]; then
+if [ -z "$SSH_AGENT_PID" -a $SYSNAME != 'Jupiter' ]; then
     killall ssh-agent 2> /dev/null
     eval $(ssh-agent) > /dev/null 2>&1
     ssh-add ~/.ssh/cpanelkey > /dev/null 2>&1
