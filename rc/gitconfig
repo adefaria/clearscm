@@ -8,7 +8,7 @@
   deltaCacheSize=128m
 
 [core]
-  pager = less -RX
+  pager = more
   packedGitLimit=128m
   packedGitWindowSize=128m
   excludesfile = ~/.gitignore
