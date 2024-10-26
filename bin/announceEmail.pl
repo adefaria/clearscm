@@ -274,12 +274,16 @@ sub MonitorMail() {
     if ($wday == 5 && $hour >= 10) {    # Friday night
       $log->$msg ("$logmsg [silent Friday night]");
     } elsif ($wday == 0 or $wday == 6) {    # Saturday / Sunday
-      if ($hour >= 10) {
-        $log->$msg ("$logmsg [silent Saturday or Sunday morning]");
+      if ($hour <= 10) {
+        $log->msg ("$logmsg [silent Saturday or Sunday morning]");
+      } else {
+        $log->msg  ($logmsg);
+        $log->dbug ('Calling speak');
+	speak $msg, $log;
       }
     } elsif ($hour >= 7) {
       $log->msg  ($logmsg);
-      $log->dbug ("Calling speak");
+      $log->dbug ('Calling speak');
       speak $msg, $log;
     } else {
       $log->msg ("$logmsg [silent nighttime]");
