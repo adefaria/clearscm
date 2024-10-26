@@ -16,6 +16,7 @@ if [ ! -h /downloads    ]; then ln -s /volume1/downloads        /downloads;    f
 if [ ! -h /Pictures     ]; then ln -s /volume1/Media/Pictures   /Pictures;     fi
 if [ ! -h /Music        ]; then ln -s /volume1/Media/Music      /Music;        fi
 if [ ! -h /System       ]; then ln -s /volume1/Media/System     /System;       fi
+if [ ! -h /Tmp	        ]; then ln -s /volume1/Media/System/tmp /Tmp;          fi
 if [ ! -h /Videos       ]; then ln -s /volume1/Media/Videos     /Videos;       fi
 
 # Fix up rc
