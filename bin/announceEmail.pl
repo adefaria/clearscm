@@ -271,8 +271,8 @@ sub MonitorMail() {
     # 10 am.
     $log->dbug ("About to speak/log");
 
-    if ($wday == 5 && $hour >= 10) {    # Friday night
-      $log->$msg ("$logmsg [silent Friday night]");
+    if ($wday == 5 && $hour >= 22) {    # Friday night
+      $log->msg ("$logmsg [silent Friday night]");
     } elsif ($wday == 0 or $wday == 6) {    # Saturday / Sunday
       if ($hour <= 10) {
         $log->msg ("$logmsg [silent Saturday or Sunday morning]");
