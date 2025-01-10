@@ -3,7 +3,7 @@
 cd /tmp
 
 wget -O calendar.ics https://calendar.google.com/calendar/ical/adefaria%40gmail.com/public/basic.ics > updateCalendar.log 2>&1
-wget -O allison.ics 'https://calendar.google.com/calendar/ical/7e7c8906758ed8bffdbd7641f29ea7e21847b0ca49b54b8c32d514f7f3a24d28%40group.calendar.google.com/public/basic.ics' > updateCalendar.log 2>&1
+wget -O allison.ics 'https://calendar.google.com/calendar/ical/ce516bc23f80ef4a00e49cba3bba81ae23bdc2ab8d28d3fe4acfd42ee338fc77%40group.calendar.google.com/private-d4cec2808fa113ad42a563b3a9c431c2/basic.ics' > updateCalendar.log 2>&1
 wget -O meetups.ics 'http://www.meetup.com/events/ical/10426135/8dfdd0ffaaedecf720c5faf0cf3871b7ee5f5c1e/going' >> updateCalendar.log 2>&1
 wget 'https://www.tripit.com/feed/ical/private/06C4F90D-00539C805E8CF5F1C8BC32BF70CB1843/tripit.ics' >> updateCalendar.log 2>&1
 wget -O bsc.ics 'https://bluesuedecrew.com/?post_type=tribe_events&ical=1&eventDisplay=list' >> updateCalendar.log 2>&1
