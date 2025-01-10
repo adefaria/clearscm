@@ -1,17 +1,17 @@
-#!/bin/sh -x
+#!/bin/sh
 echo "Gathering System76 logs"
 mkdir ~/system76
 journalctl > ~/system76/journal.log
-dmesg > ~/system76/dmesg.log
+sudo dmesg > ~/system76/dmesg.log
 cp /var/log/Xorg.1.log ~/system76/Xorg.1.log
 sudo dmidecode > ~/system76/demidecode
 sudo lspci -vv > ~/system76/lscpi.log
-sudo lsusb -vv > ~/system76/lsusb.log
+sudo lsusb -vv > ~/system76/lsusb.log 2>&1
 uname -a > ~/system76/uname.log
 df -h / > ~/system76/df
 lsblk -f > ~/system76/lsblk
 cp /etc/fstab ~/system76/fstab
 cp /etc/os-release ~/system76/os-release
-tar -czf system76-log.tgz ~/system76/*
+tar -czf system76-log.tgz system76
 rm ~/system76/*
 rmdir ~/system76
