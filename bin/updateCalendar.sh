@@ -39,8 +39,7 @@ fi
 filesize=$(wc -l allison.ics | cut -f1 -d' ')
 
 if [ $filesize -gt 27 ]; then
-  # Note: For a shared calendar the header is only 25 lines
-  let lines=filesize-25
+  let lines=filesize-27
 
   # Get the top portion...
   tail -n $lines allison.ics > allison2.ics
@@ -51,7 +50,7 @@ if [ $filesize -gt 27 ]; then
   head -n $lines allison2.ics >> calendar.ics
 
   # Cleanup allison2
-  rm -f allison2.ics
+  #rm -f allison2.ics
 fi
 
 # Now extract the middle of the next calendar
@@ -105,9 +104,9 @@ killall rainlendar2
 rainlendar2 > rainlendar2.log 2>&1 &
 
 # Cleanup
-rm -rf			\
-  allison.ics		\
-  meetups.ics		\
-  tripit.ics		\
-  bsc.ics		\
-  updateCalendar.log
+#rm -rf			\
+#  allison.ics		\
+#  meetups.ics		\
+#  tripit.ics		\
+#  bsc.ics		\
+#  updateCalendar.log
