@@ -50,7 +50,7 @@ if [ $filesize -gt 27 ]; then
   head -n $lines allison2.ics >> calendar.ics
 
   # Cleanup allison2
-  #rm -f allison2.ics
+  rm -f allison2.ics
 fi
 
 # Now extract the middle of the next calendar
@@ -104,9 +104,9 @@ killall rainlendar2
 rainlendar2 > rainlendar2.log 2>&1 &
 
 # Cleanup
-#rm -rf			\
-#  allison.ics		\
-#  meetups.ics		\
-#  tripit.ics		\
-#  bsc.ics		\
-#  updateCalendar.log
+rm -rf			\
+  allison.ics		\
+  meetups.ics		\
+  tripit.ics		\
+  bsc.ics		\
+  updateCalendar.log
