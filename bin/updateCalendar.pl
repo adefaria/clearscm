@@ -20,8 +20,6 @@ my %calendar_urls = (
 'http://www.meetup.com/events/ical/10426135/8dfdd0ffaaedecf720c5faf0cf3871b7ee5f5c1e/going',
   'Tripit' =>
 'https://www.tripit.com/feed/ical/private/06C4F90D-00539C805E8CF5F1C8BC32BF70CB1843/tripit.ics',
-  'Blue Suede Crew' =>
-'https://bluesuedecrew.com/?post_type=tribe_events&ical=1&eventDisplay=list',
 );
 
 my $result_calendar = "$ENV{HOME}/Documents/calendar.ics";
