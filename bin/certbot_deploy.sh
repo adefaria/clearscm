@@ -31,7 +31,7 @@ certdir="/System/Certificates"
 
 mkdir -p $certdir
 
-logfile="$certdir/$(basename $0).log"
+logfile="$certdir/logs/$(basename $0).log"
 
 rm -f $logfile
 

@@ -1,6 +1,6 @@
 [user]
-	name = Andrew DeFaria
-	email = Andrew@DeFaria.com
+  name = Andrew DeFaria
+  email = Andrew@DeFaria.com
 
 [pack]
   windowMemory=128m
@@ -12,7 +12,7 @@
   packedGitLimit=128m
   packedGitWindowSize=128m
   excludesfile = ~/.gitignore
-	execludsfile = /root/.gitignore
+  execludsfile = /root/.gitignore
 
 [branch]
   autoSetupRemote = true
@@ -25,20 +25,21 @@
   ui=true
 
 [color "branch"]
-	current = yellow reverse
-	local = yellow
-	remote = green
+  current = yellow reverse
+  local = yellow
+  remote = green
 
 [color "diff"]
-	meta = yellow bold
-	frag = magenta bold
-	old = red bold
-	new = green bold
+  meta = yellow bold
+  frag = magenta bold
+  old = red bold
+  new = green bold
 
 [color "status"]
-	added = yellow
-	changed = green
-	untracked = cyan
+  added = yellow
+  changed = green
+  untracked = cyan
+
 [diff]
   tool = meld
 
@@ -83,24 +84,34 @@
 
 [http]
   sslVerify = false
+
 [credential]
   helper = store --file ~/.git-credentials
+
 [pull]
   rebase = false
+
 [fetch]
-	prune = true
+  prune = true
+
 [merge]
   tool = meld
+
 [mergetoo "meld"]
   cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
+
 [filter "lfs"]
-	process = git-lfs filter-process
-	required = true
-	clean = git-lfs clean -- %f
-	smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+
 [gui]
-	recentrepo = /opt/clearscm
+  recentrepo = /opt/clearscm
+
 [maintenance]
-	repo = /opt/songbook.master
+  repo = /opt/songbook.master
+
 [safe]
-	directory = /usr/local/googletalk
+  directory = /usr/local/googletalk
+  directory = /System/NextCloud/andrew/files/SongBook
