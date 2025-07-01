@@ -204,6 +204,7 @@ alias ll="ls -la"
 alias whence="type -p"
 alias mroe=more
 alias gti=git
+alias sc=systemctl
 
 alias ..='cd ..'
 alias ...='cd ../..'
