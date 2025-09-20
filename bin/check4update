@@ -22,6 +22,7 @@ update=$1;
 
 for system in $systems; do
   notify "Checking $system for updates"
+  ssh $system sudo flatpak update -y --noninteractive
   ssh $system sudo apt-get -qq update
   ssh $system apt list --upgradeable 2> /dev/null | grep -v "^Listing" > /tmp/check4update.list
 
