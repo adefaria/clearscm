@@ -324,3 +324,19 @@ function new_vm () {
   #while ! ssh -q $ip exit; do sleep 10; done;
   echo $ip;
 }
+
+function gpuencode () {
+  if [ $# -ne 2 ]; then
+    echo "Usage: gpuencode <inputfile> <outputfile>"
+    return 1
+  fi
+
+  /usr/local/bin/ffmpeg \
+    -hwaccel cuda \
+    -hwaccel_output_format cuda \
+    -i "$1" \
+    -c:v h264_nvenc \
+    -c:a copy \
+    -b:v 5M \
+    "$2"
+}
