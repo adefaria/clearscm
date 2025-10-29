@@ -104,7 +104,7 @@
 
     $subject = "Another resume hit. This makes $count visits to your resume";
 
-    mail("andrew@defaria.com", $subject, $msg, $headers);
+    //mail("andrew@defaria.com", $subject, $msg, $headers);
   } // if
   ?>
 </head>
@@ -113,9 +113,6 @@
   <div id="content">
     <?php start_box("cs5") ?>
     <h2 align=center><a href="https://defaria.com">Andrew DeFaria</a></h2>
-    <address style="text-align:center">
-      San Marcos, California 92078<br>
-    </address>
     <p style="text-align:center; font-size: 10pt">
       408-596-4937 <a href="mailto:Andrew@DeFaria.com">Andrew@DeFaria.com</a><br>
       Download an <a href="Resume.docx">MS Word copy of this resume</a></p>
@@ -126,7 +123,7 @@
 
     <p>Seeking a position in IT operations and network management to leverage over 20 years of expertise
       in state-of-the-art operating systems and networks, ensuring seamless information flow and system
-      performance. Open to remote work or hybrid roles in the San Marcos, CA area.</p>
+      performance. Open to remote work or hybrid roles in the San Diego, area.</p>
 
     <h2>SKILLS</h2>
     <hr noshade>
@@ -134,34 +131,34 @@
     <table cellspacing="0" cellpadding="3" border="1" align="center">
       <tbody>
         <tr>
-          <td><span class="standout">Hardware</span>
+          <td><span class="standout"><i>Hardware</i></span>
             Workstations and servers from Sun, HP, Microsoft Windows, various manufacturers of Linux systems
           </td>
-          <td><span class="standout">Operating Systems</span>
+          <td><span class="standout"><i>Operating Systems</i></span>
             Linux (Redhat, Centos, Ubuntu), Windows, Unix (Solaris, HP-UX), Cygwin
           </td>
-          <td><span class="standout">Networking</span>
+          <td><span class="standout"><i>Networking</i></span>
             TCP/IP, Windows & Unix Networking, Active Directory/LDAP, Samba
           </td>
         </tr>
 
         <tr>
-          <td><span class="standout">Version Control</span>
+          <td><span class="standout"><i>Version Control</i></span>
             Git, Perforce, Clearcase
           </td>
-          <td><span class="standout">Issue Tracking</span>
+          <td><span class="standout"><i>Issue Tracking</i></span>
             JIRA, Clearquest, Bugzilla
           </td>
-          <td><span class="standout">Software Languages</span>
+          <td><span class="standout"><i>Software Languages</i></span>
             Perl, Bash, PHP, C++, C, Ada, TCL
           </td>
         </tr>
 
         <tr>
-          <td><span class="standout">Configuration Management</span>
+          <td><span class="standout"><i>Configuration Management</i></span>
             Puppet, Ansible
           </td>
-          <td><span class="standout">Middleware</span>
+          <td><span class="standout"><i>Middleware</i></span>
             Apache, Tomcat, Samba, Winbind, LDAP, REST
           </td>
           <td><span class="standout">Web Apps</span>
@@ -170,19 +167,19 @@
         </tr>
 
         <tr>
-          <td><span class="standout">Databases</span>
+          <td><span class="standout"><i>Databases</i></span>
             MySQL, Oracle
           </td>
-          <td><span class="standout">CI/CD</span>
+          <td><span class="standout"><i>CI/CD</i></span>
             Jenkins, Electric Commander
           </td>
-          <td><span class="standout">Virtualization</span>
+          <td><span class="standout"><i>Virtualization</i></span>
             VMWare, VirtualBox, vSphere, vCenter
           </td>
         </tr>
 
         <tr>
-          <td><span class="standout">Cloud Computing (Classroom Only)</span>
+          <td><span class="standout"><i>Cloud Computing</i></span> (Classroom Only)
             EC2, IAM, S3, CloudFront, Route53, VPC, Docker
           </td>
           <td>&nbsp;</td>
@@ -227,11 +224,11 @@
       <li>Collaborated with IT department to troubleshoot technical issues with office equipment and software</li>
     </ul>
 
-    <h3>Clearcase?Clearquest Administrator/Build Engineer | August 2001 - February 2004<br>Salira | CA</h3>
+    <h3>Clearcase/Clearquest Administrator/Build Engineer | August 2001 - February 2004<br>Salira | CA</h3>
 
     <ul>
       <li>Joined Salira Optical Network Systems as a Clearcase/Clearquest Administrator</li>
-      <li>Setup environment, provided training, and managed the build process as Release Engineer</li>
+      <li>Set up environment, provided training, and managed the build process as Release Engineer</li>
       <li>Developed Clearquest Daemon, automation scripts, and conducted Build Stress Testing</li>
       <li>Designed and implemented Clearquest bug tracking system</li>
       <li>Advised on Clearcase issues, branching strategies, labeling, and release management</li>
