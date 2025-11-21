@@ -77,6 +77,7 @@ use FindBin;
 use Getopt::Long;
 use Mail::IMAPTalk;
 use MIME::Base64;
+use Encode qw(decode);
 use Pod::Usage;
 use Proc::ProcessTable;
 
@@ -246,9 +247,7 @@ sub MonitorMail() {
       $from = $1 if $1 ne '';
     }    # if
 
-    if ($subject =~ /=?\S+?(Q|B)\?(.+)\?=/) {
-      $subject = decode_base64 ($2);
-    }    # if
+    $subject = decode ('MIME-Header', $subject);
 
     # Google Talk doesn't like #
     $subject =~ s/\#//g;
@@ -279,7 +278,7 @@ sub MonitorMail() {
       } else {
         $log->msg  ($logmsg);
         $log->dbug ('Calling speak');
-	speak $msg, $log;
+        speak $msg, $log;
       }
     } elsif ($hour >= 7) {
       $log->msg  ($logmsg);
@@ -287,7 +286,7 @@ sub MonitorMail() {
       speak $msg, $log;
     } else {
       $log->msg ("$logmsg [silent nighttime]");
-    }                                       # if
+    }    # if
 
     $unseen{$_} = 1;
   }    # for
