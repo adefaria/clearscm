@@ -530,131 +530,81 @@ sub ExecuteCmd($){
 
   my ($cmd, $parm1, $parm2, $parm3, $parm4) = split /\s+/, $line;
 
-  given ($cmd) {
-    when (!$_) {
-      return;
-    } # when
+  if (!defined $cmd || $cmd eq '') {
+    return;
+  } elsif ($cmd =~ /^\s*resequence\s*$/) {
+    Resequence(GetContext(), $parm1);
+  } elsif ($cmd =~ /^\s*encrypt\s*$/) {
+    EncryptPassword($parm1, $userid);
+  } elsif ($cmd =~ /^\s*decrypt\s*$/) {
+    DecryptPassword($parm1, $userid);
+  } elsif ($cmd =~ /^\s*deliver\s*$/) {
+    Deliver($parm1);
+  } elsif ($cmd =~ /^\s*add2whitelist\s*$/) {
+    if ($parm2) {
+      $parm2 .= ' ' . $parm3
+    } # if
 
-    when (/^\s*resequence\s*$/) {
-      Resequence(GetContext(), $parm1);
-    } # when
+    Add2Whitelist(
+      userid    => GetContext,
+      type      => 'white',
+      sender    => $parm1,
+      retention => $parm2,
+    );
+  } elsif ($cmd =~ /^\s*showusers\s*$/) {
+    ShowUsers;
+  } elsif ($cmd =~ /^\s*adduser\s*$/) {
+    AddUser(
+      userid   => $parm1,
+      name     => $parm2,
+      email    => $parm3,
+      password => Encrypt($parm4, $userid),
+    );
+  } elsif ($cmd =~ /^\s*cleanemail\s*$/) {
+    $parm1 = "9999-12-31 23:59:59" unless $parm1;
 
-    when (/^s*encrypt\s*$/) {
-      EncryptPassword($parm1, $userid);
-    } # when
+    say CleanEmail($parm1);
+  } elsif ($cmd =~ /^\s*cleanlog\s*$/) {
+    $parm1 = "9999-12-31 23:59:59" unless $parm1;
 
-    when (/^\s*encrypt\s*$/) {
-      EncryptPassword($parm1, $userid);
-    } # when
+    say CleanLog($parm1);
+  } elsif ($cmd =~ /^\s*loadlist\s*$/) {
+    LoadListFile($parm1);
+  } elsif ($cmd =~ /^\s*loademail\s*$/) {
+    LoadEmail($parm1);
+  } elsif ($cmd =~ /^\s*dumpemail\s*$/) {
+    DumpEmail($parm1);
+  } elsif ($cmd =~ /^\s*log\s*$/) {
+    Logmsg(
+      userid  => $userid,
+      type    => $parm1,
+      sender  => $parm2,
+      message => $parm3,
+    );
+  } elsif ($cmd =~ /^\s*switchuser\s*$/) {
+    SwitchUser($parm1);
+  } elsif ($cmd =~ /^\s*showuser\s*$/) {
+    ShowUser;
+  } elsif ($cmd =~ /^\s*showemail\s*$/) {
+    ShowEmail;
+  } elsif ($cmd =~ /^\s*showlog\s*$/) {
+    ShowLog($parm1);
+  } elsif ($cmd =~ /^\s*showlist\s*$/) {
+    ShowList($parm1);
+  } elsif ($cmd =~ /^\s*space\s*$/) {
+    ShowSpace;
+  } elsif ($cmd =~ /^\s*showstats\s*$/) {
+    ShowStats($parm1);
+  } elsif ($cmd =~ /^\s*setpassword\s*$/) {
+    SetPassword;
+  } else {
+    say "Unknown command: $cmd";
 
-    when (/^\s*decrypt\s*$/) {
-      DecryptPassword($parm1, $userid);
-    } # when
-
-    when (/^\s*deliver\s*$/) {
-      Deliver($parm1);
-    } # when
-
-    when (/^\s*add2whitelist\s*$/) {
-      if ($parm2) {
-        $parm2 .= ' ' . $parm3
-      } # if
-
-      Add2Whitelist(
-        userid    => GetContext,
-        type      => 'white',
-        sender    => $parm1,
-        retention => $parm2,
-      );
-    } # when
-
-    when (/^\s*showusers\s*$/) {
-      ShowUsers;
-    } # when
-
-    when (/^\s*adduser\s*$/) {
-      AddUser(
-        userid   => $parm1,
-        name     => $parm2,
-        email    => $parm3,
-        password => Encrypt($parm4, $userid),
-      );
-    } # when
-
-    when (/^\s*cleanemail\s*$/) {
-      $parm1 = "9999-12-31 23:59:59" unless $parm1;
-
-      say CleanEmail($parm1);
-    } # when
-
-    when (/^\s*cleanlog\s*$/) {
-      $parm1 = "9999-12-31 23:59:59" unless $parm1;
-
-      say CleanLog($parm1);
-    } # when
-
-    when (/^\s*loadlist\s*$/) {
-      LoadListFile($parm1);
-    } # when
-
-    when (/^\s*loademail\s*$/) {
-      LoadEmail($parm1);
-    } # when
-
-    when (/^\s*dumpemail\s*$/) {
-      DumpEmail($parm1);
-    } # when
-
-    when (/^\s*log\s*$/) {
-      Logmsg(
-        userid  => $userid,
-        type    => $parm1,
-        sender  => $parm2,
-        message => $parm3,
-      );
-    } # when
-
-    when (/^\s*switchuser\s*$/) {
-      SwitchUser($parm1);
-    } # when
-
-    when (/^\s*showuser\s*$/) {
-      ShowUser;
-    } # when
-
-    when (/^\s*showemail\s*$/) {
-      ShowEmail;
-    } # when
-
-    when (/^\s*showlog\s*$/) {
-      ShowLog($parm1);
-    } # when
-
-    when (/^\s*showlist\s*$/) {
-      ShowList($parm1);
-    } # when
-
-    when (/^\s*space\s*$/) {
-      ShowSpace;
-    } # when
-
-    when (/^\s*showstats\s*$/) {
-      ShowStats($parm1);
-    } # when
-
-    when (/^\s*setpassword\s*$/) {
-      SetPassword;
-    } # when
-
-    default {
-      say "Unknown command: $_";
-
-      say "Parm1: $parm1" if $parm1;
-      say "Parm2: $parm2" if $parm2;
-      say "Parm3: $parm3" if $parm3;
-      say "Parm4: $parm4" if $parm4;
-    } # default
-  } # given
+    say "Parm1: $parm1" if $parm1;
+    say "Parm2: $parm2" if $parm2;
+    say "Parm3: $parm3" if $parm3;
+    say "Parm4: $parm4" if $parm4;
+  }
 
   return;
 } # ExecuteCmd
