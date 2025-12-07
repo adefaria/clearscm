@@ -79,7 +79,6 @@ use Mail::IMAPTalk;
 use MIME::Base64;
 use Encode qw(decode);
 use Pod::Usage;
-use URI::Escape;
 use Proc::ProcessTable;
 
 use lib "$FindBin::Bin/../lib";
@@ -250,16 +249,12 @@ sub MonitorMail() {
 
     $subject = decode ('MIME-Header', $subject);
 
-    $log->msg("Subject before cleanup: $subject");
-
-    # URL encode subject for Google Talk
-    $subject = uri_escape($subject);
+    # Google Talk doesn't like #
+    $subject =~ s/\#//g;
 
     # Remove long strings of numbers like order numbers. They are uninteresting
     my $longNumber = 5;
     $subject =~ s/\s+\S*\d{$longNumber,}\S*\s*//g;
-
-    $log->msg("Subject after cleanup: $subject");
 
     # Now speak it!
     my $logmsg = "From $from $subject";
