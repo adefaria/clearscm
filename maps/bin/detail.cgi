@@ -15,12 +15,21 @@
 use strict;
 use warnings;
 
+use utf8;
+use Encode;
+use Encode::CN;
+use Encode::TW;
+use Encode::JP;
+use Encode::KR;
+
 use MIME::Words qw(:all);
 
 use CGI qw(:standard *table start_td end_td start_Tr end_Tr start_div end_div);
 use CGI::Carp 'fatalsToBrowser';
 
 use FindBin;
+
+binmode STDOUT, ':encoding(UTF-8)';
 
 local $0 = $FindBin::Script;
 
@@ -33,7 +42,7 @@ use MAPSWeb;
 use DateUtils;
 
 my $type  = param 'type';
-my $list  = substr $type, 0, -4 if $type =~ /list$/; 
+my $list  = substr $type, 0, -4 if $type =~ /list$/;
 my $next  = param 'next';
 my $lines = param 'lines';
 my $date  = param 'date';
@@ -45,34 +54,23 @@ my ($userid, $current, $last, $prev, $total);
 my $table_name = 'detail';
 
 my %types = (
-  'blacklist'   => [
+  'blacklist' => [
     'Blacklist report',
     'The following blacklisted users attempted to email you'
   ],
-  'whitelist'   => [
-    'Delivered report',
-    'Delivered email from the following users'
-  ],
-  'nulllist'    => [
-    'Discarded report',
-    'Discarded messages from the following users'
-  ],
-  'error'       => [
-    'Error report',
-    'Errors detected'
-  ],
-  'mailloop'    => [
+  'whitelist' =>
+    ['Delivered report', 'Delivered email from the following users'],
+  'nulllist' =>
+    ['Discarded report', 'Discarded messages from the following users'],
+  'error'    => ['Error report', 'Errors detected'],
+  'mailloop' => [
     'MailLoop report',
     'Automatically detected mail loops from the following users'
   ],
-  'registered'  => [
-    'Registered report',
-    'The following users have recently registered'
-  ],
-  'returned'    => [
-    'Returned report',
-    'Sent Register reply to the following users'
-  ]
+  'registered' =>
+    ['Registered report', 'The following users have recently registered'],
+  'returned' =>
+    ['Returned report', 'Sent Register reply to the following users']
 );
 
 sub formatRule($) {
@@ -84,78 +82,136 @@ sub formatRule($) {
   $rec->{domain}  //= '';
 
   return "$rec->{pattern}\@$rec->{domain}";
-} # formatRule
+}    # formatRule
 
 sub MakeButtons($) {
   my ($type) = @_;
 
-  my $prev_button = $prev >= 0 ?
-    a ({-href      => "detail.cgi?type=$type;date=$date;next=$prev",
-        -accesskey => 'p',
-    }, '<img src=/maps/images/previous.gif border=0 alt=Previous align=middle>') : '';
-  my $next_button = ($next + $lines) < $total ?
-    a {-href      => "detail.cgi?type=$type;date=$date;next=" . ($next + $lines),
-       -accesskey => 'n',
-    }, '<img src=/maps/images/next.gif border=0 alt=Next align=middle>' : '';
+  my $prev_button =
+    $prev >= 0
+    ? a ({
+      -href      => "detail.cgi?type=$type;date=$date;next=$prev",
+      -accesskey => 'p',
+    },
+    '<img src=/maps/images/previous.gif border=0 alt=Previous align=middle>'
+    )
+    : '';
+  my $next_button =
+    ($next + $lines) < $total
+    ? a {
+    -href      => "detail.cgi?type=$type;date=$date;next=" . ($next + $lines),
+    -accesskey => 'n',
+    },
+    '<img src=/maps/images/next.gif border=0 alt=Next align=middle>'
+    : '';
 
   my $buttons = $prev_button;
 
   if ($type eq 'whitelist') {
-    $buttons = $buttons .
-      submit ({-name    => 'action',
-               -value   => 'Blacklist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
-      submit ({-name    => 'action',
-               -value   => 'Nulllist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
-      submit ({-name    => 'action',
-               -value   => 'Reset',
-               -onClick => 'return ClearAll (document.detail);'});
+    $buttons = $buttons
+      . submit ({
+        -name    => 'action',
+        -value   => 'Black',
+        -onClick => 'return CheckAtLeast1Checked (document.detail);'
+      }
+      )
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Null',
+        -onClick => 'return CheckAtLeast1Checked (document.detail);'
+      }
+      )
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Reset',
+        -onClick => 'return ClearAll (document.detail);'
+      }
+      );
   } elsif ($type eq 'blacklist') {
-    $buttons = $buttons .
-      submit ({-name    => 'action',
-               -value   => 'Whitelist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
-      submit ({-name    => 'action',
-               -value   => 'Nulllist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
-      submit ({-name    => 'action',
-               -value   => 'Reset',
-               -onClick => 'return ClearAll (document.detail);'});
+    $buttons = $buttons
+      . submit ({
+        -name    => 'action',
+        -value   => 'White',
+        -onClick => 'return CheckAtLeast1Checked (document.detail);'
+      }
+      )
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Null',
+        -onClick => 'return CheckAtLeast1Checked (document.detail);'
+      }
+      )
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Reset',
+        -onClick => 'return ClearAll (document.detail);'
+      }
+      );
   } elsif ($type eq 'nulllist') {
-    $buttons = $buttons .
-      submit ({-name    => 'action',
-               -value   => 'Whitelist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
-      submit ({-name    => 'action',
-               -value   => 'Blacklist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
-      submit ({-name    => 'action',
-               -value   => 'Reset',
-               -onClick => 'return ClearAll (document.detail);'});
+    $buttons = $buttons
+      . submit ({
+        -name    => 'action',
+        -value   => 'White',
+        -onClick => 'return CheckAtLeast1Checked (document.detail);'
+      }
+      )
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Black',
+        -onClick => 'return CheckAtLeast1Checked (document.detail);'
+      }
+      )
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Reset',
+        -onClick => 'return ClearAll (document.detail);'
+      }
+      );
   } else {
-    $buttons = $buttons .
-      submit ({-name    => 'action',
-               -value   => 'Whitelist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
-      submit ({-name    => 'action',
-               -value   => 'Blacklist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
-      submit ({-name    => 'action',
-               -value   => 'Nulllist',
-               -onClick => 'return CheckAtLeast1Checked (document.detail);'}) . '&nbsp;' .
-      submit ({-name    => 'action',
-               -value   => 'Reset',
-               -onClick => 'return ClearAll (document.detail);'});
-  } # if
+    $buttons = $buttons
+      . submit ({
+        -name    => 'action',
+        -value   => 'White',
+        -onClick => 'return CheckAtLeast1Checked (document.detail);'
+      }
+      )
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Black',
+        -onClick => 'return CheckAtLeast1Checked (document.detail);'
+      }
+      )
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Null',
+        -onClick => 'return CheckAtLeast1Checked (document.detail);'
+      }
+      )
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Reset',
+        -onClick => 'return ClearAll (document.detail);'
+      }
+      );
+  }    # if
 
   print div {
     -align => 'center',
     -class => 'toolbar',
-  }, $buttons . $next_button;
+    },
+    $buttons . $next_button;
 
   return;
-} # MakeButtons
+}    # MakeButtons
 
 sub Body($) {
   my ($type) = @_;
@@ -164,8 +220,8 @@ sub Body($) {
 
   my ($onlist, $rec);
 
-  print div {-align => 'center'}, b (
-    '(' . $current . '-' . $last . ' of ' . $total . ')');
+  print div {-align => 'center'},
+    b ('(' . $current . '-' . $last . ' of ' . $total . ')');
   print start_form {
     -method => 'post',
     -action => 'processaction.cgi',
@@ -176,25 +232,34 @@ sub Body($) {
 
   print start_div {-id => 'highlightrow'};
 
-  print start_table({-align        => 'center',
-                     -id           => $table_name,
-                     -border       => 0,
-                     -cellspacing  => 0,
-                     -cellpadding  => 0,
-                     -width        => '100%'}) . "\n";
+  print start_table({
+      -align       => 'center',
+      -id          => $table_name,
+      -border      => 0,
+      -cellspacing => 0,
+      -cellpadding => 0,
+      -width       => '100%'
+    }
+  ) . "\n";
 
-  print
-    Tr [
-      th {-class => 'tablebordertopleft'},  '',
-      th {-class => 'tableborder'},         'Sender',
-      th {-class => 'tableborder'},         'List',
-      th {-class => 'tableborder'},         'Hit Count',
-      th {-class => 'tableborder'},         'Rule',
-      th {-class => 'tableborder'},         'Retention',
-      th {-class => 'tablebordertopright'}, 'Comment/Date',
-    ];
+  print Tr [
+    th {-class => 'tablebordertopleft'},
+    '',
+    th {-class => 'tableborder'},
+    'Sender',
+    th {-class => 'tableborder'},
+    'List',
+    th {-class => 'tableborder'},
+    'Hit Count',
+    th {-class => 'tableborder'},
+    'Rule',
+    th {-class => 'tableborder'},
+    'Retention',
+    th {-class => 'tablebordertopright'},
+    'Comment/Date',
+  ];
 
-  my @senders = ReturnSenders(
+  my @senders = ReturnSenders (
     userid   => $userid,
     type     => $type,
     start_at => $next,
@@ -203,7 +268,7 @@ sub Body($) {
   );
 
   for my $sender (@senders) {
-    my $msgs = ReturnMessages(
+    my $msgs = ReturnMessages (
       userid => $userid,
       sender => $sender,
     );
@@ -216,6 +281,7 @@ sub Body($) {
 
     # Check to see if this is the last line
     if ((($next + 1) % $lines) == (@senders % $lines)) {
+
       # We always "bottom" the first column
       $leftclass = 'tablebottomleft';
 
@@ -224,8 +290,8 @@ sub Body($) {
         $dataclass   = 'tablebottomdata';
         $rightclass  = 'tablebottomright';
         $senderclass = 'senderbottom';
-      } # unless
-    } # if
+      }    # unless
+    }    # if
 
     # This is for the purposes of supplying a subject line if the mailto address
     # is clicked on. It's kludgy because we are simply grabbing the subject line
@@ -240,17 +306,17 @@ sub Body($) {
 
     if ($msgs->[0]) {
       $heading = $msgs->[0]{subject} if $msgs->[0]{subject};
-    } # if
+    }    # if
 
-    ($onlist, $rec) = OnWhitelist($sender, $userid, 0);
+    ($onlist, $rec) = OnWhitelist ($sender, $userid, 0);
 
     unless ($onlist) {
-      ($onlist, $rec) = OnBlacklist($sender, 0);
+      ($onlist, $rec) = OnBlacklist ($sender, 0);
 
       unless ($onlist) {
-        ($onlist, $rec) = OnNulllist($sender, 0);
-      } # unless
-    } # unless
+        ($onlist, $rec) = OnNulllist ($sender, 0);
+      }    # unless
+    }    # unless
 
     $next++;
 
@@ -263,61 +329,63 @@ sub Body($) {
       -align   => 'right',
       -valign  => 'middle',
       -rowspan => $rowspan,
-    }, $next,
+      },
+      $next,
       checkbox {
-        -name   => "action$next",
-        -label  => '',
-        -valign => 'middle',
+      -name   => "action$next",
+      -label  => '',
+      -valign => 'middle',
       };
 
-      print hidden({
+    print hidden({
         -name    => "email$next",
         -default => $sender,
-      });
+      }
+    );
 
     # Get subject line
     $heading = "?subject=$heading" if $heading;
 
-    print td {
-      -class => $senderclass,
-    }, a {
-      -href  => "mailto:$sender$heading",
-    }, "&nbsp;$sender";
+    print td {-class => $senderclass,}, a {-href => "mailto:$sender$heading",},
+      "&nbsp;$sender";
 
     if ($rec) {
-      my $listlink = ($rec->{type} and $rec->{sequence}) ? "$rec->{type}:$rec->{sequence}" : '';
+      my $listlink =
+        ($rec->{type} and $rec->{sequence})
+        ? "$rec->{type}:$rec->{sequence}"
+        : '';
 
-      $rec->{comment}    //= '';
+      $rec->{comment}   //= '';
       $rec->{retention} //= '';
 
       print td {
         -class => $dataclass,
         -align => 'right',
-      }, a {
-        href  => "/maps/php/list.php?type=$rec->{type}&next=" . ($rec->{sequence} - 1),
-      }, $listlink,
-      td {
+        },
+        a {href => "/maps/php/list.php?type=$rec->{type}&next="
+          . ($rec->{sequence} - 1),
+        }, $listlink,
+        td {
         -class => $dataclass,
         -align => 'right',
-      }, "$rec->{hit_count}&nbsp;",
-      td {
-        -class => $dataclass,
-      }, formatRule($rec),
-      td {
+        },
+        "$rec->{hit_count}&nbsp;",
+        td {-class => $dataclass,}, formatRule ($rec),
+        td {
         -class => $dataclass,
         -align => 'right',
-      }, "$rec->{retention}&nbsp;",
-      td {
-        -class => $rightclass,
-      }, $rec->{comment};
+        },
+        "$rec->{retention}&nbsp;",
+        td {-class => $rightclass,}, $rec->{comment};
     } else {
+
       # $rec will be undefined if this message will be returned
       print td {-class => $dataclass},
-            td {-class => $dataclass},
-            td {-class => $dataclass},
-            td {-class => $dataclass},
-            td {-class => $rightclass};
-    } # if
+        td     {-class => $dataclass},
+        td     {-class => $dataclass},
+        td     {-class => $dataclass},
+        td     {-class => $rightclass};
+    }    # if
 
     print end_Tr;
 
@@ -328,38 +396,90 @@ sub Body($) {
 
       # We increased $next earlier so do not add 1 here
       if (($next % $lines) == (@senders % $lines)) {
-        $dataclass    = 'tablebottomdata';
-        $rightclass   = 'tablebottomright' if $msgnbr == @$msgs;
+        $dataclass  = 'tablebottomdata';
+        $rightclass = 'tablebottomright' if $msgnbr == @$msgs;
 
         # Only subjectbottom the last message
         $subjectclass = 'subjectbottom' if $msgnbr == @$msgs;
-      } # if
+      }    # if
 
       if ($date eq substr ($rec->{timestamp}, 0, 10)) {
-        $rec->{date} = b font {-color => 'green'}, SQLDatetime2UnixDatetime $rec->{timestamp};
+        $rec->{date} = b font {-color => 'green'},
+          SQLDatetime2UnixDatetime $rec->{timestamp};
       } else {
         $rec->{date} = SQLDatetime2UnixDatetime $rec->{timestamp};
-      } # if
+      }    # if
 
       $rec->{subject} //= '&lt;Unspecified&gt;';
-      $rec->{subject} = decode_mimewords ($rec->{subject});
-      $rec->{subject} =~ s/\>/&gt;/g;
-      $rec->{subject} =~ s/\</&lt;/g;
 
-      print
-        Tr [
-          td {
-            -class   => $subjectclass,
-            -colspan => 5,
-          }, a {
-            -href    => "display.cgi?sender=$sender;msg_date=$rec->{timestamp}",
-           }, '&nbsp;&nbsp;&nbsp;&nbsp;' . $rec->{subject},
-          td {-class => $rightclass,
-              -width => '150',
-              -align => 'right'}, span {-class => 'date'}, $rec->{date} . '&nbsp',
-        ];
-    } # for
-  } # for
+      my $subject = '';
+      for my $part (decode_mimewords ($rec->{subject})) {
+        my ($text, $charset) = @$part;
+        if ($charset) {
+          eval {$text = decode ($charset, $text)};
+        } else {
+          my $decoded;
+
+          utf8::downgrade ($text, 1) if Encode::is_utf8 ($text);
+
+          # Try UTF-8 first
+          eval {$decoded = decode ('UTF-8', $text, Encode::FB_CROAK)};
+          if ($@) {
+
+            # Try GBK (Chinese)
+            eval {$decoded = decode ('GBK', $text, Encode::FB_CROAK)};
+            if ($@) {
+
+              # Try Shift_JIS (Japanese)
+              eval {$decoded = decode ('cp932', $text, Encode::FB_CROAK)};
+              if ($@) {
+
+                # Try Big5 (Traditional Chinese)
+                eval {$decoded = decode ('Big5', $text, Encode::FB_CROAK)};
+                if ($@) {
+
+                  # Try EUC-KR (Korean)
+                  eval {$decoded = decode ('EUC-KR', $text, Encode::FB_CROAK)};
+                  if ($@) {
+
+                    # Try CP1251 (Cyrillic)
+                    eval {$decoded = decode ('cp1251', $text, Encode::FB_CROAK)};
+                    if ($@) {
+
+                      # Fallback to Latin-1
+                      $decoded = decode ('Latin-1', $text);
+                    }
+                  } ## end if ($@)
+                } ## end if ($@)
+              } ## end if ($@)
+            } ## end if ($@)
+          } ## end if ($@)
+          $text = $decoded;
+        } ## end else [ if ($charset) ]
+        $subject .= $text;
+      } ## end for my $part (decode_mimewords...)
+      $rec->{subject} = $subject;
+
+      $rec->{subject} = escapeHTML ($rec->{subject});
+      print Tr [
+        td {
+          -class   => $subjectclass,
+          -colspan => 5,
+        },
+        a {
+          -href => "display.cgi?sender=$sender;msg_date=$rec->{timestamp}",
+        },
+        '&nbsp;&nbsp;&nbsp;&nbsp;' . $rec->{subject},
+        td {
+          -class => $rightclass,
+          -width => '150',
+          -align => 'right'
+        },
+        span {-class => 'date'},
+        $rec->{date} . '&nbsp',
+      ];
+    }    # for
+  }    # for
 
   print end_table;
   print end_div;
@@ -369,33 +489,29 @@ sub Body($) {
   print end_form;
 
   return;
-} # Body
+}    # Body
 
 # Main
 my $condition;
 my @scripts = ('ListActions.js');
 
-my $heading_date =$date ne '' ? ' on ' . FormatDate ($date, 1) : '';
+my $heading_date = $date ne '' ? ' on ' . FormatDate ($date, 1) : '';
 
-$userid = Heading(
-  'getcookie',
-  '',
-  (ucfirst ($type) . ' Report'),
-  $types{$type} [0],
-  $types{$type} [1] . $heading_date,
-  $table_name,
-  @scripts
+$userid = Heading (
+  'getcookie',      '', (ucfirst ($type) . ' Report'),
+  $types{$type}[0], $types{$type}[1] . $heading_date,
+  $table_name,      @scripts
 );
 
 $userid ||= $ENV{USER};
 
-SetContext($userid);
-NavigationBar($userid);
+SetContext    ($userid);
+NavigationBar ($userid);
 
 unless ($lines) {
-  my %options = GetUserOptions($userid);
+  my %options = GetUserOptions ($userid);
   $lines = $options{'Page'};
-} # unless
+}    # unless
 
 if ($date eq '') {
   $condition .= "type = '$type'";
@@ -404,10 +520,10 @@ if ($date eq '') {
   my $eod = $date . ' 23:59:59';
 
   $condition .= "type = '$type' and timestamp > '$sod' and timestamp < '$eod'";
-} # if
+}    # if
 
 # Need to count distinct on sender
-$total = CountLogDistinct(
+$total = CountLogDistinct (
   userid     => $userid,
   column     => 'sender',
   additional => $condition,
@@ -421,10 +537,10 @@ if (($next - $lines) > 0) {
   $prev = $next - $lines;
 } else {
   $prev = $next == 0 ? -1 : 0;
-} # if
+}    # if
 
-Body($type);
+Body ($type);
 
-Footing($table_name);
+Footing ($table_name);
 
 exit;

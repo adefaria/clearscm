@@ -20,6 +20,7 @@ use DBI;
 use Carp;
 use FindBin;
 use Exporter;
+use Encode;
 
 use MAPSLog;
 use MIME::Entity;
@@ -33,7 +34,7 @@ use base qw(Exporter);
 
 our $db;
 
-our $VERSION = '2.0';
+our $VERSION = '2.1';
 
 # Globals
 my $userid = $ENV{MAPS_USERNAME} ? $ENV{MAPS_USERNAME} : $ENV{USER};
@@ -110,18 +111,18 @@ sub _cleanTables($$;$) {
   my $condition = "userid = '$userid' and timestamp < '$timestamp'";
 
   if ($dryrun) {
-    return $db->count($table, $condition);
+    return $db->count ($table, $condition);
   } else {
-    my ($count, $msg) = $db->delete($table, $condition);
+    my ($count, $msg) = $db->delete ($table, $condition);
 
     return $count;
-  } # if
-} # _cleanTables
+  }    # if
+}    # _cleanTables
 
 sub _retention2Days($) {
   my ($retention) = @_;
 
-  # Of the retnetion periods I'm thinking of where they are <n> and then 
+  # Of the retnetion periods I'm thinking of where they are <n> and then
   # something like (days|weeks|months|years) none are tricky except for months
   # because months, unlike (days|weeks|years) are ill-defined. Are there 28, 29
   # 30 or 31 days in a month? Days are simple <n> days. Weeks are simple <n> * 7
@@ -133,18 +134,18 @@ sub _retention2Days($) {
   # BTW we aren't checking for odd things like 34320 weeks or 5000 years...
   if ($retention =~ /(\d+)\s+(day|days)/) {
     return $1;
-  } elsif ($retention =~ /(\d+)\s+(week|weeks)/){
+  } elsif ($retention =~ /(\d+)\s+(week|weeks)/) {
     return $1 * 7;
   } elsif ($retention =~ /(\d+)\s+(month|months)/) {
     return $1 * 30;
   } elsif ($retention =~ /(\d+)\s+(year|years)/) {
     return $1 * 365;
-  } # if
-} # _retention2Days
+  }    # if
+}    # _retention2Days
 
 sub _getnext() {
   return $db->getnext;
-} # _getnext
+}    # _getnext
 
 sub OpenDB($$) {
   my ($username, $password) = @_;
@@ -152,87 +153,88 @@ sub OpenDB($$) {
   my $dbname   = 'MAPS';
   my $dbserver = $ENV{MAPS_SERVER} || 'localhost';
 
-  $db = MyDB->new($username, $password, $dbname, $dbserver);
+  $db = MyDB->new ($username, $password, $dbname, $dbserver);
 
   croak "Unable to instantiate MyDB ($username\@$dbserver:$dbname)" unless $db;
 
   return;
-} # OpenDB
+}    # OpenDB
 
 BEGIN {
   my $MAPS_username = "maps";
   my $MAPS_password = "spam";
 
-  OpenDB($MAPS_username, $MAPS_password);
-} # BEGIN
+  OpenDB ($MAPS_username, $MAPS_password);
+}    # BEGIN
 
 sub Add2Blacklist(%) {
   my (%params) = @_;
 
   # Add2Blacklist will add an entry to the blacklist
   # First SetContext to the userid whose black list we are adding to
-  SetContext($params{userid});
+  SetContext ($params{userid});
 
   # Add to black list
   $params{sequence} = 0;
-  my ($err, $msg) = AddList(%params);
+  my ($err, $msg) = AddList (%params);
 
   # Log that we black listed the sender
-  Info("Added $params{sender} to " . ucfirst $params{userid} . "'s black list");
+  Info (
+    "Added $params{sender} to " . ucfirst $params{userid} . "'s black list");
 
   # Delete old emails
-  my $count = DeleteEmail(
+  my $count = DeleteEmail (
     userid => $params{userid},
     sender => $params{sender},
   );
 
   # Log out many emails we managed to remove
-  Info("Removed $count emails from $params{sender}");
+  Info ("Removed $count emails from $params{sender}");
 
   return $count;
-} # Add2Blacklist
+}    # Add2Blacklist
 
 sub Add2Nulllist(%) {
   my (%params) = @_;
 
   # First SetContext to the userid whose null list we are adding to
-  SetContext($params{userid});
+  SetContext ($params{userid});
 
   # Add to null list
   $params{sequence} = 0;
-  my ($err, $msg) = AddList(%params);
+  my ($err, $msg) = AddList (%params);
 
   # Log that we null listed the sender
-  Info("Added $params{sender} to " . ucfirst $params{userid }. "'s null list");
+  Info ("Added $params{sender} to " . ucfirst $params{userid} . "'s null list");
 
   # Delete old emails
-  my $count = DeleteEmail(
+  my $count = DeleteEmail (
     userid => $params{userid},
     sender => $params{sender},
   );
 
   # Log out many emails we managed to remove
-  Info("Removed $count emails from $params{sender}");
+  Info ("Removed $count emails from $params{sender}");
 
   return;
-} # Add2Nulllist
+}    # Add2Nulllist
 
 sub Add2Whitelist(%) {
   my (%params) = @_;
 
   # Add2Whitelist will add an entry to the whitelist
   # First SetContext to the userid whose white list we are adding to
-  SetContext($params{userid});
+  SetContext ($params{userid});
 
   # Add to white list
   $params{sequence} = 0;
 
-  my ($err, $msg) = AddList(%params);
+  my ($err, $msg) = AddList (%params);
 
   return -$err, $msg if $err;
 
   # Log that we registered a user
-  Logmsg(
+  Logmsg (
     userid  => $params{userid},
     type    => 'registered',
     sender  => $params{sender},
@@ -240,7 +242,11 @@ sub Add2Whitelist(%) {
   );
 
   # Check to see if there are any old messages to deliver
-  ($err, $msg) = $db->find('email', "sender = '$params{sender}'", ['userid', 'sender', 'data']);
+  ($err, $msg) = $db->find (
+    'email',
+    "sender = '$params{sender}'",
+    ['userid', 'sender', 'data']
+  );
 
   return ($err, $msg) if $err;
 
@@ -251,61 +257,59 @@ sub Add2Whitelist(%) {
   while (my $rec = $db->getnext) {
     last unless $rec->{userid};
 
-    $status = Whitelist($rec->{sender}, $rec->{data});
+    $status = Whitelist ($rec->{sender}, $rec->{data});
 
     last if $status;
 
     $messages++;
-  } # while
+  }    # while
 
   # Return if we has a problem delivering email
   return -1, 'Problem delivering some email' if $status;
 
   # Remove delivered messages
-  DeleteEmail(
+  DeleteEmail (
     userid => $params{userid},
     sender => $params{sender},
   );
 
   return $messages, 'Messages delivered';
-} # Add2Whitelist
+}    # Add2Whitelist
 
 sub AddEmail(%) {
   my (%rec) = @_;
 
-  CheckParms(['userid', 'sender', 'subject', 'data'], \%rec);
+  CheckParms (['userid', 'sender', 'subject', 'data'], \%rec);
 
-  $rec{timestamp} = UnixDatetime2SQLDatetime(scalar(localtime));
+  $rec{timestamp} = UnixDatetime2SQLDatetime (scalar (localtime));
 
-  return $db->add('email', %rec);
-} # AddEmail
+  return $db->add ('email', %rec);
+}    # AddEmail
 
 sub AddList(%) {
   my (%rec) = @_;
 
-  CheckParms(['userid', 'type', 'sender', 'sequence'], \%rec);
+  CheckParms (['userid', 'type', 'sender', 'sequence'], \%rec);
 
-  croak "Type $rec{type} not valid. Must be one of white, black or null" 
+  croak "Type $rec{type} not valid. Must be one of white, black or null"
     unless $rec{type} =~ /(white|black|null)/;
 
   croak "Sender must contain \@" unless $rec{sender} =~ /\@/;
 
   $rec{retention} //= '';
-  $rec{retention}   = lc $rec{retention};
+  $rec{retention} = lc $rec{retention};
 
-  $rec{hit_count} //= $db->count(
-    'email',
-    "userid = '$rec{userid}' and sender like '%$rec{sender}%'"
-  );
+  $rec{hit_count} //= $db->count ('email',
+    "userid = '$rec{userid}' and sender like '%$rec{sender}%'");
 
   ($rec{pattern}, $rec{domain}) = split /\@/, delete $rec{sender};
 
-  $rec{sequence} = GetNextSequenceNo(%rec);
+  $rec{sequence} = GetNextSequenceNo (%rec);
 
-  $rec{last_hit} //= UnixDatetime2SQLDatetime(scalar (localtime));
+  $rec{last_hit} //= UnixDatetime2SQLDatetime (scalar (localtime));
 
-  return $db->add('list', %rec);
-} # AddList
+  return $db->add ('list', %rec);
+}    # AddList
 
 sub AddLog(%) {
   my (%params) = @_;
@@ -313,28 +317,28 @@ sub AddLog(%) {
   # Some email senders are coming in mixed case. We don't want that
   $params{sender} = $params{sender} ? lc $params{sender} : '';
 
-  $params{timestamp} = UnixDatetime2SQLDatetime(scalar(localtime));
+  $params{timestamp} = UnixDatetime2SQLDatetime (scalar (localtime));
 
-  return $db->add('log', %params);
-} # AddLog
+  return $db->add ('log', %params);
+}    # AddLog
 
 sub AddUser(%) {
   my (%rec) = @_;
 
-  CheckParms(['userid', 'name', 'email', 'password'], \%rec);
+  CheckParms (['userid', 'name', 'email', 'password'], \%rec);
 
-  return 1 if UserExists($rec{userid});
+  return 1 if UserExists ($rec{userid});
 
-  return $db->add('user', %rec);
-} # Adduser
+  return $db->add ('user', %rec);
+}    # Adduser
 
 sub AddUserOptions(%) {
   my (%rec) = @_;
 
-  croak('Userid is required') unless $rec{userid};
-  croak('No options to add')  unless $rec{options};
+  croak ('Userid is required') unless $rec{userid};
+  croak ('No options to add')  unless $rec{options};
 
-  return (1, "User doesn't exists") unless UserExist($rec{userid}); 
+  return (1, "User doesn't exists") unless UserExist ($rec{userid});
 
   my %useropts = delete $rec{userid};
   my %opts     = delete $rec{options};
@@ -345,29 +349,32 @@ sub AddUserOptions(%) {
     $useropts{name}  = $_;
     $useropts{value} = $opts{$_};
 
-    ($err, $msg) = $db->add('useropts', %useropts);
+    ($err, $msg) = $db->add ('useropts', %useropts);
 
     last if $err;
-  } # for
+  }    # for
 
   return ($err, $msg) if $err;
   return;
-} # AddUserOptions
+}    # AddUserOptions
 
 sub Blacklist(%) {
+
   # Blacklist will send a message back to the $sender telling them that
   # they've been blacklisted. Currently we save a copy of the message.
   # In the future we should just disregard the message.
   my (%rec) = @_;
 
   # Check to see if this sender has already emailed us.
-  my $msg_count = $db->count('email', "userid='$rec{userid}' and sender like '%$rec{sender}%'");
+  my $msg_count = $db->count ('email',
+    "userid='$rec{userid}' and sender like '%$rec{sender}%'");
 
   if ($msg_count < $mailLoopMax) {
+
     # Bounce email
     my @spammsg = split "\n", $rec{data};
 
-    SendMsg(
+    SendMsg (
       userid  => $rec{userid},
       sender  => $rec{sender},
       subject => 'Your email has been discarded by MAPS',
@@ -375,24 +382,24 @@ sub Blacklist(%) {
       data    => $rec{data},
     );
 
-    Logmsg(
+    Logmsg (
       userid  => $userid,
       type    => 'blacklist',
       sender  => $rec{sender},
       message => 'Sent blacklist reply',
     );
   } else {
-    Logmsg(
+    Logmsg (
       userid  => $userid,
       type    => 'mailloop',
       sender  => $rec{sender},
       message => 'Mail loop encountered',
     );
-  } # if
+  }    # if
 
   $rec{hit_count}++ if $rec{sequence};
 
-  RecordHit(
+  RecordHit (
     userid    => $userid,
     type      => 'black',
     sequence  => $rec{sequence},
@@ -400,7 +407,7 @@ sub Blacklist(%) {
   );
 
   return;
-} # Blacklist
+}    # Blacklist
 
 sub CheckEmail(;$$) {
   my ($username, $domain) = @_;
@@ -413,17 +420,18 @@ sub CheckEmail(;$$) {
       return lc "$1\@$2";
     } else {
       return lc "$username\@";
-    } # if
+    }    # if
   } elsif ($domain) {
     if ($domain =~ /(.*)\@(.*)/) {
-      return lc  "$1\@$2";
+      return lc "$1\@$2";
     } else {
       return "\@$domain";
-    } # if
-  } # if
-} # CheckEmail
+    }    # if
+  }    # if
+}    # CheckEmail
 
 sub CheckOnList2 ($$;$) {
+
   # CheckOnList will check to see if the $sender is on the list.  Return 1 if
   # found 0 if not.
   my ($listtype, $sender, $update) = @_;
@@ -432,10 +440,10 @@ sub CheckOnList2 ($$;$) {
 
   my ($status, $rule, $sequence);
 
-  my $table      = 'list';
-  my $condition  = "userid='$userid' and type='$listtype'";
+  my $table     = 'list';
+  my $condition = "userid='$userid' and type='$listtype'";
 
-  my ($err, $errmsg) = $db->find($table, $condition, '*', 'order by sequence');
+  my ($err, $errmsg) = $db->find ($table, $condition, '*', 'order by sequence');
 
   my ($email_on_file, $rec);
 
@@ -447,8 +455,8 @@ sub CheckOnList2 ($$;$) {
         $email_on_file = '@' . $rec->{domain};
       } else {
         $email_on_file = $rec->{pattern} . '@' . $rec->{domain};
-      } # if
-    } # unless
+      }    # if
+    }    # unless
 
     # Escape some special characters
     $email_on_file =~ s/\@/\\@/;
@@ -461,17 +469,16 @@ sub CheckOnList2 ($$;$) {
     # wish to terminate it with an "@". But in the case of say
     # "@ti.com" if we don't terminate the search string with "$" then
     # "@ti.com" would also match "@tixcom.com"!
-    my $search_for = $email_on_file =~ /\@/
-                   ? "$email_on_file\$"
-                   : !defined $rec->{domain}
-                   ? "$email_on_file\@"
-                   : $email_on_file;
+    my $search_for =
+        $email_on_file =~ /\@/  ? "$email_on_file\$"
+      : !defined $rec->{domain} ? "$email_on_file\@"
+      :                           $email_on_file;
     if ($sender and $sender =~ /$search_for/i) {
       $status = 1;
 
       $rec->{hit_count} //= 0;
 
-      RecordHit(
+      RecordHit (
         userid    => $userid,
         type      => $listtype,
         sequence  => $rec->{sequence},
@@ -479,14 +486,15 @@ sub CheckOnList2 ($$;$) {
       ) if $update;
 
       last;
-    } # if
-  } # while
+    }    # if
+  }    # while
 
   return ($status, $rec);
-} # CheckOnList2
+}    # CheckOnList2
 
 sub CheckOnList ($$;$) {
-  # CheckOnList will check to see if the $sender is on the list.  Return 1 if 
+
+  # CheckOnList will check to see if the $sender is on the list.  Return 1 if
   # found 0 if not.
   my ($listtype, $sender, $update) = @_;
 
@@ -495,10 +503,10 @@ sub CheckOnList ($$;$) {
   my $status = 0;
   my ($rule, $sequence);
 
-  my $table      = 'list';
-  my $condition  = "userid='$userid' and type='$listtype'";
+  my $table     = 'list';
+  my $condition = "userid='$userid' and type='$listtype'";
 
-  my ($err, $errmsg) = $db->find($table, $condition, '*', 'order by sequence');
+  my ($err, $errmsg) = $db->find ($table, $condition, '*', 'order by sequence');
 
   my ($email_on_file, $rec);
 
@@ -510,8 +518,8 @@ sub CheckOnList ($$;$) {
         $email_on_file = '@' . $rec->{domain};
       } else {
         $email_on_file = $rec->{pattern} . '@' . $rec->{domain};
-      } # if
-    } # unless
+      }    # if
+    }    # unless
 
     # Escape some special characters
     $email_on_file =~ s/\@/\\@/;
@@ -524,21 +532,21 @@ sub CheckOnList ($$;$) {
     # wish to terminate it with an "@". But in the case of say
     # "@ti.com" if we don't terminate the search string with "$" then
     # "@ti.com" would also match "@tixcom.com"!
-    my $search_for = $email_on_file =~ /\@/
-                   ? "$email_on_file\$"
-                   : !defined $rec->{domain}
-                   ? "$email_on_file\@"
-                   : $email_on_file;
+    my $search_for =
+        $email_on_file =~ /\@/  ? "$email_on_file\$"
+      : !defined $rec->{domain} ? "$email_on_file\@"
+      :                           $email_on_file;
     if ($sender and $sender =~ /$search_for/i) {
       my $comment = $rec->{comment} ? " - $rec->{comment}" : '';
 
-      $rule   = "Matching rule: ($listtype:$rec->{sequence}) \"$email_on_file$comment\"";
-      $rule  .= " - $rec->{comment}" if $rec->{comment};
+      $rule =
+"Matching rule: ($listtype:$rec->{sequence}) \"$email_on_file$comment\"";
+      $rule .= " - $rec->{comment}" if $rec->{comment};
       $status = 1;
 
       $rec->{hit_count} //= 0;
 
-      RecordHit(
+      RecordHit (
         userid    => $userid,
         type      => $listtype,
         sequence  => $rec->{sequence},
@@ -546,28 +554,28 @@ sub CheckOnList ($$;$) {
       ) if $update;
 
       last;
-    } # if
-  } # while
+    }    # if
+  }    # while
 
   return ($status, $rule, $rec->{sequence}, $rec->{hit_count});
-} # CheckOnList
+}    # CheckOnList
 
 sub CleanEmail($;$) {
   my ($timestamp, $dryrun) = @_;
 
   return _cleanTables 'email', $timestamp, $dryrun;
-} # ClearEmail
+}    # ClearEmail
 
 sub CleanLog($;$) {
   my ($timestamp, $dryrun) = @_;
 
-  return _cleanTables('log', $timestamp, $dryrun);
-} # CleanLog
+  return _cleanTables ('log', $timestamp, $dryrun);
+}    # CleanLog
 
 sub CleanList(%) {
   my (%params) = @_;
 
-  CheckParms(['userid', 'type'], \%params);
+  CheckParms (['userid', 'type'], \%params);
 
   my $dryrunstr = $params{dryrun} ? '(dryrun)' : '';
 
@@ -580,61 +588,70 @@ sub CleanList(%) {
   # (e.g. @spammer.com) and also individual entries (baddude@spammer.com) then
   # we don't really need any of the individual entries since the domain block
   # covers them.
-  $db->find($table, $condition, ['domain'], ' and pattern is null');
+  $db->find ($table, $condition, ['domain'], ' and pattern is null');
 
   while (my $domains = $db->getnext) {
-    for my $recs ($db->get($table, $condition, ['sequence', 'pattern', 'domain'],
-                      " and domain='$domains->{domain}' and pattern is not null")) {
+    for my $recs (
+      $db->get (
+        $table, $condition,
+        ['sequence', 'pattern', 'domain'],
+        " and domain='$domains->{domain}' and pattern is not null"
+      )
+      )
+    {
       if (@$recs and not $params{dryrun}) {
         for my $rec (@$recs) {
-          DeleteList(
+          DeleteList (
             userid   => $params{userid},
             type     => $params{type},
             sequence => $rec->{sequence},
           );
 
-          $params{log}->msg("Deleted $params{userid}:$params{type}:$rec->{sequence} "
-                            .  "$rec->{pattern}\@$rec->{domain} $dryrunstr")
+          $params{log}
+            ->msg ("Deleted $params{userid}:$params{type}:$rec->{sequence} "
+              . "$rec->{pattern}\@$rec->{domain} $dryrunstr")
             if $params{log};
 
           $count++;
-        } # for
+        }    # for
       } elsif (@$recs) {
         if ($params{log}) {
-          $params{log}->msg("The domain $domains->{domain} has the following subrecords");
+          $params{log}->msg (
+            "The domain $domains->{domain} has the following subrecords");
 
           for my $rec (@$recs) {
-            $params{log}->msg("$rec->{pattern}\@$rec->{domain}");
-          } # for
-        } # if
-      } # if
-    } # for
-  } # while
+            $params{log}->msg ("$rec->{pattern}\@$rec->{domain}");
+          }    # for
+        }    # if
+      }    # if
+    }    # for
+  }    # while
 
-  $condition = "userid='$params{userid}' and type='$params{type}' and retention is not null";
+  $condition =
+"userid='$params{userid}' and type='$params{type}' and retention is not null";
 
   # First see if anything needs to be deleted
-  ($count, $msg) = $db->count($table, $condition);
+  ($count, $msg) = $db->count ($table, $condition);
 
   return 0 unless $count;
 
   $count = 0;
 
-  my ($err, $errmsg) = $db->find($table, $condition);
+  my ($err, $errmsg) = $db->find ($table, $condition);
 
   croak "Unable to find $params{type} entries for $condition - $errmsg" if $err;
 
   my $todaysDate = Today2SQLDatetime;
 
   while (my $rec = $db->getnext) {
-    my $days = _retention2Days($rec->{retention});
+    my $days = _retention2Days ($rec->{retention});
 
-    my $agedDate = SubtractDays($todaysDate, $days); 
+    my $agedDate = SubtractDays ($todaysDate, $days);
 
     # If last_hit < retentiondays then delete
-    if (Compare($rec->{last_hit}, $agedDate) == -1) {
+    if (Compare ($rec->{last_hit}, $agedDate) == -1) {
       unless ($params{dryrun}) {
-        DeleteList(
+        DeleteList (
           userid   => $params{userid},
           type     => $params{type},
           sequence => $rec->{sequence},
@@ -644,89 +661,92 @@ sub CleanList(%) {
           $rec->{pattern} //= '';
           $rec->{domain}  //= '';
 
-          $params{log}->msg("Deleted $rec->{userid}:$params{type}:$rec->{sequence} "
-                                  .  "$rec->{pattern}\@$rec->{domain} $dryrunstr");
-          $params{log}->dbug("last hit = $rec->{last_hit} < agedDate = $agedDate");
-        } # if
-      } # unless
+          $params{log}
+            ->msg ("Deleted $rec->{userid}:$params{type}:$rec->{sequence} "
+              . "$rec->{pattern}\@$rec->{domain} $dryrunstr");
+          $params{log}
+            ->dbug ("last hit = $rec->{last_hit} < agedDate = $agedDate");
+        }    # if
+      }    # unless
 
       $count++;
     } else {
-      $params{log}->dbug("$rec->{userid}:$params{type}:$rec->{sequence}: nodelete $dryrunstr "
-                       . "last hit = $rec->{last_hit} >= agedDate = $agedDate")
+      $params{log}->dbug (
+        "$rec->{userid}:$params{type}:$rec->{sequence}: nodelete $dryrunstr "
+          . "last hit = $rec->{last_hit} >= agedDate = $agedDate")
         if $params{log};
-    } # if
-  } # while
+    }    # if
+  }    # while
 
-  ResequenceList(
+  ResequenceList (
     userid => $params{userid},
     type   => $params{type},
   ) if $count && !$params{dryrun};
 
   return $count;
-} # CleanList
+}    # CleanList
 
 sub CountEmail(%) {
   my (%params) = @_;
 
-  CheckParms(['userid'], \%params);
+  CheckParms (['userid'], \%params);
 
-  my $table      = 'email';
-  my $condition  = "userid='$params{userid}'";
-     $condition .= " and $params{additional}" if $params{additional};
+  my $table     = 'email';
+  my $condition = "userid='$params{userid}'";
+  $condition .= " and $params{additional}" if $params{additional};
 
-  return $db->count($table, $condition);
-} # CountEmail
+  return $db->count ($table, $condition);
+}    # CountEmail
 
 sub CountList(%) {
   my (%params) = @_;
 
-  CheckParms(['userid', 'type'], \%params);
+  CheckParms (['userid', 'type'], \%params);
 
   my $table     = 'list';
   my $condition = "userid='$params{userid}' and type='$params{type}'";
 
-  return $db->count($table, $condition);
-} # CountList
+  return $db->count ($table, $condition);
+}    # CountList
 
 sub CountLog(%) {
   my (%params) = @_;
 
-  CheckParms(['userid'], \%params);
+  CheckParms (['userid'], \%params);
 
   my ($additional_condition) = delete $params{additional} || '';
 
-  my $condition  = "userid='$userid'";
-     $condition .= " and $additional_condition" if $additional_condition;
+  my $condition = "userid='$userid'";
+  $condition .= " and $additional_condition" if $additional_condition;
 
-  return $db->count('log', $condition);
-} # CountLog
+  return $db->count ('log', $condition);
+}    # CountLog
 
 sub CountLogDistinct(%) {
   my (%params) = @_;
 
-  CheckParms(['userid', 'column'], \%params);
+  CheckParms (['userid', 'column'], \%params);
 
   my ($additional_condition) = delete $params{additional} || '';
 
-  my $condition  = "userid='$userid'";
-     $condition .= " and $additional_condition" if $additional_condition;
+  my $condition = "userid='$userid'";
+  $condition .= " and $additional_condition" if $additional_condition;
 
-  return $db->count_distinct('log', $params{column}, $condition);
-} # CountLog
+  return $db->count_distinct ('log', $params{column}, $condition);
+}    # CountLog
 
 sub Decrypt ($$) {
   my ($password, $userid) = @_;
 
-  return $db->decode($password, $userid);
-} # Decrypt
+  return $db->decode ($password, $userid);
+}    # Decrypt
 
 sub DeleteEmail(%) {
   my (%rec) = @_;
 
   my $table = 'email';
 
-  CheckParms(['userid', 'sender'], \%rec);
+  CheckParms (['userid', 'sender'], \%rec);
 
   my ($username, $domain) = split /@/, $rec{sender};
   my $condition;
@@ -735,48 +755,49 @@ sub DeleteEmail(%) {
     $condition = "userid = '$rec{userid}' and sender = '$rec{sender}'";
   } else {
     $condition = "userid = '$rec{userid}' and sender like '%\@$domain'";
-  } # if
+  }    # if
 
-  return $db->delete($table, $condition);
-} # DeleteEmail
+  return $db->delete ($table, $condition);
+}    # DeleteEmail
 
 sub DeleteList(%) {
   my (%rec) = @_;
 
-  CheckParms(['userid', 'type', 'sequence'], \%rec);
+  CheckParms (['userid', 'type', 'sequence'], \%rec);
 
-  my $condition = "userid = '$rec{userid}' and "
-                . "type = '$rec{type}' and "
-                . "sequence = $rec{sequence}";
+  my $condition =
+      "userid = '$rec{userid}' and "
+    . "type = '$rec{type}' and "
+    . "sequence = $rec{sequence}";
 
-  return $db->delete('list', $condition);
-} # DeleteList
+  return $db->delete ('list', $condition);
+}    # DeleteList
 
 sub Encrypt($$) {
   my ($password, $userid) = @_;
 
-  return $db->encode($password, $userid);
-} # Encrypt
+  return $db->encode ($password, $userid);
+}    # Encrypt
 
 sub FindEmail(%) {
   my (%params) = @_;
 
-  CheckParms(['userid'], \%params);
+  CheckParms (['userid'], \%params);
 
-  my $table      = 'email';
-  my $condition  = "userid='$params{userid}'";
-     $condition .= " and sender='$params{sender}'"       if $params{sender};
-     $condition .= " and timestamp='$params{timestamp}'" if $params{timestamp};
+  my $table     = 'email';
+  my $condition = "userid='$params{userid}'";
+  $condition .= " and sender='$params{sender}'"       if $params{sender};
+  $condition .= " and timestamp='$params{timestamp}'" if $params{timestamp};
 
-  return $db->find($table, $condition);
-} # FindEmail
+  return $db->find ($table, $condition);
+}    # FindEmail
 
 sub FindList(%) {
   my (%params) = @_;
 
   my ($type, $sender) = @_;
 
-  CheckParms(['userid', 'type'], \%params);
+  CheckParms (['userid', 'type'], \%params);
 
   my $table     = 'list';
   my $condition = "userid='$params{userid}' and type='$params{type}'";
@@ -789,30 +810,28 @@ sub FindList(%) {
     # if it is present.
     $condition .= " and pattern='$username'" if $username;
     $condition .= " and domain='$domain'"    if $domain;
-  } # if
+  }    # if
 
-  return $db->find($table, $condition);
-} # FindList
+  return $db->find ($table, $condition);
+}    # FindList
 
 sub FindLog($) {
   my ($how_many) = @_;
 
   my $start_at = 0;
-  my $end_at   = CountLog(
-    userid => $userid,
-  );
+  my $end_at   = CountLog (userid => $userid,);
 
   if ($how_many < 0) {
     $start_at = $end_at - abs ($how_many);
     $start_at = 0 if ($start_at < 0);
-  } # if
+  }    # if
 
   my $table      = 'log';
   my $condition  = "userid='$userid'";
   my $additional = "order by timestamp limit $start_at, $end_at";
 
-  return $db->find($table, $condition, '*', $additional);
-} # FindLog
+  return $db->find ($table, $condition, '*', $additional);
+}    # FindLog
 
 sub FindUser(%) {
   my (%params) = @_;
@@ -822,51 +841,51 @@ sub FindUser(%) {
 
   $condition = "userid='$userid'" if $params{userid};
 
-  return $db->find($table, $condition, $params{fields});
-} # FindUser
+  return $db->find ($table, $condition, $params{fields});
+}    # FindUser
 
 sub FindUsers() {
-  return $db->find('user', '', ['userid']);
-} # FindUsers
+  return $db->find ('user', '', ['userid']);
+}    # FindUsers
 
 sub GetEmail() {
   goto &_getnext;
-} # GetEmail
+}    # GetEmail
 
 sub GetContext() {
   return $userid;
-} # GetContext
+}    # GetContext
 
 sub GetList() {
   goto &_getnext;
-} # GetList
+}    # GetList
 
 sub GetLog() {
   goto &_getnext;
-} # GetLog
+}    # GetLog
 
 sub GetNextSequenceNo(%) {
   my (%rec) = @_;
 
-  CheckParms(['userid', 'type'], \%rec);
+  CheckParms (['userid', 'type'], \%rec);
 
   my $table     = 'list';
   my $condition = "userid='$rec{userid}' and type='$rec{type}'";
 
-  my $count = $db->count('list', $condition);
+  my $count = $db->count ('list', $condition);
 
   return $count + 1;
-} # GetNextSequenceNo
+}    # GetNextSequenceNo
 
 sub GetUser() {
   goto &_getnext;
-} # GetUser
+}    # GetUser
 
 sub GetUserInfo($) {
   my ($userid) = @_;
 
-  return %{$db->getone('user', "userid='$userid'", ['name', 'email'])};
-} # GetUserInfo
+  return %{$db->getone ('user', "userid='$userid'", ['name', 'email'])};
+}    # GetUserInfo
 
 sub GetUserOptions($) {
   my ($userid) = @_;
@@ -874,42 +893,43 @@ sub GetUserOptions($) {
   my $table     = 'useropts';
   my $condition = "userid='$userid'";
 
-  $db->find($table, $condition);
+  $db->find ($table, $condition);
 
   my %useropts;
 
   while (my $rec = $db->getnext) {
     $useropts{$rec->{name}} = $rec->{value};
-  } # while
+  }    # while
 
   return %useropts;
-} # GetUserOptions
+}    # GetUserOptions
 
 sub Login($$) {
   my ($userid, $password) = @_;
 
-  $password = Encrypt($password, $userid);
+  $password = Encrypt ($password, $userid);
 
   # Check if user exists
-  my $dbpassword = UserExists($userid);
+  my $dbpassword = UserExists ($userid);
 
   # Return -1 if user doesn't exist
   return -1 unless $dbpassword;
 
   # Return -2 if password does not match
   if ($password eq $dbpassword) {
-    SetContext($userid);
-    return 0
+    SetContext ($userid);
+    return 0;
   } else {
-    return -2
-  } # if
-} # Login
+    return -2;
+  }    # if
+}    # Login
 
 sub Nulllist($;$$) {
+
   # Nulllist will simply discard the message.
   my ($sender, $sequence, $hit_count) = @_;
 
-  RecordHit(
+  RecordHit (
     userid    => $userid,
     type      => 'null',
     sequence  => $sequence,
@@ -917,7 +937,7 @@ sub Nulllist($;$$) {
   ) if $sequence;
 
   # Discard Message
-  Logmsg(
+  Logmsg (
     userid  => $userid,
     type    => 'nulllist',
     sender  => $sender,
@@ -925,45 +945,45 @@ sub Nulllist($;$$) {
   );
 
   return;
-} # Nulllist
+}    # Nulllist
 
 sub OnBlacklist($;$) {
   my ($sender, $update) = @_;
 
-  return CheckOnList2('black', $sender, $update);
-} # OnBlacklist
+  return CheckOnList2 ('black', $sender, $update);
+}    # OnBlacklist
 
 sub OnNulllist($;$) {
   my ($sender, $update) = @_;
 
-  return CheckOnList2('null', $sender, $update);
-} # CheckOnNulllist
+  return CheckOnList2 ('null', $sender, $update);
+}    # CheckOnNulllist
 
 sub OnWhitelist($;$$) {
   my ($sender, $userid, $update) = @_;
 
-  SetContext($userid) if $userid;
+  SetContext ($userid) if $userid;
 
-  return CheckOnList2('white', $sender, $update);
-} # OnWhitelist
+  return CheckOnList2 ('white', $sender, $update);
+}    # OnWhitelist
 
 sub OptimizeDB() {
   my @tables = qw(email list log user useropts);
 
-  my ($err, $msg) = $db->lock('read', \@tables);
+  my ($err, $msg) = $db->lock ('read', \@tables);
 
-  croak "Unable to lock table - $msg" if $err; 
+  croak "Unable to lock table - $msg" if $err;
 
-  ($err, $msg) = $db->check(\@tables);
+  ($err, $msg) = $db->check (\@tables);
 
   croak 'Unable to check tables ' . $msg if $err;
 
-  ($err, $msg) = $db->optimize(\@tables);
+  ($err, $msg) = $db->optimize (\@tables);
 
   croak 'Unable to optimize tables ' . $msg if $err;
 
-  return $db->unlock();
-} # OptimizeDB
+  return $db->unlock ();
+}    # OptimizeDB
 
 sub ReadMsg($) {
   my ($input) = @_;
@@ -976,19 +996,20 @@ sub ReadMsg($) {
   while (<$input>) {
     chomp;
     last if /^From /;
-  } # while
+  }    # while
 
   # If we hit eof here then the message was garbled. Return indication of this
-  return if eof($input);
+  return if eof ($input);
 
   if (/From (\S*)/) {
     $msgInfo{sender_long} = $envelope_sender = $1;
-  } # if
+  }    # if
 
   push @data, $_ if /^From /;
 
   while (<$input>) {
-    chomp; chop if /\r$/;
+    chomp;
+    chop if /\r$/;
 
     push @data, $_;
 
@@ -1005,9 +1026,9 @@ sub ReadMsg($) {
         $msgInfo{sender} = lc ("$1\@$2");
       } elsif ($msgInfo{sender} =~ /(\S*)@(\S*)/) {
         $msgInfo{sender} = lc ("$1\@$2");
-      } # if
+      }    # if
     } elsif (/^subject: (.*)/i) {
-      $msgInfo{subject} = $1;
+      $msgInfo{subject} = decode ("utf8", $1);
     } elsif (/^reply-to: (.*)/i) {
       $msgInfo{reply_to} = $1;
 
@@ -1017,7 +1038,7 @@ sub ReadMsg($) {
         $msgInfo{reply_to} = lc ("$1\@$2");
       } elsif ($msgInfo{reply_to} =~ /(\S*)@(\S*)/) {
         $msgInfo{reply_to} = lc ("$1\@$2");
-      } # if
+      }    # if
     } elsif (/^to: (.*)/i) {
       $msgInfo{to} = $1;
 
@@ -1027,9 +1048,11 @@ sub ReadMsg($) {
         $msgInfo{to} = lc ("$1\@$2");
       } elsif ($msgInfo{to} =~ /(\S*)@(\S*)/) {
         $msgInfo{to} = lc ("$1\@$2");
-      } # if
-    } # if
-  } # while
+      }    # if
+    }    # if
+  }    # while
+
+  my @body;
 
   # Read message body
   while (<$input>) {
@@ -1037,29 +1060,31 @@ sub ReadMsg($) {
 
     last if (/^From /);
 
-    push @data, $_;
-  } # while
+    push @body, $_;
+  }    # while
 
   # Set file pointer back by length of the line just read
-  seek ($input, -length() - 1, 1) if !eof $input;
+  seek ($input, -length () - 1, 1) if !eof $input;
+
+  push @data, @body;
 
   # Sanitize email addresses
-  $envelope_sender   =~ s/\<//g;
-  $envelope_sender   =~ s/\>//g;
-  $envelope_sender   =~ s/\"//g;
-  $envelope_sender   =~ s/\'//g;
+  $envelope_sender =~ s/\<//g;
+  $envelope_sender =~ s/\>//g;
+  $envelope_sender =~ s/\"//g;
+  $envelope_sender =~ s/\'//g;
 
-  $msgInfo{sender}   =~ s/\<//g;
-  $msgInfo{sender}   =~ s/\>//g;
-  $msgInfo{sender}   =~ s/\"//g;
-  $msgInfo{sender}   =~ s/\'//g;
+  $msgInfo{sender} =~ s/\<//g;
+  $msgInfo{sender} =~ s/\>//g;
+  $msgInfo{sender} =~ s/\"//g;
+  $msgInfo{sender} =~ s/\'//g;
 
   if ($msgInfo{reply_to}) {
     $msgInfo{reply_to} =~ s/\<//g;
     $msgInfo{reply_to} =~ s/\>//g;
     $msgInfo{reply_to} =~ s/\"//g;
     $msgInfo{reply_to} =~ s/\'//g;
-  } # if
+  }    # if
 
   # Determine best addresses
   $msgInfo{sender}   = $envelope_sender unless $msgInfo{sender};
@@ -1068,15 +1093,16 @@ sub ReadMsg($) {
   $msgInfo{data} = join "\n", @data;
 
   return %msgInfo;
-} # ReadMsg
+}    # ReadMsg
 
 sub RecordHit(%) {
   my (%rec) = @_;
 
-  CheckParms(['userid', 'type', 'sequence'], \%rec);
+  CheckParms (['userid', 'type', 'sequence'], \%rec);
 
-  my $table     = 'list';
-  my $condition = "userid='$rec{userid}' and type='$rec{type}' and sequence='$rec{sequence}'";
+  my $table = 'list';
+  my $condition =
+    "userid='$rec{userid}' and type='$rec{type}' and sequence='$rec{sequence}'";
 
   # We don't need these fields in %rec as we are not updating them
   delete $rec{sequence};
@@ -1084,31 +1110,31 @@ sub RecordHit(%) {
   delete $rec{userid};
 
   # We are, however, updating last_hit
-  $rec{last_hit} = UnixDatetime2SQLDatetime(scalar(localtime));
+  $rec{last_hit} = UnixDatetime2SQLDatetime (scalar (localtime));
 
-  return $db->modify($table, $condition, %rec);
-} # RecordHit
+  return $db->modify ($table, $condition, %rec);
+}    # RecordHit
 
 sub ResequenceList(%) {
   my (%params) = @_;
 
-  CheckParms(['userid', 'type'], \%params);
+  CheckParms (['userid', 'type'], \%params);
 
   # Data checks
   return 1 unless $params{type} =~ /(white|black|null)/;
-  return 2 unless UserExists($params{userid});
+  return 2 unless UserExists ($params{userid});
 
   my $table     = 'list';
   my $condition = "userid='$params{userid}' and type ='$params{type}'";
 
   # Lock the table
-  $db->lock('write', $table);
+  $db->lock ('write', $table);
 
   # Get all records for $userid and $type
-  my $listrecs = $db->get($table, $condition,'*', 'order by hit_count desc');
+  my $listrecs = $db->get ($table, $condition, '*', 'order by hit_count desc');
 
   # Delete all of the list entries for this $userid and $type
-  my ($count, $msg) = $db->delete($table, $condition);
+  my ($count, $msg) = $db->delete ($table, $condition);
 
   # Now re-add list entries renumbering them
   my $sequence = 1;
@@ -1116,20 +1142,20 @@ sub ResequenceList(%) {
   for (@$listrecs) {
     $_->{sequence} = $sequence++;
 
-    my ($err, $msg) = $db->add($table, %$_);
+    my ($err, $msg) = $db->add ($table, %$_);
 
     croak $msg if $err;
-  } # for
+  }    # for
 
   $db->unlock;
 
   return 0;
-} # ResequenceList
+}    # ResequenceList
 
 sub ReturnList(%) {
   my (%params) = @_;
 
-  CheckParms(['userid', 'type'], \%params);
+  CheckParms (['userid', 'type'], \%params);
 
   my $start_at = delete $params{start_at} || 0;
   my $lines    = delete $params{lines}    || 10;
@@ -1138,8 +1164,8 @@ sub ReturnList(%) {
   my $condition  = "userid='$params{userid}' and type='$params{type}'";
   my $additional = "order by sequence limit $start_at, $lines";
 
-  return $db->get($table, $condition, '*', $additional);
-} # ReturnList
+  return $db->get ($table, $condition, '*', $additional);
+}    # ReturnList
 
 sub ReturnMsg(%) {
   my (%params) = @_;
@@ -1152,24 +1178,26 @@ sub ReturnMsg(%) {
   # as reply_to. We only need reply_to for SendMsg so as to honor reply_to
   # so we now pass in both sender and reply_to
 
-  CheckParms(['userid', 'sender', 'reply_to', 'subject', 'data'], \%params);
+  CheckParms (['userid', 'sender', 'reply_to', 'subject', 'data'], \%params);
 
   #my ($sender, $reply_to, $subject, $data) = @_;
 
   # Check to see if this sender has already emailed us.
-  my $msg_count = $db->count('email', "userid='$userid' and sender like '%$params{sender}%'");
+  my $msg_count = $db->count ('email',
+    "userid='$userid' and sender like '%$params{sender}%'");
 
   if ($msg_count < $mailLoopMax) {
+
     # Return register message
-    SendMsg(
-      userid   => $params{userid},
-      sender   => $params{reply_to},
-      subject  => 'Your email has been returned by MAPS',
-      msgfile  => "$mapsbase/register.html",
-      data     => $params{data},
+    SendMsg (
+      userid  => $params{userid},
+      sender  => $params{reply_to},
+      subject => 'Your email has been returned by MAPS',
+      msgfile => "$mapsbase/register.html",
+      data    => $params{data},
     ) if $msg_count == 0;
 
-    Logmsg(
+    Logmsg (
       userid  => $params{userid},
       type    => 'returned',
       sender  => $params{sender},
@@ -1177,37 +1205,37 @@ sub ReturnMsg(%) {
     );
 
     # Save message
-    SaveMsg($params{sender}, $params{subject}, $params{data});
+    SaveMsg ($params{sender}, $params{subject}, $params{data});
   } else {
-    Add2Nulllist($params{sender}, GetContext, "Auto Null List - Mail loop");
+    Add2Nulllist ($params{sender}, GetContext, "Auto Null List - Mail loop");
 
-    Logmsg(
+    Logmsg (
       userid  => $params{userid},
       type    => 'mailloop',
       sender  => $params{sender},
       message => 'Mail loop encountered',
     );
-  } # if
+  }    # if
 
   return;
-} # ReturnMsg
+}    # ReturnMsg
 
 sub ReturnMessages(%) {
   my (%params) = @_;
 
-  CheckParms(['userid', 'sender'], \%params);
+  CheckParms (['userid', 'sender'], \%params);
 
   my $table      = 'email';
   my $condition  = "userid='$params{userid}' and sender='$params{sender}'";
   my $fields     = ['subject', 'timestamp'];
   my $additional = 'group by timestamp order by timestamp desc';
 
-
-  return $db->get($table, $condition, $fields, $additional);
-} # ReturnMessages
+  return $db->get ($table, $condition, $fields, $additional);
+}    # ReturnMessages
 
 sub ReturnSenders(%) {
   my (%params) = @_;
+
   # This subroutine returns an array of senders in reverse chronological
   # order based on time timestamp from the log table of when we returned
   # their message. The complication here is that a single sender may
@@ -1220,7 +1248,7 @@ sub ReturnSenders(%) {
   # repeatedly with different $start_at's. Therefore we need to process
   # the whole list of returns for today, eliminate duplicate entries for
   # a single sender then slice the resulting array.
-  CheckParms(['userid', 'type', 'lines'], \%params);
+  CheckParms (['userid', 'type', 'lines'], \%params);
 
   my $table      = 'log';
   my $condition  = "userid='$params{userid}' and type='$params{type}'";
@@ -1230,10 +1258,10 @@ sub ReturnSenders(%) {
 
   if ($params{date}) {
     $condition .= "and timestamp > '$params{date} 00:00:00' and "
-               .      "timestamp < '$params{date} 23:59:59'";
-  } # if
+      . "timestamp < '$params{date} 23:59:59'";
+  }    # if
 
-  $db->find($table, $condition, '*', $additional);
+  $db->find ($table, $condition, '*', $additional);
 
   # Watch the distinction between senders (plural) and sender (singular)
   my %senders;
@@ -1247,7 +1275,7 @@ sub ReturnSenders(%) {
   while (my $rec = $db->getnext) {
     $senders{$rec->{sender}} = $rec->{timestamp}
       unless $senders{$rec->{sender}};
-  } # while
+  }    # while
 
   my (@unsorted, @senders);
 
@@ -1261,23 +1289,24 @@ sub ReturnSenders(%) {
     push @unsorted, {
       sender    => $key,
       timestamp => $value,
-    };
-  } # while
+      };
+  }    # while
 
-  push @senders, $_->{sender} for sort { $b->{timestamp} cmp $a->{timestamp}} @unsorted;
+  push @senders, $_->{sender}
+    for sort {$b->{timestamp} cmp $a->{timestamp}} @unsorted;
 
   # Finally slice for the given range
   my $end_at = $params{start_at} + ($params{lines} - 1);
 
   $end_at = (@senders) - 1 if $end_at >= @senders;
 
-  return (@senders) [$params{start_at} .. $end_at];
-} # ReturnSenders
+  return (@senders)[$params{start_at} .. $end_at];
+}    # ReturnSenders
 
 sub SaveMsg($$$) {
   my ($sender, $subject, $data) = @_;
 
-  AddEmail(
+  AddEmail (
     userid  => $userid,
     sender  => $sender,
     subject => $subject,
@@ -1285,31 +1314,33 @@ sub SaveMsg($$$) {
   );
 
   return;
-} # SaveMsg
+}    # SaveMsg
 
 sub SearchEmails(%) {
   my (%params) = @_;
 
-  CheckParms(['userid', 'search'], \%params);
+  CheckParms (['userid', 'search'], \%params);
 
-  my $table      = 'email';
-  my $fields     = ['sender', 'subject', 'timestamp'];
-  my $condition  = "userid='$params{userid}' and (sender like '\%$params{search}\%' "
-                 . "or subject like '\%$params{search}\%')";
+  my $table  = 'email';
+  my $fields = ['sender', 'subject', 'timestamp'];
+  my $condition =
+      "userid='$params{userid}' and (sender like '\%$params{search}\%' "
+    . "or subject like '\%$params{search}\%')";
   my $additional = 'order by timestamp desc';
 
-  my ($err, $msg) = $db->find($table, $condition, $fields, $additional);
+  my ($err, $msg) = $db->find ($table, $condition, $fields, $additional);
 
   my @emails;
 
   while (my $rec = $db->getnext) {
     push @emails, $rec;
-  } # while
+  }    # while
 
   return @emails;
-} # SearchEmails
+}    # SearchEmails
 
 sub SendMsg(%) {
+
   # SendMsg will send the message contained in $msgfile.
   my (%params) = @_;
 
@@ -1324,21 +1355,23 @@ sub SendMsg(%) {
   # Read return message template file and print it to $msg_body
   while (<$return_msg_file>) {
     if (/\$userid/) {
+
       # Replace userid
       s/\$userid/$userid/;
-    } # if
+    }    # if
     if (/\$sender/) {
+
       # Replace sender
       s/\$sender/$params{sender}/;
-    } #if
+    }    #if
 
     push @lines, $_;
-  } # while
+  }    # while
 
   close $return_msg_file;
 
   # Create the message, and set up the mail headers:
-  my $msg = MIME::Entity->build(
+  my $msg = MIME::Entity->build (
     From    => "MAPS\@DeFaria.com",
     To      => $params{sender},
     Subject => $params{subject},
@@ -1349,7 +1382,7 @@ sub SendMsg(%) {
   # Need to obtain the spam message here...
   my @spammsg = split "\n", $params{data};
 
-  $msg->attach(
+  $msg->attach (
     Type        => "message",
     Disposition => "attachment",
     Data        => \@spammsg
@@ -1359,24 +1392,24 @@ sub SendMsg(%) {
   open my $mail, '|-', '/usr/lib/sendmail -t -oi -oem'
     or croak "SendMsg: Unable to open pipe to sendmail $!";
 
-  $msg->print(\*$mail);
+  $msg->print (\*$mail);
 
   close $mail;
 
   return;
-} # SendMsg
+}    # SendMsg
 
 sub SetContext($) {
   my ($to_user) = @_;
 
-  if (UserExists($to_user)) {
+  if (UserExists ($to_user)) {
     $userid = $to_user;
 
     return GetUserOptions $userid;
   } else {
     return 0;
-  } # if
-} # SetContext
+  }    # if
+}    # SetContext
 
 sub Space($) {
   my ($userid) = @_;
@@ -1385,27 +1418,28 @@ sub Space($) {
   my $table       = 'email';
   my $condition   = "userid='$userid'";
 
-  $db->find($table, $condition);
+  $db->find ($table, $condition);
 
   while (my $rec = $db->getnext) {
     $total_space +=
-      length($rec->{userid})    +
-      length($rec->{sender})    +
-      length($rec->{subject})   +
-      length($rec->{timestamp}) +
-      length($rec->{data});
-  } # while
+      length ($rec->{userid}) +
+      length ($rec->{sender}) +
+      length ($rec->{subject}) +
+      length ($rec->{timestamp}) +
+      length ($rec->{data});
+  }    # while
 
   return $total_space;
-} # Space
+}    # Space
 
 sub UpdateList(%) {
   my (%rec) = @_;
 
-  CheckParms(['userid', 'type', 'sequence'], \%rec);
+  CheckParms (['userid', 'type', 'sequence'], \%rec);
 
-  my $table     = 'list';
-  my $condition = "userid = '$rec{userid}' and type = '$rec{type}' and sequence = $rec{sequence}";
+  my $table = 'list';
+  my $condition =
+"userid = '$rec{userid}' and type = '$rec{type}' and sequence = $rec{sequence}";
 
   if ($rec{pattern} =~ /\@/ && !$rec{domain}) {
     ($rec{pattern}, $rec{domain}) = split /\@/, $rec{pattern};
@@ -1413,44 +1447,45 @@ sub UpdateList(%) {
     ($rec{pattern}, $rec{domain}) = split /\@/, $rec{domain};
   } elsif (!$rec{pattern} && !$rec{domain}) {
     return "Must specify either Username or Domain";
-  } # if
+  }    # if
 
-  $rec{pattern}   //= 'null';
-  $rec{domain}    //= 'null';
-  $rec{comment}   //= 'null';
+  $rec{pattern} //= 'null';
+  $rec{domain}  //= 'null';
+  $rec{comment} //= 'null';
 
   if ($rec{retention}) {
     $rec{retention} = lc $rec{retention};
-  } # if
+  }    # if
 
-  return $db->update($table, $condition, %rec);
-} # UpdateList
+  return $db->update ($table, $condition, %rec);
+}    # UpdateList
 
 sub UpdateUser(%) {
   my (%rec) = @_;
 
-  CheckParms(['userid', 'name', 'email'], \%rec);
+  CheckParms (['userid', 'name', 'email'], \%rec);
 
-  return 1 unless UserExists($rec{userid});
+  return 1 unless UserExists ($rec{userid});
 
-  my $table = 'user';
+  my $table     = 'user';
   my $condition = "userid='$rec{userid}'";
 
-  return $db->update($table, $condition, %rec);
-} # UpdateUser
+  return $db->update ($table, $condition, %rec);
+}    # UpdateUser
 
 sub UpdateUserOptions ($@) {
-  my ($userid, %options)  = @_;
+  my ($userid, %options) = @_;
 
-  return unless UserExists($userid);
+  return unless UserExists ($userid);
 
   my $table     = 'useropts';
-  my $condition = "userid='$userid' and name="; 
+  my $condition = "userid='$userid' and name=";
 
-  $db->update($table, "$condition'$_'", (name=>$_, value=>$options{$_})) for (keys %options);
+  $db->update ($table, "$condition'$_'", (name => $_, value => $options{$_}))
+    for (keys %options);
 
   return;
-} # UpdateUserOptions
+}    # UpdateUserOptions
 
 sub UserExists($) {
   my ($userid) = @_;
@@ -1460,14 +1495,15 @@ sub UserExists($) {
   my $table     = 'user';
   my $condition = "userid='$userid'";
 
-  my $rec = $db->get($table, $condition);
+  my $rec = $db->get ($table, $condition);
 
-  return 0 if scalar(@$rec) == 0;
+  return 0 if scalar (@$rec) == 0;
 
   return $rec->[0]{password};
-} # UserExists
+}    # UserExists
 
 sub Whitelist ($$;$$) {
+
   # Whitelist will deliver the message.
   my ($sender, $data, $sequence, $hit_count) = @_;
 
@@ -1477,7 +1513,7 @@ sub Whitelist ($$;$$) {
   my $msgfile = "/tmp/MAPSMessage.$$";
 
   open my $message, '>', $msgfile
-    or error("Unable to open message file ($msgfile): $!\n"), return -1;
+    or error ("Unable to open message file ($msgfile): $!\n"), return -1;
 
   print $message $data;
 
@@ -1487,10 +1523,10 @@ sub Whitelist ($$;$$) {
   my ($status, @output) = Execute "$FindBin::Bin/MAPSDeliver $userid $msgfile";
 
   if ($status != 0) {
-    my $msg =  "Unable to deliver message (message left at $msgfile\n\n";
-       $msg .= join "\n", @output;
+    my $msg = "Unable to deliver message (message left at $msgfile\n\n";
+    $msg .= join "\n", @output;
 
-    Logmsg(
+    Logmsg (
       userid  => $userid,
       type    => 'whitelist',
       sender  => $sender,
@@ -1498,31 +1534,31 @@ sub Whitelist ($$;$$) {
     );
 
     Error ($msg, 1);
-  } # if
+  }    # if
 
   unlink $msgfile;
 
   if ($status == 0) {
-    Logmsg(
+    Logmsg (
       userid  => $userid,
       type    => 'whitelist',
-      sender  => $sender, 
+      sender  => $sender,
       message => 'Delivered message',
     );
   } else {
-    error("Unable to deliver message - is MAPSDeliver setgid? - $!", $status);
-  } # if
+    error ("Unable to deliver message - is MAPSDeliver setgid? - $!", $status);
+  }    # if
 
   $hit_count++ if $sequence;
 
-  RecordHit(
-    userid   => $userid,
-    type     => 'white',
-    sequence => $sequence,
+  RecordHit (
+    userid    => $userid,
+    type      => 'white',
+    sequence  => $sequence,
     hit_count => $hit_count,
   );
 
   return $status;
-} # Whitelist
+}    # Whitelist
 
 1;

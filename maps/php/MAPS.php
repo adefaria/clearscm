@@ -12,6 +12,8 @@
 // (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
+$VERSION = "2.1";
+
 // Get userid
 if (isset($_REQUEST["userid"])) {
   $userid = $_REQUEST["userid"];
@@ -20,12 +22,16 @@ $from_cookie = false;
 
 if (!isset($userid)) {
   // No userid, see if we have a cookie for it
-  $userid=$_COOKIE["MAPSUser"];
+  $userid = $_COOKIE["MAPSUser"];
   $from_cookie = true;
+
+  // If we have a userid from the cookie, reset the cookie to keep the user
+  // logged in for another 30 days.
+  setcookie("MAPSUser", $userid, time() + 60 * 60 * 24 * 30, "/maps");
 } // if
 
 $lines = 10;
-$Types = array (
+$Types = array(
   "returned",
   "whitelist",
   "blacklist",
@@ -36,10 +42,11 @@ $Types = array (
 
 $db;
 
-function DBError($msg, $statement) {
+function DBError($msg, $statement)
+{
   global $db;
 
-  $errno  = mysqli_errno($db);
+  $errno = mysqli_errno($db);
   $errmsg = mysqli_error($db);
   print "$msg<br>Error # $errno $errmsg";
   print "<br>SQL Statement: $statement";
@@ -47,7 +54,8 @@ function DBError($msg, $statement) {
   exit($errno);
 } // DBError
 
-function OpenDB() {
+function OpenDB()
+{
   global $db;
 
   $db = mysqli_connect("127.0.0.1", "maps", "spam")
@@ -57,21 +65,24 @@ function OpenDB() {
     or DBError("OpenDB: Unable to select MAPS database", "adefaria_maps");
 } // OpenDB
 
-function CloseDB() {
+function CloseDB()
+{
   global $db;
 
-  if (isset ($db)) {
+  if (isset($db)) {
     mysqli_close($db);
   } // if
 } // CloseDB
 
-function SetContext($new_userid) {
+function SetContext($new_userid)
+{
   global $userid;
 
   $userid = $new_userid;
 } // SetContext
 
-function Encrypt($password, $userid) {
+function Encrypt($password, $userid)
+{
   global $db;
 
   $statement = "select hex(aes_encrypt(\"$password\",\"$userid\"))";
@@ -85,17 +96,18 @@ function Encrypt($password, $userid) {
   return $row[0];
 } // Encrypt
 
-function UserExists($userid) {
+function UserExists($userid)
+{
   global $db;
 
   $statement = "select userid, password from user where userid = \"$userid\"";
 
   $result = mysqli_query($db, $statement)
-    or DBError ("UserExists: Unable to execute statement", $statement);
+    or DBError("UserExists: Unable to execute statement", $statement);
 
   $row = mysqli_fetch_array($result);
 
-  $dbuserid   = $row["userid"];
+  $dbuserid = $row["userid"];
   $dbpassword = $row["password"];
 
   if ($dbuserid != $userid) {
@@ -105,7 +117,8 @@ function UserExists($userid) {
   } # if
 } // UserExists
 
-function Login($userid, $password) {
+function Login($userid, $password)
+{
   $password = Encrypt($password, $userid);
 
   // Check if user exists
@@ -120,13 +133,14 @@ function Login($userid, $password) {
   if ($password != $dbpassword) {
     return -2;
   } else {
-    setcookie("MAPSUser", $userid, time()+60*60*24*30, "/maps");
+    setcookie("MAPSUser", $userid, time() + 60 * 60 * 24 * 30, "/maps");
     SetContext($userid);
     return 0;
   } // if
 } // Login
 
-function CountList ($type) {
+function CountList($type)
+{
   global $userid, $db;
 
   $statement = "select count(*) as count from list where type=\"$type\" and userid=\"$userid\"";
@@ -140,7 +154,8 @@ function CountList ($type) {
   return $row["count"];
 } // CountList
 
-function FindList($type, $next, $lines) {
+function FindList($type, $next, $lines)
+{
   global $db;
   global $userid;
   global $lines;
@@ -148,18 +163,20 @@ function FindList($type, $next, $lines) {
   $statement = "select * from list where type=\"$type\" and userid=\"$userid\" order by sequence limit $next, $lines";
 
   $result = mysqli_query($db, $statement)
-    or DBError ("FindList: Unable to execute query: ", $statement);
+    or DBError("FindList: Unable to execute query: ", $statement);
 
   $count = mysqli_num_rows($result);
 
   return array($count, $result);
 } // FindList
 
-function Today2SQLDatetime() {
-  return date ("Y-m-d H:i:s");
+function Today2SQLDatetime()
+{
+  return date("Y-m-d H:i:s");
 } // Today2SQLDatetime
 
-function countem($table, $condition) {
+function countem($table, $condition)
+{
   global $db;
 
   $statement = "select count(distinct sender) as count from $table where $condition";
@@ -173,7 +190,8 @@ function countem($table, $condition) {
   return $row["count"];
 } // countem
 
-function countlog($condition="") {
+function countlog($condition = "")
+{
   global $userid;
 
   if ($condition != "") {
@@ -183,11 +201,13 @@ function countlog($condition="") {
   } // if
 } // countlog
 
-function SubtractDays($date, $nbr_days) {
+function SubtractDays($date, $nbr_days)
+{
 
 } // SubtractDays
 
-function GetStats($nbr_days, $date = "") {
+function GetStats($nbr_days, $date = "")
+{
   global $Types;
 
   if ($date == "") {
@@ -213,8 +233,9 @@ function GetStats($nbr_days, $date = "") {
   return $dates;
 } # GetStats
 
-function displayquickstats() {
-  $today = substr (Today2SQLDatetime(), 0, 10);
+function displayquickstats()
+{
+  $today = substr(Today2SQLDatetime(), 0, 10);
   $dates = getquickstats($today);
   $current_time = date("g:i:s a");
 
@@ -223,21 +244,21 @@ function displayquickstats() {
   print "<h4 align=\"center\" class=\"todaysactivity\">Today's Activity</h4>";
   print "<p align=\"center\"><b>as of $current_time</b></p>";
 
-  $processed     = $dates[$today]["processed"];
-  $returned      = $dates[$today]["returned"];
-  $returned_pct  = $processed == 0 ? 0 :
-    number_format ($returned / $processed * 100, 1, ".", "");
-  $whitelist     = $dates[$today]["whitelist"];
+  $processed = $dates[$today]["processed"];
+  $returned = $dates[$today]["returned"];
+  $returned_pct = $processed == 0 ? 0 :
+    number_format($returned / $processed * 100, 1, ".", "");
+  $whitelist = $dates[$today]["whitelist"];
   $whitelist_pct = $processed == 0 ? 0 :
-    number_format ($whitelist / $processed * 100, 1, ".", "");
-  $blacklist     = $dates[$today]["blacklist"];
+    number_format($whitelist / $processed * 100, 1, ".", "");
+  $blacklist = $dates[$today]["blacklist"];
   $blacklist_pct = $processed == 0 ? 0 :
-    number_format ($blacklist / $processed * 100, 1, ".", "");
-  $registered    = $dates[$today]["registered"];
-  $mailloop      = $dates[$today]["mailloop"];
-  $nulllist      = $dates[$today]["nulllist"];
-  $nulllist_pct  = $processed == 0 ? 0 :
-    number_format ($nulllist / $processed * 100, 1, ".", "");
+    number_format($blacklist / $processed * 100, 1, ".", "");
+  $registered = $dates[$today]["registered"];
+  $mailloop = $dates[$today]["mailloop"];
+  $nulllist = $dates[$today]["nulllist"];
+  $nulllist_pct = $processed == 0 ? 0 :
+    number_format($nulllist / $processed * 100, 1, ".", "");
 
   $returned_link = $returned == 0 ? '' :
     "<a href=\"/maps/bin/detail.cgi?type=returned;date=$today\">";
@@ -252,7 +273,7 @@ function displayquickstats() {
   $nulllist_link = $nulllist == 0 ? '' :
     "<a href=\"/maps/bin/detail.cgi?type=nulllist;date=$today\">";
 
-print <<<EOT
+  print <<<EOT
 <div id="quickstats">
 <table cellpadding="2" border="0" align="center" cellspacing="0">
   <tr align="right">
@@ -261,7 +282,7 @@ print <<<EOT
     <td align="right" class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${nulllist_link}Nulllist</a></td>
+    <td class="smalllabel">${nulllist_link}Null</a></td>
     <td class="smallnumber">$nulllist</td>
     <td class="smallnumber">$nulllist_pct%</td>
   </tr>
@@ -271,12 +292,12 @@ print <<<EOT
     <td class="smallnumber">$returned_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${whitelist_link}Whitelist</a></td>
+    <td class="smalllabel">${whitelist_link}White</a></td>
     <td class="smallnumber">$whitelist</td>
     <td class="smallnumber">$whitelist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${blacklist_link}Blacklist</a></td>
+    <td class="smalllabel">${blacklist_link}Black</a></td>
     <td class="smallnumber">$blacklist</td>
     <td class="smallnumber">$blacklist_pct%</td>
   </tr>
@@ -296,13 +317,14 @@ print <<<EOT
 EOT;
 } // displayquickstats
 
-function getquickstats($date) {
+function getquickstats($date)
+{
   global $Types;
 
   $dates = GetStats(1, $date);
 
   foreach ($Types as $type) {
-    if (isset ($dates[$date]["processed"])) {
+    if (isset($dates[$date]["processed"])) {
       $dates[$date]["processed"] += $dates[$date][$type];
     } else {
       $dates[$date]["processed"] = $dates[$date][$type];
@@ -312,12 +334,13 @@ function getquickstats($date) {
   return $dates;
 } // getquickstats
 
-function NavigationBar($userid) {
+function NavigationBar($userid)
+{
   print "<div id=leftbar>";
 
-  if (!isset ($userid) || $userid == "") {
+  if (!isset($userid) || $userid == "") {
     print <<<END
-    <h2 align='center'><font style="color: white">MAPS 2.0</font></h2>
+    <h2 align='center'><font style="color: white">MAPS <?php echo $VERSION?></font></h2>
     <div class="username">Welcome to MAPS</div>
     <div class="menu">
     <a href="/maps/doc/">What is MAPS?</a><br>
@@ -331,7 +354,7 @@ END;
   } else {
     $Userid = ucfirst($userid);
     print <<<END
-    <h2 align='center'><font style="color: white">MAPS 2.0</font></h2>
+    <h2 align='center'><font style="color: white">MAPS <?php echo $VERSION?></font></h2>
     <div class="username">Welcome $Userid</div>
     <div class="menu">
     <a href="/maps/">Home</a><br>
@@ -375,7 +398,8 @@ END;
   print "</div>";
 } # NavigationBar
 
-function GetUserLines() {
+function GetUserLines()
+{
   global $userid, $db;
 
   $lines = 10;
@@ -385,16 +409,17 @@ function GetUserLines() {
   $result = mysqli_query($db, $statement)
     or DBError("GetUserLines: Unable to execute query: ", $statement);
 
-  $row = mysqli_fetch_array ($result);
+  $row = mysqli_fetch_array($result);
 
-  if (isset ($row["value"])) {
+  if (isset($row["value"])) {
     $lines = $row["value"];
   } // if
 
   return $lines;
 } // GetUserLines
 
-function DisplayList($type, $next, $lines) {
+function DisplayList($type, $next, $lines)
+{
   global $userid;
   global $total;
   global $last;
@@ -408,45 +433,46 @@ function DisplayList($type, $next, $lines) {
   for ($i = 0; $i < $lines; $i++) {
     $row = mysqli_fetch_array($result);
 
-    if (!isset ($row["sequence"])) {
+    if (!isset($row["sequence"])) {
       break;
     } // if
 
-    $sequence  = $row["sequence"];
-    $username  = $row["pattern"]   == "" ? "&nbsp;" : $row["pattern"];
-    $domain    = $row["domain"]    == "" ? "&nbsp;" : $row["domain"];
+    $sequence = $row["sequence"];
+    $username = $row["pattern"] == "" ? "&nbsp;" : $row["pattern"];
+    $domain = $row["domain"] == "" ? "&nbsp;" : $row["domain"];
     $hit_count = $row["hit_count"] == "" ? "&nbsp;" : $row["hit_count"];
-    $last_hit  = $row["last_hit"]  == "" ? "&nbsp;" : $row["last_hit"];
+    $last_hit = $row["last_hit"] == "" ? "&nbsp;" : $row["last_hit"];
     $retention = $row["retention"] == "" ? "&nbsp;" : $row["retention"];
-    $comments  = $row["comment"]   == "" ? "&nbsp;" : $row["comment"];
+    $comments = $row["comment"] == "" ? "&nbsp;" : $row["comment"];
 
     // Remove time from last hit
     $last_hit = substr($last_hit, 0, (strlen($last_hit) - strpos($last_hit, " ")) + 1);
 
     // Reformat last_hit
-    $last_hit = substr ($last_hit, 5, 2) . "/" .
-                substr ($last_hit, 8, 2) . "/" .
-                substr ($last_hit, 0, 4);
-    $leftclass  = ($i == $lines || $sequence == $total || $sequence == $last) ?
+    $last_hit = substr($last_hit, 5, 2) . "/" .
+      substr($last_hit, 8, 2) . "/" .
+      substr($last_hit, 0, 4);
+    $leftclass = ($i == $lines || $sequence == $total || $sequence == $last) ?
       "tablebottomleft" : "tableleftdata";
-    $dataclass  = ($i == $lines || $sequence == $total || $sequence == $last) ?
-      "tablebottomdata"  : "tabledata";
+    $dataclass = ($i == $lines || $sequence == $total || $sequence == $last) ?
+      "tablebottomdata" : "tabledata";
     $rightclass = ($i == $lines || $sequence == $total || $sequence == $last) ?
       "tablebottomright" : "tablerightdata";
 
-    print "<td class=$leftclass align=right>"   . $sequence  . "<input type=checkbox name=action" . $sequence . " value=on></td>\n";
-    print "<td class=$dataclass align=right>"   . $username  . "</td>";
+    print "<td class=$leftclass align=right>" . $sequence . "<input type=checkbox name=action" . $sequence . " value=on></td>\n";
+    print "<td class=$dataclass align=right>" . $username . "</td>";
     print "<td class=$dataclass align=center>@</td>";
     print "<td class=$dataclass align=left><a href=\"http://$domain\" target=_blank>$domain</a></td>";
-    print "<td class=$dataclass align=right>"   . $hit_count . "</td>";
-    print "<td class=$dataclass align=center>"  . $last_hit  . "</td>";
-    print "<td class=$dataclass align=right>"   . $retention . "</td>";
-    print "<td class=$rightclass align=left>"   . $comments  . "</td>";
+    print "<td class=$dataclass align=right>" . $hit_count . "</td>";
+    print "<td class=$dataclass align=center>" . $last_hit . "</td>";
+    print "<td class=$dataclass align=right>" . $retention . "</td>";
+    print "<td class=$rightclass align=left>" . $comments . "</td>";
     print "</tr>";
   } // for
 } // DisplayList
 
-function MAPSHeader() {
+function MAPSHeader()
+{
   print <<<END
   <meta name="author" content="Andrew DeFaria <Andre@DeFaria.com>">
   <meta name="MAPS" "Mail Authorization and Permission System">
@@ -462,7 +488,8 @@ function MAPSHeader() {
 END;
 } // MAPSHeader
 
-function ListDomains($top = 10) {
+function ListDomains($top = 10)
+{
   global $userid, $db;
 
   // Generate a list of the top 10 spammers by domain
@@ -492,7 +519,7 @@ END;
   for ($i = 0; $i < $top; $i++) {
     $row = mysqli_fetch_array($result);
     $domain = $row["domain"];
-    $nbr    = $row["nbr"];
+    $nbr = $row["nbr"];
 
     print "<tr>";
     $ranking = $i + 1;
@@ -512,7 +539,7 @@ END;
 
   print <<<END
   <tr>
-    <td align=center colspan=4><input type="submit" name="action" value="Nulllist" onclick="return CheckAtLeast1Checked (document.domains);" /><input type="submit" name="action" value="Reset" onclick="return ClearAll (document.domains);" />
+    <td align=center colspan=4><input type="submit" name="action" value="Null" onclick="return CheckAtLeast1Checked (document.domains);" /><input type="submit" name="action" value="Reset" onclick="return ClearAll (document.domains);" />
     </td>
   </tr>
 <table>
@@ -520,7 +547,8 @@ END;
 END;
 } // ListDomains
 
-function Space() {
+function Space()
+{
   global $userid, $db;
 
   // Tally up space used by $userid
@@ -531,11 +559,11 @@ function Space() {
   $result = mysqli_query($db, $statement)
     or DBError("Space: Unable to execute query: ", $statement);
 
-  while ($row = mysqli_fetch_array ($result)) {
+  while ($row = mysqli_fetch_array($result)) {
     $msg_space =
-      strlen($row["userid"])    +
-      strlen($row["sender"])    +
-      strlen($row["subject"])   +
+      strlen($row["userid"]) +
+      strlen($row["sender"]) +
+      strlen($row["subject"]) +
       strlen($row["timestamp"]) +
       strlen($row["data"]);
     $space += $msg_space;
