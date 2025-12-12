@@ -336,11 +336,13 @@ function getquickstats($date)
 
 function NavigationBar($userid)
 {
+  global $VERSION;
+
   print "<div id=leftbar>";
 
   if (!isset($userid) || $userid == "") {
     print <<<END
-    <h2 align='center'><font style="color: white">MAPS <?php echo $VERSION?></font></h2>
+    <h2 align='center'><font style="color: white">MAPS $VERSION</font></h2>
     <div class="username">Welcome to MAPS</div>
     <div class="menu">
     <a href="/maps/doc/">What is MAPS?</a><br>
@@ -354,7 +356,7 @@ END;
   } else {
     $Userid = ucfirst($userid);
     print <<<END
-    <h2 align='center'><font style="color: white">MAPS <?php echo $VERSION?></font></h2>
+    <h2 align='center'><font style="color: white">MAPS $VERSION</font></h2>
     <div class="username">Welcome $Userid</div>
     <div class="menu">
     <a href="/maps/">Home</a><br>
