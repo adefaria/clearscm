@@ -6,7 +6,7 @@ $logout   = $_REQUEST['logout'];
 $errormsg = $_REQUEST['errormsg'];
 
 if (isset ($logout)) {
-  setcookie ("MAPSUser", "", time()+60*60*24*30, "/maps");
+  setcookie ("MAPSUser", "", time() - 3600, "/maps");
 } else {
   if (isset ($userid) && $from_cookie) {
     header ("Location: php/main.php");
