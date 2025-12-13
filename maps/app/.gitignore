@@ -1,0 +1,10 @@
+# Build Artifacts
+/build
+/.gradle
+
+# Local Configuration
+local.properties
+
+# IDE Files (Optional, if you open this in Android Studio later)
+/.idea
+/*.iml
