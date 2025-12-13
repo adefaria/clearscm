@@ -30,6 +30,7 @@ our @EXPORT = qw(
   DisplayError
   Footing
   Heading
+  MakeButtons
   NavigationBar
 );
 
@@ -132,6 +133,51 @@ sub displayquickstats($) {
 
   return;
 }    # displayquickstats
+
+sub MakeButtons {
+  my (%params) = @_;
+
+  my $script = $params{script};
+  my $next   = $params{next};
+  my $prev   = $params{prev};
+  my $lines  = $params{lines};
+  my $total  = $params{total};
+  my $type   = $params{type};
+  my $extra  = $params{extra} || '';
+
+  my $prev_button =
+    $prev >= 0
+    ? qq(<a href="$script?$extra;next=$prev" accesskey="p"><img src="/maps/images/previous.gif" border="0" alt="Previous" align="middle"></a>)
+    : '';
+
+  my $next_button =
+    ($next + $lines) < $total
+    ? qq(<a href="$script?$extra;next=)
+    . ($next + $lines)
+    . qq(" accesskey="n"><img src="/maps/images/next.gif" border="0" alt="Next" align="middle"></a>)
+    : '';
+
+  my $buttons = $prev_button;
+
+  my $show_white = (!defined $type || $type ne 'whitelist');
+  my $show_black = (!defined $type || $type ne 'blacklist');
+  my $show_null  = (!defined $type || $type ne 'nulllist');
+
+  $buttons .=
+'<button type="submit" name="action" value="Whitelist" onClick="return CheckAtLeast1Checked (document.detail);">White</button>&nbsp;'
+    if $show_white;
+  $buttons .=
+'<button type="submit" name="action" value="Blacklist" onClick="return CheckAtLeast1Checked (document.detail);">Black</button>&nbsp;'
+    if $show_black;
+  $buttons .=
+'<button type="submit" name="action" value="Nulllist" onClick="return CheckAtLeast1Checked (document.detail);">Null</button>&nbsp;'
+    if $show_null;
+
+  $buttons .=
+qq(<input type="submit" name="action" value="Reset" onClick="return ClearAll (document.detail);">);
+
+  return qq(<div align="center" class="toolbar">$buttons$next_button</div>);
+}    # MakeButtons
 
 sub Footing(;$) {
   my ($table_name) = @_;

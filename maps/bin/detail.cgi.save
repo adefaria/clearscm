@@ -84,6 +84,94 @@ sub formatRule($) {
   return "$rec->{pattern}\@$rec->{domain}";
 }    # formatRule
 
+sub MakeButtons($) {
+  my ($type) = @_;
+
+  my $prev_button =
+    $prev >= 0
+    ? a ({
+      -href      => "detail.cgi?type=$type;date=$date;next=$prev",
+      -accesskey => 'p',
+    },
+    '<img src=/maps/images/previous.gif border=0 alt=Previous align=middle>'
+    )
+    : '';
+  my $next_button =
+    ($next + $lines) < $total
+    ? a {
+    -href      => "detail.cgi?type=$type;date=$date;next=" . ($next + $lines),
+    -accesskey => 'n',
+    },
+    '<img src=/maps/images/next.gif border=0 alt=Next align=middle>'
+    : '';
+
+  my $buttons = $prev_button;
+
+  if ($type eq 'whitelist') {
+    $buttons =
+        $buttons
+      . '<button type="submit" name="action" value="Blacklist" onClick="return CheckAtLeast1Checked (document.detail);">Black</button>'
+      . '&nbsp;'
+      . '<button type="submit" name="action" value="Nulllist" onClick="return CheckAtLeast1Checked (document.detail);">Null</button>'
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Reset',
+        -onClick => 'return ClearAll (document.detail);'
+      }
+      );
+  } elsif ($type eq 'blacklist') {
+    $buttons =
+        $buttons
+      . '<button type="submit" name="action" value="Whitelist" onClick="return CheckAtLeast1Checked (document.detail);">White</button>'
+      . '&nbsp;'
+      . '<button type="submit" name="action" value="Nulllist" onClick="return CheckAtLeast1Checked (document.detail);">Null</button>'
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Reset',
+        -onClick => 'return ClearAll (document.detail);'
+      }
+      );
+  } elsif ($type eq 'nulllist') {
+    $buttons =
+        $buttons
+      . '<button type="submit" name="action" value="Whitelist" onClick="return CheckAtLeast1Checked (document.detail);">White</button>'
+      . '&nbsp;'
+      . '<button type="submit" name="action" value="Blacklist" onClick="return CheckAtLeast1Checked (document.detail);">Black</button>'
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Reset',
+        -onClick => 'return ClearAll (document.detail);'
+      }
+      );
+  } else {
+    $buttons =
+        $buttons
+      . '<button type="submit" name="action" value="Whitelist" onClick="return CheckAtLeast1Checked (document.detail);">White</button>'
+      . '&nbsp;'
+      . '<button type="submit" name="action" value="Blacklist" onClick="return CheckAtLeast1Checked (document.detail);">Black</button>'
+      . '&nbsp;'
+      . '<button type="submit" name="action" value="Nulllist" onClick="return CheckAtLeast1Checked (document.detail);">Null</button>'
+      . '&nbsp;'
+      . submit ({
+        -name    => 'action',
+        -value   => 'Reset',
+        -onClick => 'return ClearAll (document.detail);'
+      }
+      );
+  }    # if
+
+  print div {
+    -align => 'center',
+    -class => 'toolbar',
+    },
+    $buttons . $next_button;
+
+  return;
+}    # MakeButtons
+
 sub Body($) {
   my ($type) = @_;
 
@@ -99,15 +187,7 @@ sub Body($) {
     -name   => 'detail'
   };
 
-  print MakeButtons (
-    script => 'detail.cgi',
-    type   => $type,
-    extra  => "type=$type;date=$date",
-    next   => $next,
-    prev   => $prev,
-    lines  => $lines,
-    total  => $total
-  );
+  MakeButtons $type;
 
   print start_div {-id => 'highlightrow'};
 
@@ -363,15 +443,7 @@ sub Body($) {
   print end_table;
   print end_div;
 
-  print MakeButtons (
-    script => 'detail.cgi',
-    type   => $type,
-    extra  => "type=$type;date=$date",
-    next   => $next,
-    prev   => $prev,
-    lines  => $lines,
-    total  => $total
-  );
+  MakeButtons $type;
 
   print end_form;
 
