@@ -289,7 +289,7 @@ sub Body($) {
         $rec->{date} = SQLDatetime2UnixDatetime $rec->{timestamp};
       }    # if
 
-      $rec->{subject} //= '&lt;Unspecified&gt;';
+      $rec->{subject} //= '<Unspecified>';
 
       my $subject = '';
       for my $part (decode_mimewords ($rec->{subject})) {
