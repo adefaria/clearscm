@@ -995,7 +995,7 @@ sub ReadMsg($) {
   # line indicating start of message.
   while (<$input>) {
     chomp;
-    last if /^From /;
+    last if /^From \S+ \S+/;
   }    # while
 
   # If we hit eof here then the message was garbled. Return indication of this
@@ -1005,7 +1005,7 @@ sub ReadMsg($) {
     $msgInfo{sender_long} = $envelope_sender = $1;
   }    # if
 
-  push @data, $_ if /^From /;
+  push @data, $_ if /^From \S+ \S+/;
 
   while (<$input>) {
     chomp;
@@ -1058,7 +1058,7 @@ sub ReadMsg($) {
   while (<$input>) {
     chomp;
 
-    last if (/^From /);
+    last if (/^From \S+ \S+/);
 
     push @body, $_;
   }    # while
@@ -1089,6 +1089,8 @@ sub ReadMsg($) {
   # Determine best addresses
   $msgInfo{sender}   = $envelope_sender unless $msgInfo{sender};
   $msgInfo{reply_to} = $msgInfo{sender} unless $msgInfo{reply_to};
+
+  $msgInfo{subject} ||= '<Unspecified>';
 
   $msgInfo{data} = join "\n", @data;
 
