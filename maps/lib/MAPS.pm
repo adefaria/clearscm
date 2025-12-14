@@ -995,7 +995,7 @@ sub ReadMsg($) {
   # line indicating start of message.
   while (<$input>) {
     chomp;
-    last if /^From \S+ \S+/;
+    last if /^From\s+\S+\s+\S+/;
   }    # while
 
   # If we hit eof here then the message was garbled. Return indication of this
@@ -1005,7 +1005,7 @@ sub ReadMsg($) {
     $msgInfo{sender_long} = $envelope_sender = $1;
   }    # if
 
-  push @data, $_ if /^From \S+ \S+/;
+  push @data, $_ if /^From\s+\S+\s+\S+/;
 
   while (<$input>) {
     chomp;
@@ -1058,7 +1058,7 @@ sub ReadMsg($) {
   while (<$input>) {
     chomp;
 
-    last if (/^From \S+ \S+/);
+    last if (/^From\s+\S+\s+\S+/);
 
     push @body, $_;
   }    # while
