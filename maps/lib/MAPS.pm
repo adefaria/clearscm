@@ -21,6 +21,7 @@ use Carp;
 use FindBin;
 use Exporter;
 use Encode;
+use MIME::Words qw(:all);
 
 use MAPSLog;
 use MIME::Entity;
@@ -985,6 +986,52 @@ sub OptimizeDB() {
   return $db->unlock ();
 }    # OptimizeDB
 
+sub _parse_header_line {
+  my ($info, $line) = @_;
+
+  if ($line =~ /^from: (.*)/i) {
+    $info->{sender_long} = $info->{sender} = $1;
+
+    if ($info->{sender} =~ /<(\S*)@(\S*)>/) {
+      $info->{sender} = lc ("$1\@$2");
+    } elsif ($info->{sender} =~ /(\S*)@(\S*)\ /) {
+      $info->{sender} = lc ("$1\@$2");
+    } elsif ($info->{sender} =~ /(\S*)@(\S*)/) {
+      $info->{sender} = lc ("$1\@$2");
+    }    # if
+  } elsif ($line =~ /^subject: (.*)/i) {
+    my $subject = '';
+    for my $part (decode_mimewords ($1)) {
+      my ($text, $charset) = @$part;
+      if ($charset) {
+        eval {$text = decode ($charset, $text)};
+      }
+      $subject .= $text;
+    } ## end for my $part (decode_mimewords...)
+    $info->{subject} = $subject;
+  } elsif ($line =~ /^reply-to: (.*)/i) {
+    $info->{reply_to} = $1;
+
+    if ($info->{reply_to} =~ /<(\S*)@(\S*)>/) {
+      $info->{reply_to} = lc ("$1\@$2");
+    } elsif ($info->{reply_to} =~ /(\S*)@(\S*)\ /) {
+      $info->{reply_to} = lc ("$1\@$2");
+    } elsif ($info->{reply_to} =~ /(\S*)@(\S*)/) {
+      $info->{reply_to} = lc ("$1\@$2");
+    }    # if
+  } elsif ($line =~ /^to: (.*)/i) {
+    $info->{to} = $1;
+
+    if ($info->{to} =~ /<(\S*)@(\S*)>/) {
+      $info->{to} = lc ("$1\@$2");
+    } elsif ($info->{to} =~ /(\S*)@(\S*)\ /) {
+      $info->{to} = lc ("$1\@$2");
+    } elsif ($info->{to} =~ /(\S*)@(\S*)/) {
+      $info->{to} = lc ("$1\@$2");
+    }    # if
+  }    # if
+}    # _parse_header_line
+
 sub ReadMsg($) {
   my ($input) = @_;
 
@@ -995,17 +1042,19 @@ sub ReadMsg($) {
   # line indicating start of message.
   while (<$input>) {
     chomp;
-    last if /^From\s+\S+\s+\S+/;
+    if (/^From\s+\S+\s+\S+/) {
+      if (/From (\S*)/) {
+        $msgInfo{sender_long} = $envelope_sender = $1;
+      }    # if
+      push @data, $_;
+      last;
+    } ## end if (/^From\s+\S+\s+\S+/)
   }    # while
 
   # If we hit eof here then the message was garbled. Return indication of this
   return if eof ($input);
 
-  if (/From (\S*)/) {
-    $msgInfo{sender_long} = $envelope_sender = $1;
-  }    # if
-
-  push @data, $_ if /^From\s+\S+\s+\S+/;
+  my $header = '';
 
   while (<$input>) {
     chomp;
@@ -1016,41 +1065,16 @@ sub ReadMsg($) {
     # Blank line indicates start of message body
     last if ($_ eq '' || $_ eq "\r");
 
-    # Extract sender's address
-    if (/^from: (.*)/i) {
-      $msgInfo{sender_long} = $msgInfo{sender} = $1;
-
-      if ($msgInfo{sender} =~ /<(\S*)@(\S*)>/) {
-        $msgInfo{sender} = lc ("$1\@$2");
-      } elsif ($msgInfo{sender} =~ /(\S*)@(\S*)\ /) {
-        $msgInfo{sender} = lc ("$1\@$2");
-      } elsif ($msgInfo{sender} =~ /(\S*)@(\S*)/) {
-        $msgInfo{sender} = lc ("$1\@$2");
-      }    # if
-    } elsif (/^subject: (.*)/i) {
-      $msgInfo{subject} = decode ("utf8", $1);
-    } elsif (/^reply-to: (.*)/i) {
-      $msgInfo{reply_to} = $1;
-
-      if ($msgInfo{reply_to} =~ /<(\S*)@(\S*)>/) {
-        $msgInfo{reply_to} = lc ("$1\@$2");
-      } elsif ($msgInfo{reply_to} =~ /(\S*)@(\S*)\ /) {
-        $msgInfo{reply_to} = lc ("$1\@$2");
-      } elsif ($msgInfo{reply_to} =~ /(\S*)@(\S*)/) {
-        $msgInfo{reply_to} = lc ("$1\@$2");
-      }    # if
-    } elsif (/^to: (.*)/i) {
-      $msgInfo{to} = $1;
-
-      if ($msgInfo{to} =~ /<(\S*)@(\S*)>/) {
-        $msgInfo{to} = lc ("$1\@$2");
-      } elsif ($msgInfo{to} =~ /(\S*)@(\S*)\ /) {
-        $msgInfo{to} = lc ("$1\@$2");
-      } elsif ($msgInfo{to} =~ /(\S*)@(\S*)/) {
-        $msgInfo{to} = lc ("$1\@$2");
-      }    # if
+    if (/^\s/ && $header) {
+      s/^\s+/ /;
+      $header .= $_;
+    } else {
+      _parse_header_line (\%msgInfo, $header) if $header;
+      $header = $_;
     }    # if
   }    # while
+
+  _parse_header_line (\%msgInfo, $header) if $header;
 
   my @body;
 
@@ -1069,21 +1093,12 @@ sub ReadMsg($) {
   push @data, @body;
 
   # Sanitize email addresses
-  $envelope_sender =~ s/\<//g;
-  $envelope_sender =~ s/\>//g;
-  $envelope_sender =~ s/\"//g;
-  $envelope_sender =~ s/\'//g;
+  $envelope_sender =~ s/[<>"']//g if $envelope_sender;
 
-  $msgInfo{sender} =~ s/\<//g;
-  $msgInfo{sender} =~ s/\>//g;
-  $msgInfo{sender} =~ s/\"//g;
-  $msgInfo{sender} =~ s/\'//g;
+  $msgInfo{sender} =~ s/[<>"']//g if $msgInfo{sender};
 
   if ($msgInfo{reply_to}) {
-    $msgInfo{reply_to} =~ s/\<//g;
-    $msgInfo{reply_to} =~ s/\>//g;
-    $msgInfo{reply_to} =~ s/\"//g;
-    $msgInfo{reply_to} =~ s/\'//g;
+    $msgInfo{reply_to} =~ s/[<>"']//g;
   }    # if
 
   # Determine best addresses
