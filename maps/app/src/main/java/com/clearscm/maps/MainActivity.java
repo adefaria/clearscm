@@ -77,8 +77,10 @@ public class MainActivity extends Activity {
     private boolean isLoading = false;
     private static final int PAGE_SIZE = 20;
     private ProgressBar loadingSpinner;
-    // TODO: Update this URL to point to your actual server
     private static final String API_URL = "https://defaria.com/maps/bin/api.cgi";
+    private FrameLayout contentFrame;
+    private WebView currentWebView;
+    private String lastSearchQuery = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +91,20 @@ public class MainActivity extends Activity {
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(50, 50, 50, 50);
         layout.setBackgroundColor(Color.BLACK);
+
+        TextView mapsTitle = new TextView(this);
+        String titleHtml = "<font color='#4285F4'>M</font>.<font color='#EA4335'>A</font>.<font color='#FBBC05'>P</font>.<font color='#34A853'>S</font>.";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            mapsTitle.setText(Html.fromHtml(titleHtml, Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            mapsTitle.setText(Html.fromHtml(titleHtml));
+        }
+        mapsTitle.setTextSize(48);
+        mapsTitle.setTypeface(null, Typeface.BOLD);
+        mapsTitle.setTextColor(Color.WHITE);
+        mapsTitle.setGravity(Gravity.CENTER);
+        mapsTitle.setPadding(0, 10, 0, 10);
+        layout.addView(mapsTitle);
 
         RelativeLayout headerLayout = new RelativeLayout(this);
 
@@ -216,7 +232,7 @@ public class MainActivity extends Activity {
 
         layout.addView(navButtonsLayout);
 
-        FrameLayout contentFrame = new FrameLayout(this);
+        contentFrame = new FrameLayout(this);
         LinearLayout.LayoutParams frameParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1.0f);
         contentFrame.setLayoutParams(frameParams);
@@ -431,47 +447,55 @@ public class MainActivity extends Activity {
             logoView.setImageResource(imageResource);
         }
         logoView.setAdjustViewBounds(true);
-        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(300, 300);
+        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(1000, 1000);
         logoView.setLayoutParams(logoParams);
         layout.addView(logoView);
 
         TextView versionText = new TextView(this);
         versionText.setText("Version " + VERSION);
-        versionText.setTextSize(18);
+        versionText.setTextSize(22);
+        versionText.setTypeface(null, Typeface.BOLD);
+        versionText.setTextColor(Color.YELLOW);
         versionText.setPadding(0, 20, 0, 20);
         layout.addView(versionText);
 
         TextView aboutText = new TextView(this);
-        String aboutContent = "<b>What is MAPS?</b><br>" +
-                "MAPS - which the observant might notice is SPAM spelled backwards - works on a simple principal that is commonly used with Instant Messenger (IM) clients such as AOL's Instant Messenger or Microsoft's Messenger. That is that with most IM clients you need to get the permission of the person you want to message before you can send them an instant message. MAPS considers all email spam and returns it to the sender unless the email is from somebody on your white list.<br><br>"
+        String aboutContent = "<h1>What is MAPS?</h1>" +
+                "<p>MAPS - which the observant might notice is SPAM spelled backwards - works on a simple principal that is commonly used with Instant Messenger (IM) clients such as AOL's Instant Messenger or Microsoft's Messenger. That is that with most IM clients you need to get the permission of the person you want to message before you can send them an instant message. MAPS considers all email spam and returns it to the sender unless the email is from somebody on your white list.</p>"
                 +
-                "Now white lists are not new but maintaining a white list is a bother. So MAPS automates the maintaining of the that white list by putting the responsibility of maintaining it on the people who wish to email you. MAPS also seeks to make it easy for real people, not spammers, to request permission to email you. Here's how it works....<br><br>"
+                "<p>Now white lists are not new but maintaining a white list is a bother. So MAPS automates the maintaining of the that white list by putting the responsibility of maintaining it on the people who wish to email you. MAPS also seeks to make it easy for real people, not spammers, to request permission to email you. Here's how it works....</p>"
                 +
-                "Email that is delivered to you is passed through a filter (maps filter) which processes your email like so:<br><br>"
+                "<p>Email that is delivered to you is passed through a filter (maps filter) which processes your email like so:</p>"
                 +
-                "&bull; Extract senders email address - no sender address (and no envelope address)? Discard the email<br>"
+                "<ul><li>Extract senders email address - no sender address (and no envelope address)? Discard the email</li>"
                 +
-                "&bull; Check to see if the sender is on your white list - if so deliver the mail<br>" +
-                "&bull; Check to see if the sender is on your black list - if so return a message telling the sender that s/he is blocked from emailing you.<br>"
+                "<li>Check to see if the sender is on your white list - if so deliver the mail</li>"
                 +
-                "&bull; Check to see if the sender is on your null list - if so discard the email<br>" +
-                "&bull; Otherwise send the sender a bounce back message with a link for them to quickly register. Also, save their email so it can be delivered when they register<br><br>"
+                "<li>Check to see if the sender is on your black list - if so return a message telling the sender that s/he is blocked from emailing you.<br></li>"
                 +
-                "As you can see this algorithm will greatly reduce your spam. Also, it's easy for real people to register. Spammers typically do not read any email returning to them so they never register!<br><br>"
+                "<li>Check to see if the sender is on your null list - if so discard the email<br></li>" +
+                "<li>Otherwise send the sender a bounce back message with a link for them to quickly register. Also, save their email so it can be delivered when they register<br><br></li></ul>"
                 +
-                "<b>What to do if you get a bounce back/register email from MAPS?</b><br>" +
-                "If you receive a bounce back/register email that means you are not yet on my white list. You can register by clicking the link and then typing your name. That's it! You will then be added to my white list and your previous email will be delivered. Also, all future emails from your email address will be automatically delivered. Note, I reserve the right to remove you from my white list and optionally add you to my null or black lists.<br><br>"
+                "<p>As you can see this algorithm will greatly reduce your spam. Also, it's easy for real people to register. Spammers typically do not read any email returning to them so they never register!</p>"
                 +
-                "<b>What to do if you get a black list bounce back email from MAPS?</b><br>" +
-                "Not much you can do. I've blacklisted you for a reason. I guess you could attempt to contact me another way but chances are I also blocked you phone number from calling or texting me.<br><br>"
+                "<h1>What to do if you get a bounce back/register email from MAPS?</h1>" +
+                "<p>If you receive a bounce back/register email that means you are not yet on my white list. You can register by clicking the link and then typing your name. That's it! You will then be added to my white list and your previous email will be delivered. Also, all future emails from your email address will be automatically delivered. Note, I reserve the right to remove you from my white list and optionally add you to my null or black lists.</p>"
                 +
-                "<b>What to do if you find yourself on my null list?</b><br>" +
-                "Nothing! It's a null list. Your email would have been silently discarded so how would you know? Note I can't even see it - it was not delivered to me.";
+                "<h1>What to do if you get a black list bounce back email from MAPS?</h1>" +
+                "<p>Not much you can do. I've blacklisted you for a reason. I guess you could attempt to contact me another way but chances are I also blocked you phone number from calling or texting me.</p>"
+                +
+                "<h1>What to do if you find yourself on my null list?</h1>" +
+                "<p>Nothing! It's a null list. Your email would have been silently discarded so how would you know? Note I can't even see it - it was not delivered to me.</p>"
+                +
+                "<p>Designed and developed by <a href=\"mailto:Andrew@DeFaria.com\">Andrew DeFaria</a> - <a href=\"https://defaria.com\">https://defaria.com</a></p>";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             aboutText.setText(Html.fromHtml(aboutContent, Html.FROM_HTML_MODE_LEGACY));
         } else {
             aboutText.setText(Html.fromHtml(aboutContent));
         }
+        aboutText.setTextColor(Color.GREEN);
+        aboutText.setMovementMethod(android.text.method.LinkMovementMethod.getInstance());
+        aboutText.setLinksClickable(true);
         layout.addView(aboutText);
 
         scrollView.addView(layout);
@@ -743,7 +767,7 @@ public class MainActivity extends Activity {
     private void addMenuButton(String text, final String action) {
         Button button = new Button(this);
         button.setText(text);
-        button.setBackgroundColor(Color.parseColor("#073580"));
+        button.setBackgroundColor(Color.parseColor("#36454F"));
         button.setTextColor(Color.WHITE);
         button.setTag(action);
         button.setOnClickListener(new View.OnClickListener() {
@@ -820,8 +844,16 @@ public class MainActivity extends Activity {
         return button;
     }
 
-    private void addStatRow(TableLayout table, String label, int value) {
+    private void addStatRow(TableLayout table, String label, int value, final String action) {
         TableRow row = new TableRow(this);
+        if (action != null && value > 0) {
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    performAction(usernameField.getText().toString(), passwordField.getText().toString(), action);
+                }
+            });
+        }
 
         TextView labelView = new TextView(this);
         labelView.setText(label);
@@ -841,6 +873,15 @@ public class MainActivity extends Activity {
         table.addView(row);
     }
 
+    private void resetWebView() {
+        if (currentWebView != null) {
+            contentFrame.removeView(currentWebView);
+            currentWebView.destroy();
+            currentWebView = null;
+        }
+        scrollView.setVisibility(View.VISIBLE);
+    }
+
     private void loadNextPage() {
         currentOffset += PAGE_SIZE;
         performAction(usernameField.getText().toString(), passwordField.getText().toString(), lastListAction,
@@ -852,6 +893,7 @@ public class MainActivity extends Activity {
     }
 
     private void performAction(String user, String pass, String action, int offset) {
+        resetWebView();
         lastListAction = action;
         currentOffset = offset;
         isLoading = true;
@@ -872,16 +914,20 @@ public class MainActivity extends Activity {
             if (tag != null && (tag.equals(action) || action.startsWith("last_page_" + tag))) {
                 v.setBackgroundColor(Color.parseColor("#4488FF"));
             } else {
-                v.setBackgroundColor(Color.parseColor("#073580"));
+                v.setBackgroundColor(Color.parseColor("#36454F"));
             }
         }
 
         String dateParam = "";
-        if ("returned".equals(action) || "last_page_returned".equals(action)) {
+        if ("returned".equals(action) || "last_page_returned".equals(action) || action.endsWith("_today")) {
             String date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
             dateParam = date;
         }
-        new MapsTask(action, dateParam, offset).execute(user, pass);
+        if ("search".equals(action)) {
+            new MapsTask(action, lastSearchQuery, null, offset).execute(user, pass);
+        } else {
+            new MapsTask(action, dateParam, offset).execute(user, pass);
+        }
     }
 
     private void checkEntryAndShowDialog(String type, String sender) {
@@ -973,9 +1019,13 @@ public class MainActivity extends Activity {
     }
 
     private void performAction(String user, String pass, String action, String sender, String timestamp) {
+        resetWebView();
+        if ("search".equals(action)) {
+            lastSearchQuery = sender;
+        }
         if ("search".equals(action) || "check_address".equals(action)) {
             for (int i = 0; i < menuLayout.getChildCount(); i++) {
-                menuLayout.getChildAt(i).setBackgroundColor(Color.parseColor("#073580"));
+                menuLayout.getChildAt(i).setBackgroundColor(Color.parseColor("#36454F"));
             }
         }
         outputContainer.removeAllViews();
@@ -1193,6 +1243,12 @@ public class MainActivity extends Activity {
                     int total = 0;
                     if ("returned".equals(realAction))
                         total = data.optInt("returned");
+                    else if ("white_today".equals(realAction))
+                        total = data.optInt("whitelist");
+                    else if ("black_today".equals(realAction))
+                        total = data.optInt("blacklist");
+                    else if ("null_today".equals(realAction))
+                        total = data.optInt("nulllist");
 
                     mOffset = 0;
                     mLines = total > 0 ? total : PAGE_SIZE;
@@ -1225,9 +1281,15 @@ public class MainActivity extends Activity {
                     String url = API_URL + "?action=" + mAction + "&userid=" + storedUserid;
                     String response = sendRequest(url, "GET", null, storedCookie);
                     return "JSON:" + response;
-                } else if ("returned".equals(mAction)) {
-                    String url = API_URL + "?action=" + mAction + "&userid=" + storedUserid + "&date=" + mDate
-                            + "&start=" + mOffset + "&lines=" + mLines;
+                } else if ("returned".equals(mAction) || mAction.endsWith("_today")) {
+                    String apiAction = "returned";
+                    String typeVal = "returned";
+                    if (mAction.endsWith("_today")) {
+                        typeVal = mAction.replace("_today", "");
+                    }
+
+                    String url = API_URL + "?action=" + apiAction + "&userid=" + storedUserid + "&date=" + mDate
+                            + "&start=" + mOffset + "&lines=" + mLines + "&type=" + typeVal;
                     String response = sendRequest(url, "GET", null, storedCookie);
                     // Return raw JSON for post-processing into cards
                     return "JSON:" + response;
@@ -1263,7 +1325,9 @@ public class MainActivity extends Activity {
             } else {
                 MainActivity.this.currentOffset = mOffset;
             }
-            MainActivity.this.lastListAction = mAction;
+            if (!"display".equals(mAction) && !"check_address".equals(mAction)) {
+                MainActivity.this.lastListAction = mAction;
+            }
 
             if (actionMessage != null) {
                 showColoredToast(actionMessage, isActionError);
@@ -1279,6 +1343,32 @@ public class MainActivity extends Activity {
                 editor.apply();
             }
 
+            if (result.startsWith("WEBVIEW:")) {
+                String url = result.substring(8);
+                WebView webView = new WebView(MainActivity.this);
+                webView.getSettings().setJavaScriptEnabled(true);
+                webView.getSettings().setBuiltInZoomControls(true);
+                webView.getSettings().setDisplayZoomControls(false);
+                webView.getSettings().setSupportZoom(true);
+
+                CookieManager cookieManager = CookieManager.getInstance();
+                cookieManager.setAcceptCookie(true);
+                if (storedCookie != null) {
+                    String[] cookies = storedCookie.split(";");
+                    for (String cookie : cookies) {
+                        cookieManager.setCookie("https://defaria.com/maps/bin/", cookie.trim());
+                    }
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    cookieManager.flush();
+                }
+                webView.loadUrl(url);
+                scrollView.setVisibility(View.GONE);
+                contentFrame.addView(webView);
+                currentWebView = webView;
+                return;
+            }
+
             if (result.startsWith("JSON:")) {
                 try {
                     JSONObject json = new JSONObject(result.substring(5));
@@ -1290,6 +1380,9 @@ public class MainActivity extends Activity {
                             String html = json.getString("data");
                             WebView webView = new WebView(MainActivity.this);
                             webView.getSettings().setJavaScriptEnabled(true);
+                            webView.getSettings().setBuiltInZoomControls(true);
+                            webView.getSettings().setDisplayZoomControls(false);
+                            webView.getSettings().setSupportZoom(true);
 
                             CookieManager cookieManager = CookieManager.getInstance();
                             cookieManager.setAcceptCookie(true);
@@ -1303,12 +1396,14 @@ public class MainActivity extends Activity {
                                 cookieManager.flush();
                             }
 
-                            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                                    LinearLayout.LayoutParams.MATCH_PARENT, 1500);
+                            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                                    FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
                             webView.setLayoutParams(params);
                             webView.loadDataWithBaseURL("https://defaria.com/maps/bin/", html, "text/html", "UTF-8",
                                     null);
-                            outputContainer.addView(webView);
+                            scrollView.setVisibility(View.GONE);
+                            contentFrame.addView(webView);
+                            currentWebView = webView;
                         } else if ("check_address".equals(mAction)) {
                             String message = json.optString("message");
 
@@ -1342,10 +1437,11 @@ public class MainActivity extends Activity {
                             card.setPadding(40, 40, 40, 40);
 
                             TextView title = new TextView(MainActivity.this);
-                            title.setText("MAPS Quick Stats for " + storedUserid);
+                            String time = new SimpleDateFormat("h:mm a", Locale.US).format(new Date()).toLowerCase();
+                            title.setText("Today's Activity\nas of " + time);
                             title.setTextSize(20);
                             title.setTypeface(null, Typeface.BOLD);
-                            title.setTextColor(Color.GREEN);
+                            title.setTextColor(Color.YELLOW);
                             title.setGravity(Gravity.CENTER);
                             title.setPadding(0, 0, 0, 30);
                             card.addView(title);
@@ -1353,11 +1449,11 @@ public class MainActivity extends Activity {
                             TableLayout table = new TableLayout(MainActivity.this);
                             table.setColumnStretchable(1, true);
 
-                            addStatRow(table, "Processed", data.optInt("processed"));
-                            addStatRow(table, "Whitelist", data.optInt("whitelist"));
-                            addStatRow(table, "Returned", data.optInt("returned"));
-                            addStatRow(table, "Blacklist", data.optInt("blacklist"));
-                            addStatRow(table, "Nulllist", data.optInt("nulllist"));
+                            addStatRow(table, "Processed", data.optInt("processed"), null);
+                            addStatRow(table, "Whitelist", data.optInt("whitelist"), "white_today");
+                            addStatRow(table, "Returned", data.optInt("returned"), "returned");
+                            addStatRow(table, "Blacklist", data.optInt("blacklist"), "black_today");
+                            addStatRow(table, "Nulllist", data.optInt("nulllist"), "null_today");
 
                             card.addView(table);
                             outputContainer.addView(card);
@@ -1410,8 +1506,25 @@ public class MainActivity extends Activity {
 
                                     TextView numView = new TextView(MainActivity.this);
                                     numView.setText(String.valueOf(i + 1));
-                                    numView.setTextColor(Color.GREEN);
-                                    numView.setPadding(10, 10, 10, 10);
+                                    numView.setTextColor(Color.WHITE);
+                                    numView.setTextSize(12);
+                                    numView.setTypeface(Typeface.DEFAULT_BOLD);
+                                    numView.setGravity(Gravity.CENTER);
+                                    GradientDrawable numShape = new GradientDrawable();
+                                    numShape.setShape(GradientDrawable.OVAL);
+                                    numShape.setColor(Color.parseColor("#36454F"));
+                                    numView.setBackground(numShape);
+                                    TableRow.LayoutParams numParams = new TableRow.LayoutParams(60, 60);
+                                    numParams.setMargins(10, 10, 10, 10);
+                                    numView.setLayoutParams(numParams);
+                                    numView.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            performAction(usernameField.getText().toString(),
+                                                    passwordField.getText().toString(),
+                                                    "add_null", domain, null);
+                                        }
+                                    });
                                     row.addView(numView);
 
                                     TextView domainView = new TextView(MainActivity.this);
@@ -1583,14 +1696,34 @@ public class MainActivity extends Activity {
 
                                     outputContainer.addView(card);
                                 }
-                            } else if ("returned".equals(mAction)) {
+                            } else if ("returned".equals(mAction) || mAction.endsWith("_today")) {
                                 for (int i = 0; i < data.length(); i++) {
                                     JSONObject senderObj = data.getJSONObject(i);
-                                    final String senderEmail = senderObj.getString("sender");
-                                    JSONArray messages = senderObj.getJSONArray("messages");
+                                    String tempSender = senderObj.optString("sender");
+                                    if (tempSender.isEmpty()) {
+                                        String p = senderObj.optString("pattern", "");
+                                        String d = senderObj.optString("domain", "");
+                                        if (!p.isEmpty() && !d.isEmpty())
+                                            tempSender = p + "@" + d;
+                                        else if (!d.isEmpty())
+                                            tempSender = "@" + d;
+                                        else
+                                            tempSender = p;
+                                    }
+                                    final String senderEmail = tempSender;
+                                    JSONArray messages = senderObj.optJSONArray("messages");
+                                    if (messages == null)
+                                        messages = new JSONArray();
 
                                     String list = senderObj.optString("list", "None");
-                                    int hits = senderObj.optInt("hits", 0);
+                                    int listSeq = senderObj.optInt("sequence", 0);
+                                    if (listSeq == 0) {
+                                        listSeq = senderObj.optInt("seq", 0);
+                                    }
+                                    if (listSeq > 0) {
+                                        list = list + ":" + listSeq;
+                                    }
+                                    int hits = senderObj.optInt("hits", senderObj.optInt("hit_count", 0));
                                     String rule = senderObj.optString("rule", "None");
                                     String retention = senderObj.optString("retention", "");
                                     if ("null".equals(retention))
@@ -1671,6 +1804,29 @@ public class MainActivity extends Activity {
                                     detailsView.setTextColor(Color.GREEN);
                                     detailsView.setVisibility(View.VISIBLE);
 
+                                    final String fListType = senderObj.optString("list", "None").toLowerCase();
+                                    final int fListSeq = listSeq;
+                                    final String fSender = senderEmail;
+                                    final int fHits = hits;
+                                    final String fRetention = retention;
+                                    final String fComment = comment;
+
+                                    if (fListSeq > 0) {
+                                        detailsView.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                String p = "", d = fSender;
+                                                if (fSender.contains("@")) {
+                                                    String[] parts = fSender.split("@", 2);
+                                                    p = parts[0];
+                                                    d = parts[1];
+                                                }
+                                                showEditListDialog(fListType, fListSeq, p, d, fHits, fRetention,
+                                                        fComment);
+                                            }
+                                        });
+                                    }
+
                                     TextView timestampView = new TextView(MainActivity.this);
                                     timestampView.setText(commentOrDate);
                                     timestampView.setTextSize(18);
@@ -1726,22 +1882,24 @@ public class MainActivity extends Activity {
                                     card.addView(timestampView);
                                     card.addView(detailsView);
 
-                                    for (int j = 0; j < messages.length(); j++) {
-                                        JSONObject msg = messages.getJSONObject(j);
-                                        final String msgTimestamp = msg.optString("timestamp");
-                                        TextView msgView = new TextView(MainActivity.this);
-                                        msgView.setText(msg.optString("subject"));
-                                        msgView.setTextColor(Color.YELLOW);
-                                        msgView.setPadding(0, 10, 0, 0);
-                                        msgView.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                performAction(usernameField.getText().toString(),
-                                                        passwordField.getText().toString(),
-                                                        "display", senderEmail, msgTimestamp);
-                                            }
-                                        });
-                                        card.addView(msgView);
+                                    if ("returned".equals(mAction)) {
+                                        for (int j = 0; j < messages.length(); j++) {
+                                            JSONObject msg = messages.getJSONObject(j);
+                                            final String msgTimestamp = msg.optString("timestamp");
+                                            TextView msgView = new TextView(MainActivity.this);
+                                            msgView.setText(msg.optString("subject"));
+                                            msgView.setTextColor(Color.YELLOW);
+                                            msgView.setPadding(0, 10, 0, 0);
+                                            msgView.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    performAction(usernameField.getText().toString(),
+                                                            passwordField.getText().toString(),
+                                                            "display", senderEmail, msgTimestamp);
+                                                }
+                                            });
+                                            card.addView(msgView);
+                                        }
                                     }
                                     outputContainer.addView(card);
                                 }
@@ -1768,7 +1926,7 @@ public class MainActivity extends Activity {
                     backButton.setVisibility(View.GONE);
                 }
                 if ("white".equals(mAction) || "black".equals(mAction) || "null".equals(mAction)
-                        || "returned".equals(mAction)) {
+                        || "returned".equals(mAction) || mAction.endsWith("_today")) {
                     navButtonsLayout.setVisibility(View.VISIBLE);
                 } else {
                     navButtonsLayout.setVisibility(View.GONE);

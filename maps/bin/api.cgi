@@ -84,10 +84,15 @@ if ($action eq 'stats') {
   send_json ({status => 'success', data => $data});
 
 } elsif ($action eq 'returned') {
-  my $date    = $q->param ('date') || substr (Today2SQLDatetime, 0, 10);
+  my $date     = $q->param ('date') || substr (Today2SQLDatetime, 0, 10);
+  my $req_type = $q->param ('type') || 'returned';
+  if    ($req_type eq 'white') {$req_type = 'whitelist';}
+  elsif ($req_type eq 'black') {$req_type = 'blacklist';}
+  elsif ($req_type eq 'null')  {$req_type = 'nulllist';}
+
   my @senders = MAPS::ReturnSenders (
     userid   => $userid,
-    type     => 'returned',
+    type     => $req_type,
     lines    => $lines,
     start_at => $start,
     date     => $date
@@ -105,6 +110,7 @@ if ($action eq 'stats') {
         $list_info{hits}      = $rec->{hit_count};
         $list_info{retention} = $rec->{retention};
         $list_info{comment}   = $rec->{comment};
+        $list_info{sequence}  = $rec->{sequence};
 
         my $p = $rec->{pattern} // '';
         my $d = $rec->{domain}  // '';
