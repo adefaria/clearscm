@@ -17,8 +17,6 @@ my $userid = $ENV{USER};
 my $Userid;
 my $type = 'null';
 
-die "TODO: Test this script";
-
 sub GetItems($) {
   my ($filename) = @_;
 
@@ -40,75 +38,85 @@ sub GetItems($) {
     $item{retention} = $fields[3];
 
     push @items, \%item;
-  } # while
+  }    # while
 
   close $file;
 
   return @items;
-} # GetItems
+}    # GetItems
 
 sub Add2List(@) {
   my (@items) = @_;
 
   my $item;
 
-  my $item->{sequence} = GetNextSequenceNo(
+  my $sequence = GetNextSequenceNo (
     userid => $userid,
     type   => $type,
   );
 
-  $item->{userid} = $userid;
-  $item->{type}   = $type;
-
   for $item (@items) {
-    display_nolf "Adding $item->{pattern}\@$item->{domain} ($item->{comment}) to null list ($item->{sequence})...";
+    $item->{sequence} = $sequence++;
+    $item->{userid}   = $userid;
+    $item->{type}     = $type;
+
+    display_nolf
+"Adding $item->{pattern}\@$item->{domain} ($item->{comment}) to null list ($item->{sequence})...";
 
     last unless $item->{pattern} or $item->{domain};
 
     $item->{sender} = CheckEmail $item->{pattern}, $item->{domain};
 
-    my ($status, $rule) = OnNulllist($item->{sender}, $userid);
+    my ($status, $rule) = OnNulllist ($item->{sender}, $userid);
+
+    if (!$status && $item->{sender} =~ /\@$/) {
+      my $sender = $item->{sender};
+      chop $sender;
+      ($status, $rule) = OnNulllist ($sender, $userid);
+      print " (Retry '$sender' -> " . ($status ? "Found" : "Not Found") . ") ";
+    }    # if
 
     if ($status) {
-      display ' Already on list';
+      my $match = ($rule->{pattern} // '') . '@' . ($rule->{domain} // '');
+      $match .= " ($rule->{comment})" if $rule->{comment};
+      display " Already on list - Matches $match";
     } else {
-      my ($message, $msg) = Add2Nulllist(%$item);
+      my ($message, $msg) = Add2Nulllist (%$item);
 
       display ' done';
 
       # Now remove this entry from the other lists (if present)
       for my $otherlist ('white', 'black') {
-        FindList(
+        FindList (
           userid => $item->{userid},
           type   => $otherlist,
           sender => $item->{sender}
         );
 
-        my $seq = GetList;
+        my $seq = GetList ();
 
         if ($seq->{sequence}) {
-          my $count = DeleteList(
+          my $count = DeleteList (
             userid   => $item->{userid},
             type     => $otherlist,
             sequence => $seq->{sequence},
           );
 
-          display "Removed $item->{sender} from ${Userid}'s " . ucfirst $otherlist . ' list'
+          display "Removed $item->{sender} from ${Userid}'s "
+            . ucfirst $otherlist . ' list'
             if $count > 0;
 
-          ResequenceList(
+          ResequenceList (
             userid => $item->{userid},
             type   => $otherlist,
           );
-        } # if
-      } # for
-    } # if
-
-    $item->{sequence}++;
-  } # while
+        }    # if
+      }    # for
+    }    # if
+  }    # while
 
   return;
-} # Add2List
+}    # Add2List
 
 # Main
 my $filename;
@@ -117,12 +125,12 @@ if ($ARGV[0]) {
   $filename = $ARGV[0];
 } else {
   error "Must specify a filename of addresses to null list", 1;
-} # if
+}    # if
 
-SetContext($userid);
+SetContext ($userid);
 
 $Userid = ucfirst $userid;
 
-Add2List(GetItems ($filename));
+Add2List (GetItems ($filename));
 
 exit;

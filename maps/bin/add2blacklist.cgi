@@ -33,9 +33,9 @@ use CGI::Carp 'fatalsToBrowser';
 sub Add2List(%) {
   my (%rec) = @_;
 
-  CheckParms(['userid', 'type'], \%rec);
+  CheckParms (['userid', 'type'], \%rec);
 
-  my $nextseq = GetNextSequenceNo(%rec);
+  my $nextseq = GetNextSequenceNo (%rec);
 
   my $Userid = ucfirst $rec{userid};
 
@@ -50,35 +50,41 @@ sub Add2List(%) {
 
     $rec{sender} = CheckEmail $rec{pattern}, $rec{domain};
 
-    my ($status) = OnBlacklist($rec{sender});
+    my ($status, $rule) = OnBlacklist ($rec{sender});
 
     if ($status) {
-      print br {-class => 'error'},
-        "The email address $rec{sender} is already on ${Userid}'s $rec{type} list";
+      my $match = ($rule->{pattern} // '') . '@' . ($rule->{domain} // '');
+      $match .= " ($rule->{comment})" if $rule->{comment};
+      print br
+"The email address $rec{sender} is already on ${Userid}'s $rec{type} list";
+      print br "Matches: $match";
     } else {
-      my ($messages, $msg) = Add2Blacklist(%rec);
+      my ($messages, $msg) = Add2Blacklist (%rec);
 
-      if ($messages < -1) {
-        print br {-class => 'error'}, "Unable to add $rec{sender} to $rec{type} list";
+      if ($messages < 0) {
+        print br "Unable to add $rec{sender} to $rec{type} list";
+        print br $msg;
         return;
       } else {
-        print br "The email address, $rec{sender}, has been added to ${Userid}'s $rec{type} list";
-      } # if
+        print br
+"The email address, $rec{sender}, has been added to ${Userid}'s $rec{type} list";
+        print br $msg if $messages > 0;
+      }    # if
 
       # Now remove this entry from the other lists (if present)
       for my $otherlist ('white', 'null') {
-        FindList(
+        FindList (
           userid => $rec{userid},
           type   => $otherlist,
           sender => $rec{sender},
         );
 
-        my $seq = GetList;
+        my $seq = GetList ();
 
         if ($seq->{sequence}) {
           my $err;
 
-          ($err, $msg) = DeleteList(
+          ($err, $msg) = DeleteList (
             userid   => $rec{userid},
             type     => $otherlist,
             sequence => $seq->{sequence},
@@ -86,40 +92,37 @@ sub Add2List(%) {
 
           croak $msg if $err < 0;
 
-          print br "Removed $rec{sender} from ${Userid}'s " . ucfirst $otherlist . ' list'
+          print br "Removed $rec{sender} from ${Userid}'s "
+            . ucfirst $otherlist . ' list'
             if $err > 0;
 
-          ResequenceList(
+          ResequenceList (
             userid => $rec{userid},
             type   => $otherlist,
           );
-        } # if
-      } # for
-    } # if
+        }    # if
+      }    # for
+    }    # if
 
     $nextseq++;
-  } # while
+  }    # while
 
   return;
-} # Add2List
+}    # Add2List
 
 # Main
-my $userid = Heading(
-  'getcookie',
-  '',
-  'Add to Black List',
-  'Add to Black List',
-);
+my $userid =
+  Heading ('getcookie', '', 'Add to Black List', 'Add to Black List',);
 
 $userid ||= $ENV{USER};
 
 my $type = 'black';
 
-SetContext($userid);
+SetContext ($userid);
 
-NavigationBar($userid);
+NavigationBar ($userid);
 
-Add2List(
+Add2List (
   userid => $userid,
   type   => $type,
 );

@@ -20,10 +20,14 @@ use base qw(Exporter);
 
 use DateUtils;
 
+use MIME::Parser;
+use MIME::Words qw(:all);
+
 use MAPS;
 use MAPSLog;
 
-use CGI qw(:standard *table start_Tr end_Tr start_div end_div);
+use CGI
+  qw(:standard *table start_Tr end_Tr start_div end_div start_table end_table escape);
 
 our @EXPORT = qw(
   DebugWeb
@@ -31,8 +35,137 @@ our @EXPORT = qw(
   Footing
   Heading
   MakeButtons
+  GetMessageDisplay
   NavigationBar
+  DisplayPopup
 );
+
+sub ParseEmail(@) {
+  my (@header) = @_;
+
+  my %header;
+
+  # First output the header information. Note we'll skip uninteresting stuff
+  for (@header) {
+    last if ($_ eq '' || $_ eq "\cM");
+
+    # Escape "<" and ">"
+    s/\</\&lt\;/;
+    s/\>/\&gt\;/;
+
+    if (/^from:\s*(.*)/i) {
+      $header{From} = $1;
+    } elsif (/^subject:\s*(.*)/i) {
+      $header{Subject} = $1;
+    } elsif (/^date:\s*(.*)/i) {
+      $header{date} = $1;
+    } elsif (/^To:\s*(.*)/i) {
+      $header{to} = $1;
+    } elsif (/^Content-Transfer-Encoding: base64/) {
+      $header{base64} = 1;
+    }    # if
+  }    # for
+
+  return %header;
+}    # ParseEmail
+
+sub GetMessageDisplay(%) {
+  my (%params) = @_;
+
+  my $userid     = $params{userid};
+  my $sender     = $params{sender};
+  my $msg_date   = $params{msg_date};
+  my $table_name = $params{table_name} || 'message';
+
+  # Find unique message using $date
+  my ($err, $msg) = MAPS::FindEmail (
+    userid    => $userid,
+    sender    => $sender,
+    timestamp => $msg_date,
+  );
+
+  my $rec = MAPS::GetEmail;
+
+  my $parser = MIME::Parser->new ();
+
+  # For some strange reason MIME::Parser has started having some problems
+  # with writing out tmp files...
+  $parser->output_to_core (1);
+  $parser->tmp_to_core    (1);
+
+  my $entity = $parser->parse_data ($rec->{data});
+
+  my %header = ParseEmail @{($entity->header)[0]};
+
+  my $html = p . "\n";
+  $html .= start_table ({
+      -align       => "center",
+      -id          => $table_name,
+      -border      => 0,
+      -cellspacing => 0,
+      -cellpadding => 0,
+      -width       => "100%"
+    }
+  );
+  $html .= start_table ({
+      -align       => "center",
+      -bgcolor     => 'steelblue',
+      -border      => 0,
+      -cellspacing => 2,
+      -cellpadding => 2,
+      -width       => "100%"
+    }
+  ) . "\n";
+  $html .= "<tbody><tr><td>\n";
+  $html .= start_table ({
+      -align       => "center",
+      -border      => 0,
+      -cellspacing => 0,
+      -cellpadding => 2,
+      -bgcolor     => 'black',
+      -width       => "100%"
+    }
+  ) . "\n";
+
+  for (keys (%header)) {
+    next if /base64/;
+
+    my $str = decode_mimewords ($header{$_});
+
+    $html .= Tr ([
+        th ({
+            -align   => 'right',
+            -bgcolor => 'steelblue',
+            -style   => 'color: white',
+            -width   => "8%"
+          },
+          ucfirst "$_:"
+          )
+          . "\n"
+          . td ({-bgcolor => 'white'}, $str)
+      ]
+    );
+  }    # for
+
+  $html .= end_table;
+  $html .= "</td></tr>";
+  $html .= end_table;
+
+  my $safe_sender = escape ($sender);
+  my $safe_date   = escape ($msg_date);
+
+  $html .=
+qq{<iframe src="display.cgi?sender=$safe_sender;msg_date=$safe_date;view=body"
+                   width="100%"
+                   height="600"
+                   frameborder="0"
+                   sandbox>
+           </iframe>};
+
+  $html .= end_table;
+
+  return $html;
+}    # GetMessageDisplay
 
 sub getquickstats(%) {
   my (%params) = @_;
@@ -211,18 +344,35 @@ sub DebugWeb($) {
   return;
 }    # Debug
 
+sub DisplayPopup($;$) {
+  my ($msg, $goback) = @_;
+
+  $msg = escapeHTML ($msg);
+  $msg =~ s/\n/<br>/g;
+
+  # Robust back action: Try referrer first, then history
+  my $onclick =
+    $goback
+    ? "if (document.referrer) { window.location.href = document.referrer; } else { history.back(); }"
+    : "this.parentNode.parentNode.style.display='none'";
+
+  # Use inline styles to ensure visibility on all devices/WebViews
+  print <<EOF;
+<div style="display: flex; justify-content: center; align-items: center; position: fixed; z-index: 2147483647; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+  <div style="background-color: #fff; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); text-align: center; border-radius: 5px; font-family: sans-serif; color: #000;">
+    <p>$msg</p>
+    <button style="background-color: #007bff; color: white; padding: 10px 20px; margin-top: 15px; border: none; border-radius: 3px; cursor: pointer; font-size: 16px;" onclick="$onclick">OK</button>
+  </div>
+</div>
+EOF
+  return;
+}    # DisplayPopup
+
 sub DisplayError($) {
   my ($errmsg) = @_;
 
-  print h3({
-      -class => 'error',
-      -align => 'center'
-    },
-    'ERROR: ' . $errmsg
-  );
-
-  Footing;
-
+  DisplayPopup ("ERROR: $errmsg", 1);
+  print end_html;
   exit 1;
 }    # DisplayError
 
@@ -296,16 +446,20 @@ sub Heading($$$$;$$@) {
   }    # if
 
   print header(
-    -charset => 'utf-8',
-    -title   => $title,
-    -cookie  => $cookie
+    -charset       => 'utf-8',
+    -title         => $title,
+    -cookie        => $cookie,
+    -cache_control => 'no-cache, no-store, must-revalidate',
+    -pragma        => 'no-cache',
+    -expires       => '0',
   );
 
   if ($table_name) {
     print start_html(
       -title    => $title,
       -author   => 'Andrew\@DeFaria.com',
-      -style    => {-src => '/maps/css/MAPSStyle.css'},
+      -style    => {-src     => '/maps/css/MAPSStyle.css'},
+      -meta     => {viewport => 'width=device-width, initial-scale=1'},
       -onResize => "AdjustTableWidth (\"$table_name\");",
       -head     => [
         Link ({
@@ -326,7 +480,8 @@ sub Heading($$$$;$$@) {
     print start_html(
       -title  => $title,
       -author => 'Andrew\@DeFaria.com',
-      -style  => {-src => '/maps/css/MAPSStyle.css'},
+      -style  => {-src     => '/maps/css/MAPSStyle.css'},
+      -meta   => {viewport => 'width=device-width, initial-scale=1'},
       -head   => [
         Link ({
             -rel  => 'icon',

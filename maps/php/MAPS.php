@@ -12,7 +12,7 @@
 // (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-$VERSION = "2.1";
+$VERSION = "3.0";
 
 // Get userid
 if (isset($_REQUEST["userid"])) {

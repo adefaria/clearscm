@@ -23,8 +23,9 @@ use lib "$FindBin::Bin/../../lib";
 use MAPS;
 use Display;
 
-error("Must specify an email address to check", 1) 
-  if !$ARGV[0] or $ARGV[0] eq "";
+error ("Must specify an email address to check", 1)
+  if !$ARGV[0]
+  or $ARGV[0] eq "";
 
 for (@ARGV) {
   my $sender = lc $_;
@@ -39,16 +40,16 @@ for (@ARGV) {
     error "Illegal email address $sender";
 
     next;
-  } # unless
+  }    # unless
 
   if ($domain eq "defaria.com" and $user ne $username) {
-    display"Nulllist - $sender is from this domain but is not from $username";
+    display "Nulllist - $sender is from this domain but is not from $username";
     next;
-  } # if
+  }    # if
 
   # Algorithm change: We now first check to see if the sender is not found
   # in the message and skip it if so. Then we handle if we are the sender
-  # and that the from address is formatted properly. Spammers often use 
+  # and that the from address is formatted properly. Spammers often use
   # the senders email address (i.e. andrew@defaria.com) as their from address
   # so we check "Andrew DeFaria <Andrew@DeFaria.com>", which they have never
   # forged. This catches a lot of spam actually.
@@ -64,17 +65,22 @@ for (@ARGV) {
   # Finally, we handle return processing
 
   # Check which list the sender is on. Note that these function calls return a
-  # list of scalars. But if we want to check to see that the first returned
-  # item is in the list we need to use a syntax of () = func(). If instead we
-  # just use if (func()) and func returns a list, then we will not see the first
-  # scalar returned as a boolen. Using () = func() does this for us.
-  if (() = OnWhitelist($sender, $username, 0)) {
-    display "Sender $sender would be whitelisted";
-  } elsif (() = OnBlacklist($sender, 0)) {
-    display "Sender $sender would be be blacklisted";
-  } elsif (() = OnNulllist($sender, 0)) {
-    display "Sender $sender would be nulllisted"
+  # list of scalars.
+  my $rec;
+
+  if (($status, $rec) = OnWhitelist ($sender, $username, 0) and $status) {
+    display "Sender $sender would be whitelisted (Matches: "
+      . ($rec->{pattern} // '') . '@'
+      . ($rec->{domain}  // '') . ")";
+  } elsif (($status, $rec) = OnBlacklist ($sender, 0) and $status) {
+    display "Sender $sender would be be blacklisted (Matches: "
+      . ($rec->{pattern} // '') . '@'
+      . ($rec->{domain}  // '') . ")";
+  } elsif (($status, $rec) = OnNulllist ($sender, 0) and $status) {
+    display "Sender $sender would be nulllisted (Matches: "
+      . ($rec->{pattern} // '') . '@'
+      . ($rec->{domain}  // '') . ")";
   } else {
-    display "Sender $sender would be returned"
-  } # if 
-} # for
+    display "Sender $sender would be returned";
+  }    # if
+}    # for

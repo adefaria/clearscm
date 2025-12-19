@@ -48,35 +48,6 @@ $sender =~ s/ /\+/;
 my $msg_date   = param ('msg_date');
 my $table_name = 'message';
 
-sub ParseEmail(@) {
-  my (@header) = @_;
-
-  my %header;
-
-  # First output the header information. Note we'll skip uninteresting stuff
-  for (@header) {
-    last if ($_ eq '' || $_ eq "\cM");
-
-    # Escape "<" and ">"
-    s/\</\&lt\;/;
-    s/\>/\&gt\;/;
-
-    if (/^from:\s*(.*)/i) {
-      $header{From} = $1;
-    } elsif (/^subject:\s*(.*)/i) {
-      $header{Subject} = $1;
-    } elsif (/^date:\s*(.*)/i) {
-      $header{date} = $1;
-    } elsif (/^To:\s*(.*)/i) {
-      $header{to} = $1;
-    } elsif (/^Content-Transfer-Encoding: base64/) {
-      $header{base64} = 1;
-    }    # if
-  }    # for
-
-  return %header;
-}    # ParseEmail
-
 sub GetDecodedContent($) {
   my ($part) = @_;
 
@@ -165,128 +136,6 @@ if ($view && $view eq 'body') {
   exit;
 }    # if ($view && $view eq 'body')
 
-sub Body($) {
-  my ($date) = @_;
-
-  # Find unique message using $date
-  my ($err, $msg) = FindEmail (
-    userid    => $userid,
-    sender    => $sender,
-    timestamp => $date,
-  );
-
-  my $rec = GetEmail;
-
-  my $parser = MIME::Parser->new ();
-
-  # For some strange reason MIME::Parser has started having some problems
-  # with writing out tmp files...
-  $parser->output_to_core (1);
-  $parser->tmp_to_core    (1);
-
-  my $entity = $parser->parse_data ($rec->{data});
-
-  my %header = ParseEmail @{($entity->header)[0]};
-
-  print p . "\n";
-  print start_table ({
-      -align       => "center",
-      -id          => $table_name,
-      -border      => 0,
-      -cellspacing => 0,
-      -cellpadding => 0,
-      -width       => "100%"
-    }
-  );
-  print start_table ({
-      -align   => "center",
-      -bgcolor => 'steelblue',
-
-      #-bgcolor      => "#d4d0c8",
-      -border      => 0,
-      -cellspacing => 2,
-      -cellpadding => 2,
-      -width       => "100%"
-    }
-  ) . "\n";
-  print "<tbody><tr><td>\n";
-  print start_table ({
-      -align       => "center",
-      -border      => 0,
-      -cellspacing => 0,
-      -cellpadding => 2,
-      -bgcolor     => 'black',
-
-      #-bgcolor      => "#ece9d8",
-      -width => "100%"
-    }
-  ) . "\n";
-
-  for (keys (%header)) {
-    next if /base64/;
-
-    my $str = decode_mimewords ($header{$_});
-
-    print Tr ([
-        th ({
-            -align   => 'right',
-            -bgcolor => 'steelblue',
-            -style   => 'color: white',
-
-            #-bgcolor  => "#ece9d8",
-            -width => "8%"
-          },
-          ucfirst "$_:"
-          )
-          . "\n"
-          . td ({-bgcolor => 'white'}, $str)
-      ]
-    );
-  }    # for
-
-  print end_table;
-  print "</td></tr>";
-  print end_table;
-
-  print start_table ({
-      -align       => 'center',
-      -bgcolor     => 'steelblue',
-      -border      => 0,
-      -cellspacing => 0,
-      -cellpadding => 2,
-      -width       => "100%"
-    }
-  ) . "\n";
-  print "<tbody><tr><td>\n";
-  print start_table ({
-      -align       => "center",
-      -border      => 0,
-      -cellspacing => 0,
-      -cellpadding => 2,
-      -bgcolor     => 'white',
-      -width       => "100%"
-    }
-  ) . "\n";
-  print "<tbody><tr><td>\n";
-
-  my $safe_sender = CGI::escape ($sender);
-  my $safe_date   = CGI::escape ($msg_date);
-
-  print
-qq{<iframe src="display.cgi?sender=$safe_sender;msg_date=$safe_date;view=body"
-                   width="100%"
-                   height="600"
-                   frameborder="0"
-                   sandbox>
-           </iframe>};
-
-  print "</td></tr>\n";
-  print end_table;
-  print "</td></tr>\n";
-  print end_table;
-  print end_table;
-}    # Body
-
 $userid = Heading (
   'getcookie', '',
   "Email message from $sender",
@@ -299,6 +148,11 @@ $userid //= $ENV{USER};
 SetContext    ($userid);
 NavigationBar ($userid);
 
-Body ($msg_date);
+print MAPSWeb::GetMessageDisplay (
+  userid     => $userid,
+  sender     => $sender,
+  msg_date   => $msg_date,
+  table_name => $table_name
+);
 
 Footing ($table_name);

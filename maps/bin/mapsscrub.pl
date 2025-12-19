@@ -60,10 +60,10 @@ use MAPS;
 use Utils;
 
 my %opts = (
-  usage    => sub { pod2usage },
-  help     => sub { pod2usage (-verbose => 2)},
-  verbose  => sub { set_verbose },
-  debug    => sub { set_debug },
+  usage    => sub {pod2usage},
+  help     => sub {pod2usage (-verbose => 2)},
+  verbose  => sub {set_verbose},
+  debug    => sub {set_debug},
   optimize => 1,
 );
 
@@ -72,59 +72,52 @@ my ($log, %total);
 sub CleanUp($) {
   my ($userid) = @_;
 
-  my %options = GetUserOptions($userid);
+  my %options = GetUserOptions ($userid);
 
-  my $timestamp = SubtractDays(Today2SQLDatetime, $options{History});
+  my $timestamp = SubtractDays (Today2SQLDatetime, $options{History});
 
   $total{'Emails cleaned'}      = CleanEmail $timestamp, $opts{dryrun};
-  $total{'Log entries removed'} = CleanLog   $timestamp, $opts{dryrun};
+  $total{'Log entries removed'} = CleanLog $timestamp,   $opts{dryrun};
 
   for (qw(white black null)) {
-    my $listname = ucfirst($_) . 'list entries removed';
+    my $listname = ucfirst ($_) . 'list entries removed';
 
-    $total{$listname} = CleanList(
+    $total{$listname} = CleanList (
       userid => $userid,
       type   => $_,
       log    => $log,
       dryrun => $opts{dryrun},
     );
-  } # for
+  }    # for
 
   Stats \%total, $log;
 
   return;
-} # CleanUp
+}    # CleanUp
 
 # Main
-GetOptions(
-  \%opts,
-  'usage',
-  'help',
-  'verbose',
-  'debug',
-  'userid=s',
-  'optimize!',
-  'dryrun',
-) or pod2usage;
+GetOptions (\%opts, 'usage', 'help', 'verbose', 'debug', 'userid=s',
+  'optimize!', 'dryrun',)
+  or pod2usage;
 
-$log = Logger->new(
+$log = Logger->new (
   path        => '/var/local/log',
   timestamped => 'yes',
 );
 
-FindUser(%opts{userid});
+FindUser (%opts{userid});
 
-while (my $rec = GetUser) {
-  SetContext($rec->{userid});
+while (my $rec = GetUser ()) {
+  SetContext ($rec->{userid});
 
-  CleanUp($rec->{userid});
-} # while
+  CleanUp ($rec->{userid});
+}    # while
 
 # Now optimize the database
 if ($opts{optimize}) {
   OptimizeDB;
 
-  $log->msg('Database optimized');
-} # if
+  $log->msg ('Database optimized');
+}    # if
 
 exit;

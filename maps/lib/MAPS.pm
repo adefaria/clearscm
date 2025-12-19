@@ -35,7 +35,7 @@ use base qw(Exporter);
 
 our $db;
 
-our $VERSION = '2.1';
+our $VERSION = '3.0';
 
 # Globals
 my $userid = $ENV{MAPS_USERNAME} ? $ENV{MAPS_USERNAME} : $ENV{USER};
@@ -89,9 +89,12 @@ our @EXPORT = qw(
   ReadMsg
   ResequenceList
   ReturnList
+  ReturnWholeList
   ReturnMsg
   ReturnMessages
   ReturnSenders
+  ReturnTopHitters
+  ReturnTopDomains
   SaveMsg
   SearchEmails
   SetContext
@@ -175,24 +178,61 @@ sub Add2Blacklist(%) {
   # First SetContext to the userid whose black list we are adding to
   SetContext ($params{userid});
 
+  # Check if already on blacklist (includes wildcard matches)
+  my ($status, $rec) = OnBlacklist ($params{sender}, 0);
+  if ($status) {
+    my $rule = ($rec->{pattern} // '') . '@' . ($rec->{domain} // '');
+    $rule .= " ($rec->{comment})" if $rec->{comment};
+    return -1, "Entry already matches existing rule - $rule";
+  }    # if
+
   # Add to black list
   $params{sequence} = 0;
+  $params{type}     = 'black';
   my ($err, $msg) = AddList (%params);
+
+  return -$err, $msg if $err;
+
+  # Remove from other lists
+  for my $type (qw(white null)) {
+    FindList (
+      userid => $params{userid},
+      type   => $type,
+      sender => $params{sender}
+    );
+    while (my $rec = GetList ()) {
+      DeleteList (
+        userid   => $params{userid},
+        type     => $type,
+        sequence => $rec->{sequence}
+      );
+      ResequenceList (userid => $params{userid}, type => $type);
+    }    # while
+  }    # for
 
   # Log that we black listed the sender
   Info (
-    "Added $params{sender} to " . ucfirst $params{userid} . "'s black list");
+    userid  => $params{userid},
+    message => "Added $params{sender} to "
+      . ucfirst $params{userid}
+      . "'s black list"
+  );
 
   # Delete old emails
-  my $count = DeleteEmail (
+  my ($count) = DeleteEmail (
     userid => $params{userid},
     sender => $params{sender},
   );
 
   # Log out many emails we managed to remove
-  Info ("Removed $count emails from $params{sender}");
+  Info (
+    userid  => $params{userid},
+    message => "Removed $count emails from $params{sender}"
+  );
 
-  return $count;
+  $msg = $count == 1 ? "$count message deleted" : "$count messages deleted";
+
+  return $count, $msg;
 }    # Add2Blacklist
 
 sub Add2Nulllist(%) {
@@ -201,23 +241,61 @@ sub Add2Nulllist(%) {
   # First SetContext to the userid whose null list we are adding to
   SetContext ($params{userid});
 
+  # Check if already on nulllist (includes wildcard matches)
+  my ($status, $rec) = OnNulllist ($params{sender}, 0);
+  if ($status) {
+    my $rule = ($rec->{pattern} // '') . '@' . ($rec->{domain} // '');
+    $rule .= " ($rec->{comment})" if $rec->{comment};
+    return -1, "Entry already matches existing rule - $rule";
+  }    # if
+
   # Add to null list
   $params{sequence} = 0;
+  $params{type}     = 'null';
   my ($err, $msg) = AddList (%params);
 
+  return -$err, $msg if $err;
+
+  # Remove from other lists
+  for my $type (qw(white black)) {
+    FindList (
+      userid => $params{userid},
+      type   => $type,
+      sender => $params{sender}
+    );
+    while (my $rec = GetList ()) {
+      DeleteList (
+        userid   => $params{userid},
+        type     => $type,
+        sequence => $rec->{sequence}
+      );
+      ResequenceList (userid => $params{userid}, type => $type);
+    }    # while
+  }    # for
+
   # Log that we null listed the sender
-  Info ("Added $params{sender} to " . ucfirst $params{userid} . "'s null list");
+  Info (
+    userid  => $params{userid},
+    message => "Added $params{sender} to "
+      . ucfirst $params{userid}
+      . "'s null list"
+  );
 
   # Delete old emails
-  my $count = DeleteEmail (
+  my ($count) = DeleteEmail (
     userid => $params{userid},
     sender => $params{sender},
   );
 
   # Log out many emails we managed to remove
-  Info ("Removed $count emails from $params{sender}");
+  Info (
+    userid  => $params{userid},
+    message => "Removed $count emails from $params{sender}"
+  );
 
-  return;
+  $msg = $count == 1 ? "$count message deleted" : "$count messages deleted";
+
+  return $count, $msg;
 }    # Add2Nulllist
 
 sub Add2Whitelist(%) {
@@ -227,12 +305,38 @@ sub Add2Whitelist(%) {
   # First SetContext to the userid whose white list we are adding to
   SetContext ($params{userid});
 
+  # Check if already on whitelist (includes wildcard matches)
+  my ($status, $rec) = OnWhitelist ($params{sender}, $params{userid}, 0);
+  if ($status) {
+    my $rule = ($rec->{pattern} // '') . '@' . ($rec->{domain} // '');
+    $rule .= " ($rec->{comment})" if $rec->{comment};
+    return -1, "Entry already matches existing rule - $rule";
+  }    # if
+
   # Add to white list
   $params{sequence} = 0;
+  $params{type}     = 'white';
 
   my ($err, $msg) = AddList (%params);
 
   return -$err, $msg if $err;
+
+  # Remove from other lists
+  for my $type (qw(black null)) {
+    FindList (
+      userid => $params{userid},
+      type   => $type,
+      sender => $params{sender}
+    );
+    while (my $rec = GetList ()) {
+      DeleteList (
+        userid   => $params{userid},
+        type     => $type,
+        sequence => $rec->{sequence}
+      );
+      ResequenceList (userid => $params{userid}, type => $type);
+    }    # while
+  }    # for
 
   # Log that we registered a user
   Logmsg (
@@ -253,7 +357,7 @@ sub Add2Whitelist(%) {
 
   # Deliver old emails
   my $messages = 0;
-  my $status   = 0;
+  $status = 0;
 
   while (my $rec = $db->getnext) {
     last unless $rec->{userid};
@@ -269,12 +373,14 @@ sub Add2Whitelist(%) {
   return -1, 'Problem delivering some email' if $status;
 
   # Remove delivered messages
-  DeleteEmail (
+  my ($count, $d_msg) = DeleteEmail (
     userid => $params{userid},
     sender => $params{sender},
   );
 
-  return $messages, 'Messages delivered';
+  $msg = $count == 1 ? "$count message deleted" : "$count messages deleted";
+
+  return $count, $msg;
 }    # Add2Whitelist
 
 sub AddEmail(%) {
@@ -304,6 +410,25 @@ sub AddList(%) {
     "userid = '$rec{userid}' and sender like '%$rec{sender}%'");
 
   ($rec{pattern}, $rec{domain}) = split /\@/, delete $rec{sender};
+
+  my $p_cond =
+    length ($rec{pattern} || '')
+    ? "pattern = '$rec{pattern}'"
+    : "(pattern is null or pattern = '')";
+  my $d_cond =
+    length ($rec{domain} || '')
+    ? "domain = '$rec{domain}'"
+    : "(domain is null or domain = '')";
+
+  if (
+    $db->count (
+      'list',
+      "userid = '$rec{userid}' and type = '$rec{type}' and $p_cond and $d_cond"
+    )
+    )
+  {
+    return 1, "Entry already exists";
+  }    # if
 
   $rec{sequence} = GetNextSequenceNo (%rec);
 
@@ -471,10 +596,19 @@ sub CheckOnList2 ($$;$) {
     # "@ti.com" if we don't terminate the search string with "$" then
     # "@ti.com" would also match "@tixcom.com"!
     my $search_for =
-        $email_on_file =~ /\@/  ? "$email_on_file\$"
-      : !defined $rec->{domain} ? "$email_on_file\@"
-      :                           $email_on_file;
-    if ($sender and $sender =~ /$search_for/i) {
+      $email_on_file =~ /\@/
+      ? ($email_on_file =~ /\$$/ ? $email_on_file : "$email_on_file\$")
+      : (!defined $rec->{domain} && $email_on_file !~ /\$$/)
+      ? "$email_on_file\@"
+      : $email_on_file;
+
+    my $matches = 0;
+    {
+      no warnings;
+      $matches = eval {$sender and $sender =~ /$search_for/i};
+    }
+
+    if ($matches) {
       $status = 1;
 
       $rec->{hit_count} //= 0;
@@ -534,10 +668,19 @@ sub CheckOnList ($$;$) {
     # "@ti.com" if we don't terminate the search string with "$" then
     # "@ti.com" would also match "@tixcom.com"!
     my $search_for =
-        $email_on_file =~ /\@/  ? "$email_on_file\$"
-      : !defined $rec->{domain} ? "$email_on_file\@"
-      :                           $email_on_file;
-    if ($sender and $sender =~ /$search_for/i) {
+      $email_on_file =~ /\@/
+      ? ($email_on_file =~ /\$$/ ? $email_on_file : "$email_on_file\$")
+      : (!defined $rec->{domain} && $email_on_file !~ /\$$/)
+      ? "$email_on_file\@"
+      : $email_on_file;
+
+    my $matches = 0;
+    {
+      no warnings;
+      $matches = eval {$sender and $sender =~ /$search_for/i};
+    }
+
+    if ($matches) {
       my $comment = $rec->{comment} ? " - $rec->{comment}" : '';
 
       $rule =
@@ -1184,6 +1327,18 @@ sub ReturnList(%) {
   return $db->get ($table, $condition, '*', $additional);
 }    # ReturnList
 
+sub ReturnWholeList(%) {
+  my (%params) = @_;
+
+  CheckParms (['userid', 'type'], \%params);
+
+  my $table      = 'list';
+  my $condition  = "userid='$params{userid}' and type='$params{type}'";
+  my $additional = "order by sequence";
+
+  return $db->get ($table, $condition, '*', $additional);
+}    # ReturnWholeList
+
 sub ReturnMsg(%) {
   my (%params) = @_;
 
@@ -1274,7 +1429,7 @@ sub ReturnSenders(%) {
   $params{start_at} ||= 0;
 
   if ($params{date}) {
-    $condition .= "and timestamp > '$params{date} 00:00:00' and "
+    $condition .= " and timestamp > '$params{date} 00:00:00' and "
       . "timestamp < '$params{date} 23:59:59'";
   }    # if
 
@@ -1319,6 +1474,36 @@ sub ReturnSenders(%) {
 
   return (@senders)[$params{start_at} .. $end_at];
 }    # ReturnSenders
+
+sub ReturnTopHitters(%) {
+  my (%params) = @_;
+
+  CheckParms (['userid', 'lines'], \%params);
+
+  my $table      = 'list';
+  my $condition  = "userid='$params{userid}' and type != 'white'";
+  my $additional = "order by hit_count desc limit $params{lines}";
+
+  return $db->get ($table, $condition, '*', $additional);
+}    # ReturnTopHitters
+
+sub ReturnTopDomains(%) {
+  my (%params) = @_;
+
+  CheckParms (['userid', 'lines'], \%params);
+
+  my $table     = 'email';
+  my $condition = "userid='$params{userid}'";
+  my $fields    = [
+    'count(sender) as count',
+    'substring(sender, locate("@",sender, 1)+1) as domain'
+  ];
+  my $additional = "group by domain order by count desc limit $params{lines}";
+
+  my $results = $db->get ($table, $condition, $fields, $additional);
+
+  return @{$results || []};
+}    # ReturnTopDomains
 
 sub SaveMsg($$$) {
   my ($sender, $subject, $data) = @_;
@@ -1466,9 +1651,9 @@ sub UpdateList(%) {
     return "Must specify either Username or Domain";
   }    # if
 
-  $rec{pattern} //= 'null';
-  $rec{domain}  //= 'null';
-  $rec{comment} //= 'null';
+  $rec{pattern} //= '';
+  $rec{domain}  //= '';
+  $rec{comment} //= '';
 
   if ($rec{retention}) {
     $rec{retention} = lc $rec{retention};
