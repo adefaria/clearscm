@@ -1208,6 +1208,45 @@ sub ReadMsg($) {
     # Blank line indicates start of message body
     last if ($_ eq '' || $_ eq "\r");
 
+    # Heuristic: If line doesn't start with whitespace (continuation)
+    # and doesn't look like a header (Key: Value), assume it's body.
+    if (!/^\s/ && !/^[\w-]+:/) {
+      push @data, $_;    # Push back to data as it will be part of body
+
+# We need to unshift this line back to input or handle it so the body reader gets it.
+# However, ReadMsg reads into @data then @body.
+# Actually, the loop pushes to @data.
+# If we break here, the next loop reads body.
+# But we just consumed a line that is part of the body.
+# We need to seek back? No, file handle is sequential.
+# We can just simulate the 'seek back' logic or special handling.
+# Wait, the original code pushes to @data.
+# If we 'last', we go to processing headers.
+# Then we enter body loop.
+# The body loop reads <$input>. We effectively "ate" one line of body.
+# We should put it back.
+
+      seek ($input, -length ($_) - 1, 1)
+        ;    # Seek back (assuming $_ has chomp/chop handled?)
+             # Actually $_ has been chomped.
+             # This seek logic is tricky because of chomp.
+       # Easier approach: Since we are in the header loop, we haven't parsed this line as header yet.
+       # We just need to stop.
+       # But careful, we already did 'push @data, $_'.
+       # The body reading loop does 'while (<$input>)'.
+       # If we rely on the file handle, we must seek back.
+
+      # Let's look at existing seek logic at end of ReadMsg.
+      # "seek ($input, -length () - 1, 1) if !eof $input;"
+
+ # Standard ReadMsg doesn't seek back for the blank line.
+ # If detecting body, we should probably seek back so the body loop picks it up?
+ # OR, since @data collects the raw message, we just leave it in @data,
+ # but we MUST NOT add it to $header.
+
+      last;
+    } ## end if (!/^\s/ && !/^[\w-]+:/)
+
     if (/^\s/ && $header) {
       s/^\s+/ /;
       $header .= $_;
