@@ -263,7 +263,8 @@ sub ProcessMsgs ($$$) {
 }    # ProcessMsgs
 
 # Main
-GetOptions (\%opts, 'user=s', 'verbose', 'debug', 'execute!', 'file',)
+GetOptions (\%opts, 'user=s', 'verbose', 'debug', 'execute!', 'file',
+  'save_email')
   or pod2usage;
 
 $log = Logger->new (
