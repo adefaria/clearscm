@@ -127,12 +127,14 @@ if ($action eq 'stats') {
   send_json ({status => 'success', data => \@data});
 
 } elsif ($action eq 'display') {
-  my $sender   = $q->param ('sender');
-  my $msg_date = $q->param ('msg_date');
-  my $html     = MAPSWeb::GetMessageDisplay (
-    userid   => $userid,
-    sender   => $sender,
-    msg_date => $msg_date
+  my $sender       = $q->param ('sender');
+  my $msg_date     = $q->param ('msg_date');
+  my $header_color = $q->param ('header_color');
+  my $html         = MAPSWeb::GetMessageDisplay (
+    userid       => $userid,
+    sender       => $sender,
+    msg_date     => $msg_date,
+    header_color => $header_color
   );
   send_json ({status => 'success', data => $html});
 

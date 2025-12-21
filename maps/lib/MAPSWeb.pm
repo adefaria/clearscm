@@ -72,10 +72,11 @@ sub ParseEmail(@) {
 sub GetMessageDisplay(%) {
   my (%params) = @_;
 
-  my $userid     = $params{userid};
-  my $sender     = $params{sender};
-  my $msg_date   = $params{msg_date};
-  my $table_name = $params{table_name} || 'message';
+  my $userid       = $params{userid};
+  my $sender       = $params{sender};
+  my $msg_date     = $params{msg_date};
+  my $table_name   = $params{table_name}   || 'message';
+  my $header_color = $params{header_color} || 'steelblue';
 
   # Find unique message using $date
   my ($err, $msg) = MAPS::FindEmail (
@@ -109,7 +110,7 @@ sub GetMessageDisplay(%) {
   );
   $html .= start_table ({
       -align       => "center",
-      -bgcolor     => 'steelblue',
+      -bgcolor     => $header_color,
       -border      => 0,
       -cellspacing => 2,
       -cellpadding => 2,
@@ -135,7 +136,7 @@ sub GetMessageDisplay(%) {
     $html .= Tr ([
         th ({
             -align   => 'right',
-            -bgcolor => 'steelblue',
+            -bgcolor => $header_color,
             -style   => 'color: white',
             -width   => "8%"
           },

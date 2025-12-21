@@ -104,6 +104,14 @@ public class MainActivity extends Activity {
         mapsTitle.setTextColor(Color.WHITE);
         mapsTitle.setGravity(Gravity.CENTER);
         mapsTitle.setPadding(0, 10, 0, 10);
+        mapsTitle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isLoggedIn) {
+                    performAction(usernameField.getText().toString(), passwordField.getText().toString(), "stats");
+                }
+            }
+        });
         layout.addView(mapsTitle);
 
         RelativeLayout headerLayout = new RelativeLayout(this);
@@ -230,6 +238,22 @@ public class MainActivity extends Activity {
         btnBottom.setLayoutParams(navParams);
         navButtonsLayout.addView(btnBottom);
 
+        Button btnRefresh = new Button(this);
+        btnRefresh.setText("Refresh");
+        btnRefresh.setBackgroundColor(Color.parseColor("#073580"));
+        btnRefresh.setTextColor(Color.WHITE);
+        btnRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isLoggedIn) {
+                    performAction(usernameField.getText().toString(), passwordField.getText().toString(),
+                            lastListAction, currentOffset);
+                }
+            }
+        });
+        btnRefresh.setLayoutParams(navParams);
+        navButtonsLayout.addView(btnRefresh);
+
         layout.addView(navButtonsLayout);
 
         contentFrame = new FrameLayout(this);
@@ -251,6 +275,7 @@ public class MainActivity extends Activity {
         scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
+                if (scrollView.getVisibility() != View.VISIBLE) return;
                 View view = scrollView.getChildAt(0);
                 if (view != null) {
                     // Trigger when within 100 pixels of the bottom
@@ -352,6 +377,19 @@ public class MainActivity extends Activity {
             usernameField.setText(storedUserid);
             performAction(storedUserid, "", "stats");
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (currentWebView != null) {
+            resetWebView();
+            return;
+        }
+        if (isLoggedIn && !"stats".equals(lastListAction)) {
+            performAction(usernameField.getText().toString(), passwordField.getText().toString(), "stats");
+            return;
+        }
+        super.onBackPressed();
     }
 
     private void showPopupMenu(View v) {
@@ -1296,7 +1334,8 @@ public class MainActivity extends Activity {
                 } else if ("display".equals(mAction)) {
                     String url = API_URL + "?action=display&userid=" + storedUserid + "&sender="
                             + URLEncoder.encode(mSender, "UTF-8") +
-                            "&msg_date=" + URLEncoder.encode(mTimestamp, "UTF-8");
+                            "&msg_date=" + URLEncoder.encode(mTimestamp, "UTF-8") +
+                            "&header_color=%2336454F";
                     String response = sendRequest(url, "GET", null, storedCookie);
                     return "JSON:" + response;
                 } else if ("white".equals(mAction) || "black".equals(mAction) || "null".equals(mAction)) {
@@ -1520,9 +1559,19 @@ public class MainActivity extends Activity {
                                     numView.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            performAction(usernameField.getText().toString(),
-                                                    passwordField.getText().toString(),
-                                                    "add_null", domain, null);
+                                            new AlertDialog.Builder(MainActivity.this)
+                                                    .setTitle("Confirm Null List")
+                                                    .setMessage("Add " + domain + " to null list?")
+                                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            performAction(usernameField.getText().toString(),
+                                                                    passwordField.getText().toString(),
+                                                                    "add_null", domain, null);
+                                                        }
+                                                    })
+                                                    .setNegativeButton("No", null)
+                                                    .show();
                                         }
                                     });
                                     row.addView(numView);
@@ -1790,8 +1839,13 @@ public class MainActivity extends Activity {
                                     headerLine.addView(senderView);
 
                                     final TextView detailsView = new TextView(MainActivity.this);
-                                    String detailsText = "<b>List:</b> " + list + " <b>Hits:</b> " + hits
-                                            + " <b>Rule:</b> " + rule;
+                                    detailsView.setTextSize(14);
+                                    detailsView.setTextColor(Color.GREEN);
+
+                                    String detailsText = "<b>List:</b> <font color='#FFFFFF'><b>" + list
+                                            + "</b></font> <b>Hits:</b> <font color='#FF00FF'><b>" + hits
+                                            + "</b></font> <b>Rule:</b> <font color='#00FFFF'><b>" + rule
+                                            + "</b></font>";
                                     if (!retention.isEmpty()) {
                                         detailsText += " <b>Retention:</b> " + retention;
                                     }
@@ -1800,8 +1854,6 @@ public class MainActivity extends Activity {
                                     } else {
                                         detailsView.setText(Html.fromHtml(detailsText));
                                     }
-                                    detailsView.setTextSize(14);
-                                    detailsView.setTextColor(Color.GREEN);
                                     detailsView.setVisibility(View.VISIBLE);
 
                                     final String fListType = senderObj.optString("list", "None").toLowerCase();
@@ -1855,7 +1907,7 @@ public class MainActivity extends Activity {
                                             });
                                     headerLine.addView(whiteBtn);
 
-                                    TextView blackBtn = createActionButton("B", Color.BLACK,
+                                    TextView blackBtn = createActionButton("B", Color.parseColor("#36454F"),
                                             new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
@@ -1871,9 +1923,21 @@ public class MainActivity extends Activity {
                                             if (domain.contains("@")) {
                                                 domain = domain.substring(domain.indexOf("@") + 1);
                                             }
-                                            performAction(usernameField.getText().toString(),
-                                                    passwordField.getText().toString(),
-                                                    "add_null", domain, null);
+                                            final String fDomain = domain;
+
+                                            new AlertDialog.Builder(MainActivity.this)
+                                                    .setTitle("Confirm Null List")
+                                                    .setMessage("Add " + fDomain + " to null list?")
+                                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            performAction(usernameField.getText().toString(),
+                                                                    passwordField.getText().toString(),
+                                                                    "add_null", fDomain, null);
+                                                        }
+                                                    })
+                                                    .setNegativeButton("No", null)
+                                                    .show();
                                         }
                                     });
                                     headerLine.addView(xBtn);
