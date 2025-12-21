@@ -83,6 +83,13 @@ my $log;
 # happen when the message is piped in from the MTA. This routine will
 # temporarily save the messages in a file.
 sub SaveStdin() {
+  my $save_fh;
+
+  if ($opts{save_email}) {
+    my $timestamp = time ();
+    open $save_fh, '>', "/var/local/maps/${timestamp}_$$"
+      or $log->err ("Could not open save file: $!");
+  }
 
   # Generate tempfile
   my $msgfile = tempfile ();
@@ -90,7 +97,10 @@ sub SaveStdin() {
   # Read STDIN and write it out to the tempfile
   while (<STDIN>) {
     print $msgfile $_;
+    print $save_fh $_ if $save_fh;
   }    # while
+
+  close $save_fh if $save_fh;
 
   # Seek to the start of the file (Note if we closed it, it would be deleted)
   seek $msgfile, 0, 0;
