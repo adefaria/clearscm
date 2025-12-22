@@ -147,7 +147,7 @@ sub ProcessMsgs ($$$) {
   return unless $opts{execute};
 
   while (!eof $msgfile) {
-    my %msgInfo = ReadMsg $msgfile;
+    my %msgInfo = ReadMsg $msgfile, 1;
 
     my ($onlist, $rec, $sequence, $hit_count);
 

@@ -1175,27 +1175,43 @@ sub _parse_header_line {
   }    # if
 }    # _parse_header_line
 
-sub ReadMsg($) {
-  my ($input) = @_;
+sub ReadMsg($;$) {
+  my ($input, $single_message) = @_;
 
   my (%msgInfo, @data, $envelope_sender);
 
   # Reads an email message file from $input. Returns sender, subject, date and
   # data, which is a copy of the entire message. Find first message's "From "
   # line indicating start of message.
-  while (<$input>) {
-    chomp;
-    if (/^From\s+\S+\s+\S+/) {
-      if (/From (\S*)/) {
-        $msgInfo{sender_long} = $envelope_sender = $1;
-      }    # if
-      push @data, $_;
-      last;
-    } ## end if (/^From\s+\S+\s+\S+/)
-  }    # while
+  unless ($single_message) {
+    while (<$input>) {
+      chomp;
+      if (/^From\s+\S+\s+\S+/) {
+        if (/From (\S*)/) {
+          $msgInfo{sender_long} = $envelope_sender = $1;
+        }    # if
+        push @data, $_;
+        last;
+      } ## end if (/^From\s+\S+\s+\S+/)
+    }    # while
 
-  # If we hit eof here then the message was garbled. Return indication of this
-  return if eof ($input);
+    # If we hit eof here then the message was garbled. Return indication of this
+    return if eof ($input);
+  } else {
+
+    # Single message mode: Check for optional From line at start
+    my $pos  = tell ($input);
+    my $line = <$input>;
+    if (defined $line && $line =~ /^From\s+(\S+)\s+\S+/) {
+      chomp $line;
+      $msgInfo{sender_long} = $envelope_sender = $1;
+      push @data, $line;
+    } elsif (defined $line) {
+
+      # Not a From line, rewind
+      seek ($input, $pos, 0);
+    }
+  }    # unless
 
   my $header = '';
 
@@ -1264,7 +1280,7 @@ sub ReadMsg($) {
   while (<$input>) {
     chomp;
 
-    last if (/^From\s+\S+\s+\S+/);
+    last if (!$single_message and /^From\s+\S+\s+\S+/);
 
     push @body, $_;
   }    # while
