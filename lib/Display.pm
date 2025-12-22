@@ -1,3 +1,4 @@
+
 =pod
 
 =head1 NAME $RCSfile: Display.pm,v $
@@ -125,7 +126,7 @@ BEGIN {
   $verbose = $ENV{VERBOSE};
   $debug   = $ENV{DEBUG};
   $trace   = $ENV{TRACE};
-} # BEGIN
+}    # BEGIN
 
 sub display_err ($;$$);
 
@@ -193,22 +194,21 @@ Returns:
   $msg   ||= '';
 
   if (($handle and -t $handle) or (-t *STDERR)) {
-    $msg = color ('cyan')
-         . $me
-         . color ('reset')
-         . ': '
-         . color ('magenta')
-         . "DEBUG"
-         . color ('reset')
-         . ": $msg";
+    $msg =
+        color ('cyan')
+      . $me
+      . color ('reset') . ': '
+      . color ('magenta') . "DEBUG"
+      . color ('reset')
+      . ": $msg";
   } else {
     $msg = "$me: DEBUG: $msg";
-  } # if
+  }    # if
 
   display_err $msg, $handle, $nolinefeed if $debug and $level <= $debug;
 
   return;
-} # debug
+}    # debug
 
 sub debug1 ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
@@ -216,7 +216,7 @@ sub debug1 ($;$$) {
   debug $msg, $handle, $nolinefeed, 1;
 
   return;
-} # debug1
+}    # debug1
 
 sub debug2 ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
@@ -224,7 +224,7 @@ sub debug2 ($;$$) {
   debug $msg, $handle, $nolinefeed, 2;
 
   return;
-} # debug1
+}    # debug1
 
 sub debug3 ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
@@ -232,7 +232,7 @@ sub debug3 ($;$$) {
   debug $msg, $handle, $nolinefeed, 2;
 
   return;
-} # debug1
+}    # debug1
 
 sub display (;$$$) {
   my ($msg, $handle, $nolinefeed) = @_;
@@ -280,14 +280,16 @@ Returns:
 
 =cut
 
-  $msg  ||= '';
+  $msg ||= '';
   $handle = *STDOUT unless $handle;
+
+  binmode $handle, ':encoding(UTF-8)';
 
   print $handle $msg;
   print $handle "\n" unless $nolinefeed;
 
   return;
-} # display
+}    # display
 
 sub display_err ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
@@ -334,14 +336,16 @@ Returns:
 
 =cut
 
-  $msg  ||= '';
+  $msg ||= '';
   $handle = *STDERR if !$handle;
+
+  binmode $handle, ':encoding(UTF-8)';
 
   print $handle $msg;
   print $handle "\n" if !$nolinefeed;
 
   return;
-} # display_err
+}    # display_err
 
 sub display_error ($;$$$) {
   my ($msg, $errno, $handle, $nolinefeed) = @_;
@@ -395,37 +399,40 @@ Returns:
   $msg ||= '';
 
   unless ($errno) {
-    if (($handle and -t $handle) or (-t *STDERR) and ($Config{perl} ne 'ratlperl')) {
-      $msg = color ('cyan') 
-           . $me
-           . color ('reset')
-           . ': '
-           . color ('red')
-           . 'ERROR'
-           . color ('reset')
-           . ": $msg";
+    if ( ($handle and -t $handle)
+      or (-t *STDERR) and ($Config{perl} ne 'ratlperl'))
+    {
+      $msg =
+          color ('cyan')
+        . $me
+        . color ('reset') . ': '
+        . color ('red') . 'ERROR'
+        . color ('reset')
+        . ": $msg";
     } else {
       $msg = "$me: ERROR: $msg";
-    } # if
+    }    # if
   } else {
-    if (($handle and -t $handle) or (-t *STDERR) and ($Config{perl} ne 'ratlperl')) {
-      $msg = color ('cyan')
-           . $me
-           . color ('reset')
-           . ': '
-           . color ('red')
-           . "ERROR #$errno"
-           . color ('reset')
-           . ": $msg";
+    if ( ($handle and -t $handle)
+      or (-t *STDERR) and ($Config{perl} ne 'ratlperl'))
+    {
+      $msg =
+          color ('cyan')
+        . $me
+        . color ('reset') . ': '
+        . color ('red')
+        . "ERROR #$errno"
+        . color ('reset')
+        . ": $msg";
     } else {
       $msg = "$me: ERROR #$errno: $msg";
-    } # if
-  } # if
+    }    # if
+  }    # if
 
   display_err $msg, $handle, $nolinefeed;
 
   return;
-} # display_error
+}    # display_error
 
 sub display_nolf ($;$) {
   my ($msg, $handle) = @_;
@@ -471,7 +478,7 @@ Returns:
   display $msg, $handle, "nolf";
 
   return;
-} # display_nolf
+}    # display_nolf
 
 sub error ($;$$$) {
   my ($msg, $errno, $handle, $nolinefeed) = @_;
@@ -527,7 +534,7 @@ Returns:
   exit $errno if $errno;
 
   return;
-} # error
+}    # error
 
 sub get_debug {
 
@@ -560,7 +567,7 @@ Returns:
 =cut
 
   return $debug;
-} # get_debug
+}    # get_debug
 
 sub get_trace {
 
@@ -593,7 +600,7 @@ Returns:
 =cut
 
   return $trace;
-} # get_trace
+}    # get_trace
 
 sub get_verbose {
 
@@ -626,7 +633,7 @@ Returns:
 =cut
 
   return $verbose;
-} # set_verbose
+}    # set_verbose
 
 sub set_debug {
   my ($newValue) = @_;
@@ -671,7 +678,7 @@ Returns:
   $debug = defined $newValue ? $newValue : 1;
 
   return $returnValue;
-} # set_debug
+}    # set_debug
 
 sub get_me () {
 
@@ -705,7 +712,7 @@ Returns:
 =cut
 
   return $me;
-} # get_me
+}    # get_me
 
 sub set_me {
   my ($whoami) = @_;
@@ -744,7 +751,7 @@ Returns:
   $me = $whoami;
 
   return;
-} # set_me
+}    # set_me
 
 sub set_trace (;$) {
   my ($newValue) = @_;
@@ -789,7 +796,7 @@ Returns:
   $trace = defined $newValue ? $newValue : 1;
 
   return $returnValue;
-} # set_trace
+}    # set_trace
 
 sub set_verbose (;$) {
   my ($newValue) = @_;
@@ -834,7 +841,7 @@ Returns:
   $verbose = defined $newValue ? $newValue : 1;
 
   return $returnValue;
-} # set_verbose
+}    # set_verbose
 
 sub trace (;$$) {
   my ($msg, $type) = @_;
@@ -881,38 +888,38 @@ Returns:
   return
     unless $trace;
 
-  $msg    = $msg  ? ": $msg" : '';
+  $msg = $msg ? ": $msg" : '';
   $type ||= 'In';
 
   croak 'Type should be ENTER, EXIT or undef'
-    unless $type eq 'ENTER' ||
-           $type eq 'EXIT'  ||
-           $type eq 'In';
+    unless $type eq 'ENTER'
+    || $type eq 'EXIT'
+    || $type eq 'In';
 
   my $stack = $type eq 'In' ? 1 : 2;
 
   my ($package, $filename, $line, $subroutine) = caller ($stack);
 
   if ($subroutine) {
-    $subroutine =~ s/^main:://
+    $subroutine =~ s/^main:://;
   } else {
     $subroutine = 'main';
-  } # if
+  }    # if
 
   if (-t STDOUT) {
     display color ('cyan')
-          . "$type "
-          . color ('yellow')
-          . color ('bold')
-          . $subroutine
-          . color ('reset')
-          . $msg;
+      . "$type "
+      . color ('yellow')
+      . color ('bold')
+      . $subroutine
+      . color ('reset')
+      . $msg;
   } else {
     display "$type $subroutine$msg";
-  } # if
+  }    # if
 
   return $subroutine;
-} # trace
+}    # trace
 
 sub trace_enter (;$) {
   my ($msg) = @_;
@@ -952,7 +959,7 @@ Returns:
 =cut
 
   return trace $msg, "ENTER";
-} # trace_enter
+}    # trace_enter
 
 sub trace_exit (;$) {
   my ($msg) = @_;
@@ -994,8 +1001,8 @@ Returns:
 
   trace $msg, "EXIT";
 
-  return
-} # trace_exit
+  return;
+}    # trace_exit
 
 sub verbose ($;$$$) {
   my ($msg, $handle, $nolinefeed, $level) = @_;
@@ -1059,7 +1066,7 @@ Returns:
   display $msg, $handle, $nolinefeed if $verbose and $level <= $verbose;
 
   return;
-} # verbose
+}    # verbose
 
 sub verbose1 ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
@@ -1067,7 +1074,7 @@ sub verbose1 ($;$$) {
   verbose $msg, $$handle, $nolinefeed, 1;
 
   return;
-} # verbose1
+}    # verbose1
 
 sub verbose2 ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
@@ -1075,7 +1082,7 @@ sub verbose2 ($;$$) {
   verbose $msg, $handle, $nolinefeed, 2;
 
   return;
-} # verbose1
+}    # verbose1
 
 sub verbose3 ($;$$) {
   my ($msg, $handle, $nolinefeed) = @_;
@@ -1083,7 +1090,7 @@ sub verbose3 ($;$$) {
   verbose $msg, $handle, $nolinefeed, 3;
 
   return;
-} # verbose1
+}    # verbose1
 
 sub verbose_nolf ($;$) {
   my ($msg, $handle) = @_;
@@ -1129,7 +1136,7 @@ Returns:
   verbose $msg, $handle, "nolf";
 
   return;
-} # verbose_nolf
+}    # verbose_nolf
 
 sub warning ($;$$$) {
   my ($msg, $warnno, $handle, $nolinefeed) = @_;
@@ -1181,37 +1188,41 @@ Returns:
   $msg ||= '';
 
   unless ($warnno) {
-    if (($handle and -t $handle) or (-t *STDERR) and ($Config{perl} ne 'ratlperl')) {
-      $msg = color ('cyan')
-           . $me
-           . color ('reset')
-           . ": "
-           . color ('yellow')
-           . "WARNING"
-           . color ('reset')
-           . ": $msg";
+    if ( ($handle and -t $handle)
+      or (-t *STDERR) and ($Config{perl} ne 'ratlperl'))
+    {
+      $msg =
+          color ('cyan')
+        . $me
+        . color ('reset') . ": "
+        . color ('yellow')
+        . "WARNING"
+        . color ('reset')
+        . ": $msg";
     } else {
       $msg = "$me: WARNING: $msg";
-    } # if
+    }    # if
   } else {
-    if (($handle and -t $handle) or (-t *STDERR) and ($Config{perl} ne 'ratlperl')) {
-      $msg = color ('cyan')
-           . $me
-           . color ('reset')
-           . ": "
-           . color ('yellow')
-           . "WARNING #$warnno"
-           . color ('reset')
-           . ": $msg";
+    if ( ($handle and -t $handle)
+      or (-t *STDERR) and ($Config{perl} ne 'ratlperl'))
+    {
+      $msg =
+          color ('cyan')
+        . $me
+        . color ('reset') . ": "
+        . color ('yellow')
+        . "WARNING #$warnno"
+        . color ('reset')
+        . ": $msg";
     } else {
       $msg = "$me: WARNING #$warnno: $msg";
-    } # if
-  } # if
+    }    # if
+  }    # if
 
   display_err $msg, $handle, $nolinefeed;
 
   return;
-} # warning
+}    # warning
 
 1;
 
