@@ -134,8 +134,10 @@ sub ValidDomainUser($) {
 sub formatRule($) {
   my ($rec) = @_;
 
-  my $rule =
-    "$rec->{pattern}\@$rec->{domain}:$rec->{sequence}/$rec->{hit_count}";
+  my $pattern = $rec->{pattern} // '';
+  my $domain  = $rec->{domain}  // '';
+
+  my $rule = "$pattern\@$domain:$rec->{sequence}/$rec->{hit_count}";
   $rule .= " " . $rec->{comment} if defined $rec->{comment};
 
   return $rule;
@@ -186,7 +188,7 @@ sub ProcessMsgs ($$$) {
 
     # Discard messges coming from andrew@clearscm.com because I don't send from
     # that email address
-    if (lc $msgInfo{to} eq 'andrew@clearscm.com') {
+    if (lc ($msgInfo{to} // '') eq 'andrew@clearscm.com') {
       $log->msg (
 "Nulllisting message from Andrew\@ClearSCM.com since I don't send from that email address - Subject: $msgInfo{subject}"
       );
