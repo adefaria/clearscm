@@ -269,6 +269,8 @@ GetOptions (\%opts, 'user=s', 'verbose', 'debug', 'execute!', 'file',
   'save_email')
   or pod2usage;
 
+$userid = $opts{user} if $opts{user};
+
 $log = Logger->new (
   path        => '/var/local/log',
   timestamped => 'yes',

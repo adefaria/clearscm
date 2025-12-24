@@ -39,6 +39,7 @@ our $VERSION = '3.0';
 
 # Globals
 my $userid = $ENV{MAPS_USERNAME} ? $ENV{MAPS_USERNAME} : $ENV{USER};
+
 my %useropts;
 my $mailLoopMax = 5;
 
@@ -49,7 +50,7 @@ our @EXPORT = qw(
   AddEmail
   AddList
   AddLog
-  AddUser
+  AddUserxx
   AddUserOptions
   Blacklist
   CheckEmail
@@ -1432,7 +1433,8 @@ sub ReturnMsg(%) {
     );
 
     # Save message
-    SaveMsg ($params{sender}, $params{subject}, $params{data});
+    SaveMsg ($params{sender}, $params{subject}, $params{data}, $params{userid});
+
   } else {
     Add2Nulllist ($params{sender}, GetContext, "Auto Null List - Mail loop");
 
@@ -1560,11 +1562,14 @@ sub ReturnTopDomains(%) {
   return @{$results || []};
 }    # ReturnTopDomains
 
-sub SaveMsg($$$) {
-  my ($sender, $subject, $data) = @_;
+sub SaveMsg($$$;$) {
+  my ($sender, $subject, $data, $user_id) = @_;
+
+  # Use passed in userid if present, otherwise default to global userid
+  $user_id ||= $userid;
 
   AddEmail (
-    userid  => $userid,
+    userid  => $user_id,
     sender  => $sender,
     subject => $subject,
     data    => $data,
