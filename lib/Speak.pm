@@ -56,6 +56,7 @@ use Display;
 use Logger;
 use Utils;
 use Config;    # For OS detection
+use GetConfig;
 
 use LWP::UserAgent;
 use URI::Escape;
@@ -115,17 +116,14 @@ sub _fetch_mp3 ($$$) {
   }
 } ## end sub _fetch_mp3 ($$$)
 
-sub speak (;$$) {
-  my ($msg, $log) = @_;
+sub speak (;$$$) {
+  my ($msg, $log, $lang) = @_;
 
 =pod
 
-=head2 speak($msg, $log)
+=head2 speak($msg, $log, $lang)
 
-Convert $msg to speach.
-
-Note this currently uses an external script to do the conversion. I intend to
-re-write that into Perl here eventually.
+Convert $msg to speech.
 
 Parameters:
 
@@ -142,6 +140,12 @@ Otherwise the text in the clipboard will be used.
 =item $log
 
 If provided, errors and messages will be logged to the logfile, otherwise to speak.log
+
+=item $lang
+
+Language code (e.g. 'en', 'en-gb', 'en-au'). Defaults to $ENV{SPEAK_LANG} or 'en'.
+
+=back
 
 =back
 
@@ -183,13 +187,30 @@ Returns:
   my $ua = LWP::UserAgent->new;
   $ua->agent ("Mozilla/5.0");
 
+  # Determine language:
+  # 1. Argument $lang
+  # 2. Environment variable SPEAK_LANG
+  # 3. Config file
+  # 4. Default 'en'
+
+  unless ($lang) {
+    if ($ENV{SPEAK_LANG}) {
+      $lang = $ENV{SPEAK_LANG};
+    } elsif (-f "$FindBin::Bin/../etc/speak.conf") {
+      my %conf = GetConfig "$FindBin::Bin/../etc/speak.conf";
+      $lang = $conf{language};
+    }
+
+    $lang ||= 'en';
+  } ## end unless ($lang)
+
   my @sentences = _split_text ($msg);
   my @mp3_files;
 
   foreach my $sentence (@sentences) {
     next unless $sentence =~ /\S/;
 
-    my $mp3_data = _fetch_mp3 ($ua, $sentence, 'en');
+    my $mp3_data = _fetch_mp3 ($ua, $sentence, $lang);
     next unless $mp3_data;
 
     my ($fh, $filename) = tempfile (SUFFIX => '.mp3', UNLINK => 0);
