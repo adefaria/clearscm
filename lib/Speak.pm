@@ -116,6 +116,28 @@ sub _fetch_mp3 ($$$) {
   }
 } ## end sub _fetch_mp3 ($$$)
 
+sub _convert_mp3_to_wav ($$) {
+  my ($mp3, $wav) = @_;
+
+  # Try ffmpeg
+  if (system ("which ffmpeg >/dev/null 2>&1") == 0) {
+    return system ("ffmpeg -y -v error -i \"$mp3\" \"$wav\"") == 0;
+  }
+
+  # Try mpg123
+  if (system ("which mpg123 >/dev/null 2>&1") == 0) {
+    return system ("mpg123 -q -w \"$wav\" \"$mp3\"") == 0;
+  }
+
+  # Try lame
+  if (system ("which lame >/dev/null 2>&1") == 0) {
+    return system ("lame --decode --quiet \"$mp3\" \"$wav\"") == 0;
+  }
+
+  # Fallback to sox (might fail if no mp3 handler)
+  return system ("sox \"$mp3\" \"$wav\"") == 0;
+} ## end sub _convert_mp3_to_wav ($$)
+
 sub speak (;$$$) {
   my ($msg, $log, $lang) = @_;
 
@@ -311,7 +333,7 @@ Returns:
           close $fh_wav;
 
           # Convert to WAV
-          if (system ("sox \"$final_file\" \"$wav_file\"") == 0) {
+          if (_convert_mp3_to_wav ($final_file, $wav_file)) {
             system ("paplay \"$wav_file\"");
             unlink $wav_file;
           } else {
