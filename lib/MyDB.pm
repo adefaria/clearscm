@@ -128,11 +128,15 @@ sub _formatValues(@) {
 
   my @returnValues;
 
-  # Quote data values
-  push @returnValues, ($_ and $_ ne '')
-    ? $self->{db}->quote ($_)
-    : 'null'
-    for (@values);
+  for (@values) {
+    if (ref ($_) eq 'HASH' and $_->{type} eq 'BLOB') {
+      push @returnValues, "x'" . unpack ("H*", $_->{value}) . "'";
+    } elsif ($_ and $_ ne '') {
+      push @returnValues, $self->{db}->quote ($_);
+    } else {
+      push @returnValues, 'null';
+    }
+  }    # for
 
   return @returnValues;
 }    # _formatValues
@@ -143,11 +147,18 @@ sub _formatNameValues(%) {
   my @nameValueStrs;
 
   for (keys %rec) {
-    if ($rec{$_}) {
-      push @nameValueStrs, "$_=" . $self->{db}->quote ($rec{$_});
+    my $val = $rec{$_};
+    my $formatted_val;
+    if (ref ($val) eq 'HASH' and $val->{type} eq 'BLOB') {
+
+      # Manually hex quote blobs to avoid DBI/UTF8 corruption
+      $formatted_val = "x'" . unpack ("H*", $val->{value}) . "'";
+    } elsif ($val) {
+      $formatted_val = $self->{db}->quote ($val);
     } else {
-      push @nameValueStrs, "$_=null";
-    }    # if
+      $formatted_val = 'null';
+    }
+    push @nameValueStrs, "$_=$formatted_val";
   }    # for
 
   return @nameValueStrs;

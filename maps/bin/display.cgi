@@ -61,7 +61,18 @@ sub GetDecodedContent($) {
     $body = decode_qp ($body);
   }
 
-  eval {$body = decode ($charset, $body)};
+  if ($charset =~ /^(Latin-1|ISO-8859-1)$/i) {
+
+    # Try UTF-8 first for default charsets
+    eval {$body = decode ('UTF-8', $body, Encode::FB_CROAK)};
+    if ($@) {
+
+      # Fallback to declared charset
+      eval {$body = decode ($charset, $body)};
+    }
+  } else {
+    eval {$body = decode ($charset, $body)};
+  }
   $body = decode ('Latin-1', $body) if $@;
 
   return $body;

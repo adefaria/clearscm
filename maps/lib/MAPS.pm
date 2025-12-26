@@ -391,6 +391,11 @@ sub AddEmail(%) {
 
   $rec{timestamp} = UnixDatetime2SQLDatetime (scalar (localtime));
 
+  # Pass data as BLOB to prevent UTF-8 corruption
+  if (exists $rec{data}) {
+    $rec{data} = {type => 'BLOB', value => $rec{data}};
+  }
+
   return $db->add ('email', %rec);
 }    # AddEmail
 

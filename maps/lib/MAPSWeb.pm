@@ -25,6 +25,7 @@ use MIME::Words qw(:all);
 
 use MAPS;
 use MAPSLog;
+use Encode;
 
 use CGI
   qw(:standard *table start_Tr end_Tr start_div end_div start_table end_table escape);
@@ -131,7 +132,19 @@ sub GetMessageDisplay(%) {
   for (keys (%header)) {
     next if /base64/;
 
-    my $str = decode_mimewords ($header{$_});
+    my $str = '';
+    for my $part (decode_mimewords ($header{$_})) {
+      my ($text, $charset) = @$part;
+
+      if ($charset) {
+        eval {$text = decode ($charset, $text)};
+      } else {
+
+        # Try UTF-8 decoding for raw words
+        eval {$text = decode ('UTF-8', $text, Encode::FB_CROAK);};
+      }
+      $str .= $text;
+    } ## end for my $part (decode_mimewords...)
 
     $html .= Tr ([
         th ({
