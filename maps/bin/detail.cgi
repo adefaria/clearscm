@@ -296,47 +296,13 @@ sub Body($) {
         my ($text, $charset) = @$part;
         if ($charset) {
           eval {$text = decode ($charset, $text)};
-        } else {
-          my $decoded;
+        }
 
-          utf8::downgrade ($text, 1) if Encode::is_utf8 ($text);
-
-          # Try UTF-8 first
-          eval {$decoded = decode ('UTF-8', $text, Encode::FB_CROAK)};
-          if ($@) {
-
-            # Try GBK (Chinese)
-            eval {$decoded = decode ('GBK', $text, Encode::FB_CROAK)};
-            if ($@) {
-
-              # Try Shift_JIS (Japanese)
-              eval {$decoded = decode ('cp932', $text, Encode::FB_CROAK)};
-              if ($@) {
-
-                # Try Big5 (Traditional Chinese)
-                eval {$decoded = decode ('Big5', $text, Encode::FB_CROAK)};
-                if ($@) {
-
-                  # Try EUC-KR (Korean)
-                  eval {$decoded = decode ('EUC-KR', $text, Encode::FB_CROAK)};
-                  if ($@) {
-
-                    # Try CP1251 (Cyrillic)
-                    eval {$decoded = decode ('cp1251', $text, Encode::FB_CROAK)};
-                    if ($@) {
-
-                      # Fallback to Latin-1
-                      $decoded = decode ('Latin-1', $text);
-                    }
-                  } ## end if ($@)
-                } ## end if ($@)
-              } ## end if ($@)
-            } ## end if ($@)
-          } ## end if ($@)
-          $text = $decoded;
-        } ## end else [ if ($charset) ]
+     # If no charset, it's either ASCII or already UTF-8 content from the DB.
+     # Since we migrated to utf8mb4 and use correct connections, we trust $text.
         $subject .= $text;
       } ## end for my $part (decode_mimewords...)
+
       $rec->{subject} = $subject;
 
       $rec->{subject} = escapeHTML ($rec->{subject});

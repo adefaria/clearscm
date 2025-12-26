@@ -15,7 +15,7 @@ Andrew DeFaria <Andrew@DeFaria.com>
 
 =item Revision
 
-$Revision: 1.0 $
+$Revision: 1.1 $
 
 =item Created
 
@@ -68,7 +68,7 @@ use Exporter;
 use Utils;
 
 # Globals
-our $VERSION = '$Revision: 1.0 $';
+our $VERSION = '$Revision: 1.1 $';
 ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
 my %opts = (
