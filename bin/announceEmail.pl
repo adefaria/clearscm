@@ -250,9 +250,6 @@ sub MonitorMail() {
 
     $subject = decode ('MIME-Header', $subject);
 
-    # URL encode subject for Google Talk
-    $subject = uri_escape_utf8 ($subject);
-
     # Remove long strings of numbers like order numbers. They are uninteresting
     my $longNumber = 5;
     $subject =~ s/\s+\S*\d{$longNumber,}\S*\s*//g;
