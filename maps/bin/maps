@@ -94,6 +94,11 @@ sub SaveStdin() {
   # Generate tempfile
   my $msgfile = tempfile ();
 
+  # Ensure binary mode to prevent double-encoding
+  binmode STDIN;
+  binmode $msgfile;
+  binmode $save_fh if $save_fh;
+
   # Read STDIN and write it out to the tempfile
   while (<STDIN>) {
     print $msgfile $_;
