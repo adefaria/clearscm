@@ -1,3 +1,4 @@
+
 =pod
 
 =head1 NAME $RCSfile: Speak.pm,v $
@@ -54,8 +55,65 @@ use lib "$FindBin::Bin/../lib";
 use Display;
 use Logger;
 use Utils;
+use Config;    # For OS detection
+
+use LWP::UserAgent;
+use URI::Escape;
+use File::Temp qw(tempfile);
+use File::Path qw(rmtree);
+use File::Basename;
 
 our @EXPORT = qw(speak);
+
+sub _split_text ($) {
+  my ($text) = @_;
+  return unless defined $text;
+
+  # Split into sentences max 100 chars
+  my @sentences;
+
+  # Basic splitting on punctuation, keeping punctuation
+  # This is a simplified version of speak.pl logic
+  while ($text =~ /(.{1,100})(?:[.!?;]|$)/g) {
+    push @sentences, $1;
+  }
+
+  # Fallback if regex missed or text is just one long block
+  push @sentences, $text unless @sentences;
+
+  return @sentences;
+} ## end sub _split_text ($)
+
+sub _fetch_mp3 ($$$) {
+  my ($ua, $text, $lang) = @_;
+
+  my $url =
+      "https://translate.google.com/translate_tts?ie=UTF-8&tl=$lang&q="
+    . uri_escape ($text)
+    . "&total=1&idx=0&client=tw-ob";
+
+  my $response = $ua->get ($url);
+
+  if ($response->is_success) {
+    my $content = $response->content;
+    if (length ($content) == 0) {
+      warn "Fetch successful but content is empty";
+      return undef;
+    }
+
+    # Check if we got HTML instead of MP3 (e.g. Captcha/Error)
+    if ($content =~ /^\s*<(!DOCTYPE|html)/i) {
+      warn
+"Received HTML response instead of MP3 (likely CAPTCHA/Blocked) from URL: $url";
+      return undef;
+    }
+
+    return $content;
+  } else {
+    warn "Failed to fetch TTS: " . $response->status_line;
+    return undef;
+  }
+} ## end sub _fetch_mp3 ($$$)
 
 sub speak (;$$) {
   my ($msg, $log) = @_;
@@ -103,7 +161,7 @@ Returns:
 
 =cut
 
-  $log = Logger->new(
+  $log = Logger->new (
     path        => '/var/local/log',
     name        => 'speak',
     timestamped => 'yes',
@@ -112,34 +170,114 @@ Returns:
 
   if (-f "$FindBin::Bin/../data/shh") {
     $msg .= ' [silent shh]';
-    $log->msg($msg);
-
+    $log->msg ($msg);
     return;
-  } # if
+  }
 
-  # Handle the case where $msg is not passed in. Then use the clipboard;
   $msg = Clipboard->paste unless $msg;
-
-  # Handle the case where $msg is a filehandle
   $msg = <$msg> if ref $msg eq 'GLOB';
 
-  # Log message to log file if $log was passed in.
-  $log->msg($msg);
+  $log->msg ($msg);
 
-  #$msg = quotemeta $msg;
-  $msg =~ s/\$/\\\$/g;
-  $msg =~ s/"/\\"/g;
+  # New Implementation
+  my $ua = LWP::UserAgent->new;
+  $ua->agent ("Mozilla/5.0");
 
-  my ($status, @output) = Execute "/usr/local/bin/gt \"$msg\"";
+  my @sentences = _split_text ($msg);
+  my @mp3_files;
 
-  if ($status) {
-    my $errmsg = "Unable to speak (Status: $status) - " . join "\n", @output;
+  foreach my $sentence (@sentences) {
+    next unless $sentence =~ /\S/;
 
-    $log->err($errmsg);
-  } # if
+    my $mp3_data = _fetch_mp3 ($ua, $sentence, 'en');
+    next unless $mp3_data;
+
+    my ($fh, $filename) = tempfile (SUFFIX => '.mp3', UNLINK => 0);
+    binmode $fh;
+    print $fh $mp3_data;
+    close $fh;
+
+    push @mp3_files, $filename;
+  } ## end foreach my $sentence (@sentences)
+
+  if (@mp3_files) {
+
+    # Combine or play sequentially
+    # Using 'sox' to play directly or concatenate would be better,
+    # but for compatibility with existing 'play' command:
+
+    # Concatenate using sox if multiple files
+    my $final_file;
+    if (@mp3_files > 1) {
+      my ($fh, $joined) = tempfile (SUFFIX => '.mp3', UNLINK => 0);
+      close $fh;
+      $final_file = $joined;
+
+      # Using system sox to join.
+      # Note: This requires sox with mp3 handler.
+      my $cmd = "sox " . join (" ", @mp3_files) . " $final_file";
+      system ($cmd);
+    } else {
+      $final_file = $mp3_files[0];
+    }
+
+    # Play it
+    if (-f $final_file) {
+      if ($ENV{DEBUG_SPEAK}) {
+        print "File info for $final_file:\n";
+        system ("ls -l $final_file");
+        system ("file $final_file");
+      }
+
+      # Cross-platform playback logic
+      my $os = $^O;
+
+      if ($os eq 'darwin') {
+
+        # macOS
+        system ("afplay \"$final_file\"");
+      } elsif ($os eq 'MSWin32' || $os eq 'cygwin') {
+
+        # Windows / Cygwin
+        # Use powershell for headless playback if available, or start
+        # Note: 'start' might pop up a window.
+        # Cygwin often has 'play' (sox) as well.
+
+        # Try PowerShell first as it's cleaner
+        my $win_path = $final_file;
+        if ($os eq 'cygwin') {
+          chomp ($win_path = `cygpath -w "$final_file"`);
+        }
+
+        # Use PowerShell to play audio hidden
+        my $cmd =
+          "powershell -c (New-Object Media.SoundPlayer '$win_path').PlaySync()";
+        if (system ($cmd) != 0) {
+
+          # Fallback to sox 'play' if powershell fails
+          system ("play -q \"$final_file\"");
+        }
+      } else {
+
+# Linux / Unix
+# Use paplay (PulseAudio) if available, as 'play' (sox) often struggles with ALSA/Pulse configuration
+        if (-x '/usr/bin/paplay' || -x '/bin/paplay') {
+          system ("paplay $final_file");
+        } else {
+          system ("play -q $final_file");
+        }
+      } ## end else [ if ($os eq 'darwin') ]
+
+      unlink $final_file;
+    } ## end if (-f $final_file)
+    ## end if (-f $final_file)
+  } ## end if (@mp3_files)
+
+  # Cleanup temp files
+  unlink @mp3_files;
 
   return;
-} # speak
+}    # speak
 
 1;
 
