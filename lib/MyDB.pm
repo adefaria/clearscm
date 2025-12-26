@@ -1,3 +1,4 @@
+
 =pod
 
 =head1 NAME $RCSfile: MyDB.pm,v $
@@ -67,8 +68,8 @@ use Exporter;
 use Utils;
 
 # Globals
-our $VERSION  = '$Revision: 1.0 $';
-   ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
+our $VERSION = '$Revision: 1.0 $';
+($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
 my %opts = (
   MYDB_USERNAME => $ENV{MYDB_USERNAME},
@@ -90,14 +91,14 @@ sub _dberror($$) {
   my $message = '';
 
   if ($dberr) {
-    my $function = (caller(1)) [3];
+    my $function = (caller (1))[3];
 
     $message = "$function: $msg\nError #$dberr: $dberrmsg\n"
-             . "SQL Statement: $statement";
-  } # if
+      . "SQL Statement: $statement";
+  }    # if
 
   return $dberr, $message;
-} # _dberror
+}    # _dberror
 
 sub _encode_decode ($$$) {
   my ($self, $type, $password, $userid) = @_;
@@ -108,18 +109,19 @@ sub _encode_decode ($$$) {
     $statement .= "hex(aes_encrypt('$password','$userid'))";
   } elsif ($type eq 'decode') {
     $statement .= "aes_decrypt(unhex('$password'),'$userid')";
-  } # if
+  }    # if
 
-  my $sth = $self->{db}->prepare($statement)
-    or return $self->_dberror('MyDB::$type: Unable to prepare statement', $statement);
+  my $sth = $self->{db}->prepare ($statement)
+    or return $self->_dberror ('MyDB::$type: Unable to prepare statement',
+    $statement);
 
   $sth->execute
-    or $self->_dberror('MyDB::$type: Unable to execute statement', $statement);
+    or $self->_dberror ('MyDB::$type: Unable to execute statement', $statement);
 
   my @row = $sth->fetchrow_array;
 
   return $row[0];
-} # _encode_decode
+}    # _encode_decode
 
 sub _formatValues(@) {
   my ($self, @values) = @_;
@@ -128,12 +130,12 @@ sub _formatValues(@) {
 
   # Quote data values
   push @returnValues, ($_ and $_ ne '')
-                    ? $self->{db}->quote($_)
-                    : 'null'
+    ? $self->{db}->quote ($_)
+    : 'null'
     for (@values);
 
   return @returnValues;
-} # _formatValues
+}    # _formatValues
 
 sub _formatNameValues(%) {
   my ($self, %rec) = @_;
@@ -142,28 +144,28 @@ sub _formatNameValues(%) {
 
   for (keys %rec) {
     if ($rec{$_}) {
-      push @nameValueStrs, "$_=" . $self->{db}->quote($rec{$_});
+      push @nameValueStrs, "$_=" . $self->{db}->quote ($rec{$_});
     } else {
       push @nameValueStrs, "$_=null";
-    } # if
-  } # for
+    }    # if
+  }    # for
 
   return @nameValueStrs;
-} # _formatNameValues
+}    # _formatNameValues
 
 sub add($%) {
   my ($self, $table, %rec) = @_;
 
-  my $statement  = "insert into $table (";
-     $statement .= join ',', keys %rec;
-     $statement .= ') values (';
-     $statement .= join ',', $self->_formatValues(values %rec);
-     $statement .= ')';
+  my $statement = "insert into $table (";
+  $statement .= join ',', keys %rec;
+  $statement .= ') values (';
+  $statement .= join ',', $self->_formatValues (values %rec);
+  $statement .= ')';
 
-  $self->{db}->do($statement);
+  $self->{db}->do ($statement);
 
-  return $self->_dberror("Unable to add record to $table", $statement);
-} # add
+  return $self->_dberror ("Unable to add record to $table", $statement);
+}    # add
 
 sub check($) {
   my ($self, $table) = @_;
@@ -174,27 +176,29 @@ sub check($) {
     @tables = @$table;
   } else {
     push @tables, $table;
-  } # if
+  }    # if
 
-  my $statement  = 'check table ';
-     $statement .= join ',', @tables;
+  my $statement = 'check table ';
+  $statement .= join ',', @tables;
 
-  $self->{db}->do($statement);
+  $self->{db}->do ($statement);
 
-  return $self->_dberror('MyDB::check: Unable to check tables', $statement);
-} # check
+  return $self->_dberror ('MyDB::check: Unable to check tables', $statement);
+}    # check
 
 sub count($;$) {
   my ($self, $table, $condition) = @_;
 
-  my $statement  = "select count(*) from $table";
-     $statement .= " where $condition" if $condition;
+  my $statement = "select count(*) from $table";
+  $statement .= " where $condition" if $condition;
 
-  my $sth = $self->{db}->prepare($statement)
-    or return $self->_dberror('MyDB::count: Unable to prepare statement', $statement);
+  my $sth = $self->{db}->prepare ($statement)
+    or return $self->_dberror ('MyDB::count: Unable to prepare statement',
+    $statement);
 
   $sth->execute
-    or return $self->_dberror('MyDB::count: Unable to execute statement', $statement);
+    or return $self->_dberror ('MyDB::count: Unable to execute statement',
+    $statement);
 
   # Get return value, which should be how many entries there are
   my @row = $sth->fetchrow_array;
@@ -209,22 +213,24 @@ sub count($;$) {
     wantarray ? return (0, 'No records found') : return 0;
   } else {
     wantarray ? return ($row[0], 'Records found') : return $row[0];
-  } # unless
+  }    # unless
 
   return;
-} # count
+}    # count
 
 sub count_distinct($$;$) {
   my ($self, $table, $column, $condition) = @_;
 
-  my $statement  = "select count(distinct $column) from $table";
-     $statement .= " where $condition" if $condition;
+  my $statement = "select count(distinct $column) from $table";
+  $statement .= " where $condition" if $condition;
 
-  my $sth = $self->{db}->prepare($statement)
-    or return $self->_dberror('MyDB::count: Unable to prepare statement', $statement);
+  my $sth = $self->{db}->prepare ($statement)
+    or return $self->_dberror ('MyDB::count: Unable to prepare statement',
+    $statement);
 
   $sth->execute
-    or return $self->_dberror('MyDB::count: Unable to execute statement', $statement);
+    or return $self->_dberror ('MyDB::count: Unable to execute statement',
+    $statement);
 
   # Get return value, which should be how many entries there are
   my @row = $sth->fetchrow_array;
@@ -239,39 +245,41 @@ sub count_distinct($$;$) {
     wantarray ? return (0, 'No records found') : return 0;
   } else {
     wantarray ? return ($row[0], 'Records found') : return $row[0];
-  } # unless
+  }    # unless
 
   return;
-} # count_distinct
+}    # count_distinct
 
 sub decode($$) {
   my ($self, $password, $userid) = @_;
 
-  return $self->_encode_decode('decode', $password, $userid);
-} # decode
+  return $self->_encode_decode ('decode', $password, $userid);
+}    # decode
 
 sub delete($;$) {
   my ($self, $table, $condition) = @_;
 
-  my $count = $self->count($table, $condition);
+  my $count = $self->count ($table, $condition);
 
   return ($count, 'Records deleted') if $count == 0;
 
-  my $statement  = "delete from $table ";
-  $statement    .= "where $condition" if $condition;
+  my $statement = "delete from $table ";
+  $statement .= "where $condition" if $condition;
 
-  $self->{db}->do($statement);
+  $self->{db}->do ($statement);
 
   if ($self->{db}->err) {
-    my ($err, $msg) = $self->_dberror("MyDB::delete: Unable to delete record(s) from $table", $statement);
+    my ($err, $msg) =
+      $self->_dberror ("MyDB::delete: Unable to delete record(s) from $table",
+      $statement);
 
     wantarray ? return (-$err, $msg) : return -$err;
   } else {
     wantarray ? return ($count, 'Records deleted') : return $count;
-  } # if
+  }    # if
 
   return;
-} # delete
+}    # delete
 
 sub DESTROY {
   my ($self) = @_;
@@ -279,13 +287,13 @@ sub DESTROY {
   $self->{db}->disconnect if $self->{db};
 
   return;
-} # DESTROY
+}    # DESTROY
 
 sub encode($$) {
   my ($self, $password, $userid) = @_;
 
-  return $self->_encode_decode('encode', $password, $userid);
-} # encode
+  return $self->_encode_decode ('encode', $password, $userid);
+}    # encode
 
 sub find($;$@) {
   my ($self, $table, $condition, $fields, $additional) = @_;
@@ -294,18 +302,21 @@ sub find($;$@) {
 
   $fields = join ',', @$fields if ref $fields eq 'ARRAY';
 
-  my $statement  = "select $fields from $table";
-     $statement .= " where $condition" if $condition;
-     $statement .= " $additional"      if $additional;
+  my $statement = "select $fields from $table";
+  $statement .= " where $condition" if $condition;
+  $statement .= " $additional"      if $additional;
 
-  $self->{sth} = $self->{db}->prepare($statement)
-    or return $self->_dberror('MyDB::find: Unable to prepare statement', $statement);
+  $self->{sth} = $self->{db}->prepare ($statement)
+    or return $self->_dberror ('MyDB::find: Unable to prepare statement',
+    $statement);
 
   $self->{sth}->execute
-    or return $self->_dberror('MyDB::find: Unable to execute statement', $statement);
+    or return $self->_dberror ('MyDB::find: Unable to execute statement',
+    $statement);
 
-  return $self->_dberror("MyDB::find: Unable to find record ($table, $condition)", $statement);
-} # find
+  return $self->_dberror (
+    "MyDB::find: Unable to find record ($table, $condition)", $statement);
+}    # find
 
 sub get($;$$$) {
   my ($self, $table, $condition, $fields, $additional) = @_;
@@ -314,23 +325,24 @@ sub get($;$$$) {
 
   $fields = join ',', @$fields if ref $fields eq 'ARRAY';
 
-  my $statement  = "select $fields from $table";
-     $statement .= " where $condition" if $condition;
-     $statement .= " $additional"      if $additional;
+  my $statement = "select $fields from $table";
+  $statement .= " where $condition" if $condition;
+  $statement .= " $additional"      if $additional;
 
-  my $rows = $self->{db}->selectall_arrayref($statement, { Slice => {} });
+  my $rows = $self->{db}->selectall_arrayref ($statement, {Slice => {}});
 
   return $rows if $rows;
-  return $self->_dberror('MyDB::get: Unable to prepare/execute statement', $statement);
-} # get
+  return $self->_dberror ('MyDB::get: Unable to prepare/execute statement',
+    $statement);
+}    # get
 
 sub getone($;$$$) {
   my ($self, $table, $condition, $fields, $additional) = @_;
 
-  my $rows = $self->get($table, $condition, $fields, $additional);
+  my $rows = $self->get ($table, $condition, $fields, $additional);
 
   return $rows->[0];
-} # getone
+}    # getone
 
 sub getnext() {
   my ($self) = @_;
@@ -338,23 +350,25 @@ sub getnext() {
   return unless $self->{sth};
 
   return $self->{sth}->fetchrow_hashref;
-} # getnext
+}    # getnext
 
 sub lastid() {
   my ($self) = @_;
 
   my $statement = 'select last_insert_id()';
 
-  my $sth = $self->{db}->prepare($statement)
-    or $self->_dberror('MyDB::lastid: Unable to prepare statement', $statement);
+  my $sth = $self->{db}->prepare ($statement)
+    or
+    $self->_dberror ('MyDB::lastid: Unable to prepare statement', $statement);
 
   $sth->execute
-    or $self->_dberror('MyDB::lastid: Unable to execute statement', $statement);
+    or
+    $self->_dberror ('MyDB::lastid: Unable to execute statement', $statement);
 
   my @row = $sth->fetchrow_array;
 
   return $row[0];
-} # lastid
+}    # lastid
 
 sub lock(;$$) {
   my ($self, $type, $table) = @_;
@@ -369,27 +383,28 @@ sub lock(;$$) {
     $tables = join " $type,", @$table;
   } else {
     $tables = $table;
-  } # if
+  }    # if
 
-  my $statement  = "lock tables $tables";
-     $statement .= " $type";
+  my $statement = "lock tables $tables";
+  $statement .= " $type";
 
-  $self->{db}->do($statement);
+  $self->{db}->do ($statement);
 
-  return $self->_dberror("MyDB::lock Unable to lock $tables", $statement);
-} # lock
+  return $self->_dberror ("MyDB::lock Unable to lock $tables", $statement);
+}    # lock
 
 sub modify($$%) {
   my ($self, $table, $condition, %rec) = @_;
 
-  my $statement  = "update $table set ";
-     $statement .= join ',', $self->_formatNameValues(%rec);
-     $statement .= " where $condition" if $condition;
+  my $statement = "update $table set ";
+  $statement .= join ',', $self->_formatNameValues (%rec);
+  $statement .= " where $condition" if $condition;
 
-  $self->{db}->do($statement);
+  $self->{db}->do ($statement);
 
-  return $self->_dberror("MyDB::modify: Unable to update record in $table", $statement);
-} # modify
+  return $self->_dberror ("MyDB::modify: Unable to update record in $table",
+    $statement);
+}    # modify
 
 sub new(;$$$$) {
   my ($class, $username, $password, $database, $dbserver) = @_;
@@ -405,15 +420,18 @@ sub new(;$$$$) {
 
   $self->{dbdriver} = 'mysql';
 
-  $self->{db} = DBI->connect(
+  $self->{db} = DBI->connect (
     "DBI:$self->{dbdriver}:$database:$self->{dbserver}",
     $self->{username},
     $self->{password},
-    {PrintError => 0},
-  ) or croak "MyDB::new: Couldn't connect to $database database as $self->{username}\@$self->{dbserver}";
+    {PrintError => 0, mysql_enable_utf8mb4 => 1},
+
+    )
+    or croak
+"MyDB::new: Couldn't connect to $database database as $self->{username}\@$self->{dbserver}";
 
   return $self;
-} # new
+}    # new
 
 sub optimize($) {
   my ($self, $table) = @_;
@@ -424,30 +442,32 @@ sub optimize($) {
     @tables = @$table;
   } else {
     push @tables, $table;
-  } # if
+  }    # if
 
-  my $statement  = 'optimize table ';
-     $statement .= join ',', @tables;
+  my $statement = 'optimize table ';
+  $statement .= join ',', @tables;
 
-  $self->{db}->do($statement);
+  $self->{db}->do ($statement);
 
-  return $self->_dberror('MyDB::optimize: Unable to optimize tables', $statement);
-} # optimize
+  return $self->_dberror ('MyDB::optimize: Unable to optimize tables',
+    $statement);
+}    # optimize
 
 sub unlock() {
   my ($self) = @_;
 
   my $statement = 'unlock tables';
 
-  $self->{db}->do($statement);
+  $self->{db}->do ($statement);
 
-  return $self->_dberror('MyDB::unlock: Unable to unlock tables', $statement);
-} # unlock
+  return $self->_dberror ('MyDB::unlock: Unable to unlock tables', $statement);
+}    # unlock
 
 sub update($$%) {
+
   # Using a Perl goto statement in this fashion really just creates an alias
   # such that the user can call either modify or update.
   goto &modify;
-} # update
+}    # update
 
 1;

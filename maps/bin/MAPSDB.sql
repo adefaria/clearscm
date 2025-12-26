@@ -15,7 +15,7 @@
 drop database if exists MAPS;
 
 -- Create a new database
-create database MAPS;
+create database MAPS CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Now let's focus on this new database
 use MAPS;
