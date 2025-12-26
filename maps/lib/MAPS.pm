@@ -1220,6 +1220,7 @@ sub ReadMsg($;$) {
   }    # unless
 
   my $header = '';
+  binmode $input;
 
   while (<$input>) {
     chomp;
