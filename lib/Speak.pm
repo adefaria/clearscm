@@ -270,20 +270,55 @@ Returns:
           chomp ($win_path = `cygpath -w "$final_file"`);
         }
 
-        # Use PowerShell to play audio hidden
-        my $cmd =
-          "powershell -c (New-Object Media.SoundPlayer '$win_path').PlaySync()";
-        if (system ($cmd) != 0) {
+       # Use PowerShell to play audio hidden
+       # System.Media.SoundPlayer only supports WAV, so convert MP3 -> WAV first
+        my ($fh_wav, $wav_file) = tempfile (SUFFIX => '.wav', UNLINK => 0);
+        close $fh_wav;
 
-          # Fallback to sox 'play' if powershell fails
-          system ("play -q \"$final_file\"");
-        }
+        # Convert to WAV using sox
+        if (system ("sox \"$final_file\" \"$wav_file\"") == 0) {
+          my $win_path = $wav_file;
+          if ($os eq 'cygwin') {
+            chomp ($win_path = `cygpath -w "$wav_file"`);
+          }
+
+          my $cmd_wav =
+"powershell -c (New-Object Media.SoundPlayer '$win_path').PlaySync()";
+          if (system ($cmd_wav) != 0) {
+
+            # Fallback
+            system ("play -q \"$final_file\"");
+          }
+          unlink $wav_file;
+        } else {
+
+          # Conversion failed logic fallback
+          my $cmd =
+"powershell -c (New-Object Media.SoundPlayer '$win_path').PlaySync()";
+          if (system ($cmd) != 0) {
+
+            # Fallback to sox 'play' if powershell fails
+            system ("play -q \"$final_file\"");
+          }
+        } ## end else [ if (system ("sox \"$final_file\" \"$wav_file\""...))]
       } else {
 
-# Linux / Unix
-# Use paplay (PulseAudio) if available, as 'play' (sox) often struggles with ALSA/Pulse configuration
+      # Linux / Unix
+      # paplay often requires WAV if libsndfile lacks mp3 support (e.g. on Mars)
+      # We convert to WAV to be safe.
         if (-x '/usr/bin/paplay' || -x '/bin/paplay') {
-          system ("paplay $final_file");
+          my ($fh_wav, $wav_file) = tempfile (SUFFIX => '.wav', UNLINK => 0);
+          close $fh_wav;
+
+          # Convert to WAV
+          if (system ("sox \"$final_file\" \"$wav_file\"") == 0) {
+            system ("paplay \"$wav_file\"");
+            unlink $wav_file;
+          } else {
+
+            # Conversion failed, try playing mp3 directly
+            system ("paplay \"$final_file\"");
+          }
         } else {
           system ("play -q $final_file");
         }
