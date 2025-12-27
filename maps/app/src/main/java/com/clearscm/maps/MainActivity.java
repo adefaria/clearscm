@@ -196,9 +196,9 @@ public class MainActivity extends Activity {
         menuLayout.setVisibility(View.GONE);
 
         addMenuButton("Returned", "returned");
-        addMenuButton("White", "white");
-        addMenuButton("Black", "black");
-        addMenuButton("Null", "null");
+        addMenuButton("White", "white_today");
+        addMenuButton("Black", "black_today");
+        addMenuButton("Null", "null_today");
 
         layout.addView(menuLayout);
 
@@ -398,6 +398,9 @@ public class MainActivity extends Activity {
         popup.getMenu().add(0, 2, 0, "Top 20");
         popup.getMenu().add(0, 3, 0, "Search");
         popup.getMenu().add(0, 4, 0, "Check Email");
+        popup.getMenu().add(0, 7, 0, "White List");
+        popup.getMenu().add(0, 8, 0, "Black List");
+        popup.getMenu().add(0, 9, 0, "Null List");
         popup.getMenu().add(0, 5, 0, "About");
         popup.getMenu().add(0, 6, 0, "Logout");
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -424,6 +427,15 @@ public class MainActivity extends Activity {
                 return true;
             case 4:
                 showInputDialog("Check Email", "check_address");
+                return true;
+            case 7:
+                performAction(user, pass, "white");
+                return true;
+            case 8:
+                performAction(user, pass, "black");
+                return true;
+            case 9:
+                performAction(user, pass, "null");
                 return true;
             case 5:
                 showAboutDialog();
@@ -458,6 +470,9 @@ public class MainActivity extends Activity {
             menu.add(0, 2, 0, "Top 20");
             menu.add(0, 3, 0, "Search");
             menu.add(0, 4, 0, "Check Email");
+            menu.add(0, 7, 0, "White List");
+            menu.add(0, 8, 0, "Black List");
+            menu.add(0, 9, 0, "Null List");
             menu.add(0, 5, 0, "About");
             menu.add(0, 6, 0, "Logout");
         }
@@ -805,6 +820,7 @@ public class MainActivity extends Activity {
     private void addMenuButton(String text, final String action) {
         Button button = new Button(this);
         button.setText(text);
+        button.setTextSize(12);
         button.setBackgroundColor(Color.parseColor("#36454F"));
         button.setTextColor(Color.WHITE);
         button.setTag(action);
@@ -1465,6 +1481,37 @@ public class MainActivity extends Activity {
                         } else if ("stats".equals(mAction)) {
                             JSONObject data = json.getJSONObject("data");
 
+                            // Update buttons with counts
+                            for (int i = 0; i < menuLayout.getChildCount(); i++) {
+                                View v = menuLayout.getChildAt(i);
+                                if (v instanceof Button) {
+                                    Button b = (Button) v;
+                                    String tag = (String) b.getTag();
+                                    int count = 0;
+                                    String label = "";
+
+                                    if ("returned".equals(tag)) {
+                                        count = data.optInt("returned");
+                                        label = "Returned";
+                                    } else if ("white_today".equals(tag)) {
+                                        count = data.optInt("whitelist");
+                                        label = "White";
+                                    } else if ("black_today".equals(tag)) {
+                                        count = data.optInt("blacklist");
+                                        label = "Black";
+                                    } else if ("null_today".equals(tag)) {
+                                        count = data.optInt("nulllist");
+                                        label = "Null";
+                                    }
+
+                                    if (!label.isEmpty()) {
+                                        b.setText(label + " " + count);
+                                        b.setEnabled(count > 0);
+                                        b.setAlpha(count > 0 ? 1.0f : 0.5f);
+                                    }
+                                }
+                            }
+
                             LinearLayout card = new LinearLayout(MainActivity.this);
                             card.setOrientation(LinearLayout.VERTICAL);
                             card.setBackgroundColor(Color.BLACK);
@@ -1489,10 +1536,10 @@ public class MainActivity extends Activity {
                             table.setColumnStretchable(1, true);
 
                             addStatRow(table, "Processed", data.optInt("processed"), null);
-                            addStatRow(table, "Whitelist", data.optInt("whitelist"), "white_today");
-                            addStatRow(table, "Returned", data.optInt("returned"), "returned");
-                            addStatRow(table, "Blacklist", data.optInt("blacklist"), "black_today");
-                            addStatRow(table, "Nulllist", data.optInt("nulllist"), "null_today");
+                            addStatRow(table, "Whitelist", data.optInt("whitelist"), null);
+                            addStatRow(table, "Returned", data.optInt("returned"), null);
+                            addStatRow(table, "Blacklist", data.optInt("blacklist"), null);
+                            addStatRow(table, "Nulllist", data.optInt("nulllist"), null);
 
                             card.addView(table);
                             outputContainer.addView(card);
