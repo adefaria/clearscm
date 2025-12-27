@@ -160,7 +160,7 @@ sub interrupted {
   return;
 }    # interrupted
 
-sub Connect2IMAP;
+sub Connect2IMAP(;$);
 sub MonitorMail;
 
 # $SIG{USR2} = \&restart;
@@ -172,7 +172,8 @@ sub unseenMsgs() {
   return map {$_ => 0} @{$IMAP->search ('not', 'seen')};
 }    # unseenMsgs
 
-sub Connect2IMAP() {
+sub Connect2IMAP(;$) {
+  my ($quiet) = @_;
   $log->dbug ("Connecting to $opts{imap} as $opts{username}");
 
   if ($opts{password}) {
@@ -213,9 +214,10 @@ sub Connect2IMAP() {
 
   unless ($IMAP) {
     $log->err (
-      "Unable to connect to IMAP server $opts{imap}: $@\n(System Error: $!)");
+      "Unable to connect to IMAP server $opts{imap}: $@\n(System Error: $!)")
+      unless $quiet;
     return 0;
-  }
+  } ## end unless ($IMAP)
 
   $log->dbug ("Connected to $opts{imap} as $opts{username}");
 
@@ -412,16 +414,19 @@ while (1) {
   my $connected = 0;
 
   while ($attempts < 10) {
-    if (Connect2IMAP) {
+    my $quiet = $attempts < 5;
+    if (Connect2IMAP ($quiet)) {
       $connected = 1;
       last;
     }
 
     $attempts++;
     my $sleep = 60;
-    $log->msg (
-      "Connection failed. Retrying in $sleep seconds... (Attempt $attempts/10)"
-    );
+    unless ($quiet) {
+      $log->msg (
+"Connection failed. Retrying in $sleep seconds... (Attempt $attempts/10)"
+      );
+    }
     sleep $sleep;
   } ## end while ($attempts < 10)
 
