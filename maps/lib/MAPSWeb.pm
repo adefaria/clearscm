@@ -173,6 +173,7 @@ qq{<iframe src="display.cgi?sender=$safe_sender;msg_date=$safe_date;view=body"
                    width="100%"
                    height="600"
                    frameborder="0"
+                   style="background-color: white"
                    sandbox>
            </iframe>};
 

@@ -121,11 +121,18 @@ if ($view && $view eq 'body') {
   my $type    = $part->mime_type;
   $type = 'text/plain' if $type !~ /text/;
 
+  if ($type eq 'text/plain') {
+    $content = escapeHTML ($content);
+    $content =
+"<html><head></head><body style='background-color: white'><pre>$content</pre></body></html>";
+    $type = 'text/html';
+  } ## end if ($type eq 'text/plain')
+
   if ($type eq 'text/html') {
 
     # Disable links to prevent accidental clicking on malicious URLs
     my $css =
-      qq{<style>a[title] { cursor: help; text-decoration: underline; }</style>};
+qq{<style>body { background-color: white; } a[title] { cursor: help; text-decoration: underline; }</style>};
 
     if ($content =~ /<\/head>/i) {
       $content =~ s/<\/head>/$css\n<\/head>/i;

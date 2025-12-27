@@ -53,6 +53,7 @@ import java.util.Locale;
 import java.util.List;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebSettings;
 import android.webkit.CookieManager;
 import android.view.ViewTreeObserver;
 
@@ -1434,10 +1435,14 @@ public class MainActivity extends Activity {
                         if ("display".equals(mAction)) {
                             String html = json.getString("data");
                             WebView webView = new WebView(MainActivity.this);
+                            webView.setBackgroundColor(Color.WHITE);
                             webView.getSettings().setJavaScriptEnabled(true);
                             webView.getSettings().setBuiltInZoomControls(true);
                             webView.getSettings().setDisplayZoomControls(false);
                             webView.getSettings().setSupportZoom(true);
+                            if (Build.VERSION.SDK_INT >= 29) { // Build.VERSION_CODES.Q
+                                webView.getSettings().setForceDark(WebSettings.FORCE_DARK_OFF);
+                            }
 
                             CookieManager cookieManager = CookieManager.getInstance();
                             cookieManager.setAcceptCookie(true);
