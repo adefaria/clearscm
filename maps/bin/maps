@@ -207,31 +207,6 @@ sub ProcessMsgs ($$$) {
     # Discard any email with an invalid email address
     next unless Email::Valid->address ($msgInfo{sender});
 
-    if ($opts{language} && $opts{language} eq 'only_english') {
-      my $lang = DetectLanguage ($msgInfo{subject} . " " . $msgInfo{data});
-
-      if ($lang) {
-        $log->msg (
-          "Nulllisting message from $msgInfo{sender} - Detected language: $lang"
-        );
-
-        my ($sender_user, $domain);
-        if ($msgInfo{sender} =~ /(.*)\@(.*)/) {
-          $domain = $2;
-        }
-
-        if ($domain) {
-
-          MAPS::Add2Nulllist (
-            userid  => $userid,
-            sender  => '@' . $domain,
-            comment => "$lang email rejected",
-          );
-        } ## end if ($domain)
-        next;
-      } ## end if ($lang)
-    } ## end if ($opts{language} &&...)
-
     if (
       $msgInfo{sender} eq $user_email
       and ( lc ($msgInfo{sender_long}) !~ lc ("\"$username\" <$user_email>")
@@ -295,6 +270,34 @@ sub ProcessMsgs ($$$) {
 
       next;
     }    # if
+
+    if ($opts{language} && $opts{language} eq 'only_english') {
+      my $lang = DetectLanguage ($msgInfo{subject} . " " . $msgInfo{data});
+
+      if ($lang) {
+        my ($onlist) = MAPS::OnNulllist ($msgInfo{sender}, 0);
+
+        unless ($onlist) {
+          $log->msg (
+"Nulllisting message from $msgInfo{sender} - Detected language: $lang"
+          );
+
+          my ($sender_user, $domain);
+          if ($msgInfo{sender} =~ /(.*)\@(.*)/) {
+            $domain = $2;
+          }
+
+          if ($domain) {
+            MAPS::Add2Nulllist (
+              userid  => $userid,
+              sender  => '@' . $domain,
+              comment => "$lang email rejected",
+            );
+          } ## end if ($domain)
+          next;
+        } ## end unless ($onlist)
+      } ## end if ($lang)
+    } ## end if ($opts{language} &&...)
 
     # Check nulllist:
     ($onlist, $rec) = OnNulllist $msgInfo{sender};
