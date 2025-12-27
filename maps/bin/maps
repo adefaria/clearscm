@@ -62,6 +62,7 @@ use Email::Valid;
 use FindBin;
 use File::Temp  qw (tempfile);
 use Net::Domain qw (hostdomain);
+use Encode      qw (decode decode_utf8);
 
 use lib "$FindBin::Bin/../lib";
 use lib "$FindBin::Bin/../../lib";
@@ -148,6 +149,34 @@ sub formatRule($) {
   return $rule;
 }    # formatRule
 
+sub DetectLanguage($) {
+  my ($text) = @_;
+  return unless defined $text;
+
+  # Try to decode as MIME header first (handles =?UTF-8?...)
+  my $decoded = eval {decode ('MIME-Header', $text)} || $text;
+
+# Also try to decode as UTF-8 if it looks like bytes
+# (MIME-Header decode usually returns characters, but if it failed or wasn't mime,
+# we might have raw utf8 bytes)
+  if (!Encode::is_utf8 ($decoded)) {
+    $decoded = eval {decode_utf8 ($decoded)} || $decoded;
+  }
+
+  if ($decoded =~ /\p{Han}/) {return 'Chinese';}
+  if ($decoded =~ /\p{Katakana}/ || $decoded =~ /\p{Hiragana}/) {
+    return 'Japanese';
+  }
+  if ($decoded =~ /\p{Hangul}/)     {return 'Korean';}
+  if ($decoded =~ /\p{Cyrillic}/)   {return 'Russian';}
+  if ($decoded =~ /\p{Arabic}/)     {return 'Arabic';}
+  if ($decoded =~ /\p{Hebrew}/)     {return 'Hebrew';}
+  if ($decoded =~ /\p{Greek}/)      {return 'Greek';}
+  if ($decoded =~ /\p{Devanagari}/) {return 'Hindi';}
+
+  return undef;
+}    # DetectLanguage
+
 sub ProcessMsgs ($$$) {
   my ($msgfile, $username, $user_email) = @_;
 
@@ -177,6 +206,31 @@ sub ProcessMsgs ($$$) {
 
     # Discard any email with an invalid email address
     next unless Email::Valid->address ($msgInfo{sender});
+
+    if ($opts{language} && $opts{language} eq 'only_english') {
+      my $lang = DetectLanguage ($msgInfo{subject} . " " . $msgInfo{data});
+
+      if ($lang) {
+        $log->msg (
+          "Nulllisting message from $msgInfo{sender} - Detected language: $lang"
+        );
+
+        my ($sender_user, $domain);
+        if ($msgInfo{sender} =~ /(.*)\@(.*)/) {
+          $domain = $2;
+        }
+
+        if ($domain) {
+
+          MAPS::Add2Nulllist (
+            userid  => $userid,
+            sender  => '@' . $domain,
+            comment => "$lang email rejected",
+          );
+        } ## end if ($domain)
+        next;
+      } ## end if ($lang)
+    } ## end if ($opts{language} &&...)
 
     if (
       $msgInfo{sender} eq $user_email
@@ -271,7 +325,7 @@ sub ProcessMsgs ($$$) {
 
 # Main
 GetOptions (\%opts, 'user=s', 'verbose', 'debug', 'execute!', 'file',
-  'save_email')
+  'save_email', 'language=s')
   or pod2usage;
 
 $userid = $opts{user} if $opts{user};
