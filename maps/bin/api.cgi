@@ -59,7 +59,60 @@ unless ($userid) {
 
 MAPS::SetContext ($userid);
 
-if ($action eq 'stats') {
+if ($action eq 'full_stats') {
+  my $nbr_days = $q->param ('nbr_days');
+  unless ($nbr_days) {
+    my %options = MAPS::GetUserOptions ($userid);
+    $nbr_days = $options{Dates} || 7;
+  }
+
+  my $html =
+"<html><head><style>body { background-color: white; font-family: sans-serif; } h3, table { font-size: 8px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid #ccc; padding: 2px; text-align: center; } th { background-color: #f0f0f0; } .total { font-weight: bold; }</style></head><body>";
+  $html .= "<h3>Statistics ($nbr_days days)</h3>";
+  $html .= "<table><thead><tr><th>Date</th>";
+  foreach (@MAPSLog::Types) {
+    $html .= "<th>" . ucfirst ($_) . "</th>";
+  }
+  $html .= "<th>Total</th></tr></thead><tbody>";
+
+  my %dates = MAPSLog::GetStats (
+    userid => $userid,
+    days   => $nbr_days
+  );
+  my %totals;
+
+  for my $date (sort {$b cmp $a} (keys (%dates))) {
+    $html .= "<tr><td>" . DateUtils::FormatDate ($date, 1) . "</td>";
+    my $day_total = 0;
+    foreach (@MAPSLog::Types) {
+      my $val         = $dates{$date}{$_};
+      my $display_val = (
+        $val == 0
+        ? "&nbsp;"
+        : "<a href='maps://view?type=$_&date=$date'>$val</a>"
+      );
+      $html .= "<td>" . $display_val . "</td>";
+      $totals{$_} += $val;
+      $day_total  += $val;
+    } ## end foreach (@MAPSLog::Types)
+    $html .= "<td>" . ($day_total == 0 ? "&nbsp;" : $day_total) . "</td></tr>";
+  } ## end for my $date (sort {$b ...})
+
+  $html .= "<tr class='total'><td>Totals</td>";
+  my $grand_total = 0;
+  foreach (@MAPSLog::Types) {
+    my $val         = $totals{$_} || 0;
+    my $display_val = (
+      $val == 0 ? "&nbsp;" : "<a href='maps://view?type=$_&date=all'>$val</a>");
+    $html .= "<td>" . $display_val . "</td>";
+    $grand_total += $val;
+  } ## end foreach (@MAPSLog::Types)
+  $html .= "<td>" . $grand_total . "</td></tr>";
+  $html .= "</tbody></table></body></html>";
+
+  send_json ({status => 'success', data => $html});
+
+} elsif ($action eq 'stats') {
   my $today = Today2SQLDatetime;
   my $date  = substr $today, 0, 10;
 
@@ -84,7 +137,9 @@ if ($action eq 'stats') {
   send_json ({status => 'success', data => $data});
 
 } elsif ($action eq 'returned') {
-  my $date     = $q->param ('date') || substr (Today2SQLDatetime, 0, 10);
+  my $date = $q->param ('date') || substr (Today2SQLDatetime, 0, 10);
+  $date = undef if $date eq 'all';
+
   my $req_type = $q->param ('type') || 'returned';
   if    ($req_type eq 'white') {$req_type = 'whitelist';}
   elsif ($req_type eq 'black') {$req_type = 'blacklist';}
@@ -98,6 +153,7 @@ if ($action eq 'stats') {
     date     => $date
   );
   my @data;
+
   foreach my $sender (@senders) {
     my $msgs     = MAPS::ReturnMessages (userid => $userid, sender => $sender);
     my @day_msgs = grep {$_->{timestamp} =~ /^$date/} @$msgs;

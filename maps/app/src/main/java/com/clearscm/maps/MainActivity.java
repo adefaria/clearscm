@@ -395,7 +395,8 @@ public class MainActivity extends Activity {
 
     private void showPopupMenu(View v) {
         PopupMenu popup = new PopupMenu(this, v);
-        popup.getMenu().add(0, 1, 0, "Home");
+        popup.getMenu().add(0, 1, 0, "Quickstats");
+        popup.getMenu().add(0, 10, 0, "Statistics");
         popup.getMenu().add(0, 2, 0, "Top 20");
         popup.getMenu().add(0, 3, 0, "Search");
         popup.getMenu().add(0, 4, 0, "Check Email");
@@ -438,6 +439,9 @@ public class MainActivity extends Activity {
             case 9:
                 performAction(user, pass, "null");
                 return true;
+            case 10:
+                performAction(user, pass, "full_stats");
+                return true;
             case 5:
                 showAboutDialog();
                 return true;
@@ -467,7 +471,8 @@ public class MainActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (isLoggedIn) {
-            menu.add(0, 1, 0, "Home");
+            menu.add(0, 1, 0, "Quickstats");
+            menu.add(0, 10, 0, "Statistics");
             menu.add(0, 2, 0, "Top 20");
             menu.add(0, 3, 0, "Search");
             menu.add(0, 4, 0, "Check Email");
@@ -944,10 +949,14 @@ public class MainActivity extends Activity {
     }
 
     private void performAction(String user, String pass, String action) {
-        performAction(user, pass, action, 0);
+        performAction(user, pass, action, null, 0);
     }
 
     private void performAction(String user, String pass, String action, int offset) {
+        performAction(user, pass, action, null, offset);
+    }
+    
+    private void performAction(String user, String pass, String action, final String date, int offset) {
         resetWebView();
         lastListAction = action;
         currentOffset = offset;
@@ -974,8 +983,7 @@ public class MainActivity extends Activity {
         }
 
         String dateParam = "";
-        if ("returned".equals(action) || "last_page_returned".equals(action) || action.endsWith("_today")) {
-            String date = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+        if (date != null) {
             dateParam = date;
         }
         if ("search".equals(action)) {
@@ -1360,6 +1368,10 @@ public class MainActivity extends Activity {
                             + "&lines=" + mLines;
                     String response = sendRequest(url, "GET", null, storedCookie);
                     return "JSON:" + response;
+                } else if ("full_stats".equals(mAction)) {
+                    String url = API_URL + "?action=full_stats&userid=" + storedUserid;
+                    String response = sendRequest(url, "GET", null, storedCookie);
+                    return "JSON:" + response;
                 }
                 return "Unknown action: " + mAction;
 
@@ -1432,9 +1444,52 @@ public class MainActivity extends Activity {
                         outputContainer.addView(outputView);
                         outputView.setText("Error: " + json.optString("message"));
                     } else {
-                        if ("display".equals(mAction)) {
+                        if ("display".equals(mAction) || "full_stats".equals(mAction)) {
                             String html = json.getString("data");
                             WebView webView = new WebView(MainActivity.this);
+                            webView.setWebViewClient(new WebViewClient() {
+                                @Override
+                                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                                    if (url.startsWith("maps://")) {
+                                        Uri uri = Uri.parse(url);
+                                        if ("view".equals(uri.getHost())) {
+                                            String type = uri.getQueryParameter("type");
+                                            String date = uri.getQueryParameter("date");
+                                            if (type != null && date != null) {
+                                                String action = type;
+                                                // Map "nulllist", "whitelist", "blacklist" to app-friendly names if needed
+                                                // App seems to support "returned", "white_today" (implies type="white").
+                                                // But let's pass generic type logic.
+                                                // If we pass "whitelist", "returned", etc with date, we just need to ensure MapsTask handles it.
+                                                // MapsTask logic (lines 1350+):
+                                                // if returned/endedWith _today -> uses typeVal from action (stripped of _today, or just "returned").
+                                                // So if we pass action="whitelist_today", typeVal="whitelist".
+                                                // Server expects "whitelist". This matches!
+                                                // So we can map "nulllist" -> "nulllist_today", etc.
+                                                // But wait, "nulllist" is the type from api.cgi $_.
+                                                // So action = type + "_today".
+                                                // Exception: "returned". If type is "returned", action="returned".
+                                                
+                                                if ("returned".equals(type)) {
+                                                    action = "returned";
+                                                } else {
+                                                    action = type + "_today";
+                                                }
+                                                performAction(storedUserid, storedCookie, action, date, 0);
+                                                return true;
+                                            } else if (type != null) {
+                                                 String action = type;
+                                                 if ("whitelist".equals(type)) action = "white";
+                                                 if ("blacklist".equals(type)) action = "black";
+                                                 if ("nulllist".equals(type)) action = "null";
+                                                 performAction(storedUserid, storedCookie, action, 0); // Reuse non-date overload
+                                                 return true;
+                                            }
+                                        }
+                                    }
+                                    return false;
+                                }
+                            });
                             webView.setBackgroundColor(Color.WHITE);
                             webView.getSettings().setJavaScriptEnabled(true);
                             webView.getSettings().setBuiltInZoomControls(true);
