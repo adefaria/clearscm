@@ -72,6 +72,7 @@ the email. The message will be similar to:
 
 use strict;
 use warnings;
+use feature 'state';
 
 use FindBin;
 use Getopt::Long;
@@ -133,6 +134,8 @@ my %opts = (
   username => $ENV{USER},
   password => $ENV{PASSWORD},
   imap     => $defaultIMAPServer,
+  port     => undef,
+  insecure => 0,
 );
 
 sub notify($) {
@@ -160,18 +163,7 @@ sub interrupted {
 sub Connect2IMAP;
 sub MonitorMail;
 
-sub restart {
-  my $msg = "Re-establishing connection to $opts{imap} as $opts{username}";
-
-  $log->dbug ($msg);
-
-  Connect2IMAP;
-
-  MonitorMail;
-}    # restart
-
-$SIG{USR1} = \&interrupted;
-$SIG{USR2} = \&restart;
+# $SIG{USR2} = \&restart;
 
 sub unseenMsgs() {
   $IMAP->select ('inbox')
@@ -183,16 +175,47 @@ sub unseenMsgs() {
 sub Connect2IMAP() {
   $log->dbug ("Connecting to $opts{imap} as $opts{username}");
 
+  if ($opts{password}) {
+    my $len = length ($opts{password});
+    $log->dbug ("Password present ($len chars)");
+  } else {
+    $log->dbug ("Password missing!");
+  }
+
+  my $port = $opts{port};
+  unless ($port) {
+    if ($opts{usessl}) {
+      $port = 993;
+    } else {
+      $port = 143;
+    }    # if
+  }    # unless
+  $log->dbug ("Using port: $port" . ($opts{usessl} ? " (SSL)" : ""));
+
+  my %ssl_opts;
+  if ($opts{insecure}) {
+    $log->dbug ("SSL Verification disabled");
+    $ssl_opts{SSL_verify_mode} = 0;
+  }
+
   # Destroy any old connections
   undef $IMAP;
 
   $IMAP = Mail::IMAPTalk->new (
     Server      => $opts{imap},
+    Port        => $port,
     Username    => $opts{username},
     Password    => $opts{password},
     UseSSL      => $opts{usessl},
     UseBlocking => $opts{useblocking},
-  ) or $log->err ("Unable to connect to IMAP server $opts{imap}: $@", 1);
+    %ssl_opts,
+  );
+
+  unless ($IMAP) {
+    $log->err (
+      "Unable to connect to IMAP server $opts{imap}: $@\n(System Error: $!)");
+    return 0;
+  }
 
   $log->dbug ("Connected to $opts{imap} as $opts{username}");
 
@@ -203,7 +226,7 @@ sub Connect2IMAP() {
   # aloud yet
   %unseen = unseenMsgs;
 
-  return;
+  return 1;
 }    # Connect2IMAP
 
 sub MonitorMail() {
@@ -299,23 +322,26 @@ sub MonitorMail() {
   my $msg = 'Returned from IMAP->idle ';
 
   if ($@) {
+    if ($@ =~ /Connection reset by peer/i or $@ =~ /closed by other end/i) {
+      $log->msg ("IMAP connection lost (reset by peer). Reconnecting...");
+      return;    # Return to main loop to reconnect
+    }
     speak ($msg . $@, $log);
   } else {
     $log->msg ($msg . 'no error');
   }    # if
 
   # If we return from idle then the server went away for some reason. With Gmail
-  # the server seems to time out around 30-40 minutes. Here we simply reconnect
-  # to the imap server and continue to MonitorMail.
+  # the server seems to time out around 30-40 minutes.
   unless ($IMAP->get_response_code ('timeout')) {
     $msg = "IMAP Idle for $opts{name} timed out in " . howlong $startTime, time;
 
-    speak $msg;
+    # speak $msg; # excessive chatter
 
     $log->msg ($msg);
   }    # unless
 
-  restart;
+  return;
 }    # MonitorMail
 
 END {
@@ -334,10 +360,26 @@ GetOptions (
   \%opts,        'usage',     'help',       'verbose',
   'debug',       'daemon!',   'username=s', 'name=s',
   'password=s',  'imap=s',    'timeout=i',  'usessl',
-  'useblocking', 'announce!', 'append',
+  'useblocking', 'announce!', 'append',     'port=i',
+  'insecure',
 ) || pod2usage;
 
-local $0 = "$FindBin::Script " . join ' ', @ARGV;
+my $domain = $opts{imap};
+$domain =~ s/^imap\.//;
+$domain = 'gmail.com' if $domain eq 'google.com';
+
+my $display_user = $opts{username};
+$display_user =~ s/\@.*$//;
+
+# Special casing for Andrew@DeFaria.com
+if ($domain =~ /^defaria\.com$/i && $display_user eq 'andrew') {
+  $display_user = 'Andrew';
+  $domain       = 'DeFaria.com';
+}
+
+my $script = $FindBin::Script;
+$script =~ s/\.pl$//;
+local $0 = "$script $display_user\@$domain";
 
 unless ($opts{password}) {
   verbose "I need $opts{username}'s password";
@@ -365,21 +407,47 @@ $log = Logger->new (
   append      => $opts{append},
 );
 
-Connect2IMAP;
+while (1) {
+  my $attempts  = 0;
+  my $connected = 0;
 
-if ($opts{username} =~ /(.*)\@/) {
-  $opts{user} = $1;
-} else {
-  $opts{user} = $opts{username};
-}    # if
+  while ($attempts < 10) {
+    if (Connect2IMAP) {
+      $connected = 1;
+      last;
+    }
 
-my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
+    $attempts++;
+    my $sleep = 60;
+    $log->msg (
+      "Connection failed. Retrying in $sleep seconds... (Attempt $attempts/10)"
+    );
+    sleep $sleep;
+  } ## end while ($attempts < 10)
 
-speak $msg, $log if $opts{announce};
+  unless ($connected) {
+    $log->err ("Failed to connect after 10 attempts. Exiting.", 1);
+  }
 
-$log->msg ($msg);
+  if ($opts{username} =~ /(.*)\@/) {
+    $opts{user} = $1;
+  } else {
+    $opts{user} = $opts{username};
+  }    # if
 
-MonitorMail;
+  # Only announce once, not on every reconnect
+  state $announced = 0;
+  unless ($announced) {
+    my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
+    speak $msg, $log if $opts{announce};
+    $log->msg ($msg);
+    $announced = 1;
+  } ## end unless ($announced)
+
+  MonitorMail;
+
+  $log->msg ("MonitorMail returned (timeout or error). Reconnecting...");
+} ## end while (1)
 
 # Should not get here
 $log->err ("Falling off the edge of $0", 1);
