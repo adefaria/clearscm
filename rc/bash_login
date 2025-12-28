@@ -353,9 +353,10 @@ if [ -z "$SSH_AGENT_PID" -a $SYSNAME != 'Jupiter' ]; then
 fi
 
 # Now go home (in case we were not autmatically cd'ed there)
-if [ $($id -u) -ne 0 ]; then
-  cd
-fi
+#if [ $($id -u) -ne 0 ]; then
+#  cd
+#fi
+export JDK_JAVA_OPTIONS="-XX:-UsePerfData"
 
 # This must be at the end of the file for sdkman to work!!!
 export SDKMAN_DIR="$HOME/.sdkman"
