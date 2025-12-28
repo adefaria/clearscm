@@ -292,12 +292,12 @@ sub ProcessMsgs ($$$) {
           }
 
           if ($domain) {
-            MAPS::Add2Nulllist (
+            my (undef, undef, $seq) = MAPS::Add2Nulllist (
               userid  => $userid,
               sender  => '@' . $domain,
               comment => "$lang email rejected",
             );
-            MAPS::Nulllist ($msgInfo{sender}, 0, 0);
+            MAPS::Nulllist ($msgInfo{sender}, $seq, 0);
           } ## end if ($domain)
           next;
         } ## end unless ($onlist)

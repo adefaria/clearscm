@@ -253,7 +253,7 @@ sub Add2Nulllist(%) {
   # Add to null list
   $params{sequence} = 0;
   $params{type}     = 'null';
-  my ($err, $msg) = AddList (%params);
+  my ($err, $msg, $sequence) = AddList (%params);
 
   return -$err, $msg if $err;
 
@@ -296,7 +296,7 @@ sub Add2Nulllist(%) {
 
   $msg = $count == 1 ? "$count message deleted" : "$count messages deleted";
 
-  return $count, $msg;
+  return $count, $msg, $sequence;
 }    # Add2Nulllist
 
 sub Add2Whitelist(%) {
@@ -440,7 +440,7 @@ sub AddList(%) {
 
   $rec{last_hit} //= UnixDatetime2SQLDatetime (scalar (localtime));
 
-  return $db->add ('list', %rec);
+  return $db->add ('list', %rec), $rec{sequence};
 }    # AddList
 
 sub AddLog(%) {
