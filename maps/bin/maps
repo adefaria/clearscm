@@ -173,6 +173,10 @@ sub DetectLanguage($) {
   if ($decoded =~ /\p{Hebrew}/)     {return 'Hebrew';}
   if ($decoded =~ /\p{Greek}/)      {return 'Greek';}
   if ($decoded =~ /\p{Devanagari}/) {return 'Hindi';}
+  if ($decoded =~ /[äöüßÄÖÜ]/)      {return 'German';}
+
+  # Common German stop words
+  if ($decoded =~ /\b(der|die|das|und|nicht|eine|Sie)\b/i) {return 'German';}
 
   return undef;
 }    # DetectLanguage
@@ -293,6 +297,7 @@ sub ProcessMsgs ($$$) {
               sender  => '@' . $domain,
               comment => "$lang email rejected",
             );
+            MAPS::Nulllist ($msgInfo{sender}, 0, 0);
           } ## end if ($domain)
           next;
         } ## end unless ($onlist)
