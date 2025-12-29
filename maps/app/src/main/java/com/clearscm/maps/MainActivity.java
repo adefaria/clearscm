@@ -1840,13 +1840,17 @@ public class MainActivity extends Activity {
 
                                     card.addView(line1);
 
-                                    String details = "Last Hit: " + (lastHit.isEmpty() ? "Never" : lastHit) +
+                                    String details = "Last Hit: <font color='#FFFFFF'>" + (lastHit.isEmpty() ? "Never" : lastHit) + "</font>" +
                                             (retention.isEmpty() ? "" : " Retention: " + retention) +
-                                            (comment.isEmpty() ? "" : " Comment: " + comment);
+                                            (comment.isEmpty() ? "" : " Comment: <font color='#00FFFF'>" + comment + "</font>");
 
                                     TextView detailsView = new TextView(MainActivity.this);
-                                    detailsView.setText(details);
                                     detailsView.setTextColor(Color.GREEN);
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                        detailsView.setText(Html.fromHtml(details, Html.FROM_HTML_MODE_LEGACY));
+                                    } else {
+                                        detailsView.setText(Html.fromHtml(details));
+                                    }
                                     detailsView.setPadding(0, 10, 0, 0);
                                     card.addView(detailsView);
 
