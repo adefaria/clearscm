@@ -168,14 +168,174 @@ sub GetMessageDisplay(%) {
   my $safe_sender = escape ($sender);
   my $safe_date   = escape ($msg_date);
 
-  $html .=
-qq{<iframe src="display.cgi?sender=$safe_sender;msg_date=$safe_date;view=body"
+  $html .= qq{<iframe id="msg_frame"
+                   src="display.cgi?sender=$safe_sender;msg_date=$safe_date;view=body"
                    width="100%"
                    height="600"
                    frameborder="0"
                    style="background-color: white"
-                   sandbox>
-           </iframe>};
+                   sandbox="allow-same-origin">
+           </iframe>
+<script>
+(function() {
+    function init() {
+        try {
+            var iframe = document.getElementById('msg_frame');
+            if (!iframe) return;
+
+            function attachListener() {
+                try {
+                    var doc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (!doc || !doc.body) return;
+
+                    if (doc.body.getAttribute('data-listener-attached')) return;
+                    
+                    doc.addEventListener('click', function(e) {
+                        var target = e.target.closest('a');
+                        if (target && target.hasAttribute('title') && !target.hasAttribute('href')) {
+                             e.preventDefault();
+                             e.stopPropagation();
+                             var url = target.getAttribute('title');
+
+                             // Calculate absolute position
+                             var rect = iframe.getBoundingClientRect();
+                             var x = rect.left + e.clientX;
+                             var y = rect.top + e.clientY;
+                             
+                             if (navigator.clipboard) {
+                                 navigator.clipboard.writeText(url).then(function() {
+                                     showToast('Link copied', false, x, y);
+                                 }, function(err) {
+                                     fallbackCopy(url, x, y);
+                                 });
+                             } else {
+                                 fallbackCopy(url, x, y);
+                             }
+                        }
+                    }, true); 
+                    
+                    doc.body.setAttribute('data-listener-attached', 'true');
+                } catch(e) {
+                    console.error('Cannot access iframe content', e);
+                }
+            }
+
+            // Attempt immediately
+            attachListener();
+
+            // Re-attach on iframe load (navigation)
+            iframe.addEventListener('load', function() {
+                setTimeout(attachListener, 200);
+            });
+            
+        } catch(e) {
+            console.error("Init failed", e);
+        }
+    }
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        init();
+    } else {
+        window.addEventListener('load', init);
+    }
+})();
+
+function fallbackCopy(text, x, y) {
+  var textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.style.position = "fixed";
+  textArea.style.left = "-9999px";
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  try {
+    var successful = document.execCommand('copy');
+    if (successful) {
+      showToast('Link copied', false, x, y);
+    } else {
+      showToast('Unable to copy/paste link', true, x, y);
+    }
+  } catch (err) {
+    showToast('Unable to copy link', true, x, y);
+  }
+  document.body.removeChild(textArea);
+}
+
+function showToast(message, isError, x, y) {
+  // Styles for the toast
+  var style = document.getElementById('toast-style');
+  if (!style) {
+      style = document.createElement('style');
+      style.id = 'toast-style';
+      style.innerHTML = `
+        #toast {
+          visibility: hidden;
+          min-width: 150px; /* Smaller width for cursor popup */
+          margin-left: 0; 
+          background-color: #4CAF50; /* Green Default */
+          color: #fff;
+          text-align: center;
+          border-radius: 4px;
+          padding: 8px 12px; /* Smaller padding */
+          position: fixed;
+          z-index: 1000;
+          font-size: 14px; /* Smaller font */
+          opacity: 0;
+          transition: opacity 0.3s; 
+          box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+          pointer-events: none; /* Click-through */
+        }
+        #toast.error {
+            background-color: #F44336;
+        }
+        #toast.show {
+          visibility: visible;
+          opacity: 1;
+        }
+      `;
+      document.head.appendChild(style);
+  }
+
+  var toast = document.getElementById("toast");
+  if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "toast";
+      document.body.appendChild(toast);
+  }
+  
+  // Reset classes and styles
+  toast.className = "";
+  toast.style.left = "";
+  toast.style.top = "";
+  toast.style.bottom = "";
+  toast.style.transform = "";
+
+  if (x !== undefined && y !== undefined) {
+      // Position at cursor
+      // Simple logic: position above and centered to the cursor
+      // x is clientX, y is clientY
+      toast.style.left = x + 'px';
+      toast.style.top = (y - 50) + 'px'; // 50px above cursor
+      toast.style.transform = "translateX(-50%)";
+  } else {
+      // Default center bottom
+      toast.style.left = "50%";
+      toast.style.bottom = "50px";
+      toast.style.transform = "translateX(-50%)";
+  }
+
+  if (isError) {
+      toast.classList.add("error");
+  }
+  
+  toast.classList.add("show");
+  toast.innerText = message;
+  
+  setTimeout(function(){ 
+      toast.classList.remove("show"); 
+  }, 2000); // Shorter duration for cursor toast
+}
+</script>};
 
   $html .= end_table;
 

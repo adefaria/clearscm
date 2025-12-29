@@ -132,7 +132,7 @@ if ($view && $view eq 'body') {
 
     # Disable links to prevent accidental clicking on malicious URLs
     my $css =
-qq{<style>body { background-color: white; } a[title] { cursor: help; text-decoration: underline; }</style>};
+qq{<style>body { background-color: white; } a[title] { cursor: copy; text-decoration: underline; }</style>};
 
     if ($content =~ /<\/head>/i) {
       $content =~ s/<\/head>/$css\n<\/head>/i;
