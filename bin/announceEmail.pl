@@ -343,7 +343,7 @@ sub MonitorMail() {
     $log->msg ($msg);
   }    # unless
 
-  return;
+  goto MONITORMAIL;
 }    # MonitorMail
 
 END {
