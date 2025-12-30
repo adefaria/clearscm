@@ -314,7 +314,7 @@ public class MainActivity extends Activity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                performAction(usernameField.getText().toString(), passwordField.getText().toString(), lastListAction);
+                performAction(usernameField.getText().toString(), passwordField.getText().toString(), "stats");
             }
         });
         RelativeLayout.LayoutParams backParams = new RelativeLayout.LayoutParams(
@@ -375,6 +375,7 @@ public class MainActivity extends Activity {
         storedUserid = prefs.getString("userid", null);
 
         if (storedCookie != null && storedUserid != null) {
+            loginLayout.setVisibility(View.GONE);
             usernameField.setText(storedUserid);
             performAction(storedUserid, "", "stats");
         }
@@ -904,7 +905,7 @@ public class MainActivity extends Activity {
         return button;
     }
 
-    private void addStatRow(TableLayout table, String label, int value, final String action) {
+    private void addStatRow(TableLayout table, String label, int value, int color, final String action) {
         TableRow row = new TableRow(this);
         if (action != null && value > 0) {
             row.setOnClickListener(new View.OnClickListener() {
@@ -917,15 +918,17 @@ public class MainActivity extends Activity {
 
         TextView labelView = new TextView(this);
         labelView.setText(label);
-        labelView.setTextColor(Color.GREEN);
-        labelView.setTextSize(16);
+        labelView.setTextColor(color);
+        labelView.setTextSize(32);
+        labelView.setTypeface(null, Typeface.BOLD);
         labelView.setPadding(10, 10, 10, 10);
         row.addView(labelView);
 
         TextView valueView = new TextView(this);
         valueView.setText(String.valueOf(value));
-        valueView.setTextColor(Color.GREEN);
-        valueView.setTextSize(16);
+        valueView.setTextColor(color);
+        valueView.setTextSize(32);
+        valueView.setTypeface(null, Typeface.BOLD);
         valueView.setGravity(Gravity.END);
         valueView.setPadding(10, 10, 10, 10);
         row.addView(valueView);
@@ -1409,6 +1412,12 @@ public class MainActivity extends Activity {
                 editor.remove("cookie");
                 editor.remove("userid");
                 editor.apply();
+
+                loginLayout.setVisibility(View.VISIBLE);
+                menuLayout.setVisibility(View.GONE);
+                menuButton.setVisibility(View.GONE);
+                backButton.setVisibility(View.GONE);
+                navButtonsLayout.setVisibility(View.GONE);
             }
 
             if (result.startsWith("WEBVIEW:")) {
@@ -1585,9 +1594,9 @@ public class MainActivity extends Activity {
                             TextView title = new TextView(MainActivity.this);
                             String time = new SimpleDateFormat("h:mm a", Locale.US).format(new Date()).toLowerCase();
                             title.setText("Today's Activity\nas of " + time);
-                            title.setTextSize(20);
+                            title.setTextSize(32);
                             title.setTypeface(null, Typeface.BOLD);
-                            title.setTextColor(Color.YELLOW);
+                            title.setTextColor(Color.parseColor("#4285F4"));
                             title.setGravity(Gravity.CENTER);
                             title.setPadding(0, 0, 0, 30);
                             card.addView(title);
@@ -1595,11 +1604,11 @@ public class MainActivity extends Activity {
                             TableLayout table = new TableLayout(MainActivity.this);
                             table.setColumnStretchable(1, true);
 
-                            addStatRow(table, "Processed", data.optInt("processed"), null);
-                            addStatRow(table, "Whitelist", data.optInt("whitelist"), null);
-                            addStatRow(table, "Returned", data.optInt("returned"), null);
-                            addStatRow(table, "Blacklist", data.optInt("blacklist"), null);
-                            addStatRow(table, "Nulllist", data.optInt("nulllist"), null);
+                            addStatRow(table, "Processed", data.optInt("processed"), Color.parseColor("#0F9D58"), null);
+                            addStatRow(table, "Whitelist", data.optInt("whitelist"), Color.WHITE, null);
+                            addStatRow(table, "Returned", data.optInt("returned"), Color.parseColor("#F4B400"), null);
+                            addStatRow(table, "Blacklist", data.optInt("blacklist"), Color.parseColor("#4C5D69"), null);
+                            addStatRow(table, "Nulllist", data.optInt("nulllist"), Color.parseColor("#DB4437"), null);
 
                             card.addView(table);
                             outputContainer.addView(card);
@@ -1719,12 +1728,12 @@ public class MainActivity extends Activity {
 
                                     LinearLayout card = new LinearLayout(MainActivity.this);
                                     card.setOrientation(LinearLayout.VERTICAL);
-                                    card.setPadding(20, 20, 20, 20);
+                                    card.setPadding(5, 5, 5, 5);
                                     card.setBackgroundColor(Color.BLACK);
                                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                                             LinearLayout.LayoutParams.MATCH_PARENT,
                                             LinearLayout.LayoutParams.WRAP_CONTENT);
-                                    params.setMargins(0, 0, 0, 20);
+                                    params.setMargins(0, 0, 0, 0);
                                     card.setLayoutParams(params);
 
                                     TextView senderView = new TextView(MainActivity.this);
@@ -1774,12 +1783,12 @@ public class MainActivity extends Activity {
 
                                     LinearLayout card = new LinearLayout(MainActivity.this);
                                     card.setOrientation(LinearLayout.VERTICAL);
-                                    card.setPadding(20, 20, 20, 20);
+                                    card.setPadding(5, 5, 5, 5);
                                     card.setBackgroundColor(Color.BLACK);
                                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                                             LinearLayout.LayoutParams.MATCH_PARENT,
                                             LinearLayout.LayoutParams.WRAP_CONTENT);
-                                    params.setMargins(0, 0, 0, 20);
+                                    params.setMargins(0, 0, 0, 0);
                                     card.setLayoutParams(params);
 
                                     LinearLayout line1 = new LinearLayout(MainActivity.this);
@@ -1901,12 +1910,12 @@ public class MainActivity extends Activity {
 
                                     LinearLayout card = new LinearLayout(MainActivity.this);
                                     card.setOrientation(LinearLayout.VERTICAL);
-                                    card.setPadding(20, 20, 20, 20);
+                                    card.setPadding(5, 5, 5, 5);
                                     card.setBackgroundColor(Color.BLACK);
                                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                                             LinearLayout.LayoutParams.MATCH_PARENT,
                                             LinearLayout.LayoutParams.WRAP_CONTENT);
-                                    params.setMargins(0, 0, 0, 20);
+                                    params.setMargins(0, 0, 0, 0);
                                     card.setLayoutParams(params);
 
                                     LinearLayout headerLine = new LinearLayout(MainActivity.this);
@@ -1952,6 +1961,7 @@ public class MainActivity extends Activity {
                                     final TextView detailsView = new TextView(MainActivity.this);
                                     detailsView.setTextSize(14);
                                     detailsView.setTextColor(Color.GREEN);
+                                    detailsView.setPadding(0, 0, 0, 0);
 
                                     String detailsText = "<b>List:</b> <font color='#FFFFFF'><b>" + list
                                             + "</b></font> <b>Hits:</b> <font color='#FF00FF'><b>" + hits
@@ -1999,6 +2009,7 @@ public class MainActivity extends Activity {
                                             LinearLayout.LayoutParams.WRAP_CONTENT);
                                     tsParams.setMargins(0, 0, 20, 0);
                                     timestampView.setLayoutParams(tsParams);
+                                    timestampView.setPadding(0, 0, 0, 0);
 
                                     // Add Action Buttons
                                     TextView nukeBtn = createActionButton("N", Color.RED, new View.OnClickListener() {
@@ -2054,7 +2065,9 @@ public class MainActivity extends Activity {
                                     headerLine.addView(xBtn);
 
                                     card.addView(headerLine);
-                                    card.addView(timestampView);
+                                    if ("returned".equals(mAction) || !comment.isEmpty()) {
+                                        card.addView(timestampView);
+                                    }
                                     card.addView(detailsView);
 
                                     if ("returned".equals(mAction)) {
@@ -2095,7 +2108,7 @@ public class MainActivity extends Activity {
                 isLoggedIn = true;
                 menuLayout.setVisibility(View.VISIBLE);
                 menuButton.setVisibility(View.VISIBLE);
-                if ("display".equals(mAction)) {
+                if (!"stats".equals(mAction)) {
                     backButton.setVisibility(View.VISIBLE);
                 } else {
                     backButton.setVisibility(View.GONE);
