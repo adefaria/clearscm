@@ -286,19 +286,20 @@ sub ProcessMsgs ($$$) {
 "Nulllisting message from $msgInfo{sender} - Detected language: $lang"
           );
 
-          my ($sender_user, $domain);
+          my ($sender_user, $domain, $seq);
           if ($msgInfo{sender} =~ /(.*)\@(.*)/) {
             $domain = $2;
           }
 
           if ($domain) {
-            my (undef, undef, $seq) = MAPS::Add2Nulllist (
+            (undef, undef, $seq) = MAPS::Add2Nulllist (
               userid  => $userid,
               sender  => '@' . $domain,
               comment => "$lang email rejected",
             );
-            MAPS::Nulllist ($msgInfo{sender}, $seq, 0);
           } ## end if ($domain)
+
+          MAPS::Nulllist ($msgInfo{sender}, $seq, 0);
           next;
         } ## end unless ($onlist)
       } ## end if ($lang)
@@ -361,6 +362,8 @@ if ($ARGV[0] and $ARGV[0] ne '') {
 FindUser (userid => $userid);
 
 my $user = GetUser;
+
+MAPS::SetContext ($userid);
 
 ProcessMsgs $msgfile, $user->{name}, lc $user->{email};
 
