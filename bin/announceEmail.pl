@@ -225,14 +225,16 @@ sub Connect2IMAP(;$) {
   $IMAP->select ('inbox');
 
   # Setup %unseen to have each unseen message index set to 0 meaning not read
-  # aloud yet
-  %unseen = unseenMsgs;
+  # aloud yet. Preserve existing state to avoid re-announcing on reconnect.
+  my %serverUnseen = unseenMsgs;
+  for (keys %serverUnseen) {
+    $unseen{$_} //= 0;
+  }
 
   return 1;
 }    # Connect2IMAP
 
 sub MonitorMail() {
-  MONITORMAIL:
   $log->dbug ("Top of MonitorMail loop");
 
   # First close and reselect the INBOX to get its current status
@@ -343,7 +345,7 @@ sub MonitorMail() {
     $log->msg ($msg);
   }    # unless
 
-  goto MONITORMAIL;
+  return;
 }    # MonitorMail
 
 END {
