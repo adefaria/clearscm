@@ -237,6 +237,10 @@ sub Body($) {
       $rec->{comment}   //= '';
       $rec->{retention} //= '';
 
+      if ($rec->{comment} =~ /email rejected/i) {
+        $rec->{comment} = font ({-color => 'red'}, $rec->{comment});
+      }
+
       print td {
         -class => $dataclass,
         -align => 'right',

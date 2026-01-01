@@ -1849,9 +1849,14 @@ public class MainActivity extends Activity {
 
                                     card.addView(line1);
 
+                                    String commentColor = "#00FFFF";
+                                    if (comment.toLowerCase().contains("email rejected")) {
+                                        commentColor = "#FF0000";
+                                    }
+
                                     String details = "Last Hit: <font color='#FFFFFF'>" + (lastHit.isEmpty() ? "Never" : lastHit) + "</font>" +
                                             (retention.isEmpty() ? "" : " Retention: " + retention) +
-                                            (comment.isEmpty() ? "" : " Comment: <font color='#00FFFF'>" + comment + "</font>");
+                                            (comment.isEmpty() ? "" : " Comment: <font color='" + commentColor + "'>" + comment + "</font>");
 
                                     TextView detailsView = new TextView(MainActivity.this);
                                     detailsView.setTextColor(Color.GREEN);
@@ -2003,7 +2008,12 @@ public class MainActivity extends Activity {
                                     TextView timestampView = new TextView(MainActivity.this);
                                     timestampView.setText(commentOrDate);
                                     timestampView.setTextSize(18);
-                                    timestampView.setTextColor(Color.GREEN);
+                                    timestampView.setTextSize(18);
+                                    if (commentOrDate.toLowerCase().contains("email rejected")) {
+                                        timestampView.setTextColor(Color.RED);
+                                    } else {
+                                        timestampView.setTextColor(Color.GREEN);
+                                    }
                                     LinearLayout.LayoutParams tsParams = new LinearLayout.LayoutParams(
                                             LinearLayout.LayoutParams.WRAP_CONTENT,
                                             LinearLayout.LayoutParams.WRAP_CONTENT);

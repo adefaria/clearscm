@@ -447,6 +447,11 @@ function DisplayList($type, $next, $lines)
     $retention = $row["retention"] == "" ? "&nbsp;" : $row["retention"];
     $comments = $row["comment"] == "" ? "&nbsp;" : $row["comment"];
 
+    // Colorize language rejection messages
+    if (preg_match("/.*email rejected/i", $comments)) {
+      $comments = "<font color=\"red\">$comments</font>";
+    }
+
     // Remove time from last hit
     $last_hit = substr($last_hit, 0, (strlen($last_hit) - strpos($last_hit, " ")) + 1);
 
