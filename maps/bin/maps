@@ -176,7 +176,7 @@ sub DetectLanguage($) {
   if ($decoded =~ /[äöüßÄÖÜ]/)      {return 'German';}
 
   # Common German stop words
-  if ($decoded =~ /\b(der|die|das|und|nicht|eine|Sie)\b/i) {return 'German';}
+  #if ($decoded =~ /\b(der|die|das|und|nicht|eine|Sie)\b/i) {return 'German';}
 
   return undef;
 }    # DetectLanguage
