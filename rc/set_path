@@ -12,6 +12,7 @@
 # (c) Copyright 2000-2005, Andrew@DeFaria.com, all rights reserved.
 #
 ################################################################################
+export CHROME_BIN=/bin/brave-browser-beta
 function append_to_path {
   component="$1"
 
