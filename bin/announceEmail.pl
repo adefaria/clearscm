@@ -172,6 +172,15 @@ sub unseenMsgs() {
   return map {$_ => 0} @{$IMAP->search ('not', 'seen')};
 }    # unseenMsgs
 
+sub unseenUIDs() {
+  $IMAP->select ('inbox')
+    or $log->err ("Unable to select inbox: " . get_last_error (), 1);
+
+  # Return a hash of UIDs
+  my @uids = @{$IMAP->search ('not', 'seen')};
+  return map {$_ => 0} @uids;
+}    # unseenUIDs
+
 sub Connect2IMAP(;$) {
   my ($quiet) = @_;
   $log->dbug ("Connecting to $opts{imap} as $opts{username}");
@@ -219,14 +228,17 @@ sub Connect2IMAP(;$) {
     return 0;
   } ## end unless ($IMAP)
 
+  # Turn on UID mode
+  $IMAP->uid (1);
+
   $log->dbug ("Connected to $opts{imap} as $opts{username}");
 
   # Focus on INBOX only
   $IMAP->select ('inbox');
 
-  # Setup %unseen to have each unseen message index set to 0 meaning not read
+  # Setup %unseen to have each unseen message UID set to 0 meaning not read
   # aloud yet. Preserve existing state to avoid re-announcing on reconnect.
-  my %serverUnseen = unseenMsgs;
+  my %serverUnseen = unseenUIDs;
   for (keys %serverUnseen) {
     $unseen{$_} //= 0;
   }
@@ -246,7 +258,7 @@ sub MonitorMail() {
 
   # Go through all of the unseen messages and add them to %unseen if they were
   # not there already from a prior run and read
-  my %newUnseen = unseenMsgs;
+  my %newUnseen = unseenUIDs;
 
   # Now clean out any messages in %unseen that were not in the %newUnseen and
   # marked as previously read
@@ -265,9 +277,20 @@ sub MonitorMail() {
   for (keys %newUnseen) {
     next if $unseen{$_};
 
+    # Use UID fetch
     my $envelope = $IMAP->fetch ($_, '(envelope)');
-    my $from     = $envelope->{$_}{envelope}{From};
-    my $subject  = $envelope->{$_}{envelope}{Subject};
+
+    # fetch in UID mode returns a hash keyed by UID.
+    # We need to find the element that has the envelope.
+    # Since we fetched by one UID, there should be one entry.
+    my ($seq_num) = keys %$envelope;
+    unless ($seq_num) {
+      $log->msg ("Could not fetch envelope for UID $_");
+      next;
+    }
+
+    my $from    = $envelope->{$seq_num}{envelope}{From};
+    my $subject = $envelope->{$seq_num}{envelope}{Subject};
     $subject //= 'Unknown subject';
 
     # Extract the name only when the email is of the format "name <email>"
@@ -315,35 +338,6 @@ sub MonitorMail() {
 
     $unseen{$_} = 1;
   }    # for
-
-  # Let's time things
-  my $startTime = time;
-
-  # Re-establish callback
-  $log->dbug ("Calling IMAP->idle");
-  eval {$IMAP->idle (\&MonitorMail, $opts{timeout})};
-
-  my $msg = 'Returned from IMAP->idle ';
-
-  if ($@) {
-    if ($@ =~ /Connection reset by peer/i or $@ =~ /closed by other end/i) {
-      $log->msg ("IMAP connection lost (reset by peer). Reconnecting...");
-      return;    # Return to main loop to reconnect
-    }
-    speak ($msg . $@, $log);
-  } else {
-    $log->msg ($msg . 'no error');
-  }    # if
-
-  # If we return from idle then the server went away for some reason. With Gmail
-  # the server seems to time out around 30-40 minutes.
-  unless ($IMAP->get_response_code ('timeout')) {
-    $msg = "IMAP Idle for $opts{name} timed out in " . howlong $startTime, time;
-
-    # speak $msg; # excessive chatter
-
-    $log->msg ($msg);
-  }    # unless
 
   return;
 }    # MonitorMail
@@ -451,9 +445,44 @@ while (1) {
     $announced = 1;
   } ## end unless ($announced)
 
-  MonitorMail;
+  # Main Loop
+  while (1) {
+    MonitorMail;
 
-  $log->msg ("MonitorMail returned (timeout or error). Reconnecting...");
+    # Let's time things
+    my $startTime = time;
+
+    # Wait for improvements
+    $log->dbug ("Calling IMAP->idle");
+    eval {$IMAP->idle (undef, $opts{timeout})};    # No callback, just timeout
+
+    my $msg = 'Returned from IMAP->idle ';
+
+    if ($@) {
+      if ($@ =~ /Connection reset by peer/i or $@ =~ /closed by other end/i) {
+        $log->msg ("IMAP connection lost (reset by peer). Reconnecting...");
+        last;    # Break inner loop to reconnect
+      }
+
+      # Other errors
+      speak ($msg . $@, $log);
+      $log->msg ($msg . $@);
+
+      # Determine if we should reconnect or retry
+      last;
+    } else {
+      $log->msg ($msg . 'no error');
+    }
+
+    # Time out check?
+    unless ($IMAP->get_response_code ('timeout')) {
+      $msg = "IMAP Idle for $opts{name} timed out in " . howlong $startTime,
+        time;
+      $log->msg ($msg);
+    }
+  } ## end while (1)
+
+  $log->msg ("MonitorMail loop ended. Reconnecting...");
 } ## end while (1)
 
 # Should not get here
