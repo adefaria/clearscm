@@ -160,29 +160,27 @@ sub interrupted {
   return;
 }    # interrupted
 
-sub Connect2IMAP(;$);
+sub Connect2IMAP(;$$);
 sub MonitorMail;
 
 # $SIG{USR2} = \&restart;
 
-sub unseenMsgs() {
-  $IMAP->select ('inbox')
-    or $log->err ("Unable to select inbox: " . get_last_error (), 1);
-
-  return map {$_ => 0} @{$IMAP->search ('not', 'seen')};
-}    # unseenMsgs
-
 sub unseenUIDs() {
   $IMAP->select ('inbox')
-    or $log->err ("Unable to select inbox: " . get_last_error (), 1);
+    or do {
+    my $err = "Unable to select inbox: " . $@;
+    $log->err ($err);    # Log without exit
+    die $err;            # Die to trigger retry/reconnect
+    };
 
   # Return a hash of UIDs
   my @uids = @{$IMAP->search ('not', 'seen')};
   return map {$_ => 0} @uids;
 }    # unseenUIDs
 
-sub Connect2IMAP(;$) {
-  my ($quiet) = @_;
+sub Connect2IMAP(;$$) {
+
+  my ($quiet, $ignore_existing) = @_;
   $log->dbug ("Connecting to $opts{imap} as $opts{username}");
 
   if ($opts{password}) {
@@ -238,9 +236,10 @@ sub Connect2IMAP(;$) {
 
   # Setup %unseen to have each unseen message UID set to 0 meaning not read
   # aloud yet. Preserve existing state to avoid re-announcing on reconnect.
+  # If $ignore_existing is set, mark them as read (1).
   my %serverUnseen = unseenUIDs;
   for (keys %serverUnseen) {
-    $unseen{$_} //= 0;
+    $unseen{$_} //= $ignore_existing ? 1 : 0;
   }
 
   return 1;
@@ -252,7 +251,11 @@ sub MonitorMail() {
   # First close and reselect the INBOX to get its current status
   $IMAP->close;
   $IMAP->select ('INBOX')
-    or $log->err ("Unable to select INBOX - " . $IMAP->errstr (), 1);
+    or do {
+    my $err = "Unable to select INBOX - " . $@;
+    $log->err ($err);    # Log
+    die $err;            # Die to trigger reconnect loop
+    };
 
   $log->dbug ("Closed and reselected INBOX");
 
@@ -260,18 +263,9 @@ sub MonitorMail() {
   # not there already from a prior run and read
   my %newUnseen = unseenUIDs;
 
-  # Now clean out any messages in %unseen that were not in the %newUnseen and
-  # marked as previously read
-  $log->dbug ("Cleaning out unseen");
-  for (keys %unseen) {
-    if (defined $newUnseen{$_}) {
-      if ($unseen{$_}) {
-        delete $newUnseen{$_};
-      }    # if
-    } else {
-      delete $unseen{$_};
-    }    # if
-  }    # for
+# Clean out logic REMOVED to prevent "forgetting" messages during glitches.
+# We trust that if a UID is in %unseen, we decided to track it.
+# It will grow over time, but memory usage should be negligible for a single user.
 
   $log->dbug ("Processing new unseen messages");
   for (keys %newUnseen) {
@@ -411,8 +405,16 @@ while (1) {
 
   while ($attempts < 10) {
     my $quiet = $attempts < 5;
-    if (Connect2IMAP ($quiet)) {
-      $connected = 1;
+
+# Pass 1 for ignore_existing on the very first successful connection of the process life?
+# Actually, we want to ignore existing only on the FIRST connection of the script run.
+# But this loop runs on reconnect too.
+# Let's use a state variable.
+    state $first_connection = 1;
+
+    if (Connect2IMAP ($quiet, $first_connection)) {
+      $connected        = 1;
+      $first_connection = 0;
       last;
     }
 
@@ -447,7 +449,10 @@ while (1) {
 
   # Main Loop
   while (1) {
-    MonitorMail;
+    eval {MonitorMail;};
+    if ($@) {
+      last;    # Break inner loop to reconnect
+    }
 
     # Let's time things
     my $startTime = time;
