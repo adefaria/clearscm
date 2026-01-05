@@ -174,6 +174,9 @@ if ($action eq 'full_stats') {
         elsif ($d)       {$list_info{rule} = "\@$d";}
         else             {$list_info{rule} = $p;}
 
+        $list_info{pattern} = $p;
+        $list_info{domain}  = $d;
+
         last;
       }    # if
     }    # foreach

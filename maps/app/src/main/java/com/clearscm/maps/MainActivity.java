@@ -276,7 +276,8 @@ public class MainActivity extends Activity {
         scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
-                if (scrollView.getVisibility() != View.VISIBLE) return;
+                if (scrollView.getVisibility() != View.VISIBLE)
+                    return;
                 View view = scrollView.getChildAt(0);
                 if (view != null) {
                     // Trigger when within 100 pixels of the bottom
@@ -958,7 +959,7 @@ public class MainActivity extends Activity {
     private void performAction(String user, String pass, String action, int offset) {
         performAction(user, pass, action, null, offset);
     }
-    
+
     private void performAction(String user, String pass, String action, final String date, int offset) {
         resetWebView();
         lastListAction = action;
@@ -1466,19 +1467,23 @@ public class MainActivity extends Activity {
                                             String date = uri.getQueryParameter("date");
                                             if (type != null && date != null) {
                                                 String action = type;
-                                                // Map "nulllist", "whitelist", "blacklist" to app-friendly names if needed
-                                                // App seems to support "returned", "white_today" (implies type="white").
+                                                // Map "nulllist", "whitelist", "blacklist" to app-friendly names if
+                                                // needed
+                                                // App seems to support "returned", "white_today" (implies
+                                                // type="white").
                                                 // But let's pass generic type logic.
-                                                // If we pass "whitelist", "returned", etc with date, we just need to ensure MapsTask handles it.
+                                                // If we pass "whitelist", "returned", etc with date, we just need to
+                                                // ensure MapsTask handles it.
                                                 // MapsTask logic (lines 1350+):
-                                                // if returned/endedWith _today -> uses typeVal from action (stripped of _today, or just "returned").
+                                                // if returned/endedWith _today -> uses typeVal from action (stripped of
+                                                // _today, or just "returned").
                                                 // So if we pass action="whitelist_today", typeVal="whitelist".
                                                 // Server expects "whitelist". This matches!
                                                 // So we can map "nulllist" -> "nulllist_today", etc.
                                                 // But wait, "nulllist" is the type from api.cgi $_.
                                                 // So action = type + "_today".
                                                 // Exception: "returned". If type is "returned", action="returned".
-                                                
+
                                                 if ("returned".equals(type)) {
                                                     action = "returned";
                                                 } else {
@@ -1487,12 +1492,16 @@ public class MainActivity extends Activity {
                                                 performAction(storedUserid, storedCookie, action, date, 0);
                                                 return true;
                                             } else if (type != null) {
-                                                 String action = type;
-                                                 if ("whitelist".equals(type)) action = "white";
-                                                 if ("blacklist".equals(type)) action = "black";
-                                                 if ("nulllist".equals(type)) action = "null";
-                                                 performAction(storedUserid, storedCookie, action, 0); // Reuse non-date overload
-                                                 return true;
+                                                String action = type;
+                                                if ("whitelist".equals(type))
+                                                    action = "white";
+                                                if ("blacklist".equals(type))
+                                                    action = "black";
+                                                if ("nulllist".equals(type))
+                                                    action = "null";
+                                                performAction(storedUserid, storedCookie, action, 0); // Reuse non-date
+                                                                                                      // overload
+                                                return true;
                                             }
                                         }
                                     }
@@ -1605,10 +1614,13 @@ public class MainActivity extends Activity {
                             table.setColumnStretchable(1, true);
 
                             addStatRow(table, "Processed", data.optInt("processed"), Color.parseColor("#0F9D58"), null);
-                            addStatRow(table, "Whitelist", data.optInt("whitelist"), Color.WHITE, null);
-                            addStatRow(table, "Returned", data.optInt("returned"), Color.parseColor("#F4B400"), null);
-                            addStatRow(table, "Blacklist", data.optInt("blacklist"), Color.parseColor("#4C5D69"), null);
-                            addStatRow(table, "Nulllist", data.optInt("nulllist"), Color.parseColor("#DB4437"), null);
+                            addStatRow(table, "Whitelist", data.optInt("whitelist"), Color.WHITE, "white_today");
+                            addStatRow(table, "Returned", data.optInt("returned"), Color.parseColor("#F4B400"),
+                                    "returned");
+                            addStatRow(table, "Blacklist", data.optInt("blacklist"), Color.parseColor("#4C5D69"),
+                                    "black_today");
+                            addStatRow(table, "Nulllist", data.optInt("nulllist"), Color.parseColor("#DB4437"),
+                                    "null_today");
 
                             card.addView(table);
                             outputContainer.addView(card);
@@ -1854,9 +1866,12 @@ public class MainActivity extends Activity {
                                         commentColor = "#FF0000";
                                     }
 
-                                    String details = "Last Hit: <font color='#FFFFFF'>" + (lastHit.isEmpty() ? "Never" : lastHit) + "</font>" +
+                                    String details = "Last Hit: <font color='#FFFFFF'>"
+                                            + (lastHit.isEmpty() ? "Never" : lastHit) + "</font>" +
                                             (retention.isEmpty() ? "" : " Retention: " + retention) +
-                                            (comment.isEmpty() ? "" : " Comment: <font color='" + commentColor + "'>" + comment + "</font>");
+                                            (comment.isEmpty() ? ""
+                                                    : " Comment: <font color='" + commentColor + "'>" + comment
+                                                            + "</font>");
 
                                     TextView detailsView = new TextView(MainActivity.this);
                                     detailsView.setTextColor(Color.GREEN);
@@ -1993,12 +2008,8 @@ public class MainActivity extends Activity {
                                         detailsView.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                String p = "", d = fSender;
-                                                if (fSender.contains("@")) {
-                                                    String[] parts = fSender.split("@", 2);
-                                                    p = parts[0];
-                                                    d = parts[1];
-                                                }
+                                                String p = senderObj.optString("pattern", "");
+                                                String d = senderObj.optString("domain", "");
                                                 showEditListDialog(fListType, fListSeq, p, d, fHits, fRetention,
                                                         fComment);
                                             }
