@@ -79,6 +79,7 @@ use Mail::IMAPTalk;
 use MIME::Base64;
 use Pod::Usage;
 use Proc::ProcessTable;
+use Encode qw(decode);
 
 use lib "$FindBin::Bin/../lib";
 
@@ -175,33 +176,50 @@ sub unseenMsgs() {
   $IMAP->select ('inbox')
     or $log->err ("Unable to select inbox: " . get_last_error (), 1);
 
-  return map {$_ => 0} @{$IMAP->search ('not', 'seen')};
+  # Use UID SEARCH to get UIDs instead of sequence numbers
+  return map {$_ => 0} @{$IMAP->uid_search ('not', 'seen')};
 }    # unseenMsgs
 
 sub Connect2IMAP() {
-  $log->dbug ("Connecting to $opts{imap} as $opts{username}");
+  my $attempts = 0;
 
-  # Destroy any old connections
-  undef $IMAP;
+  while ($attempts < 10) {
+    $log->dbug ("Connecting to $opts{imap} as $opts{username}");
 
-  $IMAP = Mail::IMAPTalk->new (
-    Server      => $opts{imap},
-    Username    => $opts{username},
-    Password    => $opts{password},
-    UseSSL      => $opts{usessl},
-    UseBlocking => $opts{useblocking},
-  ) or $log->err ("Unable to connect to IMAP server $opts{imap}: $@", 1);
+    # Destroy any old connections
+    undef $IMAP;
 
-  $log->dbug ("Connected to $opts{imap} as $opts{username}");
+    $IMAP = Mail::IMAPTalk->new (
+      Server      => $opts{imap},
+      Username    => $opts{username},
+      Password    => $opts{password},
+      UseSSL      => $opts{usessl},
+      UseBlocking => $opts{useblocking},
+      Uid         => 1,
+    );
 
-  # Focus on INBOX only
-  $IMAP->select ('inbox');
+    if ($IMAP) {
+      $log->dbug ("Connected to $opts{imap} as $opts{username}");
 
-  # Setup %unseen to have each unseen message index set to 0 meaning not read
-  # aloud yet
-  %unseen = unseenMsgs;
+      # Focus on INBOX only
+      $IMAP->select ('inbox');
 
-  return;
+     # Setup %unseen to have each unseen message index set to 0 meaning not read
+     # aloud yet
+      %unseen = unseenMsgs;
+
+      return;
+    }    # if
+
+    $attempts++;
+    my $sleep = 60;
+    $log->msg (
+      "Connection failed. Retrying in $sleep seconds... (Attempt $attempts/10)"
+    );
+    sleep $sleep;
+  }    # while
+
+  $log->err ("Unable to connect to IMAP server $opts{imap}: $@", 1);
 }    # Connect2IMAP
 
 sub MonitorMail() {
@@ -236,7 +254,8 @@ sub MonitorMail() {
   for (keys %newUnseen) {
     next if $unseen{$_};
 
-    my $envelope = $IMAP->fetch ($_, '(envelope)');
+    # Use UID FETCH
+    my $envelope = $IMAP->uid_fetch ($_, '(envelope)');
     my $from     = $envelope->{$_}{envelope}{From};
     my $subject  = $envelope->{$_}{envelope}{Subject};
     $subject //= 'Unknown subject';
@@ -246,9 +265,7 @@ sub MonitorMail() {
       $from = $1 if $1 ne '';
     }    # if
 
-    if ($subject =~ /=?\S+?(Q|B)\?(.+)\?=/) {
-      $subject = decode_base64 ($2);
-    }    # if
+    $subject = decode ('MIME-Header', $subject);
 
     # Google Talk doesn't like #
     $subject =~ s/\#//g;
@@ -277,12 +294,10 @@ sub MonitorMail() {
       if ($hour <= 10) {
         $log->msg ("$logmsg [silent Saturday or Sunday morning]");
       } else {
-        $log->msg  ($logmsg);
         $log->dbug ('Calling speak');
-	speak $msg, $log;
+        speak $msg, $log;
       }
     } elsif ($hour >= 7) {
-      $log->msg  ($logmsg);
       $log->dbug ('Calling speak');
       speak $msg, $log;
     } else {
@@ -368,13 +383,20 @@ $log = Logger->new (
   append      => $opts{append},
 );
 
-Connect2IMAP;
-
 if ($opts{username} =~ /(.*)\@/) {
   $opts{user} = $1;
 } else {
   $opts{user} = $opts{username};
 }    # if
+
+my $email = "$opts{user}\@$opts{name}";
+
+# Special case my email address
+$email = 'Andrew@DeFaria.com' if $email =~ /^andrew\@defaria\.com$/i;
+
+local $0 = "announceEmail.pl $email";
+
+Connect2IMAP;
 
 my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
 
