@@ -72,15 +72,12 @@ the email. The message will be similar to:
 
 use strict;
 use warnings;
-use feature 'state';
 
 use FindBin;
 use Getopt::Long;
 use Mail::IMAPTalk;
 use MIME::Base64;
-use Encode qw(decode);
 use Pod::Usage;
-use URI::Escape qw(uri_escape_utf8);
 use Proc::ProcessTable;
 
 use lib "$FindBin::Bin/../lib";
@@ -134,8 +131,6 @@ my %opts = (
   username => $ENV{USER},
   password => $ENV{PASSWORD},
   imap     => $defaultIMAPServer,
-  port     => undef,
-  insecure => 0,
 );
 
 sub notify($) {
@@ -160,131 +155,90 @@ sub interrupted {
   return;
 }    # interrupted
 
-sub Connect2IMAP(;$$);
+sub Connect2IMAP;
 sub MonitorMail;
 
-# $SIG{USR2} = \&restart;
+sub restart {
+  my $msg = "Re-establishing connection to $opts{imap} as $opts{username}";
 
-sub unseenUIDs() {
+  $log->dbug ($msg);
+
+  Connect2IMAP;
+
+  MonitorMail;
+}    # restart
+
+$SIG{USR1} = \&interrupted;
+$SIG{USR2} = \&restart;
+
+sub unseenMsgs() {
   $IMAP->select ('inbox')
-    or do {
-    my $err = "Unable to select inbox: " . $@;
-    $log->err ($err);    # Log without exit
-    die $err;            # Die to trigger retry/reconnect
-    };
+    or $log->err ("Unable to select inbox: " . get_last_error (), 1);
 
-  # Return a hash of UIDs
-  my @uids = @{$IMAP->search ('not', 'seen')};
-  return map {$_ => 0} @uids;
-}    # unseenUIDs
+  return map {$_ => 0} @{$IMAP->search ('not', 'seen')};
+}    # unseenMsgs
 
-sub Connect2IMAP(;$$) {
-
-  my ($quiet, $ignore_existing) = @_;
+sub Connect2IMAP() {
   $log->dbug ("Connecting to $opts{imap} as $opts{username}");
-
-  if ($opts{password}) {
-    my $len = length ($opts{password});
-    $log->dbug ("Password present ($len chars)");
-  } else {
-    $log->dbug ("Password missing!");
-  }
-
-  my $port = $opts{port};
-  unless ($port) {
-    if ($opts{usessl}) {
-      $port = 993;
-    } else {
-      $port = 143;
-    }    # if
-  }    # unless
-  $log->dbug ("Using port: $port" . ($opts{usessl} ? " (SSL)" : ""));
-
-  my %ssl_opts;
-  if ($opts{insecure}) {
-    $log->dbug ("SSL Verification disabled");
-    $ssl_opts{SSL_verify_mode} = 0;
-  }
 
   # Destroy any old connections
   undef $IMAP;
 
   $IMAP = Mail::IMAPTalk->new (
     Server      => $opts{imap},
-    Port        => $port,
     Username    => $opts{username},
     Password    => $opts{password},
     UseSSL      => $opts{usessl},
     UseBlocking => $opts{useblocking},
-    %ssl_opts,
-  );
-
-  unless ($IMAP) {
-    $log->err (
-      "Unable to connect to IMAP server $opts{imap}: $@\n(System Error: $!)")
-      unless $quiet;
-    return 0;
-  } ## end unless ($IMAP)
-
-  # Turn on UID mode
-  $IMAP->uid (1);
+  ) or $log->err ("Unable to connect to IMAP server $opts{imap}: $@", 1);
 
   $log->dbug ("Connected to $opts{imap} as $opts{username}");
 
   # Focus on INBOX only
   $IMAP->select ('inbox');
 
-  # Setup %unseen to have each unseen message UID set to 0 meaning not read
-  # aloud yet. Preserve existing state to avoid re-announcing on reconnect.
-  # If $ignore_existing is set, mark them as read (1).
-  my %serverUnseen = unseenUIDs;
-  for (keys %serverUnseen) {
-    $unseen{$_} //= $ignore_existing ? 1 : 0;
-  }
+  # Setup %unseen to have each unseen message index set to 0 meaning not read
+  # aloud yet
+  %unseen = unseenMsgs;
 
-  return 1;
+  return;
 }    # Connect2IMAP
 
 sub MonitorMail() {
+  MONITORMAIL:
   $log->dbug ("Top of MonitorMail loop");
 
   # First close and reselect the INBOX to get its current status
   $IMAP->close;
   $IMAP->select ('INBOX')
-    or do {
-    my $err = "Unable to select INBOX - " . $@;
-    $log->err ($err);    # Log
-    die $err;            # Die to trigger reconnect loop
-    };
+    or $log->err ("Unable to select INBOX - " . $IMAP->errstr (), 1);
 
   $log->dbug ("Closed and reselected INBOX");
 
   # Go through all of the unseen messages and add them to %unseen if they were
   # not there already from a prior run and read
-  my %newUnseen = unseenUIDs;
+  my %newUnseen = unseenMsgs;
 
-# Clean out logic REMOVED to prevent "forgetting" messages during glitches.
-# We trust that if a UID is in %unseen, we decided to track it.
-# It will grow over time, but memory usage should be negligible for a single user.
+  # Now clean out any messages in %unseen that were not in the %newUnseen and
+  # marked as previously read
+  $log->dbug ("Cleaning out unseen");
+  for (keys %unseen) {
+    if (defined $newUnseen{$_}) {
+      if ($unseen{$_}) {
+        delete $newUnseen{$_};
+      }    # if
+    } else {
+      delete $unseen{$_};
+    }    # if
+  }    # for
 
   $log->dbug ("Processing new unseen messages");
   for (keys %newUnseen) {
     next if $unseen{$_};
 
-    # Use UID fetch
     my $envelope = $IMAP->fetch ($_, '(envelope)');
-
-    # fetch in UID mode returns a hash keyed by UID.
-    # We need to find the element that has the envelope.
-    # Since we fetched by one UID, there should be one entry.
-    my ($seq_num) = keys %$envelope;
-    unless ($seq_num) {
-      $log->msg ("Could not fetch envelope for UID $_");
-      next;
-    }
-
-    my $from    = $envelope->{$seq_num}{envelope}{From};
-    my $subject = $envelope->{$seq_num}{envelope}{Subject};
+    my $from     = $envelope->{$_}{envelope}{From};
+    my $subject  = $envelope->{$_}{envelope}{Subject};
     $subject //= 'Unknown subject';
 
     # Extract the name only when the email is of the format "name <email>"
@@ -292,7 +246,12 @@ sub MonitorMail() {
       $from = $1 if $1 ne '';
     }    # if
 
-    $subject = decode ('MIME-Header', $subject);
+    if ($subject =~ /=?\S+?(Q|B)\?(.+)\?=/) {
+      $subject = decode_base64 ($2);
+    }    # if
+
+    # Google Talk doesn't like #
+    $subject =~ s/\#//g;
 
     # Remove long strings of numbers like order numbers. They are uninteresting
     my $longNumber = 5;
@@ -320,7 +279,7 @@ sub MonitorMail() {
       } else {
         $log->msg  ($logmsg);
         $log->dbug ('Calling speak');
-        speak $msg, $log;
+	speak $msg, $log;
       }
     } elsif ($hour >= 7) {
       $log->msg  ($logmsg);
@@ -328,12 +287,38 @@ sub MonitorMail() {
       speak $msg, $log;
     } else {
       $log->msg ("$logmsg [silent nighttime]");
-    }    # if
+    }                                       # if
 
     $unseen{$_} = 1;
   }    # for
 
-  return;
+  # Let's time things
+  my $startTime = time;
+
+  # Re-establish callback
+  $log->dbug ("Calling IMAP->idle");
+  eval {$IMAP->idle (\&MonitorMail, $opts{timeout})};
+
+  my $msg = 'Returned from IMAP->idle ';
+
+  if ($@) {
+    speak ($msg . $@, $log);
+  } else {
+    $log->msg ($msg . 'no error');
+  }    # if
+
+  # If we return from idle then the server went away for some reason. With Gmail
+  # the server seems to time out around 30-40 minutes. Here we simply reconnect
+  # to the imap server and continue to MonitorMail.
+  unless ($IMAP->get_response_code ('timeout')) {
+    $msg = "IMAP Idle for $opts{name} timed out in " . howlong $startTime, time;
+
+    speak $msg;
+
+    $log->msg ($msg);
+  }    # unless
+
+  restart;
 }    # MonitorMail
 
 END {
@@ -352,26 +337,10 @@ GetOptions (
   \%opts,        'usage',     'help',       'verbose',
   'debug',       'daemon!',   'username=s', 'name=s',
   'password=s',  'imap=s',    'timeout=i',  'usessl',
-  'useblocking', 'announce!', 'append',     'port=i',
-  'insecure',
+  'useblocking', 'announce!', 'append',
 ) || pod2usage;
 
-my $domain = $opts{imap};
-$domain =~ s/^imap\.//;
-$domain = 'gmail.com' if $domain eq 'google.com';
-
-my $display_user = $opts{username};
-$display_user =~ s/\@.*$//;
-
-# Special casing for Andrew@DeFaria.com
-if ($domain =~ /^defaria\.com$/i && $display_user eq 'andrew') {
-  $display_user = 'Andrew';
-  $domain       = 'DeFaria.com';
-}
-
-my $script = $FindBin::Script;
-$script =~ s/\.pl$//;
-local $0 = "$script $display_user\@$domain";
+local $0 = "$FindBin::Script " . join ' ', @ARGV;
 
 unless ($opts{password}) {
   verbose "I need $opts{username}'s password";
@@ -399,96 +368,21 @@ $log = Logger->new (
   append      => $opts{append},
 );
 
-while (1) {
-  my $attempts  = 0;
-  my $connected = 0;
+Connect2IMAP;
 
-  while ($attempts < 10) {
-    my $quiet = $attempts < 5;
+if ($opts{username} =~ /(.*)\@/) {
+  $opts{user} = $1;
+} else {
+  $opts{user} = $opts{username};
+}    # if
 
-# Pass 1 for ignore_existing on the very first successful connection of the process life?
-# Actually, we want to ignore existing only on the FIRST connection of the script run.
-# But this loop runs on reconnect too.
-# Let's use a state variable.
-    state $first_connection = 1;
+my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
 
-    if (Connect2IMAP ($quiet, $first_connection)) {
-      $connected        = 1;
-      $first_connection = 0;
-      last;
-    }
+speak $msg, $log if $opts{announce};
 
-    $attempts++;
-    my $sleep = 60;
-    unless ($quiet) {
-      $log->msg (
-"Connection failed. Retrying in $sleep seconds... (Attempt $attempts/10)"
-      );
-    }
-    sleep $sleep;
-  } ## end while ($attempts < 10)
+$log->msg ($msg);
 
-  unless ($connected) {
-    $log->err ("Failed to connect after 10 attempts. Exiting.", 1);
-  }
-
-  if ($opts{username} =~ /(.*)\@/) {
-    $opts{user} = $1;
-  } else {
-    $opts{user} = $opts{username};
-  }    # if
-
-  # Only announce once, not on every reconnect
-  state $announced = 0;
-  unless ($announced) {
-    my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
-    speak $msg, $log if $opts{announce};
-    $log->msg ($msg);
-    $announced = 1;
-  } ## end unless ($announced)
-
-  # Main Loop
-  while (1) {
-    eval {MonitorMail;};
-    if ($@) {
-      last;    # Break inner loop to reconnect
-    }
-
-    # Let's time things
-    my $startTime = time;
-
-    # Wait for improvements
-    $log->dbug ("Calling IMAP->idle");
-    eval {$IMAP->idle (undef, $opts{timeout})};    # No callback, just timeout
-
-    my $msg = 'Returned from IMAP->idle ';
-
-    if ($@) {
-      if ($@ =~ /Connection reset by peer/i or $@ =~ /closed by other end/i) {
-        $log->msg ("IMAP connection lost (reset by peer). Reconnecting...");
-        last;    # Break inner loop to reconnect
-      }
-
-      # Other errors
-      speak ($msg . $@, $log);
-      $log->msg ($msg . $@);
-
-      # Determine if we should reconnect or retry
-      last;
-    } else {
-      $log->msg ($msg . 'no error');
-    }
-
-    # Time out check?
-    unless ($IMAP->get_response_code ('timeout')) {
-      $msg = "IMAP Idle for $opts{name} timed out in " . howlong $startTime,
-        time;
-      $log->msg ($msg);
-    }
-  } ## end while (1)
-
-  $log->msg ("MonitorMail loop ended. Reconnecting...");
-} ## end while (1)
+MonitorMail;
 
 # Should not get here
 $log->err ("Falling off the edge of $0", 1);
