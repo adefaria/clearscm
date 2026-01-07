@@ -173,7 +173,20 @@ sub DetectLanguage($) {
   if ($decoded =~ /\p{Hebrew}/)     {return 'Hebrew';}
   if ($decoded =~ /\p{Greek}/)      {return 'Greek';}
   if ($decoded =~ /\p{Devanagari}/) {return 'Hindi';}
-  if ($decoded =~ /[äöüßÄÖÜ]/)      {return 'German';}
+
+# Spanish detection: unique characters
+# ¿ (\x{00BF}), ¡ (\x{00A1}), ñ (\x{00F1}), Ñ (\x{00D1})
+# accented vowels: á (\x{00E1}), é (\x{00E9}), í (\x{00ED}), ó (\x{00F3}), ú (\x{00FA})
+# uppercase accented: Á (\x{00C1}), É (\x{00C9}), Í (\x{00CD}), Ó (\x{00D3}), Ú (\x{00DA})
+# ü (\x{00FC}), Ü (\x{00DC}) - also used in German, but combined with others suggests Spanish
+  if ($decoded =~
+/[\x{00BF}\x{00A1}\x{00F1}\x{00D1}\x{00E1}\x{00E9}\x{00ED}\x{00F3}\x{00FA}\x{00C1}\x{00C9}\x{00CD}\x{00D3}\x{00DA}]/
+    )
+  {
+    return 'Spanish';
+  } ## end if ($decoded =~ ...)
+
+  if ($decoded =~ /[äöüßÄÖÜ]/) {return 'German';}
 
   # Common German stop words
   #if ($decoded =~ /\b(der|die|das|und|nicht|eine|Sie)\b/i) {return 'German';}
