@@ -89,20 +89,91 @@ use Speak;
 use TimeUtils;
 use Utils;
 
+my $defaultIMAPServer = 'defaria.com';
+my $IMAPTimeout       = 20 * 60;
+my $IMAP;
+my %unseen;
+my %spoken_ids;    # Track spoken Message-IDs to avoid duplicates
+my $log;
+
+my %opts = (
+  usage    => sub {pod2usage},
+  help     => sub {pod2usage (-verbose => 2)},
+  verbose  => sub {set_verbose},
+  debug    => sub {set_debug},
+  daemon   => 1,
+  timeout  => $IMAPTimeout,
+  username => $ENV{USER},
+  password => $ENV{PASSWORD},
+  imap     => $defaultIMAPServer,
+);
+
+GetOptions (
+  \%opts,        'usage',     'help',       'verbose',
+  'debug',       'daemon!',   'username=s', 'name=s',
+  'password=s',  'imap=s',    'timeout=i',  'usessl',
+  'useblocking', 'announce!', 'append',
+) || pod2usage;
+
+$| = 1;    # Enable global autoflush
+
+$opts{name} //= $opts{imap};
+
+unless ($opts{password}) {
+  verbose "I need $opts{username}'s password";
+  $opts{password} = GetPassword;
+}          # unless
+
+if ($opts{username} =~ /.*\@(.*)$/) {
+  $opts{name} = $1;
+}          # if
+
+if ($opts{username} =~ /(.*)\@/) {
+  $opts{user} = $1;
+} else {
+  $opts{user} = $opts{username};
+}          # if
+
+if ($opts{daemon}) {
+
+  # Perl complains if we reference $DB::OUT only once
+  no warnings;
+  EnterDaemonMode unless defined $DB::OUT or get_debug;
+  use warnings;
+}          # if
+
+my $email = "$opts{user}\@$opts{name}";
+
+# Special case my email address
+$email = 'Andrew@DeFaria.com' if $email =~ /^andrew\@defaria\.com$/i;
+
+$log = Logger->new (
+  path        => '/var/local/log',
+  name        => "$Logger::me.$opts{name}",
+  timestamped => 'yes',
+  append      => $opts{append},
+);
+
 my $processes = Proc::ProcessTable->new;
 
 for my $process (@{$processes->table}) {
-  if ($process->cmndline eq $0 and $process->pid != $$) {
-    verbose "$FindBin::Script already running";
 
+# Check for process name matching "announceEmail.pl <email>" (the renamed process)
+# or just the script name if it hasn't renamed itself yet (race condition protection)
+  if ((
+         $process->cmndline =~ /\bannounceEmail\.pl\s+\Q$email\E$/
+      or $process->cmndline eq $0
+    )
+    and $process->pid != $$
+    )
+  {
+    verbose "$FindBin::Script $email already running (PID "
+      . $process->pid . ")";
     exit 0;
   }    # if
 }    # for
 
-my $defaultIMAPServer = 'defaria.com';
-my $IMAP;
-my %unseen;
-my $log;
+local $0 = "announceEmail.pl $email";
 
 my @greetings = (
   'Incoming message',
@@ -120,19 +191,6 @@ my @greetings = (
 
 my $icon          = '/home/andrew/.icons/Thunderbird.jpg';
 my $notifyTimeout = 5 * 1000;
-my $IMAPTimeout   = 20 * 60;
-
-my %opts = (
-  usage    => sub {pod2usage},
-  help     => sub {pod2usage (-verbose => 2)},
-  verbose  => sub {set_verbose},
-  debug    => sub {set_debug},
-  daemon   => 1,
-  timeout  => $IMAPTimeout,
-  username => $ENV{USER},
-  password => $ENV{PASSWORD},
-  imap     => $defaultIMAPServer,
-);
 
 sub notify($) {
   my ($msg) = @_;
@@ -176,50 +234,45 @@ sub unseenMsgs() {
   $IMAP->select ('inbox')
     or $log->err ("Unable to select inbox: " . get_last_error (), 1);
 
-  # Use UID SEARCH to get UIDs instead of sequence numbers
-  return map {$_ => 0} @{$IMAP->uid_search ('not', 'seen')};
+  # Use SEARCH to get sequence numbers
+  return map {$_ => 0} @{$IMAP->search ('not', 'seen')};
 }    # unseenMsgs
 
 sub Connect2IMAP() {
-  my $attempts = 0;
+  $log->dbug ("Connecting to $opts{imap} as $opts{username}");
 
-  while ($attempts < 10) {
-    $log->dbug ("Connecting to $opts{imap} as $opts{username}");
+  # Destroy any old connections
+  undef $IMAP;
 
-    # Destroy any old connections
-    undef $IMAP;
+  $IMAP = Mail::IMAPTalk->new (
+    Server      => $opts{imap},
+    Username    => $opts{username},
+    Password    => $opts{password},
+    UseSSL      => $opts{usessl},
+    UseBlocking => $opts{useblocking},
+  ) or $log->err ("Unable to connect to IMAP server $opts{imap}: $@", 1);
 
-    $IMAP = Mail::IMAPTalk->new (
-      Server      => $opts{imap},
-      Username    => $opts{username},
-      Password    => $opts{password},
-      UseSSL      => $opts{usessl},
-      UseBlocking => $opts{useblocking},
-      Uid         => 1,
-    );
+  $log->dbug ("Connected to $opts{imap} as $opts{username}");
 
-    if ($IMAP) {
-      $log->dbug ("Connected to $opts{imap} as $opts{username}");
+  # Focus on INBOX only
+  $IMAP->select ('inbox');
 
-      # Focus on INBOX only
-      $IMAP->select ('inbox');
+  # Setup %unseen to have each unseen message index set to 0 meaning not read
+  # aloud yet. Preserve status of messages we already know about.
+  my %serverUnseen = unseenMsgs;
+  for my $seq (keys %serverUnseen) {
 
-     # Setup %unseen to have each unseen message index set to 0 meaning not read
-     # aloud yet
-      %unseen = unseenMsgs;
+    # If we haven't tracked it yet, track it as 0 (not spoken)
+    # If we HAVE tracked it ($unseen{$seq} exists), keep existing value
+    $unseen{$seq} //= 0;
+  } ## end for my $seq (keys %serverUnseen)
 
-      return;
-    }    # if
+  # Remove local entries that are no longer on the server
+  for (keys %unseen) {
+    delete $unseen{$_} unless exists $serverUnseen{$_};
+  }
 
-    $attempts++;
-    my $sleep = 60;
-    $log->msg (
-      "Connection failed. Retrying in $sleep seconds... (Attempt $attempts/10)"
-    );
-    sleep $sleep;
-  }    # while
-
-  $log->err ("Unable to connect to IMAP server $opts{imap}: $@", 1);
+  return;
 }    # Connect2IMAP
 
 sub MonitorMail() {
@@ -227,6 +280,14 @@ sub MonitorMail() {
   $log->dbug ("Top of MonitorMail loop");
 
   # First close and reselect the INBOX to get its current status
+  unless (defined $IMAP) {
+    $log->err (
+      "IMAP object is undefined in MonitorMail, attempting reconnect...");
+    Connect2IMAP;       # Re-attempt connection
+    return
+      unless
+      defined $IMAP;    # Give up if still undefined (Connect2IMAP logs error)
+  } ## end unless (defined $IMAP)
   $IMAP->close;
   $IMAP->select ('INBOX')
     or $log->err ("Unable to select INBOX - " . $IMAP->errstr (), 1);
@@ -254,16 +315,25 @@ sub MonitorMail() {
   for (keys %newUnseen) {
     next if $unseen{$_};
 
-    # Use UID FETCH
-    my $envelope = $IMAP->uid_fetch ($_, '(envelope)');
+    my $envelope = $IMAP->fetch ($_, '(envelope)');
     my $from     = $envelope->{$_}{envelope}{From};
     my $subject  = $envelope->{$_}{envelope}{Subject};
+    my $msgid    = $envelope->{$_}{envelope}{'Message-Id'};
     $subject //= 'Unknown subject';
 
     # Extract the name only when the email is of the format "name <email>"
     if ($from =~ /^"?(.*?)"?\s*\<(\S*)>/) {
       $from = $1 if $1 ne '';
     }    # if
+
+    my $dedupe_key = defined $msgid ? $msgid : "$from|$subject";
+
+    # Skip if we already spoke this message
+    if ($spoken_ids{$dedupe_key}) {
+      $log->dbug ("Skipping already spoken message: $dedupe_key");
+      $unseen{$_} = 1;    # Mark as handled
+      next;
+    }
 
     $subject = decode ('MIME-Header', $subject);
 
@@ -294,17 +364,20 @@ sub MonitorMail() {
       if ($hour <= 10) {
         $log->msg ("$logmsg [silent Saturday or Sunday morning]");
       } else {
+
         $log->dbug ('Calling speak');
         speak $msg, $log;
       }
     } elsif ($hour >= 7) {
+
       $log->dbug ('Calling speak');
       speak $msg, $log;
     } else {
       $log->msg ("$logmsg [silent nighttime]");
-    }                                       # if
+    }    # if
 
-    $unseen{$_} = 1;
+    $unseen{$_}              = 1;
+    $spoken_ids{$dedupe_key} = 1;
   }    # for
 
   # Let's time things
@@ -346,53 +419,6 @@ END {
     $log->err ($msg);
   }    # if
 }    # END
-
-## Main
-GetOptions (
-  \%opts,        'usage',     'help',       'verbose',
-  'debug',       'daemon!',   'username=s', 'name=s',
-  'password=s',  'imap=s',    'timeout=i',  'usessl',
-  'useblocking', 'announce!', 'append',
-) || pod2usage;
-
-local $0 = "$FindBin::Script " . join ' ', @ARGV;
-
-unless ($opts{password}) {
-  verbose "I need $opts{username}'s password";
-  $opts{password} = GetPassword;
-}    # unless
-
-$opts{name} //= $opts{imap};
-
-if ($opts{username} =~ /.*\@(.*)$/) {
-  $opts{name} = $1;
-}    # if
-
-if ($opts{daemon}) {
-
-  # Perl complains if we reference $DB::OUT only once
-  no warnings;
-  EnterDaemonMode unless defined $DB::OUT or get_debug;
-  use warnings;
-}    # if
-
-$log = Logger->new (
-  path        => '/var/local/log',
-  name        => "$Logger::me.$opts{name}",
-  timestamped => 'yes',
-  append      => $opts{append},
-);
-
-if ($opts{username} =~ /(.*)\@/) {
-  $opts{user} = $1;
-} else {
-  $opts{user} = $opts{username};
-}    # if
-
-my $email = "$opts{user}\@$opts{name}";
-
-# Special case my email address
-$email = 'Andrew@DeFaria.com' if $email =~ /^andrew\@defaria\.com$/i;
 
 local $0 = "announceEmail.pl $email";
 
