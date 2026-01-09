@@ -138,9 +138,9 @@ if ($opts{daemon}) {
 
   # Perl complains if we reference $DB::OUT only once
   no warnings;
-  EnterDaemonMode unless defined $DB::OUT or get_debug;
+  EnterDaemonMode unless defined $DB::OUT;    # or get_debug;
   use warnings;
-}          # if
+}    # if
 
 my $email = "$opts{user}\@$opts{name}";
 
@@ -217,14 +217,19 @@ sub interrupted {
 sub Connect2IMAP;
 sub MonitorMail;
 
+sub response_handler {
+
+# The callback receives the atom (e.g. 'EXISTS') as the first argument, not the object.
+# We use the global $IMAP object to terminate the IDLE command.
+  my $atom = shift;
+  $log->dbug ("response_handler called with atom: $atom") if defined $atom;
+  $IMAP->done;
+  return;
+}    # response_handler
+
 sub restart {
-  my $msg = "Re-establishing connection to $opts{imap} as $opts{username}";
-
-  $log->dbug ($msg);
-
-  Connect2IMAP;
-
-  MonitorMail;
+  $log->msg ("Restart requested by signal");
+  if (defined $IMAP) {$IMAP->logout; undef $IMAP;}
 }    # restart
 
 $SIG{USR1} = \&interrupted;
@@ -235,7 +240,13 @@ sub unseenMsgs() {
     or $log->err ("Unable to select inbox: " . get_last_error (), 1);
 
   # Use SEARCH to get sequence numbers
-  return map {$_ => 0} @{$IMAP->search ('not', 'seen')};
+  my @msgs     = @{$IMAP->search ('not', 'seen')};
+  my @all_msgs = @{$IMAP->search ('all')};
+  $log->dbug ("unseenMsgs found "
+      . scalar (@msgs)
+      . " unseen messages. Total messages: "
+      . scalar (@all_msgs));
+  return map {$_ => 0} @msgs;
 }    # unseenMsgs
 
 sub Connect2IMAP() {
@@ -276,8 +287,7 @@ sub Connect2IMAP() {
 }    # Connect2IMAP
 
 sub MonitorMail() {
-  MONITORMAIL:
-  $log->dbug ("Top of MonitorMail loop");
+  $log->dbug ("Top of MonitorMail");
 
   # First close and reselect the INBOX to get its current status
   unless (defined $IMAP) {
@@ -286,13 +296,31 @@ sub MonitorMail() {
     Connect2IMAP;       # Re-attempt connection
     return
       unless
-      defined $IMAP;    # Give up if still undefined (Connect2IMAP logs error)
+      defined $IMAP;    # Give up if still undefined (Connect22IMAP logs error)
   } ## end unless (defined $IMAP)
-  $IMAP->close;
+
+  # Check connection liveliness before selecting (with timeout)
+  $log->dbug ("Checking connection state");
+  my $noop_ok = 0;
+  eval {
+    local $SIG{ALRM} = sub {die "alarm\n"};
+    alarm 5;
+    $noop_ok = $IMAP->noop;
+    alarm 0;
+  };
+  alarm 0;    # Ensure alarm is off
+
+  if ($@ or !$noop_ok) {
+    my $reason = $@ ? "timeout" : "noop failed";
+    $log->warn ("Connection appears dead ($reason), reconnecting...");
+    Connect2IMAP;
+    return unless defined $IMAP;
+  } ## end if ($@ or !$noop_ok)
+  $log->dbug ("Selecting INBOX");
   $IMAP->select ('INBOX')
     or $log->err ("Unable to select INBOX - " . $IMAP->errstr (), 1);
 
-  $log->dbug ("Closed and reselected INBOX");
+  $log->dbug ("Selected INBOX");
 
   # Go through all of the unseen messages and add them to %unseen if they were
   # not there already from a prior run and read
@@ -385,14 +413,14 @@ sub MonitorMail() {
 
   # Re-establish callback
   $log->dbug ("Calling IMAP->idle");
-  eval {$IMAP->idle (\&MonitorMail, $opts{timeout})};
+  eval {$IMAP->idle (\&response_handler, $opts{timeout})};
 
   my $msg = 'Returned from IMAP->idle ';
 
   if ($@) {
     speak ($msg . $@, $log);
   } else {
-    $log->msg ($msg . 'no error');
+    $log->dbug ($msg . 'no error');
   }    # if
 
   # If we return from idle then the server went away for some reason. With Gmail
@@ -401,12 +429,10 @@ sub MonitorMail() {
   unless ($IMAP->get_response_code ('timeout')) {
     $msg = "IMAP Idle for $opts{name} timed out in " . howlong $startTime, time;
 
-    speak $msg;
-
-    $log->msg ($msg);
+    $log->dbug ($msg);
   }    # unless
 
-  restart;
+  # restart; # No longer recurse
 }    # MonitorMail
 
 END {
@@ -430,7 +456,13 @@ speak $msg, $log if $opts{announce};
 
 $log->msg ($msg);
 
-MonitorMail;
+eval {
+  while (1) {
+    MonitorMail;
+    sleep 1;
+  }
+};
+if ($@) {
+  $log->err ("Fatal error in main loop: $@");
+}
 
-# Should not get here
-$log->err ("Falling off the edge of $0", 1);
