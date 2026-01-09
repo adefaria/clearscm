@@ -20,6 +20,8 @@ my %calendar_urls = (
 'http://www.meetup.com/events/ical/10426135/8dfdd0ffaaedecf720c5faf0cf3871b7ee5f5c1e/going',
   'Tripit' =>
 'https://www.tripit.com/feed/ical/private/06C4F90D-00539C805E8CF5F1C8BC32BF70CB1843/tripit.ics',
+  'Rock Ready' =>
+'https://defaria.com/RockReady/?post_type=tribe_events&ical=1&eventDisplay=list',
 );
 
 my $result_calendar = "$ENV{HOME}/Documents/calendar.ics";
@@ -44,8 +46,8 @@ foreach my $name (sort keys %calendar_urls) {
 
   # Extract header, events, and footer
   my ($header, $events, $footer) = $content =~ m{
-        \A(.*?BEGIN:VEVENT\s)   # Header up to first event
-        (.*)                    # All events and footer
+        \A(.*?)                 # Header (non-greedy)
+        (BEGIN:VEVENT.*)        # All events (starting with the first one)
     }xs;
 
   unless ($header && $events) {
