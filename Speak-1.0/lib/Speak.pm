@@ -47,7 +47,6 @@ use warnings;
 
 use base 'Exporter';
 
-use FindBin;
 use Clipboard;
 
 our $VERSION = '1.0';

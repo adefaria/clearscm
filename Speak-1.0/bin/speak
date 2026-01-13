@@ -2,7 +2,7 @@
 
 =pod
 
-=head1 NAME $RCSfile: speak,v $
+=head1 NAME speak
 
 Simply speaks the passed in message, clipboard or file
 
@@ -14,15 +14,9 @@ Simply speaks the passed in message, clipboard or file
 
 Andrew DeFaria <Andrew@DeFaria.com>
 
-=item Revision
-
-$Revision: 1.0 $
-
 =item Created:
 
 Wed 24 Feb 2021 12:01:12 PM PST
-
-=item Modified:
 
 =back
 
@@ -47,11 +41,8 @@ This script speaks the contents of the passed in message, clipboard or file
 use strict;
 use warnings;
 
-use FindBin;
 use Getopt::Long;
 use Pod::Usage;
-
-use lib "$FindBin::Bin/../lib";
 
 use Speak qw(speak);
 use Clipboard;
