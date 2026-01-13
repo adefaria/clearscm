@@ -392,7 +392,6 @@ public class MainActivity extends Activity {
     public void onBackPressed() {
         if (currentWebView != null) {
             resetWebView();
-            return;
         }
         if (isLoggedIn) {
             if ("display".equals(currentAction) && lastListAction != null) {
