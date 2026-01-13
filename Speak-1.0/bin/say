@@ -34,8 +34,6 @@ Wed 24 Feb 2021 12:01:12 PM PST
  Where:
    -usa|ge:          Print this usage
    -h|elp:           Detailed help
-   -v|erbose:        Verbose mode (Default: -verbose)
-   -de|bug:          Turn on debugging (Default: Off)
    -c|lipboard:      Speak the contents of the clipboard
    -f|ile <filename> Speak the contents of <filename>
    "message"         Speak the message
@@ -55,7 +53,7 @@ use Pod::Usage;
 
 use lib "$FindBin::Bin/../lib";
 
-use Speak;
+use Speak qw(speak);
 use Clipboard;
 
 sub error {
@@ -68,8 +66,9 @@ my $verbose = 0;
 my $debug   = 0;
 
 my %opts = (
-  usage   => sub {pod2usage},
-  help    => sub {pod2usage (-verbose => 2)},
+  usage => sub {pod2usage},
+  help  => sub {pod2usage (-verbose => 2)},
+  ## no critic (Variables::RequireLocalizedPunctuationVars)
   verbose => sub {$verbose = 1; $ENV{VERBOSE} = 1},
   debug   => sub {$debug   = 1; $ENV{DEBUG}   = 1},
 );

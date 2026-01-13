@@ -17,6 +17,8 @@ After installing, you can find documentation for this module with the
 perldoc command.
 
     perldoc Speak
+    perldoc speak
+    perldoc say (alias)
 
 DEPENDENCIES
 
@@ -25,7 +27,6 @@ This module requires these other modules and libraries:
   Clipboard
   LWP::UserAgent
   URI::Escape
-  Term::ReadKey
 
 It also requires one of the following system commands for playback:
   - afplay (macOS)

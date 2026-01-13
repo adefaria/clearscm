@@ -21,7 +21,7 @@ WriteMakefile (
     'Clipboard'      => '0',
     'LWP::UserAgent' => '0',
     'URI::Escape'    => '0',
-    'Term::ReadKey'  => '0',
+
   },
   dist      => {COMPRESS => 'gzip -9f', SUFFIX => 'gz',},
   clean     => {FILES    => 'Speak-*'},
