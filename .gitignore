@@ -26,3 +26,5 @@ MANIFEST.bak
 
 # Test output
 test.log
+
+*.ERR
