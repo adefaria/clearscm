@@ -1,0 +1,13 @@
+lib/Clearquest.pm
+lib/Clearquest/Admin.pm
+lib/Clearquest/Client.pm
+lib/Clearquest/DBService.pm
+lib/Clearquest/LDAP.pm
+lib/Clearquest/REST.pm
+lib/Clearquest/Server.pm
+Makefile.PL
+MANIFEST
+Changes
+README.md
+t/00-load.t
+lib/Clearquest/Utils.pm
