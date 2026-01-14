@@ -2023,6 +2023,40 @@ Ouput from cleartool
   return $Clearcase::CC->execute ("rmvob -force $self->{gpath}");
 }    # remove
 
+=pod
+
+=head2 updateVobInfo ($vob)
+
+Updates the VOB info from cleartool lsvob
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $vob
+
+The vob object/tag to update info for
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item nothing
+
+=back
+
+=for html </blockquote>
+
+=cut
+
 sub updateVobInfo ($$) {
   my ($self) = @_;
 
