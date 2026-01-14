@@ -1,9 +1,9 @@
 
 =pod
 
-=head1 NAME $RCSfile: Speak.pm,v $
+=head1 NAME
 
-Convert text to speach using Google's engine and play it on speakers
+Speak - Convert text to speech using Google's engine and play it on speakers
 
 =head1 VERSION
 
@@ -47,24 +47,105 @@ use warnings;
 
 use base 'Exporter';
 
-use FindBin;
 use Clipboard;
 
-use lib "$FindBin::Bin/../lib";
+our $VERSION = '1.0';
 
-use Display;
-use Logger;
-use Utils;
-use Config;    # For OS detection
-use GetConfig;
+{
+
+  ## no critic (Modules::ProhibitMultiplePackages)
+  package Speak::Logger;
+
+  use strict;
+  use warnings;
+  use File::Basename;
+  use POSIX qw(strftime);
+  use IO::Handle;
+  use Carp;
+
+  sub new {
+    my ($class, %args) = @_;
+    my $self = {
+      path        => $args{path} || '.',
+      name        => $args{name} || 'speak',
+      timestamped => $args{timestamped},
+      append      => $args{append},
+      handle      => undef,
+    };
+
+    my $mode    = $self->{append} ? '>>' : '>';
+    my $logfile = File::Spec->catfile ($self->{path}, $self->{name} . '.log');
+
+    # We try to open the logfile, but if it fails we just warn and carry on
+    # effectively logging nowhere (or we could default to STDERR)
+    ## no critic (InputOutput::RequireBriefOpen)
+    if (open my $fh, $mode, $logfile) {
+      $fh->autoflush (1);
+      $self->{handle} = $fh;
+    } else {
+      carp "Could not open logfile $logfile: $!";
+    }
+
+    bless $self, $class;
+    return $self;
+  } ## end sub new
+
+  sub msg {
+    my ($self, $msg) = @_;
+    return unless defined $msg;
+
+    print "$msg\n";
+
+    if ($self->{handle}) {
+      my $timestamp =
+        $self->{timestamped}
+        ? strftime ("%Y-%m-%d %H:%M:%S", localtime) . ": "
+        : "";
+      my $fh = $self->{handle};
+      print $fh "$timestamp$msg\n";
+    } ## end if ($self->{handle})
+    return;
+  } ## end sub msg
+
+  sub DESTROY {
+    my $self = shift;
+    close $self->{handle} if $self->{handle};
+    return;
+  }
+}
+
+sub _get_config {
+  my ($file) = @_;
+  my %config;
+  return %config unless -f $file;
+
+  ## no critic (InputOutput::RequireBriefOpen)
+  if (open my $fh, '<', $file) {
+    while (my $line = <$fh>) {
+      chomp $line;
+      next if $line =~ /^\s*[#!]/ || $line =~ /^\s*$/;
+      if ($line =~ /^\s*([^:=]+?)\s*[:=]\s*(.*?)\s*$/) {
+        my $key = $1;
+        my $val = $2;
+
+        # Simple variable interpolation for $ENV
+        $val =~ s/\$(\w+)/$ENV{$1} || "\$$1"/ge;
+        $config{$key} = $val;
+      } ## end if ($line =~ /^\s*([^:=]+?)\s*[:=]\s*(.*?)\s*$/)
+    } ## end while (my $line = <$fh>)
+    close $fh;
+  } ## end if (open my $fh, '<', ...)
+  return %config;
+} ## end sub _get_config
 
 use LWP::UserAgent;
 use URI::Escape;
 use File::Temp qw(tempfile);
 use File::Path qw(rmtree);
 use File::Basename;
+use Carp;
 
-our @EXPORT = qw(speak);
+our @EXPORT_OK = qw(speak);
 
 sub _split_text ($) {
   my ($text) = @_;
@@ -73,14 +154,21 @@ sub _split_text ($) {
   # Split into sentences max 100 chars
   my @sentences;
 
+  # If text is long and has no punctuation, force split
+  if (length ($text) > 100 && $text !~ /[.!?;]/) {
+    return unpack ("(A100)*", $text);
+  }
+
   # Basic splitting on punctuation, keeping punctuation
   # This is a simplified version of speak.pl logic
-  while ($text =~ /(.{1,100})(?:[.!?;]|$)/g) {
+  while ($text =~ /(.{1,100}?(?:[.!?;]|$))/g) {
     push @sentences, $1;
   }
 
-  # Fallback if regex missed or text is just one long block
-  push @sentences, $text unless @sentences;
+  # Fallback if regex missed: chunk into 100-char segments
+  if (!@sentences) {
+    @sentences = unpack ("(A100)*", $text);
+  }
 
   return @sentences;
 } ## end sub _split_text ($)
@@ -98,21 +186,21 @@ sub _fetch_mp3 ($$$) {
   if ($response->is_success) {
     my $content = $response->content;
     if (length ($content) == 0) {
-      warn "Fetch successful but content is empty";
-      return undef;
+      carp "Fetch successful but content is empty";
+      return;
     }
 
     # Check if we got HTML instead of MP3 (e.g. Captcha/Error)
     if ($content =~ /^\s*<(!DOCTYPE|html)/i) {
-      warn
+      carp
 "Received HTML response instead of MP3 (likely CAPTCHA/Blocked) from URL: $url";
-      return undef;
+      return;
     }
 
     return $content;
   } else {
-    warn "Failed to fetch TTS: " . $response->status_line;
-    return undef;
+    carp "Failed to fetch TTS: " . $response->status_line;
+    return;
   }
 } ## end sub _fetch_mp3 ($$$)
 
@@ -138,6 +226,7 @@ sub _convert_mp3_to_wav ($$) {
   return system ("sox \"$mp3\" \"$wav\"") == 0;
 } ## end sub _convert_mp3_to_wav ($$)
 
+## no critic (Subroutines::ProhibitExcessComplexity)
 sub speak (;$$$) {
   my ($msg, $log, $lang) = @_;
 
@@ -169,7 +258,7 @@ Language code (e.g. 'en', 'en-gb', 'en-au'). Defaults to $ENV{SPEAK_LANG} or 'en
 
 =back
 
-=back
+
 
 =for html </blockquote>
 
@@ -187,18 +276,23 @@ Returns:
 
 =cut
 
-  $log = Logger->new (
-    path        => '/var/local/log',
+  $log = Speak::Logger->new (
+    path        => '/var/log',
     name        => 'speak',
     timestamped => 'yes',
     append      => 1,
   ) unless $log;
 
-  if (-f "$FindBin::Bin/../data/shh") {
-    $msg .= ' [silent shh]';
-    $log->msg ($msg);
-    return;
-  }
+  my @mute_paths =
+    ($ENV{SPEAK_MUTE}, $ENV{HOME} . "/.speak/shh", "/etc/speak/shh");
+
+  foreach my $path (@mute_paths) {
+    if ($path && -f $path) {
+      $msg .= ' [silent shh]';
+      $log->msg ($msg);
+      return;
+    }
+  } ## end foreach my $path (@mute_paths)
 
   $msg = Clipboard->paste unless $msg;
   $msg = <$msg> if ref $msg eq 'GLOB';
@@ -218,10 +312,20 @@ Returns:
   unless ($lang) {
     if ($ENV{SPEAK_LANG}) {
       $lang = $ENV{SPEAK_LANG};
-    } elsif (-f "$FindBin::Bin/../etc/speak.conf") {
-      my %conf = GetConfig "$FindBin::Bin/../etc/speak.conf";
-      $lang = $conf{language};
-    }
+    } else {
+      my @config_paths =
+        ($ENV{HOME} . "/.speak/speak.conf", "/etc/speak/speak.conf");
+
+      foreach my $conf_file (@config_paths) {
+        if (-f $conf_file) {
+          my %conf = _get_config ($conf_file);
+          if ($conf{language}) {
+            $lang = $conf{language};
+            last;
+          }
+        } ## end if (-f $conf_file)
+      } ## end foreach my $conf_file (@config_paths)
+    } ## end else [ if ($ENV{SPEAK_LANG}) ]
 
     $lang ||= 'en';
   } ## end unless ($lang)
@@ -299,13 +403,13 @@ Returns:
 
         # Convert to WAV using sox
         if (system ("sox \"$final_file\" \"$wav_file\"") == 0) {
-          my $win_path = $wav_file;
+          my $wav_win_path = $wav_file;
           if ($os eq 'cygwin') {
-            chomp ($win_path = `cygpath -w "$wav_file"`);
+            chomp ($wav_win_path = `cygpath -w "$wav_file"`);
           }
 
           my $cmd_wav =
-"powershell -c (New-Object Media.SoundPlayer '$win_path').PlaySync()";
+"powershell -c (New-Object Media.SoundPlayer '$wav_win_path').PlaySync()";
           if (system ($cmd_wav) != 0) {
 
             # Fallback
@@ -363,29 +467,44 @@ Returns:
 
 =head1 CONFIGURATION AND ENVIRONMENT
 
-DEBUG: If set then $debug is set to this level.
+SPEAK_LANG: Language code (e.g. 'en', 'en-gb', 'en-au'). 
+            See eg/speak.conf for available languages.
+            Defaults to $ENV{SPEAK_LANG} or 'en'.
 
-VERBOSE: If set then $verbose is set to this level.
+SPEAK_MUTE: If set to a true value, speech output is muted.
+            Alternatively, if a file exists at $ENV{HOME}/.speak/shh
+            or /etc/speak/shh, speech is muted.
 
-TRACE: If set then $trace is set to this level.
+            To silence Speak for while simply touch $ENV{HOME}/.speak/shh
+            or /etc/speak/shh file. To unsilence Speak, remove the file.
+
+=head2 Configuration File
+
+Speak supports a configuration file located at $ENV{HOME}/.speak/speak.conf
+or /etc/speak/speak.conf.
+
+Format:
+  language: en-gb
+  # other options...
+
+Supported keys:
+  language - Default language code for speech generation.
 
 =head1 DEPENDENCIES
 
 =head2 Perl Modules
 
-L<File::Spec|File::Spec>
+L<Clipboard|Clipboard>
 
-L<Term::ANSIColor|Term::ANSIColor>
+L<LWP::UserAgent|LWP::UserAgent>
 
-=head1 INCOMPATABILITIES
-
-None yet...
+L<URI::Escape|URI::Escape>
 
 =head1 BUGS AND LIMITATIONS
 
 There are no known bugs in this module.
 
-Please report problems to Andrew DeFaria <Andrew@ClearSCM.com>.
+Please report problems to Andrew DeFaria <Andrew@DeFaria.com>.
 
 =head1 LICENSE AND COPYRIGHT
 
