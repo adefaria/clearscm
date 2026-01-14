@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile (
   NAME               => 'Clearquest',
-  AUTHOR             => q{Andrew DeFaria <Andrew@ClearSCM.com>},
+  AUTHOR             => q{Andrew DeFaria <Andrew@DeFaria.com>},
   VERSION_FROM       => 'lib/Clearquest.pm',
   ABSTRACT_FROM      => 'lib/Clearquest.pm',
   LICENSE            => 'artistic_2',
