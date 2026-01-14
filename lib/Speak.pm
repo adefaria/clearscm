@@ -90,7 +90,7 @@ sub _fetch_mp3 ($$$) {
 
   my $url =
       "https://translate.google.com/translate_tts?ie=UTF-8&tl=$lang&q="
-    . uri_escape ($text)
+    . uri_escape_utf8 ($text)
     . "&total=1&idx=0&client=tw-ob";
 
   my $response = $ua->get ($url);
