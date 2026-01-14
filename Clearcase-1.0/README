@@ -16,7 +16,7 @@ SUPPORT AND DOCUMENTATION
 After installing, you can find documentation for this module with the
 perldoc command.
 
-    perldoc Clearcase
+  perldoc Clearcase
 	perldoc Clearcase::Element
 	perldoc Clearcase::Server
 	perldoc Clearcase::View
@@ -97,8 +97,8 @@ Clearcase elements
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2007-2026 Andrew DeFaria <Andrew@DeFaria.com>
+Copyright (C) 2007-2026 by Andrew DeFaria <Andrew@DeFaria.com>
 
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.38.0 or,
+at your option, any later version of Perl 5 you may have available.

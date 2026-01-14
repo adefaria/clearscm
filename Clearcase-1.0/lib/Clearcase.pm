@@ -1436,7 +1436,7 @@ Please report problems to Andrew DeFaria <Andrew@DeFaria.com>.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2020 by Andrew@DeFaria.com
+Copyright (C) 2007-2026 by Andrew DeFaria <Andrew@DeFaria.com>
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.38.0 or,
