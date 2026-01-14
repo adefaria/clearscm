@@ -211,6 +211,42 @@ String of formatted options
 
 =cut
 
+=pod
+
+=head2 formatOpts (%opts)
+
+Format a hash of options into a string
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item %opts
+
+Hash of options
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $opts
+
+String of formatted options
+
+=back
+
+=for html </blockquote>
+
+=cut
+
 sub formatOpts {
   my (%opts) = @_;
 
@@ -224,6 +260,42 @@ sub formatOpts {
 
   return $opts;
 }    # formatOpts
+
+=pod
+
+=head2 setComment ($comment)
+
+Format a comment string for cleartool or return -nc
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $comment
+
+The comment string
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item $comment_opt
+
+Formatted comment option (e.g. -c "foo" or -nc)
+
+=back
+
+=for html </blockquote>
+
+=cut
 
 =pod
 

@@ -1788,6 +1788,40 @@ Returns:
 
 =cut
 
+=pod
+
+=head2 updateViewInfo ($view)
+
+Updates the view info from cleartool lsview
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item $view
+
+The view tag to update info for
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item nothing
+
+=back
+
+=for html </blockquote>
+
+=cut
+
 sub updateViewInfo($$) {
   my ($self) = @_;
 

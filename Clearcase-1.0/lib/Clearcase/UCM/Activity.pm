@@ -824,6 +824,38 @@ Returns:
 
 =cut
 
+=pod
+
+=head2 updateActivityInfo()
+
+Update the activity info
+
+Parameters:
+
+=for html <blockquote>
+
+=over
+
+=item none
+
+=back
+
+=for html </blockquote>
+
+Returns:
+
+=for html <blockquote>
+
+=over
+
+=item nothing
+
+=back
+
+=for html </blockquote>
+
+=cut
+
 sub updateActivityInfo() {
   my ($self) = @_;
 
