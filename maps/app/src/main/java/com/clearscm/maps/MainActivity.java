@@ -73,6 +73,7 @@ public class MainActivity extends Activity {
     private static String storedCookie = null;
     private static String storedUserid = null;
     private String lastListAction = "stats";
+    private String currentAction = "stats";
     private ScrollView scrollView;
     private int currentOffset = 0;
     private boolean isLoading = false;
@@ -315,7 +316,12 @@ public class MainActivity extends Activity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                performAction(usernameField.getText().toString(), passwordField.getText().toString(), "stats");
+                if ("display".equals(currentAction) && lastListAction != null) {
+                    performAction(usernameField.getText().toString(), passwordField.getText().toString(),
+                            lastListAction);
+                } else {
+                    performAction(usernameField.getText().toString(), passwordField.getText().toString(), "stats");
+                }
             }
         });
         RelativeLayout.LayoutParams backParams = new RelativeLayout.LayoutParams(
@@ -386,11 +392,15 @@ public class MainActivity extends Activity {
     public void onBackPressed() {
         if (currentWebView != null) {
             resetWebView();
-            return;
         }
-        if (isLoggedIn && !"stats".equals(lastListAction)) {
-            performAction(usernameField.getText().toString(), passwordField.getText().toString(), "stats");
-            return;
+        if (isLoggedIn) {
+            if ("display".equals(currentAction) && lastListAction != null) {
+                performAction(usernameField.getText().toString(), passwordField.getText().toString(), lastListAction);
+                return;
+            } else if (!"stats".equals(currentAction)) {
+                performAction(usernameField.getText().toString(), passwordField.getText().toString(), "stats");
+                return;
+            }
         }
         super.onBackPressed();
     }
@@ -821,8 +831,24 @@ public class MainActivity extends Activity {
             }
         });
         builder.setNegativeButton("Cancel", null);
+        builder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                new MapsTask("delete_list", type, sequence, "", "", 0, "", "").execute(
+                        usernameField.getText().toString(), passwordField.getText().toString());
+            }
+        });
 
-        builder.show();
+        final AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface arg0) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.GREEN);
+                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(Color.RED);
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.GRAY);
+            }
+        });
+        dialog.show();
     }
 
     private void addMenuButton(String text, final String action) {
@@ -1278,6 +1304,20 @@ public class MainActivity extends Activity {
                     // Fall through to list loading logic
                 }
 
+                if ("delete_list".equals(mAction)) {
+                    String url = API_URL + "?action=delete_list&userid=" + storedUserid +
+                            "&type=" + mType +
+                            "&sequence=" + mSequence;
+                    String response = sendRequest(url, "GET", null, storedCookie);
+                    JSONObject json = new JSONObject(response);
+                    actionMessage = json.optString("message");
+                    if (!"success".equals(json.optString("status"))) {
+                        isActionError = true;
+                    }
+                    // Refresh the list
+                    mAction = mType;
+                }
+
                 if (mAction.startsWith("last_page_")) {
                     isBottomRequest = true;
                     String realAction = mAction.substring(10);
@@ -1397,6 +1437,7 @@ public class MainActivity extends Activity {
             } else {
                 MainActivity.this.currentOffset = mOffset;
             }
+            MainActivity.this.currentAction = mAction;
             if (!"display".equals(mAction) && !"check_address".equals(mAction)) {
                 MainActivity.this.lastListAction = mAction;
             }
@@ -1900,9 +1941,12 @@ public class MainActivity extends Activity {
                                             tempSender = p;
                                     }
                                     final String senderEmail = tempSender;
-                                    JSONArray messages = senderObj.optJSONArray("messages");
-                                    if (messages == null)
+                                    final JSONArray messages;
+                                    JSONArray msgs = senderObj.optJSONArray("messages");
+                                    if (msgs == null)
                                         messages = new JSONArray();
+                                    else
+                                        messages = msgs;
 
                                     String list = senderObj.optString("list", "None");
                                     int listSeq = senderObj.optInt("sequence", 0);
@@ -1959,6 +2003,7 @@ public class MainActivity extends Activity {
                                     seqView.setMinWidth(60);
                                     seqView.setPadding(10, 0, 10, 0);
                                     seqView.setLayoutParams(seqParams);
+
                                     headerLine.addView(seqView);
 
                                     TextView senderView = new TextView(MainActivity.this);
@@ -1971,8 +2016,19 @@ public class MainActivity extends Activity {
                                     senderView.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
+                                            String subject = "";
+                                            if (messages.length() > 0) {
+                                                try {
+                                                    subject = messages.getJSONObject(0).optString("subject");
+                                                } catch (Exception e) {
+                                                }
+                                            }
+                                            String uri = "mailto:" + senderEmail;
+                                            if (!subject.isEmpty()) {
+                                                uri += "?subject=" + Uri.encode(subject);
+                                            }
                                             Intent intent = new Intent(Intent.ACTION_SENDTO);
-                                            intent.setData(Uri.parse("mailto:" + senderEmail));
+                                            intent.setData(Uri.parse(uri));
                                             startActivity(intent);
                                         }
                                     });
@@ -2095,11 +2151,12 @@ public class MainActivity extends Activity {
                                         for (int j = 0; j < messages.length(); j++) {
                                             JSONObject msg = messages.getJSONObject(j);
                                             final String msgTimestamp = msg.optString("timestamp");
-                                            TextView msgView = new TextView(MainActivity.this);
-                                            msgView.setText(msg.optString("subject"));
-                                            msgView.setTextColor(Color.YELLOW);
-                                            msgView.setPadding(0, 10, 0, 0);
-                                            msgView.setOnClickListener(new View.OnClickListener() {
+                                            final String fullSubject = msg.optString("subject");
+
+                                            LinearLayout msgRow = new LinearLayout(MainActivity.this);
+                                            msgRow.setOrientation(LinearLayout.HORIZONTAL);
+                                            msgRow.setPadding(0, 10, 0, 0);
+                                            msgRow.setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View v) {
                                                     performAction(usernameField.getText().toString(),
@@ -2107,7 +2164,76 @@ public class MainActivity extends Activity {
                                                             "display", senderEmail, msgTimestamp);
                                                 }
                                             });
-                                            card.addView(msgView);
+
+                                            TextView subjView = new TextView(MainActivity.this);
+                                            subjView.setText(fullSubject);
+                                            subjView.setTextColor(Color.YELLOW);
+                                            subjView.setSingleLine(true);
+                                            subjView.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                                            LinearLayout.LayoutParams subjParams = new LinearLayout.LayoutParams(
+                                                    0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+                                            subjView.setLayoutParams(subjParams);
+                                            msgRow.addView(subjView);
+
+                                            String timeStr = msgTimestamp;
+                                            if (timeStr.contains(" ")) {
+                                                timeStr = timeStr.substring(timeStr.indexOf(" ") + 1);
+                                            }
+
+                                            TextView timeView = new TextView(MainActivity.this);
+                                            timeView.setText(timeStr);
+                                            timeView.setTextColor(Color.GREEN);
+                                            timeView.setPadding(10, 0, 0, 0);
+                                            timeView.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    AlertDialog.Builder builder = new AlertDialog.Builder(
+                                                            MainActivity.this);
+                                                    builder.setTitle("Message Details");
+
+                                                    String datePart = "";
+                                                    String timePart = "";
+                                                    if (msgTimestamp.contains(" ")) {
+                                                        String[] parts = msgTimestamp.split(" ");
+                                                        datePart = parts[0];
+                                                        timePart = parts[1];
+                                                    } else {
+                                                        datePart = msgTimestamp;
+                                                    }
+
+                                                    String info = "<b>Sender:</b> " + senderEmail + "<br>" +
+                                                            "<b>Date:</b> " + datePart + "<br>" +
+                                                            "<b>Time:</b> " + timePart + "<br><br>" +
+                                                            "<b>Subject:</b> " + fullSubject;
+
+                                                    TextView infoView = new TextView(MainActivity.this);
+                                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                                        infoView.setText(
+                                                                Html.fromHtml(info, Html.FROM_HTML_MODE_LEGACY));
+                                                    } else {
+                                                        infoView.setText(Html.fromHtml(info));
+                                                    }
+                                                    infoView.setPadding(40, 20, 40, 20);
+                                                    infoView.setTextSize(16);
+                                                    infoView.setTextColor(Color.WHITE);
+                                                    builder.setView(infoView);
+
+                                                    builder.setPositiveButton("Read",
+                                                            new DialogInterface.OnClickListener() {
+                                                                @Override
+                                                                public void onClick(DialogInterface dialog, int which) {
+                                                                    performAction(usernameField.getText().toString(),
+                                                                            passwordField.getText().toString(),
+                                                                            "display", senderEmail, msgTimestamp);
+                                                                }
+                                                            });
+                                                    builder.setNegativeButton("Close", null);
+                                                    builder.show();
+                                                }
+                                            });
+                                            msgRow.addView(timeView);
+
+                                            card.addView(msgRow);
                                         }
                                     }
                                     outputContainer.addView(card);
