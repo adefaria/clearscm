@@ -16,7 +16,7 @@ SUPPORT AND DOCUMENTATION
 After installing, you can find documentation for this module with the
 perldoc command.
 
-  perldoc Clearcase
+	perldoc Clearcase
 	perldoc Clearcase::Element
 	perldoc Clearcase::Server
 	perldoc Clearcase::View
