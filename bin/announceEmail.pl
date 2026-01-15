@@ -237,7 +237,7 @@ $SIG{USR2} = \&restart;
 
 sub unseenMsgs() {
   $IMAP->select ('inbox')
-    or $log->err ("Unable to select inbox: " . get_last_error (), 1);
+    or $log->err ("Unable to select inbox: " . $IMAP->get_last_error (), 1);
 
   # Use SEARCH to get sequence numbers
   my @msgs     = @{$IMAP->search ('not', 'seen')};
@@ -314,7 +314,7 @@ sub MonitorMail() {
     my $reason = $@;
     $reason =~ s/\n//g;    # strip newline
     $reason ||= "noop failed (returned false)";
-    my $errstr = get_last_error ();
+    my $errstr = $IMAP ? $IMAP->get_last_error () : "IMAP undef";
     $log->warn (
 "Connection appears dead (Reason: $reason, IMAP Error: $errstr), reconnecting..."
     );
@@ -323,7 +323,7 @@ sub MonitorMail() {
   } ## end if ($@ or !$noop_ok)
   $log->dbug ("Selecting INBOX");
   $IMAP->select ('INBOX')
-    or $log->err ("Unable to select INBOX - " . get_last_error (), 1);
+    or $log->err ("Unable to select INBOX - " . $IMAP->get_last_error (), 1);
 
   $log->dbug ("Selected INBOX");
 
