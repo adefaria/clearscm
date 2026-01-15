@@ -300,7 +300,7 @@ sub MonitorMail() {
   } ## end unless (defined $IMAP)
 
   # Check connection liveliness before selecting (with timeout)
-  $log->dbug ("Checking connection state");
+  $log->dbug ("Checking connection state (noop)");
   my $noop_ok = 0;
   eval {
     local $SIG{ALRM} = sub {die "alarm\n"};
@@ -311,8 +311,13 @@ sub MonitorMail() {
   alarm 0;    # Ensure alarm is off
 
   if ($@ or !$noop_ok) {
-    my $reason = $@ ? "timeout" : "noop failed";
-    $log->warn ("Connection appears dead ($reason), reconnecting...");
+    my $reason = $@;
+    $reason =~ s/\n//g;    # strip newline
+    $reason ||= "noop failed (returned false)";
+    my $errstr = $IMAP ? $IMAP->errstr : "IMAP undef";
+    $log->warn (
+"Connection appears dead (Reason: $reason, IMAP Error: $errstr), reconnecting..."
+    );
     Connect2IMAP;
     return unless defined $IMAP;
   } ## end if ($@ or !$noop_ok)
@@ -426,7 +431,7 @@ sub MonitorMail() {
   # If we return from idle then the server went away for some reason. With Gmail
   # the server seems to time out around 30-40 minutes. Here we simply reconnect
   # to the imap server and continue to MonitorMail.
-  unless ($IMAP->get_response_code ('timeout')) {
+  unless (defined $IMAP && $IMAP->get_response_code ('timeout')) {
     $msg = "IMAP Idle for $opts{name} timed out in " . howlong $startTime, time;
 
     $log->dbug ($msg);
