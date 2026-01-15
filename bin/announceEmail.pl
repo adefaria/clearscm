@@ -314,7 +314,7 @@ sub MonitorMail() {
     my $reason = $@;
     $reason =~ s/\n//g;    # strip newline
     $reason ||= "noop failed (returned false)";
-    my $errstr = $IMAP ? $IMAP->errstr : "IMAP undef";
+    my $errstr = get_last_error ();
     $log->warn (
 "Connection appears dead (Reason: $reason, IMAP Error: $errstr), reconnecting..."
     );
@@ -323,7 +323,7 @@ sub MonitorMail() {
   } ## end if ($@ or !$noop_ok)
   $log->dbug ("Selecting INBOX");
   $IMAP->select ('INBOX')
-    or $log->err ("Unable to select INBOX - " . $IMAP->errstr (), 1);
+    or $log->err ("Unable to select INBOX - " . get_last_error (), 1);
 
   $log->dbug ("Selected INBOX");
 
