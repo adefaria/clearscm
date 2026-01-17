@@ -12,7 +12,7 @@
 // (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-$VERSION = "3.0";
+$VERSION = "3.5";
 
 // Get userid
 if (isset($_REQUEST["userid"])) {
@@ -242,7 +242,7 @@ function displayquickstats()
   // Start quickstats
   print "<div class=\"quickstats\">";
   print "<h4 align=\"center\" class=\"todaysactivity\">Today's Activity</h4>";
-  print "<p align=\"center\"><b>as of $current_time</b></p>";
+  print "<p align=\"center\" style=\"font-weight: normal;\">as of $current_time</p>";
 
   $processed = $dates[$today]["processed"];
   $returned = $dates[$today]["returned"];
@@ -342,7 +342,7 @@ function NavigationBar($userid)
 
   if (!isset($userid) || $userid == "") {
     print <<<END
-    <h2 align='center'><font style="color: white">MAPS $VERSION</font></h2>
+    <h2 align='center'>MAPS $VERSION</h2>
     <div class="username">Welcome to MAPS</div>
     <div class="menu">
     <a href="/maps/doc/">What is MAPS?</a><br>
@@ -356,7 +356,7 @@ END;
   } else {
     $Userid = ucfirst($userid);
     print <<<END
-    <h2 align='center'><font style="color: white">MAPS $VERSION</font></h2>
+    <h2 align='center'>MAPS $VERSION</h2>
     <div class="username">Welcome $Userid</div>
     <div class="menu">
     <a href="/maps/">Home</a><br>
@@ -367,7 +367,7 @@ END;
     <a href="/maps/php/list.php?type=black">Black</a><br>
     <a href="/maps/php/list.php?type=null">Null</a><br>
     <a href="/maps/doc/">Help</a><br>
-    <a href="/maps/adm/">Admin</a><br>
+
     <a href="/maps/?logout=yes">Logout</a>
     </div>
 END;
@@ -449,7 +449,7 @@ function DisplayList($type, $next, $lines)
 
     // Colorize language rejection messages
     if (preg_match("/.*email rejected/i", $comments)) {
-      $comments = "<font color=\"red\">$comments</font>";
+      $comments = "<span class=\"error\">$comments</span>";
     }
 
     // Remove time from last hit
@@ -484,10 +484,15 @@ function MAPSHeader()
   <meta name="author" content="Andrew DeFaria <Andre@DeFaria.com>">
   <meta name="MAPS" "Mail Authorization and Permission System">
   <meta name="keywords" content="Eliminate SPAM, Permission based email, SPAM filtering system">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv=Refresh content="900">
   <link rel="icon" href="/maps/MAPS.png" type="image/png">
   <link rel="SHORTCUT ICON" href="/maps/favicon.ico">
-  <link rel="stylesheet" type="text/css" href="/maps/css/MAPSStyle.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css?v=<?php echo time(); ?>">
+  <link rel="stylesheet" type="text/css" href="/maps/css/MAPSStyle.css?v=<?php echo time(); ?>"/>
   <script language="JavaScript1.2" src="/maps/JavaScript/MAPSUtils.js"
    type="text/javascript"></script>
   <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js"

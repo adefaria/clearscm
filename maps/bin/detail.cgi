@@ -87,6 +87,9 @@ sub formatRule($) {
 sub Body($) {
   my ($type) = @_;
 
+  # Preserve original next for links
+  my $orig_next = $next;
+
   my $current = $next + 1;
 
   my ($onlist, $rec);
@@ -208,8 +211,12 @@ sub Body($) {
       -align   => 'right',
       -valign  => 'middle',
       -rowspan => $rowspan,
-      },
-      $next,
+      -rowspan => $rowspan,
+      }, (
+      ($type eq 'returned' && @$msgs)
+      ? a ({-href => "nuke.cgi?sender=$sender;next=$orig_next"}, $next)
+      : $next
+      ),
       checkbox {
       -name   => "action$next",
       -label  => '',
