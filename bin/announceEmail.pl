@@ -240,11 +240,13 @@ sub unseenMsgs() {
     or $log->err ("Unable to select inbox: " . $IMAP->get_last_error (), 1);
 
   # Use SEARCH to get sequence numbers
-  my @msgs     = @{$IMAP->search ('not', 'seen')};
+  my @msgs     = @{$IMAP->search ('unseen')};
   my @all_msgs = @{$IMAP->search ('all')};
   $log->dbug ("unseenMsgs found "
       . scalar (@msgs)
-      . " unseen messages. Total messages: "
+      . " unseen messages ("
+      . join (', ', @msgs)
+      . "). Total messages: "
       . scalar (@all_msgs));
   return map {$_ => 0} @msgs;
 }    # unseenMsgs
