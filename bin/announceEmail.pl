@@ -117,22 +117,32 @@ GetOptions (
 
 $| = 1;    # Enable global autoflush
 
-$opts{name} //= $opts{imap};
+# Logic for Greeting Name:
+# If -name specified or derived from username -> " on $name"
+# Else (default) -> ""
+my $display_name = '';
+
+if (defined $opts{name}) {
+  $display_name = " on $opts{name}";
+
+} elsif ($opts{username} =~ /.*\@(.*)$/) {
+  $opts{name} = $1;
+  $display_name = " on $1";
+
+} else {
+  $opts{name} = $opts{imap};
+}    # if
 
 unless ($opts{password}) {
   verbose "I need $opts{username}'s password";
   $opts{password} = GetPassword;
-}          # unless
-
-if ($opts{username} =~ /.*\@(.*)$/) {
-  $opts{name} = $1;
-}          # if
+}    # unless
 
 if ($opts{username} =~ /(.*)\@/) {
   $opts{user} = $1;
 } else {
   $opts{user} = $opts{username};
-}          # if
+}    # if
 
 if ($opts{daemon}) {
 
@@ -175,18 +185,19 @@ for my $process (@{$processes->table}) {
 
 local $0 = "announceEmail.pl $email";
 
+my $name      = $display_name;
 my @greetings = (
-  'Incoming message',
-  'You have received a new message',
-  'Hey I found this in your inbox',
-  'For some unknown reason this guy send you a message',
-  'Did you know you just got a message',
-  'Potential spam',
-  'You received a communique',
-  'I was looking in your inbox and found a message',
-  'Not sure you want to hear this message',
-  'Good news',
-  "What's this? A new message",
+  "Incoming message$name",
+  "You have received a new message$name",
+  "Hey I found this in your$name inbox",
+  "For some unknown reason this guy send you a message$name",
+  "Did you know you just got a message$name",
+  "Potential spam$name",
+  "You received a communique$name",
+  "I was looking in your$name inbox and found a message",
+  "Not sure you want to hear this message$name",
+  "Good news$name",
+  "What's this? A new message$name",
 );
 
 my $icon          = '/home/andrew/.icons/Thunderbird.jpg';
