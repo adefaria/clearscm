@@ -115,7 +115,7 @@ GetOptions (
   'useblocking', 'announce!', 'append',
 ) || pod2usage;
 
-$| = 1;    # Enable global autoflush
+local $| = 1;    # Enable global autoflush
 
 # Logic for Greeting Name:
 # If -name specified or derived from username -> " on $name"
@@ -147,8 +147,10 @@ if ($opts{username} =~ /(.*)\@/) {
 if ($opts{daemon}) {
 
   # Perl complains if we reference $DB::OUT only once
-  no warnings;
-  EnterDaemonMode unless defined $DB::OUT;    # or get_debug;
+  {
+    no warnings 'once';                        ## no critic (ProhibitNoWarnings)
+    EnterDaemonMode unless defined $DB::OUT;   # or get_debug;
+  }
   use warnings;
 }    # if
 
@@ -241,6 +243,7 @@ sub response_handler {
 sub restart {
   $log->msg ("Restart requested by signal");
   if (defined $IMAP) {$IMAP->logout; undef $IMAP;}
+  return;
 }    # restart
 
 $SIG{USR1} = \&interrupted;
@@ -315,15 +318,16 @@ sub MonitorMail() {
   # Check connection liveliness before selecting (with timeout)
   $log->dbug ("Checking connection state (noop)");
   my $noop_ok = 0;
-  eval {
+  my $eval_ok = eval {
     local $SIG{ALRM} = sub {die "alarm\n"};
     alarm 5;
     $noop_ok = $IMAP->noop;
     alarm 0;
+    1;
   };
   alarm 0;    # Ensure alarm is off
 
-  if ($@ or !$noop_ok) {
+  if (!$eval_ok || $@ || !$noop_ok) {
     my $reason = $@;
     $reason =~ s/\n//g;    # strip newline
     $reason ||= "noop failed (returned false)";
@@ -333,7 +337,7 @@ sub MonitorMail() {
     );
     Connect2IMAP;
     return unless defined $IMAP;
-  } ## end if ($@ or !$noop_ok)
+  } ## end if (!$eval_ok || $@ ||...)
   $log->dbug ("Selecting INBOX");
   $IMAP->select ('INBOX')
     or $log->err ("Unable to select INBOX - " . $IMAP->get_last_error (), 1);
@@ -357,8 +361,73 @@ sub MonitorMail() {
     }    # if
   }    # for
 
+  SpeakNewMessages (\%newUnseen);
+
+  # Let's time things
+  my $startTime = time;
+
+  # Re-establish callback
+  $log->dbug ("Calling IMAP->idle");
+  my $idle_ok = eval {$IMAP->idle (\&response_handler, $opts{timeout}); 1;};
+
+  my $msg = 'Returned from IMAP->idle ';
+
+  if (!$idle_ok || $@) {
+    speak ($msg . $@, $log);
+  } else {
+    $log->dbug ($msg . 'no error');
+  }    # if
+
+  # If we return from idle then the server went away for some reason. With Gmail
+  # the server seems to time out around 30-40 minutes. Here we simply reconnect
+  # to the imap server and continue to MonitorMail.
+  unless (defined $IMAP && $IMAP->get_response_code ('timeout')) {
+    $msg = "IMAP Idle for $opts{name} timed out in " . howlong $startTime, time;
+
+    $log->dbug ($msg);
+  }    # unless
+
+  # restart; # No longer recurse
+  return;
+}    # MonitorMail
+
+END {
+  # If $log is not yet defined then the exit is not unexpected
+  if ($log) {
+    my $msg = "$FindBin::Script $opts{name} ending unexpectedly!";
+
+    speak $msg, $log;
+
+    $log->err ($msg);
+  }    # if
+}    # END
+
+local $0 = "announceEmail.pl $email";
+
+Connect2IMAP;
+
+my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
+
+speak $msg, $log if $opts{announce};
+
+$log->msg ($msg);
+
+my $main_ok = eval {
+  while (1) {
+    MonitorMail;
+    sleep 1;
+  }
+  1;
+};
+if (!$main_ok || $@) {
+  $log->err ("Fatal error in main loop: $@");
+}
+
+sub SpeakNewMessages {
+  my ($newUnseen_ref) = @_;
+
   $log->dbug ("Processing new unseen messages");
-  for (keys %newUnseen) {
+  for (keys %$newUnseen_ref) {
     next if $unseen{$_};
 
     my $envelope = $IMAP->fetch ($_, '(envelope)');
@@ -393,10 +462,10 @@ sub MonitorMail() {
     # Now speak it!
     my $logmsg = "From $from $subject";
 
-    my $greeting = $greetings[int rand $#greetings];
-    my $msg      = "$greeting from $from... $subject";
-    my $hour     = (localtime)[2];
-    my $wday     = (localtime)[6];
+    my $greeting     = $greetings[int rand $#greetings];
+    my $announce_msg = "$greeting from $from... $subject";
+    my $hour         = (localtime)[2];
+    my $wday         = (localtime)[6];
 
     # Only announce if after 6 Am. Note this will announce up until
     # midnight but that's ok. I want midnight to 6 Am as silent time.
@@ -412,12 +481,12 @@ sub MonitorMail() {
       } else {
 
         $log->dbug ('Calling speak');
-        speak $msg, $log;
+        speak $announce_msg, $log;
       }
     } elsif ($hour >= 7) {
 
       $log->dbug ('Calling speak');
-      speak $msg, $log;
+      speak $announce_msg, $log;
     } else {
       $log->msg ("$logmsg [silent nighttime]");
     }    # if
@@ -426,61 +495,6 @@ sub MonitorMail() {
     $spoken_ids{$dedupe_key} = 1;
   }    # for
 
-  # Let's time things
-  my $startTime = time;
-
-  # Re-establish callback
-  $log->dbug ("Calling IMAP->idle");
-  eval {$IMAP->idle (\&response_handler, $opts{timeout})};
-
-  my $msg = 'Returned from IMAP->idle ';
-
-  if ($@) {
-    speak ($msg . $@, $log);
-  } else {
-    $log->dbug ($msg . 'no error');
-  }    # if
-
-  # If we return from idle then the server went away for some reason. With Gmail
-  # the server seems to time out around 30-40 minutes. Here we simply reconnect
-  # to the imap server and continue to MonitorMail.
-  unless (defined $IMAP && $IMAP->get_response_code ('timeout')) {
-    $msg = "IMAP Idle for $opts{name} timed out in " . howlong $startTime, time;
-
-    $log->dbug ($msg);
-  }    # unless
-
-  # restart; # No longer recurse
-}    # MonitorMail
-
-END {
-  # If $log is not yet defined then the exit is not unexpected
-  if ($log) {
-    my $msg = "$FindBin::Script $opts{name} ending unexpectedly!";
-
-    speak $msg, $log;
-
-    $log->err ($msg);
-  }    # if
-}    # END
-
-local $0 = "announceEmail.pl $email";
-
-Connect2IMAP;
-
-my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
-
-speak $msg, $log if $opts{announce};
-
-$log->msg ($msg);
-
-eval {
-  while (1) {
-    MonitorMail;
-    sleep 1;
-  }
-};
-if ($@) {
-  $log->err ("Fatal error in main loop: $@");
-}
+  return;
+}    # SpeakNewMessages
 
