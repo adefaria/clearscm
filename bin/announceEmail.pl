@@ -2,7 +2,7 @@
 
 =pod
 
-=head1 NAME $RCSfile: announceEmail.pl,v $
+=head1 announceEmail.pl
 
 Monitors an IMAP Server and announce incoming emails by extracting the subject
 line and from line and then pushing that into "GoogleTalk".
@@ -85,7 +85,7 @@ use lib "$FindBin::Bin/../lib";
 
 use Display;
 use Logger;
-use Speak;
+use Speak qw(speak);
 use TimeUtils;
 use Utils;
 
@@ -93,7 +93,8 @@ my $defaultIMAPServer = 'defaria.com';
 my $IMAPTimeout       = 20 * 60;
 my $IMAP;
 my %unseen;
-my %spoken_ids;    # Track spoken Message-IDs to avoid duplicates
+my %spoken_ids;             # Track spoken Message-IDs to avoid duplicates
+my $last_check_time = 0;    # Throttle connection check
 my $log;
 
 my %opts = (
@@ -156,8 +157,12 @@ if ($opts{daemon}) {
 
 my $email = "$opts{user}\@$opts{name}";
 
-# Special case my email address
-$email = 'Andrew@DeFaria.com' if $email =~ /^andrew\@defaria\.com$/i;
+# Special case my email addresses
+if ($email =~ /^andrew\@defaria/i) {
+  $email = 'Andrew@DeFaria.com';
+} elsif ($email =~ /^adefaria\@{1,1}gmail/i) {
+  $email = 'adefaria@gmail.com';
+}
 
 $log = Logger->new (
   path        => '/var/local/log',
@@ -312,32 +317,37 @@ sub MonitorMail() {
     Connect2IMAP;       # Re-attempt connection
     return
       unless
-      defined $IMAP;    # Give up if still undefined (Connect22IMAP logs error)
+      defined $IMAP;    # Give up if still undefined (Connect2IMAP logs error)
   } ## end unless (defined $IMAP)
 
   # Check connection liveliness before selecting (with timeout)
-  $log->dbug ("Checking connection state (noop)");
-  my $noop_ok = 0;
-  my $eval_ok = eval {
-    local $SIG{ALRM} = sub {die "alarm\n"};
-    alarm 5;
-    $noop_ok = $IMAP->noop;
-    alarm 0;
-    1;
-  };
-  alarm 0;    # Ensure alarm is off
+  # Only check once every 30 minutes to reduce noise and assume stability
+  if (time - $last_check_time > 30 * 60) {
+    $log->dbug ("Checking connection state (noop)");
+    my $noop_ok = 0;
+    my $eval_ok = eval {
+      local $SIG{ALRM} = sub {die "alarm\n"};
+      alarm 5;
+      $noop_ok = $IMAP->noop;
+      alarm 0;
+      1;
+    };
+    alarm 0;    # Ensure alarm is off
 
-  if (!$eval_ok || $@ || !$noop_ok) {
-    my $reason = $@;
-    $reason =~ s/\n//g;    # strip newline
-    $reason ||= "noop failed (returned false)";
-    my $errstr = $IMAP ? $IMAP->get_last_error () : "IMAP undef";
-    $log->warn (
+    if (!$eval_ok || $@ || !$noop_ok) {
+      my $reason = $@;
+      $reason =~ s/\n//g;    # strip newline
+      $reason ||= "noop failed (returned false)";
+      my $errstr = $IMAP ? $IMAP->get_last_error () : "IMAP undef";
+      $log->warn (
 "Connection appears dead (Reason: $reason, IMAP Error: $errstr), reconnecting..."
-    );
-    Connect2IMAP;
-    return unless defined $IMAP;
-  } ## end if (!$eval_ok || $@ ||...)
+      );
+      Connect2IMAP;
+      return unless defined $IMAP;
+    } ## end if (!$eval_ok || $@ ||...)
+
+    $last_check_time = time;
+  } ## end if (time - $last_check_time...)
   $log->dbug ("Selecting INBOX");
   $IMAP->select ('INBOX')
     or $log->err ("Unable to select INBOX - " . $IMAP->get_last_error (), 1);
@@ -406,7 +416,7 @@ local $0 = "announceEmail.pl $email";
 
 Connect2IMAP;
 
-my $msg = "Now monitoring email for $opts{user}\@$opts{name}";
+my $msg = "Now monitoring email for $email";
 
 speak $msg, $log if $opts{announce};
 
