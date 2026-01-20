@@ -369,7 +369,7 @@ Returns:
     }
 
     # Play it
-    if (-f $final_file) {
+    if (-s "$final_file") {
       if ($ENV{DEBUG_SPEAK}) {
         print "File info for $final_file:\n";
         system ("ls -l $final_file");
@@ -448,7 +448,7 @@ Returns:
         }
       } ## end else [ if ($os eq 'darwin') ]
 
-    } ## end if (-f $final_file)
+    } ## end if (-s "$final_file")
     ## end if (-f $final_file)
   } ## end if (@mp3_files)
 
