@@ -35,7 +35,7 @@ $Date: 2019/04/04 13:40:10 $
                          [-use|rname <username>] [-p|assword <password>]
                          [-i|map <server>] [-t|imeout <secs>]
                          [-an|nouce] [-ap|pend] [-da|emon] [-n|name <name>]
-                         [-uses|sl] [-useb|locking]
+                         [-uses|sl]
 
  Where:
    -usa|ge       Print this usage
@@ -53,7 +53,6 @@ $Date: 2019/04/04 13:40:10 $
    -da|emon      Run in daemon mode (Default: -daemon)
    -n|ame        Name of account (Default: imap)
    -uses|sl      Whether or not to use SSL to connect (Default: False)
-   -useb|locking Whether to block on socket (Default: False)
 
  Signals:
    $SIG{USR1}:   Toggles debug option
@@ -96,6 +95,7 @@ my %unseen;
 my %spoken_ids;             # Track spoken Message-IDs to avoid duplicates
 my $last_check_time = 0;    # Throttle connection check
 my $log;
+my $got_update = 0;
 
 my %opts = (
   usage    => sub {pod2usage},
@@ -110,10 +110,9 @@ my %opts = (
 );
 
 GetOptions (
-  \%opts,        'usage',     'help',       'verbose',
-  'debug',       'daemon!',   'username=s', 'name=s',
-  'password=s',  'imap=s',    'timeout=i',  'usessl',
-  'useblocking', 'announce!', 'append',
+  \%opts,       'usage',  'help',      'verbose', 'debug',      'daemon!',
+  'username=s', 'name=s', 'debug',     'daemon!', 'username=s', 'name=s',
+  'password=s', 'imap=s', 'timeout=i', 'usessl',  'announce!',  'append',
 ) || pod2usage;
 
 local $| = 1;    # Enable global autoflush
@@ -241,8 +240,8 @@ sub response_handler {
 # We use the global $IMAP object to terminate the IDLE command.
   my $atom = shift;
   $log->dbug ("response_handler called with atom: $atom") if defined $atom;
-  $IMAP->done;
-  return;
+  $got_update = 1;
+  return 1;
 }    # response_handler
 
 sub restart {
@@ -277,11 +276,10 @@ sub Connect2IMAP() {
   undef $IMAP;
 
   $IMAP = Mail::IMAPTalk->new (
-    Server      => $opts{imap},
-    Username    => $opts{username},
-    Password    => $opts{password},
-    UseSSL      => $opts{usessl},
-    UseBlocking => $opts{useblocking},
+    Server   => $opts{imap},
+    Username => $opts{username},
+    Password => $opts{password},
+    UseSSL   => $opts{usessl},
   ) or $log->err ("Unable to connect to IMAP server $opts{imap}: $@", 1);
 
   $log->dbug ("Connected to $opts{imap} as $opts{username}");
@@ -377,13 +375,38 @@ sub MonitorMail() {
   my $startTime = time;
 
   # Re-establish callback
+  # Re-establish callback
+  # Wrap in alarm to prevent infinite hang on dead socket
+  $got_update = 0;
   $log->dbug ("Calling IMAP->idle");
-  my $idle_ok = eval {$IMAP->idle (\&response_handler, $opts{timeout}); 1;};
+  my $idle_ok = eval {
+    local $SIG{ALRM} = sub {die "alarm\n"};
+    alarm ($opts{timeout} + 60);
+    $IMAP->idle (\&response_handler, $opts{timeout});
+    alarm 0;
+    1;
+  };
+  alarm 0;
 
   my $msg = 'Returned from IMAP->idle ';
 
+  if ($got_update) {
+    $log->dbug ($msg . "NEW MAIL DETECTED");
+    return 1;
+  }
+
   if (!$idle_ok || $@) {
-    speak ($msg . $@, $log);
+    my $err = $@;
+    $err =~ s/\n//g;
+    if ($err eq "alarm") {
+      $log->dbug ($msg . "TIMEOUT (Alarm fired)");
+
+      # This implies we hung. Return failure to trigger reconnect.
+      # restart; # No longer recurse
+      return 0;
+    } else {
+      speak ($msg . $err, $log);
+    }
   } else {
     $log->dbug ($msg . 'no error');
   }    # if
