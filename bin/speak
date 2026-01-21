@@ -53,29 +53,22 @@ use FindBin;
 use Getopt::Long;
 use Pod::Usage;
 
-use lib"$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/../lib";
 
 use Display;
 use Clipboard;
-use Speak;
+use Speak qw(speak);
 
 my %opts = (
-  usage       => sub { pod2usage },
-  help        => sub { pod2usage(-verbose => 2)},
-  verbose     => sub { set_verbose },
-  debug       => sub { set_debug },
+  usage   => sub {pod2usage},
+  help    => sub {pod2usage (-verbose => 2)},
+  verbose => sub {set_verbose},
+  debug   => sub {set_debug},
 );
 
 ## Main
-GetOptions(
-  \%opts,
-  'usage',
-  'help',
-  'verbose',
-  'debug',
-  'clipboard',
-  'file=s',
-) || pod2usage;
+GetOptions (\%opts, 'usage', 'help', 'verbose', 'debug', 'clipboard', 'file=s',)
+  || pod2usage;
 
 my $msg = join ' ', @ARGV;
 
@@ -86,18 +79,18 @@ if ($opts{clipboard}) {
     error 'Cannot specify both -clipboard and <message>', 1;
   } else {
     $msg = Clipboard->paste;
-  } # if
+  }    # if
 } elsif ($opts{file}) {
   if ($msg) {
     error 'Cannot specify both -file and <message>', 1;
   } else {
-    open my $file, '<', $opts{file} or
-      error "Unable to open $opts{file} - $!", 1;
+    open my $file, '<', $opts{file}
+      or error "Unable to open $opts{file} - $!", 1;
 
     $msg = <$file>;
 
     close $file;
-  } # if
-} # if
+  }    # if
+}    # if
 
 speak $msg;
