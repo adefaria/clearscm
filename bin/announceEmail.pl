@@ -255,7 +255,11 @@ $SIG{USR2} = \&restart;
 
 sub unseenMsgs() {
   $IMAP->select ('inbox')
-    or $log->err ("Unable to select inbox: " . $IMAP->get_last_error (), 1);
+    or do {
+    $log->dbug ("Unable to select inbox: " . $IMAP->get_last_error ());
+    undef $IMAP;
+    return ();
+    };
 
   # Use SEARCH to get sequence numbers
   my @msgs     = @{$IMAP->search ('unseen')};
@@ -280,7 +284,12 @@ sub Connect2IMAP() {
     Username => $opts{username},
     Password => $opts{password},
     UseSSL   => $opts{usessl},
-  ) or $log->err ("Unable to connect to IMAP server $opts{imap}: $@", 1);
+    )
+    or do {
+    $log->dbug ("Unable to connect to IMAP server $opts{imap}: $@");
+    undef $IMAP;
+    return;
+    };
 
   $log->dbug ("Connected to $opts{imap} as $opts{username}");
 
@@ -310,7 +319,7 @@ sub MonitorMail() {
 
   # First close and reselect the INBOX to get its current status
   unless (defined $IMAP) {
-    $log->err (
+    $log->dbug (
       "IMAP object is undefined in MonitorMail, attempting reconnect...");
     Connect2IMAP;       # Re-attempt connection
     return
@@ -337,7 +346,7 @@ sub MonitorMail() {
       $reason =~ s/\n//g;    # strip newline
       $reason ||= "noop failed (returned false)";
       my $errstr = $IMAP ? $IMAP->get_last_error () : "IMAP undef";
-      $log->warn (
+      $log->dbug (
 "Connection appears dead (Reason: $reason, IMAP Error: $errstr), reconnecting..."
       );
       Connect2IMAP;
@@ -348,7 +357,11 @@ sub MonitorMail() {
   } ## end if (time - $last_check_time...)
   $log->dbug ("Selecting INBOX");
   $IMAP->select ('INBOX')
-    or $log->err ("Unable to select INBOX - " . $IMAP->get_last_error (), 1);
+    or do {
+    $log->dbug ("Unable to select INBOX - " . $IMAP->get_last_error ());
+    undef $IMAP;
+    return 0;
+    };
 
   $log->dbug ("Selected INBOX");
 
