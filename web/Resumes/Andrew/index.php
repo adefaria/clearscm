@@ -9,6 +9,8 @@
   <link rel="stylesheet" type="text/css" media="print" href="Print.css">
   <link rel="SHORTCUT ICON" href="http://clearscm.com/favicon.ico" type="image/png">
 
+  <?php include __DIR__ . '/../includes/frame_header.php'; ?>
+
   <script type="text/javascript">
     function blink() {
       if (!document.getElementById('blink').style.color) {
