@@ -161,7 +161,7 @@ sub _split_text ($) {
 
   # Basic splitting on punctuation, keeping punctuation
   # This is a simplified version of speak.pl logic
-  while ($text =~ /(.{1,100}?(?:[.!?;]|$))/g) {
+  while ($text =~ /(.{1,100}?(?:[.!?;]|$))/gs) {
     push @sentences, $1;
   }
 
@@ -296,6 +296,10 @@ Returns:
 
   $msg = Clipboard->paste unless $msg;
   $msg = <$msg> if ref $msg eq 'GLOB';
+
+  # Interpret escape sequences in the input message
+  $msg =~ s/\\([nrtfbae])/"qq|\\$1|"/gee;
+  $msg =~ s/\\(.)/$1/g;
 
   $log->msg ($msg);
 
