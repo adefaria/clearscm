@@ -339,12 +339,12 @@ Returns:
     my $mp3_data = _fetch_mp3 ($ua, $sentence, $lang);
     next unless $mp3_data;
 
-    my ($fh, $filename) = tempfile (SUFFIX => '.mp3', UNLINK => 0);
-    binmode $fh;
-    print $fh $mp3_data;
-    close $fh;
+    my $mp3_fh = File::Temp->new (SUFFIX => '.mp3', UNLINK => 1);
+    binmode $mp3_fh;
+    print $mp3_fh $mp3_data;
+    close $mp3_fh;
 
-    push @mp3_files, $filename;
+    push @mp3_files, $mp3_fh;
   } ## end foreach my $sentence (@sentences)
 
   if (@mp3_files) {
@@ -356,9 +356,9 @@ Returns:
     # Concatenate using sox if multiple files
     my $final_file;
     if (@mp3_files > 1) {
-      my ($fh, $joined) = tempfile (SUFFIX => '.mp3', UNLINK => 0);
-      close $fh;
-      $final_file = $joined;
+      my $joined_fh = File::Temp->new (SUFFIX => '.mp3', UNLINK => 1);
+      close $joined_fh;
+      $final_file = $joined_fh;
 
       # Using system sox to join.
       # Note: This requires sox with mp3 handler.
@@ -369,7 +369,7 @@ Returns:
     }
 
     # Play it
-    if (-f $final_file) {
+    if (-s "$final_file") {
       if ($ENV{DEBUG_SPEAK}) {
         print "File info for $final_file:\n";
         system ("ls -l $final_file");
@@ -398,14 +398,14 @@ Returns:
 
        # Use PowerShell to play audio hidden
        # System.Media.SoundPlayer only supports WAV, so convert MP3 -> WAV first
-        my ($fh_wav, $wav_file) = tempfile (SUFFIX => '.wav', UNLINK => 0);
-        close $fh_wav;
+        my $wav_fh = File::Temp->new (SUFFIX => '.wav', UNLINK => 1);
+        close $wav_fh;
 
         # Convert to WAV using sox
-        if (system ("sox \"$final_file\" \"$wav_file\"") == 0) {
-          my $wav_win_path = $wav_file;
+        if (system ("sox \"$final_file\" \"$wav_fh\"") == 0) {
+          my $wav_win_path = $wav_fh;
           if ($os eq 'cygwin') {
-            chomp ($wav_win_path = `cygpath -w "$wav_file"`);
+            chomp ($wav_win_path = `cygpath -w "$wav_fh"`);
           }
 
           my $cmd_wav =
@@ -415,7 +415,6 @@ Returns:
             # Fallback
             system ("play -q \"$final_file\"");
           }
-          unlink $wav_file;
         } else {
 
           # Conversion failed logic fallback
@@ -426,20 +425,19 @@ Returns:
             # Fallback to sox 'play' if powershell fails
             system ("play -q \"$final_file\"");
           }
-        } ## end else [ if (system ("sox \"$final_file\" \"$wav_file\""...))]
+        } ## end else [ if (system ("sox \"$final_file\" \"$wav_fh\""...))]
       } else {
 
       # Linux / Unix
       # paplay often requires WAV if libsndfile lacks mp3 support (e.g. on Mars)
       # We convert to WAV to be safe.
         if (-x '/usr/bin/paplay' || -x '/bin/paplay') {
-          my ($fh_wav, $wav_file) = tempfile (SUFFIX => '.wav', UNLINK => 0);
-          close $fh_wav;
+          my $wav_fh = File::Temp->new (SUFFIX => '.wav', UNLINK => 1);
+          close $wav_fh;
 
           # Convert to WAV
-          if (_convert_mp3_to_wav ($final_file, $wav_file)) {
-            system ("paplay \"$wav_file\"");
-            unlink $wav_file;
+          if (_convert_mp3_to_wav ($final_file, $wav_fh)) {
+            system ("paplay \"$wav_fh\"");
           } else {
 
             # Conversion failed, try playing mp3 directly
@@ -450,13 +448,9 @@ Returns:
         }
       } ## end else [ if ($os eq 'darwin') ]
 
-      unlink $final_file;
-    } ## end if (-f $final_file)
+    } ## end if (-s "$final_file")
     ## end if (-f $final_file)
   } ## end if (@mp3_files)
-
-  # Cleanup temp files
-  unlink @mp3_files;
 
   return;
 }    # speak
