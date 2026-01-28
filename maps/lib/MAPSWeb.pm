@@ -77,7 +77,7 @@ sub GetMessageDisplay(%) {
   my $sender       = $params{sender};
   my $msg_date     = $params{msg_date};
   my $table_name   = $params{table_name}   || 'message';
-  my $header_color = $params{header_color} || 'steelblue';
+  my $header_color = $params{header_color} || '#34a853';
 
   # Find unique message using $date
   my ($err, $msg) = MAPS::FindEmail (
@@ -113,8 +113,8 @@ sub GetMessageDisplay(%) {
       -align       => "center",
       -bgcolor     => $header_color,
       -border      => 0,
-      -cellspacing => 2,
-      -cellpadding => 2,
+      -cellspacing => 1,
+      -cellpadding => 0,
       -width       => "100%"
     }
   ) . "\n";
@@ -124,7 +124,7 @@ sub GetMessageDisplay(%) {
       -border      => 0,
       -cellspacing => 0,
       -cellpadding => 2,
-      -bgcolor     => 'black',
+      -class       => 'msg-table-inner',
       -width       => "100%"
     }
   ) . "\n";
@@ -148,15 +148,14 @@ sub GetMessageDisplay(%) {
 
     $html .= Tr ([
         th ({
-            -align   => 'right',
-            -bgcolor => $header_color,
-            -style   => 'color: white',
-            -width   => "8%"
+            -align => 'right',
+            -class => 'tableheader',
+            -width => "8%"
           },
           ucfirst "$_:"
           )
           . "\n"
-          . td ({-bgcolor => 'white'}, $str)
+          . td ({-class => 'tabledata'}, $str)
       ]
     );
   }    # for
@@ -173,7 +172,7 @@ sub GetMessageDisplay(%) {
                    width="100%"
                    height="600"
                    frameborder="0"
-                   style="background-color: white"
+                   class="iframe-body"
                    sandbox="allow-same-origin">
            </iframe>
 <script>
@@ -378,7 +377,9 @@ sub displayquickstats($) {
     -align => 'center'
     },
     'Today\'s Activity';
-  print p {-align => 'center'}, b ('as of ' . FormatTime ($time));
+
+  print p {-align => 'center', -style => 'font-weight: 400 !important;'},
+    'as of ' . FormatTime ($time);
 
   print start_div {-id => 'quickstats'};
 
@@ -493,14 +494,6 @@ sub Footing(;$) {
   # General footing (copyright). Note we calculate the current year
   # so that the copyright automatically extends itself.
   my $year = substr ((scalar (localtime)), 20, 4);
-
-  print start_div {-class => "copyright"};
-  print "Copyright &copy; 2001-$year - All rights reserved";
-  print br (
-    a ({-href => 'https://defaria.com'},       'Andrew DeFaria'),
-    a ({-href => 'mailto:Andrew@DeFaria.com'}, '&lt;Andrew@DeFaria.com&gt;')
-  );
-  print end_div;
 
   print end_div;    # This div ends "content" which was started in Heading
   print
@@ -633,7 +626,7 @@ sub Heading($$$$;$$@) {
     print start_html(
       -title    => $title,
       -author   => 'Andrew\@DeFaria.com',
-      -style    => {-src     => '/maps/css/MAPSStyle.css'},
+      -style    => {-src     => '/maps/css/MAPSStyle.css?v=' . time ()},
       -meta     => {viewport => 'width=device-width, initial-scale=1'},
       -onResize => "AdjustTableWidth (\"$table_name\");",
       -head     => [
@@ -641,6 +634,28 @@ sub Heading($$$$;$$@) {
             -rel  => 'icon',
             -href => '/maps/MAPS.png',
             -type => 'image/png'
+          }
+        ),
+        Link ({
+            -rel  => 'preconnect',
+            -href => 'https://fonts.googleapis.com'
+          }
+        ),
+        Link ({
+            -rel         => 'preconnect',
+            -href        => 'https://fonts.gstatic.com',
+            -crossorigin => 'anonymous'
+          }
+        ),
+        Link ({
+            -rel  => 'stylesheet',
+            -href =>
+'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700&display=swap'
+          }
+        ),
+        Link ({
+            -rel  => 'stylesheet',
+            -href => '/css/style.css?v=' . time ()
           }
         ),
         Link ({
@@ -655,13 +670,35 @@ sub Heading($$$$;$$@) {
     print start_html(
       -title  => $title,
       -author => 'Andrew\@DeFaria.com',
-      -style  => {-src     => '/maps/css/MAPSStyle.css'},
+      -style  => {-src     => '/maps/css/MAPSStyle.css?v=' . time ()},
       -meta   => {viewport => 'width=device-width, initial-scale=1'},
       -head   => [
         Link ({
             -rel  => 'icon',
             -href => '/maps/MAPS.png',
             -type => 'image/png'
+          }
+        ),
+        Link ({
+            -rel  => 'preconnect',
+            -href => 'https://fonts.googleapis.com'
+          }
+        ),
+        Link ({
+            -rel         => 'preconnect',
+            -href        => 'https://fonts.gstatic.com',
+            -crossorigin => 'anonymous'
+          }
+        ),
+        Link ({
+            -rel  => 'stylesheet',
+            -href =>
+'https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700&display=swap'
+          }
+        ),
+        Link ({
+            -rel  => 'stylesheet',
+            -href => '/css/style.css?v=' . time ()
           }
         ),
         Link ({
@@ -702,8 +739,7 @@ sub NavigationBar($) {
   print start_div {-id => 'leftbar'};
 
   unless ($userid) {
-    print h2({-align => 'center'},
-      font ({-color => 'white'}, "MAPS $MAPS::VERSION"));
+    print h2({-align => 'center'}, "MAPS $MAPS::VERSION");
     print div ({-class => 'username'}, 'Welcome to MAPS');
     print div (
       {-class => 'menu'},
@@ -715,8 +751,7 @@ sub NavigationBar($) {
       (a {-href => '/maps/doc/'},                  'Help<br>'),
     );
   } else {
-    print h2({-align => 'center'},
-      font ({-color => 'white'}, "MAPS $MAPS::VERSION"));
+    print h2({-align => 'center'}, "MAPS $MAPS::VERSION");
     print div ({-class => 'username'}, 'Welcome ' . ucfirst $userid);
 
     print div (
@@ -729,8 +764,8 @@ sub NavigationBar($) {
       (a {-href => '/maps/php/list.php?type=black'}, 'Black<br>'),
       (a {-href => '/maps/php/list.php?type=null'},  'Null<br>'),
       (a {-href => '/maps/doc/'},                    'Help<br>'),
-      (a {-href => '/maps/adm/'},                    'Admin<br>'),
-      (a {-href => '/maps/?logout=yes'},             'Logout'),
+
+      (a {-href => '/maps/?logout=yes'}, 'Logout'),
     );
 
     displayquickstats ($userid);

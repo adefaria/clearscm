@@ -123,16 +123,18 @@ if ($view && $view eq 'body') {
 
   if ($type eq 'text/plain') {
     $content = escapeHTML ($content);
+    my $style_time = time ();
     $content =
-"<html><head></head><body style='background-color: white'><pre>$content</pre></body></html>";
+"<html><head><link rel='stylesheet' href='/css/style.css?v=$style_time'><link rel='stylesheet' href='/maps/css/MAPSStyle.css?v=$style_time'></head><body style='background-color: var(--bg-color); color: var(--text-color);'><pre>$content</pre></body></html>";
     $type = 'text/html';
   } ## end if ($type eq 'text/plain')
 
   if ($type eq 'text/html') {
 
     # Disable links to prevent accidental clicking on malicious URLs
+    my $style_time = time ();
     my $css =
-qq{<style>body { background-color: white; } a[title] { cursor: copy; text-decoration: underline; }</style>};
+qq{<link rel='stylesheet' href='/css/style.css?v=$style_time'><link rel='stylesheet' href='/maps/css/MAPSStyle.css?v=$style_time'><style>body { background-color: var(--bg-color); color: var(--text-color); } a[title] { cursor: copy; text-decoration: underline; color: var(--google-blue); }</style>};
 
     if ($content =~ /<\/head>/i) {
       $content =~ s/<\/head>/$css\n<\/head>/i;
