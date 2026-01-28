@@ -118,7 +118,6 @@ a:hover {
 
 #quickstats tr {
   color: var(--text-color);
-  display: block;
 }
 
 #quickstats tr:hover {
@@ -604,10 +603,10 @@ img {
 }
 
 .tablebottomleft {
-  background: var(--surface-color);
+  background: var(--menu-bg);
   color: var(--text-color);
   border-left: solid 3px var(--menu-bg);
-  border-right: 1px dotted #ccc;
+  border-right: 1px dotted var(--muted-color);
   border-bottom: solid 3px var(--menu-bg);
   font-size: 12px;
   -moz-border-radius-bottomleft: 7px;
@@ -615,7 +614,7 @@ img {
 }
 
 .tablebottomright {
-  background: var(--surface-color);
+  background: var(--table-data-bg);
   border-right: solid 3px var(--menu-bg);
   border-left: 1px dotted var(--muted-color);
   border-bottom: solid 3px var(--menu-bg);
@@ -681,9 +680,9 @@ img {
 
 /* Special anchor effects */
 .sender {
-  background: var(--surface-color);
-  border-top: 1px dotted #ccc;
-  border-left: 1px dotted #ccc;
+  background: var(--table-data-bg);
+  border-top: 1px dotted var(--muted-color);
+  border-left: 1px dotted var(--muted-color);
   font-family: arial, sans-serif;
   font-size: 14px;
 }
@@ -698,9 +697,9 @@ img {
 }
 
 .senderbottom {
-  background: var(--surface-color);
-  border-top: 1px dotted #ccc;
-  border-left: 1px dotted #ccc;
+  background: var(--table-data-bg);
+  border-top: 1px dotted var(--muted-color);
+  border-left: 1px dotted var(--muted-color);
   border-bottom: solid 3px var(--menu-bg);
   font-size: 14px;
 }
@@ -715,11 +714,12 @@ img {
 }
 
 .subject {
-  background: var(--surface-color);
-  border-top: 1px dotted #ccc;
-  border-left: 1px dotted #ccc;
+  background: var(--table-data-bg);
+  border-top: 1px dotted var(--muted-color);
+  border-left: 1px dotted var(--muted-color);
   font-family: arial, sans-serif;
   font-size: 16px;
+  font-weight: bold;
 }
 
 .subject a:link {
@@ -736,15 +736,16 @@ img {
 }
 
 .subjectbottom {
-  background: var(--surface-color);
-  border-top: 1px dotted #ccc;
-  border-left: 1px dotted #ccc;
+  background: var(--table-data-bg);
+  border-top: 1px dotted var(--muted-color);
+  border-left: 1px dotted var(--muted-color);
   border-bottom: solid 3px var(--menu-bg);
   font-size: 16px;
+  font-weight: bold;
 }
 
 .subjectbottom a:link {
-  color: #b11;
+  color: var(--google-yellow);
 }
 
 .subjectbottom a:visited {
@@ -816,3 +817,36 @@ img {
 .login-table td {
   padding: 0.5rem;
 }
+
+/* Detail.cgi specific overrides */
+#detail .tablerightdata,
+#detail .tablebottomright {
+  font-size: 0.8rem !important;
+  background: var(--table-data-bg) !important;
+}
+
+#detail span.date {
+  background: transparent !important;
+  font-size: 0.8rem !important;
+  color: var(--text-color) !important;
+}
+
+#detail .subject a,
+#detail .subjectbottom a {
+  color: var(--google-yellow) !important;
+}
+
+.maps-button {
+  background: transparent !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--muted-color);
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.maps-button:hover {
+  background: var(--tab-hover-bg) !important;
+}
+
+/* Embedded mode overrides - REMOVED per user request to restore menu */

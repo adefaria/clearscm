@@ -294,10 +294,51 @@ sub Body($) {
       }    # if
 
       if ($date eq substr ($rec->{timestamp}, 0, 10)) {
-        $rec->{date} = b font {-color => 'green'},
-          SQLDatetime2UnixDatetime $rec->{timestamp};
+        my $unix_date = SQLDatetime2UnixDatetime $rec->{timestamp};
+
+        # Parse "Jan 24, 2026 @ 11:14 Pm" to "01/24/26 @ 11:14 Pm"
+        if ($unix_date =~ /(\w+) (\d+), (\d+) @ (.*)/) {
+          my %m = (
+            Jan => '01',
+            Feb => '02',
+            Mar => '03',
+            Apr => '04',
+            May => '05',
+            Jun => '06',
+            Jul => '07',
+            Aug => '08',
+            Sep => '09',
+            Oct => '10',
+            Nov => '11',
+            Dec => '12'
+          );
+          my $yr = substr ($3, 2, 2);
+          $rec->{date} = "$m{$1}/$2/$yr \@ $4";
+        } else {
+          $rec->{date} = $unix_date;
+        }
       } else {
-        $rec->{date} = SQLDatetime2UnixDatetime $rec->{timestamp};
+        my $unix_date = SQLDatetime2UnixDatetime $rec->{timestamp};
+        if ($unix_date =~ /(\w+) (\d+), (\d+) @ (.*)/) {
+          my %m = (
+            Jan => '01',
+            Feb => '02',
+            Mar => '03',
+            Apr => '04',
+            May => '05',
+            Jun => '06',
+            Jul => '07',
+            Aug => '08',
+            Sep => '09',
+            Oct => '10',
+            Nov => '11',
+            Dec => '12'
+          );
+          my $yr = substr ($3, 2, 2);
+          $rec->{date} = "$m{$1}/$2/$yr \@ $4";
+        } else {
+          $rec->{date} = $unix_date;
+        }
       }    # if
 
       $rec->{subject} //= '<Unspecified>';
@@ -325,7 +366,7 @@ sub Body($) {
         a {
           -href => "display.cgi?sender=$sender;msg_date=$rec->{timestamp}",
         },
-        '&nbsp;&nbsp;&nbsp;&nbsp;' . $rec->{subject},
+        $rec->{subject},
         td {
           -class => $rightclass,
           -width => '150',

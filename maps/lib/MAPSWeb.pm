@@ -473,17 +473,17 @@ sub MakeButtons {
   my $show_null  = (!defined $type || $type ne 'nulllist');
 
   $buttons .=
-'<button type="submit" name="action" value="Whitelist" onClick="return CheckAtLeast1Checked (document.detail);">White</button>&nbsp;'
+'<button class="maps-button" type="submit" name="action" value="Whitelist" onClick="return CheckAtLeast1Checked (document.detail);">White</button>&nbsp;'
     if $show_white;
   $buttons .=
-'<button type="submit" name="action" value="Blacklist" onClick="return CheckAtLeast1Checked (document.detail);">Black</button>&nbsp;'
+'<button class="maps-button" type="submit" name="action" value="Blacklist" onClick="return CheckAtLeast1Checked (document.detail);">Black</button>&nbsp;'
     if $show_black;
   $buttons .=
-'<button type="submit" name="action" value="Nulllist" onClick="return CheckAtLeast1Checked (document.detail);">Null</button>&nbsp;'
+'<button class="maps-button" type="submit" name="action" value="Nulllist" onClick="return CheckAtLeast1Checked (document.detail);">Null</button>&nbsp;'
     if $show_null;
 
   $buttons .=
-qq(<input type="submit" name="action" value="Reset" onClick="return ClearAll (document.detail);">);
+qq(<input class="maps-button" type="submit" name="action" value="Reset" onClick="return ClearAll (document.detail);">);
 
   return qq(<div align="center" class="toolbar">$buttons$next_button</div>);
 }    # MakeButtons
@@ -580,6 +580,25 @@ sub Heading($$$$;$$@) {
       -src      => "/maps/JavaScript/$_"
       };
   }    # foreach
+
+  # Add embedded mode detection script
+  push @{$java_scripts[0]}, {
+    -type => 'text/javascript',
+    -code => q{
+    (function() {
+        var isStandalone = (window === window.top);
+        if (isStandalone) {
+             var currentUrl = window.location.pathname + window.location.search;
+             window.location.href = '/?url=' + encodeURIComponent(currentUrl);
+        } else {
+            document.documentElement.classList.add('embedded');
+            document.addEventListener('DOMContentLoaded', function() {
+                document.body.classList.add('embedded');
+            });
+        }
+    })();
+      }
+  };
 
   # Since Heading is called from various scripts we sometimes need to
   # set a cookie, other times delete a cookie but most times return the

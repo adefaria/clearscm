@@ -277,37 +277,37 @@ function displayquickstats()
 <div id="quickstats">
 <table cellpadding="2" border="0" align="center" cellspacing="0">
   <tr align="right">
-    <td align="left" class="smalllabel">Processed</td>
+    <td align="right" class="smalllabel">Processed</td>
     <td align="right" class="smallnumber">$processed</td>
     <td align="right" class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${nulllist_link}Null</a></td>
+    <td align="right" class="smalllabel">${nulllist_link}Null</a></td>
     <td class="smallnumber">$nulllist</td>
     <td class="smallnumber">$nulllist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${returned_link}Returned</a></td>
+    <td align="right" class="smalllabel">${returned_link}Returned</a></td>
     <td class=smallnumber>$returned</td>
     <td class="smallnumber">$returned_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${whitelist_link}White</a></td>
+    <td align="right" class="smalllabel">${whitelist_link}White</a></td>
     <td class="smallnumber">$whitelist</td>
     <td class="smallnumber">$whitelist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${blacklist_link}Black</a></td>
+    <td align="right" class="smalllabel">${blacklist_link}Black</a></td>
     <td class="smallnumber">$blacklist</td>
     <td class="smallnumber">$blacklist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${registered_link}Registered</a></td>
+    <td align="right" class="smalllabel">${registered_link}Registered</a></td>
     <td class="smallnumber">$registered</td>
     <td class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${mailloop_link}Mailloop</a></td>
+    <td align="right" class="smalllabel">${mailloop_link}Mailloop</a></td>
     <td class="smallnumber">$mailloop</td>
     <td class="smallnumber">n/a</td>
   </tr>
@@ -497,6 +497,24 @@ function MAPSHeader()
    type="text/javascript"></script>
   <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js"
    type="text/javascript"></script>
+  <script type="text/javascript">
+    (function() {
+        var isStandalone = (window === window.top);
+        if (isStandalone) {
+            // Redirect to main shell
+            var currentUrl = window.location.pathname + window.location.search;
+            // Prevent redirect loops if we are already at root but somehow thinks standalone?
+            // Assuming /?url= handles it.
+             window.location.href = '/?url=' + encodeURIComponent(currentUrl);
+        } else {
+            // Embedded mode
+            document.documentElement.classList.add('embedded');
+            document.addEventListener('DOMContentLoaded', function() {
+                document.body.classList.add('embedded');
+            });
+        }
+    })();
+  </script>
 END;
 } // MAPSHeader
 
