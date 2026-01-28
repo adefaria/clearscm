@@ -139,17 +139,11 @@ sub Body {
 # Main
 my @scripts = ("ListActions.js");
 
-$userid = Heading (
-  "getcookie", "",
-  "Search Results",
-  "Search Results for \"$str\"",
-  "", $table_name, @scripts
-);
+my @scripts = ("ListActions.js");
 
 $userid //= $ENV{USER};
 
 SetContext $userid;
-NavigationBar $userid;
 
 DisplayError "No search string specified" if !defined $str;
 
@@ -163,7 +157,34 @@ $total = CountEmail (
   additional => "(subject like '%$str%' or sender like '%$str%')",
 );
 
-DisplayError "Nothing matching!" if $total eq 0;
+my $view = param ('view') || '';
+if ($view eq 'count') {
+  print header(-type => 'text/plain');
+  print $total;
+  exit;
+}
+
+if ($total eq 0) {
+
+  # Output minimal header if no results, to support the DisplayError popup
+  $userid = Heading (
+    "getcookie", "",
+    "Search Results",
+    "",    # No H1
+    "", $table_name, @scripts
+  );
+  NavigationBar $userid;
+  DisplayError "Nothing matching!";
+} ## end if ($total eq 0)
+
+# Matches found, display full header
+$userid = Heading (
+  "getcookie", "",
+  "Search Results",
+  "Search Results for \"$str\"",
+  "", $table_name, @scripts
+);
+NavigationBar $userid;
 
 $next //= 0;
 $last = $next + $lines < $total ? $next + $lines : $total;

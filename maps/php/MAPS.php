@@ -12,7 +12,7 @@
 // (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-$VERSION = "3.5";
+$VERSION = "4.0";
 
 // Get userid
 if (isset($_REQUEST["userid"])) {
@@ -376,7 +376,7 @@ END;
 
     print <<<END
   <div class="search">
-  <form method="get" action="/maps/bin/search.cgi" name="search">
+  <form method="get" action="/maps/bin/search.cgi" name="search" onsubmit="return checksearch(this);">
     Search Sender/Subject
     <input type="text" class="searchfield" id="searchfield" name="str"
      size="20" maxlength="255"  value="" onclick="document.search.str.value='';">
@@ -384,17 +384,7 @@ END;
   </div>
 END;
 
-    print <<<END
-  <div class="search">
-  <form "method"=post action="javascript://" name="address"
-   onsubmit="checkaddress(this);">
-    Check Email Address
-    <input type="text" class="searchfield" id="searchfield" name="email"
-     size="20" maxlength="255" value="" onclick="document.address.email.value = '';">
-  </form>
-  <p></p>
-  </div>
-END;
+
   } // if
 
   print "</div>";
@@ -493,9 +483,9 @@ function MAPSHeader()
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css?v=<?php echo time(); ?>">
   <link rel="stylesheet" type="text/css" href="/maps/css/MAPSStyle.css?v=<?php echo time(); ?>"/>
-  <script language="JavaScript1.2" src="/maps/JavaScript/MAPSUtils.js"
+  <script language="JavaScript1.2" src="/maps/JavaScript/MAPSUtils.js?v=<?php echo time(); ?>"
    type="text/javascript"></script>
-  <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js"
+  <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js?v=<?php echo time(); ?>"
    type="text/javascript"></script>
   <script type="text/javascript">
     (function() {

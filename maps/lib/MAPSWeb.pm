@@ -524,12 +524,12 @@ sub DisplayPopup($;$) {
     ? "if (document.referrer) { window.location.href = document.referrer; } else { history.back(); }"
     : "this.parentNode.parentNode.style.display='none'";
 
-  # Use inline styles to ensure visibility on all devices/WebViews
+  # Use class-based styles for theming
   print <<EOF;
-<div style="display: flex; justify-content: center; align-items: center; position: fixed; z-index: 2147483647; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
-  <div style="background-color: #fff; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); text-align: center; border-radius: 5px; font-family: sans-serif; color: #000;">
+<div class="modal-overlay">
+  <div class="modal-content">
     <p>$msg</p>
-    <button style="background-color: #007bff; color: white; padding: 10px 20px; margin-top: 15px; border: none; border-radius: 3px; cursor: pointer; font-size: 16px;" onclick="$onclick">OK</button>
+    <button class="modal-btn" onclick="$onclick">OK</button>
   </div>
 </div>
 EOF

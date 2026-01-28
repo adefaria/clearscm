@@ -35,7 +35,7 @@ use base qw(Exporter);
 
 our $db;
 
-our $VERSION = '3.0';
+our $VERSION = '4.0';
 
 # Globals
 my $userid = $ENV{MAPS_USERNAME} ? $ENV{MAPS_USERNAME} : $ENV{USER};

@@ -17,24 +17,87 @@ function checkaddress (form, user) {
     return false;
   }
 
-  var features = 
-    "height=320"    + "," +
-    "location=no"   + "," +
-    "menubar=no"    + "," +
-    "status=no"     + "," +
-    "toolbar=no"    + "," +
-    "scrollbar=yes" + "," +
-    "width=800";
-
-  var url = "/maps/bin/checkaddress.cgi?";
-
+  var url = "/maps/bin/checkaddress.cgi?view=fragment&sender=" + encodeURIComponent(form.email.value);
   if (user) {
-    url = url + "user=" + user + ";";
-  } // if
+    url = url + "&user=" + encodeURIComponent(user);
+  }
 
-  url = url + "sender=" + form.email.value;
+  // Fetch the result and show in modal
+  fetch(url, { credentials: 'include' })
+    .then(function(response) {
+       return response.text();
+    })
+    .then(function(html) {
+       // Create modal DOM
+       var overlay = document.createElement('div');
+       overlay.className = 'modal-overlay';
+       
+       var content = document.createElement('div');
+       content.className = 'modal-content';
+       content.innerHTML = html;
+       
+       var closeBtn = document.createElement('button');
+       closeBtn.className = 'modal-btn';
+       closeBtn.innerText = 'Close';
+       closeBtn.onclick = function() {
+           document.body.removeChild(overlay);
+       };
+       
+       // Handle Enter or Escape key to close
+       var handleKey = function(e) {
+           if (e.key === 'Enter' || e.key === 'Escape') {
+               e.preventDefault();
+               document.body.removeChild(overlay);
+               document.removeEventListener('keydown', handleKey);
+           }
+       };
+       document.addEventListener('keydown', handleKey);
 
-  window.open (url, "checkaddress", features);
+       // Cleanup listener on click close
+       var originalClose = closeBtn.onclick;
+       var cleanup = function() {
+           originalClose();
+           document.removeEventListener('keydown', handleKey);
+           
+           // Clear and focus input
+           if (form && form.email) {
+               form.email.value = '';
+               form.email.focus();
+           }
+       };
+       
+       closeBtn.onclick = cleanup;
+
+       // Wrap button in a div to ensure it breaks to a new line
+       var buttonContainer = document.createElement('div');
+       buttonContainer.style.textAlign = 'center'; // Maintain center alignment
+       buttonContainer.style.marginTop = '1rem';
+       buttonContainer.appendChild(closeBtn);
+
+       content.appendChild(buttonContainer);
+       overlay.appendChild(content);
+       document.body.appendChild(overlay);
+       
+       // Close on overlay click
+       overlay.addEventListener('click', function(e) {
+           if (e.target === overlay) {
+               document.body.removeChild(overlay);
+               document.removeEventListener('keydown', handleKey);
+               // Also clear/focus on click-away
+               if (form && form.email) {
+                   form.email.value = '';
+                   form.email.focus();
+               }
+           }
+       });
+       
+       // Focus the close button for accessibility
+       closeBtn.focus();
+    })
+    .catch(function(err) {
+        console.error("CheckAddress failed", err);
+        alert("Error checking address");
+    });
 
   return false;
 }
