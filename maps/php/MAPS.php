@@ -362,7 +362,7 @@ END;
     <a href="/maps/">Home</a><br>
     <a href="/maps/bin/stats.cgi">Statistics</a><br>
     <a href="/maps/bin/editprofile.cgi">Profile</a><br>
-    <a href="/maps/php/Reports.php">Reports</a><br>
+    <a href="https://earth.defariahome.com/maps/php/ListDomains.php">Top 20</a><br>
     <a href="/maps/php/list.php?type=white">White</a><br>
     <a href="/maps/php/list.php?type=black">Black</a><br>
     <a href="/maps/php/list.php?type=null">Null</a><br>
@@ -374,12 +374,14 @@ END;
 
     displayquickstats();
 
+    print "<br>";
+
+
     print <<<END
   <div class="search">
   <form method="get" action="/maps/bin/search.cgi" name="search" onsubmit="return checksearch(this);">
-    Search Sender/Subject
     <input type="text" class="searchfield" id="searchfield" name="str"
-     size="20" maxlength="255"  value="" onclick="document.search.str.value='';">
+     size="20" maxlength="255" value="" placeholder="Search Sender/Subject" onclick="document.search.str.value='';">
   </form>
   </div>
 END;
@@ -545,12 +547,12 @@ END;
     $ranking = $i + 1;
     if ($i < $top - 1) {
       print "<td align=center class=tableleftdata>" . $ranking . "<input type=checkbox name=action" . $i . " value=on></td>\n";
-      print "<td class=tabledata><a href=\"http://$domain\">$domain</as></td>";
+      print "<td class=tabledata><a href=\"http://$domain\" target=\"_blank\">$domain</a></td>";
       print "<input type=hidden name=email$i value=\"@$domain\">";
       print "<td align=center class=tablerightdata>$nbr</td>";
     } else {
       print "<td align=center class=tablebottomleft>" . $ranking . "<input type=checkbox name=action" . $i . " value=on></td>\n";
-      print "<td class=tablebottomdata><a href=\"http://$domain\">$domain</a></td>";
+      print "<td class=tablebottomdata><a href=\"http://$domain\" target=\"_blank\">$domain</a></td>";
       print "<input type=hidden name=email$i value=\"@$domain\">";
       print "<td align=center class=tablebottomright>$nbr</td>";
     } // if

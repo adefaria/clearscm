@@ -20,7 +20,7 @@ if (isset($logout)) {
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
 
 <head>
-  <title>MAPS: Mail Authorization and Permission System</title>
+  <title>MAPS - Andrew DeFaria</title>
   <?php MAPSHeader() ?>
 </head>
 
