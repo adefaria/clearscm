@@ -20,6 +20,11 @@ if (isset($logout)) {
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
 
 <head>
+  <script>
+    if (window.top === window.self) {
+      window.location.replace("/#maps");
+    }
+  </script>
   <title>MAPS: Mail Authorization and Permission System</title>
   <?php MAPSHeader() ?>
 </head>
