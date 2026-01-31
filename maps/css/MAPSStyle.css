@@ -19,6 +19,18 @@
   --link-hover-color: var(--google-green);
 }
 
+:root {
+  --menu-bg: var(--surface-color);
+  --table-data-bg: #2a2a2a;
+  --link-hover-color: var(--google-green);
+}
+
+[data-theme="light"] {
+  --menu-bg: #dcdcdc;
+  --table-data-bg: var(--surface-color);
+  --link-hover-color: var(--google-green);
+}
+
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -116,10 +128,14 @@ a:hover {
   width: 100%;
   overflow: hidden;
   border-collapse: collapse;
+  width: 100%;
+  overflow: hidden;
+  border-collapse: collapse;
 }
 
 #quickstats tr {
   color: var(--text-color);
+  display: block;
 }
 
 #quickstats tr:hover {
@@ -140,6 +156,7 @@ a:hover {
 #quickstats tr td:first-child {
   position: relative;
 }
+
 
 #quickstats a:before {
   content: '';
@@ -641,6 +658,7 @@ img {
   font-size: 12px;
   -moz-border-radius-bottomleft: 7px;
   border-bottom-left-radius: 7px;
+  border-bottom-left-radius: 7px;
 }
 
 .tablebottomright {
@@ -651,6 +669,7 @@ img {
   font-size: 14px;
   -moz-border-radius-bottomright: 7px;
   border-bottom-right-radius: 7px;
+  border-bottom-right-radius: 7px;
 }
 
 .tablebottomdata {
@@ -658,7 +677,12 @@ img {
   border-left: 1px dotted var(--muted-color);
   border-bottom: solid 3px var(--menu-bg);
   font-size: 14px;
+  background: var(--table-data-bg);
+  border-left: 1px dotted var(--muted-color);
+  border-bottom: solid 3px var(--menu-bg);
+  font-size: 14px;
 }
+
 
 .tablebottomlefttotal {
   background: var(--surface-color);
@@ -666,18 +690,31 @@ img {
   border-bottom: solid 3px var(--menu-bg);
   border-right: 1px dotted var(--muted-color);
   font-size: 14px;
+  background: var(--surface-color);
+  border-left: solid 3px var(--menu-bg);
+  border-bottom: solid 3px var(--menu-bg);
+  border-right: 1px dotted var(--muted-color);
+  font-size: 14px;
   -moz-border-radius-bottomleft: 7px;
   border-bottom-left-radius: 7px;
+  border-bottom-left-radius: 7px;
 }
+
 
 .tablebottomrighttotal {
   background: var(--surface-color);
   border-right: solid 3px var(--menu-bg);
   border-bottom: solid 3px var(--menu-bg);
   font-size: 14px;
+  background: var(--surface-color);
+  border-right: solid 3px var(--menu-bg);
+  border-bottom: solid 3px var(--menu-bg);
+  font-size: 14px;
   -moz-border-radius-bottomright: 7px;
   border-bottom-right-radius: 7px;
+  border-bottom-right-radius: 7px;
 }
+
 
 .tablebottomtotal {
   background: var(--surface-color);
@@ -687,7 +724,13 @@ img {
   font-size: 14px;
 }
 
+
 .tabledata {
+  background: var(--table-data-bg);
+  border-left: 1px dotted var(--muted-color);
+  border-bottom: 1px dotted var(--muted-color);
+  border-top: 1px dotted var(--muted-color);
+  font-size: 14px;
   background: var(--table-data-bg);
   border-left: 1px dotted var(--muted-color);
   border-bottom: 1px dotted var(--muted-color);
@@ -698,9 +741,15 @@ img {
 .date {
   background: White;
   font-size: 12px;
+  font-size: 12px;
 }
 
 .dateright {
+  background: var(--surface-color);
+  font-size: 10px;
+  border-right: solid 3px var(--menu-bg);
+  border-left: 1px dotted var(--muted-color);
+  border-bottom: 1px dotted var(--muted-color);
   background: var(--surface-color);
   font-size: 10px;
   border-right: solid 3px var(--menu-bg);
@@ -715,11 +764,15 @@ img {
   border-left: 1px dotted var(--muted-color);
   font-family: arial, sans-serif;
   font-size: 14px;
+  font-size: 14px;
 }
+
 
 .sender a:link {
   color: var(--google-blue);
+  color: var(--google-blue);
 }
+
 
 .sender a:hover {
   color: var(--link-hover-color);
@@ -734,11 +787,16 @@ img {
   font-size: 14px;
 }
 
+
 .senderbottom a:link {
+  color: var(--google-blue);
   color: var(--google-blue);
 }
 
+
 .senderbottom a:hover {
+  color: var(--link-hover-color);
+  background: var(--bg-color);
   color: var(--link-hover-color);
   background: var(--bg-color);
 }
@@ -756,11 +814,15 @@ img {
   color: #b11;
 }
 
+
 .subject a:visited {
   color: grey;
 }
 
+
 .subject a:hover {
+  color: blue;
+  background: var(--bg-color);
   color: blue;
   background: var(--bg-color);
 }
@@ -778,11 +840,15 @@ img {
   color: var(--google-yellow);
 }
 
+
 .subjectbottom a:visited {
   color: grey;
 }
 
+
 .subjectbottom a:hover {
+  color: blue;
+  background: var(--bg-color);
   color: blue;
   background: var(--bg-color);
 }
@@ -792,19 +858,26 @@ img {
   font-weight: bold;
 }
 
+
 .menu a:link {
+  color: var(--text-color);
   color: var(--text-color);
   text-decoration: none;
 }
 
+
 .menu a:visited {
+  color: var(--text-color);
   color: var(--text-color);
 }
 
+
 .menu a:hover {
+  color: var(--link-hover-color);
   color: var(--link-hover-color);
   background: none;
 }
+
 
 .menu a:active {
   color: Yellow;
@@ -815,18 +888,24 @@ img {
   font-weight: bold;
 }
 
+
 .intromenu a:link {
   color: Red;
 }
 
+
 .intromenu a:visited {
+  color: var(--text-color);
   color: var(--text-color);
 }
 
+
 .intromenu a:hover {
+  color: var(--text-color);
   color: var(--text-color);
   background: Red;
 }
+
 
 .intromenu a:active {
   color: Yellow;
