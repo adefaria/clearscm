@@ -8,7 +8,7 @@ if [ -f $touchfile ]; then
   # Tell mate-panel to refresh itself
   killall mate-panel
   setsid mate-panel &
-  /opt/clearscm/bin/say "Speech has been reactivated"
+  say "Speech has been reactivated"
 else
   # Stop currently playing audio
   killall play 2> /dev/null
