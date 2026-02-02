@@ -29,6 +29,7 @@ use Encode;
 
 use CGI
   qw(:standard *table start_Tr end_Tr start_div end_div start_table end_table escape);
+use POSIX qw(strftime);
 
 our @EXPORT = qw(
   DebugWeb
@@ -379,7 +380,7 @@ sub displayquickstats($) {
     'Today\'s Activity';
 
   print p {-align => 'center', -style => 'font-weight: 400 !important;'},
-    'as of ' . FormatTime ($time);
+    'as of ' . strftime ('%l:%M %P', localtime);
 
   print start_div {-id => 'quickstats'};
 
@@ -759,7 +760,7 @@ sub NavigationBar($) {
       (a {-href => '/maps/'},                        'Home<br>'),
       (a {-href => '/maps/bin/stats.cgi'},           'Statistics<br>'),
       (a {-href => '/maps/bin/editprofile.cgi'},     'Profile<br>'),
-      (a {-href => '/maps/php/Reports.php'},         'Reports<br>'),
+      (a {-href => '/maps/php/ListDomains.php'},     'Top 20<br>'),
       (a {-href => '/maps/php/list.php?type=white'}, 'White<br>'),
       (a {-href => '/maps/php/list.php?type=black'}, 'Black<br>'),
       (a {-href => '/maps/php/list.php?type=null'},  'Null<br>'),
@@ -776,39 +777,17 @@ sub NavigationBar($) {
       -action => '/maps/bin/search.cgi',
       -name   => 'search'
     };
-    print 'Search Sender/Subject',
-      textfield {
-      -class     => 'searchfield',
-      -id        => 'searchfield',
-      -name      => 'str',
-      -size      => 20,
-      -maxlength => 255,
-      -value     => '',
-      -onclick   => "document.search.str.value = '';"
-      };
+    print textfield {
+      -class       => 'searchfield',
+      -id          => 'searchfield',
+      -name        => 'str',
+      -size        => 20,
+      -maxlength   => 255,
+      -placeholder => 'Search Sender/Subject',
+    };
     print end_form;
     print end_div;
 
-    print start_div {-class => 'search'};
-    print start_form {
-      -method   => 'post',
-      -action   => 'javascript://',
-      -name     => 'address',
-      -onsubmit => 'checkaddress(this);'
-    };
-    print 'Check Email Address',
-      textfield {
-      -class     => 'searchfield',
-      -id        => 'searchfield',
-      -name      => 'email',
-      -size      => 20,
-      -maxlength => 255,
-      -value     => '',
-      -onclick   => "document.address.email.value = '';"
-      };
-    print p "";
-    print end_form;
-    print end_div;
   }    # if
 
   print end_div;

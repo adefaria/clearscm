@@ -148,6 +148,20 @@ $userid = Heading (
 
 $userid //= $ENV{USER};
 
+# Validate user exists
+if ($userid) {
+  if (!MAPS::UserExists ($userid)) {
+    undef $userid;
+  }
+}
+
+if (!$userid) {
+  print div({-align => 'center', -style => 'margin: 20px; font-weight: bold;'},
+    "Please login to search");
+  Footing $table_name;
+  exit;
+} ## end if (!$userid)
+
 SetContext $userid;
 NavigationBar $userid;
 

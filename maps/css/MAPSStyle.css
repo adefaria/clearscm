@@ -78,6 +78,7 @@ a:hover {
   margin: 2px;
   padding: 2px;
   width: 122px;
+  margin-bottom: 1em;
 }
 
 .intromenu {
@@ -118,7 +119,6 @@ a:hover {
 
 #quickstats tr {
   color: var(--text-color);
-  display: block;
 }
 
 #quickstats tr:hover {
@@ -162,9 +162,9 @@ a:hover {
 .heading h3,
 .header {
   color: var(--google-green) !important;
-  font-family: var(--font-fancy) !important;
+  font-family: var(--font-main) !important;
   font-weight: 700 !important;
-  font-size: 1.8rem !important;
+  font-size: 1.5rem !important;
 }
 
 /* General Headings - Green but Normal Font */
@@ -229,6 +229,7 @@ h6 {
   line-height: 10px;
   margin: 2px;
   width: 125px;
+  margin-bottom: 2em;
 }
 
 .todaysactivity {

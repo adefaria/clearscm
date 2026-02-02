@@ -1,4 +1,8 @@
 <?php
+header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
+header("Pragma: no-cache"); // HTTP 1.0.
+header("Expires: 0"); // Proxies.
+date_default_timezone_set('America/Los_Angeles');
 ////////////////////////////////////////////////////////////////////////////////
 //
 // File:        $RCSFile$
@@ -12,7 +16,7 @@
 // (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-$VERSION = "3.5";
+$VERSION = "4.0";
 
 // Get userid
 if (isset($_REQUEST["userid"])) {
@@ -22,12 +26,17 @@ $from_cookie = false;
 
 if (!isset($userid)) {
   // No userid, see if we have a cookie for it
-  $userid = $_COOKIE["MAPSUser"];
-  $from_cookie = true;
+  if (isset($_COOKIE["MAPSUser"])) {
+    $userid = $_COOKIE["MAPSUser"];
+    $from_cookie = true;
+  }
+
 
   // If we have a userid from the cookie, reset the cookie to keep the user
   // logged in for another 30 days.
-  setcookie("MAPSUser", $userid, time() + 60 * 60 * 24 * 30, "/maps");
+  if (isset($userid)) {
+    setcookie("MAPSUser", $userid, time() + 60 * 60 * 24 * 30, "/maps");
+  }
 } // if
 
 $lines = 10;
@@ -237,7 +246,7 @@ function displayquickstats()
 {
   $today = substr(Today2SQLDatetime(), 0, 10);
   $dates = getquickstats($today);
-  $current_time = date("g:i:s a");
+  $current_time = date("g:i a");
 
   // Start quickstats
   print "<div class=\"quickstats\">";
@@ -375,24 +384,11 @@ END;
     displayquickstats();
 
     print <<<END
-  <div class="search">
+   <div class="search">
   <form method="get" action="/maps/bin/search.cgi" name="search">
-    Search Sender/Subject
     <input type="text" class="searchfield" id="searchfield" name="str"
-     size="20" maxlength="255"  value="" onclick="document.search.str.value='';">
+     size="20" maxlength="255" placeholder="Search Sender/Subject">
   </form>
-  </div>
-END;
-
-    print <<<END
-  <div class="search">
-  <form "method"=post action="javascript://" name="address"
-   onsubmit="checkaddress(this);">
-    Check Email Address
-    <input type="text" class="searchfield" id="searchfield" name="email"
-     size="20" maxlength="255" value="" onclick="document.address.email.value = '';">
-  </form>
-  <p></p>
   </div>
 END;
   } // if
@@ -502,6 +498,29 @@ function MAPSHeader()
    type="text/javascript"></script>
   <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js"
    type="text/javascript"></script>
+  <style>
+    body { background-color: var(--bg-color); color: var(--text-color); }
+    [data-theme="light"] body { background-color: white; color: black; }
+    [data-theme="dark"] body { background-color: black; color: white; }
+  </style>
+  <script>
+    (function() {
+      function applyTheme() {
+        let theme = 'light';
+        try {
+          if (window.parent && window.parent.document) {
+            theme = window.parent.document.documentElement.getAttribute('data-theme') || theme;
+          }
+        } catch(e) {
+          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            theme = 'dark';
+          }
+        }
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+      applyTheme();
+    })();
+  </script>
 END;
 } // MAPSHeader
 

@@ -35,7 +35,7 @@ use base qw(Exporter);
 
 our $db;
 
-our $VERSION = '3.0';
+our $VERSION = '4.0';
 
 # Globals
 my $userid = $ENV{MAPS_USERNAME} ? $ENV{MAPS_USERNAME} : $ENV{USER};
@@ -166,6 +166,7 @@ sub OpenDB($$) {
 }    # OpenDB
 
 BEGIN {
+  $ENV{TZ} = 'America/Los_Angeles';
   my $MAPS_username = "maps";
   my $MAPS_password = "spam";
 
