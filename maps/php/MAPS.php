@@ -362,7 +362,7 @@ END;
     <a href="/maps/">Home</a><br>
     <a href="/maps/bin/stats.cgi">Statistics</a><br>
     <a href="/maps/bin/editprofile.cgi">Profile</a><br>
-    <a href="https://earth.defariahome.com/maps/php/ListDomains.php">Top 20</a><br>
+    <a href="/maps/php/ListDomains.php">Top 20</a><br>
     <a href="/maps/php/list.php?type=white">White</a><br>
     <a href="/maps/php/list.php?type=black">Black</a><br>
     <a href="/maps/php/list.php?type=null">Null</a><br>
