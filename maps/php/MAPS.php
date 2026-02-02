@@ -1,8 +1,4 @@
 <?php
-header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
-header("Pragma: no-cache"); // HTTP 1.0.
-header("Expires: 0"); // Proxies.
-date_default_timezone_set('America/Los_Angeles');
 ////////////////////////////////////////////////////////////////////////////////
 //
 // File:        $RCSFile$
@@ -26,17 +22,12 @@ $from_cookie = false;
 
 if (!isset($userid)) {
   // No userid, see if we have a cookie for it
-  if (isset($_COOKIE["MAPSUser"])) {
-    $userid = $_COOKIE["MAPSUser"];
-    $from_cookie = true;
-  }
-
+  $userid = $_COOKIE["MAPSUser"];
+  $from_cookie = true;
 
   // If we have a userid from the cookie, reset the cookie to keep the user
   // logged in for another 30 days.
-  if (isset($userid)) {
-    setcookie("MAPSUser", $userid, time() + 60 * 60 * 24 * 30, "/maps");
-  }
+  setcookie("MAPSUser", $userid, time() + 60 * 60 * 24 * 30, "/maps");
 } // if
 
 $lines = 10;
@@ -246,7 +237,7 @@ function displayquickstats()
 {
   $today = substr(Today2SQLDatetime(), 0, 10);
   $dates = getquickstats($today);
-  $current_time = date("g:i a");
+  $current_time = date("g:i:s a");
 
   // Start quickstats
   print "<div class=\"quickstats\">";
@@ -394,6 +385,8 @@ END;
   </form>
   </div>
 END;
+
+
   } // if
 
   print "</div>";
@@ -501,27 +494,22 @@ function MAPSHeader()
    type="text/javascript"></script>
   <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js?v=<?php echo time(); ?>"
    type="text/javascript"></script>
-  <style>
-    body { background-color: var(--bg-color); color: var(--text-color); }
-    [data-theme="light"] body { background-color: white; color: black; }
-    [data-theme="dark"] body { background-color: black; color: white; }
-  </style>
-  <script>
+  <script type="text/javascript">
     (function() {
-      function applyTheme() {
-        let theme = 'light';
-        try {
-          if (window.parent && window.parent.document) {
-            theme = window.parent.document.documentElement.getAttribute('data-theme') || theme;
-          }
-        } catch(e) {
-          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            theme = 'dark';
-          }
+        var isStandalone = (window === window.top);
+        if (isStandalone) {
+            // Redirect to main shell
+            var currentUrl = window.location.pathname + window.location.search;
+            // Prevent redirect loops if we are already at root but somehow thinks standalone?
+            // Assuming /?url= handles it.
+             window.location.href = '/?url=' + encodeURIComponent(currentUrl);
+        } else {
+            // Embedded mode
+            document.documentElement.classList.add('embedded');
+            document.addEventListener('DOMContentLoaded', function() {
+                document.body.classList.add('embedded');
+            });
         }
-        document.documentElement.setAttribute('data-theme', theme);
-      }
-      applyTheme();
     })();
   </script>
 END;
