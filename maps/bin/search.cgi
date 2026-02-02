@@ -143,6 +143,20 @@ my @scripts = ("ListActions.js");
 
 $userid //= $ENV{USER};
 
+# Validate user exists
+if ($userid) {
+  if (!MAPS::UserExists ($userid)) {
+    undef $userid;
+  }
+}
+
+if (!$userid) {
+  print div({-align => 'center', -style => 'margin: 20px; font-weight: bold;'},
+    "Please login to search");
+  Footing $table_name;
+  exit;
+} ## end if (!$userid)
+
 SetContext $userid;
 
 DisplayError "No search string specified" if !defined $str;

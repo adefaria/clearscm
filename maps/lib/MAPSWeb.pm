@@ -29,6 +29,7 @@ use Encode;
 
 use CGI
   qw(:standard *table start_Tr end_Tr start_div end_div start_table end_table escape);
+use POSIX qw(strftime);
 
 our @EXPORT = qw(
   DebugWeb
@@ -379,7 +380,7 @@ sub displayquickstats($) {
     'Today\'s Activity';
 
   print p {-align => 'center', -style => 'font-weight: 400 !important;'},
-    'as of ' . FormatTime ($time);
+    'as of ' . strftime ('%l:%M %P', localtime);
 
   print start_div {-id => 'quickstats'};
 
@@ -775,13 +776,10 @@ sub NavigationBar($) {
 
     print div (
       {-class => 'menu'},
-      (a {-href => '/maps/'},                    'Home<br>'),
-      (a {-href => '/maps/bin/stats.cgi'},       'Statistics<br>'),
-      (a {-href => '/maps/bin/editprofile.cgi'}, 'Profile<br>'),
-      (
-        a {-href => 'https://earth.defariahome.com/maps/php/ListDomains.php'},
-        'Top 20<br>'
-      ),
+      (a {-href => '/maps/'},                        'Home<br>'),
+      (a {-href => '/maps/bin/stats.cgi'},           'Statistics<br>'),
+      (a {-href => '/maps/bin/editprofile.cgi'},     'Profile<br>'),
+      (a {-href => '/maps/php/ListDomains.php'},     'Top 20<br>'),
       (a {-href => '/maps/php/list.php?type=white'}, 'White<br>'),
       (a {-href => '/maps/php/list.php?type=black'}, 'Black<br>'),
       (a {-href => '/maps/php/list.php?type=null'},  'Null<br>'),
@@ -805,9 +803,7 @@ sub NavigationBar($) {
       -name        => 'str',
       -size        => 20,
       -maxlength   => 255,
-      -value       => '',
       -placeholder => 'Search Sender/Subject',
-      -onclick     => "document.search.str.value = '';"
     };
     print end_form;
     print end_div;
