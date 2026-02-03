@@ -246,7 +246,7 @@ function displayquickstats()
 {
   $today = substr(Today2SQLDatetime(), 0, 10);
   $dates = getquickstats($today);
-  $current_time = date("g:i a");
+  $current_time = date("g:i A");
 
   // Start quickstats
   print "<div class=\"quickstats\">";

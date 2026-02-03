@@ -30,7 +30,7 @@ $Userid = ucfirst($userid);
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US">
 
 <head>
-  <title>MAPS: Manage <?php echo "$Type" ?> List</title>
+  <title>MAPS: <?php echo "$Type" ?> List</title>
   <script language="JavaScript1.2" src="/maps/JavaScript/ListActions.js" type="text/javascript"></script>
   <?php
   // Connect to MySQL
@@ -58,11 +58,11 @@ $Userid = ucfirst($userid);
 <body>
 
   <div class="heading">
-    <h2 class="header" align="center">Manage <?php echo "$Userid's ";
+    <h2 class="header" align="center" style="margin-bottom: 0;"><?php
     echo $Type ?> List</h2>
   </div>
 
-  <div class="content">
+  <div class="content" style="padding-top: 6px;">
     <?php NavigationBar($userid) ?>
     <form method="post" action="/maps/bin/processaction.cgi" name="list">
       <div align="center">
@@ -117,9 +117,9 @@ $Userid = ucfirst($userid);
           <?php DisplayList($type, $next, $lines) ?>
 
         </table>
-        <br>
+        <!-- <br> Removed per user request -->
     </form>
-    <div align=center>
+    <div align="right" style="padding-right: 120px;">
       <form method="post" enctype="multipart/form-data" action="/maps/bin/importlist.cgi?type=<?php echo $type ?>">
         <input type="button" value="Export List"
           onclick="window.location.href='/maps/bin/exportlist.cgi?type=<?php echo $type ?>'" />

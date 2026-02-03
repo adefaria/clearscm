@@ -55,7 +55,7 @@ sub Body() {
         -width => 134
       },
       'Username:',
-      td {-width => 290},
+      td {-width => 200},
       $userid,
       td {-class => 'notetext'},
       'Specify a username to log into MAPS'
@@ -134,30 +134,7 @@ sub Body() {
     'Re-enter your password so we can be sure you typed it correctly.'
   ];
   print Tr [
-    td {-class => 'label'},
-    'MAPSPOP user:',
-    td (
-      font (
-        {-class => 'label'},
-        radio_group {
-          -name    => 'MAPSPOP',
-          -values  => ['yes', 'no'],
-          -default => 'no',
-          -labels  => {
-            'yes' => 'Yes',
-            'no'  => 'No'
-          }
-        }
-      )
-    ),
-    td {-class => 'notetext'},
-    'MAPSPOP users need to download '
-      . a ({-href => '/maps/bin/MAPSPOP.exe'}, 'MAPSPOP')
-      . '. See '
-      . a ({-href => '/maps/doc/UsingMAPSPOP.html'}, 'Using MAPSPOP')
-      . ' for more information.'
-  ];
-  print Tr [
+
     td {-class => 'label'},
     'Keep history for:',
     td (
@@ -170,7 +147,7 @@ sub Body() {
           -default => $options{'History'}
         }
       ),
-      font ({-class => 'label'}, ' days')
+      font ({-class => 'days-label'}, ' days')
     ),
     td {-class => 'notetext'},
 'This specifies how many days of history that MAPS will keep before discarding returned messages.'
@@ -209,27 +186,7 @@ sub Body() {
     td {-class => 'notetext'},
 'This specifies how many entries are displayed per page in the online MAPS Reports.'
   ];
-  print Tr [
-    td {-class => 'label'},
-    i ('Tag & Forward:'),
-    td (
-      font (
-        {-class => 'label'},
-        radio_group {
-          -name    => 'tag_and_forward',
-          -values  => ['yes', 'no'],
-          -default => 'no',
-          -labels  => {
-            'yes' => 'Yes',
-            'no'  => 'No'
-          }
-        }
-      )
-    ),
-    td {-class => 'notetext'},
-    i ('Tag and Forward')
-      . ' means that MAPS will not filter or save any email for you. Instead it will simply add an X-MAPS header to your email indicating what MAPS would have done with the email. This allows you to filter your email in your local email client.'
-  ];
+
   print end_table;
   print br (
     div {-align => 'center'},
@@ -246,7 +203,7 @@ sub Body() {
 # Main
 my @scripts = ('MAPSUtils.js', 'CheckEditProfile.js');
 
-$userid = Heading ('getcookie', '', 'Edit Profile', 'Spam Elimination System',
+$userid = Heading ('getcookie', '', 'Profile', 'Spam Elimination System',
   '', $table_name, @scripts);
 
 $userid //= $ENV{USER};

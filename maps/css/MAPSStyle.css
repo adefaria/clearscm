@@ -12,6 +12,7 @@
   --table-data-bg: #2a2a2a;
   --link-hover-color: var(--accent-color);
   --accent-color: var(--google-red);
+  --light-google-red: #ffcdd2;
   --input-bg: #1e1e1e;
   /* Dark input background for dark mode */
 }
@@ -102,6 +103,8 @@ a:hover {
   font-size: 70%;
   margin-left: 2px;
   margin-right: 5px;
+  margin-top: 4px;
+  /* Added per user request */
   text-align: center;
   width: 125px;
 }
@@ -193,8 +196,8 @@ button,
 select,
 .nav-button {
   background-color: var(--input-bg);
-  color: var(--accent-color);
-  border: 1px solid var(--accent-color);
+  color: var(--text-color);
+  border: 1px solid var(--muted-color);
   padding: 0.2rem;
   font-size: 95%;
   border-radius: var(--radius-md);
@@ -218,9 +221,9 @@ input[type="file"]::-webkit-file-upload-button:hover,
 button:hover,
 select:hover,
 .nav-button:hover {
-  background-color: #c3e1ff;
-  /* Searchfield hover blue */
-  color: var(--accent-color);
+  background-color: var(--light-google-red);
+  color: var(--google-red);
+  border-color: var(--google-red);
 }
 
 /* Sidebar Specific Overrides */
@@ -300,6 +303,11 @@ select:hover,
   background: transparent;
 }
 
+.toolbar {
+  margin-bottom: 8px;
+  margin-top: 4px;
+}
+
 .content {
   background: var(--bg-color);
   border: none;
@@ -330,6 +338,38 @@ select:hover,
   color: #993333;
   font-weight: bold;
   font-size: 14px;
+}
+
+#profile .label {
+  color: var(--google-red);
+}
+
+#profile .notetext {
+  color: var(--text-color);
+}
+
+#profile select.inputfield {
+  width: 25%;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+#profile select.inputfield:hover,
+#profile select.inputfield:focus {
+  background-color: var(--light-google-red);
+  color: var(--google-red);
+}
+
+#profile select.inputfield option {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+#profile select.inputfield:hover option,
+#profile select.inputfield:focus option {
+  background-color: var(--light-google-red);
+  color: var(--google-red);
 }
 
 .smalllabel {
@@ -424,14 +464,16 @@ select:hover,
   width: 90%;
   padding: 0.2rem;
   border-radius: var(--radius-md);
+  text-align: center;
 }
 
 #searchfield:hover {
-  background: #c3e1ff;
+  background: var(--light-google-red);
 }
 
 #searchfield:focus {
-  background: var(--bg-color);
+  background: var(--input-bg);
+  color: var(--text-color);
 }
 
 .note {
@@ -860,51 +902,107 @@ img {
   padding: 0.5rem;
 }
 
-#profile {
-  background-color: var(--surface-color);
-  color: var(--text-color);
-  /* Ensure default text is not accent color */
-  border-collapse: collapse;
-  width: 100%;
+/* Detail.cgi specific overrides */
+#detail .tablerightdata,
+#detail .tablebottomright {
+  font-size: 0.8rem !important;
+  background: var(--table-data-bg) !important;
 }
 
-#profile td {
-  padding: 5px;
-  border: 1px solid var(--muted-color);
-}
-
-#profile .label,
-#profile font.label {
-  color: var(--accent-color) !important;
-}
-
-.label {
-  color: var(--accent-color);
-  font-weight: bold;
-}
-
-#profile .notetext {
+#detail span.date {
+  background: transparent !important;
+  font-size: 0.8rem !important;
   color: var(--text-color) !important;
-  font-style: italic;
-  font-size: 0.9em;
 }
 
-#profile input[type="text"],
-#profile input[type="password"],
-#profile select,
-#profile textarea {
-  color: var(--text-color);
-  background-color: var(--input-bg);
+#detail .subject a,
+#detail .subjectbottom a {
+  color: var(--google-yellow) !important;
+}
+
+.maps-button {
+  background: transparent !important;
+  color: var(--text-color) !important;
   border: 1px solid var(--muted-color);
+  padding: 5px 10px;
+  cursor: pointer;
   border-radius: 4px;
-  padding: 2px 4px;
 }
 
-.nav-arrow {
-  font-size: 2em;
-  /* Larger size */
-  font-weight: bold;
+.maps-button:hover {
+  background: var(--tab-hover-bg) !important;
+}
+
+/* Embedded mode overrides - REMOVED per user request to restore menu */
+
+/* Modal Styles */
+.modal-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 2147483647;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.modal-content {
+  background-color: var(--input-bg);
+  /* Adaptive background */
+  color: var(--text-color) !important;
+  /* Adaptive text color */
+  padding: 2rem;
+  border: 1px solid var(--muted-color);
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  border-radius: var(--radius-lg);
+  font-family: var(--font-main);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-btn {
+  background-color: var(--google-blue);
+  color: white;
+  padding: 10px 20px;
+  margin-top: 1.5rem;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.modal-btn:hover {
+  opacity: 0.9;
   text-decoration: none;
-  vertical-align: middle;
-  color: var(--accent-color);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* List table adjustments for spacing */
+div#highlightrow table[name="list"] {
+  margin-bottom: 4px;
+}
+
+/* Labels */
+.label {
+  color: var(--google-red);
+  font-weight: normal;
 }
