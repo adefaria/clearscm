@@ -277,7 +277,7 @@ function displayquickstats()
 <div id="quickstats">
 <table cellpadding="2" border="0" align="center" cellspacing="0">
   <tr align="right">
-    <td align="right" class="smalllabel">Processed</td>
+    <td align="right" class="link">Processed</td>
     <td align="right" class="smallnumber">$processed</td>
     <td align="right" class="smallnumber">n/a</td>
   </tr>
