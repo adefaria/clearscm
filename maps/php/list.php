@@ -73,7 +73,7 @@ $Userid = ucfirst($userid);
         $current = $next + 1;
         print "<input type=hidden name=type value=$type>";
         print "<input type=hidden name=next value=$next>";
-        print "Page: <select name=page onChange=\"ChangePage(this.value,'$type','$lines');\"";
+        print "<span class=\"label\">Page:</span> <select name=page onChange=\"ChangePage(this.value,'$type','$lines');\"";
         for ($i = 0; $i <= $last_page; $i++) {
           if ($i == ($this_page)) {
             print "<option selected>$i</option>";
@@ -82,16 +82,16 @@ $Userid = ucfirst($userid);
           } // if
         } // for
         print "</select>";
-        print "&nbsp;of <a href=\"/maps/php/list.php?type=$type&next=" .
+        print "&nbsp;<span class=\"label\">of</span> <a href=\"/maps/php/list.php?type=$type&next=" .
           ($last_page - 1) * $lines . "\">$last_page</a>";
         ?>
       </div>
       <div class="toolbar" align="center">
         <?php
         $prev_button = $prev >= 0 ?
-          "<a href=list.php?type=$type&next=$prev><img src=/maps/images/previous.gif border=0 alt=Previous align=middle accesskey=p></a>" : "";
+          "<a href=list.php?type=$type&next=$prev title=\"Previous\" class=\"nav-button\">&lt;</a>" : "";
         $next_button = ($next + $lines) < $total ?
-          "<a href=list.php?type=$type&next=" . ($next + $lines) . "><img src=/maps/images/next.gif border=0 alt=Next align=middle accesskey=n></a>" : "";
+          "<a href=list.php?type=$type&next=" . ($next + $lines) . " title=\"Next\" class=\"nav-button\">&gt;</a>" : "";
         print $prev_button;
         ?>
         <input type="submit" name="action" value="Add" onclick="return NoneChecked (document.list);">
