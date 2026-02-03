@@ -13,6 +13,7 @@
   --table-data-bg: #2a2a2a;
   --link-hover-color: var(--accent-color);
   --accent-color: var(--google-red);
+  --light-google-red: #ffcdd2;
   --input-bg: #1e1e1e;
   /* Dark input background for dark mode */
 }
@@ -104,6 +105,8 @@ a:hover {
   font-size: 70%;
   margin-left: 2px;
   margin-right: 5px;
+  margin-top: 4px;
+  /* Added per user request */
   text-align: center;
   width: 125px;
 }
@@ -200,8 +203,8 @@ button,
 select,
 .nav-button {
   background-color: var(--input-bg);
-  color: var(--accent-color);
-  border: 1px solid var(--accent-color);
+  color: var(--text-color);
+  border: 1px solid var(--muted-color);
   padding: 0.2rem;
   font-size: 95%;
   border-radius: var(--radius-md);
@@ -225,9 +228,9 @@ input[type="file"]::-webkit-file-upload-button:hover,
 button:hover,
 select:hover,
 .nav-button:hover {
-  background-color: #c3e1ff;
-  /* Searchfield hover blue */
-  color: var(--accent-color);
+  background-color: var(--light-google-red);
+  color: var(--google-red);
+  border-color: var(--google-red);
 }
 
 /* Sidebar Specific Overrides */
@@ -307,6 +310,11 @@ select:hover,
   background: transparent;
 }
 
+.toolbar {
+  margin-bottom: 8px;
+  margin-top: 4px;
+}
+
 .content {
   background: var(--bg-color);
   border: none;
@@ -337,6 +345,38 @@ select:hover,
   color: #993333;
   font-weight: bold;
   font-size: 14px;
+}
+
+#profile .label {
+  color: var(--google-red);
+}
+
+#profile .notetext {
+  color: var(--text-color);
+}
+
+#profile select.inputfield {
+  width: 25%;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+#profile select.inputfield:hover,
+#profile select.inputfield:focus {
+  background-color: var(--light-google-red);
+  color: var(--google-red);
+}
+
+#profile select.inputfield option {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+#profile select.inputfield:hover option,
+#profile select.inputfield:focus option {
+  background-color: var(--light-google-red);
+  color: var(--google-red);
 }
 
 .smalllabel {
@@ -458,14 +498,16 @@ select:hover,
   width: 90%;
   padding: 0.2rem;
   border-radius: var(--radius-md);
+  text-align: center;
 }
 
 #searchfield:hover {
-  background: #c3e1ff;
+  background: var(--light-google-red);
 }
 
 #searchfield:focus {
-  background: var(--bg-color);
+  background: var(--input-bg);
+  color: var(--text-color);
 }
 
 .note {
@@ -1007,8 +1049,10 @@ img {
 }
 
 .modal-content {
-  background-color: var(--surface-color);
-  color: var(--text-color);
+  background-color: var(--input-bg);
+  /* Adaptive background */
+  color: var(--text-color) !important;
+  /* Adaptive text color */
   padding: 2rem;
   border: 1px solid var(--muted-color);
   width: 90%;
@@ -1048,4 +1092,15 @@ img {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* List table adjustments for spacing */
+div#highlightrow table[name="list"] {
+  margin-bottom: 4px;
+}
+
+/* Labels */
+.label {
+  color: var(--google-red);
+  font-weight: normal;
 }
