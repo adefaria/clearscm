@@ -7,29 +7,6 @@
 /*                                                                      */
 /* (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved.         */
 /************************************************************************/
-:root {
-  --menu-bg: var(--surface-color);
-  --table-data-bg: #2a2a2a;
-  --link-hover-color: var(--google-green);
-}
-
-[data-theme="light"] {
-  --menu-bg: #dcdcdc;
-  --table-data-bg: var(--surface-color);
-  --link-hover-color: var(--google-green);
-}
-
-:root {
-  --menu-bg: var(--surface-color);
-  --table-data-bg: #2a2a2a;
-  --link-hover-color: var(--google-green);
-}
-
-[data-theme="light"] {
-  --menu-bg: #dcdcdc;
-  --table-data-bg: var(--surface-color);
-  --link-hover-color: var(--google-green);
-}
 
 :root {
   --menu-bg: var(--surface-color);
@@ -195,8 +172,8 @@ a:hover {
 .heading h2,
 .heading h3,
 .header {
-  color: var(--google-green) !important;
-  font-family: sans-serif !important;
+  color: var(--accent-color) !important;
+  font-family: var(--font-main) !important;
   font-weight: 700 !important;
   font-size: 1.4rem !important;
 }
