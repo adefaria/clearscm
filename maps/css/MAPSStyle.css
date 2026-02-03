@@ -31,6 +31,22 @@
   --link-hover-color: var(--google-green);
 }
 
+:root {
+  --menu-bg: var(--surface-color);
+  --table-data-bg: #2a2a2a;
+  --link-hover-color: var(--accent-color);
+  --accent-color: var(--google-red);
+  --input-bg: #1e1e1e;
+  /* Dark input background for dark mode */
+}
+
+[data-theme="light"] {
+  --menu-bg: #dcdcdc;
+  --table-data-bg: var(--surface-color);
+  --link-hover-color: var(--accent-color);
+  --input-bg: white;
+}
+
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -40,14 +56,14 @@ body {
 }
 
 a {
-  color: var(--google-green);
+  color: var(--accent-color);
   text-decoration: none;
 }
 
 a:hover {
   text-decoration: underline;
   background-color: transparent !important;
-  color: var(--google-green) !important;
+  color: var(--accent-color) !important;
 }
 
 .heading {
@@ -74,7 +90,7 @@ a:hover {
 }
 
 .username {
-  color: var(--google-green);
+  color: var(--accent-color);
   font-family: var(--font-main);
   font-weight: bold;
   font-size: 0.9rem;
@@ -117,7 +133,7 @@ a:hover {
 
 #highlightrow table tr:hover td {
   /* background: var(--tab-hover-bg); Removed per user request */
-  color: var(--google-green);
+  color: var(--accent-color);
 }
 
 #quickstats {
@@ -140,17 +156,17 @@ a:hover {
 
 #quickstats tr:hover {
   background: var(--tab-hover-bg);
-  color: var(--google-green);
+  color: var(--accent-color);
 }
 
 #quickstats a {
-  color: var(--google-green);
+  color: var(--accent-color);
   text-decoration: none;
 }
 
 #quickstats td a:hover {
   background: var(--tab-hover-bg);
-  color: var(--google-green);
+  color: var(--accent-color);
 }
 
 #quickstats tr td:first-child {
@@ -175,7 +191,7 @@ a:hover {
   margin-top: 5px;
 }
 
-/* Main Headers (Welcome, Spam Elimination, Statistics) - Fancy Font & Green */
+/* Main Headers (Welcome, Spam Elimination, Statistics) - Fancy Font & Red */
 .heading h2,
 .heading h3,
 .header {
@@ -185,16 +201,56 @@ a:hover {
   font-size: 1.4rem !important;
 }
 
-/* General Headings - Green but Normal Font */
+/* General Headings - Red but Normal Font */
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  color: var(--google-green) !important;
+  color: var(--accent-color) !important;
   font-family: var(--font-main) !important;
   font-weight: bold !important;
+}
+
+/* Button Styling */
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+input[type="file"]::file-selector-button,
+input[type="file"]::-webkit-file-upload-button,
+button,
+select,
+.nav-button {
+  background-color: var(--input-bg);
+  color: var(--accent-color);
+  border: 1px solid var(--accent-color);
+  padding: 0.2rem;
+  font-size: 95%;
+  border-radius: var(--radius-md);
+  font-weight: normal;
+  cursor: pointer;
+  font-family: var(--font-main);
+  width: auto;
+  margin-right: 5px;
+  /* Spacing for file inputs */
+}
+
+input[type="file"] {
+  color: var(--text-color);
+}
+
+input[type="submit"]:hover,
+input[type="button"]:hover,
+input[type="reset"]:hover,
+input[type="file"]::file-selector-button:hover,
+input[type="file"]::-webkit-file-upload-button:hover,
+button:hover,
+select:hover,
+.nav-button:hover {
+  background-color: #c3e1ff;
+  /* Searchfield hover blue */
+  color: var(--accent-color);
 }
 
 /* Sidebar Specific Overrides */
@@ -224,23 +280,23 @@ h6 {
   padding: 0 60px;
   position: relative;
   text-decoration: none;
-  color: var(--google-green);
+  color: var(--accent-color);
   font-size: 12px;
   font-weight: bold;
 }
 
 #quickwrap td.link a:hover {
   background: var(--tab-hover-bg);
-  color: var(--google-green);
+  color: var(--accent-color);
 }
 
 #quickwrap table tr:hover td {
   background: var(--tab-hover-bg);
-  color: var(--google-green);
+  color: var(--accent-color);
 }
 
 .quickstats {
-  color: var(--google-green);
+  color: var(--accent-color);
   font-family: var(--font-main);
   font-size: 12px;
   font-weight: bold;

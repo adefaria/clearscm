@@ -456,14 +456,14 @@ sub MakeButtons {
 
   my $prev_button =
     $prev >= 0
-    ? qq(<a href="$script?$extra;next=$prev" accesskey="p"><img src="/maps/images/previous.gif" border="0" alt="Previous" align="middle"></a>)
+    ? qq(<a href="$script?$extra;next=$prev" accesskey="p" title="Previous" class="nav-button">&lt;</a>)
     : '';
 
   my $next_button =
     ($next + $lines) < $total
     ? qq(<a href="$script?$extra;next=)
     . ($next + $lines)
-    . qq(" accesskey="n"><img src="/maps/images/next.gif" border="0" alt="Next" align="middle"></a>)
+    . qq(" accesskey="n" title="Next" class="nav-button">&gt;</a>)
     : '';
 
   my $buttons = $prev_button;
