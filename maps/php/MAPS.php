@@ -286,38 +286,38 @@ function displayquickstats()
 <div id="quickstats">
 <table cellpadding="2" border="0" align="center" cellspacing="0">
   <tr align="right">
-    <td align="left" class="smalllabel">Processed</td>
+    <td align="right" class="link">Processed</td>
     <td align="right" class="smallnumber">$processed</td>
     <td align="right" class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${nulllist_link}Null</a></td>
-    <td class="smallnumber">$nulllist</td>
-    <td class="smallnumber">$nulllist_pct%</td>
+    <td align="right" class="link">${nulllist_link}Null</a></td>
+    <td align="right" class="smallnumber">$nulllist</td>
+    <td align="right" class="smallnumber">$nulllist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${returned_link}Returned</a></td>
-    <td class=smallnumber>$returned</td>
-    <td class="smallnumber">$returned_pct%</td>
+    <td align="right" class="link">${returned_link}Returned</a></td>
+    <td align="right" class="smallnumber">$returned</td>
+    <td align="right" class="smallnumber">$returned_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${whitelist_link}White</a></td>
-    <td class="smallnumber">$whitelist</td>
-    <td class="smallnumber">$whitelist_pct%</td>
+    <td align="right" class="link">${whitelist_link}White</a></td>
+    <td align="right" class="smallnumber">$whitelist</td>
+    <td align="right" class="smallnumber">$whitelist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${blacklist_link}Black</a></td>
-    <td class="smallnumber">$blacklist</td>
-    <td class="smallnumber">$blacklist_pct%</td>
+    <td align="right" class="link">${blacklist_link}Black</a></td>
+    <td align="right" class="smallnumber">$blacklist</td>
+    <td align="right" class="smallnumber">$blacklist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${registered_link}Registered</a></td>
-    <td class="smallnumber">$registered</td>
-    <td class="smallnumber">n/a</td>
+    <td align="right" class="link">${registered_link}Registered</a></td>
+    <td align="right" class="smallnumber">$registered</td>
+    <td align="right" class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="smalllabel">${mailloop_link}Mailloop</a></td>
-    <td class="smallnumber">$mailloop</td>
+    <td align="right" class="link">${mailloop_link}Mailloop</a></td>
+    <td align="right" class="smallnumber">$mailloop</td>
     <td class="smallnumber">n/a</td>
   </tr>
 </table>
