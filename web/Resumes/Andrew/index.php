@@ -149,8 +149,12 @@ if (file_exists($header_path)) {
 
   .resume-header h2 {
     margin-bottom: 0.2rem;
-    /* Tighten spacing */
     line-height: 1.2;
+    font-family: var(--font-fancy);
+    font-size: 3rem;
+    font-weight: 700;
+    text-transform: none;
+    /* Script font looks better normal case */
   }
 
   .resume-header h2 a {
