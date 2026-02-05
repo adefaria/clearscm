@@ -166,7 +166,6 @@ sub OpenDB($$) {
 }    # OpenDB
 
 BEGIN {
-  $ENV{TZ} = 'America/Los_Angeles';
   my $MAPS_username = "maps";
   my $MAPS_password = "spam";
 

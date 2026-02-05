@@ -1,8 +1,4 @@
 <?php
-header("Cache-Control: no-cache, no-store, must-revalidate"); // HTTP 1.1.
-header("Pragma: no-cache"); // HTTP 1.0.
-header("Expires: 0"); // Proxies.
-date_default_timezone_set('America/Los_Angeles');
 ////////////////////////////////////////////////////////////////////////////////
 //
 // File:        $RCSFile$
@@ -26,17 +22,12 @@ $from_cookie = false;
 
 if (!isset($userid)) {
   // No userid, see if we have a cookie for it
-  if (isset($_COOKIE["MAPSUser"])) {
-    $userid = $_COOKIE["MAPSUser"];
-    $from_cookie = true;
-  }
-
+  $userid = $_COOKIE["MAPSUser"];
+  $from_cookie = true;
 
   // If we have a userid from the cookie, reset the cookie to keep the user
   // logged in for another 30 days.
-  if (isset($userid)) {
-    setcookie("MAPSUser", $userid, time() + 60 * 60 * 24 * 30, "/maps");
-  }
+  setcookie("MAPSUser", $userid, time() + 60 * 60 * 24 * 30, "/maps");
 } // if
 
 $lines = 10;
@@ -291,33 +282,33 @@ function displayquickstats()
     <td align="right" class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="link">${nulllist_link}Null</a></td>
-    <td align="right" class="smallnumber">$nulllist</td>
-    <td align="right" class="smallnumber">$nulllist_pct%</td>
+    <td align="right" class="smalllabel">${nulllist_link}Null</a></td>
+    <td class="smallnumber">$nulllist</td>
+    <td class="smallnumber">$nulllist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="link">${returned_link}Returned</a></td>
-    <td align="right" class="smallnumber">$returned</td>
-    <td align="right" class="smallnumber">$returned_pct%</td>
+    <td align="right" class="smalllabel">${returned_link}Returned</a></td>
+    <td class=smallnumber>$returned</td>
+    <td class="smallnumber">$returned_pct%</td>
   </tr>
   <tr align="right">
-    <td class="link">${whitelist_link}White</a></td>
-    <td align="right" class="smallnumber">$whitelist</td>
-    <td align="right" class="smallnumber">$whitelist_pct%</td>
+    <td align="right" class="smalllabel">${whitelist_link}White</a></td>
+    <td class="smallnumber">$whitelist</td>
+    <td class="smallnumber">$whitelist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="link">${blacklist_link}Black</a></td>
-    <td align="right" class="smallnumber">$blacklist</td>
-    <td align="right" class="smallnumber">$blacklist_pct%</td>
+    <td align="right" class="smalllabel">${blacklist_link}Black</a></td>
+    <td class="smallnumber">$blacklist</td>
+    <td class="smallnumber">$blacklist_pct%</td>
   </tr>
   <tr align="right">
-    <td class="link">${registered_link}Registered</a></td>
-    <td align="right" class="smallnumber">$registered</td>
-    <td align="right" class="smallnumber">n/a</td>
+    <td align="right" class="smalllabel">${registered_link}Registered</a></td>
+    <td class="smallnumber">$registered</td>
+    <td class="smallnumber">n/a</td>
   </tr>
   <tr align="right">
-    <td class="link">${mailloop_link}Mailloop</a></td>
-    <td align="right" class="smallnumber">$mailloop</td>
+    <td align="right" class="smalllabel">${mailloop_link}Mailloop</a></td>
+    <td class="smallnumber">$mailloop</td>
     <td class="smallnumber">n/a</td>
   </tr>
 </table>
@@ -383,18 +374,19 @@ END;
 
     displayquickstats();
 
+    print "<br>";
+
+
     print <<<END
-   <div class="search" style="padding-top: 5px;">
-  <form method="get" action="/maps/bin/search.cgi" name="search">
+  <div class="search">
+  <form method="get" action="/maps/bin/search.cgi" name="search" onsubmit="return checksearch(this);">
     <input type="text" class="searchfield" id="searchfield" name="str"
-     size="20" maxlength="255" placeholder="Search Sender/Subject"
-     onclick="this.value = ''; this.placeholder = '';"
-     onfocus="this.value = ''; this.placeholder = '';"
-     onblur="this.placeholder = 'Search Sender/Subject';"
-     style="padding-left: 5px;">
+     size="20" maxlength="255" value="" placeholder="Search Sender/Subject" onclick="document.search.str.value='';">
   </form>
   </div>
 END;
+
+
   } // if
 
   print "</div>";
@@ -498,31 +490,26 @@ function MAPSHeader()
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css?v=<?php echo time(); ?>">
   <link rel="stylesheet" type="text/css" href="/maps/css/MAPSStyle.css?v=<?php echo time(); ?>"/>
-  <script language="JavaScript1.2" src="/maps/JavaScript/MAPSUtils.js"
+  <script language="JavaScript1.2" src="/maps/JavaScript/MAPSUtils.js?v=<?php echo time(); ?>"
    type="text/javascript"></script>
-  <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js"
+  <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js?v=<?php echo time(); ?>"
    type="text/javascript"></script>
-  <style>
-    body { background-color: var(--bg-color); color: var(--text-color); }
-    [data-theme="light"] body { background-color: white; color: black; }
-    [data-theme="dark"] body { background-color: black; color: white; }
-  </style>
-  <script>
+  <script type="text/javascript">
     (function() {
-      function applyTheme() {
-        let theme = 'light';
-        try {
-          if (window.parent && window.parent.document) {
-            theme = window.parent.document.documentElement.getAttribute('data-theme') || theme;
-          }
-        } catch(e) {
-          if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            theme = 'dark';
-          }
+        var isStandalone = (window === window.top);
+        if (isStandalone) {
+            // Redirect to main shell
+            var currentUrl = window.location.pathname + window.location.search;
+            // Prevent redirect loops if we are already at root but somehow thinks standalone?
+            // Assuming /?url= handles it.
+             window.location.href = '/?url=' + encodeURIComponent(currentUrl);
+        } else {
+            // Embedded mode
+            document.documentElement.classList.add('embedded');
+            document.addEventListener('DOMContentLoaded', function() {
+                document.body.classList.add('embedded');
+            });
         }
-        document.documentElement.setAttribute('data-theme', theme);
-      }
-      applyTheme();
     })();
   </script>
 END;

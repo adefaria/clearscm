@@ -56,29 +56,29 @@ sub Add2List(%) {
     if ($status) {
       my $match = ($rule->{pattern} // '') . '@' . ($rule->{domain} // '');
       $match .= " ($rule->{comment})" if $rule->{comment};
-      print br
+      print br,
 "The email address $rec{sender} is already on ${Userid}'s $rec{type} list";
-      print br "Matches: $match";
+      print br, "Matches: $match";
     } else {
       my ($messages, $msg) = Add2Whitelist (%rec);
 
       if ($messages < 0) {
-        print br "Unable to add $rec{sender} to $rec{type} list";
-        print br $msg;
+        print br, "Unable to add $rec{sender} to $rec{type} list";
+        print br, $msg;
         return;
       } else {
-        print br
+        print br,
 "The email address, $rec{sender}, has been added to ${Userid}'s $rec{type} list";
       }    # if
 
       if ($messages > 0) {
         if ($messages == 1) {
-          print br 'Your previous message has been delivered';
+          print br, 'Your previous message has been delivered';
         } else {
-          print br "Your previous $messages messages have been delivered";
+          print br, "Your previous $messages messages have been delivered";
         }    # if
       } elsif ($messages == 0) {
-        print br
+        print br,
 'Unable to find any old messages but future messages will now be delivered.';
       }    # if
 
@@ -103,7 +103,8 @@ sub Add2List(%) {
 
           croak $msg if $err < 0;
 
-          print br "Removed $rec{sender} from ${Userid}'s "
+          print br,
+            "Removed $rec{sender} from ${Userid}'s "
             . ucfirst $otherlist . ' list'
             if $err > 0;
 

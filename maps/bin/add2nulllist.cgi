@@ -56,21 +56,21 @@ sub Add2List(%) {
     if ($status) {
       my $match = ($rule->{pattern} // '') . '@' . ($rule->{domain} // '');
       $match .= " ($rule->{comment})" if $rule->{comment};
-      print br
+      print br,
 "The email address $rec{sender} is already on ${Userid}'s $rec{type} list";
-      print br "Matches: $match";
+      print br, "Matches: $match";
     } else {
       my ($messages, $msg) = Add2Nulllist (%rec);
 
       if ($messages < 0) {
-        print br $msg;
-        print br "Unable to add $rec{sender} to $rec{type} list";
+        print br, $msg;
+        print br, "Unable to add $rec{sender} to $rec{type} list";
         return;
       } else {
-        print br
+        print br,
 "The email address, $rec{sender}, has been added to ${Userid}'s $rec{type} list";
 
-        print br $msg if $messages > 0;
+        print br, $msg if $messages > 0;
       }    # if
 
       # Now remove this entry from the other lists (if present)
@@ -94,7 +94,8 @@ sub Add2List(%) {
 
           croak $msg if $err < 0;
 
-          print br "Removed $rec{sender} from ${Userid}'s "
+          print br,
+            "Removed $rec{sender} from ${Userid}'s "
             . ucfirst $otherlist . ' list'
             if $err > 0;
 

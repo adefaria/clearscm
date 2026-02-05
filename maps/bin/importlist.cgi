@@ -71,10 +71,10 @@ use CGI::Carp "fatalsToBrowser";
 my ($userid, $Userid);
 
 my %opts = (
-  usage       => sub { pod2usage },
-  help        => sub { pod2usage(-verbose => 2)},
-  verbose     => sub { set_verbose },
-  debug       => sub { set_debug },
+  usage   => sub {pod2usage},
+  help    => sub {pod2usage (-verbose => 2)},
+  verbose => sub {set_verbose},
+  debug   => sub {set_debug},
 );
 
 $opts{type} = param 'type';
@@ -108,28 +108,29 @@ sub importList ($$) {
     # TODO: While this works well for real email addresses it does not handle
     # our regexes. True it can weed out some duplicates where a more specific
     # email address is already covered by a more general regex. For example,
-    # I may have say andrew@someplace.ru in a null list but also have say 
+    # I may have say andrew@someplace.ru in a null list but also have say
     # ".*\.ru$" which covers andrew@someplace.ru. Using On<List>list functions
     # will always see ".*\.ru$" as nonexistant and readd it.
     if ($type eq 'white') {
-      ($alreadyExists) = OnWhitelist($cleansedSender, $userid);
+      ($alreadyExists) = OnWhitelist ($cleansedSender, $userid);
     } elsif ($type eq 'black') {
-      ($alreadyExists) = OnBlacklist($cleansedSender, $userid);
+      ($alreadyExists) = OnBlacklist ($cleansedSender, $userid);
     } elsif ($type eq 'null') {
-      ($alreadyExists) = OnNulllist($cleansedSender, $userid);
-    } # if
+      ($alreadyExists) = OnNulllist ($cleansedSender, $userid);
+    }    # if
 
     unless ($alreadyExists) {
+
       # Some senders lack '@' as they are username only senders. But AddList
       # complains if there is no '@'. For such senders tack on a '@'n
       if ($sender !~ /\@/) {
         $sender .= '@';
-      } # if
+      }    # if
 
-      AddList(
+      AddList (
         userid    => $userid,
         type      => $type,
-        sender    => $sender, 
+        sender    => $sender,
         sequence  => 0,
         comment   => $comment,
         hit_count => $hit_count,
@@ -142,22 +143,24 @@ sub importList ($$) {
 
       $count++;
     } else {
-      push @output, "$sender is already on your " . ucfirst($type) . 'list<br>';
-    } # unless
-  } # while
+      push @output,
+        "$sender is already on your " . ucfirst ($type) . 'list<br>';
+    }    # unless
+  }    # while
 
   print $_ for @output;
 
   return $count;
-} # importList
+}    # importList
 
 # Main
-GetOptions(
+GetOptions (
   \%opts,
   'usage',
   'help',
   'verbose',
   'debug',
+
   #'file=s',
   'type=s',
 );
@@ -166,32 +169,27 @@ pod2usage 'Type not specified' unless $opts{type};
 pod2usage 'File not specified' unless $opts{file};
 
 # Now let's see if we can get that file
-my $list = upload('filename');
+my $list = upload ('filename');
 
 #pod2usage "Unable to read $opts{file}" unless -r $opts{file};
 
-$userid = Heading(
-  'getcookie',
-  '',
-  'Import List',
-  'Import List',
-);
+$userid = Heading ('getcookie', '', 'Import List', 'Import List',);
 
 $userid //= $ENV{USER};
 $Userid = ucfirst $userid;
 
-SetContext($userid);
+SetContext ($userid);
 
-NavigationBar($userid);
+NavigationBar ($userid);
 
-my $count = importList($list, $opts{type});
+my $count = importList ($list, $opts{type});
 
 if ($count == 1) {
-  print br "$count list entry imported";
+  print br, "$count list entry imported";
 } elsif ($count == 0) {
-  print br 'No entries imported';
+  print br, 'No entries imported';
 } else {
-  print br "$count list entries imported";
-} # if
+  print br, "$count list entries imported";
+}    # if
 
 exit;

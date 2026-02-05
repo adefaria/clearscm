@@ -7,6 +7,7 @@
 /*                                                                      */
 /* (c) Copyright 2003, Andrew@DeFaria.com, all rights reserved.         */
 /************************************************************************/
+
 :root {
   --menu-bg: var(--surface-color);
   --table-data-bg: #2a2a2a;
@@ -84,7 +85,6 @@ a:hover {
   margin: 2px;
   padding: 2px;
   width: 122px;
-  margin-bottom: 1em;
 }
 
 .intromenu {
@@ -135,10 +135,14 @@ a:hover {
   width: 100%;
   overflow: hidden;
   border-collapse: collapse;
+  width: 100%;
+  overflow: hidden;
+  border-collapse: collapse;
 }
 
 #quickstats tr {
   color: var(--text-color);
+  display: block;
 }
 
 #quickstats tr:hover {
@@ -159,6 +163,7 @@ a:hover {
 #quickstats tr td:first-child {
   position: relative;
 }
+
 
 #quickstats a:before {
   content: '';
@@ -184,7 +189,7 @@ a:hover {
   color: var(--accent-color) !important;
   font-family: var(--font-main) !important;
   font-weight: 700 !important;
-  font-size: 1.5rem !important;
+  font-size: 1.4rem !important;
 }
 
 /* General Headings - Red but Normal Font */
@@ -288,6 +293,7 @@ select:hover,
   font-weight: bold;
   line-height: 10px;
   margin: 2px;
+  margin-top: 15px;
   width: 125px;
   margin-bottom: 0px;
 }
@@ -415,6 +421,31 @@ select:hover,
   font-weight: bold;
 }
 
+/* Status Colors for CheckAddress */
+.status-green {
+  color: var(--google-green);
+}
+
+.status-red {
+  color: var(--google-red);
+}
+
+.status-muted {
+  color: var(--muted-color);
+}
+
+.status-text {
+  color: var(--text-color);
+}
+
+.status-yellow {
+  color: var(--google-yellow);
+}
+
+.status-bold {
+  font-weight: bold;
+}
+
 .error {
   color: red;
   font-style: bold;
@@ -443,6 +474,8 @@ select:hover,
   padding: 0.2rem;
   border: 1px solid var(--muted-color);
   border-radius: var(--radius-md);
+  box-sizing: border-box;
+  width: 98%;
 }
 
 .inputfieldright {
@@ -702,20 +735,22 @@ img {
   background: var(--menu-bg);
   color: var(--text-color);
   border-left: solid 3px var(--menu-bg);
-  border-right: 1px dotted #ccc;
+  border-right: 1px dotted var(--muted-color);
   border-bottom: solid 3px var(--menu-bg);
   font-size: 12px;
   -moz-border-radius-bottomleft: 7px;
   border-bottom-left-radius: 7px;
+  border-bottom-left-radius: 7px;
 }
 
 .tablebottomright {
-  background: var(--surface-color);
+  background: var(--table-data-bg);
   border-right: solid 3px var(--menu-bg);
   border-left: 1px dotted var(--muted-color);
   border-bottom: solid 3px var(--menu-bg);
   font-size: 14px;
   -moz-border-radius-bottomright: 7px;
+  border-bottom-right-radius: 7px;
   border-bottom-right-radius: 7px;
 }
 
@@ -724,7 +759,12 @@ img {
   border-left: 1px dotted var(--muted-color);
   border-bottom: solid 3px var(--menu-bg);
   font-size: 14px;
+  background: var(--table-data-bg);
+  border-left: 1px dotted var(--muted-color);
+  border-bottom: solid 3px var(--menu-bg);
+  font-size: 14px;
 }
+
 
 .tablebottomlefttotal {
   background: var(--menu-bg);
@@ -732,18 +772,31 @@ img {
   border-bottom: solid 3px var(--menu-bg);
   border-right: 1px dotted var(--muted-color);
   font-size: 14px;
+  background: var(--surface-color);
+  border-left: solid 3px var(--menu-bg);
+  border-bottom: solid 3px var(--menu-bg);
+  border-right: 1px dotted var(--muted-color);
+  font-size: 14px;
   -moz-border-radius-bottomleft: 7px;
   border-bottom-left-radius: 7px;
+  border-bottom-left-radius: 7px;
 }
+
 
 .tablebottomrighttotal {
   background: var(--menu-bg);
   border-right: solid 3px var(--menu-bg);
   border-bottom: solid 3px var(--menu-bg);
   font-size: 14px;
+  background: var(--surface-color);
+  border-right: solid 3px var(--menu-bg);
+  border-bottom: solid 3px var(--menu-bg);
+  font-size: 14px;
   -moz-border-radius-bottomright: 7px;
   border-bottom-right-radius: 7px;
+  border-bottom-right-radius: 7px;
 }
+
 
 .tablebottomtotal {
   background: var(--menu-bg);
@@ -753,7 +806,13 @@ img {
   font-size: 14px;
 }
 
+
 .tabledata {
+  background: var(--table-data-bg);
+  border-left: 1px dotted var(--muted-color);
+  border-bottom: 1px dotted var(--muted-color);
+  border-top: 1px dotted var(--muted-color);
+  font-size: 14px;
   background: var(--table-data-bg);
   border-left: 1px dotted var(--muted-color);
   border-bottom: 1px dotted var(--muted-color);
@@ -764,9 +823,15 @@ img {
 .date {
   background: White;
   font-size: 12px;
+  font-size: 12px;
 }
 
 .dateright {
+  background: var(--surface-color);
+  font-size: 10px;
+  border-right: solid 3px var(--menu-bg);
+  border-left: 1px dotted var(--muted-color);
+  border-bottom: 1px dotted var(--muted-color);
   background: var(--surface-color);
   font-size: 10px;
   border-right: solid 3px var(--menu-bg);
@@ -776,16 +841,20 @@ img {
 
 /* Special anchor effects */
 .sender {
-  background: var(--surface-color);
-  border-top: 1px dotted #ccc;
-  border-left: 1px dotted #ccc;
+  background: var(--table-data-bg);
+  border-top: 1px dotted var(--muted-color);
+  border-left: 1px dotted var(--muted-color);
   font-family: arial, sans-serif;
+  font-size: 14px;
   font-size: 14px;
 }
 
+
 .sender a:link {
   color: var(--google-blue);
+  color: var(--google-blue);
 }
+
 
 .sender a:hover {
   color: var(--link-hover-color);
@@ -793,60 +862,75 @@ img {
 }
 
 .senderbottom {
-  background: var(--surface-color);
-  border-top: 1px dotted #ccc;
-  border-left: 1px dotted #ccc;
+  background: var(--table-data-bg);
+  border-top: 1px dotted var(--muted-color);
+  border-left: 1px dotted var(--muted-color);
   border-bottom: solid 3px var(--menu-bg);
   font-size: 14px;
 }
 
+
 .senderbottom a:link {
+  color: var(--google-blue);
   color: var(--google-blue);
 }
 
+
 .senderbottom a:hover {
+  color: var(--link-hover-color);
+  background: var(--bg-color);
   color: var(--link-hover-color);
   background: var(--bg-color);
 }
 
 .subject {
-  background: var(--surface-color);
-  border-top: 1px dotted #ccc;
-  border-left: 1px dotted #ccc;
+  background: var(--table-data-bg);
+  border-top: 1px dotted var(--muted-color);
+  border-left: 1px dotted var(--muted-color);
   font-family: arial, sans-serif;
   font-size: 16px;
+  font-weight: bold;
 }
 
 .subject a:link {
   color: #b11;
 }
 
+
 .subject a:visited {
   color: grey;
 }
 
+
 .subject a:hover {
+  color: blue;
+  background: var(--bg-color);
   color: blue;
   background: var(--bg-color);
 }
 
 .subjectbottom {
-  background: var(--surface-color);
-  border-top: 1px dotted #ccc;
-  border-left: 1px dotted #ccc;
+  background: var(--table-data-bg);
+  border-top: 1px dotted var(--muted-color);
+  border-left: 1px dotted var(--muted-color);
   border-bottom: solid 3px var(--menu-bg);
   font-size: 16px;
+  font-weight: bold;
 }
 
 .subjectbottom a:link {
-  color: #b11;
+  color: var(--google-yellow);
 }
+
 
 .subjectbottom a:visited {
   color: grey;
 }
 
+
 .subjectbottom a:hover {
+  color: blue;
+  background: var(--bg-color);
   color: blue;
   background: var(--bg-color);
 }
@@ -856,19 +940,26 @@ img {
   font-weight: bold;
 }
 
+
 .menu a:link {
+  color: var(--text-color);
   color: var(--text-color);
   text-decoration: none;
 }
 
+
 .menu a:visited {
+  color: var(--text-color);
   color: var(--text-color);
 }
 
+
 .menu a:hover {
+  color: var(--link-hover-color);
   color: var(--link-hover-color);
   background: none;
 }
+
 
 .menu a:active {
   color: Yellow;
@@ -879,17 +970,22 @@ img {
   font-weight: bold;
 }
 
+
 .intromenu a:link {
   color: Red;
 }
 
+
 .intromenu a:visited {
   color: var(--text-color);
+  color: var(--text-color);
 }
+
 
 .intromenu a:hover {
   color: var(--text-color);
 }
+
 
 .intromenu a:active {
   color: Yellow;

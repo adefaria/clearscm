@@ -43,11 +43,11 @@ sub ReturnSequenceNbrs {
   for (@names) {
     if (/action(\d+)/) {
       push @sequence_nbrs, $1;
-    } # if
-  } # for
+    }    # if
+  }    # for
 
   return @sequence_nbrs;
-} # ReturnSequenceNbrs
+}    # ReturnSequenceNbrs
 
 sub DeleteEntries {
   my ($type) = @_;
@@ -57,35 +57,38 @@ sub DeleteEntries {
   my $count;
 
   for (@sequence_nbrs) {
-    my ($err, $msg) = DeleteList(
+    my ($err, $msg) = DeleteList (
       userid   => $userid,
       type     => $type,
-      sequence => $_, 
+      sequence => $_,
     );
 
     # How to best handle error?
     croak $msg if $err < 0;
 
     $count += $err;
-  } # for
+  }    # for
 
   if ($count == 0) {
-    DisplayError('Nothing to delete!');
+    DisplayError ('Nothing to delete!');
   } else {
-    ResequenceList(
+    ResequenceList (
       userid => $userid,
       type   => $type
     );
 
     if ($count == 1) {
-      print redirect ("/maps/php/list.php?type=$type&next=$next&message=Deleted entry");
+      print redirect (
+        "/maps/php/list.php?type=$type&next=$next&message=Deleted entry");
     } else {
-      print redirect ("/maps/php/list.php?type=$type&next=$next&message=Deleted $count entries");
-    } # if
-  } # if
+      print redirect (
+"/maps/php/list.php?type=$type&next=$next&message=Deleted $count entries"
+      );
+    }    # if
+  }    # if
 
   return $count;
-} # DeleteEntries
+}    # DeleteEntries
 
 sub PrintInputLine ($$$$$) {
   my ($nextseq, $email_nbr, $leftclass, $dataclass, $rightclass) = @_;
@@ -100,68 +103,91 @@ sub PrintInputLine ($$$$$) {
     $email = param "email$email_nbr";
     if ($email && $email ne '') {
       ($pattern, $domain) = split /\@/, $email;
-    } # if
+    }    # if
 
-    $hit_count = CountEmail(
-      userid => $userid,
+    $hit_count = CountEmail (
+      userid     => $userid,
       additional => "sender like '%$email%'",
     );
-  } # if
+  }    # if
 
   print Tr [
-    td {-class      => $leftclass,
-        -align      => 'center'}, "$nextseq",
-    td {-class      => $dataclass,
-        -align      => 'right'},
-      (textfield {-class     => 'inputfieldright',
-                  -style     => 'width:100%',
-                  -size      => 25,
-                  -maxlength => '255',
-                  -name      => "pattern$nextseq",
-                  -value     => $pattern}),
-    td {-class      => $dataclass,
-        -align      => 'center'}, '@',
-    td {-class      => $dataclass},
-      (textfield {-class      => 'inputfield',
-                  -style      => 'width:100%',
-                  -size       => 25,
-                  -maxlength  => '255',
-                  -name       => "domain$nextseq",
-                  -value      => $domain}),
-    td {-class      => $dataclass},
-      (textfield {-class     => 'inputfieldright',
-                  -style     => 'width:100%',
-                  -size      => 25,
-                  -maxlength => '255',
-                  -name      => "hit_count$nextseq",
-                  -value     => $hit_count}),
-    td {-class      => $dataclass},
-      (textfield {-class      => 'inputfieldright',
-                  -style      => 'width:100%',
-                  -size       => 20,
-                  -maxlength  => '40',
-                  -name       => "retention$nextseq",
-                  -value      => $retention}),
-    td {-class      => $rightclass},
-      (textfield {-class     => 'inputfield',
-                  -style     => 'width:100%',
-                  -size      => 25,
-                  -maxlength => '255',
-                  -name      => "comment$nextseq",
-                  -value     => ''}),
+    td {
+      -class => $leftclass,
+      -align => 'center'
+    },
+    "$nextseq",
+    td {
+      -class => $dataclass,
+      -align => 'right'
+    }, (
+      textfield {
+        -class     => 'inputfield',
+        -style     => 'width:98%',
+        -size      => 25,
+        -maxlength => '255',
+        -name      => "pattern$nextseq",
+        -value     => $pattern
+      }
+    ),
+    td {
+      -class => $dataclass,
+      -align => 'center'
+    },
+    '@',
+    td {-class => $dataclass}, (
+      textfield {
+        -class     => 'inputfield',
+        -style     => 'width:98%',
+        -size      => 25,
+        -maxlength => '255',
+        -name      => "domain$nextseq",
+        -value     => $domain
+      }
+    ),
+    td {-class => $dataclass}, (
+      textfield {
+        -class     => 'inputfield',
+        -style     => 'width:98%',
+        -size      => 25,
+        -maxlength => '255',
+        -name      => "hit_count$nextseq",
+        -value     => $hit_count
+      }
+    ),
+    td {-class => $dataclass}, (
+      textfield {
+        -class     => 'inputfield',
+        -style     => 'width:98%',
+        -size      => 20,
+        -maxlength => '40',
+        -name      => "retention$nextseq",
+        -value     => $retention
+      }
+    ),
+    td {-class => $rightclass}, (
+      textfield {
+        -class     => 'inputfield',
+        -style     => 'width:98%',
+        -size      => 25,
+        -maxlength => '255',
+        -name      => "comment$nextseq",
+        -value     => ''
+      }
+    ),
   ];
 
   return;
-} # PrintInputLine
+}    # PrintInputLine
 
 sub AddNewEntry {
-  my ($type, @selected)  = @_;
+  my ($type, @selected) = @_;
 
   # First display the last page and add the appropriate number of
   # empty, editable entries (possibly filled in) for the user to add
   # the new entry
   my $selected = @selected;
-  my $nextseq = GetNextSequenceNo(
+  my $nextseq  = GetNextSequenceNo (
     userid => $userid,
     type   => $type,
   );
@@ -172,17 +198,14 @@ sub AddNewEntry {
 
   my $Type = ucfirst $type;
 
-  Heading(
-    'getcookie',
-    '',
+  Heading (
+    'getcookie', '',
     "Add to $Type List",
     "Add to $Type List",
-    '',
-    $table_name,
-    @scripts
+    '', $table_name, @scripts
   );
 
-  NavigationBar($userid);
+  NavigationBar ($userid);
 
   # Now display table and new entry
   print start_form {
@@ -191,23 +214,32 @@ sub AddNewEntry {
     -name   => 'list'
   };
 
-  print start_table {-align       => 'center',
-                     -id          => $table_name,
-                     -border      => 0,
-                     -cellspacing => 0,
-                     -cellpadding => 4,
-                     -width       => '100%'};
+  print start_table {
+    -align       => 'center',
+    -id          => $table_name,
+    -border      => 0,
+    -cellspacing => 0,
+    -cellpadding => 4,
+    -width       => '100%'
+  };
   print Tr [
-    th {-class => 'tableleftend'},  'Seq',
-    th {-class => 'tableheader'},   'Username',
-    th {-class => 'tableheader'},   '@',
-    th {-class => 'tableheader'},   'Domain',
-    th {-class => 'tableheader'},   'Hit Count',
-    th {-class => 'tableheader'},   'Retention',
-    th {-class => 'tablerightend'}, 'Comments',
+    th {-class => 'tableleftend'},
+    'Seq',
+    th {-class => 'tableheader'},
+    'Username',
+    th {-class => 'tableheader'},
+    '@',
+    th {-class => 'tableheader'},
+    'Domain',
+    th {-class => 'tableheader'},
+    'Hit Count',
+    th {-class => 'tableheader'},
+    'Retention',
+    th {-class => 'tablerightend'},
+    'Comments',
   ];
 
-  my $list = ReturnList(
+  my $list = ReturnList (
     userid   => $userid,
     type     => $type,
     start_at => $next,
@@ -227,44 +259,56 @@ sub AddNewEntry {
     $record->{retention} //= '&nbsp;';
 
     print Tr [
-      td {-class  => 'tableleftdata',  -align  => 'center'}, $record->{sequence},
-      td {-class  => 'tabledata',      -align  => 'right'},  $record->{pattern},
-      td {-class  => 'tabledata',      -align  => 'center'}, '@',
-      td {-class  => 'tabledata',      -align  => 'left'},   $record->{domain},
-      td {-class  => 'tabledata',      -align  => 'right'},  $record->{hit_count},
-      td {-class  => 'tabledata',      -align  => 'right'},  $record->{retention},
-      td {-class  => 'tablerightdata', -align  => 'left'},   $record->{comment},
+      td {-class => 'tableleftdata', -align => 'center'},
+      $record->{sequence},
+      td {-class => 'tabledata', -align => 'right'},
+      $record->{pattern},
+      td {-class => 'tabledata', -align => 'center'},
+      '@',
+      td {-class => 'tabledata', -align => 'left'},
+      $record->{domain},
+      td {-class => 'tabledata', -align => 'right'},
+      $record->{hit_count},
+      td {-class => 'tabledata', -align => 'right'},
+      $record->{retention},
+      td {-class => 'tablerightdata', -align => 'left'},
+      $record->{comment},
     ];
-  } # for
+  }    # for
 
   # Now the input line(s)
   if (@selected == 0) {
-    PrintInputLine($nextseq, undef, 'tablebottomleft', 'tablebottomdata',
-                                    'tablebottomright');
+    PrintInputLine ($nextseq, undef, 'tablebottomleft', 'tablebottomdata',
+      'tablebottomright');
   } else {
     for (@selected) {
       my $leftclass  = $i == $lines ? 'tablebottomleft'  : 'tableleftdata';
       my $dataclass  = $i == $lines ? 'tablebottomdata'  : 'tabledata';
       my $rightclass = $i == $lines ? 'tablebottomright' : 'tablerightdata';
       $i++;
-      PrintInputLine($nextseq++, $_, $leftclass, $dataclass, $rightclass);
-    } # for
-  } # for
+      PrintInputLine ($nextseq++, $_, $leftclass, $dataclass, $rightclass);
+    }    # for
+  }    # for
 
   print end_table;
-  print br,
-    '<center>',
-      submit ({-name    => 'update',
-               -value   => 'Update',
-               -onClick => 'return CheckEntry (document.list);'}),
-      submit ({-name    => 'Reset',
-               -value   => 'Reset',
-               -onClick => 'history.back(); return false'}),
+  print br, '<center>',
+    submit ({
+      -name    => 'update',
+      -value   => 'Update',
+      -onClick => 'return CheckEntry (document.list);'
+    }
+    ),
+    submit ({
+      -name    => 'Reset',
+      -value   => 'Reset',
+      -onClick => 'history.back(); return false'
+    }
+    ),
     '</center>';
   print end_form;
 
   return;
-} # AddNewEntry
+}    # AddNewEntry
 
 sub ModifyEntries {
   my ($type) = @_;
@@ -273,46 +317,52 @@ sub ModifyEntries {
 
   my $Type = ucfirst $type;
 
-  Heading(
-    'getcookie',
-    '',
+  Heading (
+    'getcookie', '',
     "Modify $Type List",
     "Modify $Type List",
-    '',
-    $table_name,
-    @scripts
+    '', $table_name, @scripts
   );
 
-  NavigationBar($userid);
+  NavigationBar ($userid);
 
   # Redisplay the page but open up the lines that are getting modified
   print start_form {
-    -method  => 'post',
-    -action  => 'modifyentries.cgi',
-    -name    => 'list'
+    -method => 'post',
+    -action => 'modifyentries.cgi',
+    -name   => 'list'
   };
 
   # Print some hidden fields to pass along
-  print hidden ({-name    => 'type', -default => $type}),
-        hidden ({-name    => 'next', -default => $next});
+  print hidden ({-name => 'type', -default => $type}),
+    hidden ({-name => 'next', -default => $next});
 
-  print start_table {-align       => 'center',
-                     -id          => $table_name,
-                     -border      => 0,
-                     -cellspacing => 0,
-                     -cellpadding => 4,
-                     -width       => '100%'};
+  print start_table {
+    -align       => 'center',
+    -id          => $table_name,
+    -border      => 0,
+    -cellspacing => 0,
+    -cellpadding => 4,
+    -width       => '100%'
+  };
   print Tr [
-    th {-class => 'tableleftend'},  'Seq',
-    th {-class => 'tableheader'},   'Username',
-    th {-class => 'tableheader'},   '@',
-    th {-class => 'tableheader'},   'Domain',
-    th {-class => 'tableheader'},   'Hit Count',
-    th {-class => 'tableheader'},   'Retention',
-    th {-class => 'tablerightend'}, 'Comments',
+    th {-class => 'tableleftend'},
+    'Seq',
+    th {-class => 'tableheader'},
+    'Username',
+    th {-class => 'tableheader'},
+    '@',
+    th {-class => 'tableheader'},
+    'Domain',
+    th {-class => 'tableheader'},
+    'Hit Count',
+    th {-class => 'tableheader'},
+    'Retention',
+    th {-class => 'tablerightend'},
+    'Comments',
   ];
 
-  my $list = ReturnList(
+  my $list = ReturnList (
     userid   => $userid,
     type     => $type,
     start_at => $next,
@@ -323,21 +373,31 @@ sub ModifyEntries {
   my $i = 1;
 
   for my $record (@$list) {
-    my $leftclass  = ($i == @$list || $record->{sequence} eq $total) ?
-      'tablebottomleft'  : 'tableleftdata';
-    my $dataclass  = ($i == @$list || $record->{sequence} eq $total) ?
-      'tablebottomdata'  : 'tabledata';
-    my $rightclass = ($i == @$list || $record->{sequence} eq $total) ?
-      'tablebottomright' : 'tablerightdata';
+    my $leftclass =
+      ($i == @$list || $record->{sequence} eq $total)
+      ? 'tablebottomleft'
+      : 'tableleftdata';
+    my $dataclass =
+      ($i == @$list || $record->{sequence} eq $total)
+      ? 'tablebottomdata'
+      : 'tabledata';
+    my $rightclass =
+      ($i == @$list || $record->{sequence} eq $total)
+      ? 'tablebottomright'
+      : 'tablerightdata';
 
     $i++;
 
     print start_Tr,
-      td {-class  => $leftclass,
-          -align  => 'center'}, $record->{sequence};
+      td {
+      -class => $leftclass,
+      -align => 'center'
+      },
+      $record->{sequence};
 
     if ($selected[$s] and $record->{sequence} eq $selected[$s]) {
       $s++;
+
       # Normalize fields
       $record->{pattern}   //= '';
       $record->{domain}    //= '';
@@ -345,51 +405,70 @@ sub ModifyEntries {
       $record->{hit_count} //= '';
       $record->{retention} //= '';
 
-      print
-        td {-class               => $dataclass,
-            -align               => 'right'},
-          (textfield {-class     => 'inputfieldright',
-                      -style     => 'width:100%',
-                      -align     => 'right',
-                      -size      => 25,
-                      -maxlength => '255',
-                      -name      => "pattern$record->{sequence}",
-                      -value     => $record->{pattern}}),
-        td {-class               => $dataclass,
-            -align               => 'center'}, '@',
-        td {-class               => $dataclass},
-          (textfield {-class     => 'inputfield',
-                      -style     => 'width:100%',
-                      -align     => 'left',
-                      -size      => 25,
-                      -maxlength => '255',
-                      -name      => "domain$record->{sequence}",
-                      -value     => $record->{domain}}),
-        td {-class               => $dataclass},
-          (textfield {-class     => 'inputfieldright',
-                      -style     => 'width:100%',
-                      -align     => 'left',
-                      -size      => 25,
-                      -maxlength => '255',
-                      -name      => "hit_count$record->{sequence}",
-                      -value     => $record->{hit_count}}),
-        td {-class               => $dataclass},
-          (textfield {-class     => 'inputfieldright',
-                      -style     => 'width:100%',
-                      -align     => 'left',
-                      -size      => 25,
-                      -maxlength => '40',
-                      -name      => "retention$record->{sequence}",
-                      -value     => $record->{retention}}),
-        td {-class               => $rightclass},
-          (textfield {-class     => 'inputfield',
-                      -style     => 'width:100%',
-                      -align     => 'left',
-                      -size      => 25,
-                      -maxlength => '255',
-                      -name      => "comment$record->{sequence}",
-                      -value     => $record->{comment}});
+      print td {
+        -class => $dataclass,
+        -align => 'right'
+        }, (
+        textfield {
+          -class     => 'inputfield',
+          -style     => 'width:100%',
+          -align     => 'right',
+          -size      => 25,
+          -maxlength => '255',
+          -name      => "pattern$record->{sequence}",
+          -value     => $record->{pattern}
+        }
+        ),
+        td {
+        -class => $dataclass,
+        -align => 'center'
+        },
+        '@', td {-class => $dataclass}, (
+        textfield {
+          -class     => 'inputfield',
+          -style     => 'width:100%',
+          -align     => 'left',
+          -size      => 25,
+          -maxlength => '255',
+          -name      => "domain$record->{sequence}",
+          -value     => $record->{domain}
+        }
+        ),
+        td {-class => $dataclass}, (
+        textfield {
+          -class     => 'inputfield',
+          -style     => 'width:100%',
+          -align     => 'left',
+          -size      => 25,
+          -maxlength => '255',
+          -name      => "hit_count$record->{sequence}",
+          -value     => $record->{hit_count}
+        }
+        ),
+        td {-class => $dataclass}, (
+        textfield {
+          -class     => 'inputfield',
+          -style     => 'width:100%',
+          -align     => 'left',
+          -size      => 25,
+          -maxlength => '40',
+          -name      => "retention$record->{sequence}",
+          -value     => $record->{retention}
+        }
+        ),
+        td {-class => $rightclass}, (
+        textfield {
+          -class     => 'inputfield',
+          -style     => 'width:100%',
+          -align     => 'left',
+          -size      => 25,
+          -maxlength => '255',
+          -name      => "comment$record->{sequence}",
+          -value     => $record->{comment}
+        }
+        );
     } else {
+
       # Normalize fields
       # Put in '&nbsp;' for undefined fields
       $record->{pattern}   //= '&nbsp;';
@@ -398,77 +477,99 @@ sub ModifyEntries {
       $record->{hit_count} //= '&nbsp;';
       $record->{retention} //= '&nbsp;';
 
-      print
-        td {-class => $dataclass,
-            -align => 'right'}, $record->{pattern},
-        td {-class => $dataclass,
-            -align => 'center'}, '@',
-        td {-class => $dataclass,
-            -align => 'left'}, $record->{domain},
-        td {-class => $dataclass,
-            -align => 'right'}, $record->{hit_count},
-        td {-class => $dataclass,
-            -align => 'right'}, $record->{retention},
-        td {-class => $rightclass,
-            -align => 'left'}, $record->{comment};
-    } # if
+      print td {
+        -class => $dataclass,
+        -align => 'right'
+        },
+        $record->{pattern},
+        td {
+        -class => $dataclass,
+        -align => 'center'
+        },
+        '@',
+        td {
+        -class => $dataclass,
+        -align => 'left'
+        },
+        $record->{domain},
+        td {
+        -class => $dataclass,
+        -align => 'right'
+        },
+        $record->{hit_count},
+        td {
+        -class => $dataclass,
+        -align => 'right'
+        },
+        $record->{retention},
+        td {
+        -class => $rightclass,
+        -align => 'left'
+        },
+        $record->{comment};
+    }    # if
 
     print end_Tr;
-  } # for
+  }    # for
 
   print end_table;
-  print br,
-    '<center>',
-      submit ({-name    => 'update',
-               -value   => 'Update',
-               -onClick => 'return CheckEntry (document.list);'}),
-      submit ({-name    => 'Reset',
-               -value   => 'Reset',
-               -onClick => 'history.back(); return false'}),
+  print br, '<center>',
+    submit ({
+      -name    => 'update',
+      -value   => 'Update',
+      -onClick => 'return CheckEntry (document.list);'
+    }
+    ),
+    submit ({
+      -name    => 'Reset',
+      -value   => 'Reset',
+      -onClick => 'history.back(); return false'
+    }
+    ),
     '</center>';
   print end_form;
 
   return;
-} # ModifyEntries
+}    # ModifyEntries
 
 sub WhitelistMarked {
-  AddNewEntry('white', ReturnSequenceNbrs);
+  AddNewEntry ('white', ReturnSequenceNbrs);
 
   return;
-} # WhitelistMarked
+}    # WhitelistMarked
 
 sub BlacklistMarked {
-  AddNewEntry('black', ReturnSequenceNbrs);
+  AddNewEntry ('black', ReturnSequenceNbrs);
 
   return;
-} # BlacklistMarked
+}    # BlacklistMarked
 
 sub NulllistMarked {
-  AddNewEntry('null', ReturnSequenceNbrs);
+  AddNewEntry ('null', ReturnSequenceNbrs);
 
   return;
-} # NulllistMarked
+}    # NulllistMarked
 
 # Main
 $userid ||= $ENV{USER};
 
-SetContext($userid);
+SetContext ($userid);
 
-my %options = GetUserOptions($userid);
+my %options = GetUserOptions ($userid);
 
 $lines = $options{'Page'};
 
-$total = CountList(
+$total = CountList (
   userid => $userid,
   type   => $type,
 ) if $type;
 
 if ($action eq 'Add') {
-  AddNewEntry($type);
+  AddNewEntry ($type);
 } elsif ($action eq 'Delete') {
-  DeleteEntries($type);
+  DeleteEntries ($type);
 } elsif ($action eq 'Modify') {
-  ModifyEntries($type);
+  ModifyEntries ($type);
 } elsif ($action eq 'Whitelist') {
   WhitelistMarked;
 } elsif ($action eq 'Blacklist') {
@@ -476,17 +577,16 @@ if ($action eq 'Add') {
 } elsif ($action eq 'Nulllist') {
   NulllistMarked;
 } else {
-  Heading(
-    'getcookie',
-    '',
+  Heading (
+    'getcookie', '',
     "Unknown action ($action)",
     "Unknown action ($action)"
   );
 
-  NavigationBar($userid);
-  DisplayError("Unknown action encountered ($action)");
-} # if
+  NavigationBar ($userid);
+  DisplayError  ("Unknown action encountered ($action)");
+}    # if
 
-Footing($table_name);
+Footing ($table_name);
 
 exit;

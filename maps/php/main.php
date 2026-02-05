@@ -66,7 +66,7 @@ if (isset($userid)) {
       use <a href="/maps/bin/editprofile.cgi">Edit Profile</a> to change
       your profile information or to change your password.</p>
 
-    <p>You
+    <p>MAPS also offers a series of web based <a href="/maps/php/Reports.php">Reports</a> to analyze your mail flow. You
       can manage your <a href="/maps/php/list.php?type=white">White</a>,
       <a href="/maps/php/list.php?type=black">Black</a> and <a href="/maps/php/list.php?type=null">Null</a> lists
       although MAPS
@@ -76,7 +76,9 @@ if (isset($userid)) {
       pages.
     </p>
 
-
+    <p><a href="/maps/Admin.html">MAPS Administration</a> is to
+      administer MAPS itself and is only available to MAPS
+      Administrators.</p>
 
     <p>Also on the left you will see <i>Today's Activity</i> which
       quickly shows you what mail MAPS processed today for you.</p>
