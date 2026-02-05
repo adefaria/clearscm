@@ -18,6 +18,7 @@ include "MAPS.php";
 // Make sure that $userid is set before calling other functions that might need it
 if (!isset($userid) && isset($_COOKIE["MAPSUser"])) {
   $userid = $_COOKIE["MAPSUser"];
+  putenv("MAPS_USER=$userid");
 }
 
 $top = $_REQUEST["top"];
@@ -39,7 +40,7 @@ if (!$top) {
 
 <body>
   <div class="heading">
-    <h2 class="header" align="center">Returned Messages by Domain</h2>
+    <h2 class="header" align="center">Top 20 Domains</h2>
   </div>
   <div class="content">
     <?php

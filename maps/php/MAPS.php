@@ -384,10 +384,14 @@ END;
     displayquickstats();
 
     print <<<END
-   <div class="search">
+   <div class="search" style="padding-top: 5px;">
   <form method="get" action="/maps/bin/search.cgi" name="search">
     <input type="text" class="searchfield" id="searchfield" name="str"
-     size="20" maxlength="255" placeholder="Search Sender/Subject">
+     size="20" maxlength="255" placeholder="Search Sender/Subject"
+     onclick="this.value = ''; this.placeholder = '';"
+     onfocus="this.value = ''; this.placeholder = '';"
+     onblur="this.placeholder = 'Search Sender/Subject';"
+     style="padding-left: 5px;">
   </form>
   </div>
 END;
@@ -561,12 +565,12 @@ END;
     $ranking = $i + 1;
     if ($i < $top - 1) {
       print "<td align=center class=tableleftdata>" . $ranking . "<input type=checkbox name=action" . $i . " value=on></td>\n";
-      print "<td class=tabledata><a href=\"http://$domain\">$domain</as></td>";
+      print "<td class=tabledata><a href=\"http://$domain\" target=\"_blank\">$domain</a></td>";
       print "<input type=hidden name=email$i value=\"@$domain\">";
       print "<td align=center class=tablerightdata>$nbr</td>";
     } else {
       print "<td align=center class=tablebottomleft>" . $ranking . "<input type=checkbox name=action" . $i . " value=on></td>\n";
-      print "<td class=tablebottomdata><a href=\"http://$domain\">$domain</a></td>";
+      print "<td class=tablebottomdata><a href=\"http://$domain\" target=\"_blank\">$domain</a></td>";
       print "<input type=hidden name=email$i value=\"@$domain\">";
       print "<td align=center class=tablebottomright>$nbr</td>";
     } // if

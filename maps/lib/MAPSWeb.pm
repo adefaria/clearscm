@@ -111,7 +111,6 @@ sub GetMessageDisplay(%) {
   );
   $html .= start_table ({
       -align       => "center",
-      -bgcolor     => $header_color,
       -border      => 0,
       -cellspacing => 1,
       -cellpadding => 0,
@@ -148,7 +147,7 @@ sub GetMessageDisplay(%) {
 
     if ($_ =~ /^(To|From|Cc)$/i) {
       $str =~
-s/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})/<a href="mailto:$1" style="color: white; text-decoration: underline;">$1<\/a>/g;
+s/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})/<a href="mailto:$1" style="text-decoration: underline;">$1<\/a>/g;
     }
 
     $html .= Tr ([
@@ -156,12 +155,11 @@ s/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})/<a href="mailto:$1" style="c
             -align => 'right',
             -class => 'tableheader',
             -width => "8%",
-            -style => 'color: white;'
           },
           ucfirst "$_:"
           )
           . "\n"
-          . td ({-class => 'tabledata', -style => 'color: white;'}, $str)
+          . td ({-class => 'tabledata'}, $str)
       ]
     );
   }    # for
@@ -834,9 +832,8 @@ sub NavigationBar($) {
     );
 
     displayquickstats ($userid);
-    print br;
 
-    print start_div {-class => 'search'};
+    print start_div {-class => 'search', -style => 'padding-top: 5px;'};
     print start_form {
       -method => 'get',
       -action => '/maps/bin/search.cgi',
@@ -850,7 +847,10 @@ sub NavigationBar($) {
       -maxlength   => 255,
       -value       => '',
       -placeholder => 'Search Sender/Subject',
-      -onclick     => "document.search.str.value = '';"
+      -onclick     => "this.value = ''; this.placeholder = '';",
+      -onfocus     => "this.value = ''; this.placeholder = '';",
+      -onblur      => "this.placeholder = 'Search Sender/Subject';",
+      -style       => "padding-left: 5px;"
     };
     print end_form;
     print end_div;

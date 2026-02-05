@@ -47,6 +47,7 @@ a:hover {
   margin-left: 140px;
   margin-top: 5px;
   padding: 5px;
+  padding-top: 20px;
 }
 
 #leftbar {
@@ -103,10 +104,15 @@ a:hover {
   font-size: 70%;
   margin-left: 2px;
   margin-right: 5px;
-  margin-top: 4px;
+  margin-top: 0px;
   /* Added per user request */
   text-align: center;
   width: 125px;
+}
+
+.search form {
+  margin: 0;
+  padding: 0;
 }
 
 #highlightrow table tr:hover td {
@@ -114,8 +120,15 @@ a:hover {
   color: var(--accent-color);
 }
 
+.quickstats {
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+}
+
 #quickstats {
   background-color: var(--surface-color);
+  padding-bottom: 0px;
+  margin-bottom: 0px;
 }
 
 #quickstats table {
@@ -276,7 +289,7 @@ select:hover,
   line-height: 10px;
   margin: 2px;
   width: 125px;
-  margin-bottom: 2em;
+  margin-bottom: 0px;
 }
 
 .todaysactivity {
@@ -377,7 +390,7 @@ select:hover,
   font-weight: bold;
   line-height: 12px;
   font-size: 12px;
-  text-align: left;
+  text-align: right;
 }
 
 .smallnumber {
@@ -474,6 +487,7 @@ select:hover,
 #searchfield:focus {
   background: var(--input-bg);
   color: var(--text-color);
+  text-align: left;
 }
 
 .note {
@@ -689,7 +703,7 @@ img {
 }
 
 .tablebottomleft {
-  background: var(--surface-color);
+  background: var(--menu-bg);
   color: var(--text-color);
   border-left: solid 3px var(--menu-bg);
   border-right: 1px dotted #ccc;
@@ -717,7 +731,7 @@ img {
 }
 
 .tablebottomlefttotal {
-  background: var(--surface-color);
+  background: var(--menu-bg);
   border-left: solid 3px var(--menu-bg);
   border-bottom: solid 3px var(--menu-bg);
   border-right: 1px dotted var(--muted-color);
@@ -727,7 +741,7 @@ img {
 }
 
 .tablebottomrighttotal {
-  background: var(--surface-color);
+  background: var(--menu-bg);
   border-right: solid 3px var(--menu-bg);
   border-bottom: solid 3px var(--menu-bg);
   font-size: 14px;
@@ -736,7 +750,7 @@ img {
 }
 
 .tablebottomtotal {
-  background: var(--surface-color);
+  background: var(--menu-bg);
   border-bottom: solid 3px var(--menu-bg);
   border-top: solid 1px var(--menu-bg);
   border-right: 1px dotted var(--muted-color);
