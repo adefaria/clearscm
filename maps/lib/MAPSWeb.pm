@@ -77,7 +77,7 @@ sub GetMessageDisplay(%) {
   my $sender       = $params{sender};
   my $msg_date     = $params{msg_date};
   my $table_name   = $params{table_name}   || 'message';
-  my $header_color = $params{header_color} || '#34a853';
+  my $header_color = $params{header_color} || '#4285f4';
 
   # Find unique message using $date
   my ($err, $msg) = MAPS::FindEmail (
@@ -146,16 +146,22 @@ sub GetMessageDisplay(%) {
       $str .= $text;
     } ## end for my $part (decode_mimewords...)
 
+    if ($_ =~ /^(To|From|Cc)$/i) {
+      $str =~
+s/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})/<a href="mailto:$1" style="color: white; text-decoration: underline;">$1<\/a>/g;
+    }
+
     $html .= Tr ([
         th ({
             -align => 'right',
             -class => 'tableheader',
-            -width => "8%"
+            -width => "8%",
+            -style => 'color: white;'
           },
           ucfirst "$_:"
           )
           . "\n"
-          . td ({-class => 'tabledata'}, $str)
+          . td ({-class => 'tabledata', -style => 'color: white;'}, $str)
       ]
     );
   }    # for
@@ -168,12 +174,13 @@ sub GetMessageDisplay(%) {
   my $safe_date   = escape ($msg_date);
 
   $html .= qq{<iframe id="msg_frame"
-                   src="display.cgi?sender=$safe_sender;msg_date=$safe_date;view=body"
+                   src="display.cgi?sender=$safe_sender;msg_date=$safe_date;view=body;v=}
+    . time () . qq{"
                    width="100%"
                    height="600"
                    frameborder="0"
                    class="iframe-body"
-                   sandbox="allow-same-origin">
+                   sandbox="allow-same-origin allow-scripts">
            </iframe>
 <script>
 (function() {
@@ -237,6 +244,33 @@ sub GetMessageDisplay(%) {
     } else {
         window.addEventListener('load', init);
     }
+    
+    // Theme synchronization
+    var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === "attributes" && mutation.attributeName === "data-theme") {
+                var theme = document.documentElement.getAttribute('data-theme');
+                var iframe = document.getElementById('msg_frame');
+                if (iframe) {
+                     try {
+                         var doc = iframe.contentDocument || iframe.contentWindow.document;
+                         if (doc && doc.documentElement) {
+                             if (theme) {
+                                 doc.documentElement.setAttribute('data-theme', theme);
+                             } else {
+                                 doc.documentElement.removeAttribute('data-theme');
+                             }
+                         }
+                     } catch(e) { /* ignore */ }
+                }
+            }
+        });
+    });
+    
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+    });
 })();
 
 function fallbackCopy(text, x, y) {
@@ -599,6 +633,15 @@ sub Heading($$$$;$$@) {
     })();
       }
   };
+
+  # Add theme support
+  my $theme = cookie ('theme') // '';
+  if ($theme) {
+    push @{$java_scripts[0]}, {
+      -type => 'text/javascript',
+      -code => "document.documentElement.setAttribute('data-theme', '$theme');"
+      };
+  } ## end if ($theme)
 
   # Since Heading is called from various scripts we sometimes need to
   # set a cookie, other times delete a cookie but most times return the

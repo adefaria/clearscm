@@ -38,6 +38,22 @@ use MIME::Words qw(:all);
 binmode STDOUT, ':encoding(UTF-8)';
 
 my $userid = cookie ('MAPSUser');
+my $theme  = cookie ('theme');
+if (!$theme && $ENV{HTTP_COOKIE}) {
+  if ($ENV{HTTP_COOKIE} =~ /theme=([^;]+)/) {
+    $theme = $1;
+  }
+}
+
+# Default to light mode for mobile users if no specific theme is set
+if (!$theme
+  && $ENV{HTTP_USER_AGENT}
+  && $ENV{HTTP_USER_AGENT} =~ /(Mobile|Android|iPhone|iPad|iPod)/i)
+{
+  $theme = 'light';
+} ## end if (!$theme && $ENV{HTTP_USER_AGENT...})
+
+$theme //= '';
 my $sender = param ('sender');
 my $view   = param ('view');
 
@@ -125,7 +141,7 @@ if ($view && $view eq 'body') {
     $content = escapeHTML ($content);
     my $style_time = time ();
     $content =
-"<html><head><link rel='stylesheet' href='/css/style.css?v=$style_time'><link rel='stylesheet' href='/maps/css/MAPSStyle.css?v=$style_time'></head><body style='background-color: var(--bg-color); color: var(--text-color);'><pre>$content</pre></body></html>";
+"<html data-theme='$theme'><head><link rel='stylesheet' href='/css/style.css?v=$style_time'><link rel='stylesheet' href='/maps/css/MAPSStyle.css?v=$style_time'></head><body style='background-color: var(--bg-color); color: var(--text-color);'><pre>$content</pre></body></html>";
     $type = 'text/html';
   } ## end if ($type eq 'text/plain')
 
@@ -134,7 +150,7 @@ if ($view && $view eq 'body') {
     # Disable links to prevent accidental clicking on malicious URLs
     my $style_time = time ();
     my $css =
-qq{<link rel='stylesheet' href='/css/style.css?v=$style_time'><link rel='stylesheet' href='/maps/css/MAPSStyle.css?v=$style_time'><style>body { background-color: var(--bg-color); color: var(--text-color); } a[title] { cursor: copy; text-decoration: underline; color: var(--google-blue); }</style>};
+qq{<script>if('$theme')document.documentElement.setAttribute('data-theme','$theme');</script><link rel='stylesheet' href='/css/style.css?v=$style_time'><link rel='stylesheet' href='/maps/css/MAPSStyle.css?v=$style_time'><style>body { background-color: var(--bg-color) !important; color: var(--text-color) !important; } a[title] { cursor: copy; text-decoration: underline; color: var(--google-blue); }</style>};
 
     if ($content =~ /<\/head>/i) {
       $content =~ s/<\/head>/$css\n<\/head>/i;
@@ -151,7 +167,12 @@ qq{<link rel='stylesheet' href='/css/style.css?v=$style_time'><link rel='stylesh
     }geisi;
   } ## end if ($type eq 'text/html')
 
-  print header (-type => "$type; charset=utf-8");
+  print header (
+    -type          => "$type; charset=utf-8",
+    -cache_control => 'no-cache, no-store, must-revalidate',
+    -pragma        => 'no-cache',
+    -expires       => '0',
+  );
   print $content;
   exit;
 }    # if ($view && $view eq 'body')
