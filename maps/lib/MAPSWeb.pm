@@ -774,14 +774,16 @@ sub Heading($$$$;$$@) {
   print start_div {class => 'heading'};
   print h2 {
     -align => 'center',
-    -class => 'header'
+    -class => 'header',
+    -style => 'margin-bottom: 0px;'
     },
     escapeHTML ($h1);
 
   if (defined $h2 && $h2 ne '') {
-    print h3 {
+    print p {
       -align => 'center',
-      -class => 'header'
+      -style =>
+'color: var(--google-red); margin-bottom: 0px; margin-top: 5px; font-weight: normal;'
       },
       escapeHTML ($h2);
   }    # if
@@ -839,19 +841,13 @@ sub NavigationBar($) {
       -action => '/maps/bin/search.cgi',
       -name   => 'search'
     };
-    print textfield {
-      -class       => 'searchfield',
-      -id          => 'searchfield',
-      -name        => 'str',
-      -size        => 20,
-      -maxlength   => 255,
-      -value       => '',
-      -placeholder => 'Search Sender/Subject',
-      -onclick     => "this.value = ''; this.placeholder = '';",
-      -onfocus     => "this.value = ''; this.placeholder = '';",
-      -onblur      => "this.placeholder = 'Search Sender/Subject';",
-      -style       => "padding-left: 5px;"
-    };
+    print
+      qq|    <input type="text" class="searchfield" id="searchfield" name="str"
+     size="20" maxlength="255" value="" placeholder="Search Sender/Subject"
+     onclick="this.value = ''; this.placeholder = '';"
+     onfocus="this.value = ''; this.placeholder = '';"
+     onblur="this.placeholder = 'Search Sender/Subject';"
+     style="padding-left: 5px;">|;
     print end_form;
     print end_div;
 

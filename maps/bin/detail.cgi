@@ -54,23 +54,16 @@ my ($userid, $current, $last, $prev, $total);
 my $table_name = 'detail';
 
 my %types = (
-  'blacklist' => [
-    'Blacklist report',
-    'The following blacklisted users attempted to email you'
-  ],
-  'whitelist' =>
-    ['Delivered report', 'Delivered email from the following users'],
-  'nulllist' =>
-    ['Discarded report', 'Discarded messages from the following users'],
-  'error'    => ['Error report', 'Errors detected'],
-  'mailloop' => [
+  'blacklist' => ['Blacklist report', ''],
+  'whitelist' => ['Delivered report', ''],
+  'nulllist'  => ['Discarded report', ''],
+  'error'     => ['Error report',     'Errors detected'],
+  'mailloop'  => [
     'MailLoop report',
     'Automatically detected mail loops from the following users'
   ],
-  'registered' =>
-    ['Registered report', 'The following users have recently registered'],
-  'returned' =>
-    ['Returned report', 'Sent Register reply to the following users']
+  'registered' => ['Registered report', ''],
+  'returned'   => ['Returned report',   '']
 );
 
 sub formatRule($) {
@@ -94,7 +87,10 @@ sub Body($) {
 
   my ($onlist, $rec);
 
-  print div {-align => 'center'},
+  print div {
+    -align => 'center',
+    -style => 'margin-top: -20px;'
+    },
     b ('(' . $current . '-' . $last . ' of ' . $total . ')');
   print start_form {
     -method => 'post',
@@ -137,7 +133,7 @@ sub Body($) {
     'Rule',
     th {-class => 'tableborder'},
     'Retention',
-    th {-class => 'tablebordertopright'},
+    th {-class => 'tablebordertopright', -width => '160'},
     'Comment/Date',
   ];
 
@@ -294,7 +290,7 @@ sub Body($) {
       }    # if
 
       if ($date eq substr ($rec->{timestamp}, 0, 10)) {
-        $rec->{date} = b font {-color => 'green'},
+        $rec->{date} = span {-style => 'color: green; font-size: 12px;'},
           SQLDatetime2UnixDatetime $rec->{timestamp};
       } else {
         $rec->{date} = SQLDatetime2UnixDatetime $rec->{timestamp};

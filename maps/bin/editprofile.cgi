@@ -67,7 +67,7 @@ sub Body() {
       td (
         textfield {
           -class => 'inputfield',
-          -size  => 50,
+          -size  => 20,
           -name  => 'fullname',
           -value => $rec->{name}
         }
@@ -82,7 +82,7 @@ sub Body() {
     td (
       textfield {
         -class => 'inputfield',
-        -size  => 50,
+        -size  => 20,
         -name  => 'email',
         -value => $rec->{email}
       }

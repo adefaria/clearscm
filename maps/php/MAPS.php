@@ -250,7 +250,7 @@ function displayquickstats()
 
   // Start quickstats
   print "<div class=\"quickstats\">";
-  print "<h4 align=\"center\" class=\"todaysactivity\">Today's Activity</h4>";
+  print "<h4 align=\"center\" class=\"todaysactivity\" title=\"$today\">Today's Activity</h4>";
   print "<p align=\"center\" style=\"font-weight: normal;\">as of $current_time</p>";
 
   $processed = $dates[$today]["processed"];

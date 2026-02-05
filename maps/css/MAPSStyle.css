@@ -379,9 +379,7 @@ select:hover,
   color: var(--text-color);
 }
 
-#profile select.inputfield:hover option,
-#profile select.inputfield:focus option {
-  background-color: var(--light-google-red);
+#profile select.inputfield:hover option {
   color: var(--google-red);
 }
 
@@ -480,9 +478,7 @@ select:hover,
   text-align: center;
 }
 
-#searchfield:hover {
-  background: var(--light-google-red);
-}
+#searchfield:hover {}
 
 #searchfield:focus {
   background: var(--input-bg);
@@ -893,7 +889,6 @@ img {
 
 .intromenu a:hover {
   color: var(--text-color);
-  background: Red;
 }
 
 .intromenu a:active {

@@ -66,7 +66,7 @@ if (isset($userid)) {
       use <a href="/maps/bin/editprofile.cgi">Edit Profile</a> to change
       your profile information or to change your password.</p>
 
-    <p>MAPS also offers a series of web based <a href="/maps/php/Reports.php">Reports</a> to analyze your mail flow. You
+    <p>You
       can manage your <a href="/maps/php/list.php?type=white">White</a>,
       <a href="/maps/php/list.php?type=black">Black</a> and <a href="/maps/php/list.php?type=null">Null</a> lists
       although MAPS
