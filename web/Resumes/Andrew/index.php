@@ -199,7 +199,7 @@ if (file_exists($header_path)) {
   <div class="resume-header">
     <h2><a href="https://defaria.com" style="text-decoration:none; color:inherit;">Andrew DeFaria</a></h2>
     <p>
-      <a href="tel:4085964937" style="text-decoration:none; color:inherit;">408-596-4937</a> &bull; <a
+      <a href="tel:4085964937" style="text-decoration:none; color:inherit;">(408) 596-4937</a> &bull; <a
         href="mailto:Andrew@DeFaria.com">Andrew@DeFaria.com</a><br>
       <a href="Resume.docx" class="download-link">Download MS Word copy</a>
     </p>
