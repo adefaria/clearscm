@@ -19,7 +19,7 @@ Andrew DeFaria <Andrew@DeFaria.com>
 
 =item Revision
 
-$Revision: 2.23 $
+$Revision: 1.0 $
 
 =item Created
 
@@ -27,7 +27,7 @@ Fri Sep 22 09:21:18 CDT 2006
 
 =item Modified
 
-2013/03/28 22:48:07
+Fri Feb 06 08:30:00 PST 2026
 
 =back
 
@@ -169,7 +169,7 @@ our %OPTS = _GetConfig ($config);
 
 my $DEFAULT_DBSET = $OPTS{CQ_DBSET};
 
-our $VERSION = '2.23';
+our $VERSION = '1.0';
 
 # Override options if in the environment
 $OPTS{CQ_DATABASE} = $ENV{CQ_DATABASE} if $ENV{CQ_DATABASE};

@@ -11,3 +11,6 @@ Changes
 README.md
 t/00-load.t
 lib/Clearquest/Utils.pm
+t/lib/CQPerlExt.pm
+t/cq.conf
+t/mock_basic.t
