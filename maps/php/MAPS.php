@@ -374,11 +374,8 @@ END;
 
     displayquickstats();
 
-    print "<br>";
-
-
     print <<<END
-  <div class="search">
+  <div class="search" style="padding-top: 5px;">
   <form method="get" action="/maps/bin/search.cgi" name="search" onsubmit="return checksearch(this);">
     <input type="text" class="searchfield" id="searchfield" name="str"
      size="20" maxlength="255" value="" placeholder="Search Sender/Subject" onclick="document.search.str.value='';">
