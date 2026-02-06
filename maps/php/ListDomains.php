@@ -53,20 +53,7 @@ if (!$top) {
     </form>
     <?php copyright(2001); ?>
   </div>
-  <div class="heading">
-    <h2 class="header" align="center">Returned Messages by Domain</h2>
-  </div>
-  <div class="content">
-    <?php
-    OpenDB();
-    SetContext($userid);
-    NavigationBar($userid);
-    ?>
-    <form method="post" action="/maps/bin/processaction.cgi" enctype="application/x-www-form-urlencoded" name="domains">
-      <?php ListDomains($top); ?>
-    </form>
-    <?php copyright(2001); ?>
-  </div>
+
 </body>
 
 </html>
