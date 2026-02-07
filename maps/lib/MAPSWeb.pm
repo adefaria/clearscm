@@ -822,7 +822,7 @@ sub NavigationBar($) {
       (a {-href => '/maps/bin/stats.cgi'},       'Statistics<br>'),
       (a {-href => '/maps/bin/editprofile.cgi'}, 'Profile<br>'),
       (
-        a {-href => 'https://earth.defariahome.com/maps/php/ListDomains.php'},
+        a {-href => '/maps/php/ListDomains.php'},
         'Top 20<br>'
       ),
       (a {-href => '/maps/php/list.php?type=white'}, 'White<br>'),
