@@ -139,9 +139,7 @@ sub Body {
 # Main
 my @scripts = ("ListActions.js");
 
-my @scripts = ("ListActions.js");
-
-$userid //= $ENV{USER};
+$userid = cookie ('MAPSUser') || $ENV{USER};
 
 SetContext $userid;
 
@@ -152,9 +150,11 @@ if (!$lines) {
   $lines = $options{"Page"};
 }    # if
 
+my $search_str = $MAPS::db->quote ("%$str%");
+
 $total = CountEmail (
   userid     => $userid,
-  additional => "(subject like '%$str%' or sender like '%$str%')",
+  additional => "(subject like $search_str or sender like $search_str)",
 );
 
 my $view = param ('view') || '';

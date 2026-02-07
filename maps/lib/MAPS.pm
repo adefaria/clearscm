@@ -1591,9 +1591,12 @@ sub SearchEmails(%) {
 
   my $table  = 'email';
   my $fields = ['sender', 'subject', 'timestamp'];
+
+  my $search_str = $db->quote ("%$params{search}%");
+
   my $condition =
-      "userid='$params{userid}' and (sender like '\%$params{search}\%' "
-    . "or subject like '\%$params{search}\%')";
+      "userid='$params{userid}' and (sender like $search_str "
+    . "or subject like $search_str)";
   my $additional = 'order by timestamp desc';
 
   my ($err, $msg) = $db->find ($table, $condition, $fields, $additional);

@@ -464,6 +464,12 @@ sub optimize($) {
     $statement);
 }    # optimize
 
+sub quote($$) {
+  my ($self, $str) = @_;
+
+  return $self->{db}->quote ($str);
+}    # quote
+
 sub unlock() {
   my ($self) = @_;
 

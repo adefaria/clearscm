@@ -844,8 +844,7 @@ sub NavigationBar($) {
     print
       qq|    <input type="text" class="searchfield" id="searchfield" name="str"
      size="20" maxlength="255" value="" placeholder="Search Sender/Subject"
-     onclick="this.value = ''; this.placeholder = '';"
-     onfocus="this.value = ''; this.placeholder = '';"
+     onfocus="this.placeholder = ''"
      onblur="this.placeholder = 'Search Sender/Subject';"
      style="padding-left: 5px;">|;
     print end_form;
