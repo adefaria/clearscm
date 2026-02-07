@@ -185,7 +185,7 @@ our %OPTS = _GetConfig ($config);
 
 my $DEFAULT_DBSET = $OPTS{CQ_DBSET};
 
-our $VERSION = '1.0';
+our $VERSION = '1.02';
 
 # Override options if in the environment
 $OPTS{CQ_DATABASE} = $ENV{CQ_DATABASE} if $ENV{CQ_DATABASE};

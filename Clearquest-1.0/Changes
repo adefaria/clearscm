@@ -1,5 +1,8 @@
 Revision history for Clearquest
 
-2.23    2026-01-13
+21.02    2026-02-07
+        Refactored configuration loading to be self-contained.
+
+1.0     2006-09-22
         - CPAN distribution created
         - Incorporated GetConfig logic to remove external dependency
