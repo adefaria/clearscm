@@ -158,12 +158,28 @@ use File::Basename;
 use Carp;
 use Time::Local;
 
+use File::Spec;
+
 sub _GetConfig($);
 
 # Seed options from config file
-my $config = $ENV{CQ_CONF} || '/etc/clearquest/cq.conf';
+my $config = $ENV{CQ_CONF};
 
-croak "Unable to find config file $config" unless -r $config;
+unless ($config) {
+  my $dir            = dirname (__FILE__);
+  my $local_conf     = File::Spec->catfile ($dir, '..', 'etc', 'cq.conf');
+  my $installed_conf = File::Spec->catfile ($dir, 'Clearquest', 'cq.conf');
+
+  if (-r $local_conf) {
+    $config = $local_conf;
+  } elsif (-r $installed_conf) {
+    $config = $installed_conf;
+  } elsif (-r '/etc/clearquest/cq.conf') {
+    $config = '/etc/clearquest/cq.conf';
+  }    # if
+}    # unless
+
+croak "Unable to find config file" unless $config and -r $config;
 
 our %OPTS = _GetConfig ($config);
 

@@ -14,3 +14,4 @@ lib/Clearquest/Utils.pm
 t/lib/CQPerlExt.pm
 t/cq.conf
 t/mock_basic.t
+etc/cq.conf
