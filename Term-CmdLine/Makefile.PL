@@ -1,4 +1,4 @@
-use 5.010;
+use 5.020;
 use strict;
 use warnings;
 use ExtUtils::MakeMaker;
@@ -10,7 +10,7 @@ WriteMakefile (
   ABSTRACT     =>
     'Command-line interface using Term::ReadLine with built-in commands',
   LICENSE            => 'gpl_2',
-  MIN_PERL_VERSION   => '5.010',
+  MIN_PERL_VERSION   => '5.020',
   CONFIGURE_REQUIRES => {
     'ExtUtils::MakeMaker' => '0',
   },
@@ -35,8 +35,8 @@ WriteMakefile (
     resources   => {
       repository => {
         type => 'git',
-        url  => 'https://github.com/adefaria/Term-CmdLine.git',
-        web  => 'https://github.com/adefaria/Term-CmdLine',
+        url  => 'https://github.com/adefaria/clearscm.git',
+        web  => 'https://github.com/adefaria/clearscm',
       },
     },
   },

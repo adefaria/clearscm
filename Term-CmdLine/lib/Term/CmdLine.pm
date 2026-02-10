@@ -1,5 +1,7 @@
-use strict;
+use v5.20;
 use warnings;
+use feature 'signatures';
+no warnings 'experimental';
 
 =pod
 
@@ -38,7 +40,7 @@ available.
 
  my %cmds = (
   list => (
-     help        => 'help [<cmd>]'
+     help        => 'help [<cmd>]',
      description => 'This is a longer description of the list command',
   ),
   execute => (
@@ -74,7 +76,7 @@ package Term::CmdLine;
 
 use base 'Exporter';
 
-our $VERSION = '1.00';
+our $VERSION = '2.00';
 
 use Carp;
 use Config;
@@ -100,13 +102,11 @@ BEGIN {
   $trace   = $ENV{TRACE};
 }    # BEGIN
 
-sub get_me () {
+sub get_me() {
   return $me;
 }    # get_me
 
-sub display (;$$$) {
-  my ($msg, $handle, $nolinefeed) = @_;
-  $msg ||= '';
+sub display ($msg = '', $handle = undef, $nolinefeed = undef) {
   $handle = *STDOUT unless $handle;
   binmode $handle, ':encoding(UTF-8)';
   print $handle $msg;
@@ -114,14 +114,12 @@ sub display (;$$$) {
   return;
 }    # display
 
-sub display_nolf ($;$) {
-  my ($msg, $handle) = @_;
+sub display_nolf ($msg, $handle = undef) {
   display $msg, $handle, "nolf";
   return;
 }    # display_nolf
 
-sub display_error ($;$$$) {
-  my ($msg, $errno, $handle, $nolinefeed) = @_;
+sub display_error ($msg, $errno = undef, $handle = undef, $nolinefeed = undef) {
   $msg ||= '';
   $handle = *STDERR if !$handle;
 
@@ -162,18 +160,16 @@ sub display_error ($;$$$) {
   return;
 }    # display_error
 
-sub error ($;$$$) {
-  my ($msg, $errno, $handle, $nolinefeed) = @_;
+sub error ($msg, $errno = undef, $handle = undef, $nolinefeed = undef) {
   display_error $msg, $errno, $handle, $nolinefeed;
   exit $errno if $errno;
   return;
 }    # error
 
-sub warning ($;$$$) {
-  my ($msg, $warnno, $handle, $nolinefeed) = @_;
+sub warning ($msg, $errno = undef, $handle = undef, $nolinefeed = undef) {
   $msg ||= '';
 
-  unless ($warnno) {
+  unless ($errno) {
     if ( ($handle and -t $handle)
       or (-t *STDERR) and ($Config{perl} ne 'ratlperl'))
     {
@@ -197,11 +193,11 @@ sub warning ($;$$$) {
         . $me
         . color ('reset') . ': '
         . color ('yellow')
-        . "WARNING #$warnno"
+        . "WARNING #$errno"
         . color ('reset')
         . ": $msg";
     } else {
-      $msg = "$me: WARNING #$warnno: $msg";
+      $msg = "$me: WARNING #$errno: $msg";
     }
   } ## end else
 
@@ -211,8 +207,7 @@ sub warning ($;$$$) {
   return;
 }    # warning
 
-sub PageOutput(@) {
-  my (@output) = @_;
+sub PageOutput (@output) {
 
   if ($ENV{PAGER}) {
     if (open my $pager, '|-', $ENV{PAGER}) {
@@ -309,10 +304,19 @@ my %builtin_cmds = (
     description =>
       'Turn on|off tracing. With no options displays status of trace.',
   },
+
+  exit => {
+    help        => 'exit',
+    description => 'Exit the command line interface.',
+  },
+
+  quit => {
+    help        => 'quit',
+    description => 'Exit the command line interface (alias for exit).',
+  },
 );
 
-sub _cmdCompletion($$) {
-  my ($text, $state) = @_;
+sub _cmdCompletion ($text, $state) {
 
   return unless %_cmds;
 
@@ -328,14 +332,12 @@ sub _cmdCompletion($$) {
   return;
 }    # _cmdCompletion
 
-sub _complete($$$$) {
-  my ($text, $line, $start, $end) = @_;
+sub _complete ($text, $line, $start, $end) {
 
   return $_cmdline->completion_matches ($text, \&Term::CmdLine::_cmdCompletion);
 }    # _complete
 
-sub _gethelp() {
-  my ($self) = @_;
+sub _gethelp ($self) {
 
   return unless %_cmds;
 
@@ -359,8 +361,7 @@ sub _gethelp() {
   return;
 }    # _gethelp
 
-sub _interpolate($) {
-  my ($self, $str) = @_;
+sub _interpolate ($self, $str) {
 
   # Skip interpolation for the perl command (Note this is raid specific)
   return $str
@@ -385,8 +386,7 @@ sub _interpolate($) {
   return $str;
 }    # _interpolate
 
-sub _builtinCmds($) {
-  my ($self, $line) = @_;
+sub _builtinCmds ($self, $line) {
 
   unless ($line) {
     display '';
@@ -404,8 +404,6 @@ sub _builtinCmds($) {
     } else {
       system $1;
     }    # if
-
-    #$_cmdline->remove_history ($_cmdline->where_history);
 
     return;
   }    # if
@@ -530,6 +528,10 @@ sub _builtinCmds($) {
         error 'Invalid usage';
         $self->help ('trace');
       }    # if
+    } elsif ($line =~ /^\s*(exit|quit)\s*$/i) {
+
+      # Signal exit to the get() method
+      return ('__EXIT__', $line, $result);
     }    # if
   }    # if
 
@@ -555,8 +557,7 @@ sub _interrupt() {
   return;
 }    # _interrupt
 
-sub _displayMatches($$$) {
-  my ($matches, $numMatches, $maxLength) = @_;
+sub _displayMatches ($matches, $num_matches, $max_length) {
 
   # Work on a copy... (Otherwise we were getting "Attempt to free unreferenced
   # scalar" internal errors from perl)
@@ -595,8 +596,7 @@ sub _displayMatches($$$) {
   return;
 }    # _displayMatches
 
-sub new(;$$%) {
-  my ($class, $histfile, $eval, %cmds) = @_;
+sub new ($class, $histfile = undef, $eval = undef, %cmds) {
 
 =pod
 
@@ -725,8 +725,7 @@ Returns:
   return $self;
 }    # new
 
-sub get() {
-  my ($self) = @_;
+sub get ($self) {
 
 =pod
 
@@ -793,6 +792,9 @@ Returns:
 
     $line = $_cmdline->readline ($prompt);
 
+    # Handle EOF (^D) - return empty list to signal exit
+    return () unless defined $line;
+
     # Restore the old signal handler
     if ($Config{cppflags} !~ /win32/i) {
       POSIX::sigaction (&POSIX::SIGINT, $oldaction);
@@ -805,14 +807,16 @@ Returns:
 
     ($cmd, $line, $result) = $self->_builtinCmds ($line);
 
+    # Handle exit/quit commands - return empty list to signal exit
+    return () if $cmd eq '__EXIT__';
+
     $line = '' unless $cmd;
   } while ($cmd and $builtin_cmds{$cmd});
 
   return ($line, $result);
 }    # get
 
-sub set_cmds(%) {
-  my ($self, %cmds) = @_;
+sub set_cmds ($self, %cmds) {
 
 =pod
 
@@ -859,8 +863,7 @@ Returns:
   return;
 }    # set_cmds
 
-sub set_prompt($) {
-  my ($self, $prompt) = @_;
+sub set_prompt ($self, $prompt) {
 
 =pod
 
@@ -903,8 +906,7 @@ Returns:
   return $return;
 }    # set_prompt
 
-sub set_histfile($) {
-  my ($self, $histfile) = @_;
+sub set_histfile ($self, $histfile) {
 
 =pod
 
@@ -966,8 +968,7 @@ Returns:
   return;
 }    # set_histfile
 
-sub set_eval(;\&) {
-  my ($self, $eval) = @_;
+sub set_eval ($self, $eval = undef) {
 
 =pod
 
@@ -1011,8 +1012,7 @@ Returns:
   return $returnEval;
 }    # set_eval
 
-sub help(;$$) {
-  my ($self, $cmd, $builtins) = @_;
+sub help ($self, $cmd = undef, $builtins = undef) {
 
 =pod
 
@@ -1114,8 +1114,7 @@ Returns:
   return;
 }    # help
 
-sub history(;$) {
-  my ($self, $action) = @_;
+sub history ($self, $action = undef) {
 
 =pod
 
@@ -1260,8 +1259,7 @@ Returns:
   return;
 }    # history
 
-sub _get($$) {
-  my ($self, $name) = @_;
+sub _get ($self, $name) {
 
 =pod
 
@@ -1301,8 +1299,7 @@ Returns:
   return $self->{vars}{$name};
 }    # _get
 
-sub _set($$) {
-  my ($self, $name, $value) = @_;
+sub _set ($self, $name, $value = undef) {
 
 =pod
 
@@ -1364,8 +1361,7 @@ Returns:
   return $returnValue;
 }    # _set
 
-sub vars($) {
-  my ($self, $cmd) = @_;
+sub vars ($self, $pattern = undef) {
 
 =pod
 
@@ -1403,13 +1399,12 @@ Returns:
 
   push @output, "$_ = $self->{vars}{$_}" for (keys %{$self->{vars}});
 
-  $self->handleOutput ($cmd, @output);
+  $self->handleOutput ($pattern, @output);
 
   return;
 }    # vars
 
-sub handleOutput($@) {
-  my ($self, $line, @output) = @_;
+sub handleOutput ($self, $line, @output) {
 
 =pod
 
@@ -1509,8 +1504,7 @@ Returns:
   return;
 }    # handleOutput
 
-sub source($) {
-  my ($self, $file) = @_;
+sub source ($self, $file = undef) {
 
 =pod
 
