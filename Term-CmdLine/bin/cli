@@ -1,0 +1,71 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use Term::CmdLine;
+
+# Define some sample commands for demonstration
+my %cmds = (
+  echo => {
+    help        => 'echo <text>',
+    description => 'Echo the text back',
+  },
+  date => {
+    help        => 'date',
+    description => 'Display current date/time',
+  },
+  uptime => {
+    help        => 'uptime',
+    description => 'Show how long the CLI has been running',
+  },
+  exit => {
+    help        => 'exit',
+    description => 'Exit the CLI',
+  },
+);
+
+# Create the command line interface
+my $cmdline = Term::CmdLine->new("$ENV{HOME}/.cli_history", \&eval_cmd, %cmds);
+
+$cmdline->set_prompt('cli> ');
+
+print "Term::CmdLine Test Harness\n";
+print "Type 'help' for available commands, 'exit' to quit\n\n";
+
+my $start_time = time;
+
+# Main command loop
+while (my ($cmd, $line) = $cmdline->get) {
+  last if $cmd eq 'exit';
+  
+  # The get() method already handles builtin commands
+  # We only get here for user-defined commands
+  
+  if ($cmd eq 'echo') {
+    my $text = $line;
+    $text =~ s/^echo\s+//;
+    print "$text\n";
+  }
+  elsif ($cmd eq 'date') {
+    print scalar(localtime) . "\n";
+  }
+  elsif ($cmd eq 'uptime') {
+    my $elapsed = time - $start_time;
+    my $mins = int($elapsed / 60);
+    my $secs = $elapsed % 60;
+    print "CLI has been running for ${mins}m ${secs}s\n";
+  }
+}
+
+print "Goodbye!\n";
+
+# Evaluation function for variable expansion
+sub eval_cmd {
+  my ($cmd) = @_;
+  
+  # Simple evaluation - just return the command
+  # You could add more sophisticated evaluation here
+  return $cmd;
+}

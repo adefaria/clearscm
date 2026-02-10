@@ -1,0 +1,9 @@
+Revision history for Term-CmdLine
+
+1.00    2026-02-09
+        - Initial CPAN release
+        - Subsumed dependencies (Display, Utils, OSDep) into main module
+        - Renamed from CmdLine to Term::CmdLine
+        - Updated all references from ClearSCM to DeFaria
+        - Added comprehensive test suite
+        - Full POD documentation
