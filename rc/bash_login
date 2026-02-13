@@ -358,6 +358,9 @@ fi
 #fi
 export JDK_JAVA_OPTIONS="-XX:-UsePerfData"
 
+# GEMINI API KEY - if we ever need it
+export GEMINI_API_KEY="AIzaSyCvQZyH8ESfLFP9JKQA0O-A5-gghkNK-N0"
+
 # This must be at the end of the file for sdkman to work!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
