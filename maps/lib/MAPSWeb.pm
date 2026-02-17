@@ -172,8 +172,7 @@ s/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})/<a href="mailto:$1" style="t
   my $safe_date   = escape ($msg_date);
 
   $html .= qq{<iframe id="msg_frame"
-                   src="display.cgi?sender=$safe_sender;msg_date=$safe_date;view=body;v=}
-    . time () . qq{"
+                   src="display.cgi?sender=$safe_sender;msg_date=$safe_date;view=body"
                    width="100%"
                    height="600"
                    frameborder="0"
@@ -686,7 +685,7 @@ sub Heading($$$$;$$@) {
     print start_html(
       -title    => $title,
       -author   => 'Andrew\@DeFaria.com',
-      -style    => {-src     => '/maps/css/MAPSStyle.css?v=' . time ()},
+      -style    => {-src     => '/maps/css/MAPSStyle.css'},
       -meta     => {viewport => 'width=device-width, initial-scale=1'},
       -onResize => "AdjustTableWidth (\"$table_name\");",
       -head     => [
@@ -715,12 +714,12 @@ sub Heading($$$$;$$@) {
         ),
         Link ({
             -rel  => 'stylesheet',
-            -href => '/css/style.css?v=' . time ()
+            -href => '/css/style.css'
           }
         ),
         Link ({
             -rel  => 'shortcut icon',
-            -href => '/maps/favicon.ico'
+            -href => '/maps/MAPS.png'
           }
         )
       ],
@@ -730,7 +729,7 @@ sub Heading($$$$;$$@) {
     print start_html(
       -title  => $title,
       -author => 'Andrew\@DeFaria.com',
-      -style  => {-src     => '/maps/css/MAPSStyle.css?v=' . time ()},
+      -style  => {-src     => '/maps/css/MAPSStyle.css'},
       -meta   => {viewport => 'width=device-width, initial-scale=1'},
       -head   => [
         Link ({
@@ -758,12 +757,12 @@ sub Heading($$$$;$$@) {
         ),
         Link ({
             -rel  => 'stylesheet',
-            -href => '/css/style.css?v=' . time ()
+            -href => '/css/style.css'
           }
         ),
         Link ({
             -rel  => 'shortcut icon',
-            -href => '/maps/favicon.ico'
+            -href => '/maps/MAPS.png'
           }
         )
       ],

@@ -140,8 +140,8 @@ if ($view && $view eq 'body') {
   if ($type eq 'text/plain') {
     $content = escapeHTML ($content);
     my $style_time = time ();
-    $content =
-"<html data-theme='$theme'><head><link rel='stylesheet' href='/css/style.css?v=$style_time'><link rel='stylesheet' href='/maps/css/MAPSStyle.css?v=$style_time'></head><body style='background-color: var(--bg-color); color: var(--text-color);'><pre>$content</pre></body></html>";
+    $content = $content =
+"<html data-theme='$theme'><head><link rel='stylesheet' href='/css/style.css'><link rel='stylesheet' href='/maps/css/MAPSStyle.css'></head><body style='background-color: var(--bg-color); color: var(--text-color);'><pre>$content</pre></body></html>";
     $type = 'text/html';
   } ## end if ($type eq 'text/plain')
 
@@ -150,7 +150,7 @@ if ($view && $view eq 'body') {
     # Disable links to prevent accidental clicking on malicious URLs
     my $style_time = time ();
     my $css =
-qq{<script>if('$theme')document.documentElement.setAttribute('data-theme','$theme');</script><link rel='stylesheet' href='/css/style.css?v=$style_time'><link rel='stylesheet' href='/maps/css/MAPSStyle.css?v=$style_time'><style>body { background-color: var(--bg-color) !important; color: var(--text-color) !important; } a[title] { cursor: copy; text-decoration: underline; color: var(--google-blue); }</style>};
+qq{<script>if('$theme')document.documentElement.setAttribute('data-theme','$theme');</script><link rel='stylesheet' href='/css/style.css'><link rel='stylesheet' href='/maps/css/MAPSStyle.css'><style>body { background-color: var(--bg-color) !important; color: var(--text-color) !important; } a[title] { cursor: copy; text-decoration: underline; color: var(--google-blue); }</style>};
 
     if ($content =~ /<\/head>/i) {
       $content =~ s/<\/head>/$css\n<\/head>/i;
