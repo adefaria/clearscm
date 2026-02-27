@@ -210,7 +210,12 @@ sub Body($) {
       -rowspan => $rowspan,
       }, (
       ($type eq 'returned' && @$msgs)
-      ? a ({-href => "nuke.cgi?sender=$sender;next=$orig_next"}, $next)
+      ? a ({
+          -href => "nuke.cgi?sender=$sender;next=$orig_next"
+            . ($date ? ";date=$date" : "")
+        },
+        $next
+        )
       : $next
       ),
       checkbox {

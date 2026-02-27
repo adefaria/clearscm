@@ -71,6 +71,7 @@ sub DeleteEntries {
 
   if ($count == 0) {
     DisplayError ('Nothing to delete!');
+    exit;
   } else {
     ResequenceList (
       userid => $userid,
@@ -80,10 +81,12 @@ sub DeleteEntries {
     if ($count == 1) {
       print redirect (
         "/maps/php/list.php?type=$type&next=$next&message=Deleted entry");
+      exit;
     } else {
       print redirect (
 "/maps/php/list.php?type=$type&next=$next&message=Deleted $count entries"
       );
+      exit;
     }    # if
   }    # if
 

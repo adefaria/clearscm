@@ -91,8 +91,8 @@ function checksearch(form) {
            // form.submit() bypasses onsubmit handler in standard HTML.
            form.submit();
        } else {
-           // Nothing found, show modal
-           showModal("ERROR: Nothing matching!", form.str);
+            // Nothing found, show modal
+            showModal("Nothing found", form.str);
        }
     })
     .catch(function(err) {
@@ -122,7 +122,7 @@ function showModal(msg, inputToFocus) {
     
     // Handle Enter or Escape key to close
     var handleKey = function(e) {
-        if (e.key === 'Enter' || e.key === 'Escape') {
+        if (e.key === 'Enter' || e.key === 'Escape' || e.keyCode === 13 || e.keyCode === 27 || e.which === 13 || e.which === 27) {
             e.preventDefault();
             closeAndCleanup();
         }

@@ -30,6 +30,8 @@ my $sender = param 'sender';
 my $next   = param 'next' || 0;
 my $userid = cookie 'MAPSUser';
 
+my $date = param 'date' || '';
+
 # Default to environment user if cookie not set (for testing/cli)
 $userid ||= $ENV{USER};
 
@@ -48,9 +50,8 @@ unless ($domain) {
 
 # Add domain to nulllist
 my ($ret, $msg) = Add2Nulllist (
-  userid  => $userid,
-  sender  => '@' . $domain,
-  comment => "Nuked from web interface"
+  userid => $userid,
+  sender => '@' . $domain,
 );
 
 my $message = "Nuked domain $domain";
@@ -64,7 +65,9 @@ if ($ret < 0) {
 } ## end if ($ret < 0)
 
 # Redirect back to detail page
-print redirect(
-  "/maps/bin/detail.cgi?type=returned&next=$next&message=$message");
+my $redirect_url =
+  "/maps/bin/detail.cgi?type=returned&next=$next&message=$message";
+$redirect_url .= "&date=$date" if $date;
+print redirect($redirect_url);
 
 exit;
