@@ -470,6 +470,7 @@ function DisplayList($type, $next, $lines)
 function MAPSHeader()
 {
   $mod_date = date("F d Y @ g:i a", filemtime($_SERVER['SCRIPT_FILENAME']));
+  $time = time();
   print <<<END
   <meta name="author" content="Andrew DeFaria <Andre@DeFaria.com>">
   <meta name="last-modified" content="$mod_date">
@@ -487,11 +488,11 @@ function MAPSHeader()
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=<?php echo time(); ?>">
-  <link rel="stylesheet" type="text/css" href="/maps/css/MAPSStyle.css?v=<?php echo time(); ?>"/>
-  <script language="JavaScript1.2" src="/maps/JavaScript/MAPSUtils.js?v=<?php echo time(); ?>"
+  <link rel="stylesheet" href="/css/style.css?v=$time">
+  <link rel="stylesheet" type="text/css" href="/maps/css/MAPSStyle.css?v=$time"/>
+  <script language="JavaScript1.2" src="/maps/JavaScript/MAPSUtils.js?v=$time"
    type="text/javascript"></script>
-  <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js?v=<?php echo time(); ?>"
+  <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js?v=$time"
    type="text/javascript"></script>
   <script type="text/javascript">
     (function() {
