@@ -1018,3 +1018,13 @@ div#highlightrow table[name="list"] {
   color: var(--google-red);
   font-weight: normal;
 }
+/* Embedded context fixes (hide redundant footer in iframe) */
+.embedded footer.copyright,
+.embedded .copyright {
+  display: none !important;
+}
+
+/* Ensure the main container in embedded mode has space at the bottom */
+.embedded .content {
+    padding-bottom: 2rem !important;
+}
