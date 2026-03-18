@@ -1,0 +1,2 @@
+#!/bin/sh
+setsid horizon-client --serverURL https://portal.xtera.com --desktopName "Windows 11 v1" --nonInteractive > /dev/null 2>&1

@@ -1,0 +1,75 @@
+#!/bin/bash
+if [ $# -gt 2 -o $# -lt 1 ]; then
+  echo "Usage: $0 <video filename> [<loudness>]"
+  exit 1
+fi
+
+videofile=$1
+loudness=${2:-3}
+
+vdir=$(dirname "$videofile")
+video=$(basename "$videofile")
+vfile=${video%.*}
+vext=${video#*.}
+
+expireTime=2400
+
+tmp=/tmp
+louderfile="$tmp/$vfile.louder.$vext"
+log=$tmp/louder.$$.log
+
+function notify {
+  notify-send --expire-time=$expireTime "$1"
+  #say $1
+}
+
+function yesno {
+  question=$1
+
+  zenity --question --text "$question" --width=300 2> /dev/null
+}
+
+notify "Making $vfile louder by ${loudness}Db"
+ffmpeg -y -i "$videofile" -c:v copy -vcodec copy -af "volume=$loudness.0" "$louderfile" > $log 2>&1
+
+if [ $? -eq 0 ]; then
+  rm -f $log
+
+  old_size=$(stat -c %s "$videofile")
+  new_size=$(stat -c %s "$louderfile")
+
+  # If the new file grows or shrinks by less then $pct then just move
+  # it into place.
+  pct=${3:-10}
+  pctsize=$(($old_size * 1 / $pct))
+
+  larger=$(($new_size + $pctsize))
+  smaller=$(($new_size - $pctsize))
+
+  notify "Increased volume of $vfile by $loudness decibles"
+  #say "Increased volume of $vfile by $loudness decibles"
+
+  if [ $new_size -gt $larger -o $new_size -lt $smaller ]; then
+    if [ $new_size -gt $larger ]; then
+      say "The video grew in size a lot - check to make sure it's OK"
+    elif [ $new_size -lt $smaller ]; then
+      say "The video shunk in size a lot -check to make sure it's OK"
+    fi
+
+    if yesno "Would you like to replace $vfile with the louder version?"; then
+      mv "$louderfile" "$videofile"
+      chmod 644 "$videofile"
+      notify "$vfile moved into place"
+    else
+      notify "$vfile not replaced"
+    fi
+  else  
+    notify "Now moving it back into place"
+    mv "$louderfile" "$videofile"
+    chmod 644 "$videofile"
+    notify "$vfile moved into place"
+    #say "$vfile moved into place"
+  fi
+else
+  say "Problems making $vfile louder. Check $log"
+fi

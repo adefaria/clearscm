@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# Rescan NextCloud files
+#
+# Note I optimized this to just scan my user if $1 is given. Also, I prepend
+# andrew/files to $1 so just specify the path as you see it in NC
+docker_uid=33 # used to be 33 for other docker image
+if [ -z "$1" ]; then
+  echo Scanning files for all users
+  docker exec -itu $docker_uid nextcloud php console.php files:scan --all
+else
+  echo Scanning files for $1
+  docker exec -itu $docker_uid nextcloud php console.php files:scan -p "andrew/files/$1"
+fi

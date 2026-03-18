@@ -1,0 +1,20 @@
+#!/bin/bash
+if [ $# -gt 2 -o $# -lt 1 ]; then
+  echo "Usage: $0 <video filename> <title image>"
+  exit 1
+fi
+
+videofile=$1
+title=$2
+
+ffmpeg -i "$videofile" -i "$title" \
+-map 0:v -map 0:a -map 1:v \
+-c:v copy -c:a copy -c:2 mjpeg -disposition:2 attached_pic \
+"output_with_thumbnail.mp4"
+
+if [ $? -eq 0 ]; then
+  mv output_with_thumbnail.mp4 "$videofile"
+else
+  echo "Failed to attached $title to $videofile"
+  exit 1
+fi

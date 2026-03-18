@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+# This script renames files in the current directory that match a given extension
+# to have a lowercase extension.
+
+# Check if a command-line argument was provided.
+unless (defined $ARGV[0]) {
+    die "Usage: $0 <file_extension>\nExample: $0 .MOV\n";
+}
+
+# The extension to match is the first command-line argument.
+# We'll remove the leading dot if it exists.
+my $ext_arg = $ARGV[0];
+$ext_arg =~ s/^\.//;
+
+# Create the new, lowercase extension for renaming.
+my $ext_lc = lc($ext_arg);
+
+# Create the regular expression to match the extension case-insensitively,
+# compiling it only once for efficiency.
+my $regex = qr/\.$ext_arg$/;
+
+# Get a list of all files in the current directory.
+opendir(my $dir_handle, '.') or die "Cannot open directory: $!";
+my @files = readdir($dir_handle);
+closedir($dir_handle);
+
+# Loop through each file in the directory.
+foreach my $file (@files) {
+    # Skip '.' and '..'.
+    next if $file eq '.' or $file eq '..';
+
+    # If the file matches the pre-compiled pattern...
+    if ($file =~ /$regex/) {
+        # Create the new filename by replacing the extension with the lowercase version.
+        # The 'i' modifier on the substitution ensures it works regardless of original case.
+        my $new_file = $file;
+        $new_file =~ s/\.$ext_arg$/\.$ext_lc/i;
+
+        # Check if the filename actually changed to avoid unnecessary rename attempts.
+        if ($file ne $new_file) {
+            # Rename the file.
+            if (rename($file, $new_file)) {
+                print "Renamed '$file' to '$new_file'\n";
+            } else {
+                warn "Failed to rename '$file' to '$new_file': $!\n";
+            }
+        } else {
+            print "'$file' is already correctly named, skipping.\n";
+        }
+    }
+}

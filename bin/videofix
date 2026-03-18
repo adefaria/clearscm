@@ -1,0 +1,156 @@
+#!/bin/bash
+
+#-------------------------------------------------------------------------------
+# SCRIPT: mp4fix.sh
+# DESCRIPTION: Re-encodes a video file (MP4 or MOV) to H.264 for web browser 
+#              compatibility. It implements a smart fallback system: it attempts 
+#              fast hardware encoding first, and if that fails (e.g., missing 
+#              CUDA drivers), it automatically falls back to reliable software 
+#              encoding.
+#
+# USAGE: ./mp4fix.sh <path/to/file.mp4 or .mov>
+#-------------------------------------------------------------------------------
+
+# --- Configuration ---
+# Set the target video bitrate: 3M is a good standard quality for 1080p video.
+TARGET_BITRATE="3M"
+
+# Set the encoding preset. For NVENC, this influences speed/quality slightly.
+# For libx264 (software fallback), 'fast' is a good balance.
+PRESET_VALUE="fast"
+
+# --- Encoder Configuration (Primary and Fallback) ---
+NVENC_ENCODER="h264_nvenc"
+SOFTWARE_ENCODER="libx264"
+ENCODER_USED=""
+
+
+# --- Argument Validation ---
+
+if [ -z "$1" ]; then
+    echo "Error: Missing input file argument."
+    echo "Usage: $0 <path/to/file.mp4 or .mov>"
+    exit 1
+fi
+
+INPUT_FILE="$1"
+
+if [ ! -f "$INPUT_FILE" ]; then
+    echo "Error: File not found at '$INPUT_FILE'."
+    exit 1
+fi
+
+# Determine the final output filename.
+if [[ "$INPUT_FILE" =~ \.mov$ ]] || [[ "$INPUT_FILE" =~ \.MOV$ ]]; then
+    FINAL_OUTPUT_FILE="${INPUT_FILE%.*}.mp4"
+    echo "Input file is a .MOV file. The output will be saved as $FINAL_OUTPUT_FILE."
+    echo "Note: The original .MOV file will NOT be overwritten."
+else
+    FINAL_OUTPUT_FILE="$INPUT_FILE"
+fi
+
+FILENAME=$(basename "$1")
+TEMP_FILE="/tmp/${FILENAME%.*}.temp.mp4"
+ERROR_LOG="ffmpeg_error.log"
+
+# --- Encoding Function ---
+
+# Function to run the FFmpeg command with the specified encoder
+run_ffmpeg() {
+    local encoder=$1
+    echo "----------------------------------------------------------------------"
+    echo "FFmpeg Command Details:"
+    echo "Video Codec: $encoder"
+    echo "Quality Control: Target Bitrate $TARGET_BITRATE"
+    echo "Optimization: +faststart (Critical for web streaming)"
+    echo "Audio: Copied (No quality loss or re-encoding time)"
+    echo "----------------------------------------------------------------------"
+    
+    # Run the command, redirecting stderr to the temporary error log
+    ffmpeg -i "$INPUT_FILE" \
+           -y \
+           -c:v "$encoder" \
+           -preset "$PRESET_VALUE" \
+           -b:v "$TARGET_BITRATE" \
+           -pix_fmt yuv420p \
+           -c:a copy \
+           -movflags +faststart \
+           "$TEMP_FILE" 2> "$ERROR_LOG"
+    return $?
+}
+
+# --- Encoding Execution with Fallback ---
+
+ENCODE_STATUS=1 # Assume failure initially
+
+# 1. Primary Attempt: Hardware Accelerated (NVENC)
+echo "Starting re-encoding of: $INPUT_FILE"
+echo "Output will be saved temporarily to: $TEMP_FILE"
+echo "Attempting fastest encoding with $NVENC_ENCODER..."
+
+run_ffmpeg "$NVENC_ENCODER"
+ENCODE_STATUS=$?
+ENCODER_USED="$NVENC_ENCODER"
+
+# Check if the primary attempt failed
+if [ $ENCODE_STATUS -ne 0 ]; then
+    
+    # Check if the error is due to missing libraries/encoder
+    if grep -q "Cannot load libcuda.so.1" "$ERROR_LOG" || grep -q "Unknown encoder" "$ERROR_LOG" || grep -q "Error initializing output stream" "$ERROR_LOG"; then
+        
+        echo "Hardware encoder failed (likely missing CUDA libraries). Falling back to software encoding ($SOFTWARE_ENCODER)..."
+        
+        # 2. Fallback Attempt: Standard Software (libx264)
+        run_ffmpeg "$SOFTWARE_ENCODER"
+        ENCODE_STATUS=$?
+        ENCODER_USED="$SOFTWARE_ENCODER"
+
+        # Note: If libx264 fails, it might mean your FFmpeg is severely stripped down
+        # or misconfigured. This is the last attempt.
+    fi
+fi
+
+# Clean up the error log file
+rm -f "$ERROR_LOG"
+
+# --- Post-Encoding Cleanup and Replacement ---
+
+if [ $ENCODE_STATUS -eq 0 ]; then
+    echo "----------------------------------------------------------------------"
+    echo "Encoding successful using $ENCODER_USED."
+    
+    if [ "$INPUT_FILE" != "$FINAL_OUTPUT_FILE" ]; then
+        # Case: MOV input, rename to MP4 output
+        mv -f "$TEMP_FILE" "$FINAL_OUTPUT_FILE"
+        if [ $? -eq 0 ]; then
+            echo "✅ Success: Fixed file saved as '$FINAL_OUTPUT_FILE'."
+            echo "The original '$INPUT_FILE' remains untouched."
+        else
+            echo "❌ Error: Failed to rename the output file. The fixed file is still available at '$TEMP_FILE'."
+            exit 1
+        fi
+    else
+        # Case: MP4 input, overwrite original
+        echo "Replacing original file..."
+        mv -f "$TEMP_FILE" "$INPUT_FILE"
+        if [ $? -eq 0 ]; then
+            echo "✅ Success: '$INPUT_FILE' has been successfully updated and optimized for the web."
+        else
+            echo "❌ Error: Failed to replace the original file. The fixed file is still available at '$TEMP_FILE'."
+            exit 1
+        fi
+    fi
+else
+    echo "----------------------------------------------------------------------"
+    echo "❌ Critical Error: Both $NVENC_ENCODER and $SOFTWARE_ENCODER attempts failed (Status $ENCODE_STATUS)."
+    echo "Please check your FFmpeg installation for required libraries or try installing a standard package."
+    
+    # Clean up the temporary file if it exists
+    if [ -f "$TEMP_FILE" ]; then
+        rm -f "$TEMP_FILE"
+        echo "Cleaned up temporary file: '$TEMP_FILE'."
+    fi
+    exit 1
+fi
+
+exit 0

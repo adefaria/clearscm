@@ -1,0 +1,17 @@
+#! /bin/bash
+snap install --dangerous ./$1
+if [[ $1 =~ "htpc" ]]; then
+  app="htpc"
+else
+  app="desktop"
+fi
+
+snap connect plex-$app:alsa
+snap connect plex-$app:hardware-observe
+snap connect plex-$app:pulseaudio
+snap connect plex-$app:raw-usb
+snap connect plex-$app:system-observe
+if [[ $1 =~ "htpc" ]]; then
+  snap connect plex-$app:joystick
+  snap connect plex-$app:shutdown
+fi

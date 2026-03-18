@@ -1,0 +1,98 @@
+#!/bin/bash
+
+serverIP=192.168.86.31
+nodeIP=$(ip address | grep 192.168 | cut -c10-22)
+host=$(hostname)
+mediaFolder=/Videos
+chown=true
+
+# Testing versions
+docker_image=haveagitgat/tdarr_node_acc
+docker_image_version=latest
+#docker_image=haveagitgat/tdarr_node_acc
+#docker_image_version=dev_2.00.24_2023_08_02T13_46_07z
+
+# Production versions
+#docker_image=haveagitgat/tdarr_node
+docker_image_version=latest
+#docker_image_version=2.45.01
+
+docker_container_name=tdarr_node
+
+# This just creates a pretty name for host with the first letter capitalized
+Host=$(echo ${host:0:1} | tr '[:lower:]' '[:upper:]')$(echo ${host:1})
+
+# Stop any running container
+docker stop $docker_container_name > /dev/null 2>&1
+
+# Remove any old tdarr_node container
+docker container rm -f $docker_container_name > /dev/null 2>&1
+
+# Remove docker image
+docker image rm $docker_image
+
+# Create docker container
+# This version does not add the NVIDIA stuff. I had a problem trying to
+# create a docker container with Nvidia support for Mars but not for Earth.
+# Seems the MacBook is not "CUDA cabable" but rather simulates CUDA using
+# the CPU. This makes it very slow. It also makes it so we cannot specify
+# Nvidia stuff here.
+if [ "$host" = "mars" ]; then
+#if [ "$host" = "earth" ]; then
+  echo "Running docker container for Mars with no Nvidia support"
+  docker run -d \
+    -v $mediaFolder:$mediaFolder\
+    -v /docker/:/tmp \
+    -v /docker/tdarr:/app/server \
+    -v /docker/tdarr/$host:/app/configs \
+    -v /docker/tdarr/$host:/app/logs \
+    -e PUID=1000 \
+    -e PGID=1000 \
+    -e "nodeName=$Host" \
+    -e "serverIP=$serverIP" \
+    -e "serverPort=8266" \
+    -e "TZ=America/Los_Angeles" \
+    -e "CHOWN_ON_STARTUP=$chown" \
+    -p 8268:8268 \
+    --network bridge \
+    --log-opt max-size=10m \
+    --log-opt max-file=5 \
+    --name $docker_container_name \
+    --pull=always \
+    $docker_image:$docker_image_version
+else
+  echo "Running docker container for Earth with Nvidia support"
+  docker run -d \
+    -v $mediaFolder:$mediaFolder\
+    -v /System/Cache/:/tmp \
+    -v /docker/tdarr:/app/server \
+    -v /docker/tdarr/$host:/app/configs \
+    -v /docker/tdarr/$host:/app/logs \
+    -e PUID=1000 \
+    -e PGID=1000 \
+    -e "nodeName=$Host" \
+    -e "nodeIP=$nodeIP" \
+    -e "nodePort=8268" \
+    -e "serverIP=$serverIP" \
+    -e "serverPort=8266" \
+    -e "TZ=America/Los_Angeles" \
+    -e "CHOWN_ON_STARTUP=$chown" \
+    -e "NVIDIA_DRIVER_CAPABILITIES=all" \
+    -e "NVIDIA_VISIBLE_DEVICES=all" \
+    -p 8268:8268 \
+    --device=/dev/dri:/dev/dri \
+    --network bridge \
+    --gpus all \
+    --log-opt max-size=10m \
+    --log-opt max-file=5 \
+    --name $docker_container_name \
+    $docker_image:$docker_image_version
+  fi
+
+# With the container created start tdarr_node_acc
+echo "Starting $docker_container_name on $host"
+docker start $docker_container_name
+
+# This is needed to set the restart option
+echo "Updating restart"
+docker update --restart=always $docker_container_name

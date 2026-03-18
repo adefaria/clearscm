@@ -1,0 +1,39 @@
+#!/bin/bash
+DARKTHEME=MyDarkTheme
+LIGHTTHEME=MyLightTheme
+
+# Configuration
+LAT=33.14
+LON=-117.16
+
+set_mode() {
+    local mode=$1
+    if [ "$mode" == "dark" ]; then
+        gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+	echo "Setting $DARKTHEME"
+        gsettings set org.gnome.desktop.interface gtk-theme $DARKTHEME
+    else
+        gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'
+	echo "Setting $LIGHTTHEME"
+        gsettings set org.gnome.desktop.interface gtk-theme $LIGHTTHEME
+    fi
+}
+
+# Logic for Toggle
+if [[ "$1" == "-t" || "$1" == "--toggle" ]]; then
+    CURRENT=$(gsettings get org.gnome.desktop.interface color-scheme)
+    if [ "$CURRENT" == "'prefer-dark'" ]; then
+        set_mode "light"
+    else
+        set_mode "dark"
+    fi
+    exit 0
+fi
+
+# Logic for Heliocron (Automatic)
+# If heliocron poll returns 0, it is daylight.
+if heliocron --latitude $LAT --longitude $LON poll > /dev/null 2>&1; then
+    set_mode "light"
+else
+    set_mode "dark"
+fi

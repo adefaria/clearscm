@@ -1,0 +1,50 @@
+#!/bin/bash
+mediaFolder=/Videos
+host=$(hostname)
+chown=false
+#chown=true
+
+# Test versions
+#docker_image=haveagitgat/tdarr_acc
+#docker_image_version=dev_2.00.24_2023_08_02T13_46_07z
+
+# Production versions
+docker_image=haveagitgat/tdarr
+docker_image_version=latest
+
+docker_container_name=tdarr_server
+
+# Stop any running containers
+docker container stop $docker_container_name > /dev/null 2>&1
+
+# Remove any old docker container
+docker container rm -f $docker_container_name > /dev/null 2>&1
+
+# Recreate new docker container
+docker run -d \
+  -v $mediaFolder:$mediaFolder \
+  -v /System/Cache/:/tmp \
+  -v /docker/tdarr/:/app/server \
+  -v /docker/tdarr/:/app/configs \
+  -v /docker/tdarr/:/app/logs \
+  -e PUID=1000 \
+  -e PGID=1000 \
+  -e "serverIP=0.0.0.0" \
+  -e "webUIPort=8265" \
+  -e "serverPort=8266" \
+  -e "TZ=America/Los_Angeles" \
+  -e "CHOWN_ON_STARTUP=$chown" \
+  --network="bridge" \
+  -p 8265:8265 \
+  -p 8266:8266 \
+  --log-opt max-size=10m \
+  --log-opt max-file=5 \
+  --name $docker_container_name \
+  $docker_image:$docker_image_version
+
+# With the container created start tdarr_server
+echo "Starting tdarr_server on $host"
+docker container start $docker_container_name
+
+# This is needed to set the restart option
+docker update --restart=unless-stopped $docker_container_name

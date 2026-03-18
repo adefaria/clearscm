@@ -1,0 +1,3 @@
+#!/bin/bash
+ssh cloud mysqldump -u root -p'8!J%PK!BkuRwm6!q' MAPS > MAPS.sql
+scp cloud:MAPS.sql /opt/clearscm/maps/MAPS.sql

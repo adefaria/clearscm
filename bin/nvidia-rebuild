@@ -1,0 +1,11 @@
+#!/bin/bash
+# This script refreshes nvidia to use the system76 version
+sudo apt purge -y ~nnvidia
+sudo apt autoremove -y
+sudo apt update
+sudo apt install -y system76-driver-nvidia
+
+# Possible additional nvidia stuff
+sudo apt install -y nvidia-container-toolkit
+sudo apt install -y nvidia-docker2
+sudo systemctl restart docker
