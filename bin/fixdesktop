@@ -1,0 +1,19 @@
+#!/bin/bash
+export DISPLAY=:0
+export XAUTHORITY=/home/andrew/.Xauthority
+
+# 1. Update the databases (Software level)
+gsettings set com.system76.hidpi enable false
+gsettings set org.mate.font-rendering dpi 120.0
+echo "Xft.dpi: 120" | xrdb -merge
+
+# 2. Kill the old desktop environment completely
+pkill -9 mate-settings-daemon
+pkill -9 caja
+
+# 3. Restart with the forced DPI environment variables
+# 120 DPI / 96 DPI = 1.25 scale
+export GDK_DPI_SCALE=1.25
+setsid mate-settings-daemon --replace > /dev/null 2>&1
+sleep 1
+setsid caja --no-default-window > /dev/null 2>&1

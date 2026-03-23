@@ -1,7 +1,7 @@
 #!/bin/sh
 echo "Gathering System76 logs"
 mkdir ~/system76
-journalctl > ~/system76/journal.log
+journalctl -b 0 --no-hostname > ~/system76/journal.log
 sudo dmesg > ~/system76/dmesg.log
 cp /var/log/Xorg.1.log ~/system76/Xorg.1.log
 sudo dmidecode > ~/system76/demidecode

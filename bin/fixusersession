@@ -1,0 +1,7 @@
+#/bin/bash
+# Fixes:
+#
+# User sessions running outdated binaries:
+# andrew @ user manager service: systemd[1791]
+systemctl --user daemon-reexec
+
