@@ -2167,7 +2167,9 @@ public class MainActivity extends Activity {
 
                                             TextView subjView = new TextView(MainActivity.this);
                                             subjView.setText(fullSubject);
-                                            subjView.setTextColor(Color.YELLOW);
+                                            subjView.setTextColor(Color.WHITE);
+                                            subjView.setTypeface(null, Typeface.BOLD);
+                                            subjView.setTextSize(16);
                                             subjView.setSingleLine(true);
                                             subjView.setEllipsize(android.text.TextUtils.TruncateAt.END);
                                             LinearLayout.LayoutParams subjParams = new LinearLayout.LayoutParams(
