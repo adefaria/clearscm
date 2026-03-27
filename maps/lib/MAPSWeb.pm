@@ -631,14 +631,67 @@ sub Heading($$$$;$$@) {
       }
   };
 
-  # Add theme support
-  my $theme = cookie ('theme') // '';
-  if ($theme) {
-    push @{$java_scripts[0]}, {
-      -type => 'text/javascript',
-      -code => "document.documentElement.setAttribute('data-theme', '$theme');"
-      };
-  } ## end if ($theme)
+  # Add theme support - read from user_theme_override cookie/localStorage
+  my $theme = cookie ('user_theme_override') // '';
+
+  # Build the theme init + postMessage listener script
+  my $theme_init = $theme ? "'$theme'" : "null";
+  push @{$java_scripts[0]}, {
+    -type => 'text/javascript',
+    -code => qq{
+(function () {
+    if (window.__mapsThemeLoaded) return;
+    window.__mapsThemeLoaded = true;
+
+    var theme = $theme_init;
+
+    // 1. Try localStorage first (more reliable in Brave/Firefox)
+    if (!theme) {
+        try { theme = localStorage.getItem('user_theme_override'); } catch(e) {}
+    }
+
+    // 2. Try cookie
+    if (!theme) {
+        try {
+            var m = document.cookie.match(/(^| )user_theme_override=([^;]+)/);
+            if (m) theme = m[2];
+        } catch(e) {}
+    }
+
+    // 3. Try parent
+    if (!theme) {
+        try {
+            if (window.parent && window.self !== window.top) {
+                theme = window.parent.document.documentElement.getAttribute('data-theme');
+            }
+        } catch(e) {}
+    }
+
+    // 4. Fallback to system preference
+    if (!theme) {
+        try {
+            theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        } catch(e) {}
+    }
+
+    if (theme) {
+        try { document.documentElement.setAttribute('data-theme', theme); } catch(e) {}
+    }
+
+    // Listen for postMessage theme updates from the parent shell
+    window.addEventListener('message', function (event) {
+        if (event.data && event.data.type === 'themeChange' && event.data.theme) {
+            try { document.documentElement.setAttribute('data-theme', event.data.theme); } catch(e) {}
+            if (event.data.save === true) {
+                try { localStorage.setItem('user_theme_override', event.data.theme); } catch(e) {}
+            } else if (event.data.save === false) {
+                try { localStorage.removeItem('user_theme_override'); } catch(e) {}
+            }
+        }
+    });
+})();
+    }
+  };
 
   # Since Heading is called from various scripts we sometimes need to
   # set a cookie, other times delete a cookie but most times return the
