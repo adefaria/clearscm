@@ -5,54 +5,53 @@ ADB_SERVER_PORT=5038
 ADB_CONNECT_PORT=6666
 MAX_SIZE=1300
 PHONE_IP="${1:-192.168.86.76}"
+ORIGINAL_TIMEOUT=""
 
-# Store original timeout to restore later (default is usually 60000)
-ORIGINAL_TIMEOUT=$(adb -s "$PHONE_IP:$ADB_CONNECT_PORT" shell settings get system screen_off_timeout 2>/dev/null)
+# --- 0. Pre-flight Check ---
+# If a ghost scrcpy is hanging around, kill it so it doesn't block the new one
+pkill -f "scrcpy-phone" > /dev/null 2>&1
 
+# --- Cleanup Function ---
 cleanup() {
   echo "Restoring timeout and disconnecting..."
-  # Restore the original timeout setting
-  if [ ! -z "$ORIGINAL_TIMEOUT" ]; then
+  if [ ! -z "$ORIGINAL_TIMEOUT" ] && [ "$ORIGINAL_TIMEOUT" != "null" ]; then
     adb -s "$PHONE_IP:$ADB_CONNECT_PORT" shell settings put system screen_off_timeout "$ORIGINAL_TIMEOUT"
   fi
   adb disconnect "$PHONE_IP:$ADB_CONNECT_PORT"
-  # adb kill-server # Generally not recommended if other tools use adb, but keeping if you prefer it
   exit 0
 }
 
-# Added EXIT to the trap so it runs when scrcpy closes
-trap 'cleanup' 1 2 15 EXIT
+trap 'cleanup' SIGINT SIGTERM EXIT
 
-if pgrep -x "scrcpy" > /dev/null; then
-  xdotool search --class "scrcpy" windowactivate
-  exit 0
-fi
-
+# --- Connection Sequence ---
 adb start-server
 adb connect "$PHONE_IP:$ADB_CONNECT_PORT" > /dev/null
 
 if [ $? -eq 0 ]; then
-    # Force screen timeout to 24 hours (86400000 ms) to bypass wireless charging sleep
+    # Capture original timeout
+    ORIGINAL_TIMEOUT=$(adb -s "$PHONE_IP:$ADB_CONNECT_PORT" shell settings get system screen_off_timeout 2>/dev/null)
+
+    # Force screen timeout to 24 hours
     adb -s "$PHONE_IP:$ADB_CONNECT_PORT" shell settings put system screen_off_timeout 86400000
 
-    # 3. Launch scrcpy (Removed & from end so script stays alive for the trap)
-    # Added --window-title so wmctrl has a reliable string to find
+    # Launch scrcpy
     scrcpy -m $MAX_SIZE --stay-awake --turn-screen-off --power-off-on-close --window-title "scrcpy-phone" > /dev/null 2>&1 &
+    SCRCPY_PID=$!
     
-    # Retry loop: move window
+    # Move window
     count=0
     while [ $count -lt 10 ]; do
-        # Using the specific window title we set above
+        sleep 1
         wmctrl -r "scrcpy-phone" -e 0,3840,350,-1,-1
         if [ $? -eq 0 ]; then
             break
         fi
-        sleep 1
         ((count++))
     done
 
-    # Wait for the background scrcpy process to finish so the trap can trigger on close
-    wait $(pgrep -f "scrcpy-phone")
+    # Wait for the process
+    wait $SCRCPY_PID
 else
-    echo "Adb connection failed. Please check the IP address."
+    echo "Adb connection failed."
+    exit 1
 fi
