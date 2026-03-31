@@ -11,4 +11,9 @@ fi
 
 sleep 2
 /usr/local/bin/setdpms.sh
-xset dpms force off
+#xset dpms force off
+sleep 1
+for i in {1..5}; do
+    xset dpms force off
+    sleep 0.1
+done

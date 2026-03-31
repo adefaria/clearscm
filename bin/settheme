@@ -25,7 +25,31 @@ set_mode() {
     gsettings set org.gnome.desktop.interface gtk-theme "$engine"
     gsettings set org.gnome.desktop.interface color-scheme "$pref"
 
-    # 2. THE NO-FLICKER PULSE:
+    # 2. FORCE THE SUBTITLE CSS (White text + Black outline)
+    # This ensures visibility on transparent panels with random wallpapers
+    cat <<EOF > ~/.config/gtk-3.0/gtk.css
+# 2. FORCE THE SUBTITLE CSS (White text + Black outline)
+    cat <<EOF > ~/.config/gtk-3.0/gtk.css
+/* Target every possible node in the MATE panel to override Yaru */
+.mate-panel-menu-bar,
+.mate-panel-menu-bar label,
+.mate-panel-applet label,
+#clock-applet-button label,
+#clock-applet-button button label,
+MatePanelApplet label {
+    color: #ffffff !important;
+    text-shadow: 
+        -1px -1px 0 #000, 
+         1px -1px 0 #000, 
+        -1px  1px 0 #000, 
+         1px  1px 0 #000,
+         0px  0px 3px rgba(0,0,0,1) !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+EOF
+    # 3. THE NO-FLICKER PULSE:
     # This tells the XSettings plugin to broadcast the new theme
     # to all running windows (including Caja) WITHOUT restarting them.
     dbus-send --session --dest=org.mate.SettingsDaemon \

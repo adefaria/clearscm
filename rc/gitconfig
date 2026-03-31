@@ -113,5 +113,4 @@
   repo = /opt/songbook.master
 
 [safe]
-  directory = /usr/local/googletalk
   directory = /System/NextCloud/andrew/files/SongBook
