@@ -277,9 +277,9 @@ fi
 # Set mail
 export MAIL=/var/mail/$USER
 
-# Perl Environment                                                              
-export PERLCRITIC=~/.rc/perlcriticrc                                            
-export PERLTIDY=~/.rc/perltidyrc                                                
+# Perl Environment
+export PERLCRITIC=~/.rc/perlcriticrc
+export PERLTIDY=~/.rc/perltidyrc
 
 # CDPATH
 export CDPATH="."
@@ -364,3 +364,7 @@ export GEMINI_API_KEY="AIzaSyCvQZyH8ESfLFP9JKQA0O-A5-gghkNK-N0"
 # This must be at the end of the file for sdkman to work!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+
+# Redirect node-compile-cache
+export NODE_COMPILE_CACHE=$HOME/.cache/node-compile-cache
