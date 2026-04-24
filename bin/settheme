@@ -1,59 +1,88 @@
 #!/bin/bash
 DARK_ENGINE="MyDarkTheme"
 LIGHT_ENGINE="MyLightTheme"
-
-# Configuration
-LAT=33.14
-LON=-117.16
-HELIOCRON=/usr/local/bin/heliocron
+LAT="33.12"
+LON="-117.29"
+HELIOCRON="/usr/local/bin/heliocron"
+COLOR_CHOOSER="$HOME/.gtkrc-2.0-gnome-color-chooser"
 
 set_mode() {
     local mode=$1
     local engine
     local pref
 
-    [ "$mode" == "dark" ] && engine="$DARK_ENGINE" || engine="$LIGHT_ENGINE"
-    [ "$mode" == "dark" ] && pref="prefer-dark" || pref="prefer-light"
+    if [ "$mode" == "dark" ]; then
+        engine="$DARK_ENGINE"
+        pref="prefer-dark"
+        # Restore AntiGravity's blue tint if a backup exists
+        if [ -f "${COLOR_CHOOSER}.bak" ]; then
+            mv "${COLOR_CHOOSER}.bak" "$COLOR_CHOOSER"
+        fi
+    else
+        engine="$LIGHT_ENGINE"
+        pref="prefer-light"
+        # Hide AntiGravity's blue tint so Light Mode isn't "stained"
+        if [ -f "$COLOR_CHOOSER" ]; then
+            mv "$COLOR_CHOOSER" "${COLOR_CHOOSER}.bak"
+        fi
+        # Signal to Brave/GTK3 apps to use Light variants
+        sed -i 's/gtk-application-prefer-dark-theme=1/gtk-application-prefer-dark-theme=0/g' ~/.config/gtk-3.0/settings.ini
+
+        # CLEAR CACHE: This is the missing link for AntiGravity
+        # It forces MATE to stop "remembering" the blue color-scheme
+        gsettings set org.mate.interface gtk-color-scheme ''
+
+	# Force GTK2 (AntiGravity) to realize the blue config is gone
+        export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
+        gsettings reset org.mate.interface gtk-color-scheme
+    fi
 
     echo "Switching to $mode ($engine)..."
 
-    # 1. Update the GSettings (The "Source of Truth")
+    # 1. Update GSettings (MATE & GNOME)
     gsettings set org.mate.interface gtk-theme "$engine"
     gsettings set org.gnome.desktop.interface gtk-theme "$engine"
     gsettings set org.gnome.desktop.interface color-scheme "$pref"
 
-    # 2. FORCE THE SUBTITLE CSS
+    # 2. Update Panel CSS
     cat <<'EOF' > ~/.config/gtk-3.0/gtk.css
 .mate-panel-menu-bar,
 .mate-panel-menu-bar label,
 .mate-panel-applet label,
-#clock-applet-button label,
-#clock-applet-button button label,
 MatePanelApplet label {
-    color: #ffffff !important;
-    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0px 0px 3px rgba(0,0,0,1) !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    color: #ffffff;
+    text-shadow: 1px 1px 0 #000 !important;
 }
 EOF
-
-    # 3. THE AGGRESSIVE PULSE
-    # Broadcast the change to X11, MATE, and GNOME apps
-    gsettings set org.mate.interface gtk-theme "$engine"
+    # 3. Broadcast the change
     dbus-send --session --dest=org.mate.SettingsDaemon \
         --type=method_call /org/mate/SettingsDaemon/Plugins/XSettings \
         org.mate.SettingsDaemon.Plugins.XSettings.SetString \
         string:"Net/ThemeName" string:"$engine"
 
+    # 4. Brave/Chromium "Nudge"
+    # Toggling the pref forces Brave to re-read the GTK theme state
+    gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'
+    sleep 0.1
+    gsettings set org.gnome.desktop.interface color-scheme "$pref"
+    
+    # 5. Emerald Reload (Graceful, no-flash)
+    if pgrep -x "emerald" > /dev/null; then
+        dbus-send --type=method_call --dest=org.beryl_project.emerald \
+            /org/beryl_project/emerald org.beryl_project.emerald.reload_settings
+    fi
 }
 
 case "$1" in
     -n|--night) set_mode "dark"  ;;
     -d|--day)   set_mode "light" ;;
     -t|--toggle)
-        CURRENT=$(gsettings get org.mate.interface gtk-theme | tr -d "'")
-        [ "$CURRENT" == "$DARK_ENGINE" ] && set_mode "light" || set_mode "dark"
+        CURRENT=$(gsettings get org.mate.interface gtk-theme | tr -d "'" | xargs)
+        if [ "$CURRENT" == "$DARK_ENGINE" ]; then
+            set_mode "light"
+        else
+            set_mode "dark"
+        fi
         ;;
     "")
         if $HELIOCRON --latitude $LAT --longitude $LON poll | grep -q "Day"; then
