@@ -225,9 +225,8 @@ sub ProcessMsgs ($$$) {
     next unless Email::Valid->address ($msgInfo{sender});
 
     if (
-      $msgInfo{sender} eq $user_email
-      and ( lc ($msgInfo{sender_long}) !~ lc ("\"$username\" <$user_email>")
-        and lc ($msgInfo{sender_long}) !~ lc ("$username <$user_email>"))
+      lc ($msgInfo{sender}) eq lc ($user_email)
+      and index ($msgInfo{sender_long}, 'Andrew DeFaria <Andrew@DeFaria.com>') < 0
       )
     {
       $log->msg (
@@ -378,6 +377,6 @@ my $user = GetUser;
 
 MAPS::SetContext ($userid);
 
-ProcessMsgs $msgfile, $user->{name}, lc $user->{email};
+ProcessMsgs $msgfile, $user->{name}, $user->{email};
 
 exit 0;
