@@ -7,5 +7,6 @@ sudo apt install -y system76-driver-nvidia
 
 # Possible additional nvidia stuff
 sudo apt install -y nvidia-container-toolkit
-sudo apt install -y nvidia-docker2
+#sudo apt install -y nvidia-docker2
+sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
