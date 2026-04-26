@@ -82,6 +82,3 @@ removeTXT
 
 # Removal is instanteous but propagation will take some time. No need to wait
 # around though...
-
-# Now deploy new certs
-/opt/clearscm/bin/certbot_deploy.sh
