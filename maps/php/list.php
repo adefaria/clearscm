@@ -118,8 +118,9 @@ $Userid = ucfirst($userid);
 
         </table>
         <!-- <br> Removed per user request -->
+      </div><!-- end highlightrow -->
     </form>
-    <div align="right" style="padding-right: 120px;">
+    <div class="toolbar" align="center">
       <form method="post" enctype="multipart/form-data" action="/maps/bin/importlist.cgi?type=<?php echo $type ?>">
         <input type="button" value="Export List"
           onclick="window.location.href='/maps/bin/exportlist.cgi?type=<?php echo $type ?>'" />
