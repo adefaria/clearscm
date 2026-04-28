@@ -51,7 +51,6 @@ if (!$top) {
     <form method="post" action="/maps/bin/processaction.cgi" enctype="application/x-www-form-urlencoded" name="domains">
       <?php ListDomains($top); ?>
     </form>
-    <?php copyright(2001); ?>
   </div>
 
 </body>
