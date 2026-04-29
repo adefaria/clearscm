@@ -455,7 +455,13 @@ function DisplayList($type, $next, $lines)
     $rightclass = ($i == $lines || $sequence == $total || $sequence == $last) ?
       "tablebottomright" : "tablerightdata";
 
-    print "<td class=$leftclass align=right>" . $sequence . "<input type=checkbox name=action" . $sequence . " value=on></td>\n";
+    $raw_pattern = $row["pattern"] == "" ? "" : $row["pattern"];
+    $raw_domain = $row["domain"] == "" ? "" : $row["domain"];
+    $email_to_copy = htmlspecialchars($raw_pattern . "@" . $raw_domain, ENT_QUOTES);
+
+    $seq_link = "<a href=\"javascript:void(0)\" onclick=\"MAPSCopyToClipboard('$email_to_copy')\" title=\"Copy email address\">$sequence</a>";
+
+    print "<td class=$leftclass align=right>" . $seq_link . "<input type=checkbox name=action" . $sequence . " value=on></td>\n";
     print "<td class=$dataclass align=right>" . $username . "</td>";
     print "<td class=$dataclass align=center>@</td>";
     print "<td class=$dataclass align=left><a href=\"http://$domain\" target=_blank>$domain</a></td>";
