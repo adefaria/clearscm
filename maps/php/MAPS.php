@@ -459,7 +459,7 @@ function DisplayList($type, $next, $lines)
     $raw_domain = $row["domain"] == "" ? "" : $row["domain"];
     $email_to_copy = htmlspecialchars($raw_pattern . "@" . $raw_domain, ENT_QUOTES);
 
-    $seq_link = "<a href=\"javascript:void(0)\" onclick=\"MAPSCopyToClipboard('$email_to_copy')\" title=\"Copy email address\">$sequence</a>";
+    $seq_link = "<a href=\"javascript:void(0)\" onclick=\"copyToClipboard('$email_to_copy')\" title=\"Copy email address\">$sequence</a>";
 
     print "<td class=$leftclass align=right>" . $seq_link . "<input type=checkbox name=action" . $sequence . " value=on></td>\n";
     print "<td class=$dataclass align=right>" . $username . "</td>";
@@ -499,6 +499,8 @@ function MAPSHeader()
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css?v=$time">
   <link rel="stylesheet" type="text/css" href="/maps/css/MAPSStyle.css?v=$time"/>
+  <script language="JavaScript1.2" src="/JavaScript/UIUtils.js?v=$time"
+   type="text/javascript"></script>
   <script language="JavaScript1.2" src="/maps/JavaScript/MAPSUtils.js?v=$time"
    type="text/javascript"></script>
   <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js?v=$time"

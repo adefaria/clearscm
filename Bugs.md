@@ -4,9 +4,9 @@ Use this file to track bugs, issues, and feature requests.
 
 ## Open
 
-* When adding to white/black or null lists, if the user types in a retention string that is not valid, a basic browser dialog is displayed. It should instead use the same inline dialog box as the search does when nothing is found. Other error dialogs might also need similar updates.
-
 ## Closed
+
+* **Error dialog consistency** — When adding items or checking addresses, invalid input previously triggered basic browser alert dialogs. Updated `ListActions.js` and `CheckAddress.js` to use the consistent inline modal (`showModal`) across all client-side validation logic. Also globally included `MAPSUtils.js` to ensure the modal functions are available anywhere they're needed.
 
 * **Inline dialog whitelist link navigation failure** — When clicking the sequence link in the "Can you email me" inline dialog, it would fail to display the corresponding whitelist sequence. Fixed to properly calculate the sequence row offset and use the SPA router (activateTab) to seamlessly navigate the iframe.
 * **Returned report redisplayed incorrectly** — In MAPS > Returned report, when clicking the sequence number link to nuke a domain, the Returned report was redisplayed incorrectly (ignoring the date filter and displaying all entries).

@@ -31,7 +31,7 @@ $Userid = ucfirst($userid);
 
 <head>
   <title>MAPS: <?php echo "$Type" ?> List</title>
-  <script language="JavaScript1.2" src="/maps/JavaScript/ListActions.js" type="text/javascript"></script>
+  <script language="JavaScript1.2" src="/maps/JavaScript/ListActions.js?v=<?php echo time(); ?>" type="text/javascript"></script>
   <?php
   // Connect to MySQL
   OpenDB();

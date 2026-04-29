@@ -26,10 +26,10 @@ function CheckOnly1Checked (form) {
   if (nbr_checked == 1) {
     return true;
   } else if (nbr_checked > 1) {
-    alert ("You can only have one item marked for this action");
+    showModal("You can only have one item marked for this action");
     return false;
   } else {
-    alert ("No lines were marked!");
+    showModal("No lines were marked!");
     return false;
   } // if
 } // CheckOnly1Checked
@@ -48,7 +48,7 @@ function CheckAtLeast1Checked (form) {
   if (nbr_checked > 0) {
     return true;
   } else {
-    alert ("No lines were marked!");
+    showModal("No lines were marked!");
     return false;
   } // if
 } // CheckAtLeast1Checked
@@ -67,7 +67,7 @@ function NoneChecked (form) {
   if (nbr_checked == 0) {
     return true;
   } else {
-    alert ("You must not have any checkboxes checked to perform this action");
+    showModal("You must not have any checkboxes checked to perform this action");
     return false;
   } // if
 } // NoneChecked
@@ -110,8 +110,8 @@ function CheckEntry (form) {
         } // if
         if (parm[1] == "retention") {
           if (e.value != '' && e.value.match(retention) == null) {
-            alert("Retention must be specified in terms of days, weeks, months "
-                + "or years for entry #" + current_entry_nbr + ". Not \"" + e.value + "\"");
+            showModal("Retention must be specified in terms of days, weeks, months "
+                + "or years for entry #" + current_entry_nbr + ". Not \"" + e.value + "\"", e);
             return false;
           } // if
         } // if
@@ -119,13 +119,13 @@ function CheckEntry (form) {
           if (e.value == 0 || e.value == '' || parseInt(e.value)) {
             // Do nothing
           } else {
-            alert("Hit Count must be numeric for entry #" + current_entry_nbr);
+            showModal("Hit Count must be numeric for entry #" + current_entry_nbr, e);
             return false;
           } // if
         } // if
       } else {
         if (current_entry == "") {
-          alert ("You must specify a value for Username and/or Domain for entry #" + current_entry_nbr);
+          showModal("You must specify a value for Username and/or Domain for entry #" + current_entry_nbr);
           return false;
         } // if
         current_entry_nbr = nbr[1];
@@ -135,7 +135,7 @@ function CheckEntry (form) {
   } // for
 
   if (current_entry == "") {
-    alert ("You must specify a value for Username and/or Domain for entry #" + current_entry_nbr);
+    showModal("You must specify a value for Username and/or Domain for entry #" + current_entry_nbr);
     return false;
   } else {
     return true;

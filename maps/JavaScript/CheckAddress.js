@@ -13,7 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 function checkaddress (form, user) {
   if (form.email.value == "") {
-    alert ("Enter an address to check");
+    showModal("Enter an address to check", form.email);
     return false;
   }
 
@@ -96,7 +96,7 @@ function checkaddress (form, user) {
     })
     .catch(function(err) {
         console.error("CheckAddress failed", err);
-        alert("Error checking address");
+        showModal("Error checking address", form && form.email ? form.email : null);
     });
 
   return false;
