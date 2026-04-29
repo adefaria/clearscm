@@ -497,13 +497,13 @@ function MAPSHeader()
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css?v=$time">
-  <link rel="stylesheet" type="text/css" href="/maps/css/MAPSStyle.css?v=$time"/>
-  <script language="JavaScript1.2" src="/JavaScript/UIUtils.js?v=$time"
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/maps/css/MAPSStyle.css"/>
+  <script language="JavaScript1.2" src="/JavaScript/UIUtils.js"
    type="text/javascript"></script>
-  <script language="JavaScript1.2" src="/maps/JavaScript/MAPSUtils.js?v=$time"
+  <script language="JavaScript1.2" src="/maps/JavaScript/MAPSUtils.js"
    type="text/javascript"></script>
-  <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js?v=$time"
+  <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js"
    type="text/javascript"></script>
   <script type="text/javascript">
     (function() {
