@@ -42,13 +42,21 @@ my $sender = param 'sender';
 sub formatRule($$$) {
   my ($list, $email_on_file, $rec) = @_;
 
-  my $next = $rec->{sequence} - 1;
+  my %useropts = GetUserOptions($userid);
+  my $lines = $useropts{Page} || 10;
+  my $offset = $MAPS::db->count('list', "userid='$userid' and type='$list' and sequence < $rec->{sequence}");
+  my $next = $offset;
+
   my $rule = 'Rule: "';
   $rule .= $rec->{pattern} || '';
   $rule .= '@';
   $rule .= $rec->{domain} || '';
   $rule .= '" - ';
-  $rule .= a {-href => "/maps/php/list.php?type=$list&next=$next",},
+
+  my $href = "javascript:void(0)";
+  my $onclick = "if(window.activateTab) { activateTab('/maps/php/list.php?type=$list&next=$next'); var b=document.querySelector('.modal-btn'); if(b) b.click(); } else { window.location.href='/maps/php/list.php?type=$list&next=$next'; }";
+
+  $rule .= a {-href => $href, -onclick => $onclick},
     "$list:$rec->{sequence}";
   $rule .= br;
 
