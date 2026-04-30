@@ -71,12 +71,6 @@ sub GetDecodedContent($) {
   my $charset  = $part->head->mime_attr ('Content-Type.charset') || 'Latin-1';
   my $body     = $part->bodyhandle->as_string;
 
-  if ($encoding =~ /base64/i) {
-    $body = decode_base64 ($body);
-  } elsif ($encoding =~ /quoted-printable/i) {
-    $body = decode_qp ($body);
-  }
-
   if ($charset =~ /^(Latin-1|ISO-8859-1)$/i) {
 
     # Try UTF-8 first for default charsets
