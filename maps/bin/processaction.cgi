@@ -40,14 +40,41 @@ sub ReturnSequenceNbrs {
   my @names = param;
   my @sequence_nbrs;
 
-  for (@names) {
-    if (/action(\d+)/) {
-      push @sequence_nbrs, $1;
-    }    # if
-  }    # for
+  my $seqs = param('seqs');
+  if ($seqs) {
+    push @sequence_nbrs, split(',', $seqs);
+  } else {
+    for (@names) {
+      if (/action(\d+)/) {
+        push @sequence_nbrs, $1;
+      }    # if
+    }    # for
+  }
 
   return @sequence_nbrs;
 }    # ReturnSequenceNbrs
+
+sub do_prg {
+  my ($action_prg, $type) = @_;
+  my @seqs = ReturnSequenceNbrs();
+  my $seq_str = join(',', @seqs);
+  
+  my $url = "processaction.cgi?action=${action_prg}_GET&type=$type";
+  $url .= "&next=$next" if defined $next && $next ne '';
+  $url .= "&seqs=$seq_str" if $seq_str;
+  
+  for my $seq (@seqs) {
+    my $email = param("email$seq");
+    if ($email) {
+      use URI::Escape;
+      $url .= "&email$seq=" . uri_escape($email);
+    }
+  }
+  
+  print redirect($url);
+  exit;
+}
+
 
 sub DeleteEntries {
   my ($type) = @_;
@@ -568,16 +595,26 @@ $total = CountList (
 ) if $type;
 
 if ($action eq 'Add') {
+  do_prg('Add', $type);
+} elsif ($action eq 'Add_GET') {
   AddNewEntry ($type);
 } elsif ($action eq 'Delete') {
   DeleteEntries ($type);
 } elsif ($action eq 'Modify') {
+  do_prg('Modify', $type);
+} elsif ($action eq 'Modify_GET') {
   ModifyEntries ($type);
 } elsif ($action eq 'Whitelist') {
+  do_prg('Whitelist', $type);
+} elsif ($action eq 'Whitelist_GET') {
   WhitelistMarked;
 } elsif ($action eq 'Blacklist') {
+  do_prg('Blacklist', $type);
+} elsif ($action eq 'Blacklist_GET') {
   BlacklistMarked;
 } elsif ($action eq 'Nulllist') {
+  do_prg('Nulllist', $type);
+} elsif ($action eq 'Nulllist_GET') {
   NulllistMarked;
 } else {
   Heading (

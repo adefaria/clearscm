@@ -137,6 +137,12 @@ print start_form {
 print '<p></p><center>',
   hidden ({-name => 'type',   -default => $type}),
   submit ({-name => 'action', -value   => 'Add'}),
+  '&nbsp;',
+  submit ({
+    -name    => 'Return',
+    -value   => 'Return to List',
+    -onClick => "window.location.href='/maps/php/list.php?type=$type'; return false"
+  }),
   '</center>';
 
 Footing;

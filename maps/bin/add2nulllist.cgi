@@ -146,6 +146,13 @@ print '<p></p><center>',
     -value => 'Add'
   }
   ),
+  '&nbsp;',
+  submit ({
+    -name    => 'Return',
+    -value   => 'Return to List',
+    -onClick => "window.location.href='/maps/php/list.php?type=$type'; return false"
+  }
+  ),
   '</center>';
 
 Footing;
