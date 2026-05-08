@@ -22,30 +22,34 @@ update=$1;
 
 for system in $systems; do
   notify "Checking $system for updates"
-  ssh $system sudo flatpak update -y --noninteractive
-  ssh $system sudo apt-get -qq update
-  ssh $system apt list --upgradeable 2> /dev/null | grep -v "^Listing" > /tmp/check4update.list
+  if ! ping -c 1 -W 2 $system &> /dev/null; then
+    echo "$system down - skipping"
+  else 
+    ssh $system sudo flatpak update -y --noninteractive | grep -ve Info -e 'no longer' -e ^$ -e tv.plex -e 'Nothing to do'
+    ssh $system sudo apt-get -qq update
+    ssh $system apt list --upgradeable 2> /dev/null | grep -v "^Listing" > /tmp/check4update.list
 
-  if [ $(wc -l /tmp/check4update.list 2> /dev/null | cut -f1 -d' ') -ne 0 ]; then
-    cat /tmp/check4update.list
+    if [ $(wc -l /tmp/check4update.list 2> /dev/null | cut -f1 -d' ') -ne 0 ]; then
+      cat /tmp/check4update.list
 
-    if yesno "There are updates for $system\nApply them now?" ]; then
-      ssh $system sudo /opt/clearscm/bin/update-system
+      if yesno "There are updates for $system\nApply them now?"; then
+        ssh $system sudo /opt/clearscm/bin/update-system
+      else
+        notify "$system not updated"
+      fi
     else
-      notify "$system not updated"
+      notify "$system is up to date"
     fi
-  else
-    notify "$system is up to date"
-  fi
 
-  rm -f /tmp/check4update.list
+    rm -f /tmp/check4update.list
 
-  reboot=$(ssh $system " if [ -e /var/run/reboot-required ]; then echo 1; else echo 0; fi")
-  if [ "$reboot" = 1 ]; then
-    if yesno "$system needs to be rebooted\nReboot now?" ]; then
-      ssh $system sudo reboot
-    else
-      notify "$system not rebooted"
-    fi
+    reboot=$(ssh $system " if [ -e /var/run/reboot-required ]; then echo 1; else echo 0; fi")
+    if [ "$reboot" = 1 ]; then
+      if yesno "$system needs to be rebooted\nReboot now?"; then
+        ssh $system sudo reboot
+      else
+        notify "$system not rebooted"
+      fi
   fi
+fi
 done
