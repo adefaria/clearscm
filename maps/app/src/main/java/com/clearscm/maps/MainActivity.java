@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.view.autofill.AutofillManager;
+import android.widget.AdapterView;
 import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
@@ -2088,59 +2089,82 @@ public class MainActivity extends Activity {
                                     timestampView.setLayoutParams(tsParams);
                                     timestampView.setPadding(0, 0, 0, 0);
 
-                                    // Add Action Buttons
-                                    TextView nukeBtn = createActionButton("N", Color.RED, new View.OnClickListener() {
+                                    // Add Actions Dropdown
+                                    final Spinner actionsSpinner = new Spinner(MainActivity.this);
+                                    actionsSpinner.setBackgroundColor(Color.parseColor("#4285f4"));
+                                    final String[] actionsArray = {"Actions", "Nulllist", "Whitelist", "Blacklist", "Nuke domain", "Report Phishing"};
+                                    ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, actionsArray) {
                                         @Override
-                                        public void onClick(View v) {
-                                            checkEntryAndShowDialog("null", senderEmail);
+                                        public View getView(int position, View convertView, ViewGroup parent) {
+                                            View view = super.getView(position, convertView, parent);
+                                            ((TextView) view).setTextColor(Color.WHITE);
+                                            return view;
                                         }
-                                    });
-                                    headerLine.addView(nukeBtn);
-
-                                    TextView whiteBtn = createActionButton("W", Color.parseColor("#006400"),
-                                            new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    checkEntryAndShowDialog("white", senderEmail);
-                                                }
-                                            });
-                                    headerLine.addView(whiteBtn);
-
-                                    TextView blackBtn = createActionButton("B", Color.parseColor("#36454F"),
-                                            new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    checkEntryAndShowDialog("black", senderEmail);
-                                                }
-                                            });
-                                    headerLine.addView(blackBtn);
-
-                                    TextView xBtn = createActionButton("x", Color.RED, new View.OnClickListener() {
                                         @Override
-                                        public void onClick(View v) {
-                                            String domain = senderEmail;
-                                            if (domain.contains("@")) {
-                                                domain = domain.substring(domain.indexOf("@") + 1);
+                                        public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                                            View view = super.getDropDownView(position, convertView, parent);
+                                            ((TextView) view).setTextColor(Color.WHITE);
+                                            view.setBackgroundColor(Color.parseColor("#4285f4"));
+                                            return view;
+                                        }
+                                    };
+                                    spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                    actionsSpinner.setAdapter(spinnerAdapter);
+                                    
+                                    actionsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                        @Override
+                                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                            String selected = actionsArray[position];
+                                            if (position == 0) return; // Ignore "Actions" hint
+                                            
+                                            // reset spinner
+                                            actionsSpinner.setSelection(0);
+                                            
+                                            if (selected.equals("Nulllist")) {
+                                                checkEntryAndShowDialog("null", senderEmail);
+                                            } else if (selected.equals("Whitelist")) {
+                                                checkEntryAndShowDialog("white", senderEmail);
+                                            } else if (selected.equals("Blacklist")) {
+                                                checkEntryAndShowDialog("black", senderEmail);
+                                            } else if (selected.equals("Nuke domain")) {
+                                                String domain = senderEmail;
+                                                if (domain.contains("@")) {
+                                                    domain = domain.substring(domain.indexOf("@") + 1);
+                                                }
+                                                final String fDomain = domain;
+                                                new AlertDialog.Builder(MainActivity.this)
+                                                        .setTitle("Confirm Null List")
+                                                        .setMessage("Add " + fDomain + " to null list?")
+                                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                performAction(usernameField.getText().toString(),
+                                                                        passwordField.getText().toString(),
+                                                                        "add_null", fDomain, null);
+                                                            }
+                                                        })
+                                                        .setNegativeButton("No", null)
+                                                        .show();
+                                            } else if (selected.equals("Report Phishing")) {
+                                                new AlertDialog.Builder(MainActivity.this)
+                                                        .setTitle("Confirm Report Phishing")
+                                                        .setMessage("Report phishing for " + senderEmail + "?")
+                                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                performAction(usernameField.getText().toString(),
+                                                                        passwordField.getText().toString(),
+                                                                        "reportphishing", senderEmail, null);
+                                                            }
+                                                        })
+                                                        .setNegativeButton("No", null)
+                                                        .show();
                                             }
-                                            final String fDomain = domain;
-
-                                            new AlertDialog.Builder(MainActivity.this)
-                                                    .setTitle("Confirm Null List")
-                                                    .setMessage("Add " + fDomain + " to null list?")
-                                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                            performAction(usernameField.getText().toString(),
-                                                                    passwordField.getText().toString(),
-                                                                    "add_null", fDomain, null);
-                                                        }
-                                                    })
-                                                    .setNegativeButton("No", null)
-                                                    .show();
                                         }
+                                        @Override
+                                        public void onNothingSelected(AdapterView<?> parent) {}
                                     });
-                                    headerLine.addView(xBtn);
-
+                                    headerLine.addView(actionsSpinner);
                                     card.addView(headerLine);
                                     if ("returned".equals(mAction) || !comment.isEmpty()) {
                                         card.addView(timestampView);

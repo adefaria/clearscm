@@ -148,6 +148,12 @@ sub GetMessageDisplay(%) {
     if ($_ =~ /^(To|From|Cc)$/i) {
       $str =~
 s/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})/<a href="mailto:$1" style="text-decoration: underline;">$1<\/a>/g;
+      
+      if ($_ =~ /^From$/i) {
+        my $js_sender = $sender;
+        $js_sender =~ s/'/\\'/g;
+        $str .= qq{ &nbsp;<button onclick="confirmReportPhishing('$js_sender')" class="modal-btn" style="margin: 0 0 0 10px; padding: 4px 12px; border-radius: 5px; font-size: 0.85em; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Report Phishing</button>};
+      }
     }
 
     $html .= Tr ([
@@ -366,6 +372,48 @@ function showToast(message, isError, x, y) {
   }, 2000); // Shorter duration for cursor toast
 }
 </script>};
+
+  $html .= qq{
+<script>
+function confirmReportPhishing(sender) {
+    var overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    
+    var content = '<div class="modal-content"><p>Are you sure you want to report ' + sender + ' for phishing? This will add the domain to the Null List.</p>';
+    content += '<button class="modal-btn" onclick="this.parentNode.parentNode.remove(); reportPhishing(\\'' + sender + '\\');">Yes</button> ';
+    content += '<button class="modal-btn" style="background-color: #555; margin-left: 10px;" onclick="this.parentNode.parentNode.remove();">No</button></div>';
+    
+    overlay.innerHTML = content;
+    document.body.appendChild(overlay);
+}
+
+function reportPhishing(sender) {
+    fetch('api.cgi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'action=report_phishing&userid=' + encodeURIComponent('$userid') + '&sender=' + encodeURIComponent(sender)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        var msg = data.status === 'success' 
+            ? "Phishing reported successfully.<br><br>Messages processed: " + (data.stats ? data.stats.processed : 0) + "<br>Nulllist: " + (data.stats ? data.stats.nulllist_status : '') + "<br>Dispatch: " + (data.stats ? data.stats.dispatch_status : '') + "<br><br><b>Sent to:</b><br>" + (data.stats ? data.stats.dispatch_list : '')
+            : "ERROR: " + data.message;
+            
+        var overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        
+        var date_only = '$msg_date'.substring(0, 10);
+        var isMobile = navigator.userAgent.match(/(Mobile|Android|iPhone|iPad|iPod)/i);
+        var returnUrl = isMobile ? 'maps://view?type=returned&date=' + date_only : 'detail.cgi?type=returned;date=' + date_only;
+        var onclick = "window.location.href = '" + returnUrl + "';";
+        
+        overlay.innerHTML = '<div class="modal-content"><p>' + msg + '</p><button class="modal-btn" onclick="' + onclick + '">OK</button></div>';
+        document.body.appendChild(overlay);
+    })
+    .catch(function(e) { alert("Error: " + e); });
+}
+</script>
+};
 
   $html .= end_table;
 

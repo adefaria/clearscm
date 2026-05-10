@@ -338,6 +338,24 @@ if ($action eq 'full_stats') {
   );
   send_json ({status => 'success', data => $list});
 
+} elsif ($action eq 'report_phishing') {
+  my $sender = $q->param ('sender');
+  
+  if (!$sender) {
+    send_json ({status => 'error', message => 'Missing sender'});
+  }
+
+  my ($err, $msg, $stats) = MAPS::ReportPhishing (
+    userid => $userid,
+    sender => $sender
+  );
+
+  if ($err) {
+    send_json ({status => 'error', message => $msg, stats => $stats});
+  } else {
+    send_json ({status => 'success', message => $msg, stats => $stats});
+  }
+
 } else {
   send_json ({status => 'error', message => "Unknown action: '$action'"});
 }

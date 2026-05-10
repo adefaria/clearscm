@@ -25,6 +25,7 @@ use MIME::Words qw(:all);
 
 use MAPSLog;
 use MIME::Entity;
+use Net::SMTP;
 
 use Display;
 use MyDB;
@@ -88,6 +89,7 @@ our @EXPORT = qw(
   OnWhitelist
   OptimizeDB
   ReadMsg
+  ReportPhishing
   ResequenceList
   ReturnList
   ReturnWholeList
@@ -1336,6 +1338,201 @@ sub RecordHit(%) {
 
   return $db->modify ($table, $condition, %rec);
 }    # RecordHit
+
+sub ReportPhishing(%) {
+  my (%params) = @_;
+
+  CheckParms (['userid', 'sender'], \%params);
+
+  my ($user, $domain) = $params{sender} =~ /([^@]+)\@([^@]+)/;
+  $domain = lc $domain if $domain;
+
+  if (!$domain) {
+    if ($params{sender} =~ /^\@([^@]+)/) {
+      $domain = lc $1;
+    } else {
+      return -1, "Invalid sender address", {};
+    }
+  } ## end if (!$domain)
+
+  my %stats = (
+    processed       => 0,
+    nulllist_status => '',
+    dispatch_status => ''
+  );
+
+  # Check Whitelist
+  my ($w_status, $w_rec) = OnWhitelist ($params{sender}, $params{userid}, 0);
+  if ($w_status) {
+    return -1, "Sender is whitelisted, ignoring phishing report", \%stats;
+  }
+
+  # Fetch messages data for this sender
+  my $table     = 'email';
+  my $condition = "userid='$params{userid}' and sender='$params{sender}'";
+  my $fields    = ['data'];
+  my $messages  = $db->get ($table, $condition, $fields);
+
+  if (!$messages || @$messages == 0) {
+    return -1, "No messages found for this sender", \%stats;
+  }
+
+  $stats{processed} = scalar (@$messages);
+
+  # Check Nulllist for domain
+  my ($n_status, $n_rec) = OnNulllist ("\@$domain", 0);
+  if ($n_status) {
+
+    # Update existing record comment
+    my $today       = substr (DateUtils::Today2SQLDatetime (), 0, 10);
+    my $new_comment = $n_rec->{comment} || '';
+    if ($new_comment !~ /Additional phishing batch reported/) {
+      $new_comment .= "Additional phishing batch reported - $today.";
+    }
+
+    UpdateList (
+      userid    => $params{userid},
+      type      => 'null',
+      sequence  => $n_rec->{sequence},
+      comment   => $new_comment,
+      hit_count => $n_rec->{hit_count} + 1,
+    );
+    $stats{nulllist_status} = 'Updated existing entry';
+  } else {
+
+    # Insert new entry for the domain
+    Add2Nulllist (
+      userid  => $params{userid},
+      sender  => "\@$domain",
+      comment => 'Phishing attempt'
+    );
+    $stats{nulllist_status} = 'Added new entry';
+  } ## end else [ if ($n_status) ]
+
+  # External Reporting
+  my @reporting_emails =
+    qw(abuse@outlook.com checkphish@netcraft.com google-cloud-compliance@google.com phish@office365.microsoft.com reportphishing@apwg.org);
+
+  # Extract abuse from whois
+  my @whois_lines = `whois $domain 2>/dev/null`;
+  for (@whois_lines) {
+    if (/abuse/i && /([a-zA-Z0-9._%+-]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/) {
+      push @reporting_emails, lc($1);
+    }
+  }
+
+  # De-duplicate
+  my %unique_emails = map { $_ => 1 } @reporting_emails;
+  @reporting_emails = sort keys %unique_emails;
+
+  my $to_addresses = join (', ', @reporting_emails);
+  $stats{dispatch_list} = $to_addresses;
+
+  # Read SMTP creds and CC preference
+  my $smtp_user = '';
+  my $smtp_pass = '';
+  my $cc_admin  = 0;
+  use File::Basename 'dirname';
+  if (open my $creds_fh, '<', dirname(__FILE__) . "/../etc/mail.creds") {
+    while (<$creds_fh>) {
+      chomp;
+      if (/^username:\s*(.+)$/) {$smtp_user = $1;}
+      if (/^password:\s*(.+)$/) {$smtp_pass = $1;}
+      if (/^cc_admin:\s*(1|true|yes|on)/i) {$cc_admin = 1;}
+    }
+    close $creds_fh;
+  } ## end if (open my $creds_fh,...)
+
+  my %mime_params = (
+    From    => 'PhishingReport@DeFaria.com',
+    To      => $to_addresses,
+    Subject => "Reporting phishing attempts from $domain",
+    Type    => "multipart/mixed"
+  );
+
+  if ($cc_admin) {
+    $mime_params{Cc} = 'Andrew@DeFaria.com';
+    $stats{dispatch_list} .= ', Andrew@DeFaria.com (CC)';
+  }
+
+  # Generate email
+  my $msg = MIME::Entity->build (%mime_params);
+  
+  my $html_body = "<p>I've received emails from this domain that contain phishing links. I've attached the offending emails for your examination. Please analyse and take down any domains you can confirm are phishing attempts.</p>\n";
+  $html_body .= "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;'>\n";
+  $html_body .= "  <tr style='background-color: #f2f2f2;'><th>#</th><th>Subject</th><th>To</th><th>Date</th><th>From</th></tr>\n";
+
+  my $i = 1;
+  my @attachments = ();
+  foreach my $msg_rec (@$messages) {
+    my $msg_data = $msg_rec->{data};
+    my $msg_id   = "msg_$i";
+    
+    my $sender = 'Unknown';
+    my $subject = 'No Subject';
+    my $timestamp = 'Unknown Date';
+    my $to_addr = 'Andrew@DeFaria.com';
+
+    if ($msg_data =~ /^From:\s*(.+)$/im) { $sender = $1; $sender =~ s/</&lt;/g; $sender =~ s/>/&gt;/g; }
+    if ($msg_data =~ /^Subject:\s*(.+)$/im) { $subject = $1; $subject =~ s/</&lt;/g; $subject =~ s/>/&gt;/g; }
+    if ($msg_data =~ /^Date:\s*(.+)$/im) { $timestamp = $1; $timestamp =~ s/</&lt;/g; $timestamp =~ s/>/&gt;/g; }
+    if ($msg_data =~ /^To:\s*(.+)$/im) { $to_addr = $1; $to_addr =~ s/</&lt;/g; $to_addr =~ s/>/&gt;/g; }
+    if ($msg_data =~ /^Message-ID:\s*<([^>]+)>/im) {
+      $msg_id = $1;
+      $msg_id =~ s/[^\w\.-]/_/g;
+    }
+
+    $html_body .= "  <tr><td>$i</td><td>$subject</td><td>$to_addr</td><td>$timestamp</td><td>$sender</td></tr>\n";
+
+    push @attachments, {
+      Type        => "application/octet-stream",
+      Filename    => "$msg_id.eml",
+      Disposition => "attachment",
+      Encoding    => "base64",
+      Data        => $msg_data
+    };
+    $i++;
+  }
+  
+  $html_body .= "</table>\n<br><p>Sincerely,<br>\nAndrew DeFaria &lt;Andrew\@DeFaria.com&gt;</p>\n";
+
+  $msg->attach(
+    Type => "text/html",
+    Data => $html_body
+  );
+  
+  foreach my $att (@attachments) {
+    $msg->attach(%$att);
+  }
+
+  # Send email
+  my $smtp = Net::SMTP->new ('defaria.com', Port => 465, SSL => 1);
+  if ($smtp) {
+    if ($smtp_user && $smtp_pass) {
+      $smtp->auth ($smtp_user, $smtp_pass);
+    }
+    $smtp->mail     ('PhishingReport@DeFaria.com');
+    # $smtp->to       ($_) foreach @reporting_emails;
+    if ($cc_admin) {
+      $smtp->to('Andrew@DeFaria.com');
+    }
+    $smtp->data     ();
+    $smtp->datasend ($msg->as_string);
+    $smtp->dataend  ();
+    $smtp->quit     ();
+    $stats{dispatch_status} = "Report sent successfully";
+  } else {
+    $stats{dispatch_status} = "Failed to connect to SMTP relay";
+  }
+
+  # Cleanup processed messages
+  DeleteEmail (
+    userid => $params{userid},
+    sender => $params{sender}
+  );
+
+  return 0, "Processed phishing report successfully", \%stats;
+}    # ReportPhishing
 
 sub ResequenceList(%) {
   my (%params) = @_;

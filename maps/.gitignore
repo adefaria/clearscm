@@ -2,3 +2,4 @@
 local.properties
 build/
 app/build/
+etc/mail.creds
