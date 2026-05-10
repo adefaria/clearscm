@@ -378,10 +378,11 @@ function showToast(message, isError, x, y) {
 function confirmReportPhishing(sender) {
     var overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;';
     
-    var content = '<div class="modal-content"><p>Are you sure you want to report ' + sender + ' for phishing? This will add the domain to the Null List.</p>';
-    content += '<button class="modal-btn" onclick="this.parentNode.parentNode.remove(); reportPhishing(\\'' + sender + '\\');">Yes</button> ';
-    content += '<button class="modal-btn" style="background-color: #555; margin-left: 10px;" onclick="this.parentNode.parentNode.remove();">No</button></div>';
+    var content = '<div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; max-width: 90%; text-align: center;"><p style="color: black; margin-bottom: 20px;">Are you sure you want to report ' + sender + ' for phishing? This will add the domain to the Null List.</p>';
+    content += '<button class="modal-btn" style="background-color: #4285f4; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold; margin-right: 10px;" onclick="this.parentNode.parentNode.remove(); reportPhishing(\\'' + sender + '\\');">Yes</button> ';
+    content += '<button class="modal-btn" style="background-color: #555; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold; margin-left: 10px;" onclick="this.parentNode.parentNode.remove();">No</button></div>';
     
     overlay.innerHTML = content;
     document.body.appendChild(overlay);
@@ -401,13 +402,14 @@ function reportPhishing(sender) {
             
         var overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
+        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;';
         
         var date_only = '$msg_date'.substring(0, 10);
         var isMobile = navigator.userAgent.match(/(Mobile|Android|iPhone|iPad|iPod)/i);
         var returnUrl = isMobile ? 'maps://view?type=returned&date=' + date_only : 'detail.cgi?type=returned;date=' + date_only;
         var onclick = "window.location.href = '" + returnUrl + "';";
         
-        overlay.innerHTML = '<div class="modal-content"><p>' + msg + '</p><button class="modal-btn" onclick="' + onclick + '">OK</button></div>';
+        overlay.innerHTML = '<div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; max-width: 90%; text-align: center;"><p style="color: black; margin-bottom: 20px;">' + msg + '</p><button class="modal-btn" style="background-color: #4285f4; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold;" onclick="' + onclick + '">OK</button></div>';
         document.body.appendChild(overlay);
     })
     .catch(function(e) { alert("Error: " + e); });
