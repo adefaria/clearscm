@@ -2154,7 +2154,7 @@ public class MainActivity extends Activity {
                                                             public void onClick(DialogInterface dialog, int which) {
                                                                 performAction(usernameField.getText().toString(),
                                                                         passwordField.getText().toString(),
-                                                                        "reportphishing", senderEmail, null);
+                                                                        "report_phishing", senderEmail, null);
                                                             }
                                                         })
                                                         .setNegativeButton("No", null)

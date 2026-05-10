@@ -152,7 +152,7 @@ s/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})/<a href="mailto:$1" style="t
       if ($_ =~ /^From$/i) {
         my $js_sender = $sender;
         $js_sender =~ s/'/\\'/g;
-        $str .= qq{ &nbsp;<button onclick="confirmReportPhishing('$js_sender')" class="modal-btn" style="margin: 0 0 0 10px; padding: 4px 12px; border-radius: 5px; font-size: 0.85em; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Report Phishing</button>};
+        $str .= qq{ &nbsp;<button onclick="confirmReportPhishing('$js_sender')" class="modal-btn" style="background-color: #4285f4; color: white; border: none; margin: 0 0 0 10px; padding: 4px 12px; border-radius: 5px; font-size: 0.85em; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Report Phishing</button>};
       }
     }
 
