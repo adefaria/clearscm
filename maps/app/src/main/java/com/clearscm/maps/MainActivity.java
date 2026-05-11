@@ -1319,6 +1319,23 @@ public class MainActivity extends Activity {
                     mAction = mType;
                 }
 
+                if ("report_phishing".equals(mAction)) {
+                    String url = API_URL + "?action=report_phishing&userid=" + storedUserid + "&sender="
+                            + URLEncoder.encode(mSender, "UTF-8");
+                    String response = sendRequest(url, "GET", null, storedCookie);
+                    JSONObject json = new JSONObject(response);
+
+                    actionMessage = json.optString("message");
+                    if (!"success".equals(json.optString("status"))) {
+                        isActionError = true;
+                    }
+                    // Refresh the returned list
+                    mAction = "returned";
+                    if (mDate == null || mDate.isEmpty()) {
+                        mDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+                    }
+                }
+
                 if (mAction.startsWith("last_page_")) {
                     isBottomRequest = true;
                     String realAction = mAction.substring(10);

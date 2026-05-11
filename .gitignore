@@ -37,3 +37,7 @@ pod2htm*.tmp
 # Backup files
 *.bak
 *.old
+
+# MAPS Build outputs
+maps/app/build.log
+maps/mobile/MAPSMobile.apk

@@ -1410,23 +1410,33 @@ sub ReportPhishing(%) {
   } ## end else [ if ($n_status) ]
 
   # External Reporting
-  my @reporting_emails =
-    qw(abuse@outlook.com checkphish@netcraft.com google-cloud-compliance@google.com phish@office365.microsoft.com reportphishing@apwg.org);
+  my @default_reports = qw(abuse@outlook.com checkphish@netcraft.com google-cloud-compliance@google.com phish@office365.microsoft.com reportphishing@apwg.org);
+  my @whois_reports   = ();
 
   # Extract abuse from whois
   my @whois_lines = `whois $domain 2>/dev/null`;
   for (@whois_lines) {
     if (/abuse/i && /([a-zA-Z0-9._%+-]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/) {
-      push @reporting_emails, lc($1);
+      push @whois_reports, lc($1);
     }
   }
 
-  # De-duplicate
-  my %unique_emails = map { $_ => 1 } @reporting_emails;
-  @reporting_emails = sort keys %unique_emails;
+  # De-duplicate whois reports
+  my %unique_whois = map { $_ => 1 } @whois_reports;
+  @whois_reports = sort keys %unique_whois;
 
-  my $to_addresses = join (', ', @reporting_emails);
+  my $to_addresses;
+  my $cc_addresses;
+
+  if (@whois_reports) {
+    $to_addresses = join(', ', @whois_reports);
+    $cc_addresses = join(', ', @default_reports);
+  } else {
+    $to_addresses = join(', ', @default_reports);
+  }
+
   $stats{dispatch_list} = $to_addresses;
+  $stats{dispatch_list} .= " (Cc: $cc_addresses)" if $cc_addresses;
 
   # Read SMTP creds and CC preference
   my $smtp_user = '';
@@ -1449,9 +1459,14 @@ sub ReportPhishing(%) {
     Subject => "Reporting phishing attempts from $domain",
     Type    => "multipart/mixed"
   );
+  $mime_params{Cc} = $cc_addresses if $cc_addresses;
 
   if ($cc_admin) {
-    $mime_params{Cc} = 'Andrew@DeFaria.com';
+    if ($mime_params{Cc}) {
+      $mime_params{Cc} .= ', Andrew@DeFaria.com';
+    } else {
+      $mime_params{Cc} = 'Andrew@DeFaria.com';
+    }
     $stats{dispatch_list} .= ', Andrew@DeFaria.com (CC)';
   }
 
@@ -1512,10 +1527,19 @@ sub ReportPhishing(%) {
       $smtp->auth ($smtp_user, $smtp_pass);
     }
     $smtp->mail     ('PhishingReport@DeFaria.com');
-    # $smtp->to       ($_) foreach @reporting_emails;
+    
+    # Send to all To and Cc recipients
+    my @recipients = (@whois_reports, @default_reports);
     if ($cc_admin) {
-      $smtp->to('Andrew@DeFaria.com');
+      push @recipients, 'Andrew@DeFaria.com';
     }
+    
+    # De-duplicate recipients for SMTP delivery
+    my %unique_recips = map { $_ => 1 } @recipients;
+    foreach my $recip (keys %unique_recips) {
+      $smtp->to($recip);
+    }
+
     $smtp->data     ();
     $smtp->datasend ($msg->as_string);
     $smtp->dataend  ();
@@ -1531,7 +1555,12 @@ sub ReportPhishing(%) {
     sender => $params{sender}
   );
 
-  return 0, "Processed phishing report successfully", \%stats;
+  my $status_msg = "Processed phishing report successfully";
+  if (@whois_reports) {
+    $status_msg .= "\nAbuse contacts from whois: " . join(", ", @whois_reports);
+  }
+
+  return 0, $status_msg, \%stats;
 }    # ReportPhishing
 
 sub ResequenceList(%) {
