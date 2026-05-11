@@ -1555,10 +1555,11 @@ sub ReportPhishing(%) {
     sender => $params{sender}
   );
 
-  my $status_msg = "Processed phishing report successfully";
-  if (@whois_reports) {
-    $status_msg .= "\nAbuse contacts from whois: " . join(", ", @whois_reports);
-  }
+  my $status_msg = "Phishing reported successfully.\n\n";
+  $status_msg .= "Messages processed: $stats{processed}\n";
+  $status_msg .= "Nulllist: $stats{nulllist_status}\n";
+  $status_msg .= "Dispatch: $stats{dispatch_status}\n\n";
+  $status_msg .= "Sent to:\n$stats{dispatch_list}";
 
   return 0, $status_msg, \%stats;
 }    # ReportPhishing

@@ -1129,6 +1129,18 @@ public class MainActivity extends Activity {
     }
 
     private void showColoredToast(String message, boolean isError) {
+        if (message.contains("\n")) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(isError ? "Error" : "Success");
+            builder.setMessage(message);
+            builder.setPositiveButton("OK", null);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+            
+            // Set text color in the dialog if needed, but default is usually fine
+            return;
+        }
+
         TextView textView = new TextView(this);
         textView.setText(message);
         textView.setTextColor(Color.WHITE);
