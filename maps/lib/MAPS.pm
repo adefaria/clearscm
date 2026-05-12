@@ -1414,10 +1414,31 @@ sub ReportPhishing(%) {
   my @whois_reports   = ();
 
   # Extract abuse from whois
-  my @whois_lines = `whois $domain 2>/dev/null`;
+  my $whois_domain = $domain;
+  my @whois_lines  = `whois $whois_domain 2>/dev/null`;
+
+  # If not found or empty, try parent domain
+  if (!@whois_lines || grep { /NOT FOUND|No match|No Data Found/i } @whois_lines) {
+    if ($domain =~ /([^.]+\.[^.]+)$/) {
+      my $base = $1;
+
+      # Special case for co.uk, etc.
+      if ($domain =~ /([^.]+\.[^.]+\.[^.]+)$/ && $domain =~ /\.(co|me|org|net|gov)\.[a-z]{2}$/i) {
+        $base = $1;
+      }
+
+      if ($base ne $domain) {
+        $whois_domain = $base;
+        @whois_lines  = `whois $whois_domain 2>/dev/null`;
+      }
+    }
+  }
+
   for (@whois_lines) {
-    if (/abuse/i && /([a-zA-Z0-9._%+-]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/) {
-      push @whois_reports, lc($1);
+    if (/abuse/i) {
+      while (/([a-zA-Z0-9._%+-]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g) {
+        push @whois_reports, lc($1);
+      }
     }
   }
 
@@ -1435,6 +1456,8 @@ sub ReportPhishing(%) {
     $to_addresses = join(', ', @default_reports);
   }
 
+  $stats{domain}        = $domain;
+  $stats{whois_emails}  = join(', ', @whois_reports);
   $stats{dispatch_list} = $to_addresses;
   $stats{dispatch_list} .= " (Cc: $cc_addresses)" if $cc_addresses;
 
@@ -1555,11 +1578,19 @@ sub ReportPhishing(%) {
     sender => $params{sender}
   );
 
-  my $status_msg = "Phishing reported successfully.\n\n";
+  my $status_msg = "Phishing reported successfully for $domain.\n\n";
   $status_msg .= "Messages processed: $stats{processed}\n";
   $status_msg .= "Nulllist: $stats{nulllist_status}\n";
   $status_msg .= "Dispatch: $stats{dispatch_status}\n\n";
-  $status_msg .= "Sent to:\n$stats{dispatch_list}";
+
+  if (@whois_reports) {
+    $status_msg .= "WHOIS Abuse Email: $stats{whois_emails}\n";
+  } else {
+    $status_msg .= "WHOIS Abuse Email: None found\n";
+  }
+
+  $status_msg .= "Sent to: $to_addresses\n";
+  $status_msg .= "Cc: $cc_addresses\n" if $cc_addresses;
 
   return 0, $status_msg, \%stats;
 }    # ReportPhishing

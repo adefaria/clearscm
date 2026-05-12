@@ -396,9 +396,24 @@ function reportPhishing(sender) {
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-        var msg = data.status === 'success' 
-            ? "Phishing reported successfully.<br><br>Messages processed: " + (data.stats ? data.stats.processed : 0) + "<br>Nulllist: " + (data.stats ? data.stats.nulllist_status : '') + "<br>Dispatch: " + (data.stats ? data.stats.dispatch_status : '') + "<br><br><b>Sent to:</b><br>" + (data.stats ? data.stats.dispatch_list : '')
-            : "ERROR: " + data.message;
+        var msg;
+        if (data.status === 'success' && data.stats) {
+            var stats = data.stats;
+            msg = "Phishing reported successfully for <b>" + (stats.domain || '') + "</b>.<br><br>";
+            msg += "Messages processed: " + stats.processed + "<br>";
+            msg += "Nulllist: " + stats.nulllist_status + "<br>";
+            msg += "Dispatch: " + stats.dispatch_status + "<br><br>";
+            
+            if (stats.whois_emails) {
+                msg += "<b>WHOIS Abuse Email:</b> " + stats.whois_emails + "<br><br>";
+            } else {
+                msg += "<b>WHOIS Abuse Email:</b> None found<br><br>";
+            }
+            
+            msg += "<b>Sent to:</b><br>" + stats.dispatch_list.replace(/\(Cc:/, "<br><b>Cc:</b>");
+        } else {
+            msg = data.status === 'success' ? data.message.replace(/\n/g, "<br>") : "ERROR: " + data.message;
+        }
             
         var overlay = document.createElement('div');
         overlay.className = 'modal-overlay';
