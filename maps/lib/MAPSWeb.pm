@@ -410,9 +410,9 @@ function reportPhishing(sender) {
                 msg += "<b>WHOIS Abuse Email:</b> None found<br><br>";
             }
             
-            msg += "<b>Sent to:</b><br>" + stats.dispatch_list.replace(/\(Cc:/, "<br><b>Cc:</b>");
+            msg += "<b>Sent to:</b><br>" + stats.dispatch_list.replace(/\\(Cc:/, "<br><b>Cc:</b>");
         } else {
-            msg = data.status === 'success' ? data.message.replace(/\n/g, "<br>") : "ERROR: " + data.message;
+            msg = data.status === 'success' ? data.message.replace(/\\n/g, "<br>") : "ERROR: " + data.message;
         }
             
         var overlay = document.createElement('div');
