@@ -49,8 +49,13 @@ $Userid = ucfirst($userid);
   } // if
   
   $total = CountList($type);
+  $last_page = ($total == 0) ? 1 : ceil($total / $lines);
+
+  if ($next >= $total && $total > 0) {
+    $next = ($last_page - 1) * $lines;
+  }
+
   $last = $next + $lines < $total ? $next + $lines : $total;
-  $last_page = floor($total / $lines) + 1;
   $this_page = $next / $lines + 1;
   ?>
 </head>
@@ -74,7 +79,7 @@ $Userid = ucfirst($userid);
         print "<input type=hidden name=type value=$type>";
         print "<input type=hidden name=next value=$next>";
         print "<span class=\"label\">Page:</span> <select name=page onChange=\"ChangePage(this.value,'$type','$lines');\"";
-        for ($i = 0; $i <= $last_page; $i++) {
+        for ($i = 1; $i <= $last_page; $i++) {
           if ($i == ($this_page)) {
             print "<option selected>$i</option>";
           } else {
