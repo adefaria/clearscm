@@ -1410,20 +1410,24 @@ sub ReportPhishing(%) {
   } ## end else [ if ($n_status) ]
 
   # External Reporting
-  my @default_reports = qw(abuse@outlook.com checkphish@netcraft.com google-cloud-compliance@google.com phish@office365.microsoft.com reportphishing@apwg.org);
-  my @whois_reports   = ();
+  my @default_reports =
+    qw(abuse@outlook.com checkphish@netcraft.com google-cloud-compliance@google.com phish@office365.microsoft.com reportphishing@apwg.org);
+  my @whois_reports = ();
 
   # Extract abuse from whois
   my $whois_domain = $domain;
   my @whois_lines  = `whois $whois_domain 2>/dev/null`;
 
   # If not found or empty, try parent domain
-  if (!@whois_lines || grep { /NOT FOUND|No match|No Data Found/i } @whois_lines) {
+  if (!@whois_lines || grep {/NOT FOUND|No match|No Data Found/i} @whois_lines)
+  {
     if ($domain =~ /([^.]+\.[^.]+)$/) {
       my $base = $1;
 
       # Special case for co.uk, etc.
-      if ($domain =~ /([^.]+\.[^.]+\.[^.]+)$/ && $domain =~ /\.(co|me|org|net|gov)\.[a-z]{2}$/i) {
+      if ( $domain =~ /([^.]+\.[^.]+\.[^.]+)$/
+        && $domain =~ /\.(co|me|org|net|gov)\.[a-z]{2}$/i)
+      {
         $base = $1;
       }
 
@@ -1431,33 +1435,33 @@ sub ReportPhishing(%) {
         $whois_domain = $base;
         @whois_lines  = `whois $whois_domain 2>/dev/null`;
       }
-    }
-  }
+    } ## end if ($domain =~ /([^.]+\.[^.]+)$/)
+  } ## end if (!@whois_lines || grep...)
 
   for (@whois_lines) {
     if (/abuse/i) {
       while (/([a-zA-Z0-9._%+-]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g) {
-        push @whois_reports, lc($1);
+        push @whois_reports, lc ($1);
       }
     }
-  }
+  } ## end for (@whois_lines)
 
   # De-duplicate whois reports
-  my %unique_whois = map { $_ => 1 } @whois_reports;
+  my %unique_whois = map {$_ => 1} @whois_reports;
   @whois_reports = sort keys %unique_whois;
 
   my $to_addresses;
   my $cc_addresses;
 
   if (@whois_reports) {
-    $to_addresses = join(', ', @whois_reports);
-    $cc_addresses = join(', ', @default_reports);
+    $to_addresses = join (', ', @whois_reports);
+    $cc_addresses = join (', ', @default_reports);
   } else {
-    $to_addresses = join(', ', @default_reports);
+    $to_addresses = join (', ', @default_reports);
   }
 
   $stats{domain}        = $domain;
-  $stats{whois_emails}  = join(', ', @whois_reports);
+  $stats{whois_emails}  = join (', ', @whois_reports);
   $stats{dispatch_list} = $to_addresses;
   $stats{dispatch_list} .= " (Cc: $cc_addresses)" if $cc_addresses;
 
@@ -1466,13 +1470,13 @@ sub ReportPhishing(%) {
   my $smtp_pass = '';
   my $cc_admin  = 0;
   use File::Basename 'dirname';
-  if (open my $creds_fh, '<', dirname(__FILE__) . "/../etc/mail.creds") {
+  if (open my $creds_fh, '<', dirname (__FILE__) . "/../etc/mail.creds") {
     while (<$creds_fh>) {
       chomp;
-      if (/^username:\s*(.+)$/) {$smtp_user = $1;}
-      if (/^password:\s*(.+)$/) {$smtp_pass = $1;}
-      if (/^cc_admin:\s*(1|true|yes|on)/i) {$cc_admin = 1;}
-    }
+      if (/^username:\s*(.+)$/)            {$smtp_user = $1;}
+      if (/^password:\s*(.+)$/)            {$smtp_pass = $1;}
+      if (/^cc_admin:\s*(1|true|yes|on)/i) {$cc_admin  = 1;}
+    } ## end while (<$creds_fh>)
     close $creds_fh;
   } ## end if (open my $creds_fh,...)
 
@@ -1491,36 +1495,56 @@ sub ReportPhishing(%) {
       $mime_params{Cc} = 'Andrew@DeFaria.com';
     }
     $stats{dispatch_list} .= ', Andrew@DeFaria.com (CC)';
-  }
+  } ## end if ($cc_admin)
 
   # Generate email
   my $msg = MIME::Entity->build (%mime_params);
-  
-  my $html_body = "<p>I've received emails from this domain that contain phishing links. I've attached the offending emails for your examination. Please analyse and take down any domains you can confirm are phishing attempts.</p>\n";
-  $html_body .= "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;'>\n";
-  $html_body .= "  <tr style='background-color: #f2f2f2;'><th>#</th><th>Subject</th><th>To</th><th>Date</th><th>From</th></tr>\n";
 
-  my $i = 1;
+  my $html_body =
+"<p>I've received emails from this domain that contain phishing links. I've attached the offending emails for your examination. Please analyse and take down any domains you can confirm are phishing attempts.</p>\n";
+  $html_body .=
+"<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;'>\n";
+  $html_body .=
+"  <tr style='background-color: #f2f2f2;'><th>#</th><th>Subject</th><th>To</th><th>Date</th><th>From</th></tr>\n";
+
+  my $i           = 1;
   my @attachments = ();
   foreach my $msg_rec (@$messages) {
     my $msg_data = $msg_rec->{data};
     my $msg_id   = "msg_$i";
-    
-    my $sender = 'Unknown';
-    my $subject = 'No Subject';
-    my $timestamp = 'Unknown Date';
-    my $to_addr = 'Andrew@DeFaria.com';
 
-    if ($msg_data =~ /^From:\s*(.+)$/im) { $sender = $1; $sender =~ s/</&lt;/g; $sender =~ s/>/&gt;/g; }
-    if ($msg_data =~ /^Subject:\s*(.+)$/im) { $subject = $1; $subject =~ s/</&lt;/g; $subject =~ s/>/&gt;/g; }
-    if ($msg_data =~ /^Date:\s*(.+)$/im) { $timestamp = $1; $timestamp =~ s/</&lt;/g; $timestamp =~ s/>/&gt;/g; }
-    if ($msg_data =~ /^To:\s*(.+)$/im) { $to_addr = $1; $to_addr =~ s/</&lt;/g; $to_addr =~ s/>/&gt;/g; }
+    my $sender    = 'Unknown';
+    my $subject   = 'No Subject';
+    my $timestamp = 'Unknown Date';
+    my $to_addr   = 'Andrew@DeFaria.com';
+
+    if ($msg_data =~ /^From:\s*(.+)$/im) {
+      $sender = $1;
+      $sender =~ s/</&lt;/g;
+      $sender =~ s/>/&gt;/g;
+    }
+    if ($msg_data =~ /^Subject:\s*(.+)$/im) {
+      $subject = $1;
+      $subject =~ s/</&lt;/g;
+      $subject =~ s/>/&gt;/g;
+    }
+    if ($msg_data =~ /^Date:\s*(.+)$/im) {
+      $timestamp = $1;
+      $timestamp =~ s/</&lt;/g;
+      $timestamp =~ s/>/&gt;/g;
+    }
+    if ($msg_data =~ /^To:\s*(.+)$/im) {
+      $to_addr = $1;
+      $to_addr =~ s/</&lt;/g;
+      $to_addr =~ s/>/&gt;/g;
+    }
     if ($msg_data =~ /^Message-ID:\s*<([^>]+)>/im) {
       $msg_id = $1;
       $msg_id =~ s/[^\w\.-]/_/g;
     }
 
-    $html_body .= "  <tr><td>$i</td><td>$subject</td><td>$to_addr</td><td>$timestamp</td><td>$sender</td></tr>\n";
+    $html_body .=
+"  <tr><td>$i</td><td>$subject</td><td>$to_addr</td><td>$timestamp</td><td>$sender</td></tr>\n";
 
     push @attachments, {
       Type        => "application/octet-stream",
@@ -1528,19 +1552,20 @@ sub ReportPhishing(%) {
       Disposition => "attachment",
       Encoding    => "base64",
       Data        => $msg_data
-    };
+      };
     $i++;
-  }
-  
-  $html_body .= "</table>\n<br><p>Sincerely,<br>\nAndrew DeFaria &lt;Andrew\@DeFaria.com&gt;</p>\n";
+  } ## end foreach my $msg_rec (@$messages)
 
-  $msg->attach(
+  $html_body .=
+"</table>\n<br><p>Sincerely,<br>\nAndrew DeFaria &lt;Andrew\@DeFaria.com&gt;</p>\n";
+
+  $msg->attach (
     Type => "text/html",
     Data => $html_body
   );
-  
+
   foreach my $att (@attachments) {
-    $msg->attach(%$att);
+    $msg->attach (%$att);
   }
 
   # Send email
@@ -1549,18 +1574,18 @@ sub ReportPhishing(%) {
     if ($smtp_user && $smtp_pass) {
       $smtp->auth ($smtp_user, $smtp_pass);
     }
-    $smtp->mail     ('PhishingReport@DeFaria.com');
-    
+    $smtp->mail ('PhishingReport@DeFaria.com');
+
     # Send to all To and Cc recipients
     my @recipients = (@whois_reports, @default_reports);
     if ($cc_admin) {
       push @recipients, 'Andrew@DeFaria.com';
     }
-    
+
     # De-duplicate recipients for SMTP delivery
-    my %unique_recips = map { $_ => 1 } @recipients;
+    my %unique_recips = map {$_ => 1} @recipients;
     foreach my $recip (keys %unique_recips) {
-      $smtp->to($recip);
+      $smtp->to ($recip);
     }
 
     $smtp->data     ();
@@ -1590,7 +1615,7 @@ sub ReportPhishing(%) {
   }
 
   $status_msg .= "Sent to: $to_addresses\n";
-  $status_msg .= "Cc: $cc_addresses\n" if $cc_addresses;
+  $status_msg .= "Also CC'd: $cc_addresses\n" if $cc_addresses;
 
   return 0, $status_msg, \%stats;
 }    # ReportPhishing
