@@ -365,7 +365,7 @@ sub Body($) {
     script => 'detail.cgi',
     type   => $type,
     extra  => "type=$type;date=$date",
-    next   => $next,
+    next   => $orig_next,
     prev   => $prev,
     lines  => $lines,
     total  => $total

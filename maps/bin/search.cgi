@@ -52,6 +52,7 @@ sub Body {
     search => $str,
   );
 
+  my $orig_next = $next;
   my $current = $next + 1;
 
   print div {-align => "center"},
@@ -132,6 +133,17 @@ sub Body {
     td {-class => 'tableborderbottomright'}, '&nbsp;'
   ];
   print end_table;
+
+  print MakeButtons (
+    script => 'search.cgi',
+    extra  => "str=$str",
+    next   => $orig_next,
+    prev   => $prev,
+    lines  => $lines,
+    total  => $total
+  );
+
+  print end_form;
 
   return;
 }    # Body
