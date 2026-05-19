@@ -41,6 +41,8 @@ our @EXPORT = qw(
   DisplayPopup
 );
 
+our $HeaderPrinted = 0;
+
 sub ParseEmail(@) {
   my (@header) = @_;
 
@@ -635,6 +637,11 @@ EOF
 sub DisplayError($) {
   my ($errmsg) = @_;
 
+  if (!$HeaderPrinted) {
+    print header();
+    $HeaderPrinted = 1;
+  }
+
   DisplayPopup ("ERROR: $errmsg", 1);
   print end_html;
   exit 1;
@@ -798,6 +805,8 @@ sub Heading($$$$;$$@) {
     -pragma        => 'no-cache',
     -expires       => '0',
   );
+  
+  $HeaderPrinted = 1;
 
   if ($table_name) {
     print start_html(
