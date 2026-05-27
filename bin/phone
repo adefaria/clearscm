@@ -1,57 +1,89 @@
 #!/bin/bash
+
+# --- Environment Configuration ---
 export PATH="/opt/android-sdk/cmdline-tools/latest/bin:$PATH"
 
-ADB_SERVER_PORT=5038
+# 6666 is the custom network port on the phone for wireless ADB
 ADB_CONNECT_PORT=6666
 MAX_SIZE=1300
 PHONE_IP="${1:-192.168.86.76}"
+TARGET_DEVICE="$PHONE_IP:$ADB_CONNECT_PORT"
 ORIGINAL_TIMEOUT=""
 
-# --- 0. Pre-flight Check ---
-# If a ghost scrcpy is hanging around, kill it so it doesn't block the new one
+# Pre-flight: Kill any existing stuck scrcpy windows first
 pkill -f "scrcpy-phone" > /dev/null 2>&1
 
-# --- Cleanup Function ---
+# --- Safe Cleanup Function ---
 cleanup() {
-  echo "Restoring timeout and disconnecting..."
-  if [ ! -z "$ORIGINAL_TIMEOUT" ] && [ "$ORIGINAL_TIMEOUT" != "null" ]; then
-    adb -s "$PHONE_IP:$ADB_CONNECT_PORT" shell settings put system screen_off_timeout "$ORIGINAL_TIMEOUT"
-  fi
-  adb disconnect "$PHONE_IP:$ADB_CONNECT_PORT"
-  exit 0
+    # Remove traps immediately to prevent recursive execution loops on exit
+    trap - SIGINT SIGTERM EXIT
+    
+    echo -e "\n[+] Cleaning up and disconnecting..."
+    
+    # Restore original screen timeout if captured
+    if [ -n "$ORIGINAL_TIMEOUT" ] && [ "$ORIGINAL_TIMEOUT" != "null" ]; then
+        adb -s "$TARGET_DEVICE" shell settings put system screen_off_timeout "$ORIGINAL_TIMEOUT" >/dev/null 2>&1
+    fi
+    
+    # Reset stay awake setting
+    adb -s "$TARGET_DEVICE" shell settings put global stay_on_while_plugged_in 0 >/dev/null 2>&1
+    
+    # Disconnect the network device
+    adb disconnect "$TARGET_DEVICE" > /dev/null 2>&1
+    exit 0
 }
 
+# Catch termination signals and exit cleanly
 trap 'cleanup' SIGINT SIGTERM EXIT
 
 # --- Connection Sequence ---
-adb start-server
-adb connect "$PHONE_IP:$ADB_CONNECT_PORT" > /dev/null
+echo "[+] Starting ADB Server on default port 5037..."
+adb start-server > /dev/null
 
-if [ $? -eq 0 ]; then
-    # Capture original timeout
-    ORIGINAL_TIMEOUT=$(adb -s "$PHONE_IP:$ADB_CONNECT_PORT" shell settings get system screen_off_timeout 2>/dev/null)
+echo "[+] Connecting to wireless device $TARGET_DEVICE..."
+adb connect "$TARGET_DEVICE" > /dev/null
 
-    # Force screen timeout to 24 hours
-    adb -s "$PHONE_IP:$ADB_CONNECT_PORT" shell settings put system screen_off_timeout 86400000
+# Give ADB a brief moment to stabilize the network handshake
+sleep 1
 
-    # Launch scrcpy
-    scrcpy -m $MAX_SIZE --stay-awake --turn-screen-off --power-off-on-close --window-title "scrcpy-phone" > /dev/null 2>&1 &
+# Check if the device is actually listed as online/connected
+if adb devices | grep -q "$TARGET_DEVICE.*device"; then
+    echo "[+] Connected successfully. Configuring device settings..."
+
+    # Capture original timeout safely (stripping Android's carriage returns)
+    ORIGINAL_TIMEOUT=$(adb -s "$TARGET_DEVICE" shell settings get system screen_off_timeout 2>/dev/null | tr -d '\r')
+
+    # Force screen timeout to 24 hours while active
+    adb -s "$TARGET_DEVICE" shell settings put system screen_off_timeout 86400000
+
+    # Launch scrcpy with aggressive real-time network smoothing
+    echo "[+] Launching optimized scrcpy..."
+    scrcpy -s "$TARGET_DEVICE" \
+       -m $MAX_SIZE \
+       --video-codec=h265 \
+       --video-bit-rate=4M \
+       --max-fps=30 \
+       --video-buffer=0 \
+       --stay-awake \
+       --turn-screen-off \
+       --power-off-on-close \
+       --window-title "scrcpy-phone" > /dev/null 2>&1 &
     SCRCPY_PID=$!
     
-    # Move window
+    # Window management loop to snap the window into place via wmctrl
     count=0
     while [ $count -lt 10 ]; do
         sleep 1
-        wmctrl -r "scrcpy-phone" -e 0,3840,350,-1,-1
-        if [ $? -eq 0 ]; then
+        if wmctrl -r "scrcpy-phone" -e 0,3840,350,-1,-1 2>/dev/null; then
+            echo "[+] Window positioned successfully."
             break
         fi
         ((count++))
     done
 
-    # Wait for the process
+    # Monitor the scrcpy process cleanly until closed
     wait $SCRCPY_PID
 else
-    echo "Adb connection failed."
+    echo "[-] Error: ADB connection failed or device is unauthorized/offline."
     exit 1
 fi
