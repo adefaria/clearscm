@@ -5,6 +5,7 @@ LAT="33.12"
 LON="-117.29"
 HELIOCRON="/usr/local/bin/heliocron"
 COLOR_CHOOSER="$HOME/.gtkrc-2.0-gnome-color-chooser"
+HOSTNAME=$(hostname)
 
 set_mode() {
     local mode=$1
@@ -32,7 +33,7 @@ set_mode() {
         # It forces MATE to stop "remembering" the blue color-scheme
         gsettings set org.mate.interface gtk-color-scheme ''
 
-	# Force GTK2 (AntiGravity) to realize the blue config is gone
+        # Force GTK2 (AntiGravity) to realize the blue config is gone
         export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
         gsettings reset org.mate.interface gtk-color-scheme
     fi
@@ -44,16 +45,58 @@ set_mode() {
     gsettings set org.gnome.desktop.interface gtk-theme "$engine"
     gsettings set org.gnome.desktop.interface color-scheme "$pref"
 
-    # 2. Update Panel CSS
-    cat <<'EOF' > ~/.config/gtk-3.0/gtk.css
+    # 2. Update Panel CSS dynamically by Hostname and Solar Mode
+    if [ "$HOSTNAME" == "Mars" ]; then
+        if [ "$mode" == "dark" ]; then
+            cat <<'EOF' > ~/.config/gtk-3.0/gtk.css
 .mate-panel-menu-bar,
 .mate-panel-menu-bar label,
 .mate-panel-applet label,
-MatePanelApplet label {
-    color: #ffffff;
-    text-shadow: 1px 1px 0 #000 !important;
+MatePanelApplet label,
+#mate-panel-menu-bar label {
+    color: #f8f8f2;
+    text-shadow: none;
 }
 EOF
+        else
+            cat <<'EOF' > ~/.config/gtk-3.0/gtk.css
+.mate-panel-menu-bar,
+.mate-panel-menu-bar label,
+.mate-panel-applet label,
+MatePanelApplet label,
+#mate-panel-menu-bar label {
+    color: #2e3440;
+    text-shadow: none;
+}
+EOF
+        fi
+    else
+        # Earth (Desktop) Rule
+        if [ "$mode" == "dark" ]; then
+            cat <<'EOF' > ~/.config/gtk-3.0/gtk.css
+.mate-panel-menu-bar,
+.mate-panel-menu-bar label,
+.mate-panel-applet label,
+MatePanelApplet label,
+#mate-panel-menu-bar label {
+    color: #ffffff;
+    text-shadow: 1px 1px 0 #000000;
+}
+EOF
+        else
+            cat <<'EOF' > ~/.config/gtk-3.0/gtk.css
+.mate-panel-menu-bar,
+.mate-panel-menu-bar label,
+.mate-panel-applet label,
+MatePanelApplet label,
+#mate-panel-menu-bar label {
+    color: #2e3440;
+    text-shadow: none;
+}
+EOF
+        fi
+    fi
+
     # 3. Broadcast the change
     dbus-send --session --dest=org.mate.SettingsDaemon \
         --type=method_call /org/mate/SettingsDaemon/Plugins/XSettings \
@@ -61,7 +104,6 @@ EOF
         string:"Net/ThemeName" string:"$engine"
 
     # 4. Brave/Chromium "Nudge"
-    # Toggling the pref forces Brave to re-read the GTK theme state
     gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'
     sleep 0.1
     gsettings set org.gnome.desktop.interface color-scheme "$pref"
@@ -71,6 +113,9 @@ EOF
         dbus-send --type=method_call --dest=org.beryl_project.emerald \
             /org/beryl_project/emerald org.beryl_project.emerald.reload_settings
     fi
+
+    # 6. Apply to MATE panel cleanly by backgrounding the entire new session
+    setsid mate-panel --replace >/dev/null 2>&1 &
 }
 
 case "$1" in
