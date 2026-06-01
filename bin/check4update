@@ -15,10 +15,27 @@ function yesno {
   question=$1
   say $question
 
-  zenity --question --text "$question" --width=300 2> /dev/null
+  # 1. Detect if the current theme prefers dark
+  # (Works for modern GNOME, MATE, and desktop environments respecting color-scheme)
+  CURRENT_SCHEME=$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null | tr -d "'")
+
+  # 2. Determine the opposite theme
+  if [ "$CURRENT_SCHEME" = "prefer-dark" ]; then
+    # System is DARK -> Force LIGHT dialog
+    # (Leaving it empty usually defaults to light, or you can specify a light theme like 'Adwaita')
+    OPPOSITE_THEME=":light"
+  else
+    # System is LIGHT -> Force DARK dialog
+    OPPOSITE_THEME=":dark"
+  fi
+
+  # 3. Launch Zenity with the inverted theme
+  GTK_THEME="$OPPOSITE_THEME" zenity --question --text "$question" --width=300 2> /dev/null
 }
     
 update=$1;
+
+yesno "Start update"
 
 for system in $systems; do
   notify "Checking $system for updates"
