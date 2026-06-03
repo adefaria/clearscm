@@ -46,9 +46,14 @@ set_mode() {
     gsettings set org.gnome.desktop.interface color-scheme "$pref"
 
     # 2. Update Panel CSS dynamically by Hostname and Solar Mode
+    local css_file="$HOME/.config/gtk-3.0/gtk.css"
+    local css_new="$css_file.new"
+    
+    mkdir -p "$(dirname "$css_file")"
+
     if [ "$HOSTNAME" == "Mars" ]; then
         if [ "$mode" == "dark" ]; then
-            cat <<'EOF' > ~/.config/gtk-3.0/gtk.css
+            cat <<'EOF' > "$css_new"
 .mate-panel-menu-bar,
 .mate-panel-menu-bar label,
 .mate-panel-applet label,
@@ -59,7 +64,7 @@ MatePanelApplet label,
 }
 EOF
         else
-            cat <<'EOF' > ~/.config/gtk-3.0/gtk.css
+            cat <<'EOF' > "$css_new"
 .mate-panel-menu-bar,
 .mate-panel-menu-bar label,
 .mate-panel-applet label,
@@ -73,7 +78,7 @@ EOF
     else
         # Earth (Desktop) Rule
         if [ "$mode" == "dark" ]; then
-            cat <<'EOF' > ~/.config/gtk-3.0/gtk.css
+            cat <<'EOF' > "$css_new"
 .mate-panel-menu-bar,
 .mate-panel-menu-bar label,
 .mate-panel-applet label,
@@ -84,7 +89,7 @@ MatePanelApplet label,
 }
 EOF
         else
-            cat <<'EOF' > ~/.config/gtk-3.0/gtk.css
+            cat <<'EOF' > "$css_new"
 .mate-panel-menu-bar,
 .mate-panel-menu-bar label,
 .mate-panel-applet label,
@@ -95,6 +100,14 @@ MatePanelApplet label,
 }
 EOF
         fi
+    fi
+
+    local css_changed=false
+    if [ ! -f "$css_file" ] || ! cmp -s "$css_file" "$css_new"; then
+        mv "$css_new" "$css_file"
+        css_changed=true
+    else
+        rm -f "$css_new"
     fi
 
     # 3. Broadcast the change
@@ -115,7 +128,10 @@ EOF
     fi
 
     # 6. Apply to MATE panel cleanly by backgrounding the entire new session
-    setsid mate-panel --replace >/dev/null 2>&1 &
+    if [ "$css_changed" = true ]; then
+        echo "CSS changed, restarting mate-panel..."
+        setsid mate-panel --replace >/dev/null 2>&1 &
+    fi
 }
 
 case "$1" in
