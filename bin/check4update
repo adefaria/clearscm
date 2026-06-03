@@ -35,8 +35,6 @@ function yesno {
     
 update=$1;
 
-yesno "Start update"
-
 for system in $systems; do
   notify "Checking $system for updates"
   if ! ping -c 1 -W 2 $system &> /dev/null; then
