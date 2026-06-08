@@ -67,6 +67,7 @@ use Pod::Usage;
 use File::Monitor;
 use File::Spec;
 use File::Path qw/remove_tree/;
+use Time::HiRes;
 
 use lib "$FindBin::Bin/../lib";
 
@@ -124,6 +125,10 @@ sub FileCreated {
 
       if ($createdFile =~ /$pattern/) {
         debug "Matched $createdFile to $pattern";
+
+        if ($createdFile =~ /\.tmpj?$/) {
+          Time::HiRes::sleep(0.5);
+        }
 
         if (-d "$opts{tmp}/$createdFile") {
           remove_tree ("$opts{tmp}/$createdFile", {error => \my $err});
