@@ -89,29 +89,33 @@ our $VERSION = '1.01';
     return $self;
   } ## end sub new
 
-  sub msg {
-    my ($self, $msg) = @_;
+  sub log {
+    my ($self, $msg, $nolinefeed) = @_;
     return unless defined $msg;
 
-    print "$msg\n";
+    if (defined $nolinefeed) {
+      print $msg;
+    } else {
+      print "$msg\n";
+    }
 
     if ($self->{handle}) {
       my $timestamp =
         $self->{timestamped}
         ? strftime ("%Y-%m-%d %H:%M:%S", localtime) . ": "
         : "";
-      my $fh = $self->{handle};
-      print $fh "$timestamp$msg\n";
-    } ## end if ($self->{handle})
-    return;
-  } ## end sub msg
 
-  sub DESTROY {
-    my $self = shift;
-    close $self->{handle} if $self->{handle};
+      my $fh = $self->{handle};
+
+      if (defined $nolinefeed) {
+        print $fh $timestamp, $msg;
+      } else {
+        print $fh $timestamp, $msg, "\n";
+      }
+    }
+
     return;
-  }
-}
+  } ## end sub log
 
 sub _get_config {
   my ($file) = @_;
@@ -311,7 +315,7 @@ Returns:
     }
   } ## end foreach my $path (@mute_paths)
 
-  $log->msg ($msg);
+  $log->log ($msg);
 
   # New Implementation
   my $ua = LWP::UserAgent->new;
