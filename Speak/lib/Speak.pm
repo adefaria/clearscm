@@ -43,6 +43,8 @@ package Speak;
 
 use strict;
 use warnings;
+use feature 'signatures';
+no warnings 'experimental::signatures';
 
 use base 'Exporter';
 
@@ -62,8 +64,7 @@ our $VERSION = '1.01';
   use IO::Handle;
   use Carp;
 
-  sub new {
-    my ($class, %args) = @_;
+sub new ($class, %args) {
     my $self = {
       path        => $args{path} || '.',
       name        => $args{name} || 'speak',
@@ -89,8 +90,7 @@ our $VERSION = '1.01';
     return $self;
   } ## end sub new
 
-  sub log {
-    my ($self, $msg, $nolinefeed) = @_;
+  sub log ($self, $msg, $nolinefeed) {
     return unless defined $msg;
 
     if (defined $nolinefeed) {
@@ -117,8 +117,7 @@ our $VERSION = '1.01';
     return;
   } ## end sub log
 
-sub _get_config {
-  my ($file) = @_;
+sub _get_config ($file) {
   my %config;
   return %config unless -f $file;
 
@@ -150,9 +149,9 @@ use Carp;
 
 our @EXPORT_OK = qw(speak);
 
-sub _split_text ($) {
-  my ($text) = @_;
-  return unless defined $text;
+sub _split_text ($text) {
+    return unless defined $text;
+
 
   # Split into sentences max 100 chars
   my @sentences;
@@ -176,8 +175,7 @@ sub _split_text ($) {
   return @sentences;
 } ## end sub _split_text ($)
 
-sub _fetch_mp3 ($$$) {
-  my ($ua, $text, $lang) = @_;
+sub _fetch_mp3 ($ua, $text, $lang) {
 
   my $url =
       "https://translate.google.com/translate_tts?ie=UTF-8&tl=$lang&q="
@@ -207,8 +205,7 @@ sub _fetch_mp3 ($$$) {
   }
 } ## end sub _fetch_mp3 ($$$)
 
-sub _convert_mp3_to_wav ($$) {
-  my ($mp3, $wav) = @_;
+sub _convert_mp3_to_wav ($mp3, $wav) {
 
   # Try ffmpeg
   if (system ("which ffmpeg >/dev/null 2>&1") == 0) {
@@ -230,8 +227,7 @@ sub _convert_mp3_to_wav ($$) {
 } ## end sub _convert_mp3_to_wav ($$)
 
 ## no critic (Subroutines::ProhibitExcessComplexity)
-sub speak (;$$$) {
-  my ($msg, $log, $lang) = @_;
+sub speak ($msg, $log, $lang) {
 
 =pod
 
