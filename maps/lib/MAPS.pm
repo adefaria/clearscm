@@ -1569,30 +1569,35 @@ sub ReportPhishing(%) {
   }
 
   # Send email
-  my $smtp = Net::SMTP->new ('defaria.com', Port => 465, SSL => 1);
+  my $smtp = Net::SMTP->new ('defaria.com', Port => 587);
   if ($smtp) {
-    if ($smtp_user && $smtp_pass) {
-      $smtp->auth ($smtp_user, $smtp_pass);
-    }
-    $smtp->mail ('PhishingReport@DeFaria.com');
+    if ($smtp->starttls ()) {
+      if ($smtp_user && $smtp_pass) {
+        $smtp->auth ($smtp_user, $smtp_pass);
+      }
+      $smtp->mail ('PhishingReport@DeFaria.com');
 
-    # Send to all To and Cc recipients
-    my @recipients = (@whois_reports, @default_reports);
-    if ($cc_admin) {
-      push @recipients, 'Andrew@DeFaria.com';
-    }
+      # Send to all To and Cc recipients
+      my @recipients = (@whois_reports, @default_reports);
+      if ($cc_admin) {
+        push @recipients, 'Andrew@DeFaria.com';
+      }
 
-    # De-duplicate recipients for SMTP delivery
-    my %unique_recips = map {$_ => 1} @recipients;
-    foreach my $recip (keys %unique_recips) {
-      $smtp->to ($recip);
-    }
+      # De-duplicate recipients for SMTP delivery
+      my %unique_recips = map {$_ => 1} @recipients;
+      foreach my $recip (keys %unique_recips) {
+        $smtp->to ($recip);
+      }
 
-    $smtp->data     ();
-    $smtp->datasend ($msg->as_string);
-    $smtp->dataend  ();
-    $smtp->quit     ();
-    $stats{dispatch_status} = "Report sent successfully";
+      $smtp->data     ();
+      $smtp->datasend ($msg->as_string);
+      $smtp->dataend  ();
+      $smtp->quit     ();
+      $stats{dispatch_status} = "Report sent successfully";
+    } else {
+      $stats{dispatch_status} = "Failed to start TLS: " . ($smtp->message || "Unknown error");
+      $smtp->quit ();
+    }
   } else {
     $stats{dispatch_status} = "Failed to connect to SMTP relay";
   }
