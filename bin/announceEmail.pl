@@ -96,6 +96,7 @@ my %spoken_ids;             # Track spoken Message-IDs to avoid duplicates
 my $last_check_time = 0;    # Throttle connection check
 my $log;
 my $got_update = 0;
+my $clean_exit = 0;
 
 my %opts = (
   usage    => sub {pod2usage},
@@ -163,31 +164,24 @@ if ($email =~ /^andrew\@defaria/i) {
   $email = 'adefaria@gmail.com';
 }
 
+my $processes = Proc::ProcessTable->new;
+
+for my $process (@{$processes->table}) {
+  next if $process->pid == $$;
+
+  my $p_email = get_process_email($process);
+  if (defined $p_email && lc($p_email) eq lc($email)) {
+    $clean_exit = 1;
+    exit 0;
+  }
+}
+
 $log = Logger->new (
   path        => '/var/local/log',
   name        => "$Logger::me.$opts{name}",
   timestamped => 'yes',
   append      => $opts{append},
 );
-
-my $processes = Proc::ProcessTable->new;
-
-for my $process (@{$processes->table}) {
-
-# Check for process name matching "announceEmail.pl <email>" (the renamed process)
-# or just the script name if it hasn't renamed itself yet (race condition protection)
-  if ((
-         $process->cmndline =~ /\bannounceEmail\.pl\s+\Q$email\E$/
-      or $process->cmndline eq $0
-    )
-    and $process->pid != $$
-    )
-  {
-    verbose "$FindBin::Script $email already running (PID "
-      . $process->pid . ")";
-    exit 0;
-  }    # if
-}    # for
 
 local $0 = "announceEmail.pl $email";
 
@@ -233,6 +227,7 @@ sub interrupted {
 
 sub Connect2IMAP;
 sub MonitorMail;
+sub get_process_email;
 
 sub response_handler {
 
@@ -439,7 +434,7 @@ sub MonitorMail() {
 
 END {
   # If $log is not yet defined then the exit is not unexpected
-  if ($log) {
+  if ($log && !$clean_exit) {
     my $msg = "$FindBin::Script $opts{name} ending unexpectedly!";
 
     speak $msg, $log;
@@ -543,4 +538,69 @@ sub SpeakNewMessages {
 
   return;
 }    # SpeakNewMessages
+
+sub get_process_email {
+  my ($process) = @_;
+  my $cmdline_arr = $process->cmdline;
+  if (!defined $cmdline_arr || ref($cmdline_arr) ne 'ARRAY') {
+    my $cmndline = $process->cmndline;
+    return undef unless defined $cmndline;
+    $cmdline_arr = [ split(/\s+/, $cmndline) ];
+  }
+  return undef unless @$cmdline_arr;
+
+  # If it's a renamed process, it has one argument like "announceEmail.pl Andrew@DeFaria.com"
+  if (scalar(@$cmdline_arr) == 1) {
+    if ($cmdline_arr->[0] =~ /\bannounceEmail\.pl\s+(\S+\@\S+)/i) {
+      return $1;
+    }
+  }
+
+  # Find where the script starts in the cmdline array
+  my $script_idx = -1;
+  for (my $i = 0; $i < scalar(@$cmdline_arr); $i++) {
+    if ($cmdline_arr->[$i] =~ /announceEmail\.pl/) {
+      $script_idx = $i;
+      last;
+    }
+  }
+  return undef if $script_idx == -1;
+
+  # Parse arguments
+  my $p_user = $ENV{USER};
+  my $p_name = undef;
+  my $p_imap = 'defaria.com';
+
+  for (my $i = $script_idx + 1; $i < scalar(@$cmdline_arr); $i++) {
+    my $arg = $cmdline_arr->[$i];
+    if ($arg =~ /^-(?:user|username)$/i && $i + 1 < scalar(@$cmdline_arr)) {
+      $p_user = $cmdline_arr->[++$i];
+    } elsif ($arg =~ /^-name$/i && $i + 1 < scalar(@$cmdline_arr)) {
+      $p_name = $cmdline_arr->[++$i];
+    } elsif ($arg =~ /^-imap$/i && $i + 1 < scalar(@$cmdline_arr)) {
+      $p_imap = $cmdline_arr->[++$i];
+    }
+  }
+
+  if (defined $p_name) {
+    # Keep $p_name
+  } elsif ($p_user =~ /.*\@(.*)$/) {
+    $p_name = $1;
+  } else {
+    $p_name = $p_imap;
+  }
+
+  if ($p_user =~ /(.*)\@/) {
+    $p_user = $1;
+  }
+
+  my $p_email = "$p_user\@$p_name";
+  if ($p_email =~ /^andrew\@defaria/i) {
+    $p_email = 'Andrew@DeFaria.com';
+  } elsif ($p_email =~ /^adefaria\@{1,1}gmail/i) {
+    $p_email = 'adefaria@gmail.com';
+  }
+
+  return $p_email;
+}
 
