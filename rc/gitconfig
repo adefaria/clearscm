@@ -116,3 +116,7 @@
 
 [safe]
   directory = /System/NextCloud/andrew/files/SongBook
+	directory = /opt/rockready
+	directory = /opt/rockready
+[init]
+	defaultBranch = main
