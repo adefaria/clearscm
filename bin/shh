@@ -1,7 +1,7 @@
 #!/bin/bash
-touchfile=/opt/clearscm/data/shh
+touchfile=/etc/speak/shh
 
-# This just toggles the creation of the /opt/clearscm/bin/shh file
+# This just toggles the creation of the touch file
 if [ -f $touchfile ]; then
   rm $touchfile
   cp ~/.icons/ShhOff.png ~/.icons/Shh.png
