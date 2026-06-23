@@ -23,20 +23,12 @@ SYSNAME=$(echo ${SYSNAME:0:1} | tr '[:lower:]' '[:upper:]')$(echo ${SYSNAME:1}  
 
 # Aliasing
 case "$SYSNAME" in
-  Andrews-macbook-pro)
-    SYSNAME="cPanel"
+  Usnor-cc2git1)
+    SYSNAME="Cohu1"
     ;;
 
-  10-2-99-60)
-    SYSNAME="Sandbox Centos"
-    ;;
-
-  10-2-97-158)
-    SYSNAME="Sandbox AlmaLinux"
-    ;;
-
-  10-2-98-185)
-    SYSNAME="Sandbox Ubuntu"
+  Usnor-cc2git2)
+    SYSNAME="Cohu2"
     ;;
 
   Defaria)
