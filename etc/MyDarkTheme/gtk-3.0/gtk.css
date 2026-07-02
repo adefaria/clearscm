@@ -1,0 +1,5 @@
+@import url("/usr/share/themes/Yaru-blue-dark/gtk-3.0/gtk.css");
+headerbar, .titlebar {
+background-color:#0b1d33;
+color:#ffffff;
+}
