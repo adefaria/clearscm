@@ -412,9 +412,10 @@ function reportPhishing(sender) {
                 msg += "<b>WHOIS Abuse Email:</b> None found<br><br>";
             }
             
-            msg += "<b>Sent to:</b><br>" + stats.dispatch_list.replace(/\\(Cc:/, "<br><b>Cc:</b>");
+            var dispatchList = stats.dispatch_list || '';
+            msg += "<b>Sent to:</b><br>" + dispatchList.replace(/\(Cc:/, "<br><b>Cc:</b>");
         } else {
-            msg = data.status === 'success' ? data.message.replace(/\\n/g, "<br>") : "ERROR: " + data.message;
+            msg = data.status === 'success' ? data.message.replace(/\n/g, "<br>") : "ERROR: " + data.message;
         }
             
         var overlay = document.createElement('div');
@@ -429,7 +430,13 @@ function reportPhishing(sender) {
         overlay.innerHTML = '<div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; max-width: 90%; text-align: center;"><p style="color: black; margin-bottom: 20px;">' + msg + '</p><button class="modal-btn" style="background-color: #4285f4; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold;" onclick="' + onclick + '">OK</button></div>';
         document.body.appendChild(overlay);
     })
-    .catch(function(e) { alert("Error: " + e); });
+    .catch(function(e) {
+        var overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;';
+        overlay.innerHTML = '<div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; max-width: 90%; text-align: center;"><p style="color: black; margin-bottom: 20px;">Error reporting phishing: ' + e + '</p><button class="modal-btn" style="background-color: #555; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold;" onclick="this.parentNode.parentNode.remove();">OK</button></div>';
+        document.body.appendChild(overlay);
+    });
 }
 </script>
 };

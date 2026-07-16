@@ -1416,7 +1416,7 @@ sub ReportPhishing(%) {
 
   # Extract abuse from whois
   my $whois_domain = $domain;
-  my @whois_lines  = `whois $whois_domain 2>/dev/null`;
+  my @whois_lines  = `timeout 5 whois $whois_domain 2>/dev/null`;
 
   # If not found or empty, try parent domain
   if (!@whois_lines || grep {/NOT FOUND|No match|No Data Found/i} @whois_lines)
@@ -1433,7 +1433,7 @@ sub ReportPhishing(%) {
 
       if ($base ne $domain) {
         $whois_domain = $base;
-        @whois_lines  = `whois $whois_domain 2>/dev/null`;
+        @whois_lines  = `timeout 5 whois $whois_domain 2>/dev/null`;
       }
     } ## end if ($domain =~ /([^.]+\.[^.]+)$/)
   } ## end if (!@whois_lines || grep...)
