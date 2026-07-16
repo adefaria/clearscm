@@ -413,7 +413,7 @@ function reportPhishing(sender) {
             }
             
             var dispatchList = stats.dispatch_list || '';
-            msg += "<b>Sent to:</b><br>" + dispatchList.replace(/\(Cc:/, "<br><b>Cc:</b>");
+            msg += "<b>Sent to:</b><br>" + dispatchList.replace(/\\(Cc:/, "<br><b>Cc:</b>");
         } else {
             msg = data.status === 'success' ? data.message.replace(/\n/g, "<br>") : "ERROR: " + data.message;
         }
