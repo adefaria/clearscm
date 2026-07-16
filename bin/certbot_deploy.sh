@@ -46,6 +46,6 @@ log "Restarting nginx on Synology"
 # root on your desktop can ssh into the Synology (jupiter) without a password.
 #
 # Note: On DSM 6.x systemctl may be called /usr/syno/sbin/synosystemctl
-ssh root@jupiter systemctl reload nginx
+ssh root@jupiter systemctl restart nginx
 
 log "Nginx reloaded"
