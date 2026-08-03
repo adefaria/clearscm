@@ -580,6 +580,13 @@ sub NulllistMarked {
   return;
 }    # NulllistMarked
 
+sub NulllistFromTop20 {
+  # Called directly in POST context so param("email$seq") is available.
+  # Show the Add to Null List form with domains pre-filled from the Top 20 selections.
+  AddNewEntry('null', ReturnSequenceNbrs());
+  return;
+}    # NulllistFromTop20
+
 # Main
 $userid ||= $ENV{USER};
 
@@ -613,7 +620,11 @@ if ($action eq 'Add') {
 } elsif ($action eq 'Blacklist_GET') {
   BlacklistMarked;
 } elsif ($action eq 'Nulllist') {
-  do_prg('Nulllist', $type);
+  if (!$type) {
+    NulllistFromTop20();  # Coming from the Top 20 page
+  } else {
+    do_prg('Nulllist', $type);
+  }
 } elsif ($action eq 'Nulllist_GET') {
   NulllistMarked;
 } else {
