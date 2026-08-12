@@ -275,7 +275,17 @@ if (file_exists($header_path)) {
 
   <h2>Experience</h2>
 
-  <h3>Perl Developer | October 2021 - Current <br><span
+  <h3>Perl Developer (Contract) | April 2026 - August 2026<br><span
+      style="font-size:0.9em; color:var(--muted-color);">Wolters Kluwer | CA (Remote)</span></h3>
+  <ul>
+    <li>Maintained and debugged the legacy Ovid web application ecosystem (OvidUI, Ovidweb), managing backend Perl logic, database queries, and complex configuration files.</li>
+    <li>Diagnosed critical local-to-production environment parity mismatches, resolving out-of-sync CPAN dependencies and caching anomalies to prevent runtime failures during containerization efforts.</li>
+    <li>Refactored custom control scripts to resolve master-worker process leaks, cleanly terminating orphaned prefork process pairs and freeing bound network ports.</li>
+    <li>Identified and corrected restrictive system umask configurations (0027) causing HTTP 403 errors, automating permissions adjustments (0022) across shared accounts to improve development efficiency.</li>
+    <li>Proposed a containerized VPN solution to bypass workstation connectivity limitations and support non-Intel CPU architectures for distributed developers.</li>
+  </ul>
+
+  <h3>Perl Developer | October 2021 - April 2026<br><span
       style="font-size:0.9em; color:var(--muted-color);">Cpanel/WebPros | CA</span></h3>
   <ul>
     <li>Worked on the Artemis Team, improving WHM and learning Cpanel's extensive code base</li>
