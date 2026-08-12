@@ -1,23 +1,24 @@
 #!/bin/bash
 
 #-------------------------------------------------------------------------------
-# SCRIPT: mp4fix.sh
-# DESCRIPTION: Re-encodes a video file (MP4 or MOV) to H.264 for web browser 
-#              compatibility. It implements a smart fallback system: it attempts 
-#              fast hardware encoding first, and if that fails (e.g., missing 
-#              CUDA drivers), it automatically falls back to reliable software 
-#              encoding.
+# SCRIPT: videofix
+# DESCRIPTION: Re-encodes meeting videos and screen recordings (MP4 or MOV) to 
+#              H.264 optimized for web browsers and small file sizes. Uses an 
+#              aggressive CRF and low bitrate cap tailored for slides/text.
 #
-# USAGE: ./mp4fix.sh <path/to/file.mp4 or .mov>
+# USAGE: ./videofix <path/to/file.mp4 or .mov>
 #-------------------------------------------------------------------------------
 
 # --- Configuration ---
-# Set the target video bitrate: 3M is a good standard quality for 1080p video.
-TARGET_BITRATE="3M"
+# High CRF (32) is ideal for screen recordings, text, and slides (keeps files tiny).
+CRF_VALUE="32"
 
-# Set the encoding preset. For NVENC, this influences speed/quality slightly.
-# For libx264 (software fallback), 'fast' is a good balance.
-PRESET_VALUE="fast"
+# Low maximum bitrate cap (500k) prevents static meetings from bloating.
+MAX_BITRATE="500k"
+BUF_SIZE="1M"
+
+# 'medium' or 'fast' preset. Medium gives slightly better compression for small files.
+PRESET_VALUE="medium"
 
 # --- Encoder Configuration (Primary and Fallback) ---
 NVENC_ENCODER="h264_nvenc"
@@ -61,21 +62,37 @@ run_ffmpeg() {
     echo "----------------------------------------------------------------------"
     echo "FFmpeg Command Details:"
     echo "Video Codec: $encoder"
-    echo "Quality Control: Target Bitrate $TARGET_BITRATE"
     echo "Optimization: +faststart (Critical for web streaming)"
     echo "Audio: Copied (No quality loss or re-encoding time)"
     echo "----------------------------------------------------------------------"
     
-    # Run the command, redirecting stderr to the temporary error log
-    ffmpeg -i "$INPUT_FILE" \
-           -y \
-           -c:v "$encoder" \
-           -preset "$PRESET_VALUE" \
-           -b:v "$TARGET_BITRATE" \
-           -pix_fmt yuv420p \
-           -c:a copy \
-           -movflags +faststart \
-           "$TEMP_FILE" 2> "$ERROR_LOG"
+    if [ "$encoder" = "libx264" ]; then
+        echo "Quality Control: Meeting-optimized CRF $CRF_VALUE with Maxrate $MAX_BITRATE"
+        # Software encoding optimized for screen shares and presentations
+        ffmpeg -i "$INPUT_FILE" \
+               -y \
+               -c:v "$encoder" \
+               -preset "$PRESET_VALUE" \
+               -crf "$CRF_VALUE" \
+               -maxrate "$MAX_BITRATE" \
+               -bufsize "$BUF_SIZE" \
+               -pix_fmt yuv420p \
+               -c:a copy \
+               -movflags +faststart \
+               "$TEMP_FILE" 2> "$ERROR_LOG"
+    else
+        echo "Quality Control: Hardware Bitrate Cap $MAX_BITRATE"
+        # Hardware encoding (NVENC)
+        ffmpeg -i "$INPUT_FILE" \
+               -y \
+               -c:v "$encoder" \
+               -preset "$PRESET_VALUE" \
+               -b:v "$MAX_BITRATE" \
+               -pix_fmt yuv420p \
+               -c:a copy \
+               -movflags +faststart \
+               "$TEMP_FILE" 2> "$ERROR_LOG"
+    fi
     return $?
 }
 
@@ -100,13 +117,10 @@ if [ $ENCODE_STATUS -ne 0 ]; then
         
         echo "Hardware encoder failed (likely missing CUDA libraries). Falling back to software encoding ($SOFTWARE_ENCODER)..."
         
-        # 2. Fallback Attempt: Standard Software (libx264)
+        # 2. Fallback Attempt: Standard Software (libx264) with high CRF / low bitrate
         run_ffmpeg "$SOFTWARE_ENCODER"
         ENCODE_STATUS=$?
         ENCODER_USED="$SOFTWARE_ENCODER"
-
-        # Note: If libx264 fails, it might mean your FFmpeg is severely stripped down
-        # or misconfigured. This is the last attempt.
     fi
 fi
 
