@@ -71,17 +71,7 @@ my $UTC      = 'UTC-8';
 my $mailhost = $domain;
 # End customize these variables
 
-# Current IPset. This is the name of an IP match set (See 
-# https://kirkkosinski.com/2013/11/mass-blocking-evil-ip-addresses-iptables-ip-sets/)
-# Each set can hold up to 65535 entries. We are currently on set 2.
-#
-# TODO: This code should handle the case where the set fills and we need to go
-#       to the next set. Something like "ipset list <current set> | wc - " and
-#       if it's > than say 60000, start a new set.
-#
-#       Also, when a new set comes around we need to do:
-#         $ iptables -A FORWARD -m set --mach-set <newset> src -j DROP
-my $currIPSet = 'BICE2';
+my $jail = 'sshd';
 
 my $update    = 1;
 my $email     = 1;
@@ -92,19 +82,23 @@ if ($hostname =~ /(\w*)\./) {
   $hostname = $1;
 } # if
 
-sub AddToIPSet($) {
+sub BanIP($) {
   my ($ip) = @_;
 
-  my ($status, @output) = Execute "/sbin/ipset add $currIPSet $ip 2>&1";
+  if ($update) {
+    verbose "Banning $ip using fail2ban (jail $jail)";
 
-  if ($status) {
-    return if $output[0] =~ /already added/;
+    my ($status, @output) = Execute "fail2ban-client set $jail banip $ip 2>&1";
 
-    error "Unable to add $ip to ipset $currIPSet" . join ("\n", @output), 1;
+    if ($status) {
+      error "Unable to ban $ip using fail2ban in jail $jail: " . join ("\n", @output), 1;
+    } # if
   } else {
-    return;
+    verbose "Would have banned $ip using fail2ban (jail $jail)";
   } # if
-} # AddToIPSet
+
+  return;
+} # BanIP
 
 # Use whois(1) to get the email addresses of the responsible parties for an IP
 # address. Note that a hash is used to eliminate duplicates.
@@ -309,7 +303,7 @@ END
     $message .= '</ol><p>Your prompt attention to this matter is expected '
               . 'and will be appreciated.</p>';
     SendEmail $to, $subject, $message, $ip, $attempts, $violations;
-    AddToIPSet $ip;
+    BanIP $ip;
   } # for
 
   return;
