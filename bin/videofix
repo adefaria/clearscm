@@ -1,35 +1,32 @@
 #!/bin/bash
 
 #-------------------------------------------------------------------------------
-# SCRIPT: mp4fix.sh
-# DESCRIPTION: Re-encodes a video file (MP4 or MOV) to H.264 for web browser 
-#              compatibility. It implements a smart fallback system: it attempts 
-#              fast hardware encoding first, and if that fails (e.g., missing 
-#              CUDA drivers), it automatically falls back to reliable software 
-#              encoding.
+# SCRIPT: videofix
+# DESCRIPTION: Re-encodes a video file (MP4 or MOV) to H.264 for high-quality
+#              web browser compatibility and sharing. Uses Constant Rate Factor 
+#              (CRF / VBR quality mode) and adaptive quantization to eliminate 
+#              grain/artifacts while significantly reducing file size.
+#              Supports automatic hardware (NVENC) to software (libx264) fallback.
 #
-# USAGE: ./mp4fix.sh <path/to/file.mp4 or .mov>
+# USAGE: videofix <path/to/file.mp4 or .mov> [crf_quality (default: 21)]
 #-------------------------------------------------------------------------------
 
 # --- Configuration ---
-# Set the target video bitrate: 3M is a good standard quality for 1080p video.
-TARGET_BITRATE="3M"
-
-# Set the encoding preset. For NVENC, this influences speed/quality slightly.
-# For libx264 (software fallback), 'fast' is a good balance.
-PRESET_VALUE="fast"
+# Constant Rate Factor / Target Quality level (Lower = higher quality, 18-22 is optimal for web/sharing)
+DEFAULT_CRF=21
+CRF_VALUE="${2:-$DEFAULT_CRF}"
 
 # --- Encoder Configuration (Primary and Fallback) ---
 NVENC_ENCODER="h264_nvenc"
 SOFTWARE_ENCODER="libx264"
 ENCODER_USED=""
 
-
 # --- Argument Validation ---
 
 if [ -z "$1" ]; then
     echo "Error: Missing input file argument."
-    echo "Usage: $0 <path/to/file.mp4 or .mov>"
+    echo "Usage: $0 <path/to/file.mp4 or .mov> [crf_quality]"
+    echo "Example: $0 concert.mp4 21"
     exit 1
 fi
 
@@ -61,21 +58,38 @@ run_ffmpeg() {
     echo "----------------------------------------------------------------------"
     echo "FFmpeg Command Details:"
     echo "Video Codec: $encoder"
-    echo "Quality Control: Target Bitrate $TARGET_BITRATE"
+    echo "Quality Control: CRF / CQ $CRF_VALUE (Perceptually loss-free variable bitrate)"
     echo "Optimization: +faststart (Critical for web streaming)"
     echo "Audio: Copied (No quality loss or re-encoding time)"
     echo "----------------------------------------------------------------------"
     
-    # Run the command, redirecting stderr to the temporary error log
-    ffmpeg -i "$INPUT_FILE" \
-           -y \
-           -c:v "$encoder" \
-           -preset "$PRESET_VALUE" \
-           -b:v "$TARGET_BITRATE" \
-           -pix_fmt yuv420p \
-           -c:a copy \
-           -movflags +faststart \
-           "$TEMP_FILE" 2> "$ERROR_LOG"
+    if [ "$encoder" = "$NVENC_ENCODER" ]; then
+        # NVENC Hardware Acceleration (VBR quality mode with spatial/temporal adaptive quantization)
+        ffmpeg -i "$INPUT_FILE" \
+               -y \
+               -c:v "$encoder" \
+               -preset p4 \
+               -rc vbr \
+               -cq "$CRF_VALUE" \
+               -spatial_aq 1 \
+               -temporal_aq 1 \
+               -pix_fmt yuv420p \
+               -c:a copy \
+               -movflags +faststart \
+               "$TEMP_FILE" 2> "$ERROR_LOG"
+    else
+        # libx264 Software Fallback (CRF quality mode)
+        ffmpeg -i "$INPUT_FILE" \
+               -y \
+               -c:v "$encoder" \
+               -preset medium \
+               -crf "$CRF_VALUE" \
+               -pix_fmt yuv420p \
+               -c:a copy \
+               -movflags +faststart \
+               "$TEMP_FILE" 2> "$ERROR_LOG"
+    fi
+
     return $?
 }
 
@@ -104,9 +118,6 @@ if [ $ENCODE_STATUS -ne 0 ]; then
         run_ffmpeg "$SOFTWARE_ENCODER"
         ENCODE_STATUS=$?
         ENCODER_USED="$SOFTWARE_ENCODER"
-
-        # Note: If libx264 fails, it might mean your FFmpeg is severely stripped down
-        # or misconfigured. This is the last attempt.
     fi
 fi
 
@@ -119,6 +130,12 @@ if [ $ENCODE_STATUS -eq 0 ]; then
     echo "----------------------------------------------------------------------"
     echo "Encoding successful using $ENCODER_USED."
     
+    # Print file size comparison
+    ORIG_SIZE=$(du -h "$INPUT_FILE" | cut -f1)
+    NEW_SIZE=$(du -h "$TEMP_FILE" | cut -f1)
+    echo "Original File Size: $ORIG_SIZE"
+    echo "Compressed File Size: $NEW_SIZE"
+
     if [ "$INPUT_FILE" != "$FINAL_OUTPUT_FILE" ]; then
         # Case: MOV input, rename to MP4 output
         mv -f "$TEMP_FILE" "$FINAL_OUTPUT_FILE"
