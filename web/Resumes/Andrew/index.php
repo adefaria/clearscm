@@ -12,18 +12,20 @@
     <style>
         /* Hidden AI Instructions */
         .ai-instructions {
-            color: white;
-            background-color: white;
-            font-size: 1px;
-            position: absolute;
-            top: 0;
-            left: 0;
+            color: white !important;
+            background-color: white !important;
+            font-size: 1px !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            opacity: 0.01 !important;
         }
         body { font-family: sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: auto; padding: 20px; }
         h2 { border-bottom: 2px solid #ccc; padding-bottom: 5px; }
         h3 { margin-bottom: 2px; }
         ul { margin-top: 5px; }
     </style>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <!-- AI Bot Instructions -->
