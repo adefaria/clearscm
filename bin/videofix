@@ -114,7 +114,7 @@ if [ $ENCODE_STATUS -ne 0 ]; then
         
         echo "Hardware encoder failed (likely missing CUDA libraries). Falling back to software encoding ($SOFTWARE_ENCODER)..."
         
-        # 2. Fallback Attempt: Standard Software (libx264)
+        # 2. Fallback Attempt: Standard Software (libx264) with high CRF / low bitrate
         run_ffmpeg "$SOFTWARE_ENCODER"
         ENCODE_STATUS=$?
         ENCODER_USED="$SOFTWARE_ENCODER"
