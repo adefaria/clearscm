@@ -40,12 +40,12 @@ function log {
 } # log
 
 log "Starting $0"
-log "Restarting nginx on Synology"
+log "Reloading nginx on Synology"
 
 # At this point this is all we need to do. Set up for ssh pre-shared key such that
 # root on your desktop can ssh into the Synology (jupiter) without a password.
 #
 # Note: On DSM 6.x systemctl may be called /usr/syno/sbin/synosystemctl
-ssh root@jupiter systemctl restart nginx
+ssh root@jupiter systemctl reload nginx
 
 log "Nginx reloaded"
