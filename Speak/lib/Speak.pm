@@ -146,6 +146,9 @@ sub _get_config ($file) {
   return %config;
 } ## end sub _get_config
 
+use Sys::Hostname;
+use JSON::PP;
+use HTTP::Request;
 use LWP::UserAgent;
 use URI::Escape;
 use File::Temp qw(tempfile);
@@ -296,22 +299,65 @@ Returns:
   }
   $msg = do {local $/; <$msg>} if ref $msg eq 'GLOB';
 
-  unless ($persona) {
-    if ($ENV{SPEAK_PERSONA}) {
-      $persona = $ENV{SPEAK_PERSONA};
-    } else {
-      my @config_paths =
-        ($ENV{HOME} . "/.speak/speak.conf", "/etc/speak/speak.conf");
+  my %sys_conf;
+  my @config_paths = (
+    $ENV{HOME} . "/.speak/speak.conf",
+    "/etc/speak/speak.conf",
+    "/etc/speak.conf",
+    "/opt/clearscm/Speak/etc/speak.conf"
+  );
+  foreach my $conf_file (@config_paths) {
+    if (-f $conf_file) {
+      %sys_conf = _get_config ($conf_file);
+      last;
+    }
+  }
 
-      foreach my $conf_file (@config_paths) {
-        if (-f $conf_file) {
-          my %conf = _get_config ($conf_file);
-          if ($conf{persona}) {
-            $persona = $conf{persona};
-            last;
-          }
-        } ## end if (-f $conf_file)
-      } ## end foreach my $conf_file (@config_paths)
+  $persona ||= $ENV{SPEAK_PERSONA} || $sys_conf{persona};
+  my $server = $ENV{SPEAK_SERVER}  || $sys_conf{server};
+  my $port   = $ENV{SPEAK_PORT}    || $sys_conf{port};
+
+  if ($server && $port) {
+    if (hostname() eq $server) {
+      $ENV{TTS_DAEMON_URL} = "http://127.0.0.1:$port";
+      say_persona(undef, $msg, $persona);
+      return;
+    } else {
+      my $ua = LWP::UserAgent->new;
+      $ua->agent("Mozilla/5.0");
+      my $json = JSON::PP->new->utf8;
+      my $req_data = { text => $msg };
+      $req_data->{ref_audio} = $persona if $persona;
+      my $req_json = $json->encode($req_data);
+      
+      my $url = "http://$server:$port/clone_voice_audio";
+      my $req = HTTP::Request->new('POST', $url);
+      $req->header('Content-Type' => 'application/json');
+      $req->header('Accept' => 'audio/wav');
+      $req->content($req_json);
+      
+      my $res = $ua->request($req);
+      if ($res->is_success) {
+        my ($fh, $filename) = tempfile(SUFFIX => '.wav', UNLINK => 0);
+        binmode $fh;
+        print $fh $res->content;
+        close $fh;
+        
+        my $os = $^O;
+        if ($os eq 'darwin') {
+          system("afplay \"$filename\"");
+        } elsif ($os eq 'MSWin32' || $os eq 'cygwin') {
+          my $cmd_wav = "powershell -c (New-Object Media.SoundPlayer '$filename').PlaySync()";
+          system($cmd_wav) == 0 or system("play -q \"$filename\"");
+        } else {
+          my $player = -x '/usr/bin/paplay' ? 'paplay' : (-x '/bin/paplay' ? 'paplay' : 'play -q');
+          system("$player \"$filename\"");
+        }
+        unlink $filename;
+      } else {
+        carp "Failed to fetch TTS from $url: " . $res->status_line;
+      }
+      return;
     }
   }
 
@@ -359,24 +405,7 @@ Returns:
   # 4. Default 'en'
 
   unless ($lang) {
-    if ($ENV{SPEAK_LANG}) {
-      $lang = $ENV{SPEAK_LANG};
-    } else {
-      my @config_paths =
-        ($ENV{HOME} . "/.speak/speak.conf", "/etc/speak/speak.conf");
-
-      foreach my $conf_file (@config_paths) {
-        if (-f $conf_file) {
-          my %conf = _get_config ($conf_file);
-          if ($conf{language}) {
-            $lang = $conf{language};
-            last;
-          }
-        } ## end if (-f $conf_file)
-      } ## end foreach my $conf_file (@config_paths)
-    } ## end else [ if ($ENV{SPEAK_LANG}) ]
-
-    $lang ||= 'en';
+    $lang = $ENV{SPEAK_LANG} || $sys_conf{language} || 'en';
   } ## end unless ($lang)
 
   my @sentences = _split_text ($msg);
