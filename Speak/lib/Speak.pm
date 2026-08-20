@@ -284,7 +284,16 @@ Returns:
     append      => 1,
   ) unless $log;
 
-  $msg = Clipboard->paste unless $msg;
+  unless ($msg) {
+    $msg = eval {
+      open my $olderr, '>&', \*STDERR;
+      open STDERR, '>', '/dev/null';
+      my $res = Clipboard->paste;
+      open STDERR, '>&', $olderr;
+      $res;
+    };
+    $msg //= '';
+  }
   $msg = do {local $/; <$msg>} if ref $msg eq 'GLOB';
 
   unless ($persona) {
@@ -554,26 +563,12 @@ sub say_persona {
     return;
   }
 
-  my $voice_file = 'default.mp3';
+  my @cmd = ($mcp_client, "--text", $text);
   if ($persona) {
-    my $p = lc($persona);
-    my @exts = qw(mp3 wav flac m4a ogg);
-    my $found = 0;
-    
-    foreach my $ext (@exts) {
-      if (-f "/opt/tts/voices/$p.$ext") {
-        $voice_file = "$p.$ext";
-        $found = 1;
-        last;
-      }
-    }
-    
-    unless ($found) {
-      carp "Warning: Persona '$persona' not found. Defaulting to default.mp3";
-    }
+    push @cmd, "--voice", $persona;
   }
 
-  system ($mcp_client, "--text", $text, "--voice", $voice_file);
+  system (@cmd);
 
 } ## end sub say_persona
 

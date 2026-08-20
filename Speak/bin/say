@@ -80,7 +80,16 @@ if ($opts{clipboard}) {
   } elsif ($msg) {
     error 'Cannot specify both -clipboard and <message>', 1;
   } else {
-    $msg = Clipboard->paste;
+    $msg = eval {
+      open my $olderr, '>&', \*STDERR;
+      open STDERR, '>', '/dev/null';
+      my $res = Clipboard->paste;
+      open STDERR, '>&', $olderr;
+      $res;
+    };
+    if (!defined $msg || $msg eq '') {
+      error 'Clipboard is empty or inaccessible', 1;
+    }
   }    # if
 } elsif ($opts{file}) {
   if ($msg) {
