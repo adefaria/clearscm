@@ -44,7 +44,9 @@ package Speak;
 use strict;
 use warnings;
 use feature 'signatures';
+## no critic (TestingAndDebugging::ProhibitNoWarnings)
 no warnings 'experimental::signatures';
+## use critic
 
 use base 'Exporter';
 
@@ -157,6 +159,15 @@ use File::Basename;
 use Carp;
 
 our @EXPORT_OK = qw(speak say_persona);
+
+# Config paths searched in order; override @Speak::CONFIG_PATHS before calling
+# speak() to redirect config loading (useful in tests).
+our @CONFIG_PATHS = (
+  ($ENV{HOME} || q{}) . '/.speak/speak.conf',
+  '/etc/speak/speak.conf',
+  '/etc/speak.conf',
+  '/opt/clearscm/Speak/etc/speak.conf',
+);
 
 sub _split_text ($text) {
   return unless defined $text;
@@ -289,10 +300,13 @@ Returns:
 
   unless ($msg) {
     $msg = eval {
-      open my $olderr, '>&', \*STDERR;
-      open STDERR, '>', '/dev/null';
+      ## no critic (InputOutput::RequireBriefOpen)
+      open my $olderr, '>&', \*STDERR or croak "Cannot dup STDERR: $!";
+      open STDERR, '>', '/dev/null'  or croak "Cannot redirect STDERR: $!";
       my $res = Clipboard->paste;
-      open STDERR, '>&', $olderr;
+      open STDERR, '>&', $olderr     or croak "Cannot restore STDERR: $!";
+      close $olderr;
+      ## use critic
       $res;
     };
     $msg //= '';
@@ -300,13 +314,7 @@ Returns:
   $msg = do {local $/; <$msg>} if ref $msg eq 'GLOB';
 
   my %sys_conf;
-  my @config_paths = (
-    $ENV{HOME} . "/.speak/speak.conf",
-    "/etc/speak/speak.conf",
-    "/etc/speak.conf",
-    "/opt/clearscm/Speak/etc/speak.conf"
-  );
-  foreach my $conf_file (@config_paths) {
+  foreach my $conf_file (@CONFIG_PATHS) {
     if (-f $conf_file) {
       %sys_conf = _get_config ($conf_file);
       last;
@@ -317,9 +325,37 @@ Returns:
   my $server = $ENV{SPEAK_SERVER}  || $sys_conf{server};
   my $port   = $ENV{SPEAK_PORT}    || $sys_conf{port};
 
+  # Sanitize escape sequences
+  # 1. Remove bells (\a)
+  $msg =~ s/(\\a|\a)//g;
+
+  # 2. Convert other escapes to space
+  # Literals: \n, \t, \r, \f, \b
+  $msg =~ s/\\[ntrfb]/ /g;
+
+  # 3. Convert actual control characters to space
+  $msg =~ s/[\n\t\r\f\b]/ /g;
+
+  # 4. Collapse multiple spaces
+  $msg =~ s/\s+/ /g;
+  $msg =~ s/^\s+|\s+$//g;
+
+  my @mute_paths =
+    ($ENV{SPEAK_MUTE}, $ENV{HOME} . "/.speak/shh", "/etc/speak/shh");
+
+  foreach my $path (@mute_paths) {
+    if ($path && -f $path) {
+      $msg .= ' [silent shh]';
+      $log->log ($msg);
+      return;
+    }
+  } ## end foreach my $path (@mute_paths)
+
+  $log->log ($msg);
+
   if ($server && $port) {
     if (hostname() eq $server) {
-      $ENV{TTS_DAEMON_URL} = "http://127.0.0.1:$port";
+      local $ENV{TTS_DAEMON_URL} = "http://127.0.0.1:$port";
       say_persona(undef, $msg, $persona);
       return;
     } else {
@@ -354,10 +390,12 @@ Returns:
           system("$player \"$filename\"");
         }
         unlink $filename;
+        return;
       } else {
         carp "Failed to fetch TTS from $url: " . $res->status_line;
+        $msg = "Warning - could not reach $server. " . $msg;
+        $persona = undef; # clear persona so it falls through to Google TTS
       }
-      return;
     }
   }
 
@@ -365,34 +403,6 @@ Returns:
     say_persona(undef, $msg, $persona);
     return;
   }
-
-  # Sanitize escape sequences
-  # 1. Remove bells (\a)
-  $msg =~ s/(\\a|\a)//g;
-
-  # 2. Convert other escapes to space
-  # Literals: \n, \t, \r, \f, \b
-  $msg =~ s/\\[ntrfb]/ /g;
-
-  # 3. Convert actual control characters to space
-  $msg =~ s/[\n\t\r\f\b]/ /g;
-
-  # 4. Collapse multiple spaces
-  $msg =~ s/\s+/ /g;
-  $msg =~ s/^\s+|\s+$//g;
-
-  my @mute_paths =
-    ($ENV{SPEAK_MUTE}, $ENV{HOME} . "/.speak/shh", "/etc/speak/shh");
-
-  foreach my $path (@mute_paths) {
-    if ($path && -f $path) {
-      $msg .= ' [silent shh]';
-      $log->log ($msg);
-      return;
-    }
-  } ## end foreach my $path (@mute_paths)
-
-  $log->log ($msg);
 
   # New Implementation
   my $ua = LWP::UserAgent->new;
@@ -599,6 +609,7 @@ sub say_persona {
 
   system (@cmd);
 
+  return;
 } ## end sub say_persona
 
 1;
