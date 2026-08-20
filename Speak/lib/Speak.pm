@@ -153,7 +153,7 @@ use File::Path qw(rmtree);
 use File::Basename;
 use Carp;
 
-our @EXPORT_OK = qw(speak);
+our @EXPORT_OK = qw(speak say_persona);
 
 sub _split_text ($text) {
   return unless defined $text;
@@ -225,11 +225,11 @@ sub _convert_mp3_to_wav ($mp3, $wav) {
 } ## end sub _convert_mp3_to_wav ($$)
 
 ## no critic (Subroutines::ProhibitExcessComplexity)
-sub speak ($msg, $log = undef, $lang = undef) {
+sub speak ($msg, $log = undef, $lang = undef, $persona = undef) {
 
 =pod
 
-=head2 speak($msg, $log, $lang)
+=head2 speak($msg, $log, $lang, $persona)
 
 Convert $msg to speech.
 
@@ -252,6 +252,10 @@ If provided, errors and messages will be logged to the logfile, otherwise to spe
 =item $lang
 
 Language code (e.g. 'en', 'en-gb', 'en-au'). Defaults to $ENV{SPEAK_LANG} or 'en'.
+
+=item $persona
+
+Optional. The persona name to use for the voice. If provided, the MCP server is used instead of standard TTS.
 
 =back
 
@@ -282,6 +286,30 @@ Returns:
 
   $msg = Clipboard->paste unless $msg;
   $msg = do {local $/; <$msg>} if ref $msg eq 'GLOB';
+
+  unless ($persona) {
+    if ($ENV{SPEAK_PERSONA}) {
+      $persona = $ENV{SPEAK_PERSONA};
+    } else {
+      my @config_paths =
+        ($ENV{HOME} . "/.speak/speak.conf", "/etc/speak/speak.conf");
+
+      foreach my $conf_file (@config_paths) {
+        if (-f $conf_file) {
+          my %conf = _get_config ($conf_file);
+          if ($conf{persona}) {
+            $persona = $conf{persona};
+            last;
+          }
+        } ## end if (-f $conf_file)
+      } ## end foreach my $conf_file (@config_paths)
+    }
+  }
+
+  if ($persona) {
+    say_persona(undef, $msg, $persona);
+    return;
+  }
 
   # Sanitize escape sequences
   # 1. Remove bells (\a)
@@ -491,6 +519,64 @@ Returns:
   return;
 }    # speak
 
+=head2 say_persona($self, $text, $persona)
+
+Experimental subroutine that requires an MCP server.
+Converts the given C<$text> to speech using the specified C<$persona> voice.
+
+=over
+
+=item C<$self>
+
+Object reference (if called as a method) or class name.
+
+=item C<$text>
+
+The text message to be spoken.
+
+=item C<$persona>
+
+The persona name to use for the voice. The system will look for a file named C<lc($persona)> with extensions like .mp3, .wav, or .flac in the voices directory. If not found, it defaults to C<default.mp3>.
+
+=back
+
+=cut
+
+sub say_persona {
+
+  # Experimental - requires MCP server
+  my ($self, $text, $persona) = @_;
+
+  my $mcp_client = '/opt/tts/mcp_client.pl';
+
+  unless (-x $mcp_client) {
+    carp "Warning: MCP client not found or not executable at $mcp_client";
+    return;
+  }
+
+  my $voice_file = 'default.mp3';
+  if ($persona) {
+    my $p = lc($persona);
+    my @exts = qw(mp3 wav flac m4a ogg);
+    my $found = 0;
+    
+    foreach my $ext (@exts) {
+      if (-f "/opt/tts/voices/$p.$ext") {
+        $voice_file = "$p.$ext";
+        $found = 1;
+        last;
+      }
+    }
+    
+    unless ($found) {
+      carp "Warning: Persona '$persona' not found. Defaulting to default.mp3";
+    }
+  }
+
+  system ($mcp_client, "--text", $text, "--voice", $voice_file);
+
+} ## end sub say_persona
+
 1;
 
 =pod
@@ -500,6 +586,9 @@ Returns:
 SPEAK_LANG: Language code (e.g. 'en', 'en-gb', 'en-au'). 
             See etc/speak.conf for available languages.
             Defaults to $ENV{SPEAK_LANG} or 'en'.
+
+SPEAK_PERSONA: Default persona to use for the voice (e.g. 'picard').
+               If set, the MCP TTS engine is used by default.
 
 SPEAK_MUTE: If set to a true value, speech output is muted.
             Alternatively, if a file exists at $ENV{HOME}/.speak/shh
@@ -519,6 +608,7 @@ Format:
 
 Supported keys:
   language - Default language code for speech generation.
+  persona  - Default persona to use for the MCP voice engine.
 
 =head1 DEPENDENCIES
 
