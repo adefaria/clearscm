@@ -2092,7 +2092,7 @@ sub Whitelist ($$;$$) {
       message => $msg,
     );
 
-    Error ($msg, 1);
+    error ($msg, 1);
   }    # if
 
   unlink $msgfile;
