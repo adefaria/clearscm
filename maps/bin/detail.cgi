@@ -233,8 +233,27 @@ sub Body($) {
     # Get subject line
     $heading = "?subject=$heading" if $heading;
 
+    my $auth_badge = "";
+    if ($type eq "returned") {
+      $MAPS::db->find("log", "userid='$userid' and type='returned' and sender='$sender'", "message", "order by timestamp desc limit 1");
+      if (my $log_rec = $MAPS::db->getnext) {
+        my $msg = $log_rec->{message} // "";
+        if ($msg =~ /\[(.*?(?:SPF|DKIM|DMARC).*?)\]/) {
+          my $report_str = $1;
+          my @failures;
+          push @failures, "SPF" if $report_str =~ /SPF:\s*(?!PASS)\w+/i;
+          push @failures, "DKIM" if $report_str =~ /DKIM:\s*(?!PASS)\w+/i;
+          push @failures, "DMARC" if $report_str =~ /DMARC:\s*(?!PASS)\w+/i;
+          if (@failures) {
+            my $failed_str = join(", ", @failures);
+            $auth_badge = qq{ <span title="Authentication Failure: $report_str" style="cursor:help; background:#d9534f; color:#ffffff; padding:1px 6px; border-radius:10px; font-size:10px; font-weight:bold; margin-left:4px;">&#9888; $failed_str</span>};
+          }
+        }
+      }
+    }
+
     print td {-class => $senderclass,}, a {-href => "mailto:$sender$heading",},
-      "&nbsp;$sender";
+      "&nbsp;$sender", $auth_badge;
 
     if ($rec) {
       my $listlink =

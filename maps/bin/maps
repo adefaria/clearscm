@@ -330,16 +330,31 @@ sub ProcessMsgs ($$$) {
       next;
     }    # if
 
+    # Perform SPF, DKIM, DMARC authentication checks
+    my ($from_domain) = ($msgInfo{sender} // '') =~ /@([^@]+)$/;
+    $from_domain = lc($from_domain // '');
+
+    my $spf_status   = CheckSPF($msgInfo{client_ip}, $msgInfo{sender}, $from_domain);
+    my $dkim_status  = CheckDKIM($msgInfo{data});
+    my $dmarc_status = CheckDMARC($from_domain, $spf_status, $dkim_status, $msgInfo{sender}, $msgInfo{client_ip});
+
+    my $auth_report;
+    if ($spf_status ne 'pass' || $dkim_status ne 'pass' || $dmarc_status ne 'pass') {
+      $auth_report = sprintf("SPF: %s, DKIM: %s, DMARC: %s", uc($spf_status), uc($dkim_status), uc($dmarc_status));
+      $log->msg("Authentication report for $msgInfo{sender} - $auth_report");
+    }
+
     # Return processing:
     $log->msg (
       "Returning message from $msgInfo{sender} - Subject: $msgInfo{subject}");
 
     ReturnMsg (
-      userid   => $userid,
-      sender   => $msgInfo{sender},
-      reply_to => $msgInfo{reply_to},
-      subject  => $msgInfo{subject},
-      data     => $msgInfo{data},
+      userid      => $userid,
+      sender      => $msgInfo{sender},
+      reply_to    => $msgInfo{reply_to},
+      subject     => $msgInfo{subject},
+      data        => $msgInfo{data},
+      auth_report => $auth_report,
     );
   }    # while
 }    # ProcessMsgs

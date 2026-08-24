@@ -54,7 +54,10 @@ our @EXPORT = qw(
   AddUserxx
   AddUserOptions
   Blacklist
+  CheckDKIM
+  CheckDMARC
   CheckEmail
+  CheckSPF
   CleanEmail
   CleanLog
   CleanList
@@ -1140,7 +1143,18 @@ sub OptimizeDB() {
 sub _parse_header_line {
   my ($info, $line) = @_;
 
-  if ($line =~ /^from: (.*)/i) {
+  if ($line =~ /^received:\s*(.*)/i) {
+    push @{$info->{received_headers}}, $1;
+    unless ($info->{client_ip}) {
+      if ($1 =~ /\[(\d{1,3}(?:\.\d{1,3}){3})\]/) {
+        $info->{client_ip} = $1;
+      } elsif ($1 =~ /\[([0-9a-fA-F:]+)\]/) {
+        $info->{client_ip} = $1;
+      } elsif ($1 =~ /\b(\d{1,3}(?:\.\d{1,3}){3})\b/) {
+        $info->{client_ip} = $1;
+      }
+    }
+  } elsif ($line =~ /^from: (.*)/i) {
     $info->{sender_long} = $info->{sender} = $1;
 
     if ($info->{sender} =~ /<(\S*)@(\S*)>/) {
@@ -1318,6 +1332,84 @@ sub ReadMsg($;$) {
 
   return %msgInfo;
 }    # ReadMsg
+
+sub CheckSPF($$$) {
+  my ($client_ip, $envelope_sender, $domain) = @_;
+
+  return 'none' unless $client_ip && ($envelope_sender || $domain);
+
+  my $identity = $envelope_sender || ("postmaster@" . $domain);
+
+  eval {
+    require Mail::SPF;
+    my $spf_server = Mail::SPF::Server->new();
+    my $request    = Mail::SPF::Request->new(
+      scope      => 'mfrom',
+      identity   => $identity,
+      ip_address => $client_ip,
+    );
+    my $result = $spf_server->process($request);
+    return lc($result->code);
+  } or do {
+    return 'error';
+  };
+}    # CheckSPF
+
+sub CheckDKIM($) {
+  my ($msg_data) = @_;
+
+  return 'none' unless defined $msg_data && length($msg_data) > 0;
+
+  eval {
+    require Mail::DKIM::Verifier;
+    my $dkim = Mail::DKIM::Verifier->new();
+    $dkim->PRINT($msg_data);
+    $dkim->CLOSE();
+    return lc($dkim->result // 'none');
+  } or do {
+    return 'error';
+  };
+}    # CheckDKIM
+
+sub CheckDMARC($$$;$$) {
+  my ($from_domain, $spf_status, $dkim_status, $envelope_sender, $client_ip) = @_;
+
+  return 'none' unless $from_domain;
+
+  eval {
+    require Mail::DMARC::PurePerl;
+    my $dmarc = Mail::DMARC::PurePerl->new();
+    $dmarc->source_ip($client_ip) if $client_ip;
+    $dmarc->header_from($from_domain);
+
+    my ($mfrom_domain) = ($envelope_sender // '') =~ /@([^@]+)$/;
+    $mfrom_domain ||= $from_domain;
+
+    if ($spf_status) {
+      $dmarc->spf([
+        {
+          scope  => 'mfrom',
+          domain => $mfrom_domain,
+          result => lc($spf_status),
+        }
+      ]);
+    }
+
+    if ($dkim_status) {
+      $dmarc->dkim([
+        {
+          domain => $from_domain,
+          result => lc($dkim_status),
+        }
+      ]);
+    }
+
+    my $result = $dmarc->validate();
+    return lc($result->result // 'none');
+  } or do {
+    return 'error';
+  };
+}    # CheckDMARC
 
 sub RecordHit(%) {
   my (%rec) = @_;
@@ -1712,18 +1804,19 @@ sub ReturnMsg(%) {
 
     # Return register message
     SendMsg (
-      userid  => $params{userid},
-      sender  => $params{reply_to},
-      subject => 'Your email has been returned by MAPS',
-      msgfile => "$mapsbase/register.html",
-      data    => $params{data},
+      userid      => $params{userid},
+      sender      => $params{reply_to},
+      subject     => 'Your email has been returned by MAPS',
+      msgfile     => "$mapsbase/register.html",
+      data        => $params{data},
+      auth_report => $params{auth_report},
     ) if $msg_count == 0;
 
     Logmsg (
       userid  => $params{userid},
       type    => 'returned',
       sender  => $params{sender},
-      message => 'Sent register reply',
+      message => $params{auth_report} ? "Sent register reply [$params{auth_report}]" : "Sent register reply",
     );
 
     # Save message
@@ -1911,6 +2004,17 @@ sub SendMsg(%) {
   open my $return_msg_file, '<', $params{msgfile}
     or die "Unable to open return msg file ($params{msgfile}): $!\n";
 
+  my $auth_report_html = '';
+  if ($params{auth_report}) {
+    $auth_report_html =
+        "<div style=\"border:1px solid #cc0000; background-color:#fee; padding:8px; margin:10px 0;\">\n"
+      . "<strong>Authentication Warning:</strong><br>\n"
+      . "<span style=\"font-family:monospace;\">$params{auth_report}</span>\n"
+      . "</div>\n";
+  }
+
+  my $replaced_auth_report = 0;
+
   # Read return message template file and print it to $msg_body
   while (<$return_msg_file>) {
     if (/\$userid/) {
@@ -1923,11 +2027,28 @@ sub SendMsg(%) {
       # Replace sender
       s/\$sender/$params{sender}/;
     }    #if
+    if (/__AUTH_REPORT__/) {
+      s/__AUTH_REPORT__/$auth_report_html/;
+      $replaced_auth_report = 1;
+    }
 
     push @lines, $_;
   }    # while
 
   close $return_msg_file;
+
+  if ($auth_report_html && !$replaced_auth_report) {
+    # If placeholder was not present in template, inject warning before </body>
+    my $injected = 0;
+    for my $i (0 .. $#lines) {
+      if ($lines[$i] =~ /<\/body>/i) {
+        splice @lines, $i, 0, $auth_report_html;
+        $injected = 1;
+        last;
+      }
+    }
+    push @lines, $auth_report_html unless $injected;
+  }
 
   # Create the message, and set up the mail headers:
   my $msg = MIME::Entity->build (

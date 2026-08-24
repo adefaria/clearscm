@@ -60,7 +60,7 @@ import android.view.ViewTreeObserver;
 
 public class MainActivity extends Activity {
 
-    private static final String VERSION = "1.0";
+    private static final String VERSION = "4.1";
     private TextView outputView;
     private LinearLayout outputContainer;
     private EditText usernameField;

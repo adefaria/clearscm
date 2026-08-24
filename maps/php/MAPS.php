@@ -13,7 +13,7 @@ date_default_timezone_set("America/Los_Angeles");
 // (c) Copyright 2000-2006, Andrew@DeFaria.com, all rights reserved.
 //
 ////////////////////////////////////////////////////////////////////////////////
-$VERSION = "4.0";
+$VERSION = "4.1";
 
 // Get userid
 if (isset($_REQUEST["userid"])) {
