@@ -1,7 +1,15 @@
 StrictHostKeyChecking no
 LogLevel ERROR
 
-Host mars europa earth cloud defaria.com
+Host cohu1
+  Hostname usnor-cc2git1.cohu.com
+  User adefaria
+
+Host cohu2
+  Hostname usnor-cc2git2.cohu.com
+  User adefaria
+
+Host mars europa earth cloud defaria.com cohu1 cohu2
   ForwardX11 yes
   ForwardX11Trusted yes
 
