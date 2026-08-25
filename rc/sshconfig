@@ -1,7 +1,7 @@
 StrictHostKeyChecking no
 LogLevel ERROR
 
-Host mars earth home defaria.com defaria2.com
+Host mars europa earth cloud defaria.com
   ForwardX11 yes
   ForwardX11Trusted yes
 
@@ -12,11 +12,7 @@ Host jupiter github.com
 Host jupiter
   Port 2222
 
-Host bluesuedecrew
-  Hostname wpsq.siteocity.com
-  User bluesued
-
-Host home
+Host cloud
   Hostname defaria.com
   User andrew
   IdentityFile		~/.ssh/id_ecdsa
