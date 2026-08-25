@@ -82,6 +82,9 @@ ReplaceFile "$HOME/.gitignore"    "$HOME/.rc/gitignore"
 CopyFile "$HOME/.ssh/config"	  "$HOME/.rc/sshconfig"
 
 mkdir -p "$HOME/.config/systemd/user"
-ReplaceFile "$HOME/.config/systemd/user/settheme.service" "/opt/clearscm/etc/systemd/user/settheme.service"
-ReplaceFile "$HOME/.config/systemd/user/settheme.timer"   "/opt/clearscm/etc/systemd/user/settheme.timer"
+ReplaceFile "$HOME/.config/systemd/user/settheme.service"    "/opt/clearscm/etc/systemd/user/settheme.service"
+ReplaceFile "$HOME/.config/systemd/user/settheme.timer"      "/opt/clearscm/etc/systemd/user/settheme.timer"
+ReplaceFile "$HOME/.config/systemd/user/xscreensaver.service" "/opt/clearscm/etc/systemd/user/xscreensaver.service"
+ReplaceFile "$HOME/.config/systemd/user/syncthing.service"    "/opt/clearscm/etc/systemd/user/syncthing.service"
+
 

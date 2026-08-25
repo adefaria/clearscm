@@ -1,0 +1,12 @@
+[Unit]
+Description=XScreenSaver Desktop Daemon
+After=graphical-session.target
+
+[Service]
+Type=simple
+# Standard path on Ubuntu 24.04
+ExecStart=/usr/bin/xscreensaver -no-splash
+Restart=always
+
+[Install]
+WantedBy=default.target
