@@ -1,0 +1,8 @@
+#!/bin/sh
+# Run settheme when laptop resumes from sleep/suspend
+if [ "$1" = "post" ]; then
+    HOST=$(hostname | tr "[:upper:]" "[:lower:]")
+    if [ "$HOST" = "mars" ]; then
+        sudo -u andrew XDG_RUNTIME_DIR=/run/user/1000 systemctl --user start settheme.service
+    fi
+fi

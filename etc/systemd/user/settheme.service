@@ -1,0 +1,7 @@
+[Unit]
+Description=Set theme based on sun position
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/clearscm/bin/settheme

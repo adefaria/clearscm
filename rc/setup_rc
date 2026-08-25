@@ -80,3 +80,8 @@ ReplaceFile "$HOME/.gitignore"    "$HOME/.rc/gitignore"
 
 # Ssh is picky about the ownership of this file so copy it.
 CopyFile "$HOME/.ssh/config"	  "$HOME/.rc/sshconfig"
+
+mkdir -p "$HOME/.config/systemd/user"
+ReplaceFile "$HOME/.config/systemd/user/settheme.service" "/opt/clearscm/etc/systemd/user/settheme.service"
+ReplaceFile "$HOME/.config/systemd/user/settheme.timer"   "/opt/clearscm/etc/systemd/user/settheme.timer"
+

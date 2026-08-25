@@ -1,0 +1,13 @@
+[Unit]
+Description=Run settheme every 15 minutes
+
+[Timer]
+# Run 1 minute after login
+OnStartupSec=1min
+# Run every 15 minutes on the quarter hour
+OnCalendar=*:0/15
+# Ensure missed runs during suspend/offline are caught up upon resume
+Persistent=true
+
+[Install]
+WantedBy=timers.target
