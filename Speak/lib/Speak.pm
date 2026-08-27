@@ -15,7 +15,7 @@ Andrew DeFaria <Andrew@DeFaria.com>
 
 =item Revision
 
-$Revision: 1.03 $
+$Revision: 1.04 $
 
 =item Created
 
@@ -52,7 +52,7 @@ use base 'Exporter';
 
 use Clipboard;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 {
 
@@ -66,7 +66,7 @@ our $VERSION = '1.03';
   use IO::Handle;
   use Carp;
 
-sub new ($class, %args) {
+  sub new ($class, %args) {
     my $self = {
       path        => $args{path} || '.',
       name        => $args{name} || 'speak',
@@ -114,7 +114,7 @@ sub new ($class, %args) {
       } else {
         print $fh $timestamp, $msg, "\n";
       }
-    }
+    } ## end if ($self->{handle})
 
     return;
   } ## end sub log
@@ -164,8 +164,7 @@ our @EXPORT_OK = qw(speak say_persona);
 # speak() to redirect config loading (useful in tests).
 our @CONFIG_PATHS = (
   ($ENV{HOME} || q{}) . '/.speak/speak.conf',
-  '/etc/speak/speak.conf',
-  '/etc/speak.conf',
+  '/etc/speak/speak.conf', '/etc/speak.conf',
   '/opt/clearscm/Speak/etc/speak.conf',
 );
 
@@ -179,13 +178,14 @@ sub _split_text ($text) {
     } elsif ($text =~ s/^(.{1,100})\s//) {
       push @sentences, $1;
     } else {
-      # Fallback: force-slice the first 100 characters if no punctuation is found within 100 chars
-      push @sentences, substr($text, 0, 100, "");
+
+# Fallback: force-slice the first 100 characters if no punctuation is found within 100 chars
+      push @sentences, substr ($text, 0, 100, "");
     }
-  }
+  } ## end while (length $text)
 
   return @sentences;
-} ## end sub _split_text ($text)
+} ## end sub _split_text
 
 sub _fetch_mp3 ($ua, $text, $lang) {
 
@@ -215,7 +215,7 @@ sub _fetch_mp3 ($ua, $text, $lang) {
     carp "Failed to fetch TTS: " . $response->status_line;
     return;
   }
-} ## end sub _fetch_mp3 ($$$)
+} ## end sub _fetch_mp3
 
 sub _convert_mp3_to_wav ($mp3, $wav) {
 
@@ -236,7 +236,7 @@ sub _convert_mp3_to_wav ($mp3, $wav) {
 
   # Fallback to sox (might fail if no mp3 handler)
   return system ("sox \"$mp3\" \"$wav\"") == 0;
-} ## end sub _convert_mp3_to_wav ($$)
+} ## end sub _convert_mp3_to_wav
 
 ## no critic (Subroutines::ProhibitExcessComplexity)
 sub speak ($msg, $log = undef, $lang = undef, $persona = undef) {
@@ -301,16 +301,16 @@ Returns:
   unless ($msg) {
     $msg = eval {
       ## no critic (InputOutput::RequireBriefOpen)
-      open my $olderr, '>&', \*STDERR or croak "Cannot dup STDERR: $!";
-      open STDERR, '>', '/dev/null'  or croak "Cannot redirect STDERR: $!";
+      open my $olderr, '>&', \*STDERR    or croak "Cannot dup STDERR: $!";
+      open STDERR,     '>',  '/dev/null' or croak "Cannot redirect STDERR: $!";
       my $res = Clipboard->paste;
-      open STDERR, '>&', $olderr     or croak "Cannot restore STDERR: $!";
+      open STDERR, '>&', $olderr or croak "Cannot restore STDERR: $!";
       close $olderr;
       ## use critic
       $res;
     };
     $msg //= '';
-  }
+  } ## end unless ($msg)
   $msg = do {local $/; <$msg>} if ref $msg eq 'GLOB';
 
   my %sys_conf;
@@ -319,11 +319,11 @@ Returns:
       %sys_conf = _get_config ($conf_file);
       last;
     }
-  }
+  } ## end foreach my $conf_file (@CONFIG_PATHS)
 
   $persona ||= $ENV{SPEAK_PERSONA} || $sys_conf{persona};
-  my $server = $ENV{SPEAK_SERVER}  || $sys_conf{server};
-  my $port   = $ENV{SPEAK_PORT}    || $sys_conf{port};
+  my $server = $ENV{SPEAK_SERVER} || $sys_conf{server};
+  my $port   = $ENV{SPEAK_PORT}   || $sys_conf{port};
 
   # Sanitize escape sequences
   # 1. Remove bells (\a)
@@ -354,53 +354,57 @@ Returns:
   $log->log ($msg);
 
   if ($server && $port) {
-    if (hostname() eq $server) {
+    if (hostname () eq $server) {
       local $ENV{TTS_DAEMON_URL} = "http://127.0.0.1:$port";
-      say_persona(undef, $msg, $persona);
+      say_persona (undef, $msg, $persona);
       return;
     } else {
       my $ua = LWP::UserAgent->new;
-      $ua->agent("Mozilla/5.0");
-      my $json = JSON::PP->new->utf8;
-      my $req_data = { text => $msg };
+      $ua->agent ("Mozilla/5.0");
+      my $json     = JSON::PP->new->utf8;
+      my $req_data = {text => $msg};
       $req_data->{ref_audio} = $persona if $persona;
-      my $req_json = $json->encode($req_data);
-      
+      my $req_json = $json->encode ($req_data);
+
       my $url = "http://$server:$port/clone_voice_audio";
-      my $req = HTTP::Request->new('POST', $url);
-      $req->header('Content-Type' => 'application/json');
-      $req->header('Accept' => 'audio/wav');
-      $req->content($req_json);
-      
-      my $res = $ua->request($req);
+      my $req = HTTP::Request->new ('POST', $url);
+      $req->header  ('Content-Type' => 'application/json');
+      $req->header  ('Accept'       => 'audio/wav');
+      $req->content ($req_json);
+
+      my $res = $ua->request ($req);
       if ($res->is_success) {
-        my ($fh, $filename) = tempfile(SUFFIX => '.wav', UNLINK => 0);
+        my ($fh, $filename) = tempfile (SUFFIX => '.wav', UNLINK => 0);
         binmode $fh;
         print $fh $res->content;
         close $fh;
-        
+
         my $os = $^O;
         if ($os eq 'darwin') {
-          system("afplay \"$filename\"");
+          system ("afplay \"$filename\"");
         } elsif ($os eq 'MSWin32' || $os eq 'cygwin') {
-          my $cmd_wav = "powershell -c (New-Object Media.SoundPlayer '$filename').PlaySync()";
-          system($cmd_wav) == 0 or system("play -q \"$filename\"");
+          my $cmd_wav =
+"powershell -c (New-Object Media.SoundPlayer '$filename').PlaySync()";
+          system ($cmd_wav) == 0 or system ("play -q \"$filename\"");
         } else {
-          my $player = -x '/usr/bin/paplay' ? 'paplay' : (-x '/bin/paplay' ? 'paplay' : 'play -q');
-          system("$player \"$filename\"");
-        }
+          my $player =
+            -x '/usr/bin/paplay'
+            ? 'paplay'
+            : (-x '/bin/paplay' ? 'paplay' : 'play -q');
+          system ("$player \"$filename\"");
+        } ## end else [ if ($os eq 'darwin') ]
         unlink $filename;
         return;
       } else {
         carp "Failed to fetch TTS from $url: " . $res->status_line;
-        $msg = "Warning - could not reach $server. " . $msg;
-        $persona = undef; # clear persona so it falls through to Google TTS
+        $msg     = "Warning - could not reach $server. " . $msg;
+        $persona = undef;    # clear persona so it falls through to Google TTS
       }
-    }
-  }
+    } ## end else [ if (hostname () eq $server)]
+  } ## end if ($server && $port)
 
   if ($persona) {
-    say_persona(undef, $msg, $persona);
+    say_persona (undef, $msg, $persona);
     return;
   }
 
@@ -416,7 +420,7 @@ Returns:
 
   unless ($lang) {
     $lang = $ENV{SPEAK_LANG} || $sys_conf{language} || 'en';
-  } ## end unless ($lang)
+  }
 
   my @sentences = _split_text ($msg);
   my @mp3_files;
@@ -433,7 +437,7 @@ Returns:
     print $fh $mp3_data;
     close $fh;
 
-    push @mp3_files, $filename;
+    push @mp3_files,       $filename;
     push @valid_sentences, $sentence;
   } ## end foreach my $sentence (@sentences)
 
@@ -446,21 +450,28 @@ Returns:
     # Concatenate using sox if multiple files
     my $final_file;
     if (@mp3_files > 1) {
+
       # Trim boundary silences for artificial (non-punctuation) splits
       for (my $i = 0; $i < $#mp3_files; $i++) {
         my $sentence = $valid_sentences[$i];
         if ($sentence !~ /[.!?;]$/) {
+
           # Trim trailing silence of $mp3_files[$i]
           my ($fh_t, $trimmed_t) = tempfile (SUFFIX => '.mp3', UNLINK => 0);
           close $fh_t;
-          if (system ("sox \"$mp3_files[$i]\" \"$trimmed_t\" reverse silence 1 0.01 1% reverse") == 0) {
+          if (
+            system (
+"sox \"$mp3_files[$i]\" \"$trimmed_t\" reverse silence 1 0.01 1% reverse"
+            ) == 0
+            )
+          {
             unlink $mp3_files[$i];
             $mp3_files[$i] = $trimmed_t;
           } else {
             unlink $trimmed_t;
           }
-        }
-      }
+        } ## end if ($sentence !~ /[.!?;]$/)
+      } ## end for (my $i = 0; $i < $#mp3_files...)
 
       my ($fh, $joined) = tempfile (SUFFIX => '.mp3', UNLINK => 0);
       close $fh;
