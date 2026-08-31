@@ -1,6 +1,7 @@
 # Build Artifacts
 /build
 /.gradle
+*.apk
 
 # Local Configuration
 local.properties
