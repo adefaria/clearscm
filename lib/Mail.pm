@@ -244,10 +244,8 @@ Returns:
     $mode = "text/plain";
   } elsif ($parms{mode} eq "plain" or $parms{mode} eq "text/plain") {
     $mode = "text/plain";
-  } elsif ($parms{mode} eq "html") {
-    $mode = "text/html";
-  } elsif ($parms{mode} eq "html") {
-    $mode = "text/html";
+  } elsif ($parms{mode} eq "html" or $parms{mode} eq "text/html") {
+    $mode = "multipart";
     # Make sure we can get our modules...
     eval { require MIME::Entity }
       or error "Unable to find MIME::Entity module", 1;
@@ -321,7 +319,7 @@ Returns:
     # Create a textual version of the HTML
     my $html = HTML::TreeBuilder->new;
     $html->parse($msgdata);
-    new$html->eof;
+    $html->eof;
     my $formatter = HTML::FormatText->new(
       leftmargin  => 0,
       rightmargin => 80
