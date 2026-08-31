@@ -54,7 +54,10 @@ sub Body($) {
   print th {-class => 'tableleftend'}, 'Date';
 
   for (@Types) {
-    print th {-class => 'tableheader'}, ucfirst;
+    my $report = ucfirst $_;
+    $report =~ s/_/ /g;
+    $report = join('&nbsp;', map {ucfirst lc $_} split /\s+/, $report);
+    print th {-class => 'tableheader'}, $report;
   } # for
 
   print th {-class => 'tablerightend'}, 'Total';
