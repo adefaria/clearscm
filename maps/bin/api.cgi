@@ -183,7 +183,7 @@ if ($action eq 'full_stats') {
     }    # foreach
 
     my $auth_report;
-    $MAPS::db->find("log", "userid='$userid' and type='returned' and sender='$sender'", "message", "order by timestamp desc limit 1");
+    $MAPS::db->find("log", "userid='$userid' and (type='returned' or type='auth_failed') and sender='$sender'", "message", "order by timestamp desc limit 1");
     if (my $log_rec = $MAPS::db->getnext) {
       if (($log_rec->{message} // "") =~ /\[(.*?(?:SPF|DKIM|DMARC).*?)\]/) {
         $auth_report = $1;

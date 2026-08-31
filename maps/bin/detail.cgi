@@ -235,8 +235,8 @@ sub Body($) {
     $heading = "?subject=$heading" if $heading;
 
     my $auth_badge = "";
-    if ($type eq "returned") {
-      $MAPS::db->find("log", "userid='$userid' and type='returned' and sender='$sender'", "message", "order by timestamp desc limit 1");
+    if ($type eq "returned" || $type eq "auth_failed") {
+      $MAPS::db->find("log", "userid='$userid' and (type='returned' or type='auth_failed') and sender='$sender'", "message", "order by timestamp desc limit 1");
       if (my $log_rec = $MAPS::db->getnext) {
         my $msg = $log_rec->{message} // "";
         if ($msg =~ /\[(.*?(?:SPF|DKIM|DMARC).*?)\]/) {

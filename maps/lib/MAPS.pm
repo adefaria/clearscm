@@ -2190,9 +2190,9 @@ sub UserExists($) {
 sub AuthFailMsg(%) {
   my (%params) = @_;
 
-  # AuthFailMsg logs authentication failures without sending a challenge email
-  # or saving the message. These senders will appear in the auth_failed report.
-  CheckParms (['userid', 'sender', 'subject'], \%params);
+  # AuthFailMsg logs authentication failures without sending a challenge email.
+  # Messages are saved so they can be reviewed in the auth_failed report.
+  CheckParms (['userid', 'sender', 'subject', 'data'], \%params);
 
   my $auth_report = $params{auth_report} // 'unknown';
 
@@ -2200,8 +2200,10 @@ sub AuthFailMsg(%) {
     userid  => $params{userid},
     type    => 'auth_failed',
     sender  => $params{sender},
-    message => "Authentication failure: $auth_report",
+    message => "Authentication failure [$auth_report]",
   );
+
+  SaveMsg ($params{sender}, $params{subject}, $params{data}, $params{userid});
 
   return;
 }    # AuthFailMsg

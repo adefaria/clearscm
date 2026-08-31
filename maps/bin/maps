@@ -370,6 +370,7 @@ sub ProcessMsgs ($$$) {
         sender      => $msgInfo{sender},
         subject     => $msgInfo{subject},
         auth_report => $auth_report,
+        data        => $msgInfo{data},
       );
 
       next;
