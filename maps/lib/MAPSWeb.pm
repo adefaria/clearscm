@@ -531,6 +531,8 @@ sub displayquickstats($) {
 
     my $report = ucfirst $_;
     $report =~ s/list$//;
+    $report =~ s/_/ /g;
+    $report = join(' ', map {ucfirst lc $_} split /\s+/, $report);
 
     $report = a {-href => "detail.cgi?type=$_;date=$date"}, $report if $value;
 

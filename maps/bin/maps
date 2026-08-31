@@ -338,13 +338,44 @@ sub ProcessMsgs ($$$) {
     my $dkim_status  = CheckDKIM($msgInfo{data});
     my $dmarc_status = CheckDMARC($from_domain, $spf_status, $dkim_status, $msgInfo{sender}, $msgInfo{client_ip});
 
+    my $auth_failed = ($spf_status ne 'pass' || $dkim_status ne 'pass' || $dmarc_status ne 'pass');
     my $auth_report;
-    if ($spf_status ne 'pass' || $dkim_status ne 'pass' || $dmarc_status ne 'pass') {
+
+    if ($auth_failed) {
       $auth_report = sprintf("SPF: %s, DKIM: %s, DMARC: %s", uc($spf_status), uc($dkim_status), uc($dmarc_status));
-      $log->msg("Authentication report for $msgInfo{sender} - $auth_report");
+      $log->msg("Authentication failure for $msgInfo{sender} - $auth_report");
     }
 
-    # Return processing:
+    # If DMARC policy is reject or quarantine, auto-nulllist the sender
+    if ($auth_failed && $dmarc_status =~ /^(reject|quarantine)$/i) {
+      $log->msg("DMARC $dmarc_status policy: auto-nulllisting $msgInfo{sender} - $auth_report");
+
+      Add2Nulllist (
+        userid  => $userid,
+        sender  => $msgInfo{sender},
+        comment => "DMARC $dmarc_status policy",
+      );
+
+      Nulllist $msgInfo{sender};
+      next;
+    }    # if
+
+    # If any auth checks fail (but not reject/quarantine), log as auth_failed
+    # and do NOT send a challenge email or appear in the Returned report
+    if ($auth_failed) {
+      $log->msg("Auth failed (no challenge sent) for $msgInfo{sender} - $auth_report");
+
+      AuthFailMsg (
+        userid      => $userid,
+        sender      => $msgInfo{sender},
+        subject     => $msgInfo{subject},
+        auth_report => $auth_report,
+      );
+
+      next;
+    }    # if
+
+    # Return processing (only reached if authentication passed):
     $log->msg (
       "Returning message from $msgInfo{sender} - Subject: $msgInfo{subject}");
 

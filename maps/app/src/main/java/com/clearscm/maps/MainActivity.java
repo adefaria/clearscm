@@ -199,6 +199,7 @@ public class MainActivity extends Activity {
         menuLayout.setVisibility(View.GONE);
 
         addMenuButton("Returned", "returned");
+        addMenuButton("Auth Failed", "auth_failed");
         addMenuButton("White", "white_today");
         addMenuButton("Black", "black_today");
         addMenuButton("Null", "null_today");
@@ -416,6 +417,7 @@ public class MainActivity extends Activity {
         popup.getMenu().add(0, 7, 0, "White List");
         popup.getMenu().add(0, 8, 0, "Black List");
         popup.getMenu().add(0, 9, 0, "Null List");
+        popup.getMenu().add(0, 11, 0, "Auth Failed");
         popup.getMenu().add(0, 5, 0, "About");
         popup.getMenu().add(0, 6, 0, "Logout");
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -455,6 +457,9 @@ public class MainActivity extends Activity {
             case 10:
                 performAction(user, pass, "full_stats");
                 return true;
+            case 11:
+                performAction(user, pass, "auth_failed");
+                return true;
             case 5:
                 showAboutDialog();
                 return true;
@@ -492,6 +497,7 @@ public class MainActivity extends Activity {
             menu.add(0, 7, 0, "White List");
             menu.add(0, 8, 0, "Black List");
             menu.add(0, 9, 0, "Null List");
+            menu.add(0, 11, 0, "Auth Failed");
             menu.add(0, 5, 0, "About");
             menu.add(0, 6, 0, "Logout");
         }
@@ -1418,10 +1424,12 @@ public class MainActivity extends Activity {
                     String url = API_URL + "?action=" + mAction + "&userid=" + storedUserid;
                     String response = sendRequest(url, "GET", null, storedCookie);
                     return "JSON:" + response;
-                } else if ("returned".equals(mAction) || mAction.endsWith("_today")) {
+                } else if ("returned".equals(mAction) || "auth_failed".equals(mAction) || mAction.endsWith("_today")) {
                     String apiAction = "returned";
                     String typeVal = "returned";
-                    if (mAction.endsWith("_today")) {
+                    if ("auth_failed".equals(mAction)) {
+                        typeVal = "auth_failed";
+                    } else if (mAction.endsWith("_today")) {
                         typeVal = mAction.replace("_today", "");
                     }
 
@@ -1692,6 +1700,8 @@ public class MainActivity extends Activity {
                                     "black_today");
                             addStatRow(table, "Nulllist", data.optInt("nulllist"), Color.parseColor("#DB4437"),
                                     "null_today");
+                            addStatRow(table, "Auth Failed", data.optInt("auth_failed"), Color.parseColor("#FF6D00"),
+                                    "auth_failed");
 
                             card.addView(table);
                             outputContainer.addView(card);
@@ -1956,7 +1966,7 @@ public class MainActivity extends Activity {
 
                                     outputContainer.addView(card);
                                 }
-                            } else if ("returned".equals(mAction) || mAction.endsWith("_today")) {
+                            } else if ("returned".equals(mAction) || "auth_failed".equals(mAction) || mAction.endsWith("_today")) {
                                 for (int i = 0; i < data.length(); i++) {
                                     JSONObject senderObj = data.getJSONObject(i);
                                     String tempSender = senderObj.optString("sender");

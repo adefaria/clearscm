@@ -53,6 +53,7 @@ our @EXPORT = qw(
   AddLog
   AddUserxx
   AddUserOptions
+  AuthFailMsg
   Blacklist
   CheckDKIM
   CheckDMARC
@@ -502,7 +503,9 @@ sub Blacklist(%) {
   # In the future we should just disregard the message.
   my (%rec) = @_;
 
-  # Check to see if this sender has already emailed us.
+  # Check to see if this sender has already been returned to. Count log entries
+  # (type='returned') rather than saved emails - the email table is scrubbed by
+  # mapsscrub and resets before mailLoopMax is ever reached.
   my $msg_count = $db->count ('email',
     "userid='$rec{userid}' and sender like '%$rec{sender}%'");
 
@@ -1796,9 +1799,11 @@ sub ReturnMsg(%) {
 
   #my ($sender, $reply_to, $subject, $data) = @_;
 
-  # Check to see if this sender has already emailed us.
-  my $msg_count = $db->count ('email',
-    "userid='$userid' and sender like '%$params{sender}%'");
+  # Check to see if this sender has already been returned to. Count log entries
+  # (type='returned') rather than saved emails - the email table is scrubbed by
+  # mapsscrub and resets before mailLoopMax is ever reached.
+  my $msg_count = $db->count ('log',
+    "userid='$userid' and type='returned' and sender='$params{sender}'");
 
   if ($msg_count < $mailLoopMax) {
 
@@ -2181,6 +2186,25 @@ sub UserExists($) {
 
   return $rec->[0]{password};
 }    # UserExists
+
+sub AuthFailMsg(%) {
+  my (%params) = @_;
+
+  # AuthFailMsg logs authentication failures without sending a challenge email
+  # or saving the message. These senders will appear in the auth_failed report.
+  CheckParms (['userid', 'sender', 'subject'], \%params);
+
+  my $auth_report = $params{auth_report} // 'unknown';
+
+  Logmsg (
+    userid  => $params{userid},
+    type    => 'auth_failed',
+    sender  => $params{sender},
+    message => "Authentication failure: $auth_report",
+  );
+
+  return;
+}    # AuthFailMsg
 
 sub Whitelist ($$;$$) {
 

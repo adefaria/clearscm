@@ -38,7 +38,8 @@ $Types = array(
   "blacklist",
   "registered",
   "mailloop",
-  "nulllist"
+  "nulllist",
+  "auth_failed"
 );
 
 $db;
@@ -260,6 +261,9 @@ function displayquickstats()
   $nulllist = $dates[$today]["nulllist"];
   $nulllist_pct = $processed == 0 ? 0 :
     number_format($nulllist / $processed * 100, 1, ".", "");
+  $auth_failed = $dates[$today]["auth_failed"];
+  $auth_failed_pct = $processed == 0 ? 0 :
+    number_format($auth_failed / $processed * 100, 1, ".", "");
 
   $returned_link = $returned == 0 ? '' :
     "<a href=\"/maps/bin/detail.cgi?type=returned;date=$today\">";
@@ -273,6 +277,8 @@ function displayquickstats()
     "<a href=\"/maps/bin/detail.cgi?type=mailloop;date=$today>\"";
   $nulllist_link = $nulllist == 0 ? '' :
     "<a href=\"/maps/bin/detail.cgi?type=nulllist;date=$today\">";
+  $auth_failed_link = $auth_failed == 0 ? '' :
+    "<a href=\"/maps/bin/detail.cgi?type=auth_failed;date=$today\">";
 
   print <<<EOT
 <div id="quickstats">
@@ -311,6 +317,11 @@ function displayquickstats()
     <td align="right" class="smalllabel">${mailloop_link}Mailloop</a></td>
     <td class="smallnumber">$mailloop</td>
     <td class="smallnumber">n/a</td>
+  </tr>
+  <tr align="right">
+    <td align="right" class="smalllabel" style="white-space:nowrap">${auth_failed_link}Auth Failed</a></td>
+    <td class="smallnumber">$auth_failed</td>
+    <td class="smallnumber">$auth_failed_pct%</td>
   </tr>
 </table>
 </div>

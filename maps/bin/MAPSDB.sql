@@ -92,7 +92,8 @@ create table log (
     "nulllist",
     "registered",
     "returned",
-    "whitelist"
+    "whitelist",
+    "auth_failed"
   ) not null,
   message        varchar (255) not null,
   key user_index (userid),

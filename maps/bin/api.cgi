@@ -141,9 +141,10 @@ if ($action eq 'full_stats') {
   $date = undef if $date eq 'all';
 
   my $req_type = $q->param ('type') || 'returned';
-  if    ($req_type eq 'white') {$req_type = 'whitelist';}
-  elsif ($req_type eq 'black') {$req_type = 'blacklist';}
-  elsif ($req_type eq 'null')  {$req_type = 'nulllist';}
+  if    ($req_type eq 'white')      {$req_type = 'whitelist';}
+  elsif ($req_type eq 'black')      {$req_type = 'blacklist';}
+  elsif ($req_type eq 'null')       {$req_type = 'nulllist';}
+  elsif ($req_type eq 'auth_failed'){$req_type = 'auth_failed';}
 
   my @senders = MAPS::ReturnSenders (
     userid   => $userid,
