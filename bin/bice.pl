@@ -47,8 +47,7 @@ use whois to report them to the upstream provider.
 
 =cut
 
-use strict;
-use warnings;
+use StdEnv;
 
 use FindBin;
 use Getopt::Long;
@@ -82,8 +81,7 @@ if ($hostname =~ /(\w*)\./) {
   $hostname = $1;
 } # if
 
-sub BanIP($) {
-  my ($ip) = @_;
+sub BanIP($ip) {
 
   if ($update) {
     verbose "Banning $ip using fail2ban (jail $jail)";
@@ -102,8 +100,7 @@ sub BanIP($) {
 
 # Use whois(1) to get the email addresses of the responsible parties for an IP
 # address. Note that a hash is used to eliminate duplicates.
-sub GetEmailAddresses ($) {
-  my ($ip) = @_;
+sub GetEmailAddresses ($ip) {
 
   # List of whois servers to try
   # Apparently whois.opensrs.net no longer offers whois service?
@@ -144,8 +141,7 @@ sub GetEmailAddresses ($) {
 } # GetEmailAddresses
 
 # Send email to the responsible parties.
-sub SendEmail ($$$$$$) {
-  my ($to, $subject, $message, $ip, $attempts, $violationNbr) = @_;
+sub SendEmail ($to, $subject, $message, $ip, $attempts, $violationNbr) {
 
   if ($email) {
     verbose "$violationNbr: Reporting $ip ($attempts violations) to $to";

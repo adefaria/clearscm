@@ -1,6 +1,5 @@
 #!/usr/local/bin/perl
-use strict;
-use warnings;
+use StdEnv;
 
 =pod
 
@@ -332,7 +331,7 @@ $ENV{LD_LIBRARY_PATH} = "/usr/wichorus/sysroot/usr/lib";
 
 my ($cmdline, $attribs, $line, $result, $dsh);
 
-sub terminateDebugSh () {
+sub terminateDebugSh() {
   if ($debugshPid) {
     kill HUP => $debugshPid;
 
@@ -352,8 +351,7 @@ sub terminateDebugSh () {
   return;
 } # terminateDebugSh
 
-sub set_prompt (;$$) {
-  my ($cmd, $nbr) = @_;
+sub set_prompt($cmd = undef, $nbr = undef) {
 
   my $ignstart = $CmdLine::cmdline->{ignstart};
   my $ignstop  = $CmdLine::cmdline->{ignstop};
@@ -370,8 +368,7 @@ sub set_prompt (;$$) {
   } # if
 } # set_prompt
 
-sub moduleName ($) {
-  my ($file) = @_;
+sub moduleName($file) {
 
   my ($module, $path, $suffix) = fileparse ($file, ('\.a$', '\.so$', '\.h$'));
 
@@ -380,8 +377,7 @@ sub moduleName ($) {
   return $module;
 } # moduleName
 
-sub parseh ($) {
-  my ($h) = @_;
+sub parseh($h) {
 
   my %funcs;
 
@@ -529,8 +525,7 @@ sub parseh ($) {
   return %funcs;
 } # parseh
 
-sub loadModules ($) {
-  my ($rcdir) = @_;
+sub loadModules($rcdir) {
 
   # Load all known commands by combing through $FindBin::Bin/rc/*.h
   opendir my $rc, $rcdir
@@ -563,7 +558,7 @@ sub loadModules ($) {
   return %moduleFuncs;
 } # loadModules
 
-sub modules () {
+sub modules() {
   my ($moduleName, $moduleStatus, $moduleFile);
 
   format STDOUT =
@@ -581,8 +576,7 @@ $moduleName,$moduleStatus
   return;
 } # modules
 
-sub load ($;$) {
-  my ($file, $lib) = @_;
+sub load($file, $lib = undef) {
 
   my ($module, $path, $suffix) = fileparse ($file, ('\.a$', '\.so$', '\.h$'));
 
@@ -700,7 +694,7 @@ sub load ($;$) {
   return 1;
 } # load
 
-sub getOutput () {
+sub getOutput() {
   my ($status, @output) = (0, ());
 
   debug "ENTER: getOutput";
@@ -744,7 +738,7 @@ sub getOutput () {
   } # if
 } # getOutput
 
-sub debugshInit () {
+sub debugshInit() {
   my @debugsh = ($opts{debugsh});
 
   push @debugsh, '2>&1';
@@ -799,7 +793,7 @@ END {
   terminateDebugSh;
 } # END
 
-sub interrupt () {
+sub interrupt() {
   display_nolf
     color ('yellow')
   . '<Control-C>'
@@ -820,7 +814,7 @@ sub interrupt () {
   display color ('cyan') . 'Continuing...' . color ('reset');
 } # interrupt
 
-sub init () {
+sub init() {
   # Stop debugsh if it was running
   terminateDebugSh;
 
@@ -871,8 +865,7 @@ sub init () {
     if $result;
 } # init
 
-sub compareVersions ($$) {
-  my ($version1, $version2) = @_;
+sub compareVersions($version1, $version2) {
 
   $version1 =~ s/\.//g;
   $version2 =~ s/\.//g;
@@ -880,7 +873,7 @@ sub compareVersions ($$) {
   return $version1 <=> $version2;
 } # compareVersions
 
-sub setVersionStr () {
+sub setVersionStr() {
   my $raidVersionStr = color ('cyan')
                      . $name
                      . color ('reset')
@@ -905,8 +898,7 @@ sub setVersionStr () {
   return $raidVersionStr . "\n" . $debugshVerStr;
 } # setVersionStr
 
-sub cmds ($%) {
-  my ($cmd, %funcs) = @_;
+sub cmds($cmd, %funcs) {
 
   if (keys %funcs == 0) {
     warning "Nothing loaded";
@@ -966,8 +958,7 @@ sub cmds ($%) {
   return;
 } # cmds
 
-sub timeout (;$) {
-  my ($timeout) = @_;
+sub timeout($timeout = undef) {
 
   my ($result, @output);
 
@@ -1004,8 +995,7 @@ sub timeout (;$) {
   } # if
 } # timeout
 
-sub callc ($@) {
-  my ($cmd, @parms) = @_;
+sub callc($cmd, @parms) {
 
   # Check to see if we know about this $cmd
   my $found;
@@ -1064,8 +1054,7 @@ sub callc ($@) {
   } # if
 } # callc
 
-sub evaluate ($) {
-  my ($line) = @_;
+sub evaluate($line) {
 
   my $result = $CmdLine::cmdline->_get('result');
   my @parms;

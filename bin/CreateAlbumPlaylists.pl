@@ -1,6 +1,5 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
+use StdEnv;
 
 use MP3::Info;
 use Data::Dumper;

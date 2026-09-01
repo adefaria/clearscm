@@ -1,4 +1,4 @@
-package Strict;
+package StdEnv;
 
 use strict;
 use warnings;

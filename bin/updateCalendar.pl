@@ -1,8 +1,7 @@
 #!/usr/bin/perl
 # filepath: /opt/clearscm/combine_calendars.pl
 
-use strict;
-use warnings;
+use StdEnv;
 use LWP::Simple;
 use Getopt::Long;
 

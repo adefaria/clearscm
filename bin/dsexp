@@ -1,6 +1,5 @@
 #!/usr/bin/perl
-use strict;
-use warnings;
+use StdEnv;
 
 # This script renames files in the current directory that match a given extension
 # to have a lowercase extension.

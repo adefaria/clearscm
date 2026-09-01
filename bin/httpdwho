@@ -17,8 +17,7 @@
 # (C) Copyright 2006, ClearSCM, Inc., all rights reserved.
 #
 ################################################################################
-use strict;
-use warnings;
+use StdEnv;
 
 use FindBin;
 use Getopt::Long;
@@ -30,8 +29,7 @@ use Utils;
 
 use Geo::IP::PurePerl;
 
-sub Usage (;$) {
-  my $msg = shift;
+sub Usage($msg = undef) {
 
   dipslay $msg if $msg;
   display "Usage: $FindBin::Script: [ -verbose | -v ] <filename>";
@@ -41,8 +39,7 @@ sub Usage (;$) {
   exit 1;
 } # usage
 
-sub GetIPs ($) {
-  my $filename = shift;
+sub GetIPs($filename) {
 
   my %ipaddrs;
 

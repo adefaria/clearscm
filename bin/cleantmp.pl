@@ -1,7 +1,5 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
-use v5.22;
+use StdEnv;
 
 =pod
 
@@ -111,8 +109,7 @@ sub loadConfig() {
   return @patterns;
 } # loadConfig
 
-sub FileCreated {
-  my ($name, $event, $change) = @_;
+sub FileCreated($name, $event, $change) {
 
   opendir my $dir, $opts{tmp}
     or $log->err("Unable to open $opts{tmp} - $!", 1);

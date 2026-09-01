@@ -71,8 +71,7 @@ Uploads is included and new pictures can arrive everyday.
 
 =cut
 
-use strict;
-use warnings;
+use StdEnv;
 use experimental qw(signatures);
 
 use FindBin;

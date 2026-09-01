@@ -50,8 +50,7 @@ use whois to report them to the upstream provider.
 
 =cut
 
-use strict;
-use warnings;
+use StdEnv;
 
 use Getopt::Long;
 
@@ -80,8 +79,7 @@ my %opts = (
   daemon      => 1,
 );
 
-sub CheckDNS {
-  my ($host) = @_;
+sub CheckDNS($host) {
 
   $? = 0;
 
@@ -107,7 +105,7 @@ sub CheckDNS {
   return;
 } # CheckDNS
 
-sub Shutdown {
+sub Shutdown() {
   my $msg;
 
   my $errors = $log->errors;

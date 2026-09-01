@@ -12,8 +12,7 @@
 # (c) Copyright 2005, ClearSCM, Inc., all rights reserved
 #
 ################################################################################
-use strict;
-use warnings;
+use StdEnv;
 use File::Spec;
 
 use FindBin;
@@ -23,8 +22,7 @@ use Display;
 
 my $threshold = 90;
 
-sub Usage {
-  my $msg = shift;
+sub Usage($msg = undef) {
 
   display "ERROR: $msg\n" if defined $msg;
 
@@ -37,7 +35,7 @@ sub Usage {
   exit 1;
 } # Usage
 
-sub CheckLocalFilesystems {
+sub CheckLocalFilesystems() {
   my @local_filesystems = `df -lP`;
 
   @local_filesystems = grep {/^\/dev/} @local_filesystems;

@@ -12,8 +12,7 @@
 # (c) Copyright 2001, ClearSCM, Inc., all rights reserved
 #
 ################################################################################
-use strict;
-use warnings;
+use StdEnv;
 
 use FindBin;
 use lib "$FindBin::Bin/../lib";
@@ -23,7 +22,7 @@ use Getopt::Long;
 use OSDep;
 use Display;
 
-sub Usage {
+sub Usage() {
   display "Usage: bigfiles: [ -verbose | -v ] [ -size | -s n ] [ <directory> ]";
   display "\t\t[ -top n | -t n ] [ -notop | -not ]\n";
   display "Where:";
@@ -35,9 +34,7 @@ sub Usage {
   exit 1;
 } # usage
 
-sub Bigfiles {
-  my $size = shift;
-  my @dirs = @_;
+sub Bigfiles($size, @dirs) {
 
   my @files;
 

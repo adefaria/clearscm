@@ -12,8 +12,7 @@
 # (c) Copyright 2006, ClearSCM, Inc., all rights reserved.
 #
 ################################################################################
-use strict;
-use warnings;
+use StdEnv;
 
 use MP3::Info;
 
@@ -31,8 +30,7 @@ my $default_music_root	= "/web/Music";
 my %opts;
 my @mp3files;
 
-sub Usage {
-  my $msg = shift;
+sub Usage($msg = undef) {
 
   if (defined $msg) {
     dipslay $msg;
@@ -48,8 +46,7 @@ sub Usage {
   exit 1;
 } # usage
 
-sub GetMusic {
-  my $music_dir = shift;
+sub GetMusic($music_dir) {
 
   opendir MUSIC, "$music_dir"
     or error "Unable to open music directory $music_dir", 1;
@@ -87,8 +84,7 @@ sub GetMusic {
   } # foreach
 } # GetMusic
 
-sub RandomizePlaylist {
-  my @mp3files = @_;
+sub RandomizePlaylist(@mp3files) {
 
   my @return_titles;
 
@@ -148,8 +144,7 @@ sub RandomizePlaylist {
   return @return_titles;
 } # RandomizePlaylist
 
-sub WritePlaylistXML {
-  my @playlist = @_;
+sub WritePlaylistXML(@playlist) {
 
   verbose "Writing playlist ${opts {f}}";
   open PLAYLIST, ">${opts {f}}"

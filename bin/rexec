@@ -1,6 +1,5 @@
 #!/usr/bin/perl
-use strict;
-use warnings;
+use StdEnv;
 
 =pod
 
@@ -75,7 +74,7 @@ my %opts = (
 
 my (%workerStatuses, %workerNames);
 
-sub Interrupted {
+sub Interrupted() {
   use Term::ReadKey;
 
   display BLUE . "\nInterrupted execution on $currentHost" . RESET;
@@ -119,7 +118,7 @@ sub Interrupted {
   return;
 } # Interrupted
 
-sub workerDeath {
+sub workerDeath() {
   while ((my $worker = waitpid (-1, WNOHANG)) > 0) {
     my $status  = $?;
 
@@ -134,8 +133,7 @@ sub workerDeath {
   return;
 } # workerDeath
 
-sub execute ($$;$) {
-  my ($cmd, $host, $prompt) = @_;
+sub execute($cmd, $host, $prompt = undef) {
 
   my ($remoteHost, @lines);
 
@@ -193,8 +191,7 @@ sub execute ($$;$) {
   return ($status, @lines);
 } # execute
 
-sub parallelize ($@) {
-  my ($cmd, @machines) = @_;
+sub parallelize($cmd, @machines) {
 
   my $thread_count = 1;
 

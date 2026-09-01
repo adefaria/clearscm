@@ -5,7 +5,7 @@
 # copyright@cpanel.net                                         http://cpanel.net
 # This code is subject to the cPanel license. Unauthorized copying is prohibited
 
-use Strict;
+use StdEnv;
 use utf8;
 
 =pod

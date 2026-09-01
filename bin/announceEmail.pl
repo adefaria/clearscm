@@ -69,8 +69,7 @@ the email. The message will be similar to:
 
 =cut
 
-use strict;
-use warnings;
+use StdEnv;
 
 use FindBin;
 use Getopt::Long;
@@ -203,8 +202,7 @@ my @greetings = (
 my $icon          = '/home/andrew/.icons/Thunderbird.jpg';
 my $notifyTimeout = 5 * 1000;
 
-sub notify($) {
-  my ($msg) = @_;
+sub notify($msg) {
 
   my $cmd = "notify-send -i $icon -t $notifyTimeout '$msg'";
 
@@ -213,7 +211,7 @@ sub notify($) {
   return;
 }    # notify
 
-sub interrupted {
+sub interrupted() {
   if (get_debug) {
     notify 'Turning off debugging';
     set_debug 0;
@@ -229,17 +227,16 @@ sub Connect2IMAP;
 sub MonitorMail;
 sub get_process_email;
 
-sub response_handler {
+sub response_handler($atom = undef) {
 
 # The callback receives the atom (e.g. 'EXISTS') as the first argument, not the object.
 # We use the global $IMAP object to terminate the IDLE command.
-  my $atom = shift;
   $log->dbug ("response_handler called with atom: $atom") if defined $atom;
   $got_update = 1;
   return 1;
 }    # response_handler
 
-sub restart {
+sub restart() {
   $log->msg ("Restart requested by signal");
   if (defined $IMAP) {$IMAP->logout; undef $IMAP;}
   return;
@@ -464,8 +461,7 @@ if (!$main_ok || $@) {
   $log->err ("Fatal error in main loop: $@");
 }
 
-sub SpeakNewMessages {
-  my ($newUnseen_ref) = @_;
+sub SpeakNewMessages($newUnseen_ref) {
 
   $log->dbug ("Processing new unseen messages");
   for (keys %$newUnseen_ref) {
@@ -539,8 +535,7 @@ sub SpeakNewMessages {
   return;
 }    # SpeakNewMessages
 
-sub get_process_email {
-  my ($process) = @_;
+sub get_process_email($process) {
   my $cmdline_arr = $process->cmdline;
   if (!defined $cmdline_arr || ref($cmdline_arr) ne 'ARRAY') {
     my $cmndline = $process->cmndline;

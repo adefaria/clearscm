@@ -1,6 +1,5 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
+use StdEnv;
 
 =pod
 
@@ -124,7 +123,7 @@ my %opts = (
   database => 1,
 );
 
-sub Interrupted {
+sub Interrupted() {
   use Term::ReadKey;
 
   my $host = $currentHost->{host} || 'Unknown Host';
@@ -162,8 +161,7 @@ sub Interrupted {
   return;
 } # Interrupted
 
-sub connectHost ($) {
-  my ($host) = @_;
+sub connectHost($host) {
 
   eval {
     $currentHost = Rexec->new (
@@ -185,8 +183,7 @@ sub connectHost ($) {
   return;
 } # connectHost
 
-sub initLog($) {
-  my ($machine) = @_;
+sub initLog($machine) {
 
   if ($opts{log}) {
     my $logdir = $opts{logdir} ? "$opts{logdir}/$machine" : $machine;
@@ -200,8 +197,7 @@ sub initLog($) {
   } # if
 } # initLog
 
-sub Log($;$) {
-  my ($msg, $nocrlf) = @_;
+sub Log($msg, $nocrlf = undef) {
 
   if ($log) {
     $log->msg($msg, $nocrlf);
@@ -210,8 +206,7 @@ sub Log($;$) {
   } #
 } # Log
 
-sub logError ($;$) {
-  my ($msg, $exit) = @_;
+sub logError($msg, $exit = undef) {
 
   if ($log) {
     $log->err($msg, $exit);
@@ -220,8 +215,7 @@ sub logError ($;$) {
   } # if
 } # logError
 
-sub execute ($$;$) {
-  my ($host, $cmd, $prompt) = @_;
+sub execute($host, $cmd, $prompt = undef) {
 
   my @lines;
 

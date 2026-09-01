@@ -77,8 +77,7 @@ a pending state.
 
 =cut
 
-use strict;
-use warnings;
+use StdEnv;
 
 use FindBin;
 use Getopt::Long;
@@ -97,13 +96,13 @@ my ($tag, $sign);
 
 my $nagfile = "$ENV{HOME}/.nag/list";
 
-sub dow () {
+sub dow() {
   my @days = ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
 
   return $days[(localtime (time)) [6]];
 } # dow
 
-sub sign () {
+sub sign() {
   my $sigfile = "$ENV{HOME}/.signatures";
 
   return unless -r $sigfile;
@@ -125,8 +124,7 @@ sub sign () {
   return $signature;
 } # sign
 
-sub tag ($$) {
-  my ($sent, $date) = @_;
+sub tag($sent, $date) {
 
   return ''
     unless $sent;
