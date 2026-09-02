@@ -47,13 +47,11 @@ use whois to report them to the upstream provider.
 
 =cut
 
-use StdEnv;
-
 use FindBin;
-use Getopt::Long;
-
 use lib "$FindBin::Bin/../lib";
 
+use StdEnv;
+use Getopt::Long;
 use Display;
 use Mail;
 use Utils;

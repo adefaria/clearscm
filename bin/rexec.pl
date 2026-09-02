@@ -98,13 +98,13 @@ $machine again.
 =cut
 
 use FindBin;
+use lib "$FindBin::Bin/../lib", "$FindBin::Bin/../clearadm/lib";
+
+use StdEnv;
 use Getopt::Long;
 use Pod::Usage;
 use Term::ANSIColor qw(:constants);
 use POSIX ":sys_wait_h";
-
-use lib "$FindBin::Bin/../lib", "$FindBin::Bin/../clearadm/lib";
-
 use CmdLine;
 use Display;
 use Logger;

@@ -69,24 +69,25 @@ the email. The message will be similar to:
 
 =cut
 
-use StdEnv;
-
 use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use StdEnv;
 use Getopt::Long;
+use Proc::ProcessTable;
+use File::Spec;
+use CGI qw/:standard/;
+use Pod::Usage;
 use Mail::IMAPTalk;
 use MIME::Base64;
-use Pod::Usage;
-use Proc::ProcessTable;
 use Encode qw(decode);
-
-use lib "$FindBin::Bin/../lib";
 
 use Display;
 use Logger;
 use Speak qw(speak);
 use TimeUtils;
 use Utils;
-
+## no critic (TestingAndDebugging::RequireUseWarnings)
 my $defaultIMAPServer = 'defaria.com';
 my $IMAPTimeout       = 20 * 60;
 my $IMAP;

@@ -12,13 +12,11 @@
 # (c) Copyright 2001, ClearSCM, Inc., all rights reserved
 #
 ################################################################################
-use StdEnv;
-
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
+use StdEnv;
 use Getopt::Long;
-
 use OSDep;
 use Display;
 

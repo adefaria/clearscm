@@ -8,8 +8,10 @@ sub import {
     strict->import();
 
     require feature;
-    feature->import( ':5.30', 'signatures', 'say' );
-    warnings->unimport('experimental::signatures');
+    feature->import( ':5.30', 'say' );
+
+    require experimental;
+    experimental->import('signatures');
 
     return;
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use StdEnv;
+
 
 =pod
 
@@ -57,11 +57,11 @@ monitors when blanked.
 =cut
 
 use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use StdEnv;
 use Getopt::Long;
 use Pod::Usage;
-
-use lib "$FindBin::Bin/lib";
-
 use Display;
 use Logger;
 use Utils;

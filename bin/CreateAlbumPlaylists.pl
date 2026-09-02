@@ -1,6 +1,8 @@
 #!/usr/bin/env perl
-use StdEnv;
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 
+use StdEnv;
 use MP3::Info;
 use Data::Dumper;
 

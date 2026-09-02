@@ -77,13 +77,11 @@ a pending state.
 
 =cut
 
-use StdEnv;
-
 use FindBin;
-use Getopt::Long;
-
 use lib "$FindBin::Bin/../lib";
 
+use StdEnv;
+use Getopt::Long;
 use DateUtils;
 use Display;
 use Mail;

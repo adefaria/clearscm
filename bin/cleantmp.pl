@@ -60,15 +60,15 @@ The sleep parameter tells us how long to wait before polling for changes again
 =cut
 
 use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use StdEnv;
 use Getopt::Long;
 use Pod::Usage;
 use File::Monitor;
 use File::Spec;
 use File::Path qw/remove_tree/;
 use Time::HiRes;
-
-use lib "$FindBin::Bin/../lib";
-
 use Display;
 use Logger;
 use Utils;
@@ -109,7 +109,8 @@ sub loadConfig() {
   return @patterns;
 } # loadConfig
 
-sub FileCreated($name, $event, $change) {
+sub FileCreated {
+  my ($name, $event, $change) = @_;
 
   opendir my $dir, $opts{tmp}
     or $log->err("Unable to open $opts{tmp} - $!", 1);

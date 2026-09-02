@@ -1,5 +1,14 @@
 #!/usr/bin/perl
 
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use StdEnv;
+use Getopt::Long;
+use Logger;
+use Utils;
+use Display;
+
 =pod
 
 =head1 NAME $RCSfile: checkdns,v $
@@ -50,36 +59,24 @@ use whois to report them to the upstream provider.
 
 =cut
 
-use StdEnv;
-
-use Getopt::Long;
-
-use FindBin;
-
-use lib "$FindBin::Bin/../lib";
-
-use Logger;
-use Utils;
-use Display;
-
-my $VERSION  = '$Revision: 1.6 $';
-  ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
+my $VERSION = '$Revision: 1.6 $';
+($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
 $0 = $FindBin::Script;
 
 my ($log, $initial_sleep);
 
 my %opts = (
-  host        => 'google.com',
-  sleep       => 15,
-  logpath     => '/var/local/log',
-  usage       => sub { Usage },
-  verbose     => sub { set_verbose },
-  debug       => sub { set_debug },
-  daemon      => 1,
+  host    => 'google.com',
+  sleep   => 15,
+  logpath => '/var/local/log',
+  usage   => sub {Usage},
+  verbose => sub {set_verbose},
+  debug   => sub {set_debug},
+  daemon  => 1,
 );
 
-sub CheckDNS($host) {
+sub CheckDNS ($host) {
 
   $? = 0;
 
@@ -88,50 +85,43 @@ sub CheckDNS($host) {
   if (!@ipaddrs) {
     debug "Host: $host (ipaddrs empty)";
 
-    # Cut down sleep time to monitor this outage more closely but do not go 
+    # Cut down sleep time to monitor this outage more closely but do not go
     # below once a minute.
     if ($opts{sleep} > 1) {
       $opts{sleep} -= $opts{sleep} / 2;
     } else {
       $opts{sleep} = 1;
-    } # if
+    }    # if
 
     return 1;
-  } # if
+  }    # if
 
   # Successful lookup - set $sleep to $initial_sleep
   $opts{sleep} = $initial_sleep;
 
   return;
-} # CheckDNS
+}    # CheckDNS
 
 sub Shutdown() {
   my $msg;
 
   my $errors = $log->errors;
 
-  $log->msg("$errors errors encountered since starting") if $errors;
-  $log->msg('Caught interrupt - shutting down');
+  $log->msg ("$errors errors encountered since starting") if $errors;
+  $log->msg ('Caught interrupt - shutting down');
 
   exit $errors;
-} # Interrupt
+}    # Interrupt
 
 # Main
 GetOptions (
-  \%opts,
-  'usage',
-  'verbose',
-  'debug',
-  'host=s',
-  'sleep=i',
-  'logpath=s',
-  'daemon!',
+  \%opts,   'usage',   'verbose',   'debug',
+  'host=s', 'sleep=i', 'logpath=s', 'daemon!',
 ) or Usage 'Invalid parameter';
 
 $initial_sleep = $opts{sleep};
 
-$SIG {INT}  =
-$SIG {TERM} = \&Shutdown;
+$SIG{INT} = $SIG{TERM} = \&Shutdown;
 
 # Call sethostent so that gethostbyname is fresh everytime
 sethostent (0);
@@ -143,14 +133,14 @@ $log = Logger->new (
 );
 
 $log->msg (
-  "Started $FindBin::Script $VERSION logging to $opts{logpath}/$FindBin::Script.log"
+"Started $FindBin::Script $VERSION logging to $opts{logpath}/$FindBin::Script.log"
 );
 
 if ($opts{sleep} > 1) {
   $log->msg ("Polling DNS on host $opts{host} every $opts{sleep} minutes");
 } else {
-  $log->msg ("Polling DNS on host $opts{host} every minute");  
-} # if
+  $log->msg ("Polling DNS on host $opts{host} every minute");
+}    # if
 
 $opts{daemon} = 0 if get_debug;
 
@@ -163,10 +153,10 @@ while () {
     $log->err ("Unable to resolve IP address for $opts{host}");
   } else {
     $log->msg ("Successfully resolved $opts{host}");
-  } # if
+  }    # if
 
   sleep $opts{sleep} * 60;
-} # while
+}    # while
 
 =pod
 
