@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-use StdEnv;
 
 =pod
 
@@ -47,6 +46,7 @@ This script will perform and arbitrary command on a set of machines.
 
 =cut
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use Getopt::Long;
 use Pod::Usage;
@@ -54,6 +54,8 @@ use Term::ANSIColor qw(:constants);
 use POSIX ":sys_wait_h";
 
 use lib "$FindBin::Bin/../lib", "$FindBin::Bin/../clearadm/lib";
+
+use StdEnv;
 
 use Display;
 use Clearadm;

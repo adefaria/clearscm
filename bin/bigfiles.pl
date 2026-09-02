@@ -12,6 +12,7 @@
 # (c) Copyright 2001, ClearSCM, Inc., all rights reserved
 #
 ################################################################################
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 

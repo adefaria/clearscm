@@ -71,6 +71,7 @@ Uploads is included and new pictures can arrive everyday.
 
 =cut
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
@@ -130,9 +131,9 @@ sub fillPictures ($signame = undef) {
 
     chomp @pics;
 
-    push @images, grep (/jpg$|png$|gif$/i, @pics);
+    push @images, grep { /jpg$|png$|gif$/i } @pics;
 
-    @pics = grep (/jpg$|png$|gif$/i, @pics);
+    @pics = grep { /jpg$|png$|gif$/i } @pics;
 
     push @{$opts{bgdircnt}}, scalar @pics;
 
@@ -156,6 +157,8 @@ sub writeHistory ($msg) {
   print $hist "$msg\n";
 
   close $hist;
+
+  return;
 }    # writeHistory
 
 sub writeSetBG ($filename, $image) {
@@ -165,6 +168,8 @@ sub writeSetBG ($filename, $image) {
   print $file "$image\n";
 
   close $file;
+
+  return;
 }    # writeSetBG
 
 sub updateSetBG ($bgimage, $lockimage) {

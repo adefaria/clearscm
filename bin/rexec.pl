@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-use StdEnv;
 
 =pod
 
@@ -97,6 +96,7 @@ $machine again.
 
 =cut
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use lib "$FindBin::Bin/../lib", "$FindBin::Bin/../clearadm/lib";
 
@@ -195,6 +195,8 @@ sub initLog($machine) {
       path => $logdir,
     );
   } # if
+
+  return;
 } # initLog
 
 sub Log($msg, $nocrlf = undef) {
@@ -204,6 +206,8 @@ sub Log($msg, $nocrlf = undef) {
   } else {
     verbose $msg, $nocrlf;
   } #
+
+  return;
 } # Log
 
 sub logError($msg, $exit = undef) {
@@ -213,6 +217,8 @@ sub logError($msg, $exit = undef) {
   } else {
     error $msg, $exit;
   } # if
+
+  return;
 } # logError
 
 sub execute($host, $cmd, $prompt = undef) {

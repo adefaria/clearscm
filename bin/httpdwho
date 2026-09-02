@@ -17,21 +17,22 @@
 # (C) Copyright 2006, ClearSCM, Inc., all rights reserved.
 #
 ################################################################################
-use StdEnv;
-
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
-use Getopt::Long;
-
 use lib "$FindBin::Bin/../lib";
+
+use StdEnv;
+use Getopt::Long;
 
 use Display;
 use Utils;
 
 use Geo::IP::PurePerl;
 
-sub Usage($msg = undef) {
+sub usage {
+  my $msg = shift;
 
-  dipslay $msg if $msg;
+  display $msg if $msg;
   display "Usage: $FindBin::Script: [ -verbose | -v ] <filename>";
   display "\nWhere:";
   display "  -verbose | -v\tTurn on verbose mode (Default: verbose off)";
@@ -76,10 +77,10 @@ my $logfile = "/var/log/httpd/access_log";
 
 my $result = GetOptions (
   "file=s"	=> \$logfile,
-  "usage"	=> sub { Usage },
+  "usage"	=> sub { usage() },
   "verbose"	=> sub { set_verbose },
   "debug"	=> sub { set_debug },
-) or Usage "Invalid option specified";
+) or usage("Invalid option specified");
 
 # Instantiate a new Geo::IP object
 my $gi = Geo::IP::PurePerl->new (
@@ -88,7 +89,7 @@ my $gi = Geo::IP::PurePerl->new (
 );
 
 # Turn off buffering
-$| = 1;
+local $| = 1;
 
 error "Unable to open $logfile", 1 if !-f $logfile;
 

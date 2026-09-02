@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 

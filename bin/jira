@@ -5,6 +5,10 @@
 # copyright@cpanel.net                                         http://cpanel.net
 # This code is subject to the cPanel license. Unauthorized copying is prohibited
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
 use StdEnv;
 use utf8;
 
@@ -78,9 +82,7 @@ Note: If you don't specify a case ID then an attempt will be made to determine
 use Getopt::Long;
 use Pod::Usage;
 
-use FindBin;
 
-use lib "$FindBin::Bin/../lib";
 
 use JIRA      ();
 use GetConfig ();
@@ -146,6 +148,7 @@ unless ( $ARGV[0] ) {
 
     unless ($status) {
         if ( $output[0] =~ /(\w+-)*(\d+)/ ) {
+            ## no critic (Variables::RequireLocalizedPunctuationVars)
             $ARGV[0] = $2;
         }
     }

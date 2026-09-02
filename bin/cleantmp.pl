@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-use StdEnv;
 
 =pod
 
@@ -59,6 +58,7 @@ The sleep parameter tells us how long to wait before polling for changes again
 
 =cut
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
@@ -93,6 +93,7 @@ my %opts = (
 sub loadConfig() {
   my @patterns;
 
+  ## no critic (InputOutput::RequireBriefOpen)
   open my $patterns, '<', $opts{conf}
     or $log->err("Unable to open $opts{conf} - $!", 1);
 
@@ -202,6 +203,7 @@ set_debug if $DB::OUT;
 
 if ($opts{daemon}) {
   # Perl complains if we reference $DB::OUT only once
+  ## no critic (TestingAndDebugging::ProhibitNoWarnings)
   no warnings;
   EnterDaemonMode unless defined $DB::OUT or get_debug;
   use warnings;

@@ -12,12 +12,12 @@
 # (c) Copyright 2006, ClearSCM, Inc., all rights reserved.
 #
 ################################################################################
-use StdEnv;
-
-use MP3::Info;
-
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use lib "$FindBin::Bin/../lib";
+
+use StdEnv;
+use MP3::Info;
 
 use Getopt::Long;
 use Display;
@@ -30,10 +30,11 @@ my $default_music_root	= "/web/Music";
 my %opts;
 my @mp3files;
 
-sub Usage($msg = undef) {
+sub usage {
+  my $msg = shift;
 
   if (defined $msg) {
-    dipslay $msg;
+    display $msg;
   } # if
 
   display "Usage: $FindBin::Script: [ -verbose | -v ] [ -n <limit> ]";
@@ -48,14 +49,14 @@ sub Usage($msg = undef) {
 
 sub GetMusic($music_dir) {
 
-  opendir MUSIC, "$music_dir"
+  opendir my $music_dh, "$music_dir"
     or error "Unable to open music directory $music_dir", 1;
 
-  my @entries = grep {!/^\./} readdir MUSIC;
+  my @entries = grep {!/^\./} readdir $music_dh;
 
   my $mp3info;
 
-  closedir MUSIC;
+  closedir $music_dh;
 
   foreach (@entries) {
     my $entity = "$music_dir/$_";
@@ -82,6 +83,8 @@ sub GetMusic($music_dir) {
       } # if
     } # if
   } # foreach
+
+  return;
 } # GetMusic
 
 sub RandomizePlaylist(@mp3files) {
@@ -147,11 +150,12 @@ sub RandomizePlaylist(@mp3files) {
 sub WritePlaylistXML(@playlist) {
 
   verbose "Writing playlist ${opts {f}}";
-  open PLAYLIST, ">${opts {f}}"
-    or error "Unable to open playlist file ${opts {f}}", 1;
+  ## no critic (InputOutput::RequireBriefOpen)
+  open my $playlist_fh, '>', $opts{f}
+    or error "Unable to open playlist file $opts{f}", 1;
 
   # Write heading
-  print PLAYLIST <<END;
+  print {$playlist_fh} <<END;
 <?wpl version="1.0"?>
 <smil>
   <head>
@@ -167,24 +171,26 @@ END
 
   # Write the songs...
   foreach (@playlist) {
-    print PLAYLIST "  <media src=\"$_->{FILE}\"/>\n";
+    print {$playlist_fh} "  <media src=\"$_->{FILE}\"/>\n";
     $total_size += $_->{SIZE}
   } # foreach
 
   # Write the footing
-  print PLAYLIST <<END;
+  print {$playlist_fh} <<END;
 </seq>
 </body>
 </smil>
 END
 
-  close PLAYLIST;
+  close $playlist_fh;
   verbose "${opts {n}} entries writen to ${opts {f}} totaling " .
     int ($total_size / (1024 * 1024)) . " Meg";
+
+  return;
 } # WritePlaylistXML
 
 # Turn off buffering
-$| = 1;
+local $| = 1;
 
 # Set the defaults
 $opts {n}	= 100;
@@ -193,14 +199,14 @@ $opts {m}	= $default_music_root;
 
 my $result = GetOptions (
   \%opts,
-  "usage"        => sub { Usage },
+  "usage"        => sub { usage() },
   "verbose"      => sub { set_verbose },
   "debug"        => sub { set_debug },
   "n=i",
   "f=s",
   "t=s",
   "m=s",
-) || Usage;
+) || usage();
 
 verbose "Gathering information about music in ${opts {m}}...";
 GetMusic ($opts {m});

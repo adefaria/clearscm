@@ -1,5 +1,4 @@
 #!/usr/local/bin/perl
-use StdEnv;
 
 =pod
 
@@ -226,6 +225,7 @@ L<http://adp.ca.tellabs.com/twiki/bin/view/9200/VersionHistory>
 
 =cut
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use Config;
 use Getopt::Long;
 use FindBin;
@@ -242,11 +242,14 @@ use lib "$FindBin::Bin/lib",
         "$FindBin::Bin/lib/lib64/",
         "$FindBin::Bin/lib/lib64/perl5/site_perl";
 
+use StdEnv;
+
 use CmdLine;
 use GetConfig;
 use Display;
 use Utils;
 
+## no critic (ValuesAndExpressions::ProhibitConstantPragma)
 use constant DBGSH_APPID => 300;
 
 my $VERSION  = '$Revision: 1.1 $';
@@ -326,7 +329,9 @@ use Inline;
 my $PROMPT;
 
 # Seed PATH and LD_LIBRARY_PATH (Hack)
+## no critic (Variables::RequireLocalizedPunctuationVars)
 $ENV{PATH} = "/usr/wichorus/sysroot/usr/bin:/usr/wichorus/sysroot/usr/libexec/gcc/i386-redhat-linux/4.1.2:$ENV{PATH}";
+## no critic (Variables::RequireLocalizedPunctuationVars)
 $ENV{LD_LIBRARY_PATH} = "/usr/wichorus/sysroot/usr/lib";
 
 my ($cmdline, $attribs, $line, $result, $dsh);
@@ -386,6 +391,7 @@ sub parseh($h) {
     return;
   } # unless
 
+  ## no critic (InputOutput::RequireBriefOpen)
   open my $file, '<', $h
     or error "Unable to open $h", 1;
 
@@ -558,6 +564,7 @@ sub loadModules($rcdir) {
   return %moduleFuncs;
 } # loadModules
 
+## no critic (Subroutines::RequireFinalReturn)
 sub modules() {
   my ($moduleName, $moduleStatus, $moduleFile);
 
@@ -745,6 +752,7 @@ sub debugshInit() {
 
   local $SIG{INT} = 'IGNORE';
 
+  ## no critic (InputOutput::RequireBriefOpen)
   $debugshPid = open $dsh, '-|', @debugsh
     or error "Unable to start pipe for $opts{debugsh}", 1;
     
@@ -812,6 +820,8 @@ sub interrupt() {
   } # if
 
   display color ('cyan') . 'Continuing...' . color ('reset');
+
+  return;
 } # interrupt
 
 sub init() {
@@ -863,6 +873,8 @@ sub init() {
 
   error "Unable to initialize debugsh", $result
     if $result;
+
+  return;
 } # init
 
 sub compareVersions($version1, $version2) {
@@ -993,6 +1005,8 @@ sub timeout($timeout = undef) {
     error "Unable to get timeout (Result: $result)"
       if $result;
   } # if
+
+  return;
 } # timeout
 
 sub callc($cmd, @parms) {
@@ -1030,6 +1044,7 @@ sub callc($cmd, @parms) {
 
   my ($result, @output);
 
+  ## no critic (TestingAndDebugging::ProhibitNoStrict)
   no strict;
 
   eval {
@@ -1140,6 +1155,7 @@ sub evaluate($line) {
     return;
   } elsif ($line =~ /^\s*perl\s*(.*)/) {
     # Need to turn off scrict for eval
+    ## no critic (BuiltinFunctions::ProhibitStringyEval)
     eval "no strict; $1; use strict";
 
     $result = $@ ne '';
@@ -1239,7 +1255,7 @@ sub evaluate($line) {
 } # evalulate
 
 # Main
-$| = 1;
+local $| = 1;
 
 $CmdLine::cmdline->_set ('result', 1);
 

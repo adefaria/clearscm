@@ -69,6 +69,7 @@ the email. The message will be similar to:
 
 =cut
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
@@ -87,7 +88,6 @@ use Logger;
 use Speak qw(speak);
 use TimeUtils;
 use Utils;
-## no critic (TestingAndDebugging::RequireUseWarnings)
 my $defaultIMAPServer = 'defaria.com';
 my $IMAPTimeout       = 20 * 60;
 my $IMAP;
@@ -540,10 +540,10 @@ sub get_process_email($process) {
   my $cmdline_arr = $process->cmdline;
   if (!defined $cmdline_arr || ref($cmdline_arr) ne 'ARRAY') {
     my $cmndline = $process->cmndline;
-    return undef unless defined $cmndline;
+    return unless defined $cmndline;
     $cmdline_arr = [ split(/\s+/, $cmndline) ];
   }
-  return undef unless @$cmdline_arr;
+  return unless @$cmdline_arr;
 
   # If it's a renamed process, it has one argument like "announceEmail.pl Andrew@DeFaria.com"
   if (scalar(@$cmdline_arr) == 1) {
@@ -560,7 +560,7 @@ sub get_process_email($process) {
       last;
     }
   }
-  return undef if $script_idx == -1;
+  return if $script_idx == -1;
 
   # Parse arguments
   my $p_user = $ENV{USER};

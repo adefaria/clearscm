@@ -1,6 +1,10 @@
 #!/usr/bin/perl
 # filepath: /opt/clearscm/combine_calendars.pl
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
 use StdEnv;
 use LWP::Simple;
 use Getopt::Long;

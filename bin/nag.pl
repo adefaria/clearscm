@@ -77,6 +77,7 @@ a pending state.
 
 =cut
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
@@ -153,9 +154,11 @@ GetOptions (
 
 my $nagfilenew = "$nagfile.$$";
 
+## no critic (InputOutput::RequireBriefOpen)
 open my $nagsIn, '<', $nagfile
   or error "Unable to open $nagfile for read access - $!", 1;
 
+## no critic (InputOutput::RequireBriefOpen)
 open my $nagsOut, '>', $nagfilenew
   or error "Unable to open new nagfile $nagfilenew for write access - $!", 1;
 
@@ -190,6 +193,7 @@ while (<$nagsIn>) {
     my $msgfilename = $msgfile;
        $msgfilename =~ s/~/$ENV{HOME}/;
 
+    ## no critic (InputOutput::RequireBriefOpen)
     open $msg, '<', $msgfilename
       or error "Unable to open message file $msgfile - $!", 1;
 

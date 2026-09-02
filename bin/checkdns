@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
@@ -62,7 +63,7 @@ use whois to report them to the upstream provider.
 my $VERSION = '$Revision: 1.6 $';
 ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
-$0 = $FindBin::Script;
+local $0 = $FindBin::Script;
 
 my ($log, $initial_sleep);
 
@@ -78,7 +79,7 @@ my %opts = (
 
 sub CheckDNS ($host) {
 
-  $? = 0;
+  local $? = 0;
 
   my @ipaddrs = gethostbyname $host;
 

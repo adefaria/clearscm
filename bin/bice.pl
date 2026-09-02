@@ -46,7 +46,7 @@ This script will look at the security logfile for attempted breakins and then
 use whois to report them to the upstream provider.
 
 =cut
-
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
@@ -124,7 +124,7 @@ sub GetEmailAddresses ($ip) {
     for (@lines) {
       my @fields = split /:/, $_;
 
-      $_ = $fields [@fields - 1];
+      $_ = $fields[-1];
 
       if (/(\S+\@\S[\.\S]+)/) {
         $email_addresses{$1} = "";
@@ -156,12 +156,15 @@ sub SendEmail ($to, $subject, $message, $ip, $attempts, $violationNbr) {
     mode    => 'html',
     data    => $message,
   );
+
+  return;
 } # SendEmail
 
 sub processLogfile () {
   my %violations;
 
   # Note: Normally you must be root to open up $security_logfile
+  ## no critic (InputOutput::RequireBriefOpen)
   open my $readlog, '<', $security_logfile
     or error "Unable to open $security_logfile - $!", 1;
 
@@ -209,6 +212,7 @@ sub processLogfile () {
 
   close $readlog;
 
+  ## no critic (InputOutput::RequireBriefOpen)
   open my $writelog, '>', $security_logfile
     or error "Unable to open $security_logfile for writing - $!", 1;
 

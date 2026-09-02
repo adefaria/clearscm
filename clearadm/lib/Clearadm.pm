@@ -697,19 +697,6 @@ sub FindVobStorage(;$$) {
   return $self->_getRecords('vobstorage', $condition);
 } # FindVobStorage
 
-sub FindVob($;$) {
-  my ($self, $tag, $region) = @_;
-
-  # Windows vob tags begin with "\", which is problematic. The solution is to
-  # escape the "\"
-  $tag =~ s/^\\/\\\\/;
-
-  my $condition = "tag like '%$tag%'";
-  
-  $condition .= " and region='$region'" if $region;
-
-  return $self->_getRecords('vobstorage', $condition);
-} # FindVobStorage
 
 sub FindVob(;$$) {
   my ($self, $tag, $region) = @_;
