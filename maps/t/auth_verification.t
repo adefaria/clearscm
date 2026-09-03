@@ -2,13 +2,13 @@
 
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 7;
 use FindBin;
 
 use lib "$FindBin::Bin/../lib";
 use lib "$FindBin::Bin/../../lib";
 
-use MAPS qw(CheckSPF CheckDKIM CheckDMARC ReadMsg);
+use MAPS qw(CheckSPF CheckDKIM CheckDMARC ReadMsg SendMsg);
 
 # Test 1: CheckSPF handles missing or invalid inputs gracefully
 is(CheckSPF(undef, 'sender@example.com', 'example.com'), 'none', 'CheckSPF returns none without IP');
@@ -40,3 +40,15 @@ close $fh;
 
 is($msgInfo{client_ip}, '198.51.100.25', 'Extracted client IP from Received header');
 is($msgInfo{sender}, 'sender@example.com', 'Extracted sender address correctly');
+
+# Test 7: Verify MIME Entity creation with Cc header
+my %msg_headers = (
+  From    => "MAPS\@DeFaria.com",
+  To      => 'sender@example.com',
+  Subject => 'Test Auth Failure Notice',
+  Type    => 'text/html',
+  Data    => ['<p>Test Notice</p>'],
+  Cc      => 'Andrew@DeFaria.com',
+);
+my $mime = MIME::Entity->build(%msg_headers);
+is($mime->head->get('Cc'), "Andrew\@DeFaria.com\n", 'CC header attached correctly in MIME Entity');

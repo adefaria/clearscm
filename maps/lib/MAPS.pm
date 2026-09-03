@@ -19,6 +19,7 @@ use warnings;
 use DBI;
 use Carp;
 use FindBin;
+use lib "$FindBin::Bin", "$FindBin::Bin/../lib";
 use Exporter;
 use Encode;
 use MIME::Words qw(:all);
@@ -44,6 +45,7 @@ my $userid = $ENV{MAPS_USERNAME} ? $ENV{MAPS_USERNAME} : $ENV{USER};
 my %useropts;
 my $mailLoopMax = 5;
 
+## no critic (Modules::ProhibitAutomaticExportation)
 our @EXPORT = qw(
   Add2Blacklist
   Add2Nulllist
@@ -104,6 +106,7 @@ our @EXPORT = qw(
   ReturnTopDomains
   SaveMsg
   SearchEmails
+  SendMsg
   SetContext
   Space
   UpdateList
@@ -618,8 +621,8 @@ sub CheckOnList2 ($$;$) {
 
     my $matches = 0;
     {
-      no warnings;
-      $matches = eval {$sender and $sender =~ /$search_for/i};
+      no warnings 'uninitialized'; ## no critic (TestingAndDebugging::ProhibitNoWarnings)
+      $matches = eval {$sender && $sender =~ /$search_for/i};
     }
 
     if ($matches) {
@@ -690,8 +693,8 @@ sub CheckOnList ($$;$) {
 
     my $matches = 0;
     {
-      no warnings;
-      $matches = eval {$sender and $sender =~ /$search_for/i};
+      no warnings 'uninitialized'; ## no critic (TestingAndDebugging::ProhibitNoWarnings)
+      $matches = eval {$sender && $sender =~ /$search_for/i};
     }
 
     if ($matches) {
@@ -1198,6 +1201,8 @@ sub _parse_header_line {
       $info->{to} = lc ("$1\@$2");
     }    # if
   }    # if
+
+  return;
 }    # _parse_header_line
 
 sub ReadMsg($;$) {
@@ -1306,7 +1311,7 @@ sub ReadMsg($;$) {
   while (<$input>) {
     chomp;
 
-    last if (!$single_message and /^From\s+\S+\s+\S+/);
+    last if (!$single_message && /^From\s+\S+\s+\S+/);
 
     push @body, $_;
   }    # while
@@ -1343,7 +1348,7 @@ sub CheckSPF($$$) {
 
   my $identity = $envelope_sender || ("postmaster@" . $domain);
 
-  eval {
+  my $res = eval {
     require Mail::SPF;
     my $spf_server = Mail::SPF::Server->new();
     my $request    = Mail::SPF::Request->new(
@@ -1353,9 +1358,9 @@ sub CheckSPF($$$) {
     );
     my $result = $spf_server->process($request);
     return lc($result->code);
-  } or do {
-    return 'error';
   };
+
+  return $@ ? 'error' : ($res // 'none');
 }    # CheckSPF
 
 sub CheckDKIM($) {
@@ -1363,15 +1368,15 @@ sub CheckDKIM($) {
 
   return 'none' unless defined $msg_data && length($msg_data) > 0;
 
-  eval {
+  my $res = eval {
     require Mail::DKIM::Verifier;
     my $dkim = Mail::DKIM::Verifier->new();
     $dkim->PRINT($msg_data);
     $dkim->CLOSE();
     return lc($dkim->result // 'none');
-  } or do {
-    return 'error';
   };
+
+  return $@ ? 'error' : ($res // 'none');
 }    # CheckDKIM
 
 sub CheckDMARC($$$;$$) {
@@ -1379,7 +1384,7 @@ sub CheckDMARC($$$;$$) {
 
   return 'none' unless $from_domain;
 
-  eval {
+  my $res = eval {
     require Mail::DMARC::PurePerl;
     my $dmarc = Mail::DMARC::PurePerl->new();
     $dmarc->source_ip($client_ip) if $client_ip;
@@ -1409,9 +1414,9 @@ sub CheckDMARC($$$;$$) {
 
     my $result = $dmarc->validate();
     return lc($result->result // 'none');
-  } or do {
-    return 'error';
   };
+
+  return $@ ? 'error' : ($res // 'none');
 }    # CheckDMARC
 
 sub RecordHit(%) {
@@ -1815,6 +1820,7 @@ sub ReturnMsg(%) {
       msgfile     => "$mapsbase/register.html",
       data        => $params{data},
       auth_report => $params{auth_report},
+      cc          => $params{cc},
     ) if $msg_count == 0;
 
     Logmsg (
@@ -2006,6 +2012,7 @@ sub SendMsg(%) {
   my @lines;
 
   # Open return message template file
+  ## no critic (InputOutput::RequireBriefOpen)
   open my $return_msg_file, '<', $params{msgfile}
     or die "Unable to open return msg file ($params{msgfile}): $!\n";
 
@@ -2056,13 +2063,16 @@ sub SendMsg(%) {
   }
 
   # Create the message, and set up the mail headers:
-  my $msg = MIME::Entity->build (
+  my %msg_headers = (
     From    => "MAPS\@DeFaria.com",
     To      => $params{sender},
     Subject => $params{subject},
     Type    => "text/html",
-    Data    => \@lines
+    Data    => \@lines,
   );
+  $msg_headers{Cc} = $params{cc} if $params{cc};
+
+  my $msg = MIME::Entity->build (%msg_headers);
 
   # Need to obtain the spam message here...
   my @spammsg = split "\n", $params{data};
@@ -2190,8 +2200,7 @@ sub UserExists($) {
 sub AuthFailMsg(%) {
   my (%params) = @_;
 
-  # AuthFailMsg logs authentication failures without sending a challenge email.
-  # Messages are saved so they can be reviewed in the auth_failed report.
+  # AuthFailMsg logs authentication failures and sends notification (CCing user if requested).
   CheckParms (['userid', 'sender', 'subject', 'data'], \%params);
 
   my $auth_report = $params{auth_report} // 'unknown';
@@ -2204,6 +2213,16 @@ sub AuthFailMsg(%) {
   );
 
   SaveMsg ($params{sender}, $params{subject}, $params{data}, $params{userid});
+
+  SendMsg (
+    userid      => $params{userid},
+    sender      => $params{sender},
+    subject     => 'MAPS: Email delivery notice - Authentication Failure',
+    msgfile     => "$mapsbase/register.html",
+    data        => $params{data},
+    auth_report => $auth_report,
+    cc          => $params{cc},
+  );
 
   return;
 }    # AuthFailMsg
