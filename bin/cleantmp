@@ -75,7 +75,7 @@ use Display;
 use Logger;
 use Utils;
 
-my ($script) = ($FindBin::Script =~ /^(.*)\.pl/);
+(my $script = $FindBin::Script) =~ s/\.pl$//;
 my $log;
 
 local $0 = $script;
@@ -123,7 +123,17 @@ sub FileCreated {
     for my $pattern (loadConfig) {
       debug "Processing pattern $pattern";
 
-      if ($createdFile =~ /$pattern/) {
+      my $regex = $pattern;
+      $regex =~ s/^\*\./.*\./;
+      $regex =~ s/^\*/.*/;
+
+      my $matched = eval { $createdFile =~ /$regex/ };
+      if ($@) {
+        $log->err("Invalid regex pattern '$pattern' in $opts{conf}: $@");
+        next;
+      }
+
+      if ($matched) {
         debug "Matched $createdFile to $pattern";
 
         if ($createdFile =~ /\.tmpj?$/) {
