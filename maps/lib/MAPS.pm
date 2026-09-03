@@ -2018,17 +2018,60 @@ sub SendMsg(%) {
 
   my $auth_report_html = '';
   if ($params{auth_report}) {
-    $auth_report_html =
-        "<div style=\"border:1px solid #cc0000; background-color:#fee; padding:8px; margin:10px 0;\">\n"
-      . "<strong>Authentication Warning:</strong><br>\n"
-      . "<span style=\"font-family:monospace;\">$params{auth_report}</span>\n"
-      . "</div>\n";
+    my $report_text = $params{auth_report};
+    $auth_report_html = <<"EOF";
+<div style="border:2px solid #cc0000; background-color:#fff5f5; border-radius:6px; padding:16px; margin:20px 0; text-align:left; font-family:sans-serif; color:#333; font-size:14px; line-height:1.5;">
+  <h3 style="margin-top:0; color:#cc0000; font-size:16px;">&#9888; Email Authentication Warning</h3>
+  
+  <p style="margin:8px 0;"><strong>Authentication Status:</strong> <code style="background-color:#fee; color:#900; padding:2px 6px; border-radius:4px; font-family:monospace; font-size:13px;">$report_text</code></p>
+  
+  <p style="margin:8px 0; font-weight:bold; color:#b30000; background-color:#ffe6e6; padding:8px; border-left:4px solid #cc0000; border-radius:3px;">
+  Since your email server/provider is incorrectly configured, we have discarded your email. You will have to first fix your email server/provider and then resend your message if you wish to communicate properly.
+  </p>
+
+  <p style="margin:8px 0;"><strong>What is the problem?</strong><br>
+  Your sending email server failed standard authentication checks. MAPS requires valid authentication to verify that incoming emails are legitimately sent by the domain owner and not spoofed or forged by spammers.</p>
+
+  <ul style="padding-left:20px; margin:8px 0;">
+    <li><strong>SPF (Sender Policy Framework):</strong> Authorizes sending mail server IP addresses.</li>
+    <li><strong>DKIM (DomainKeys Identified Mail):</strong> Cryptographically signs outgoing messages.</li>
+    <li><strong>DMARC:</strong> Ensures alignment between SPF/DKIM and the From: address header.</li>
+  </ul>
+
+  <h4 style="margin:14px 0 6px 0; color:#111; font-size:14px;">How to resolve this issue:</h4>
+
+  <div style="background-color:#ffffff; border:1px solid #e0e0e0; border-radius:4px; padding:12px; margin-bottom:10px;">
+    <strong>If you administer your own domain or mail server:</strong>
+    <ol style="padding-left:20px; margin:6px 0 0 0;">
+      <li>Add or update the <strong>SPF TXT record</strong> in your domain&apos;s DNS (e.g., <code>v=spf1 include:yourprovider.com ~all</code>).</li>
+      <li>Enable <strong>DKIM signing</strong> on your MTA and publish the public key selector in DNS.</li>
+      <li>Publish a <strong>DMARC TXT record</strong> in DNS (e.g., <code>_dmarc.yourdomain.com TXT &quot;v=DMARC1; p=none;&quot;</code>).</li>
+    </ol>
+  </div>
+
+  <div style="background-color:#ffffff; border:1px solid #e0e0e0; border-radius:4px; padding:12px;">
+    <strong>If you use an email hosting provider (e.g., Google Workspace, Microsoft 365, GoDaddy):</strong>
+    <p style="margin:4px 0 0 0;">Contact your IT administrator or hosting provider support and request that they configure proper <strong>SPF</strong> and <strong>DKIM</strong> DNS records for your domain.</p>
+  </div>
+
+  <p style="margin-bottom:0; margin-top:12px; font-size:13px; color:#555;">
+    <strong>Helpful Guides &amp; Verification Tools:</strong><br>
+    &bull; <a href="https://dmarc.org/overview/" target="_blank" style="color:#0066cc; text-decoration:underline;">DMARC.org Overview &amp; Setup Guide</a><br>
+    &bull; <a href="https://mxtoolbox.com/EmailHealth.aspx" target="_blank" style="color:#0066cc; text-decoration:underline;">MxToolbox Email Health &amp; Deliverability Check</a><br>
+    &bull; <a href="https://dmarcian.com/spf-syntax-table/" target="_blank" style="color:#0066cc; text-decoration:underline;">dmarcian SPF Syntax &amp; Implementation Guide</a>
+  </p>
+</div>
+EOF
   }
 
+  my $current_year = (localtime)[5] + 1900;
   my $replaced_auth_report = 0;
 
   # Read return message template file and print it to $msg_body
   while (<$return_msg_file>) {
+    s/2001-20\d\d/2001-$current_year/g;
+    s/\$year/$current_year/g;
+
     if (/\$userid/) {
 
       # Replace userid
@@ -2218,7 +2261,7 @@ sub AuthFailMsg(%) {
     userid      => $params{userid},
     sender      => $params{sender},
     subject     => 'MAPS: Email delivery notice - Authentication Failure',
-    msgfile     => "$mapsbase/register.html",
+    msgfile     => "$mapsbase/auth_fail.html",
     data        => $params{data},
     auth_report => $auth_report,
     cc          => $params{cc},

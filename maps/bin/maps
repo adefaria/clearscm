@@ -349,26 +349,11 @@ sub ProcessMsgs ($$$) {
       $log->msg("Authentication failure for $msgInfo{sender} - $auth_report");
     }
 
-    # If DMARC policy is reject or quarantine, auto-nulllist the sender
-    if ($auth_failed && $dmarc_status =~ /^(reject|quarantine)$/i) {
-      $log->msg("DMARC $dmarc_status policy: auto-nulllisting $msgInfo{sender} - $auth_report");
-
-      Add2Nulllist (
-        userid  => $userid,
-        sender  => $msgInfo{sender},
-        comment => "DMARC $dmarc_status policy",
-      );
-
-      Nulllist $msgInfo{sender};
-      next;
-    }    # if
-
-    # If any auth checks fail (but not reject/quarantine), log as auth_failed
-    # and do NOT send a challenge email or appear in the Returned report
+    # If any auth checks fail, log as auth_failed, send notification (CCing user if enabled)
     if ($auth_failed) {
-      $log->msg("Auth failed (no challenge sent) for $msgInfo{sender} - $auth_report");
+      $log->msg("Auth failed for $msgInfo{sender} - $auth_report");
 
-      my $cc_target = $opts{cc_auth_fail} ? $user_email : undef;
+      my $cc_target = ($opts{cc_auth_fail} && $user_email) ? $user_email : undef;
 
       AuthFailMsg (
         userid      => $userid,
@@ -378,6 +363,17 @@ sub ProcessMsgs ($$$) {
         data        => $msgInfo{data},
         cc          => $cc_target,
       );
+
+      # If DMARC policy is reject or quarantine, auto-nulllist the sender for future messages
+      if ($dmarc_status =~ /^(reject|quarantine)$/i) {
+        $log->msg("DMARC $dmarc_status policy: auto-nulllisting $msgInfo{sender} - $auth_report");
+
+        Add2Nulllist (
+          userid  => $userid,
+          sender  => $msgInfo{sender},
+          comment => "DMARC $dmarc_status policy",
+        );
+      }
 
       next;
     }    # if
