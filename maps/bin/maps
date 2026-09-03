@@ -74,7 +74,7 @@ use Display;
 use Logger;
 use Utils;
 
-my %opts = (execute => 1,);
+my %opts = (execute => 1, cc_auth_fail => 1);
 
 my $userid = $ENV{USER};
 
@@ -86,19 +86,22 @@ my $log;
 sub SaveStdin() {
   my $save_fh;
 
-  if ($opts{save_email}) {
-    my $timestamp = time ();
-    open $save_fh, '>', "/var/local/maps/${timestamp}_$$"
-      or $log->err ("Could not open save file: $!");
-  }
-
   # Generate tempfile
   my $msgfile = tempfile ();
 
   # Ensure binary mode to prevent double-encoding
   binmode STDIN;
   binmode $msgfile;
-  binmode $save_fh if $save_fh;
+
+  if ($opts{save_email}) {
+    my $timestamp = time ();
+    if (## no critic (InputOutput::RequireBriefOpen)
+    open $save_fh, '>', "/var/local/maps/${timestamp}_$$") {
+      binmode $save_fh;
+    } else {
+      $log->err ("Could not open save file: $!");
+    }
+  }
 
   # Read STDIN and write it out to the tempfile
   while (<STDIN>) {
@@ -191,7 +194,7 @@ sub DetectLanguage($) {
   # Common German stop words
   #if ($decoded =~ /\b(der|die|das|und|nicht|eine|Sie)\b/i) {return 'German';}
 
-  return undef;
+  return;
 }    # DetectLanguage
 
 sub ProcessMsgs ($$$) {
@@ -365,12 +368,15 @@ sub ProcessMsgs ($$$) {
     if ($auth_failed) {
       $log->msg("Auth failed (no challenge sent) for $msgInfo{sender} - $auth_report");
 
+      my $cc_target = $opts{cc_auth_fail} ? $user_email : undef;
+
       AuthFailMsg (
         userid      => $userid,
         sender      => $msgInfo{sender},
         subject     => $msgInfo{subject},
         auth_report => $auth_report,
         data        => $msgInfo{data},
+        cc          => $cc_target,
       );
 
       next;
@@ -389,11 +395,13 @@ sub ProcessMsgs ($$$) {
       auth_report => $auth_report,
     );
   }    # while
+
+  return;
 }    # ProcessMsgs
 
 # Main
 GetOptions (\%opts, 'user=s', 'verbose', 'debug', 'execute!', 'file',
-  'save_email', 'language=s')
+  'save_email', 'language=s', 'cc_auth_fail!')
   or pod2usage;
 
 $userid = $opts{user} if $opts{user};
@@ -404,9 +412,22 @@ $log = Logger->new (
   append      => 'yes',
 );
 
+# Get user & options
+FindUser (userid => $userid);
+
+my $user = GetUser;
+
+my %useropts = GetUserOptions ($userid);
+if (defined $useropts{cc_auth_fail}) {
+  $opts{cc_auth_fail} = $useropts{cc_auth_fail};
+}
+
+MAPS::SetContext ($userid);
+
 my $msgfile;
 
 if ($ARGV[0] and $ARGV[0] ne '') {
+  ## no critic (InputOutput::RequireBriefOpen)
   open $msgfile, '<', $ARGV[0];
 
   unless ($msgfile) {
@@ -417,13 +438,7 @@ if ($ARGV[0] and $ARGV[0] ne '') {
   $msgfile = SaveStdin;
 }    # if
 
-# Get user
-FindUser (userid => $userid);
-
-my $user = GetUser;
-
-MAPS::SetContext ($userid);
-
 ProcessMsgs $msgfile, $user->{name}, $user->{email};
+close $msgfile if ref $msgfile eq 'GLOB';
 
 exit 0;
