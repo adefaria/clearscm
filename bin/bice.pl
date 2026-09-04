@@ -75,6 +75,7 @@ my $jail = 'sshd';
 
 my $update    = 1;
 my $email     = 1;
+my $ban       = 1;
 my $hostname  = `hostname`;
 chomp $hostname;
 
@@ -85,7 +86,7 @@ if ($hostname =~ /(\w*)\./) {
 sub BanIP($) {
   my ($ip) = @_;
 
-  if ($update) {
+  if ($ban) {
     verbose "Banning $ip using fail2ban (jail $jail)";
 
     my ($status, @output) = Execute "fail2ban-client set $jail banip $ip 2>&1";
@@ -324,6 +325,7 @@ GetOptions (
   'usage',   sub { Usage },
   'update!', \$update,
   'mail!',   \$email,
+  'ban!',    \$ban,
   'file=s',  \$security_logfile,
 ) || Usage;
 
