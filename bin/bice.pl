@@ -179,30 +179,31 @@ sub processLogfile () {
   while (<$readlog>) {
     my $newline = $_;
 
-    if (/^(\S+\s+\S+\s+\S+)\s+.*Invalid user (\w+) from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
-      my %violation = $violations{$3} ? %{$violations{$3}} : %_;
+    if (/^(\S+\s+\S+\s+\S+|\S+)\s+.*Invalid user (\S+) from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
+      my %violation = $violations{$3} ? %{$violations{$3}} : ();
 
       push @{$violation{$2}}, $1;
 
       $violations{$3} = \%violation;
 
       $newline =~ s/Invalid user/INVALID USER/;
-    } elsif (/^(\S+\s+\S+\s+\S+)\s+.*authentication failure.*ruser=(\S+).*rhost=(\S+)/) {
-      my %violation = $violations{$3} ? %{$violations{$3}} : %_;
-
-      push @{$violation{$2}}, $1;
-
-      $violations{$3} = \%violation;
-
-      $newline =~ s/authentication failure/AUTHENTICATION FAILURE/;
-    } elsif (/^(\S+\s+\S+\s+\S+)\s+.*Failed password for (\w+) from (\d{1,3}\.\d{1,3}\.d{1,3}\.d{1,3})/) {
-      my %violation = $violations{$3} ? %{$violations{$3}} : %_;
+    } elsif (/^(\S+\s+\S+\s+\S+|\S+)\s+.*Failed password for (?:invalid user )?(\S+) from (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
+      my %violation = $violations{$3} ? %{$violations{$3}} : ();
 
       push @{$violation{$2}}, $1;
 
       $violations{$3} = \%violation;
 
       $newline =~ s/Failed password/FAILED PASSWORD/;
+    } elsif (/^(\S+\s+\S+\s+\S+|\S+)\s+.*authentication failure.*ruser=(\S*).*rhost=(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
+      my $user = $2 ne '' ? $2 : 'unknown';
+      my %violation = $violations{$3} ? %{$violations{$3}} : ();
+
+      push @{$violation{$user}}, $1;
+
+      $violations{$3} = \%violation;
+
+      $newline =~ s/authentication failure/AUTHENTICATION FAILURE/;
     } # if
 
     push @lines, $newline; 
@@ -252,6 +253,8 @@ sub ReportBreakins () {
 
     $violations++;
     $attempts += @{$violations{$ip}{$_}} for (keys %{$violations{$ip}});
+
+    next unless $attempts && $attempts > 0;
 
     my @emails = GetEmailAddresses $ip;
 
