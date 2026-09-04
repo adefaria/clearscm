@@ -208,11 +208,10 @@ sub Body($) {
       -align   => 'right',
       -valign  => 'middle',
       -rowspan => $rowspan,
-      -rowspan => $rowspan,
       }, (
-      ($type eq 'returned' && @$msgs)
+      (($type eq 'returned' || $type eq 'auth_failed') && @$msgs)
       ? a ({
-          -href => "nuke.cgi?sender=$sender;next=$orig_next"
+          -href => "nuke.cgi?sender=$sender;next=$orig_next;type=$type"
             . ($date ? ";date=$date" : "")
         },
         $next
@@ -364,7 +363,8 @@ sub Body($) {
           -colspan => 5,
         },
         a {
-          -href => "display.cgi?sender=$sender;msg_date=$rec->{timestamp}",
+          -href => "display.cgi?sender=$sender;msg_date=$rec->{timestamp};type=$type"
+            . ($date ? ";date=$date" : ""),
         },
         $rec->{subject},
         td {

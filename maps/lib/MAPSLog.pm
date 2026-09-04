@@ -36,12 +36,12 @@ our @EXPORT = qw (
 
 our @Types = (
   'nulllist',
+  'auth_failed',
   'returned',
   'whitelist',
   'blacklist',
   'registered',
   'mailloop',
-  'auth_failed',
 );
 
 sub nbr_msgs($) {

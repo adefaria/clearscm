@@ -80,6 +80,7 @@ sub GetMessageDisplay(%) {
   my $msg_date     = $params{msg_date};
   my $table_name   = $params{table_name}   || 'message';
   my $header_color = $params{header_color} || '#4285f4';
+  my $report_type  = $params{type}         || 'returned';
 
   # Find unique message using $date
   my ($err, $msg) = MAPS::FindEmail (
@@ -423,8 +424,9 @@ function reportPhishing(sender) {
         overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;';
         
         var date_only = '$msg_date'.substring(0, 10);
+        var report_type = '$report_type';
         var isMobile = navigator.userAgent.match(/(Mobile|Android|iPhone|iPad|iPod)/i);
-        var returnUrl = isMobile ? 'maps://view?type=returned&date=' + date_only : 'detail.cgi?type=returned;date=' + date_only;
+        var returnUrl = isMobile ? 'maps://view?type=' + report_type + '&date=' + date_only : 'detail.cgi?type=' + report_type + ';date=' + date_only;
         var onclick = "window.location.href = '" + returnUrl + "';";
         
         overlay.innerHTML = '<div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; max-width: 90%; text-align: center;"><p style="color: black; margin-bottom: 20px;">' + msg + '</p><button class="modal-btn" style="background-color: #4285f4; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold;" onclick="' + onclick + '">OK</button></div>';

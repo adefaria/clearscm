@@ -1563,8 +1563,8 @@ public class MainActivity extends Activity {
                                                 // So action = type + "_today".
                                                 // Exception: "returned". If type is "returned", action="returned".
 
-                                                if ("returned".equals(type)) {
-                                                    action = "returned";
+                                                if ("returned".equals(type) || "auth_failed".equals(type)) {
+                                                    action = type;
                                                 } else {
                                                     action = type + "_today";
                                                 }
@@ -1694,14 +1694,14 @@ public class MainActivity extends Activity {
 
                             addStatRow(table, "Processed", data.optInt("processed"), Color.parseColor("#0F9D58"), null);
                             addStatRow(table, "Whitelist", data.optInt("whitelist"), Color.WHITE, "white_today");
+                            addStatRow(table, "Auth Failed", data.optInt("auth_failed"), Color.parseColor("#FF6D00"),
+                                    "auth_failed");
                             addStatRow(table, "Returned", data.optInt("returned"), Color.parseColor("#F4B400"),
                                     "returned");
                             addStatRow(table, "Blacklist", data.optInt("blacklist"), Color.parseColor("#4C5D69"),
                                     "black_today");
                             addStatRow(table, "Nulllist", data.optInt("nulllist"), Color.parseColor("#DB4437"),
                                     "null_today");
-                            addStatRow(table, "Auth Failed", data.optInt("auth_failed"), Color.parseColor("#FF6D00"),
-                                    "auth_failed");
 
                             card.addView(table);
                             outputContainer.addView(card);
@@ -2205,12 +2205,12 @@ public class MainActivity extends Activity {
                                     });
                                     headerLine.addView(actionsSpinner);
                                     card.addView(headerLine);
-                                    if ("returned".equals(mAction) || !comment.isEmpty()) {
+                                    if ("returned".equals(mAction) || "auth_failed".equals(mAction) || !comment.isEmpty()) {
                                         card.addView(timestampView);
                                     }
                                     card.addView(detailsView);
 
-                                    if ("returned".equals(mAction)) {
+                                    if ("returned".equals(mAction) || "auth_failed".equals(mAction)) {
                                         for (int j = 0; j < messages.length(); j++) {
                                             JSONObject msg = messages.getJSONObject(j);
                                             final String msgTimestamp = msg.optString("timestamp");

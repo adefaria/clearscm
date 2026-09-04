@@ -183,11 +183,14 @@ $userid //= $ENV{USER};
 SetContext    ($userid);
 NavigationBar ($userid);
 
+my $type_param = param ('type') || 'returned';
+
 print MAPSWeb::GetMessageDisplay (
   userid     => $userid,
   sender     => $sender,
   msg_date   => $msg_date,
-  table_name => $table_name
+  table_name => $table_name,
+  type       => $type_param,
 );
 
 Footing ($table_name);

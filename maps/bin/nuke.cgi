@@ -27,6 +27,7 @@ use CGI qw(:standard);
 use CGI::Carp 'fatalsToBrowser';
 
 my $sender = param 'sender';
+my $type   = param 'type' || 'returned';
 my $next   = param 'next' || 0;
 my $userid = cookie 'MAPSUser';
 
@@ -66,7 +67,7 @@ if ($ret < 0) {
 
 # Redirect back to detail page
 my $redirect_url =
-  "/maps/bin/detail.cgi?type=returned&next=$next&message=$message";
+  "/maps/bin/detail.cgi?type=$type&next=$next&message=$message";
 $redirect_url .= "&date=$date" if $date;
 print redirect($redirect_url);
 
