@@ -1,6 +1,9 @@
 #!/usr/bin/perl
-use strict;
-use warnings;
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use StdEnv;
 
 # This script renames files in the current directory that match a given extension
 # to have a lowercase extension.

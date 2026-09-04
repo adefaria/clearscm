@@ -1,6 +1,4 @@
 #!/usr/bin/perl
-use strict;
-use warnings;
 
 =pod
 
@@ -48,6 +46,7 @@ This script will perform and arbitrary command on a set of machines.
 
 =cut
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use Getopt::Long;
 use Pod::Usage;
@@ -55,6 +54,8 @@ use Term::ANSIColor qw(:constants);
 use POSIX ":sys_wait_h";
 
 use lib "$FindBin::Bin/../lib", "$FindBin::Bin/../clearadm/lib";
+
+use StdEnv;
 
 use Display;
 use Clearadm;
@@ -75,7 +76,7 @@ my %opts = (
 
 my (%workerStatuses, %workerNames);
 
-sub Interrupted {
+sub Interrupted() {
   use Term::ReadKey;
 
   display BLUE . "\nInterrupted execution on $currentHost" . RESET;
@@ -119,7 +120,7 @@ sub Interrupted {
   return;
 } # Interrupted
 
-sub workerDeath {
+sub workerDeath() {
   while ((my $worker = waitpid (-1, WNOHANG)) > 0) {
     my $status  = $?;
 
@@ -134,8 +135,7 @@ sub workerDeath {
   return;
 } # workerDeath
 
-sub execute ($$;$) {
-  my ($cmd, $host, $prompt) = @_;
+sub execute($cmd, $host, $prompt = undef) {
 
   my ($remoteHost, @lines);
 
@@ -193,8 +193,7 @@ sub execute ($$;$) {
   return ($status, @lines);
 } # execute
 
-sub parallelize ($@) {
-  my ($cmd, @machines) = @_;
+sub parallelize($cmd, @machines) {
 
   my $thread_count = 1;
 

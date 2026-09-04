@@ -48,15 +48,12 @@ This script will look at the security logfile for attempted breakins and then
 use whois to report them to the upstream provider.
 
 =cut
-
-use strict;
-use warnings;
-
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
-use Getopt::Long;
-
 use lib "$FindBin::Bin/../lib";
 
+use StdEnv;
+use Getopt::Long;
 use Display;
 use Mail;
 use Utils;
@@ -85,8 +82,7 @@ if ($hostname =~ /(\w*)\./) {
   $hostname = $1;
 } # if
 
-sub BanIP($) {
-  my ($ip) = @_;
+sub BanIP($ip) {
 
   return unless $ban;
 
@@ -103,8 +99,7 @@ sub BanIP($) {
 
 # Use whois(1) to get the email addresses of the responsible parties for an IP
 # address. Note that a hash is used to eliminate duplicates.
-sub GetEmailAddresses ($) {
-  my ($ip) = @_;
+sub GetEmailAddresses ($ip) {
 
   # List of whois servers to try
   # Apparently whois.opensrs.net no longer offers whois service?
@@ -130,7 +125,7 @@ sub GetEmailAddresses ($) {
     for (@lines) {
       my @fields = split /:/, $_;
 
-      $_ = $fields [@fields - 1];
+      $_ = $fields[-1];
 
       if (/([a-zA-Z0-9._%+-]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/) {
         $email_addresses{lc $1} = "";
@@ -145,8 +140,7 @@ sub GetEmailAddresses ($) {
 } # GetEmailAddresses
 
 # Send email to the responsible parties.
-sub SendEmail ($$$$$$) {
-  my ($to, $subject, $message, $ip, $attempts, $violationNbr) = @_;
+sub SendEmail ($to, $subject, $message, $ip, $attempts, $violationNbr) {
 
   if ($email) {
     verbose "$violationNbr: Reporting $ip ($attempts violations) to $to";
@@ -163,12 +157,15 @@ sub SendEmail ($$$$$$) {
     mode    => 'html',
     data    => $message,
   );
+
+  return;
 } # SendEmail
 
 sub processLogfile () {
   my %violations;
 
   # Note: Normally you must be root to open up $security_logfile
+  ## no critic (InputOutput::RequireBriefOpen)
   open my $readlog, '<', $security_logfile
     or error "Unable to open $security_logfile - $!", 1;
 
@@ -217,6 +214,7 @@ sub processLogfile () {
 
   close $readlog;
 
+  ## no critic (InputOutput::RequireBriefOpen)
   open my $writelog, '>', $security_logfile
     or error "Unable to open $security_logfile for writing - $!", 1;
 

@@ -77,14 +77,12 @@ a pending state.
 
 =cut
 
-use strict;
-use warnings;
-
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
-use Getopt::Long;
-
 use lib "$FindBin::Bin/../lib";
 
+use StdEnv;
+use Getopt::Long;
 use DateUtils;
 use Display;
 use Mail;
@@ -97,13 +95,13 @@ my ($tag, $sign);
 
 my $nagfile = "$ENV{HOME}/.nag/list";
 
-sub dow () {
+sub dow() {
   my @days = ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
 
   return $days[(localtime (time)) [6]];
 } # dow
 
-sub sign () {
+sub sign() {
   my $sigfile = "$ENV{HOME}/.signatures";
 
   return unless -r $sigfile;
@@ -125,8 +123,7 @@ sub sign () {
   return $signature;
 } # sign
 
-sub tag ($$) {
-  my ($sent, $date) = @_;
+sub tag($sent, $date) {
 
   return ''
     unless $sent;
@@ -157,9 +154,11 @@ GetOptions (
 
 my $nagfilenew = "$nagfile.$$";
 
+## no critic (InputOutput::RequireBriefOpen)
 open my $nagsIn, '<', $nagfile
   or error "Unable to open $nagfile for read access - $!", 1;
 
+## no critic (InputOutput::RequireBriefOpen)
 open my $nagsOut, '>', $nagfilenew
   or error "Unable to open new nagfile $nagfilenew for write access - $!", 1;
 
@@ -194,6 +193,7 @@ while (<$nagsIn>) {
     my $msgfilename = $msgfile;
        $msgfilename =~ s/~/$ENV{HOME}/;
 
+    ## no critic (InputOutput::RequireBriefOpen)
     open $msg, '<', $msgfilename
       or error "Unable to open message file $msgfile - $!", 1;
 

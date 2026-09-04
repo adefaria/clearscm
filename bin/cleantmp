@@ -1,7 +1,4 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
-use v5.22;
 
 =pod
 
@@ -61,16 +58,17 @@ The sleep parameter tells us how long to wait before polling for changes again
 
 =cut
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use StdEnv;
 use Getopt::Long;
 use Pod::Usage;
 use File::Monitor;
 use File::Spec;
 use File::Path qw/remove_tree/;
 use Time::HiRes;
-
-use lib "$FindBin::Bin/../lib";
-
 use Display;
 use Logger;
 use Utils;
@@ -95,6 +93,7 @@ my %opts = (
 sub loadConfig() {
   my @patterns;
 
+  ## no critic (InputOutput::RequireBriefOpen)
   open my $patterns, '<', $opts{conf}
     or $log->err("Unable to open $opts{conf} - $!", 1);
 
@@ -214,6 +213,7 @@ set_debug if $DB::OUT;
 
 if ($opts{daemon}) {
   # Perl complains if we reference $DB::OUT only once
+  ## no critic (TestingAndDebugging::ProhibitNoWarnings)
   no warnings;
   EnterDaemonMode unless defined $DB::OUT or get_debug;
   use warnings;

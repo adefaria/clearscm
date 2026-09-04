@@ -12,19 +12,17 @@
 # (c) Copyright 2005, ClearSCM, Inc., all rights reserved
 #
 ################################################################################
-use strict;
-use warnings;
-use File::Spec;
-
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
+use StdEnv;
+use File::Spec;
 use Display;
 
 my $threshold = 90;
 
-sub Usage {
-  my $msg = shift;
+sub Usage($msg = undef) {
 
   display "ERROR: $msg\n" if defined $msg;
 
@@ -37,7 +35,7 @@ sub Usage {
   exit 1;
 } # Usage
 
-sub CheckLocalFilesystems {
+sub CheckLocalFilesystems() {
   my @local_filesystems = `df -lP`;
 
   @local_filesystems = grep {/^\/dev/} @local_filesystems;
@@ -58,6 +56,8 @@ sub CheckLocalFilesystems {
       warning "$mounted_on is $used_percent% full - $available Megs left";
     } # if
   } # foreach
+
+  return;
 } # CheckLocalFilesystems
 
 # Get parameters

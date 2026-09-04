@@ -1,7 +1,9 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
+use FindBin;
+use lib "$FindBin::Bin/../lib";
 
+use StdEnv;
 use MP3::Info;
 use Data::Dumper;
 

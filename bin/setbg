@@ -71,61 +71,57 @@ Uploads is included and new pictures can arrive everyday.
 
 =cut
 
-use strict;
-use warnings;
-use experimental qw(signatures);
-
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use StdEnv;
 use Getopt::Long;
 use Proc::ProcessTable;
 use File::Spec;
 use CGI qw/:standard/;
-
-use lib "$FindBin::Bin/../lib";
-
 use Pod::Usage;
-
 use DateUtils;
 use Display;
 use Logger;
 use Utils;
 
-my $VERSION  = '$Revision: 1.12 $';
-  ($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
+my $VERSION = '$Revision: 1.12 $';
+($VERSION) = ($VERSION =~ /\$Revision: (.*) /);
 
 my $processes = Proc::ProcessTable->new;
-my %opts = (
+my %opts      = (
   sleep      => 60,
   lockscreen => 0,
-  usage      => sub { pod2usage },
-  help       => sub { pod2usage (-verbose => 2)},
-  verbose    => sub { set_verbose },
-  debug      => sub { set_debug },
+  usage      => sub {pod2usage},
+  help       => sub {pod2usage (-verbose => 2)},
+  verbose    => sub {set_verbose},
+  debug      => sub {set_debug},
 );
 
 my %totals;
 
 sub displayStats() {
-  my $statsFile = Logger->new(
+  my $statsFile = Logger->new (
     name      => ".$FindBin::Script.stats",
     path      => $ENV{HOME},
     extension => '',
   );
 
-  $statsFile->log('At ' . localtime());
-  $statsFile->log('Sleep: ' . $opts{sleep});
-  $statsFile->log('Image directories:');
+  $statsFile->log ('At ' . localtime ());
+  $statsFile->log ('Sleep: ' . $opts{sleep});
+  $statsFile->log ('Image directories:');
 
   for (my $i = 0; $i < scalar @{$opts{bgdirs}}; $i++) {
-    $statsFile->log("\t$opts{bgdirs}[$i]: $opts{bgdircnt}[$i]")
-  } # for
+    $statsFile->log ("\t$opts{bgdirs}[$i]: $opts{bgdircnt}[$i]");
+  }    # for
 
   Stats \%totals, $statsFile;
 
   return;
-} # displayStats
+}    # displayStats
 
-sub fillPictures($signame = undef) {
+sub fillPictures ($signame = undef) {
   my @images;
 
   $totals{bgdirs} = 0;
@@ -135,62 +131,68 @@ sub fillPictures($signame = undef) {
 
     chomp @pics;
 
-    push @images, grep(/jpg$|png$|gif$/i, @pics);
+    push @images, grep { /jpg$|png$|gif$/i } @pics;
 
-    @pics = grep(/jpg$|png$|gif$/i, @pics);
+    @pics = grep { /jpg$|png$|gif$/i } @pics;
 
     push @{$opts{bgdircnt}}, scalar @pics;
 
     $totals{bgdirs}++;
-  } # for
+  }    # for
 
   $totals{images} = scalar @images;
 
   displayStats;
 
   return @images;
-} # fillPictures
+}    # fillPictures
 
-sub writeHistory($msg) {
+sub writeHistory ($msg) {
   open my $hist, '>>', "$ENV{HOME}/.$FindBin::Script.hist"
-    or error "Unable to open $ENV{HOME}/.$FindBin::Script.hist for append - $!", 1;
+    or error "Unable to open $ENV{HOME}/.$FindBin::Script.hist for append - $!",
+    1;
 
-  $msg = localtime() . $msg;
+  $msg = localtime () . $msg;
 
   print $hist "$msg\n";
 
   close $hist;
-} # writeHistory
 
-sub writeSetBG($filename, $image) {
+  return;
+}    # writeHistory
+
+sub writeSetBG ($filename, $image) {
   open my $file, '>', $filename
     or error "Unable to open $filename for writing - $!", 1;
 
   print $file "$image\n";
 
   close $file;
-} # writeSetBG
 
-sub updateSetBG($bgimage, $lockimage) {
-  writeSetBG "$ENV{HOME}/.$FindBin::Script", $bgimage;
+  return;
+}    # writeSetBG
+
+sub updateSetBG ($bgimage, $lockimage) {
+  writeSetBG "$ENV{HOME}/.$FindBin::Script",      $bgimage;
   writeSetBG "$ENV{HOME}/.$FindBin::Script.lock", $lockimage;
 
-  my $msg  = ":$bgimage";
-     $msg .= " lock:$lockimage" if $opts{lockscreen};
+  my $msg = ":$bgimage";
+  $msg .= " lock:$lockimage" if $opts{lockscreen};
 
   writeHistory $msg;
 
   return;
-} # updateSetBG
+}    # updateSetBG
 
-sub SwitchWallPaper($saigname) {
+sub SwitchWallPaper ($saigname) {
+
   # We don't need to do anything here, just handle the interrupt and
   # let the while loop continue.
   debug 'SwitchWallPaper: Interrupt received';
   displayStats;
 
   return;
-} # SwitchWallPaper
+}    # SwitchWallPaper
 
 ## Main
 verbose "$FindBin::Script v$VERSION";
@@ -198,36 +200,31 @@ verbose "$FindBin::Script v$VERSION";
 my @argvCopy = @ARGV;
 
 GetOptions (
-  \%opts,
-  'usage',
-  'help',
-  'verbose',
-  'debug',
-  'sleep=i',
-  'lockscreen',
-  'bgdirs=s@',
+  \%opts,  'usage',   'help',       'verbose',
+  'debug', 'sleep=i', 'lockscreen', 'bgdirs=s@',
   'mate',
 ) || Usage;
 
 local $0 = "$FindBin::Script " . join ' ', @argvCopy;
 
 for my $process (@{$processes->table}) {
-  if ($process->cmndline =~ /setbg/ and
-      $process->pid != $$) { 
+  if (  $process->cmndline =~ /setbg/
+    and $process->pid != $$)
+  {
     kill 12, $process->pid;
 
     exit 0;
-  } # if
-} # for
+  }    # if
+}    # for
 
 for (my $i = 0; $i < scalar @{$opts{bgdirs}}; $i++) {
   error "$opts{bgdirs}[$i] is not a directory", 1 unless -d $opts{bgdirs}[$i];
 
   $opts{bgdirs}[$i] = File::Spec->rel2abs ($opts{bgdirs}[$i]);
-} # for
+}    # for
 
 # Using gsettings
-my $setbg       = "gsettings";
+my $setbg = "gsettings";
 
 my ($setbgOpts, $setLockOpts);
 
@@ -237,7 +234,7 @@ if ($opts{mate}) {
 } else {
   $setbgOpts   = "set org.gnome.desktop.background picture-uri \"file://";
   $setLockOpts = "set org.gnome.desktop.screensaver picture-uri \"file://";
-} # if
+}    # if
 
 my @images = fillPictures;
 
@@ -260,49 +257,54 @@ while () {
   if ($pickNewImages) {
     $bgimage   = escapeHTML ($images[int (rand $#images)]);
     $lockimage = escapeHTML ($images[int (rand $#images)]);
-  } # if
+  }    # if
 
   my $monitorIsOn;
 
-  my ($status, @output) = Execute("xset q | grep Monitor | awk '{print \$3}'");
+  my ($status, @output) = Execute ("xset q | grep Monitor | awk '{print \$3}'");
 
   if ($status or $output[0] eq 'Off') {
-    writeHistory ":Monitor off, not setting background to $bgimage - will keep trying";
+    writeHistory
+      ":Monitor off, not setting background to $bgimage - will keep trying";
 
     $pickNewImages = 0;
   } else {
     $pickNewImages = 1;
 
-    my $cmd = $opts{mate} ? "$setbg $setbgOpts\"$bgimage\" 2> /dev/null"
-                          : "$setbg $setbgOpts$bgimage\" 2> /dev/null";
+    my $cmd =
+      $opts{mate}
+      ? "$setbg $setbgOpts\"$bgimage\" 2> /dev/null"
+      : "$setbg $setbgOpts$bgimage\" 2> /dev/null";
 
     ($status, @output) = Execute $cmd;
 
     if ($status) {
-      error "Trying to set background - command used \"$cmd\"\n\nOutput\n\n" . 
-        join "\n", @output;
+      error "Trying to set background - command used \"$cmd\"\n\nOutput\n\n"
+        . join "\n", @output;
       $totals{errors}++;
     } else {
       $totals{'Images displayed'}++;
-    } # if
+    }    # if
 
     if ($opts{lockscreen}) {
-      $cmd = $opts{mate} ? "$setbg $setLockOpts\"$lockimage\" 2> /dev/null"
-                         : "$setbg $setLockOpts$lockimage\" 2> /dev/null";
+      $cmd =
+        $opts{mate}
+        ? "$setbg $setLockOpts\"$lockimage\" 2> /dev/null"
+        : "$setbg $setLockOpts$lockimage\" 2> /dev/null";
 
       ($status, @output) = Execute $cmd;
 
       if ($status != 0) {
-        error "Trying to set lock screen - command used \"$cmd\"\n\nOutput\n\n" .
-          join "\n", @output;
+        error "Trying to set lock screen - command used \"$cmd\"\n\nOutput\n\n"
+          . join "\n", @output;
         $totals{errors}++;
       } else {
         $totals{'Lock screens displayed'}++;
-      } # if
-    } # if
+      }    # if
+    }    # if
 
     updateSetBG $bgimage, $lockimage;
-  } # if
+  }    # if
 
   displayStats;
 
@@ -310,9 +312,9 @@ while () {
 
   sleep $opts{sleep} * 60;
 
-  if ($today ne YMD){
+  if ($today ne YMD) {
     @images = fillPictures;
 
     displayStats;
-  } # if
-} # while
+  }    # if
+}    # while

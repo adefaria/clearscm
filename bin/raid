@@ -1,6 +1,4 @@
 #!/usr/local/bin/perl
-use strict;
-use warnings;
 
 =pod
 
@@ -227,6 +225,7 @@ L<http://adp.ca.tellabs.com/twiki/bin/view/9200/VersionHistory>
 
 =cut
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use Config;
 use Getopt::Long;
 use FindBin;
@@ -243,11 +242,14 @@ use lib "$FindBin::Bin/lib",
         "$FindBin::Bin/lib/lib64/",
         "$FindBin::Bin/lib/lib64/perl5/site_perl";
 
+use StdEnv;
+
 use CmdLine;
 use GetConfig;
 use Display;
 use Utils;
 
+## no critic (ValuesAndExpressions::ProhibitConstantPragma)
 use constant DBGSH_APPID => 300;
 
 my $VERSION  = '$Revision: 1.1 $';
@@ -327,12 +329,14 @@ use Inline;
 my $PROMPT;
 
 # Seed PATH and LD_LIBRARY_PATH (Hack)
+## no critic (Variables::RequireLocalizedPunctuationVars)
 $ENV{PATH} = "/usr/wichorus/sysroot/usr/bin:/usr/wichorus/sysroot/usr/libexec/gcc/i386-redhat-linux/4.1.2:$ENV{PATH}";
+## no critic (Variables::RequireLocalizedPunctuationVars)
 $ENV{LD_LIBRARY_PATH} = "/usr/wichorus/sysroot/usr/lib";
 
 my ($cmdline, $attribs, $line, $result, $dsh);
 
-sub terminateDebugSh () {
+sub terminateDebugSh() {
   if ($debugshPid) {
     kill HUP => $debugshPid;
 
@@ -352,8 +356,7 @@ sub terminateDebugSh () {
   return;
 } # terminateDebugSh
 
-sub set_prompt (;$$) {
-  my ($cmd, $nbr) = @_;
+sub set_prompt($cmd = undef, $nbr = undef) {
 
   my $ignstart = $CmdLine::cmdline->{ignstart};
   my $ignstop  = $CmdLine::cmdline->{ignstop};
@@ -370,8 +373,7 @@ sub set_prompt (;$$) {
   } # if
 } # set_prompt
 
-sub moduleName ($) {
-  my ($file) = @_;
+sub moduleName($file) {
 
   my ($module, $path, $suffix) = fileparse ($file, ('\.a$', '\.so$', '\.h$'));
 
@@ -380,8 +382,7 @@ sub moduleName ($) {
   return $module;
 } # moduleName
 
-sub parseh ($) {
-  my ($h) = @_;
+sub parseh($h) {
 
   my %funcs;
 
@@ -390,6 +391,7 @@ sub parseh ($) {
     return;
   } # unless
 
+  ## no critic (InputOutput::RequireBriefOpen)
   open my $file, '<', $h
     or error "Unable to open $h", 1;
 
@@ -529,8 +531,7 @@ sub parseh ($) {
   return %funcs;
 } # parseh
 
-sub loadModules ($) {
-  my ($rcdir) = @_;
+sub loadModules($rcdir) {
 
   # Load all known commands by combing through $FindBin::Bin/rc/*.h
   opendir my $rc, $rcdir
@@ -563,7 +564,8 @@ sub loadModules ($) {
   return %moduleFuncs;
 } # loadModules
 
-sub modules () {
+## no critic (Subroutines::RequireFinalReturn)
+sub modules() {
   my ($moduleName, $moduleStatus, $moduleFile);
 
   format STDOUT =
@@ -581,8 +583,7 @@ $moduleName,$moduleStatus
   return;
 } # modules
 
-sub load ($;$) {
-  my ($file, $lib) = @_;
+sub load($file, $lib = undef) {
 
   my ($module, $path, $suffix) = fileparse ($file, ('\.a$', '\.so$', '\.h$'));
 
@@ -700,7 +701,7 @@ sub load ($;$) {
   return 1;
 } # load
 
-sub getOutput () {
+sub getOutput() {
   my ($status, @output) = (0, ());
 
   debug "ENTER: getOutput";
@@ -744,13 +745,14 @@ sub getOutput () {
   } # if
 } # getOutput
 
-sub debugshInit () {
+sub debugshInit() {
   my @debugsh = ($opts{debugsh});
 
   push @debugsh, '2>&1';
 
   local $SIG{INT} = 'IGNORE';
 
+  ## no critic (InputOutput::RequireBriefOpen)
   $debugshPid = open $dsh, '-|', @debugsh
     or error "Unable to start pipe for $opts{debugsh}", 1;
     
@@ -799,7 +801,7 @@ END {
   terminateDebugSh;
 } # END
 
-sub interrupt () {
+sub interrupt() {
   display_nolf
     color ('yellow')
   . '<Control-C>'
@@ -818,9 +820,11 @@ sub interrupt () {
   } # if
 
   display color ('cyan') . 'Continuing...' . color ('reset');
+
+  return;
 } # interrupt
 
-sub init () {
+sub init() {
   # Stop debugsh if it was running
   terminateDebugSh;
 
@@ -869,10 +873,11 @@ sub init () {
 
   error "Unable to initialize debugsh", $result
     if $result;
+
+  return;
 } # init
 
-sub compareVersions ($$) {
-  my ($version1, $version2) = @_;
+sub compareVersions($version1, $version2) {
 
   $version1 =~ s/\.//g;
   $version2 =~ s/\.//g;
@@ -880,7 +885,7 @@ sub compareVersions ($$) {
   return $version1 <=> $version2;
 } # compareVersions
 
-sub setVersionStr () {
+sub setVersionStr() {
   my $raidVersionStr = color ('cyan')
                      . $name
                      . color ('reset')
@@ -905,8 +910,7 @@ sub setVersionStr () {
   return $raidVersionStr . "\n" . $debugshVerStr;
 } # setVersionStr
 
-sub cmds ($%) {
-  my ($cmd, %funcs) = @_;
+sub cmds($cmd, %funcs) {
 
   if (keys %funcs == 0) {
     warning "Nothing loaded";
@@ -966,8 +970,7 @@ sub cmds ($%) {
   return;
 } # cmds
 
-sub timeout (;$) {
-  my ($timeout) = @_;
+sub timeout($timeout = undef) {
 
   my ($result, @output);
 
@@ -1002,10 +1005,11 @@ sub timeout (;$) {
     error "Unable to get timeout (Result: $result)"
       if $result;
   } # if
+
+  return;
 } # timeout
 
-sub callc ($@) {
-  my ($cmd, @parms) = @_;
+sub callc($cmd, @parms) {
 
   # Check to see if we know about this $cmd
   my $found;
@@ -1040,6 +1044,7 @@ sub callc ($@) {
 
   my ($result, @output);
 
+  ## no critic (TestingAndDebugging::ProhibitNoStrict)
   no strict;
 
   eval {
@@ -1064,8 +1069,7 @@ sub callc ($@) {
   } # if
 } # callc
 
-sub evaluate ($) {
-  my ($line) = @_;
+sub evaluate($line) {
 
   my $result = $CmdLine::cmdline->_get('result');
   my @parms;
@@ -1151,6 +1155,7 @@ sub evaluate ($) {
     return;
   } elsif ($line =~ /^\s*perl\s*(.*)/) {
     # Need to turn off scrict for eval
+    ## no critic (BuiltinFunctions::ProhibitStringyEval)
     eval "no strict; $1; use strict";
 
     $result = $@ ne '';
@@ -1250,7 +1255,7 @@ sub evaluate ($) {
 } # evalulate
 
 # Main
-$| = 1;
+local $| = 1;
 
 $CmdLine::cmdline->_set ('result', 1);
 

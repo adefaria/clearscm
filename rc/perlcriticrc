@@ -41,3 +41,4 @@ allow = %SIG
 # NAMING: Be more relaxed with naming and built-in homonyms
 [-Subroutines::ProhibitBuiltinHomonyms]
 [-NamingConventions::ProhibitAmbiguousNames]
+[-Subroutines::ProhibitSubroutinePrototypes]

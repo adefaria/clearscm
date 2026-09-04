@@ -1,6 +1,5 @@
 #!/usr/bin/perl
-use strict;
-use warnings;
+
 
 =pod
 
@@ -57,12 +56,13 @@ monitors when blanked.
 
 =cut
 
+## no critic (TestingAndDebugging::RequireUseWarnings, TestingAndDebugging::RequireUseStrict)
 use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use StdEnv;
 use Getopt::Long;
 use Pod::Usage;
-
-use lib "$FindBin::Bin/lib";
-
 use Display;
 use Logger;
 use Utils;
@@ -106,17 +106,18 @@ $log = Logger->new(
 
 my $locked = 0;
 
-$| = 1;
+local $| = 1;
 
 $log->msg('Started monitoring XScreenSaver');
 
 if ($opts{daemon}) {
-  # Perl complains if we reference $DB::OUT only once
+  ## no critic (TestingAndDebugging::ProhibitNoWarnings)
   no warnings;
   EnterDaemonMode unless defined $DB::OUT or get_debug;
   use warnings;
 } # if
 
+## no critic (InputOutput::RequireBriefOpen)
 open $xscreensaver, '-|', 'xscreensaver-command -watch'
   or $log->err("Unable to start xscreensaver-command -watch - $!", 1);
 
