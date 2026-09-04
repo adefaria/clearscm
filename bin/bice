@@ -88,16 +88,14 @@ if ($hostname =~ /(\w*)\./) {
 sub BanIP($) {
   my ($ip) = @_;
 
-  if ($ban) {
-    verbose "Banning $ip using fail2ban (jail $jail)";
+  return unless $ban;
 
-    my ($status, @output) = Execute "fail2ban-client set $jail banip $ip 2>&1";
+  verbose "Banning $ip using fail2ban (jail $jail)";
 
-    if ($status) {
-      error "Unable to ban $ip using fail2ban in jail $jail: " . join ("\n", @output), 1;
-    } # if
-  } else {
-    verbose "Would have banned $ip using fail2ban (jail $jail)";
+  my ($status, @output) = Execute "fail2ban-client set $jail banip $ip 2>&1";
+
+  if ($status) {
+    error "Unable to ban $ip using fail2ban in jail $jail: " . join ("\n", @output), 1;
   } # if
 
   return;
