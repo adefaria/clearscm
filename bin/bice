@@ -2,7 +2,7 @@
 
 =pod
 
-=head1 NAME $RCSfile: bice.pl,v $
+=head1 NAME $RCSfile: bice,v $
 
 Report breakin attempts to this domain
 
@@ -30,14 +30,16 @@ $Date: 2013/05/30 15:35:27 $
 
 =head1 SYNOPSIS
 
- Usage: bice [-u|sage] [-v|erbose] [-d|ebug] [-nou|pdate] [-nom|ail]
+ Usage: bice [-u|sage] [-v|erbose] [-d|ebug] [-nou|pdate] [-nom|ail|-noe|mail] [-nob|an]
              [-f|ilename <filename> ]
 
  Where:
    -u|sage     Print this usage
    -v|erbose:  Verbose mode (Default: -verbose)
    -nou|pdate: Don't update security logfile file (Default: -update)
-   -nom|ail:   Don't send emails (Default: -mail)
+   -nom|ail:   Don't send emails (Default: -mail / -email)
+   -noe|mail:  Alias for -nomail
+   -nob|an:    Don't ban IP addresses using fail2ban (Default: -ban)
    -f|ilename: Open alternate messages file (Default: /var/log/auth.log)
 
 =head1 DESCRIPTION
@@ -323,9 +325,9 @@ GetOptions (
   'verbose', sub { set_verbose },
   'debug',   sub { set_debug },
   'usage',   sub { Usage },
-  'update!', \$update,
-  'mail!',   \$email,
-  'ban!',    \$ban,
+  'update!',     \$update,
+  'mail|email!', \$email,
+  'ban!',        \$ban,
   'file=s',  \$security_logfile,
 ) || Usage;
 
