@@ -33,13 +33,13 @@ if (!isset($userid)) {
 
 $lines = 10;
 $Types = array(
+  "nulllist",
+  "auth_failed",
   "returned",
   "whitelist",
   "blacklist",
   "registered",
-  "mailloop",
-  "nulllist",
-  "auth_failed"
+  "mailloop"
 );
 
 $db;
@@ -294,6 +294,11 @@ function displayquickstats()
     <td class="smallnumber">$nulllist_pct%</td>
   </tr>
   <tr align="right">
+    <td align="right" class="smalllabel" style="white-space:nowrap">${auth_failed_link}Auth Failed</a></td>
+    <td class="smallnumber">$auth_failed</td>
+    <td class="smallnumber">$auth_failed_pct%</td>
+  </tr>
+  <tr align="right">
     <td align="right" class="smalllabel">${returned_link}Returned</a></td>
     <td class=smallnumber>$returned</td>
     <td class="smallnumber">$returned_pct%</td>
@@ -317,11 +322,6 @@ function displayquickstats()
     <td align="right" class="smalllabel">${mailloop_link}Mailloop</a></td>
     <td class="smallnumber">$mailloop</td>
     <td class="smallnumber">n/a</td>
-  </tr>
-  <tr align="right">
-    <td align="right" class="smalllabel" style="white-space:nowrap">${auth_failed_link}Auth Failed</a></td>
-    <td class="smallnumber">$auth_failed</td>
-    <td class="smallnumber">$auth_failed_pct%</td>
   </tr>
 </table>
 </div>
