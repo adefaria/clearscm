@@ -122,9 +122,9 @@ sub GetEmailAddresses ($) {
     my @lines;
 
     if ($_ eq "") {
-      @lines = grep { /.*\@.*/ } `whois $ip`;
+      @lines = grep { /.*\@.*/ } `whois $ip 2>/dev/null`;
     } else {
-      @lines = grep {/.*\@.*/ } `whois -h $_ $ip`;
+      @lines = grep { /.*\@.*/ } `whois -h $_ $ip 2>/dev/null`;
     } # if
 
     for (@lines) {
@@ -132,8 +132,8 @@ sub GetEmailAddresses ($) {
 
       $_ = $fields [@fields - 1];
 
-      if (/(\S+\@\S[\.\S]+)/) {
-        $email_addresses{$1} = "";
+      if (/([a-zA-Z0-9._%+-]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/) {
+        $email_addresses{lc $1} = "";
       } # if
     } # for
 
