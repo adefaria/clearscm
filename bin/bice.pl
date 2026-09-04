@@ -256,6 +256,12 @@ sub ReportBreakins () {
 
     next unless $attempts && $attempts > 0;
 
+    # Always ban the IP immediately regardless of WHOIS or email settings
+    BanIP $ip;
+
+    # If emails are disabled (-nomail), skip WHOIS lookups and email reporting
+    next unless $email;
+
     my @emails = GetEmailAddresses $ip;
 
     unless (@emails) {
@@ -306,7 +312,6 @@ END
     $message .= '</ol><p>Your prompt attention to this matter is expected '
               . 'and will be appreciated.</p>';
     SendEmail $to, $subject, $message, $ip, $attempts, $violations;
-    BanIP $ip;
   } # for
 
   return;
