@@ -337,11 +337,31 @@ sub ProcessMsgs ($$$) {
     my ($from_domain) = ($msgInfo{sender} // '') =~ /@([^@]+)$/;
     $from_domain = lc($from_domain // '');
 
-    my $spf_status   = CheckSPF($msgInfo{client_ip}, $msgInfo{sender}, $from_domain);
-    my $dkim_status  = CheckDKIM($msgInfo{data});
-    my $dmarc_status = CheckDMARC($from_domain, $spf_status, $dkim_status, $msgInfo{sender}, $msgInfo{client_ip});
+    my ($spf_domain) = ($msgInfo{sender_long} // $msgInfo{sender} // '') =~ /@([^@\s>]+)$/;
+    $spf_domain = lc($spf_domain // $from_domain);
 
-    my $auth_failed = ($spf_status ne 'pass' || $dkim_status ne 'pass' || $dmarc_status ne 'pass');
+    my $spf_status                  = CheckSPF($msgInfo{client_ip}, $msgInfo{sender}, $from_domain);
+    my ($dkim_status, $dkim_domain) = CheckDKIM($msgInfo{data});
+    my $dmarc_status                = CheckDMARC($from_domain, $spf_status, $spf_domain, $dkim_status, $dkim_domain, $msgInfo{client_ip});
+
+    # Standard RFC 7489 DMARC / Email Auth evaluation:
+    # 1. If DMARC validation returned 'pass', authentication succeeds.
+    # 2. If DMARC validation returned 'fail' / 'reject' / 'quarantine', authentication fails.
+    # 3. If DMARC is 'none' / unconfigured / error, authentication succeeds if EITHER DKIM OR SPF passed.
+    my $auth_failed = 0;
+    if ($dmarc_status eq 'pass') {
+      $auth_failed = 0;
+    } elsif ($dmarc_status =~ /^(fail|reject|quarantine)$/i) {
+      $auth_failed = 1;
+    } else {
+      # DMARC is none/error/unconfigured: pass if EITHER DKIM or SPF passed
+      if ($dkim_status eq 'pass' || $spf_status eq 'pass') {
+        $auth_failed = 0;
+      } else {
+        $auth_failed = 1;
+      }
+    }
+
     my $auth_report;
 
     if ($auth_failed) {

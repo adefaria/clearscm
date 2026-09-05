@@ -1366,21 +1366,39 @@ sub CheckSPF($$$) {
 sub CheckDKIM($) {
   my ($msg_data) = @_;
 
-  return 'none' unless defined $msg_data && length($msg_data) > 0;
+  return ('none', undef) unless defined $msg_data && length($msg_data) > 0;
 
-  my $res = eval {
+  # Check for local trusted Authentication-Results header first
+  if ($msg_data =~ /^Authentication-Results:\s*.*?\bdkim=(pass|fail|neutral|none)\b.*?\bheader\.d=([\w.-]+)/mi) {
+    my $ar_status = lc($1);
+    my $ar_domain = lc($2);
+    if ($ar_status eq 'pass') {
+      return ('pass', $ar_domain);
+    }
+  }
+
+  # Ensure CRLF line endings for Mail::DKIM::Verifier
+  my $data_crlf = $msg_data;
+  $data_crlf =~ s/\r?\n/\r\n/g;
+
+  my ($result_code, $sig_domain) = eval {
     require Mail::DKIM::Verifier;
     my $dkim = Mail::DKIM::Verifier->new();
-    $dkim->PRINT($msg_data);
+    $dkim->PRINT($data_crlf);
     $dkim->CLOSE();
-    return lc($dkim->result // 'none');
+    my $res = lc($dkim->result // 'none');
+    my $dom;
+    if (my $sig = $dkim->signature) {
+      $dom = lc($sig->domain // '');
+    }
+    return ($res, $dom);
   };
 
-  return $@ ? 'error' : ($res // 'none');
+  return $@ ? ('error', undef) : ($result_code // 'none', $sig_domain);
 }    # CheckDKIM
 
-sub CheckDMARC($$$;$$) {
-  my ($from_domain, $spf_status, $dkim_status, $envelope_sender, $client_ip) = @_;
+sub CheckDMARC($$$$$$) {
+  my ($from_domain, $spf_status, $spf_domain, $dkim_status, $dkim_domain, $client_ip) = @_;
 
   return 'none' unless $from_domain;
 
@@ -1390,7 +1408,7 @@ sub CheckDMARC($$$;$$) {
     $dmarc->source_ip($client_ip) if $client_ip;
     $dmarc->header_from($from_domain);
 
-    my ($mfrom_domain) = ($envelope_sender // '') =~ /@([^@]+)$/;
+    my ($mfrom_domain) = ($spf_domain // '') =~ /@?([^@]+)$/;
     $mfrom_domain ||= $from_domain;
 
     if ($spf_status) {
@@ -1403,10 +1421,10 @@ sub CheckDMARC($$$;$$) {
       ]);
     }
 
-    if ($dkim_status) {
+    if ($dkim_status && $dkim_domain) {
       $dmarc->dkim([
         {
-          domain => $from_domain,
+          domain => $dkim_domain,
           result => lc($dkim_status),
         }
       ]);
@@ -2117,13 +2135,11 @@ EOF
 
   my $msg = MIME::Entity->build (%msg_headers);
 
-  # Need to obtain the spam message here...
-  my @spammsg = split "\n", $params{data};
-
+  # Attach the original email message as message/rfc822 attachment
   $msg->attach (
-    Type        => "message",
+    Type        => "message/rfc822",
     Disposition => "attachment",
-    Data        => \@spammsg
+    Data        => $params{data},
   );
 
   # Send it
