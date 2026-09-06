@@ -2143,7 +2143,10 @@ EOF
   );
 
   # Send it
-  open my $mail, '|-', '/usr/lib/sendmail -t -oi -oem'
+  my @recipients = ($params{sender});
+  push @recipients, $params{cc} if $params{cc};
+
+  open my $mail, '|-', '/usr/lib/sendmail', '-oi', '-oem', @recipients
     or croak "SendMsg: Unable to open pipe to sendmail $!";
 
   $msg->print (\*$mail);
