@@ -199,7 +199,7 @@ public class MainActivity extends Activity {
         menuLayout.setVisibility(View.GONE);
 
         addMenuButton("Returned", "returned");
-        addMenuButton("Auth Failed", "auth_failed");
+        addMenuButton("NoAuth", "auth_failed");
         addMenuButton("White", "white_today");
         addMenuButton("Black", "black_today");
         addMenuButton("Null", "null_today");
@@ -409,17 +409,17 @@ public class MainActivity extends Activity {
 
     private void showPopupMenu(View v) {
         PopupMenu popup = new PopupMenu(this, v);
-        popup.getMenu().add(0, 1, 0, "Quickstats");
-        popup.getMenu().add(0, 10, 0, "Statistics");
-        popup.getMenu().add(0, 2, 0, "Top 20");
-        popup.getMenu().add(0, 3, 0, "Search");
-        popup.getMenu().add(0, 4, 0, "Check Email");
-        popup.getMenu().add(0, 7, 0, "White List");
-        popup.getMenu().add(0, 8, 0, "Black List");
-        popup.getMenu().add(0, 9, 0, "Null List");
-        popup.getMenu().add(0, 11, 0, "Auth Failed");
-        popup.getMenu().add(0, 5, 0, "About");
-        popup.getMenu().add(0, 6, 0, "Logout");
+        popup.getMenu().add(0, 1, 0, "1. Quickstats");
+        popup.getMenu().add(0, 2, 0, "2. Statistics");
+        popup.getMenu().add(0, 3, 0, "3. Top 20");
+        popup.getMenu().add(0, 4, 0, "4. Search");
+        popup.getMenu().add(0, 5, 0, "5. Check Email");
+        popup.getMenu().add(0, 6, 0, "6. White List");
+        popup.getMenu().add(0, 7, 0, "7. Black List");
+        popup.getMenu().add(0, 8, 0, "8. Null List");
+        popup.getMenu().add(0, 9, 0, "9. NoAuth");
+        popup.getMenu().add(0, 10, 0, "10. About");
+        popup.getMenu().add(0, 11, 0, "11. Logout");
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -437,33 +437,33 @@ public class MainActivity extends Activity {
                 performAction(user, pass, "stats");
                 return true;
             case 2:
-                performAction(user, pass, "top20");
-                return true;
-            case 3:
-                showInputDialog("Search", "search");
-                return true;
-            case 4:
-                showInputDialog("Check Email", "check_address");
-                return true;
-            case 7:
-                performAction(user, pass, "white");
-                return true;
-            case 8:
-                performAction(user, pass, "black");
-                return true;
-            case 9:
-                performAction(user, pass, "null");
-                return true;
-            case 10:
                 performAction(user, pass, "full_stats");
                 return true;
-            case 11:
-                performAction(user, pass, "auth_failed");
+            case 3:
+                performAction(user, pass, "top20");
+                return true;
+            case 4:
+                showInputDialog("Search", "search");
                 return true;
             case 5:
-                showAboutDialog();
+                showInputDialog("Check Email", "check_address");
                 return true;
             case 6:
+                performAction(user, pass, "white");
+                return true;
+            case 7:
+                performAction(user, pass, "black");
+                return true;
+            case 8:
+                performAction(user, pass, "null");
+                return true;
+            case 9:
+                performAction(user, pass, "auth_failed");
+                return true;
+            case 10:
+                showAboutDialog();
+                return true;
+            case 11:
                 isLoggedIn = false;
                 storedCookie = null;
                 storedUserid = null;
@@ -489,17 +489,17 @@ public class MainActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (isLoggedIn) {
-            menu.add(0, 1, 0, "Quickstats");
-            menu.add(0, 10, 0, "Statistics");
-            menu.add(0, 2, 0, "Top 20");
-            menu.add(0, 3, 0, "Search");
-            menu.add(0, 4, 0, "Check Email");
-            menu.add(0, 7, 0, "White List");
-            menu.add(0, 8, 0, "Black List");
-            menu.add(0, 9, 0, "Null List");
-            menu.add(0, 11, 0, "Auth Failed");
-            menu.add(0, 5, 0, "About");
-            menu.add(0, 6, 0, "Logout");
+            menu.add(0, 1, 0, "1. Quickstats");
+            menu.add(0, 2, 0, "2. Statistics");
+            menu.add(0, 3, 0, "3. Top 20");
+            menu.add(0, 4, 0, "4. Search");
+            menu.add(0, 5, 0, "5. Check Email");
+            menu.add(0, 6, 0, "6. White List");
+            menu.add(0, 7, 0, "7. Black List");
+            menu.add(0, 8, 0, "8. Null List");
+            menu.add(0, 9, 0, "9. NoAuth");
+            menu.add(0, 10, 0, "10. About");
+            menu.add(0, 11, 0, "11. Logout");
         }
         return true;
     }
@@ -1694,7 +1694,7 @@ public class MainActivity extends Activity {
 
                             addStatRow(table, "Processed", data.optInt("processed"), Color.parseColor("#0F9D58"), null);
                             addStatRow(table, "Whitelist", data.optInt("whitelist"), Color.WHITE, "white_today");
-                            addStatRow(table, "Auth Failed", data.optInt("auth_failed"), Color.parseColor("#FF6D00"),
+                            addStatRow(table, "NoAuth", data.optInt("auth_failed"), Color.parseColor("#FF6D00"),
                                     "auth_failed");
                             addStatRow(table, "Returned", data.optInt("returned"), Color.parseColor("#F4B400"),
                                     "returned");
