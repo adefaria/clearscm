@@ -1967,150 +1967,165 @@ public class MainActivity extends Activity {
                                     outputContainer.addView(card);
                                 }
                             } else if ("returned".equals(mAction) || "auth_failed".equals(mAction) || mAction.endsWith("_today")) {
-                                for (int i = 0; i < data.length(); i++) {
-                                    JSONObject senderObj = data.getJSONObject(i);
-                                    String tempSender = senderObj.optString("sender");
-                                    if (tempSender.isEmpty()) {
-                                        String p = senderObj.optString("pattern", "");
-                                        String d = senderObj.optString("domain", "");
-                                        if (!p.isEmpty() && !d.isEmpty())
-                                            tempSender = p + "@" + d;
-                                        else if (!d.isEmpty())
-                                            tempSender = "@" + d;
-                                        else
-                                            tempSender = p;
-                                    }
-                                    final String senderEmail = tempSender;
-                                    final JSONArray messages;
-                                    JSONArray msgs = senderObj.optJSONArray("messages");
-                                    if (msgs == null)
-                                        messages = new JSONArray();
-                                    else
-                                        messages = msgs;
-
-                                    String list = senderObj.optString("list", "None");
-                                    int listSeq = senderObj.optInt("sequence", 0);
-                                    if (listSeq == 0) {
-                                        listSeq = senderObj.optInt("seq", 0);
-                                    }
-                                    if (listSeq > 0) {
-                                        list = list + ":" + listSeq;
-                                    }
-                                    int hits = senderObj.optInt("hits", senderObj.optInt("hit_count", 0));
-                                    String rule = senderObj.optString("rule", "None");
-                                    String retention = senderObj.optString("retention", "");
-                                    if ("null".equals(retention))
-                                        retention = "";
-                                    String comment = senderObj.optString("comment", "");
-                                    if ("null".equals(comment))
-                                        comment = "";
-
-                                    String timestamp = senderObj.optString("timestamp", "");
-                                    if (timestamp.isEmpty() && messages.length() > 0) {
-                                        timestamp = messages.getJSONObject(0).optString("timestamp", "");
-                                    }
-                                    String commentOrDate = comment.isEmpty() ? (timestamp.isEmpty() ? mDate : timestamp)
-                                            : comment;
-
-                                    LinearLayout card = new LinearLayout(MainActivity.this);
-                                    card.setOrientation(LinearLayout.VERTICAL);
-                                    card.setPadding(5, 5, 5, 5);
-                                    card.setBackgroundColor(Color.BLACK);
-                                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                                            LinearLayout.LayoutParams.MATCH_PARENT,
-                                            LinearLayout.LayoutParams.WRAP_CONTENT);
-                                    params.setMargins(0, 0, 0, 0);
-                                    card.setLayoutParams(params);
-
-                                    LinearLayout headerLine = new LinearLayout(MainActivity.this);
-                                    headerLine.setOrientation(LinearLayout.HORIZONTAL);
-                                    headerLine.setGravity(Gravity.CENTER_VERTICAL);
-
-                                    int sequence = mOffset + i + 1;
-                                    TextView seqView = new TextView(MainActivity.this);
-                                    seqView.setText(String.valueOf(sequence));
-                                    seqView.setTextColor(Color.WHITE);
-                                    seqView.setTextSize(14);
-                                    seqView.setGravity(Gravity.CENTER);
-                                    GradientDrawable seqShape = new GradientDrawable();
-                                    seqShape.setShape(GradientDrawable.RECTANGLE);
-                                    seqShape.setCornerRadius(30);
-                                    seqShape.setColor(Color.BLUE);
-                                    seqView.setBackground(seqShape);
-                                    LinearLayout.LayoutParams seqParams = new LinearLayout.LayoutParams(
-                                            LinearLayout.LayoutParams.WRAP_CONTENT, 60);
-                                    seqParams.setMargins(0, 0, 15, 0);
-                                    seqView.setMinWidth(60);
-                                    seqView.setPadding(10, 0, 10, 0);
-                                    seqView.setLayoutParams(seqParams);
-
-                                    headerLine.addView(seqView);
-
-                                    TextView senderView = new TextView(MainActivity.this);
-                                    senderView.setText(senderEmail);
-                                    senderView.setTextSize(18);
-                                    senderView.setTextColor(Color.YELLOW);
-                                    LinearLayout.LayoutParams senderParams = new LinearLayout.LayoutParams(
-                                            0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
-                                    senderView.setLayoutParams(senderParams);
-                                    senderView.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            String subject = "";
-                                            if (messages.length() > 0) {
-                                                try {
-                                                    subject = messages.getJSONObject(0).optString("subject");
-                                                } catch (Exception e) {
-                                                }
-                                            }
-                                            String uri = "mailto:" + senderEmail;
-                                            if (!subject.isEmpty()) {
-                                                uri += "?subject=" + Uri.encode(subject);
-                                            }
-                                            Intent intent = new Intent(Intent.ACTION_SENDTO);
-                                            intent.setData(Uri.parse(uri));
-                                            startActivity(intent);
+                                if (data.length() == 0) {
+                                    TextView emptyView = new TextView(MainActivity.this);
+                                    String label = "auth_failed".equals(mAction) ? "Auth Failures" : ("returned".equals(mAction) ? "Returned Messages" : "Entries");
+                                    emptyView.setText("No " + label + " found.");
+                                    emptyView.setTextColor(Color.WHITE);
+                                    emptyView.setTextSize(18);
+                                    emptyView.setPadding(20, 20, 20, 20);
+                                    outputContainer.addView(emptyView);
+                                } else {
+                                    for (int i = 0; i < data.length(); i++) {
+                                        JSONObject senderObj = data.getJSONObject(i);
+                                        String tempSender = senderObj.optString("sender");
+                                        if (tempSender.isEmpty()) {
+                                            String p = senderObj.optString("pattern", "");
+                                            String d = senderObj.optString("domain", "");
+                                            if (!p.isEmpty() && !d.isEmpty())
+                                                tempSender = p + "@" + d;
+                                            else if (!d.isEmpty())
+                                                tempSender = "@" + d;
+                                            else
+                                                tempSender = p;
                                         }
-                                    });
-                                    headerLine.addView(senderView);
+                                        final String senderEmail = tempSender;
+                                        final JSONArray messages;
+                                        JSONArray msgs = senderObj.optJSONArray("messages");
+                                        if (msgs == null)
+                                            messages = new JSONArray();
+                                        else
+                                            messages = msgs;
 
-                                    final TextView detailsView = new TextView(MainActivity.this);
-                                    detailsView.setTextSize(14);
-                                    detailsView.setTextColor(Color.GREEN);
-                                    detailsView.setPadding(0, 0, 0, 0);
+                                        String list = senderObj.optString("list", "None");
+                                        int listSeq = senderObj.optInt("sequence", 0);
+                                        if (listSeq == 0) {
+                                            listSeq = senderObj.optInt("seq", 0);
+                                        }
+                                        if (listSeq > 0) {
+                                            list = list + ":" + listSeq;
+                                        }
+                                        int hits = senderObj.optInt("hits", senderObj.optInt("hit_count", 0));
+                                        String rule = senderObj.optString("rule", "None");
+                                        String retention = senderObj.optString("retention", "");
+                                        if ("null".equals(retention))
+                                            retention = "";
+                                        String comment = senderObj.optString("comment", "");
+                                        if ("null".equals(comment))
+                                            comment = "";
 
-                                    String detailsText = "<b>List:</b> <font color='#FFFFFF'><b>" + list
-                                            + "</b></font> <b>Hits:</b> <font color='#FF00FF'><b>" + hits
-                                            + "</b></font> <b>Rule:</b> <font color='#00FFFF'><b>" + rule
-                                            + "</b></font>";
-                                    if (!retention.isEmpty()) {
-                                        detailsText += " <b>Retention:</b> " + retention;
-                                    }
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                        detailsView.setText(Html.fromHtml(detailsText, Html.FROM_HTML_MODE_LEGACY));
-                                    } else {
-                                        detailsView.setText(Html.fromHtml(detailsText));
-                                    }
-                                    detailsView.setVisibility(View.VISIBLE);
+                                        String authReport = senderObj.optString("auth_report", "");
+                                        if (authReport.isEmpty() && "auth_failed".equals(mAction)) {
+                                            authReport = "SPF: FAIL, DKIM: FAIL, DMARC: FAIL";
+                                        }
+                                        final String fAuthReport = authReport;
 
-                                    final String fListType = senderObj.optString("list", "None").toLowerCase();
-                                    final int fListSeq = listSeq;
-                                    final String fSender = senderEmail;
-                                    final int fHits = hits;
-                                    final String fRetention = retention;
-                                    final String fComment = comment;
+                                        String timestamp = senderObj.optString("timestamp", "");
+                                        if (timestamp.isEmpty() && messages.length() > 0) {
+                                            timestamp = messages.getJSONObject(0).optString("timestamp", "");
+                                        }
+                                        String commentOrDate = comment.isEmpty() ? (timestamp.isEmpty() ? mDate : timestamp)
+                                                : comment;
 
-                                    if (fListSeq > 0) {
-                                        detailsView.setOnClickListener(new View.OnClickListener() {
+                                        LinearLayout card = new LinearLayout(MainActivity.this);
+                                        card.setOrientation(LinearLayout.VERTICAL);
+                                        card.setPadding(5, 5, 5, 5);
+                                        card.setBackgroundColor(Color.BLACK);
+                                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                                LinearLayout.LayoutParams.WRAP_CONTENT);
+                                        params.setMargins(0, 0, 0, 0);
+                                        card.setLayoutParams(params);
+
+                                        LinearLayout headerLine = new LinearLayout(MainActivity.this);
+                                        headerLine.setOrientation(LinearLayout.HORIZONTAL);
+                                        headerLine.setGravity(Gravity.CENTER_VERTICAL);
+
+                                        int sequence = mOffset + i + 1;
+                                        TextView seqView = new TextView(MainActivity.this);
+                                        seqView.setText(String.valueOf(sequence));
+                                        seqView.setTextColor(Color.WHITE);
+                                        seqView.setTextSize(14);
+                                        seqView.setGravity(Gravity.CENTER);
+                                        GradientDrawable seqShape = new GradientDrawable();
+                                        seqShape.setShape(GradientDrawable.RECTANGLE);
+                                        seqShape.setCornerRadius(30);
+                                        seqShape.setColor(Color.BLUE);
+                                        seqView.setBackground(seqShape);
+                                        LinearLayout.LayoutParams seqParams = new LinearLayout.LayoutParams(
+                                                LinearLayout.LayoutParams.WRAP_CONTENT, 60);
+                                        seqParams.setMargins(0, 0, 15, 0);
+                                        seqView.setMinWidth(60);
+                                        seqView.setPadding(10, 0, 10, 0);
+                                        seqView.setLayoutParams(seqParams);
+
+                                        headerLine.addView(seqView);
+
+                                        TextView senderView = new TextView(MainActivity.this);
+                                        senderView.setText(senderEmail);
+                                        senderView.setTextSize(18);
+                                        senderView.setTextColor(Color.YELLOW);
+                                        LinearLayout.LayoutParams senderParams = new LinearLayout.LayoutParams(
+                                                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+                                        senderView.setLayoutParams(senderParams);
+                                        senderView.setOnClickListener(new View.OnClickListener() {
                                             @Override
                                             public void onClick(View v) {
-                                                String p = senderObj.optString("pattern", "");
-                                                String d = senderObj.optString("domain", "");
-                                                showEditListDialog(fListType, fListSeq, p, d, fHits, fRetention,
-                                                        fComment);
+                                                String subject = "";
+                                                if (messages.length() > 0) {
+                                                    try {
+                                                        subject = messages.getJSONObject(0).optString("subject");
+                                                    } catch (Exception e) {
+                                                    }
+                                                }
+                                                String uri = "mailto:" + senderEmail;
+                                                if (!subject.isEmpty()) {
+                                                    uri += "?subject=" + Uri.encode(subject);
+                                                }
+                                                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                                                intent.setData(Uri.parse(uri));
+                                                startActivity(intent);
                                             }
                                         });
-                                    }
+                                        headerLine.addView(senderView);
+
+                                        final TextView detailsView = new TextView(MainActivity.this);
+                                        detailsView.setTextSize(14);
+                                        detailsView.setTextColor(Color.GREEN);
+                                        detailsView.setPadding(0, 0, 0, 0);
+
+                                        String detailsText = "<b>List:</b> <font color='#FFFFFF'><b>" + list
+                                                + "</b></font> <b>Hits:</b> <font color='#FF00FF'><b>" + hits
+                                                + "</b></font> <b>Rule:</b> <font color='#00FFFF'><b>" + rule
+                                                + "</b></font>";
+                                        if (!retention.isEmpty()) {
+                                            detailsText += " <b>Retention:</b> " + retention;
+                                        }
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                            detailsView.setText(Html.fromHtml(detailsText, Html.FROM_HTML_MODE_LEGACY));
+                                        } else {
+                                            detailsView.setText(Html.fromHtml(detailsText));
+                                        }
+                                        detailsView.setVisibility(View.VISIBLE);
+
+                                        final String fListType = senderObj.optString("list", "None").toLowerCase();
+                                        final int fListSeq = listSeq;
+                                        final String fSender = senderEmail;
+                                        final int fHits = hits;
+                                        final String fRetention = retention;
+                                        final String fComment = comment;
+
+                                        if (fListSeq > 0) {
+                                            detailsView.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    String p = senderObj.optString("pattern", "");
+                                                    String d = senderObj.optString("domain", "");
+                                                    showEditListDialog(fListType, fListSeq, p, d, fHits, fRetention,
+                                                            fComment);
+                                                }
+                                            });
+                                        }
 
                                     TextView timestampView = new TextView(MainActivity.this);
                                     timestampView.setText(commentOrDate);
@@ -2210,6 +2225,36 @@ public class MainActivity extends Activity {
                                     }
                                     card.addView(detailsView);
 
+                                    if (!fAuthReport.isEmpty()) {
+                                        Button authBtn = new Button(MainActivity.this);
+                                        authBtn.setText("Auth: " + fAuthReport);
+                                        authBtn.setTextSize(11);
+                                        authBtn.setTextColor(Color.WHITE);
+                                        authBtn.setBackgroundColor(Color.parseColor("#E65100"));
+                                        LinearLayout.LayoutParams authBtnParams = new LinearLayout.LayoutParams(
+                                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                                LinearLayout.LayoutParams.WRAP_CONTENT);
+                                        authBtnParams.setMargins(0, 8, 0, 8);
+                                        authBtn.setLayoutParams(authBtnParams);
+                                        authBtn.setPadding(15, 5, 15, 5);
+
+                                        authBtn.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                new AlertDialog.Builder(MainActivity.this)
+                                                        .setTitle("Authentication Report")
+                                                        .setMessage("SPF / DKIM / DMARC Status:\n" + fAuthReport + "\n\n" +
+                                                                "• SPF (Sender Policy Framework): Validates sending server IP.\n" +
+                                                                "• DKIM (DomainKeys Identified Mail): Verifies cryptographic signature.\n" +
+                                                                "• DMARC: Validates alignment between SPF/DKIM and From header.\n\n" +
+                                                                "Messages failing authentication are held by MAPS to protect your inbox from spoofing.")
+                                                        .setPositiveButton("OK", null)
+                                                        .show();
+                                            }
+                                        });
+                                        card.addView(authBtn);
+                                    }
+
                                     if ("returned".equals(mAction) || "auth_failed".equals(mAction)) {
                                         for (int j = 0; j < messages.length(); j++) {
                                             JSONObject msg = messages.getJSONObject(j);
@@ -2268,7 +2313,8 @@ public class MainActivity extends Activity {
 
                                                     String info = "<b>Sender:</b> " + senderEmail + "<br>" +
                                                             "<b>Date:</b> " + datePart + "<br>" +
-                                                            "<b>Time:</b> " + timePart + "<br><br>" +
+                                                            "<b>Time:</b> " + timePart + "<br>" +
+                                                            (!fAuthReport.isEmpty() ? "<b>Auth Status:</b> <font color='#FF9800'>" + fAuthReport + "</font><br>" : "") + "<br>" +
                                                             "<b>Subject:</b> " + fullSubject;
 
                                                     TextView infoView = new TextView(MainActivity.this);
@@ -2306,7 +2352,8 @@ public class MainActivity extends Activity {
                             }
                         }
                     }
-                } catch (Exception e) {
+                }
+            } catch (Exception e) {
                     outputContainer.addView(outputView);
                     outputView.setText("Error parsing data: " + e.getMessage());
                 }
