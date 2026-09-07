@@ -2126,25 +2126,39 @@ EOF
   # Create the message, and set up the mail headers:
   my %msg_headers = (
     From    => "MAPS\@DeFaria.com",
-    To      => $params{sender},
     Subject => $params{subject},
     Type    => "text/html",
     Data    => \@lines,
   );
+
+  if ($params{sender}) {
+    # Only put sender in To: header if sender does not match the CC recipient.
+    # If sender matches CC recipient (e.g. Andrew@DeFaria.com), ensure Andrew is CC'ed, not in To.
+    unless ($params{cc} && lc($params{sender}) eq lc($params{cc})) {
+      $msg_headers{To} = $params{sender};
+    }
+  }
   $msg_headers{Cc} = $params{cc} if $params{cc};
 
   my $msg = MIME::Entity->build (%msg_headers);
 
   # Attach the original email message as message/rfc822 attachment
-  $msg->attach (
-    Type        => "message/rfc822",
-    Disposition => "attachment",
-    Data        => $params{data},
-  );
+  if (defined $params{data} && $params{data} ne '') {
+    $msg->attach (
+      Type        => "message/rfc822",
+      Disposition => "attachment",
+      Filename    => "original_message.eml",
+      Data        => $params{data},
+    );
+  }
 
   # Send it
-  my @recipients = ($params{sender});
-  push @recipients, $params{cc} if $params{cc};
+  my %seen_recipients;
+  my @recipients;
+  for my $addr ($params{sender}, $params{cc}) {
+    next unless defined $addr && $addr ne '';
+    push @recipients, $addr unless $seen_recipients{lc($addr)}++;
+  }
 
   open my $mail, '|-', '/usr/lib/sendmail', '-oi', '-oem', @recipients
     or croak "SendMsg: Unable to open pipe to sendmail $!";
@@ -2273,8 +2287,6 @@ sub AuthFailMsg(%) {
     sender  => $params{sender},
     message => "Authentication failure [$auth_report]",
   );
-
-  SaveMsg ($params{sender}, $params{subject}, $params{data}, $params{userid});
 
   SendMsg (
     userid      => $params{userid},
