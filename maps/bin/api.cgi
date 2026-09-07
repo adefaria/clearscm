@@ -190,7 +190,7 @@ if ($action eq 'full_stats') {
       }
     }
 
-    push @data, {sender => $sender, messages => \@day_msgs, auth_report => $auth_report, %list_info};
+    push @data, {sender => $sender, messages => \@day_msgs, auth_report => ($auth_report // ''), %list_info};
   } ## end foreach my $sender (@senders)
   send_json ({status => 'success', data => \@data});
 

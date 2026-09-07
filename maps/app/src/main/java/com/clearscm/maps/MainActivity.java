@@ -2015,6 +2015,9 @@ public class MainActivity extends Activity {
                                             comment = "";
 
                                         String authReport = senderObj.optString("auth_report", "");
+                                        if ("null".equalsIgnoreCase(authReport) || "none".equalsIgnoreCase(authReport) || "unknown".equalsIgnoreCase(authReport)) {
+                                            authReport = "";
+                                        }
                                         if (authReport.isEmpty() && "auth_failed".equals(mAction)) {
                                             authReport = "SPF: FAIL, DKIM: FAIL, DMARC: FAIL";
                                         }
@@ -2225,7 +2228,7 @@ public class MainActivity extends Activity {
                                     }
                                     card.addView(detailsView);
 
-                                    if (!fAuthReport.isEmpty()) {
+                                    if (!fAuthReport.isEmpty() && !"null".equalsIgnoreCase(fAuthReport) && !"none".equalsIgnoreCase(fAuthReport)) {
                                         Button authBtn = new Button(MainActivity.this);
                                         authBtn.setText("Auth: " + fAuthReport);
                                         authBtn.setTextSize(11);
@@ -2314,7 +2317,7 @@ public class MainActivity extends Activity {
                                                     String info = "<b>Sender:</b> " + senderEmail + "<br>" +
                                                             "<b>Date:</b> " + datePart + "<br>" +
                                                             "<b>Time:</b> " + timePart + "<br>" +
-                                                            (!fAuthReport.isEmpty() ? "<b>Auth Status:</b> <font color='#FF9800'>" + fAuthReport + "</font><br>" : "") + "<br>" +
+                                                            (!fAuthReport.isEmpty() && !"null".equalsIgnoreCase(fAuthReport) && !"none".equalsIgnoreCase(fAuthReport) ? "<b>Auth Status:</b> <font color='#FF9800'>" + fAuthReport + "</font><br>" : "") + "<br>" +
                                                             "<b>Subject:</b> " + fullSubject;
 
                                                     TextView infoView = new TextView(MainActivity.this);
