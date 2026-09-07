@@ -198,11 +198,11 @@ public class MainActivity extends Activity {
         menuLayout.setOrientation(LinearLayout.HORIZONTAL);
         menuLayout.setVisibility(View.GONE);
 
-        addMenuButton("Returned", "returned");
-        addMenuButton("NoAuth", "auth_failed");
-        addMenuButton("White", "white_today");
-        addMenuButton("Black", "black_today");
-        addMenuButton("Null", "null_today");
+        addMenuButton("Returned\n0", "returned");
+        addMenuButton("NoAuth\n0", "auth_failed");
+        addMenuButton("White\n0", "white_today");
+        addMenuButton("Black\n0", "black_today");
+        addMenuButton("Null\n0", "null_today");
 
         layout.addView(menuLayout);
 
@@ -1665,7 +1665,7 @@ public class MainActivity extends Activity {
                                     }
 
                                     if (!label.isEmpty()) {
-                                        b.setText(label + " " + count);
+                                        b.setText(label + "\n" + count);
                                         b.setEnabled(count > 0);
                                         b.setAlpha(count > 0 ? 1.0f : 0.5f);
                                     }
