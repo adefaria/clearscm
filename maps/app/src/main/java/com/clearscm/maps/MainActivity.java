@@ -417,7 +417,7 @@ public class MainActivity extends Activity {
         popup.getMenu().add(0, 6, 0, "6. White List");
         popup.getMenu().add(0, 7, 0, "7. Black List");
         popup.getMenu().add(0, 8, 0, "8. Null List");
-        popup.getMenu().add(0, 9, 0, "9. NoAuth");
+        popup.getMenu().add(0, 9, 0, "9. Auth Fail");
         popup.getMenu().add(0, 10, 0, "10. About");
         popup.getMenu().add(0, 11, 0, "11. Logout");
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
@@ -497,7 +497,7 @@ public class MainActivity extends Activity {
             menu.add(0, 6, 0, "6. White List");
             menu.add(0, 7, 0, "7. Black List");
             menu.add(0, 8, 0, "8. Null List");
-            menu.add(0, 9, 0, "9. NoAuth");
+            menu.add(0, 9, 0, "9. Auth Fail");
             menu.add(0, 10, 0, "10. About");
             menu.add(0, 11, 0, "11. Logout");
         }
@@ -1694,7 +1694,7 @@ public class MainActivity extends Activity {
 
                             addStatRow(table, "Processed", data.optInt("processed"), Color.parseColor("#0F9D58"), null);
                             addStatRow(table, "Whitelist", data.optInt("whitelist"), Color.WHITE, "white_today");
-                            addStatRow(table, "NoAuth", data.optInt("auth_failed"), Color.parseColor("#FF6D00"),
+                            addStatRow(table, "Auth Fail", data.optInt("auth_failed"), Color.parseColor("#FF6D00"),
                                     "auth_failed");
                             addStatRow(table, "Returned", data.optInt("returned"), Color.parseColor("#F4B400"),
                                     "returned");
@@ -2230,7 +2230,7 @@ public class MainActivity extends Activity {
 
                                     if (!fAuthReport.isEmpty() && !"null".equalsIgnoreCase(fAuthReport) && !"none".equalsIgnoreCase(fAuthReport)) {
                                         Button authBtn = new Button(MainActivity.this);
-                                        authBtn.setText("Auth: " + fAuthReport);
+                                        authBtn.setText("Auth errors: " + fAuthReport);
                                         authBtn.setTextSize(11);
                                         authBtn.setTextColor(Color.WHITE);
                                         authBtn.setBackgroundColor(Color.parseColor("#E65100"));
@@ -2317,7 +2317,7 @@ public class MainActivity extends Activity {
                                                     String info = "<b>Sender:</b> " + senderEmail + "<br>" +
                                                             "<b>Date:</b> " + datePart + "<br>" +
                                                             "<b>Time:</b> " + timePart + "<br>" +
-                                                            (!fAuthReport.isEmpty() && !"null".equalsIgnoreCase(fAuthReport) && !"none".equalsIgnoreCase(fAuthReport) ? "<b>Auth Status:</b> <font color='#FF9800'>" + fAuthReport + "</font><br>" : "") + "<br>" +
+                                                            (!fAuthReport.isEmpty() && !"null".equalsIgnoreCase(fAuthReport) && !"none".equalsIgnoreCase(fAuthReport) ? "<b>Auth Errors:</b> <font color='#FF9800'>" + fAuthReport + "</font><br>" : "") + "<br>" +
                                                             "<b>Subject:</b> " + fullSubject;
 
                                                     TextView infoView = new TextView(MainActivity.this);
