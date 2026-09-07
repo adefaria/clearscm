@@ -2144,11 +2144,15 @@ EOF
 
   # Attach the original email message as message/rfc822 attachment
   if (defined $params{data} && $params{data} ne '') {
+    my @msg_data_lines = ref ($params{data}) eq 'ARRAY'
+      ? @{$params{data}}
+      : split /^/m, $params{data};
+
     $msg->attach (
       Type        => "message/rfc822",
       Disposition => "attachment",
       Filename    => "original_message.eml",
-      Data        => $params{data},
+      Data        => \@msg_data_lines,
     );
   }
 
