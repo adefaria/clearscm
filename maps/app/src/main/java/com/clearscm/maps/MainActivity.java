@@ -1650,6 +1650,9 @@ public class MainActivity extends Activity {
                                     if ("returned".equals(tag)) {
                                         count = data.optInt("returned");
                                         label = "Returned";
+                                    } else if ("auth_failed".equals(tag)) {
+                                        count = data.optInt("auth_failed");
+                                        label = "NoAuth";
                                     } else if ("white_today".equals(tag)) {
                                         count = data.optInt("whitelist");
                                         label = "White";
@@ -2019,7 +2022,9 @@ public class MainActivity extends Activity {
                                             authReport = "";
                                         }
                                         if (authReport.isEmpty() && "auth_failed".equals(mAction)) {
-                                            authReport = "SPF: FAIL, DKIM: FAIL, DMARC: FAIL";
+                                            authReport = "SPF, DKIM, DMARC";
+                                        } else if (!authReport.isEmpty()) {
+                                            authReport = authReport.replaceAll(":\\s*\\w+", "");
                                         }
                                         final String fAuthReport = authReport;
 
