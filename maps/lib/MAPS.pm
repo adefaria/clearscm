@@ -2144,9 +2144,15 @@ EOF
 
   # Attach the original email message as message/rfc822 attachment
   if (defined $params{data} && $params{data} ne '') {
-    my @msg_data_lines = ref ($params{data}) eq 'ARRAY'
-      ? @{$params{data}}
-      : split /^/m, $params{data};
+    my $attach_str = ref ($params{data}) eq 'ARRAY'
+      ? join('', @{$params{data}})
+      : $params{data};
+
+    # Strip leading envelope "From " line (mbox separator) so attachment starts with valid RFC822 headers
+    # and prevents local mbox delivery agents / MUAs from splitting the attachment into a separate email.
+    $attach_str =~ s/^From\s+\S+.*?\n//s;
+
+    my @msg_data_lines = split /^/m, $attach_str;
 
     $msg->attach (
       Type        => "message/rfc822",
