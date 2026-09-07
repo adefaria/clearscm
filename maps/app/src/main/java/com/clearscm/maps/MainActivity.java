@@ -861,7 +861,9 @@ public class MainActivity extends Activity {
     private void addMenuButton(String text, final String action) {
         Button button = new Button(this);
         button.setText(text);
-        button.setTextSize(12);
+        button.setTextSize(10);
+        button.setAllCaps(false);
+        button.setPadding(2, 4, 2, 4);
         button.setBackgroundColor(Color.parseColor("#36454F"));
         button.setTextColor(Color.WHITE);
         button.setTag(action);
