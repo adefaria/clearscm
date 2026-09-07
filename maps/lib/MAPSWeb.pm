@@ -947,7 +947,7 @@ sub NavigationBar($) {
       (a {-href => '/maps/doc/Requirements.html'}, 'Requirements<br>'),
       (a {-href => '/maps/SignupForm.html'},       'Signup<br>'),
       (a {-href => '/maps/doc/Using.html'},        'Using MAPS<br>'),
-      (a {-href => '/maps/doc/'},                  'Help<br>'),
+      (a {-href => '/maps/bin/log.cgi'},           'Logs<br>'),
     );
   } else {
     print h2({-align => 'center'}, "MAPS $MAPS::VERSION");
@@ -965,7 +965,7 @@ sub NavigationBar($) {
       (a {-href => '/maps/php/list.php?type=white'}, 'White<br>'),
       (a {-href => '/maps/php/list.php?type=black'}, 'Black<br>'),
       (a {-href => '/maps/php/list.php?type=null'},  'Null<br>'),
-      (a {-href => '/maps/doc/'},                    'Help<br>'),
+      (a {-href => '/maps/bin/log.cgi'},             'Logs<br>'),
 
       (a {-href => '/maps/?logout=yes'}, 'Logout'),
     );

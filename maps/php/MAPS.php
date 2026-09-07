@@ -362,7 +362,7 @@ function NavigationBar($userid)
     <a href="/maps/doc/Requirements.php">Requirements</a><br>
     <a href="/maps/SignupForm.html">Signup</a><br>
     <a href="/maps/doc/Using.php">Using MAPS</a><br>
-    <a href="/maps/doc/">Help</a><br>
+    <a href="/maps/bin/log.cgi">Logs</a><br>
     </div>
 END;
   } else {
@@ -378,7 +378,7 @@ END;
     <a href="/maps/php/list.php?type=white">White</a><br>
     <a href="/maps/php/list.php?type=black">Black</a><br>
     <a href="/maps/php/list.php?type=null">Null</a><br>
-    <a href="/maps/doc/">Help</a><br>
+    <a href="/maps/bin/log.cgi">Logs</a><br>
 
     <a href="/maps/?logout=yes">Logout</a>
     </div>
