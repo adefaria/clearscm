@@ -1883,22 +1883,14 @@ sub ReturnSenders(%) {
   my (%params) = @_;
 
   # This subroutine returns an array of senders in reverse chronological
-  # order based on time timestamp from the log table of when we returned
-  # their message. The complication here is that a single sender may
-  # send multiple times in a single day. So if spammer@foo.com sends
-  # spam @ 1 second after midnight and then again at 2 Pm there will be
-  # at least two records in the log table saying that we returned his
-  # email. Getting records sorted by timestamp desc will have
-  # spammer@foo.com listed twice. But we want him listed only once, as
-  # the first entry in the returned array. Plus we may be called
-  # repeatedly with different $start_at's. Therefore we need to process
-  # the whole list of returns for today, eliminate duplicate entries for
-  # a single sender then slice the resulting array.
+  # order based on the timestamp from the log table. A sender is categorized
+  # according to their latest log entry for the day to avoid listing the same
+  # sender in both Returned and Auth Failed reports when their status changed.
   CheckParms (['userid', 'type', 'lines'], \%params);
 
   my $table      = 'log';
-  my $condition  = "userid='$params{userid}' and type='$params{type}'";
-  my $additional = 'group by timestamp order by timestamp desc';
+  my $condition  = "userid='$params{userid}'";
+  my $additional = 'order by timestamp desc';
 
   $params{start_at} ||= 0;
 
@@ -1910,32 +1902,29 @@ sub ReturnSenders(%) {
   $db->find ($table, $condition, '*', $additional);
 
   # Watch the distinction between senders (plural) and sender (singular)
-  my %senders;
+  my (%senders, %latest_type);
 
-  # Run through the results and add to %senders by sender key. This
-  # results in a hash that has the sender in it and the first
-  # timestamp value. Since we already sorted timestamp desc by the
-  # above select statement, and we've narrowed it down to only log
-  # message that occurred for the given $date, we will have a hash
-  # containing 1 sender and the latest timestamp for the day.
+  # Run through the results and add to %senders by sender key.
+  # Since results are sorted by timestamp desc, the first time we encounter
+  # a sender represents their latest activity for the requested timeframe.
   while (my $rec = $db->getnext) {
-    $senders{$rec->{sender}} = $rec->{timestamp}
-      unless $senders{$rec->{sender}};
+    my $sender = $rec->{sender};
+    next unless $sender;
+    if (!exists $latest_type{$sender}) {
+      $latest_type{$sender} = $rec->{type};
+      $senders{$sender}     = $rec->{timestamp};
+    }
   }    # while
 
   my (@unsorted, @senders);
 
-  # Here we have a hash in %senders that has email address and timestamp. In the
-  # past we would merely create a reverse hash by timestamp and sort that. The
-  # The problem is that it is possible for two emails to come in with the same
-  # timestamp. By reversing the hash we clobber any row that has a dumplicte
-  # timestamp. But we want to sort on timestamp. So first we convers this hash
-  # to an array of hashes and then we can sort by timestamp later.
   while (my ($key, $value) = each %senders) {
-    push @unsorted, {
-      sender    => $key,
-      timestamp => $value,
+    if ($latest_type{$key} eq $params{type}) {
+      push @unsorted, {
+        sender    => $key,
+        timestamp => $value,
       };
+    }
   }    # while
 
   push @senders, $_->{sender}
