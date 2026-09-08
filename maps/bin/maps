@@ -347,18 +347,19 @@ sub ProcessMsgs ($$$) {
     # Standard RFC 7489 DMARC / Email Auth evaluation:
     # 1. If DMARC validation returned 'pass', authentication succeeds.
     # 2. If DMARC validation returned 'fail' / 'reject' / 'quarantine', authentication fails.
-    # 3. If DMARC is 'none' / unconfigured / error, authentication succeeds if EITHER DKIM OR SPF passed.
+    # 3. If DMARC is 'none' / unconfigured / error, authentication ONLY fails if SPF or DKIM explicitly failed ('fail').
+    #    Unconfigured / missing auth ('none', 'neutral') is NOT an auth failure, and is returned normally.
     my $auth_failed = 0;
     if ($dmarc_status eq 'pass') {
       $auth_failed = 0;
     } elsif ($dmarc_status =~ /^(fail|reject|quarantine)$/i) {
       $auth_failed = 1;
     } else {
-      # DMARC is none/error/unconfigured: pass if EITHER DKIM or SPF passed
-      if ($dkim_status eq 'pass' || $spf_status eq 'pass') {
-        $auth_failed = 0;
-      } else {
+      # DMARC is none/error/unconfigured: fail ONLY if SPF or DKIM explicitly failed
+      if ($spf_status eq 'fail' || $dkim_status eq 'fail') {
         $auth_failed = 1;
+      } else {
+        $auth_failed = 0;
       }
     }
 

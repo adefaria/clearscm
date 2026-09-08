@@ -1366,14 +1366,14 @@ sub CheckSPF($$$) {
 sub CheckDKIM($) {
   my ($msg_data) = @_;
 
-  return ('none', undef) unless defined $msg_data && length($msg_data) > 0;
+  return wantarray ? ('none', undef) : 'none' unless defined $msg_data && length($msg_data) > 0;
 
   # Check for local trusted Authentication-Results header first
   if ($msg_data =~ /^Authentication-Results:\s*.*?\bdkim=(pass|fail|neutral|none)\b.*?\bheader\.d=([\w.-]+)/mi) {
     my $ar_status = lc($1);
     my $ar_domain = lc($2);
     if ($ar_status eq 'pass') {
-      return ('pass', $ar_domain);
+      return wantarray ? ('pass', $ar_domain) : 'pass';
     }
   }
 
@@ -1394,7 +1394,8 @@ sub CheckDKIM($) {
     return ($res, $dom);
   };
 
-  return $@ ? ('error', undef) : ($result_code // 'none', $sig_domain);
+  my $status = $@ ? 'error' : ($result_code // 'none');
+  return wantarray ? ($status, $sig_domain) : $status;
 }    # CheckDKIM
 
 sub CheckDMARC($$$$$$) {
@@ -2307,6 +2308,9 @@ sub AuthFailMsg(%) {
     auth_report => $auth_report,
     cc          => $params{cc},
   );
+
+  # Save message so subject line and contents are retained in email table
+  SaveMsg ($params{sender}, $params{subject}, $params{data}, $params{userid});
 
   return;
 }    # AuthFailMsg

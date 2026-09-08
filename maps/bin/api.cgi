@@ -158,6 +158,12 @@ if ($action eq 'full_stats') {
   foreach my $sender (@senders) {
     my $msgs     = MAPS::ReturnMessages (userid => $userid, sender => $sender);
     my @day_msgs = @$msgs;
+    if (!@day_msgs) {
+      $MAPS::db->find("log", "userid='$userid' and type='$req_type' and sender='$sender'", "timestamp", "order by timestamp desc limit 1");
+      if (my $lrec = $MAPS::db->getnext) {
+        @day_msgs = ({ subject => "(No subject available)", timestamp => $lrec->{timestamp} });
+      }
+    }
 
     my %list_info;
     foreach my $type (qw(white black null)) {

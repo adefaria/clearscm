@@ -18,10 +18,10 @@ my $raw_msg = "From: sender\@example.com\nSubject: Test\n\nThis is a test body.\
 is(CheckDKIM($raw_msg), 'none', 'CheckDKIM returns none for unsigned message');
 
 # Test 3: CheckDMARC handles aligned pass inputs
-is(CheckDMARC('example.com', 'pass', 'pass', 'sender@example.com', '127.0.0.1'), 'pass', 'CheckDMARC passes with passing SPF & DKIM');
+is(CheckDMARC('example.com', 'pass', 'example.com', 'pass', 'example.com', '127.0.0.1'), 'pass', 'CheckDMARC passes with passing SPF & DKIM');
 
 # Test 4: CheckDMARC handles failing inputs
-is(CheckDMARC('google.com', 'fail', 'fail', 'sender@google.com', '1.2.3.4'), 'fail', 'CheckDMARC fails with failing SPF & DKIM');
+is(CheckDMARC('google.com', 'fail', 'google.com', 'fail', 'google.com', '1.2.3.4'), 'fail', 'CheckDMARC fails with failing SPF & DKIM');
 
 # Test 5 & 6: Header parsing of Received header & client IP extraction
 my $email_with_received = <<'EOM';
