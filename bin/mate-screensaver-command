@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# Wrapper for mate-screensaver-command to invoke LightDM lock_screen
+exec /opt/clearscm/bin/lock_screen

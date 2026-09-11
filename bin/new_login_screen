@@ -1,8 +1,12 @@
 #!/bin/sh
 
-# Change the login screen to a random image from /Pictures/Login Screens
-new_background=$(find /Pictures/Login\ Screens/ -type f | shuf -n 1)
-
-ln -sf "$new_background" /Pictures/current_wallpaper
+# Change the login screen to a random image from /Pictures/Login Screens/
+if [ -d "/Pictures/Login Screens" ]; then
+    new_background=$(find "/Pictures/Login Screens/" -type f | shuf -n 1)
+    if [ -n "$new_background" ]; then
+        ln -sf "$new_background" /Pictures/current_wallpaper
+        cp -f "$new_background" /var/local/current_wallpaper.jpg 2>/dev/null
+    fi
+fi
 
 exit 0

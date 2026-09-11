@@ -1,0 +1,13 @@
+#!/bin/sh
+
+echo "$(date): xscreensaver-command called with args: $@" >> /tmp/xscreensaver-wrapper.log
+
+for arg in "$@"; do
+    case "$arg" in
+        -lock|-activate|-a|-l)
+            exec /opt/clearscm/bin/lock_screen
+            ;;
+    esac
+done
+
+exec /usr/bin/xscreensaver-command "$@"

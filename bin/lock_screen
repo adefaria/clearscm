@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Pick a new random wallpaper for the login/lock screen
+/opt/clearscm/bin/new_login_screen
+
+# Switch to LightDM greeter / lock seat
+dm-tool switch-to-greeter || dm-tool lock

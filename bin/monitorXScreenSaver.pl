@@ -128,7 +128,7 @@ while (<$xscreensaver>) {
     $log->msg('Locked screen');
     $locked = 1;
 
-    my $cmd = 'xset dpms force off';
+    my $cmd = '/opt/clearscm/bin/lock_screen';
 
     $log->dbug("Calling $cmd");
     system $cmd;
