@@ -3,5 +3,5 @@
 # Pick a new random wallpaper for the login/lock screen
 /opt/clearscm/bin/new_login_screen
 
-# Lock on active X display :0 to prevent VT switch flickering
-light-locker-command -l 2>/dev/null || dm-tool switch-to-greeter || dm-tool lock
+# Lock display :0 in-place using xscreensaver (prevents VT switch flickering)
+/usr/bin/xscreensaver-command -lock
