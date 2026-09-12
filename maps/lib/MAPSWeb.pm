@@ -91,6 +91,10 @@ sub GetMessageDisplay(%) {
 
   my $rec = MAPS::GetEmail;
 
+  unless ($rec && defined $rec->{data}) {
+    return p ({-class => 'msg-error', -style => 'color: #ff4444; font-size: 16px; text-align: center; padding: 20px; font-weight: bold;'}, "No message content available for this entry.");
+  }
+
   my $parser = MIME::Parser->new ();
 
   # For some strange reason MIME::Parser has started having some problems

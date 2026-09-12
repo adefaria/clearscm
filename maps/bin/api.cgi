@@ -159,9 +159,14 @@ if ($action eq 'full_stats') {
     my $msgs     = MAPS::ReturnMessages (userid => $userid, sender => $sender);
     my @day_msgs = @$msgs;
     if (!@day_msgs) {
-      $MAPS::db->find("log", "userid='$userid' and type='$req_type' and sender='$sender'", "timestamp", "order by timestamp desc limit 1");
+      $MAPS::db->find("log", "userid='$userid' and sender='$sender'", "timestamp, message", "order by timestamp desc limit 1");
       if (my $lrec = $MAPS::db->getnext) {
-        @day_msgs = ({ subject => "(No subject available)", timestamp => $lrec->{timestamp} });
+        my $subj = "(No subject available)";
+        if (($lrec->{message} // '') =~ /Subject:\s*(.+)$/i) {
+          $subj = $1;
+          $subj =~ s/^\s+|\s+$//g;
+        }
+        @day_msgs = ({ subject => $subj, timestamp => $lrec->{timestamp} });
       }
     }
 

@@ -1486,7 +1486,7 @@ public class MainActivity extends Activity {
                 showColoredToast(actionMessage, isActionError);
             }
 
-            if (result.startsWith("Error") || result.startsWith("Login Failed")) {
+            if (result.startsWith("Login Failed")) {
                 storedCookie = null;
                 storedUserid = null;
                 SharedPreferences prefs = getSharedPreferences("MAPSPrefs", MODE_PRIVATE);
