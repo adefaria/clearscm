@@ -1,0 +1,5 @@
+#!/bin/sh
+# Lock screen with LightDM before system suspends/sleeps
+if [ "$1" = "pre" ]; then
+    /opt/clearscm/bin/lock_screen 2>/dev/null || dm-tool switch-to-greeter 2>/dev/null
+fi
