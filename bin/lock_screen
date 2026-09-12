@@ -3,5 +3,5 @@
 # Pick a new random wallpaper for the login/lock screen
 /opt/clearscm/bin/new_login_screen
 
-# Lock display :0 in-place using xscreensaver (prevents VT switch flickering)
+# Lock display :0 in-place using xscreensaver (no VT switch = no flicker, single unlock)
 /usr/bin/xscreensaver-command -lock
