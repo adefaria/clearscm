@@ -1876,7 +1876,11 @@ sub ReturnMessages(%) {
   my $fields     = ['subject', 'timestamp'];
   my $additional = 'group by timestamp order by timestamp desc';
 
-  return $db->get ($table, $condition, $fields, $additional);
+  my $msgs = $db->get ($table, $condition, $fields, $additional);
+  for my $m (@$msgs) {
+    $m->{subject} = "(No subject available)" if !defined $m->{subject} || $m->{subject} eq '';
+  }
+  return $msgs;
 }    # ReturnMessages
 
 sub ReturnSenders(%) {
