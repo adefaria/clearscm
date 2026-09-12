@@ -124,7 +124,7 @@ open $xscreensaver, '-|', 'xscreensaver-command -watch'
 while (<$xscreensaver>) {
   $log->dbug("Received: $_");
 
-  if (/^LOCK/) {
+  if (/^(LOCK|BLANK)/) {
     $log->msg('Locked screen');
     $locked = 1;
 
