@@ -125,23 +125,27 @@ while (<$xscreensaver>) {
   $log->dbug("Received: $_");
 
   if (/^(LOCK|BLANK)/) {
-    $log->msg('Locked screen');
-    $locked = 1;
+    unless ($locked) {
+      $log->msg('Locked screen');
+      $locked = 1;
 
-    my $cmd = '/opt/clearscm/bin/lock_screen';
+      my $cmd = '/opt/clearscm/bin/lock_screen';
 
-    $log->dbug("Calling $cmd");
-    system $cmd;
-    my $status = $?;
+      $log->dbug("Calling $cmd");
+      system $cmd;
+      my $status = $?;
 
-    $log->dbug("Returned from $cmd");
+      $log->dbug("Returned from $cmd");
 
-    if ($status == 0) {
-      $log->dbug('Success');
-    } else {
-      $log->err("Unable to call $cmd- $!");
-    } # if
-  } elsif ($locked and /^UNBLANK/) {
+      if ($status == 0) {
+        $log->dbug('Success');
+      } else {
+        $log->err("Unable to call $cmd- $!");
+      } # if
+
+      $locked = 0;
+    } # unless
+  } elsif (/^UNBLANK/) {
     $log->msg('Unlocked screen');
     $locked = 0;
   } # if

@@ -5,3 +5,7 @@
 
 # Switch to LightDM login/greeter screen
 dm-tool switch-to-greeter
+
+# Deactivate/unblank XScreenSaver so it resets idle timer and clears lock state
+/usr/bin/xscreensaver-command -deactivate >/dev/null 2>&1
+
