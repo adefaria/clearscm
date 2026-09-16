@@ -1,0 +1,28 @@
+#!/bin/bash
+# Greeter Idle Suspend Watcher
+# Monitors X idle time on the LightDM greeter display and suspends after 20 minutes of idle time.
+
+# 20 minutes in milliseconds (20 * 60 * 1000 = 1,200,000 ms)
+IDLE_TIMEOUT_MS=1200000
+
+PIDFILE="/tmp/greeter_idle_suspend.pid"
+if [ -f "$PIDFILE" ]; then
+    OLD_PID=$(cat "$PIDFILE" 2>/dev/null)
+    if [ -n "$OLD_PID" ] && kill -0 "$OLD_PID" 2>/dev/null; then
+        exit 0
+    fi
+fi
+echo $$ > "$PIDFILE"
+
+trap 'rm -f "$PIDFILE"; exit' EXIT INT TERM
+
+while true; do
+    sleep 30
+    if command -v xprintidle >/dev/null 2>&1; then
+        IDLE=$(xprintidle 2>/dev/null || echo 0)
+        if [ "$IDLE" -gt "$IDLE_TIMEOUT_MS" ]; then
+            systemctl suspend
+            sleep 60
+        fi
+    fi
+done
