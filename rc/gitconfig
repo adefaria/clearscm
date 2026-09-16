@@ -118,5 +118,6 @@
   directory = /System/NextCloud/andrew/files/SongBook
 	directory = /opt/rockready
 	directory = /opt/rockready
+	directory = /opt/songbook
 [init]
 	defaultBranch = main
