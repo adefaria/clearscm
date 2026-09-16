@@ -1973,13 +1973,15 @@ public class MainActivity extends Activity {
                                 }
                             } else if ("returned".equals(mAction) || "auth_failed".equals(mAction) || mAction.endsWith("_today")) {
                                 if (data.length() == 0) {
-                                    TextView emptyView = new TextView(MainActivity.this);
-                                    String label = "auth_failed".equals(mAction) ? "Auth Failures" : ("returned".equals(mAction) ? "Returned Messages" : "Entries");
-                                    emptyView.setText("No " + label + " found.");
-                                    emptyView.setTextColor(Color.WHITE);
-                                    emptyView.setTextSize(18);
-                                    emptyView.setPadding(20, 20, 20, 20);
-                                    outputContainer.addView(emptyView);
+                                    if (mOffset == 0) {
+                                        TextView emptyView = new TextView(MainActivity.this);
+                                        String label = "auth_failed".equals(mAction) ? "Auth Failures" : ("returned".equals(mAction) ? "Returned Messages" : "Entries");
+                                        emptyView.setText("No " + label + " found.");
+                                        emptyView.setTextColor(Color.WHITE);
+                                        emptyView.setTextSize(18);
+                                        emptyView.setPadding(20, 20, 20, 20);
+                                        outputContainer.addView(emptyView);
+                                    }
                                 } else {
                                     for (int i = 0; i < data.length(); i++) {
                                         JSONObject senderObj = data.getJSONObject(i);
