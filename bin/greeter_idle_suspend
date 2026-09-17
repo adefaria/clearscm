@@ -1,6 +1,9 @@
 #!/bin/bash
 # Greeter Idle Suspend Watcher
-# Monitors X idle time on the LightDM greeter display and suspends after 20 minutes of idle time.
+# Only execute on host 'mars'. Do NOT suspend on 'earth' or any other machine.
+if [ "$(hostname -s)" != "mars" ]; then
+    exit 0
+fi
 
 # 20 minutes in milliseconds (20 * 60 * 1000 = 1,200,000 ms)
 IDLE_TIMEOUT_MS=1200000
