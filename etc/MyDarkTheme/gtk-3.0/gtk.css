@@ -3,3 +3,14 @@ headerbar, .titlebar {
 background-color:#0b1d33;
 color:#ffffff;
 }
+
+/* MATE Panel Dark Theme Styling */
+.mate-panel-menu-bar,
+.mate-panel-menu-bar label,
+.mate-panel-applet label,
+MatePanelApplet label,
+#mate-panel-menu-bar label {
+    color: #f8f8f2;
+    text-shadow: none;
+}
+

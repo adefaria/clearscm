@@ -1,1 +1,12 @@
 @import url("resource:///com/ubuntu/themes/Yaru-blue/3.0/gtk.css");
+
+/* MATE Panel Light Theme Styling */
+.mate-panel-menu-bar,
+.mate-panel-menu-bar label,
+.mate-panel-applet label,
+MatePanelApplet label,
+#mate-panel-menu-bar label {
+    color: #2e3440;
+    text-shadow: none;
+}
+
