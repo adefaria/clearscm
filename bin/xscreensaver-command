@@ -1,7 +1,5 @@
 #!/bin/sh
 
-echo "$(date): xscreensaver-command called with args: $@" >> /tmp/xscreensaver-wrapper.log
-
 for arg in "$@"; do
     case "$arg" in
         -lock|-activate|-a|-l)
