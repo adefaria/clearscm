@@ -9,12 +9,26 @@ HOSTNAME=$(hostname)
 
 set_mode() {
     local mode=$1
+    local force=$2
     local engine
     local pref
 
     if [ "$mode" == "dark" ]; then
         engine="$DARK_ENGINE"
         pref="prefer-dark"
+    else
+        engine="$LIGHT_ENGINE"
+        pref="prefer-light"
+    fi
+
+    # Check if already in the requested mode
+    CURRENT=$(gsettings get org.mate.interface gtk-theme 2>/dev/null | tr -d "'" | xargs)
+    if [ "$force" != "true" ] && [ "$CURRENT" == "$engine" ]; then
+        echo "Already in $mode mode ($engine). No change needed."
+        return 0
+    fi
+
+    if [ "$mode" == "dark" ]; then
         # Restore AntiGravity's blue tint if a backup exists
         if [ -f "${COLOR_CHOOSER}.bak" ]; then
             mv "${COLOR_CHOOSER}.bak" "$COLOR_CHOOSER"
@@ -78,6 +92,13 @@ set_mode() {
 case "$1" in
     -n|--night) set_mode "dark"  ;;
     -d|--day)   set_mode "light" ;;
+    -f|--force)
+        if $HELIOCRON --latitude $LAT --longitude $LON poll | grep -q "Day"; then
+            set_mode "light" "true"
+        else
+            set_mode "dark" "true"
+        fi
+        ;;
     -t|--toggle)
         CURRENT=$(gsettings get org.mate.interface gtk-theme | tr -d "'" | xargs)
         if [ "$CURRENT" == "$DARK_ENGINE" ]; then
@@ -94,7 +115,8 @@ case "$1" in
         fi
         ;;
     *)
-        echo "Usage: $(basename "$0") [-t|--toggle] [-d|--day] [-n|--night]"
+        echo "Usage: $(basename "$0") [-t|--toggle] [-d|--day] [-n|--night] [-f|--force]"
         exit 1
         ;;
 esac
+
