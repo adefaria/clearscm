@@ -62,8 +62,17 @@ set_mode() {
             /org/beryl_project/emerald org.beryl_project.emerald.reload_settings
     fi
 
-    # 5. Restart MATE panel unconditionally to reset font metrics
-    setsid mate-panel --replace >/dev/null 2>&1 &
+    # 5. Clean up legacy panel override CSS if present
+    if [ -f "$HOME/.config/gtk-3.0/gtk.css" ] && grep -q "mate-panel" "$HOME/.config/gtk-3.0/gtk.css" 2>/dev/null; then
+        rm -f "$HOME/.config/gtk-3.0/gtk.css"
+    fi
+
+    # 6. Restart MATE panel unconditionally to reset font metrics
+    if command -v systemd-run >/dev/null 2>&1 && [ -n "$DBUS_SESSION_BUS_ADDRESS" ]; then
+        systemd-run --user mate-panel --replace >/dev/null 2>&1
+    else
+        setsid mate-panel --replace >/dev/null 2>&1 &
+    fi
 }
 
 case "$1" in

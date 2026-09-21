@@ -7,15 +7,13 @@ mediaFolder=/Videos
 chown=true
 
 # Testing versions
-docker_image=haveagitgat/tdarr_node_acc
-docker_image_version=latest
 #docker_image=haveagitgat/tdarr_node_acc
 #docker_image_version=dev_2.00.24_2023_08_02T13_46_07z
 
 # Production versions
 #docker_image=haveagitgat/tdarr_node
-docker_image_version=latest
-#docker_image_version=2.45.01
+docker_image=haveagitgat/tdarr_node_acc
+docker_image_version=2.88.01
 
 docker_container_name=tdarr_node
 

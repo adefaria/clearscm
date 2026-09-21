@@ -4,8 +4,10 @@
 /opt/clearscm/bin/new_login_screen
 
 # Switch to LightDM login/greeter screen
-dm-tool switch-to-greeter
+export XDG_SEAT_PATH="${XDG_SEAT_PATH:-/org/freedesktop/DisplayManager/Seat0}"
+export XDG_SESSION_PATH="${XDG_SESSION_PATH:-/org/freedesktop/DisplayManager/Session0}"
 
-# Deactivate/unblank XScreenSaver so it resets idle timer and clears lock state
-/usr/bin/xscreensaver-command -deactivate >/dev/null 2>&1
-
+if dm-tool switch-to-greeter; then
+    # Deactivate/unblank XScreenSaver so it resets idle timer and clears lock state
+    /usr/bin/xscreensaver-command -deactivate >/dev/null 2>&1
+fi

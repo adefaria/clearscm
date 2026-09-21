@@ -5,7 +5,7 @@ After=graphical-session.target
 [Service]
 Type=simple
 Environment=DISPLAY=:0
-PassEnvironment=XDG_SESSION_ID XAUTHORITY
+PassEnvironment=XDG_SESSION_ID XAUTHORITY XDG_SEAT_PATH XDG_SESSION_PATH
 ExecStart=/usr/bin/perl /opt/clearscm/bin/monitorXScreenSaver.pl -nodaemon
 Restart=always
 RestartSec=5
