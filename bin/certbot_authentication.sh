@@ -118,32 +118,4 @@ addTXT
 verifyPropagation
 log "Returned from verifyPropagation"
 
-# If we get here then new certs are produced but need to be made available
-# for importation to the Synology. 
-log "Are we root?"
-log "$(id)"
-
-log "cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/privkey.pem     $certdir && chmod 400 $certdir/privkey.pem"
-cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/privkey.pem     $certdir && chmod 400 $certdir/privkey.pem
-log "cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/cert.pem        $certdir && chmod 400 $certdir/cert.pem"
-cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/cert.pem        $certdir && chmod 400 $certdir/cert.pem
-log "cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/chain.pem       $certdir && chmod 400 $certdir/chain.pem"
-cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/chain.pem       $certdir && chmod 400 $certdir/chain.pem
-log "cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/fullchain.pem   $certdir && chmod 400 $certdir/fullchain.pem"
-cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/fullchain.pem   $certdir && chmod 400 $certdir/fullchain.pem
-
-# In the past we had /usr/syno/etc/certficiate/ReverseProxy/*/*.pem symlink to $certdir/*.pem. But
-# when we restart nginx in certbot_deploy, it removes the symlink and copies over the file. This means
-# that the next time certs are renewed it will not work since the symlink is no longerr present. So
-# we must copy these files into place. One complication is that there are multipl, UUID named directories
-# under $synocerts, one for each reverse proxy and each has its own set of .pem files. $synocerts are
-# NFS mounted from Jupiter
-synocerts=/System/Certificates/synocerts
-for reverseproxy in $synocerts/*; do
-  log "Processing $reverseproxy"
-  for pem in cert chain fullchain privkey; do
-    log "Processing $pem"
-    cp $certdir/$pem.pem $reverseproxy/$pem.pem
-  done
-done
 
