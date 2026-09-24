@@ -212,7 +212,7 @@ sub notify($msg) {
   return;
 }    # notify
 
-sub interrupted() {
+sub interrupted {
   if (get_debug) {
     notify 'Turning off debugging';
     set_debug 0;
@@ -254,12 +254,15 @@ sub unseenMsgs() {
     return ();
     };
 
-  # Use SEARCH to get sequence numbers
-  my @msgs     = @{$IMAP->search ('unseen')};
+  # Use UID SEARCH so returned IDs are stable UIDs, not volatile sequence numbers.
+  # Mail::IMAPTalk uses ->uid(1) to enable UID mode for the next command.
+  $IMAP->uid (1);
+  my @msgs = @{$IMAP->search ('unseen')};
+  $IMAP->uid (1);
   my @all_msgs = @{$IMAP->search ('all')};
   $log->dbug ("unseenMsgs found "
       . scalar (@msgs)
-      . " unseen messages ("
+      . " unseen UIDs ("
       . join (', ', @msgs)
       . "). Total messages: "
       . scalar (@all_msgs));
@@ -468,6 +471,7 @@ sub SpeakNewMessages($newUnseen_ref) {
   for (keys %$newUnseen_ref) {
     next if $unseen{$_};
 
+    $IMAP->uid (1);
     my $envelope = $IMAP->fetch ($_, '(envelope)');
     my $from     = $envelope->{$_}{envelope}{From};
     my $subject  = $envelope->{$_}{envelope}{Subject};
