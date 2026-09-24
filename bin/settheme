@@ -81,11 +81,19 @@ set_mode() {
         rm -f "$HOME/.config/gtk-3.0/gtk.css"
     fi
 
-    # 6. Restart MATE panel unconditionally to reset font metrics
-    if command -v systemd-run >/dev/null 2>&1 && [ -n "$DBUS_SESSION_BUS_ADDRESS" ]; then
-        systemd-run --user mate-panel --replace >/dev/null 2>&1
-    else
-        setsid mate-panel --replace >/dev/null 2>&1 &
+    # 6. Restart MATE panel unconditionally to reset font metrics (only if unlocked)
+    if ! xscreensaver-command -time 2>/dev/null | grep -q "screen locked"; then
+        if command -v systemd-run >/dev/null 2>&1 && [ -n "$DBUS_SESSION_BUS_ADDRESS" ]; then
+            # Inject SESSION_MANAGER so it stays connected to mate-session
+            SESSION_MGR=$(cat /proc/$(pgrep -u $USER -x mate-session | head -n 1)/environ 2>/dev/null | tr '\0' '\n' | grep '^SESSION_MANAGER=' | cut -d= -f2-)
+            if [ -n "$SESSION_MGR" ]; then
+                systemd-run --user --setenv="SESSION_MANAGER=$SESSION_MGR" mate-panel --replace >/dev/null 2>&1
+            else
+                systemd-run --user mate-panel --replace >/dev/null 2>&1
+            fi
+        else
+            setsid mate-panel --replace >/dev/null 2>&1 &
+        fi
     fi
 }
 

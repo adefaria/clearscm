@@ -148,5 +148,9 @@ while (<$xscreensaver>) {
   } elsif (/^UNBLANK/) {
     $log->msg('Unlocked screen');
     $locked = 0;
+
+    my $cmd = '/opt/clearscm/bin/settheme';
+    $log->dbug("Calling $cmd");
+    system $cmd;
   } # if
 } # while
