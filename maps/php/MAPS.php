@@ -210,23 +210,41 @@ function SubtractDays($date, $nbr_days)
 
 function GetStats($nbr_days, $date = "")
 {
-  global $Types;
+  global $Types, $db, $userid;
 
   if ($date == "") {
     $date = Today2SQLDatetime();
   } // if
+
+  $dates = array();
 
   while ($nbr_days > 0) {
     $ymd = substr($date, 0, 10);
     $sod = $ymd . " 00:00:00";
     $eod = $ymd . " 23:59:59";
 
+    $stats = array();
     foreach ($Types as $type) {
-      $condition = "type=\"$type\" and (timestamp > \"$sod\" and timestamp < \"$eod\")";
-      $stats[$type] = countlog($condition);
-    } # foreach
+      $stats[$type] = 0;
+    }
 
-    $dates[$ymd] = &$stats;
+    $statement = "select sender, type from log where userid=\"$userid\" and (timestamp > \"$sod\" and timestamp < \"$eod\") order by timestamp desc";
+    $result = mysqli_query($db, $statement);
+
+    if ($result) {
+      $latest_type = array();
+      while ($row = mysqli_fetch_assoc($result)) {
+        $sender = $row["sender"];
+        if (!empty($sender) && !isset($latest_type[$sender])) {
+          $latest_type[$sender] = $row["type"];
+          if (isset($stats[$row["type"]])) {
+            $stats[$row["type"]]++;
+          }
+        }
+      }
+    }
+
+    $dates[$ymd] = $stats;
 
     $date = SubtractDays($date, 1);
     $nbr_days--;
