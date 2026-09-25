@@ -74,7 +74,7 @@ use Display;
 use Logger;
 use Utils;
 
-my %opts = (execute => 1, cc_auth_fail => 1);
+my %opts = (execute => 1, cc_auth_fail => 0);
 
 my $userid = $ENV{USER};
 
