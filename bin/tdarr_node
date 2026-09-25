@@ -14,6 +14,7 @@ chown=true
 #docker_image=haveagitgat/tdarr_node
 docker_image=haveagitgat/tdarr_node_acc
 docker_image_version=2.89.01
+docker_image_version=latest
 
 docker_container_name=tdarr_node
 

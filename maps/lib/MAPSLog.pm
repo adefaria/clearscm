@@ -66,16 +66,26 @@ sub GetStats(%) {
     my $eod = $ymd . ' 23:59:59';
 
     my %stats;
-
     for (@Types) {
-      my $condition = "type=\'$_\' and (timestamp > \'$sod\' and timestamp < \'$eod\')";
+      $stats{$_} = 0;
+    }
 
-      $stats{$_} = MAPS::CountLogDistinct(
-        userid     => $params{userid},
-        column     => 'sender',
-        additional => $condition,
-      );
-    } # for
+    my $condition = "userid='$params{userid}' and (timestamp > '$sod' and timestamp < '$eod')";
+    my $additional = 'order by timestamp desc';
+
+    $MAPS::db->find('log', $condition, '*', $additional);
+
+    my %latest_type;
+    while (my $rec = $MAPS::db->getnext) {
+      my $sender = $rec->{sender};
+      next unless $sender;
+      if (!exists $latest_type{$sender}) {
+        $latest_type{$sender} = $rec->{type};
+        if (exists $stats{$rec->{type}}) {
+          $stats{$rec->{type}}++;
+        }
+      }
+    } # while
 
     $dates{$ymd} = \%stats;
 
@@ -83,7 +93,7 @@ sub GetStats(%) {
     $params{days}--;
   } # while
 
-  return %dates
+  return %dates;
 } # GetStats
 
 sub Logmsg(%) {
