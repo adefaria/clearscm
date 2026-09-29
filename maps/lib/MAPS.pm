@@ -210,14 +210,16 @@ sub Add2Blacklist(%) {
       type   => $type,
       sender => $params{sender}
     );
+    my $deleted = 0;
     while (my $rec = GetList ()) {
       DeleteList (
         userid   => $params{userid},
         type     => $type,
         sequence => $rec->{sequence}
       );
-      ResequenceList (userid => $params{userid}, type => $type);
+      $deleted++;
     }    # while
+    ResequenceList (userid => $params{userid}, type => $type) if $deleted;
   }    # for
 
   # Log that we black listed the sender
@@ -273,14 +275,16 @@ sub Add2Nulllist(%) {
       type   => $type,
       sender => $params{sender}
     );
+    my $deleted = 0;
     while (my $rec = GetList ()) {
       DeleteList (
         userid   => $params{userid},
         type     => $type,
         sequence => $rec->{sequence}
       );
-      ResequenceList (userid => $params{userid}, type => $type);
+      $deleted++;
     }    # while
+    ResequenceList (userid => $params{userid}, type => $type) if $deleted;
   }    # for
 
   # Log that we null listed the sender
@@ -338,14 +342,16 @@ sub Add2Whitelist(%) {
       type   => $type,
       sender => $params{sender}
     );
+    my $deleted = 0;
     while (my $rec = GetList ()) {
       DeleteList (
         userid   => $params{userid},
         type     => $type,
         sequence => $rec->{sequence}
       );
-      ResequenceList (userid => $params{userid}, type => $type);
+      $deleted++;
     }    # while
+    ResequenceList (userid => $params{userid}, type => $type) if $deleted;
   }    # for
 
   # Log that we registered a user
@@ -791,53 +797,51 @@ sub CleanList(%) {
   $condition =
 "userid='$params{userid}' and type='$params{type}' and retention is not null";
 
-  # First see if anything needs to be deleted
-  ($count, $msg) = $db->count ($table, $condition);
+  # First see if anything needs to be deleted for retention
+  my ($retention_count, $retention_msg) = $db->count ($table, $condition);
 
-  return 0 unless $count;
+  if ($retention_count) {
+    my ($err, $errmsg) = $db->find ($table, $condition);
 
-  $count = 0;
+    croak "Unable to find $params{type} entries for $condition - $errmsg" if $err;
 
-  my ($err, $errmsg) = $db->find ($table, $condition);
+    my $todaysDate = Today2SQLDatetime;
 
-  croak "Unable to find $params{type} entries for $condition - $errmsg" if $err;
+    while (my $rec = $db->getnext) {
+      my $days = _retention2Days ($rec->{retention});
 
-  my $todaysDate = Today2SQLDatetime;
+      my $agedDate = SubtractDays ($todaysDate, $days);
 
-  while (my $rec = $db->getnext) {
-    my $days = _retention2Days ($rec->{retention});
+      # If last_hit < retentiondays then delete
+      if (Compare ($rec->{last_hit}, $agedDate) == -1) {
+        unless ($params{dryrun}) {
+          DeleteList (
+            userid   => $params{userid},
+            type     => $params{type},
+            sequence => $rec->{sequence},
+          );
 
-    my $agedDate = SubtractDays ($todaysDate, $days);
+          if ($params{log}) {
+            $rec->{pattern} //= '';
+            $rec->{domain}  //= '';
 
-    # If last_hit < retentiondays then delete
-    if (Compare ($rec->{last_hit}, $agedDate) == -1) {
-      unless ($params{dryrun}) {
-        DeleteList (
-          userid   => $params{userid},
-          type     => $params{type},
-          sequence => $rec->{sequence},
-        );
+            $params{log}
+              ->msg ("Deleted $rec->{userid}:$params{type}:$rec->{sequence} "
+                . "$rec->{pattern}\@$rec->{domain} $dryrunstr");
+            $params{log}
+              ->dbug ("last hit = $rec->{last_hit} < agedDate = $agedDate");
+          }    # if
+        }    # unless
 
-        if ($params{log}) {
-          $rec->{pattern} //= '';
-          $rec->{domain}  //= '';
-
-          $params{log}
-            ->msg ("Deleted $rec->{userid}:$params{type}:$rec->{sequence} "
-              . "$rec->{pattern}\@$rec->{domain} $dryrunstr");
-          $params{log}
-            ->dbug ("last hit = $rec->{last_hit} < agedDate = $agedDate");
-        }    # if
-      }    # unless
-
-      $count++;
-    } else {
-      $params{log}->dbug (
-        "$rec->{userid}:$params{type}:$rec->{sequence}: nodelete $dryrunstr "
-          . "last hit = $rec->{last_hit} >= agedDate = $agedDate")
-        if $params{log};
-    }    # if
-  }    # while
+        $count++;
+      } else {
+        $params{log}->dbug (
+          "$rec->{userid}:$params{type}:$rec->{sequence}: nodelete $dryrunstr "
+            . "last hit = $rec->{last_hit} >= agedDate = $agedDate")
+          if $params{log};
+      }    # if
+    }    # while
+  }    # if
 
   ResequenceList (
     userid => $params{userid},
@@ -1033,9 +1037,10 @@ sub GetNextSequenceNo(%) {
   my $table     = 'list';
   my $condition = "userid='$rec{userid}' and type='$rec{type}'";
 
-  my $count = $db->count ('list', $condition);
+  my $row = $db->getone ($table, $condition, 'max(sequence) as max_seq');
+  my $max = $row->{max_seq} // 0;
 
-  return $count + 1;
+  return $max + 1;
 }    # GetNextSequenceNo
 
 sub GetUser() {
