@@ -2307,8 +2307,8 @@ sub AuthFailMsg(%) {
     cc          => $params{cc},
   );
 
-  # Save message so subject line and contents are retained in email table
-  SaveMsg ($params{sender}, $params{subject}, $params{data}, $params{userid});
+  # Do NOT save message to DB for auth failures - message is discarded and sent as attachment
+  # SaveMsg ($params{sender}, $params{subject}, $params{data}, $params{userid});
 
   return;
 }    # AuthFailMsg
