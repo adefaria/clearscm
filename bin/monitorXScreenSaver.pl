@@ -121,10 +121,28 @@ if ($opts{daemon}) {
 open $xscreensaver, '-|', 'xscreensaver-command -watch'
   or $log->err("Unable to start xscreensaver-command -watch - $!", 1);
 
+sub is_session_locked {
+  my $active = `loginctl show-session auto -p Active --value 2>/dev/null`;
+  chomp $active;
+  return 1 if $active eq 'no';
+
+  my $locked_hint = `loginctl show-session auto -p LockedHint --value 2>/dev/null`;
+  chomp $locked_hint;
+  return 1 if $locked_hint eq 'yes';
+
+  return 0;
+} # is_session_locked
+
 while (<$xscreensaver>) {
   $log->dbug("Received: $_");
 
   if (/^(LOCK|BLANK)/) {
+    if (is_session_locked()) {
+      $log->dbug('Session is already locked; ignoring lock/blank event');
+      $locked = 1;
+      next;
+    }
+
     unless ($locked) {
       $log->msg('Locked screen');
       $locked = 1;
@@ -142,10 +160,13 @@ while (<$xscreensaver>) {
       } else {
         $log->err("Unable to call $cmd- $!");
       } # if
-
-      $locked = 0;
     } # unless
   } elsif (/^UNBLANK/) {
+    if (is_session_locked()) {
+      $log->dbug('Received UNBLANK while session is still locked; skipping unlock');
+      next;
+    }
+
     $log->msg('Unlocked screen');
     $locked = 0;
 
