@@ -9,9 +9,11 @@ if [ -d "/Pictures/Login Screens" ]; then
     fi
 fi
 
-# Launch background idle watcher for greeter screen
+# Launch background idle watcher for greeter screen if not already running
 if [ -x /opt/clearscm/bin/greeter_idle_suspend ]; then
-    /opt/clearscm/bin/greeter_idle_suspend &
+    if ! pgrep -f "/opt/clearscm/bin/greeter_idle_suspend" >/dev/null 2>&1; then
+        /opt/clearscm/bin/greeter_idle_suspend &
+    fi
 fi
 
 exit 0

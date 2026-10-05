@@ -3,5 +3,8 @@
 if [ "$1" = "pre" ]; then
     /opt/clearscm/bin/new_login_screen 2>/dev/null
     loginctl lock-sessions 2>/dev/null
+elif [ "$1" = "post" ]; then
+    # Reset XScreenSaver activity timer on resume so it doesn't trigger a stale lock
+    sudo -u andrew DISPLAY=:0 XDG_RUNTIME_DIR=/run/user/1000 /usr/bin/xscreensaver-command -deactivate 2>/dev/null || true
 fi
 
