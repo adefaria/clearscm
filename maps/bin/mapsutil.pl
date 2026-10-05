@@ -31,7 +31,8 @@ use MAPS;
 use MAPSLog;
 use MyDB;
 
-use CmdLine;
+#use CmdLine;
+use Term::CmdLine;
 use Utils;
 
 my %cmds = (
@@ -127,35 +128,35 @@ sub EncryptPassword($$) {
   say "Encrypted password: '$encrypted_password'";
 
   return;
-} # EncryptPassword
+}    # EncryptPassword
 
 sub DecryptPassword($$) {
   my ($password, $userid) = @_;
 
-  my $decrypted_password = Decrypt($password, $userid);
+  my $decrypted_password = Decrypt ($password, $userid);
 
   say "Decrypted password: $decrypted_password";
 
   return;
-} # DecryptPassword
+}    # DecryptPassword
 
 sub Resequence($$) {
   my ($userid, $type) = @_;
 
-  ResequenceList(
+  ResequenceList (
     userid => $userid,
     type   => $type,
   );
-} # Resequence
+}    # Resequence
 
 sub Login2MAPS($;$) {
   my ($username, $password) = @_;
 
   if ($username ne '') {
     $password = GetPassword unless $password;
-  } # if
+  }    # if
 
-  while (Login($username, $password) != 0) {
+  while (Login ($username, $password) != 0) {
     say "Login failed!";
 
     print "Username:";
@@ -166,17 +167,18 @@ sub Login2MAPS($;$) {
       say "Login aborted!";
 
       return undef;
-    } # if
+    }    # if
 
     chomp $username;
 
     $password = GetPassword;
-  } # if
+  }    # if
 
   return $username;
-} # Login2MAPS
+}    # Login2MAPS
 
 sub LoadListFile($) {
+
   # This function loads a ".list" file. This is to "import" our old ".list"
   # files. Note it assumes that the ".list" files have specific names.
   my ($listfilename) = @_;
@@ -192,18 +194,18 @@ sub LoadListFile($) {
   } else {
     say "Unknown list file: $listfilename";
     return;
-  } # if
+  }    # if
 
   my $listfile;
 
   if (!open $listfile, '<', $listfilename) {
     say "Unable to open $listfilename";
     return;
-  } # if
+  }    # if
 
   my $sequence = 0;
 
-  Info(
+  Info (
     userid  => $userid,
     message => "Adding $listfilename to $listtype list",
   );
@@ -214,9 +216,9 @@ sub LoadListFile($) {
 
     my ($pattern, $comment) = split /\,/;
 
-    AddList($listtype, $pattern, 0, $comment);
+    AddList ($listtype, $pattern, 0, $comment);
     $sequence++;
-  } # while
+  }    # while
 
   if ($sequence == 0) {
     say "No messages found to load";
@@ -224,14 +226,15 @@ sub LoadListFile($) {
     say "Loaded 1 message ";
   } else {
     say "Loaded $sequence messages";
-  } # if
+  }    # if
 
   say "from $listfilename";
 
   close $listfile;
-} # LoadListFile
+}    # LoadListFile
 
 sub LoadEmail($) {
+
   # This function loads an mbox file.
   my ($filename) = @_;
 
@@ -245,22 +248,22 @@ sub LoadEmail($) {
   my $nbr_msgs;
 
   while (!eof $file) {
-    my %msgInfo = ReadMsg *$file;
+    my %msgInfo = ReadMsg * $file;
 
     $nbr_msgs++;
 
-    AddEmail(
+    AddEmail (
       userid  => $userid,
       sender  => $msgInfo{sender},
       subject => $msgInfo{subject},
       data    => $msgInfo{data},
     );
 
-    Info(
+    Info (
       userid  => $userid,
       message => "Added message from $msgInfo{sender} to email"
     );
-  } # while
+  }    # while
 
   if ($nbr_msgs == 0) {
     print "No messages found to load";
@@ -268,77 +271,74 @@ sub LoadEmail($) {
     print "Loaded 1 message";
   } else {
     print "Loaded $nbr_msgs messages";
-  } # if
+  }    # if
 
   say " from $filename";
-} # LoadEmail
+}    # LoadEmail
 
 sub DumpEmail($) {
+
   # This function unloads email to a mbox file.
   my ($filename) = @_;
 
   my $file;
 
-  open $file, '>', $filename or
-    die "Unable to open \"$filename\" - $!\n";
+  open $file, '>', $filename
+    or die "Unable to open \"$filename\" - $!\n";
 
   binmode $file;
 
   my $i = 0;
 
-  my ($err, $msg) = $MAPS::db->find(
-    'email',
-    "userid = '$userid'",
-    qw(data),
-  );
+  my ($err, $msg) = $MAPS::db->find ('email', "userid = '$userid'", qw(data),);
 
   croak $msg if $msg;
 
   while (my $rec = $MAPS::db->getnext) {
     say $file $rec->{data};
     $i++;
-  } # while
+  }    # while
 
   say "$i messages dumped to $file";
 
   close $file;
-} # DumpEmail
+}    # DumpEmail
 
 sub SwitchUser($) {
   my ($new_user) = @_;
 
-  if ($new_user = Login2MAPS($new_user)) {
+  if ($new_user = Login2MAPS ($new_user)) {
     say "You are now logged in as $new_user";
-  } # if
-} # SwitchContext
+  }    # if
+}    # SwitchContext
 
 sub SetPassword() {
-  FindUser(userid => $userid);
+  FindUser (userid => $userid);
 
   my $rec = GetUser;
 
   return unless $rec;
 
-  my $password = GetPassword('Enter new password');
-  my $repeat   = GetPassword('Enter new password again');
+  my $password = GetPassword ('Enter new password');
+  my $repeat   = GetPassword ('Enter new password again');
 
   if ($password ne $repeat) {
     say "Passwords don't match!";
   } else {
-    $rec->{password} = Encrypt($password, $userid);
+    $rec->{password} = Encrypt ($password, $userid);
 
-    UpdateUser(%$rec);
+    UpdateUser (%$rec);
 
     say "Password updated";
-  } # if
+  }    # if
 
   return;
-} # SetPassword
+}    # SetPassword
 
 sub ShowSpace() {
   my $userid = GetContext;
 
-  my $total_space = Space($userid);
+  my $total_space = Space ($userid);
 
   $total_space = $total_space / (1024 * 1024);
 
@@ -346,19 +346,17 @@ sub ShowSpace() {
 Total size @###.### Meg
 $total_space
 .
-$~ = "TOTALSIZE";
+  $~ = "TOTALSIZE";
 
-  write();
-} # ShowSpace
+  write ();
+}    # ShowSpace
 
 sub ShowUser() {
-  say "Current userid is " . GetContext();
-} # ShowContext
+  say "Current userid is " . GetContext ();
+}    # ShowContext
 
 sub ShowUsers() {
-  FindUser(
-    fields => ['userid', 'name', 'email'],
-  );
+  FindUser (fields => ['userid', 'name', 'email'],);
 
   my $rec;
 
@@ -366,54 +364,50 @@ sub ShowUsers() {
 User ID: @<<<<<<<<< Name: @<<<<<<<<<<<<<<<<<<< Email: @<<<<<<<<<<<<<<<<<<<<<<<
 $rec->{userid},$rec->{name},$rec->{email}
 .
-$~ = "USERLIST";
+  $~ = "USERLIST";
   while ($rec = GetUser) {
     last unless $rec->{userid};
     write;
-  } # while
-} # ShowUsers
+  }    # while
+}    # ShowUsers
 
 sub ShowEmail() {
   my @fields = qw(userid timestamp sender subject);
-  my ($err, $msg) = $MAPS::db->find(
-    'email',
-    "userid='$userid'",
-    \@fields,
-  );
+  my ($err, $msg) = $MAPS::db->find ('email', "userid='$userid'", \@fields,);
 
-my ($timestamp, $sender, $subject);
+  my ($timestamp, $sender, $subject);
 
-format EMAIL =
+  format EMAIL =
 @<<<<<<<<<<<<<<<<<<<@<<<<<<<<<<<<<<<<<< @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 $timestamp,$sender,$subject
 .
 
-$~ = "EMAIL";
+  $~ = "EMAIL";
   while (my $rec = $MAPS::db->getnext) {
     last unless $rec->{userid};
 
-   $timestamp = $rec->{timestamp} || '<undef>';
-   $sender    = $rec->{sender}    || '<undef>';
-   $subject   = $rec->{subject}   || '<undef>';
+    $timestamp = $rec->{timestamp} || '<undef>';
+    $sender    = $rec->{sender}    || '<undef>';
+    $subject   = $rec->{subject}   || '<undef>';
 
-    write();
-  } # while
-} # ShowEmail
+    write ();
+  }    # while
+}    # ShowEmail
 
 sub ShowLog($) {
   my ($how_many) = @_;
 
   $how_many = defined $how_many ? $how_many : -20;
 
-  my $handle = FindLog($how_many);
+  my $handle = FindLog ($how_many);
 
   my ($userid, $timestamp, $sender, $type, $message);
 
-format LOG =
+  format LOG =
 @<<<<<<<<<<<<<<<<<<<@<<<<<<<<< @<<<<<<<<<<<<<<<< @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 $timestamp,$type,$sender,$message
 .
-$~ = "LOG";
+  $~ = "LOG";
 
   my $count = 0;
 
@@ -428,10 +422,10 @@ $~ = "LOG";
     last if $count > $how_many;
 
     write;
-  } # while
+  }    # while
 
   return;
-} # ShowLog
+}    # ShowLog
 
 sub ShowList($) {
   my ($type) = @_;
@@ -441,19 +435,23 @@ sub ShowList($) {
   my @list;
   my %record;
 
-format LIST =
+  format LIST =
 @>> @<<<<<<<<<<<<<<<<<<<<<<<< @<<<<<<<<<<<<<<<<<<<<<<<< @<<<<<<<<<<<<<<<<<<<<<
 $record{sequence},$record{pattern},$record{domain},$record{comment}
 .
-$~ = "LIST";
+  $~ = "LIST";
 
   # TODO: Why does ReturnList return a one entry array with a many entry array
   # of hashes. Seems it should just return $list[0], right?
-  while (@list = ReturnList(
-    userid   => $userid,
-    type     => $type,
-    start_at => $next,
-    lines    => $lines)) {
+  while (
+    @list = ReturnList (
+      userid   => $userid,
+      type     => $type,
+      start_at => $next,
+      lines    => $lines
+    )
+    )
+  {
     for (@{$list[0]}) {
       %record = %$_;
 
@@ -461,46 +459,46 @@ $~ = "LIST";
       $record{pattern} //= '';
       $record{domain}  //= '';
       $record{comment} //= '';
-      write();
-    } # for
+      write ();
+    }    # for
 
     print 'Hit any key to continue - q to quit';
 
     ReadMode 'raw';
-    my $key = ReadKey(0);
+    my $key = ReadKey (0);
     ReadMode 'normal';
 
     if ($key eq 'q' or ord $key == 67) {
       print "\n";
 
       last;
-    } # if
+    }    # if
 
     print "\r";
 
     $next += $lines;
-  } # while
+  }    # while
 
   return;
-} # ShowList
+}    # ShowList
 
 sub ShowStats($) {
   my ($nbr_days) = @_;
 
   $nbr_days ||= 1;
 
-  my %dates = GetStats(
+  my %dates = GetStats (
     userid => $userid,
     days   => $nbr_days,
   );
 
-  for my $date (keys(%dates)) {
-    for (keys(%{$dates{$date}})) {
+  for my $date (keys (%dates)) {
+    for (keys (%{$dates{$date}})) {
       say "$date $_:";
       say "\t$dates{$date}{$_}";
-    } # for
-  } # for
-} # ShowStats
+    }    # for
+  }    # for
+}    # ShowStats
 
 sub Deliver($) {
   my ($filename) = @_;
@@ -510,22 +508,22 @@ sub Deliver($) {
   if (!open $message, '<', $filename) {
     say "Unable to open message file $filename";
     return;
-  } # if
+  }    # if
 
   my $data;
 
   while ($message) {
     $data = $data . $_;
-  } # while
+  }    # while
 
   Whitelist "Andrew\@DeFaria.com", $data;
 
   close $message;
 
   return;
-} # Deliver
+}    # Deliver
 
-sub ExecuteCmd($){
+sub ExecuteCmd($) {
   my ($line) = @_;
 
   my ($cmd, $parm1, $parm2, $parm3, $parm4) = split /\s+/, $line;
@@ -533,19 +531,19 @@ sub ExecuteCmd($){
   if (!defined $cmd || $cmd eq '') {
     return;
   } elsif ($cmd =~ /^\s*resequence\s*$/) {
-    Resequence(GetContext(), $parm1);
+    Resequence (GetContext (), $parm1);
   } elsif ($cmd =~ /^\s*encrypt\s*$/) {
-    EncryptPassword($parm1, $userid);
+    EncryptPassword ($parm1, $userid);
   } elsif ($cmd =~ /^\s*decrypt\s*$/) {
-    DecryptPassword($parm1, $userid);
+    DecryptPassword ($parm1, $userid);
   } elsif ($cmd =~ /^\s*deliver\s*$/) {
-    Deliver($parm1);
+    Deliver ($parm1);
   } elsif ($cmd =~ /^\s*add2whitelist\s*$/) {
     if ($parm2) {
-      $parm2 .= ' ' . $parm3
-    } # if
+      $parm2 .= ' ' . $parm3;
+    }    # if
 
-    Add2Whitelist(
+    Add2Whitelist (
       userid    => GetContext,
       type      => 'white',
       sender    => $parm1,
@@ -554,11 +552,11 @@ sub ExecuteCmd($){
   } elsif ($cmd =~ /^\s*showusers\s*$/) {
     ShowUsers;
   } elsif ($cmd =~ /^\s*adduser\s*$/) {
-    AddUser(
+    AddUser (
       userid   => $parm1,
       name     => $parm2,
       email    => $parm3,
-      password => Encrypt($parm4, $userid),
+      password => Encrypt ($parm4, $userid),
     );
   } elsif ($cmd =~ /^\s*cleanemail\s*$/) {
     $parm1 = "9999-12-31 23:59:59" unless $parm1;
@@ -569,32 +567,32 @@ sub ExecuteCmd($){
 
     say CleanLog($parm1);
   } elsif ($cmd =~ /^\s*loadlist\s*$/) {
-    LoadListFile($parm1);
+    LoadListFile ($parm1);
   } elsif ($cmd =~ /^\s*loademail\s*$/) {
-    LoadEmail($parm1);
+    LoadEmail ($parm1);
   } elsif ($cmd =~ /^\s*dumpemail\s*$/) {
-    DumpEmail($parm1);
+    DumpEmail ($parm1);
   } elsif ($cmd =~ /^\s*log\s*$/) {
-    Logmsg(
+    Logmsg (
       userid  => $userid,
       type    => $parm1,
       sender  => $parm2,
       message => $parm3,
     );
   } elsif ($cmd =~ /^\s*switchuser\s*$/) {
-    SwitchUser($parm1);
+    SwitchUser ($parm1);
   } elsif ($cmd =~ /^\s*showuser\s*$/) {
     ShowUser;
   } elsif ($cmd =~ /^\s*showemail\s*$/) {
     ShowEmail;
   } elsif ($cmd =~ /^\s*showlog\s*$/) {
-    ShowLog($parm1);
+    ShowLog ($parm1);
   } elsif ($cmd =~ /^\s*showlist\s*$/) {
-    ShowList($parm1);
+    ShowList ($parm1);
   } elsif ($cmd =~ /^\s*space\s*$/) {
     ShowSpace;
   } elsif ($cmd =~ /^\s*showstats\s*$/) {
-    ShowStats($parm1);
+    ShowStats ($parm1);
   } elsif ($cmd =~ /^\s*setpassword\s*$/) {
     SetPassword;
   } else {
@@ -604,28 +602,28 @@ sub ExecuteCmd($){
     say "Parm2: $parm2" if $parm2;
     say "Parm3: $parm3" if $parm3;
     say "Parm4: $parm4" if $parm4;
-  }
+  } ## end else [ if (!defined $cmd || $cmd...)]
 
   return;
-} # ExecuteCmd
+}    # ExecuteCmd
 
-my $username = Login2MAPS($userid, $ENV{MAPS_PASSWORD});
+my $username = Login2MAPS ($userid, $ENV{MAPS_PASSWORD});
 
 if ($ARGV[0]) {
   ExecuteCmd join ' ', @ARGV;
   exit;
-} # if
+}    # if
 
-# Use CommandLine
-$CmdLine::cmdline->set_cmds(%cmds);
-$CmdLine::cmdline->set_eval(\&ExecuteCmd);
+my $cmdline = Term::CmdLine->new;
+$cmdline->set_cmds (%cmds);
+$cmdline->set_eval (\&ExecuteCmd);
 
-while (my ($line, $result) = $CmdLine::cmdline->get) {
+while (my ($line, $result) = $cmdline->get) {
   next unless $line;
 
   last if $line =~ /^\s*exit\s*$/i or $line =~ /^\s*quit\s*$/i;
 
   ExecuteCmd $line;
-} # while
+}    # while
 
 exit;

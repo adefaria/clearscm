@@ -230,7 +230,7 @@ our %opts;
 my $_pos = 0;
 my $_haveGnu;
 
-my (%_cmds, $_cmdline, $_attribs);
+my (%_cmds, $_attribs);
 
 BEGIN {
   # See if we can load Term::ReadLine::Gnu
@@ -316,7 +316,7 @@ my %builtin_cmds = (
   },
 );
 
-sub _cmdCompletion ($text, $state) {
+sub _cmdCompletion ($self, $text, $state) {
 
   return unless %_cmds;
 
@@ -332,16 +332,16 @@ sub _cmdCompletion ($text, $state) {
   return;
 }    # _cmdCompletion
 
-sub _complete ($text, $line, $start, $end) {
-
-  return $_cmdline->completion_matches ($text, \&Term::CmdLine::_cmdCompletion);
+sub _complete ($self, $text, $line, $start, $end) {
+  return $self->{cmdline}
+    ->completion_matches ($text, sub {$self->_cmdCompletion (@_);});
 }    # _complete
 
 sub _gethelp ($self) {
 
   return unless %_cmds;
 
-  my $line = $_cmdline->{line_buffer};
+  my $line = $self->{cmdline}->{line_buffer};
 
   # Trim
   $line =~ s/^\s+//;
@@ -356,7 +356,7 @@ sub _gethelp ($self) {
     $Term::CmdLine::cmdline->help ($line);
   }    # if
 
-  $_cmdline->on_new_line;
+  $self->{cmdline}->on_new_line;
 
   return;
 }    # _gethelp
@@ -538,26 +538,26 @@ sub _builtinCmds ($self, $line) {
   return ($cmd, $line, $result);
 }    # _builtinCmds
 
-sub _interrupt() {
+sub _interrupt ($self, $sig = undef) {
 
   # Announce that we have hit an interrupt
   print color ('yellow') . "<Control-C>\n" . color ('reset');
 
   # Free up all of the line state info
-  $_cmdline->free_line_state;
+  $self->{cmdline}->free_line_state;
 
   # Allow readline to clean up
-  $_cmdline->cleanup_after_signal;
+  $self->{cmdline}->cleanup_after_signal;
 
   # Redisplay prompt on a new line
-  $_cmdline->on_new_line;
-  $_cmdline->{line_buffer} = '';
-  $_cmdline->redisplay;
+  $self->{cmdline}->on_new_line;
+  $self->{cmdline}->{line_buffer} = '';
+  $self->{cmdline}->redisplay;
 
   return;
 }    # _interrupt
 
-sub _displayMatches ($matches, $num_matches, $max_length) {
+sub _displayMatches ($self, $matches, $num_matches, $max_length) {
 
   # Work on a copy... (Otherwise we were getting "Attempt to free unreferenced
   # scalar" internal errors from perl)
@@ -589,9 +589,9 @@ sub _displayMatches ($matches, $num_matches, $max_length) {
 
   unshift @newMatches, $match;
 
-  $_cmdline->display_match_list (\@newMatches);
-  $_cmdline->on_new_line;
-  $_cmdline->redisplay;
+  $self->{cmdline}->display_match_list (\@newMatches);
+  $self->{cmdline}->on_new_line;
+  $self->{cmdline}->redisplay;
 
   return;
 }    # _displayMatches
@@ -602,9 +602,7 @@ sub new ($class, $histfile = undef, $eval = undef, %cmds) {
 
 =head2 new ()
 
-Construct a new CmdLine object. Note there is already a default
-CmdLine object created named $cmdline. You should use that unless you
-have good reason to instantiate another CmdLine object.
+Construct a new CmdLine object.
 
 Parameters:
 
@@ -670,7 +668,7 @@ Returns:
   }    # unless
 
   # Instantiate a commandline
-  $_cmdline = Term::ReadLine->new ($me);
+  $self->{cmdline} = Term::ReadLine->new ($me);
 
   # Store the function pointer of what to call when sourcing a file or
   # evaluating an expression.
@@ -691,17 +689,17 @@ Returns:
   $self->set_cmds (%cmds);
 
   # Set some ornamentation
-  $_cmdline->ornaments ('s,e,u,') unless $Config{cppflags} =~ /win32/i;
+  $self->{cmdline}->ornaments ('s,e,u,') unless $Config{cppflags} =~ /win32/i;
 
   # Read in history
   $self->set_histfile ($histfile);
 
   # Generator function for completion matches
-  $_attribs = $_cmdline->Attribs;
+  $_attribs = $self->{cmdline}->Attribs;
 
-  $_attribs->{attempted_completion_function} = \&Term::CmdLine::_complete;
-  $_attribs->{completion_display_matches_hook} =
-    \&Term::CmdLine::_displayMatches;
+  $_attribs->{attempted_completion_function} = sub { $self->_complete(@_); };
+  $_attribs->{completion_display_matches_hook} = sub { $self->_displayMatches(@_); };
+
   $_attribs->{completer_word_break_characters} =~ s/ //
     if $_attribs->{completer_word_break_characters};
 
@@ -709,12 +707,12 @@ Returns:
   if ($_haveGnu) {
 
     # Bind a key to display completion
-    $_cmdline->add_defun ('help-on-command', \&Term::CmdLine::_gethelp,
-      ord ("\cl"));
+    $self->{cmdline}
+      ->add_defun ('help-on-command', \&Term::CmdLine::_gethelp, ord ("\cl"));
 
     # Save a handy copy of RL_PROMPT_[START|END]_IGNORE
-    $self->{ignstart} = $_cmdline->RL_PROMPT_START_IGNORE;
-    $self->{ignstop}  = $_cmdline->RL_PROMPT_END_IGNORE;
+    $self->{ignstart} = $self->{cmdline}->RL_PROMPT_START_IGNORE;
+    $self->{ignstop}  = $self->{cmdline}->RL_PROMPT_END_IGNORE;
   }    # if
 
   if ($Config{cppflags} =~ /win32/i) {
@@ -781,8 +779,8 @@ Returns:
     my $oldaction;
 
     if ($Config{cppflags} !~ /win32/i) {
-      my $sigset    = POSIX::SigSet->new;
-      my $sigaction = POSIX::SigAction->new (\&_interrupt, $sigset, 0);
+      my $sigset = POSIX::SigSet->new;
+      my $sigaction = POSIX::SigAction->new (sub { $self->_interrupt(@_) }, $sigset, 0);
 
       $oldaction = POSIX::SigAction->new;
 
@@ -790,7 +788,7 @@ Returns:
       POSIX::sigaction (&POSIX::SIGINT, $sigaction, $oldaction);
     }    # if
 
-    $line = $_cmdline->readline ($prompt);
+    $line = $self->{cmdline}->readline ($prompt);
 
     # Handle EOF (^D) - return empty list to signal exit
     return () unless defined $line;
@@ -948,10 +946,10 @@ Returns:
     if ($_haveGnu) {
 
       # Clear old history (if any);
-      $_cmdline->clear_history;
+      $self->{cmdline}->clear_history;
 
       # Now read histfile
-      $_cmdline->ReadHistory ($histfile);
+      $self->{cmdline}->ReadHistory ($histfile);
     }    # if
 
     # Determine the number of lines in the history file
@@ -1176,12 +1174,12 @@ Returns:
     $start = $_[3];
     $end   = $_[4];
   } elsif ($action eq 'redo') {
-    $_cmdline->remove_history ($_cmdline->where_history);
+    $self->{cmdline}->remove_history ($self->{cmdline}->where_history);
 
     my $nbr  = $_[2];
-    my $line = $_cmdline->history_get ($nbr);
+    my $line = $self->{cmdline}->history_get ($nbr);
 
-    $_cmdline->add_history ($line);
+    $self->{cmdline}->add_history ($line);
     display $line;
 
     my ($cmd, $result) = $self->_builtinCmds ($line);
@@ -1196,7 +1194,7 @@ Returns:
     return;
   }    # if
 
-  my $current = $_cmdline->where_history;
+  my $current = $self->{cmdline}->where_history;
 
   my $lines = ($ENV{LINES} ? $ENV{LINES} : 24) - 2;
 
@@ -1241,7 +1239,7 @@ Returns:
     }    # if
 
     for (my $pos = $start; $pos <= $end; $pos++) {
-      my $histline = $_cmdline->history_get ($pos);
+      my $histline = $self->{cmdline}->history_get ($pos);
 
       last unless $histline;
 
@@ -1605,15 +1603,11 @@ Returns:
 sub DESTROY {
   my ($self) = @_;
 
-  $_cmdline->WriteHistory ($self->{histfile})
-    if $_cmdline and $_haveGnu;
+  $self->{cmdline}->WriteHistory ($self->{histfile})
+    if $self->{cmdline} and $_haveGnu;
 
   return;
 }    # DESTROY
-
-# Default cmdline instance (commented out to avoid Term::ReadLine::Gnu singleton issues)
-# Users should create their own instance with: my $cmdline = Term::CmdLine->new;
-# our $cmdline = Term::CmdLine->new;
 
 1;
 
@@ -1638,6 +1632,5 @@ There are no known bugs in this module
 Please report problems to Andrew DeFaria <Andrew@DeFaria.com>.
 
 =head1 LICENSE AND COPYRIGHT
-
 
 =cut
