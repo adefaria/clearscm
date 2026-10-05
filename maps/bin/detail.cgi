@@ -58,10 +58,6 @@ my %types = (
   'whitelist' => ['Delivered report', ''],
   'nulllist'  => ['Discarded report', ''],
   'error'     => ['Error report',     'Errors detected'],
-  'mailloop'  => [
-    'MailLoop report',
-    'Automatically detected mail loops from the following users'
-  ],
   'registered' => ['Registered report', ''],
   'returned'    => ['Returned report',         ''],
   'auth_failed'  => ['Authentication Failed',   'Emails rejected due to SPF/DKIM/DMARC failures']

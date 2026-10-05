@@ -41,7 +41,6 @@ our @Types = (
   'whitelist',
   'blacklist',
   'registered',
-  'mailloop',
 );
 
 sub nbr_msgs($) {

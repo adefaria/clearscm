@@ -525,7 +525,7 @@ sub displayquickstats($) {
     my $value = $dates{$date}{$_};
     my $percent;
 
-    if ($_ eq 'mailloop' || $_ eq 'registered') {
+    if ($_ eq 'registered') {
       $percent = 'n/a';
     } else {
       $percent =
