@@ -7,11 +7,83 @@ HELIOCRON="/usr/local/bin/heliocron"
 COLOR_CHOOSER="$HOME/.gtkrc-2.0-gnome-color-chooser"
 HOSTNAME=$(hostname)
 
+is_x11_available() {
+    export DISPLAY="${DISPLAY:-:0}"
+    export XAUTHORITY="${XAUTHORITY:-$HOME/.Xauthority}"
+    xset q >/dev/null 2>&1
+}
+
+is_session_active() {
+    if command -v loginctl >/dev/null 2>&1; then
+        local sess_id
+        sess_id=$(loginctl show-user "$USER" -p Display --value 2>/dev/null | cut -d: -f1)
+        if [ -n "$sess_id" ]; then
+            local active_state
+            active_state=$(loginctl show-session "$sess_id" -p Active --value 2>/dev/null)
+            if [ "$active_state" = "no" ]; then
+                return 1
+            fi
+        fi
+    fi
+    if xscreensaver-command -time 2>/dev/null | grep -q "screen locked"; then
+        return 1
+    fi
+    return 0
+}
+
+restart_or_start_panel() {
+    local PENDING_RESTART="$HOME/.cache/settheme_pending_panel_restart"
+    mkdir -p "$HOME/.cache"
+
+    if ! is_x11_available || ! is_session_active; then
+        touch "$PENDING_RESTART"
+        return 0
+    fi
+
+    rm -f "$PENDING_RESTART"
+
+    local SESSION_MGR=""
+    local mate_pid=$(pgrep -u "$USER" -x mate-session | head -n 1)
+    if [ -n "$mate_pid" ] && [ -r "/proc/$mate_pid/environ" ]; then
+        SESSION_MGR=$(tr '\0' '\n' < "/proc/$mate_pid/environ" | grep '^SESSION_MANAGER=' | cut -d= -f2-)
+    fi
+
+    # Build systemd-run env args — DISPLAY and XAUTHORITY are critical for X11
+    local -a env_args=()
+    [ -n "$DISPLAY" ]    && env_args+=(--setenv="DISPLAY=$DISPLAY")
+    [ -n "$XAUTHORITY" ] && env_args+=(--setenv="XAUTHORITY=$XAUTHORITY")
+    [ -n "$SESSION_MGR" ] && env_args+=(--setenv="SESSION_MANAGER=$SESSION_MGR")
+
+    if pgrep -u "$USER" -x mate-panel >/dev/null 2>&1; then
+        if command -v systemd-run >/dev/null 2>&1 && [ -n "$DBUS_SESSION_BUS_ADDRESS" ]; then
+            systemd-run --user "${env_args[@]}" mate-panel --replace >/dev/null 2>&1
+        else
+            setsid mate-panel --replace >/dev/null 2>&1 &
+        fi
+    else
+        echo "mate-panel is not running. Starting mate-panel..."
+        if command -v systemd-run >/dev/null 2>&1 && [ -n "$DBUS_SESSION_BUS_ADDRESS" ]; then
+            systemd-run --user "${env_args[@]}" mate-panel >/dev/null 2>&1
+        else
+            setsid mate-panel >/dev/null 2>&1 &
+        fi
+    fi
+
+    # Ensure the newly created panel windows are raised above the Caja desktop canvas
+    (
+        sleep 1
+        if command -v xdotool >/dev/null 2>&1 && [ -n "$DISPLAY" ]; then
+            xdotool search --class "mate-panel" windowraise 2>/dev/null || true
+        fi
+    ) >/dev/null 2>&1 &
+}
+
 set_mode() {
     local mode=$1
     local force=$2
     local engine
     local pref
+    local PENDING_RESTART="$HOME/.cache/settheme_pending_panel_restart"
 
     if [ "$mode" == "dark" ]; then
         engine="$DARK_ENGINE"
@@ -21,10 +93,22 @@ set_mode() {
         pref="prefer-light"
     fi
 
+    local panel_running=true
+    if ! pgrep -u "$USER" -x mate-panel >/dev/null 2>&1; then
+        panel_running=false
+    fi
+
     # Check if already in the requested mode
     CURRENT=$(gsettings get org.mate.interface gtk-theme 2>/dev/null | tr -d "'" | xargs)
-    if [ "$force" != "true" ] && [ "$CURRENT" == "$engine" ]; then
+    if [ "$force" != "true" ] && [ "$CURRENT" == "$engine" ] && [ "$panel_running" = true ] && [ ! -f "$PENDING_RESTART" ]; then
         echo "Already in $mode mode ($engine). No change needed."
+        return 0
+    fi
+
+    # If the theme matches but panel is missing or pending restart, just fix the panel
+    if [ "$force" != "true" ] && [ "$CURRENT" == "$engine" ]; then
+        echo "Theme is already $mode ($engine), ensuring panel is running cleanly..."
+        restart_or_start_panel
         return 0
     fi
 
@@ -81,20 +165,8 @@ set_mode() {
         rm -f "$HOME/.config/gtk-3.0/gtk.css"
     fi
 
-    # 6. Restart MATE panel unconditionally to reset font metrics (only if unlocked)
-    if ! xscreensaver-command -time 2>/dev/null | grep -q "screen locked"; then
-        if command -v systemd-run >/dev/null 2>&1 && [ -n "$DBUS_SESSION_BUS_ADDRESS" ]; then
-            # Inject SESSION_MANAGER so it stays connected to mate-session
-            SESSION_MGR=$(cat /proc/$(pgrep -u $USER -x mate-session | head -n 1)/environ 2>/dev/null | tr '\0' '\n' | grep '^SESSION_MANAGER=' | cut -d= -f2-)
-            if [ -n "$SESSION_MGR" ]; then
-                systemd-run --user --setenv="SESSION_MANAGER=$SESSION_MGR" mate-panel --replace >/dev/null 2>&1
-            else
-                systemd-run --user mate-panel --replace >/dev/null 2>&1
-            fi
-        else
-            setsid mate-panel --replace >/dev/null 2>&1 &
-        fi
-    fi
+    # 6. Restart MATE panel or queue pending restart if screen is locked / X11 unreachable
+    restart_or_start_panel
 }
 
 case "$1" in

@@ -366,3 +366,6 @@ export SDKMAN_DIR="$HOME/.sdkman"
 
 # Redirect node-compile-cache
 export NODE_COMPILE_CACHE=$HOME/.cache/node-compile-cache
+
+# Created by `pipx` on 2026-10-01 21:09:09
+export PATH="$PATH:/home/andrew/.local/bin"

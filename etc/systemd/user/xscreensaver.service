@@ -4,9 +4,11 @@ After=graphical-session.target
 
 [Service]
 Type=simple
-# Standard path on Ubuntu 24.04
-ExecStart=/usr/bin/xscreensaver -no-splash
+Environment=DISPLAY=:0 "PATH=/usr/libexec/xscreensaver:/usr/lib/xscreensaver:/home/andrew/.local/bin:/home/andrew/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+PassEnvironment=XDG_SESSION_ID XAUTHORITY XDG_SEAT_PATH XDG_SESSION_PATH
+ExecStart=/usr/bin/xscreensaver -no-splash -verbose
 Restart=always
+RestartSec=5
 
 [Install]
 WantedBy=default.target

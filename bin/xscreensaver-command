@@ -2,7 +2,7 @@
 
 for arg in "$@"; do
     case "$arg" in
-        -lock|-activate|-a|-l)
+        -lock|-l)
             exec /opt/clearscm/bin/lock_screen
             ;;
     esac
