@@ -1,12 +1,101 @@
 @import url("resource:///com/ubuntu/themes/Yaru-blue/3.0/gtk.css");
 
-/* MATE Panel Light Theme Styling */
+/* ==========================================================================
+   Light Mode: Soft Light Blue Palette
+   ========================================================================== */
+
+/* 1. Global Window Surfaces & Frames */
+window,
+window:backdrop,
+.background,
+.background:backdrop {
+    background-color: #cddff0;   /* Soft sky / ice blue */
+    background-image: none;
+    color: #1a202c;
+}
+
+/* 2. Unified Menubars & Toolbars */
+menubar,
+menubar:backdrop,
+.menubar,
+.menubar:backdrop,
+window.background.caja-navigation-window #Toolbar,
+window.background.caja-navigation-window #Toolbar:backdrop,
+toolbar,
+toolbar:backdrop,
+.toolbar,
+.toolbar:backdrop {
+    background: #b9d2ea none;
+    background-color: #b9d2ea;
+    background-image: none;
+    color: #1a202c;
+    border-bottom: 1px solid #9fbddb;
+}
+
+menubar > menuitem,
+menubar > menuitem:backdrop {
+    color: #1a202c;
+}
+
+/* 3. Caja Sidebar (Places, Bookmarks) */
+.caja-side-pane,
+.caja-side-pane:backdrop,
+.caja-side-pane treeview.view,
+.caja-side-pane treeview.view:backdrop {
+    background-color: #c6dbf0;
+    color: #1a202c;
+}
+
+/* 4. Main File View Canvas (Clean White with Dark Readable Text) */
+.caja-notebook,
+.caja-notebook:backdrop {
+    background-color: #ffffff;
+}
+
+.caja-canvas-item,
+.caja-canvas-item:backdrop,
+.caja-navigation-window .view,
+.caja-navigation-window .view:backdrop {
+    color: #1a202c;              /* Sharp, dark readable text */
+    text-shadow: none;
+}
+
+/* Selected File in Icon/List View */
+.caja-canvas-item:selected,
+*:selected,
+*:selected:focus,
+*:selected:backdrop {
+    background-color: #0073e5;
+    color: #ffffff;
+}
+
+/* 5. CSD Headerbars & Tabs (Brave & GTK3 apps) */
+.titlebar:not(headerbar),
+headerbar,
+headerbar:backdrop,
+headerbar.header-bar.titlebar,
+.titlebar,
+.titlebar:backdrop {
+    background: #b9d2ea none;
+    background-color: #b9d2ea;
+    background-image: none;
+    color: #1a202c;
+    border-bottom: 1px solid #9fbddb;
+    box-shadow: none;
+}
+
+notebook tab:checked {
+    background: #b9d2ea none;
+    background-color: #b9d2ea;
+    color: #1a202c;
+}
+
+/* 6. MATE Panel */
 .mate-panel-menu-bar,
 .mate-panel-menu-bar label,
 .mate-panel-applet label,
 MatePanelApplet label,
 #mate-panel-menu-bar label {
-    color: #2e3440;
+    color: #1a202c;
     text-shadow: none;
 }
-

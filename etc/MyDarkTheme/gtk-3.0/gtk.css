@@ -1,16 +1,105 @@
 @import url("/usr/share/themes/Yaru-blue-dark/gtk-3.0/gtk.css");
-headerbar, .titlebar {
-background-color:#0b1d33;
-color:#ffffff;
+
+/* ==========================================================================
+   Dark Mode: Tomorrow Night Blue Palette
+   ========================================================================== */
+
+/* 1. Global Window Surfaces & Canvas (#002451) */
+window,
+window:backdrop,
+.background,
+.background:backdrop,
+.caja-notebook,
+.caja-notebook:backdrop,
+.caja-navigation-window .view,
+.caja-navigation-window .view:backdrop {
+    background-color: #002451;   /* Tomorrow Night Blue background */
+    background-image: none;
+    color: #ffffff;
 }
 
-/* MATE Panel Dark Theme Styling */
+/* 2. Menubars (Top Menu Bar: #001126) */
+menubar,
+menubar:backdrop,
+.menubar,
+.menubar:backdrop {
+    background: #001126 none;
+    background-color: #001126;
+    background-image: none;
+    color: #ffffff;
+    border-bottom: 1px solid #000b1a;
+}
+
+menubar > menuitem,
+menubar > menuitem:backdrop {
+    color: #ffffff;
+}
+
+/* 3. Toolbars (#001733) */
+window.background.caja-navigation-window #Toolbar,
+window.background.caja-navigation-window #Toolbar:backdrop,
+toolbar,
+toolbar:backdrop,
+.toolbar,
+.toolbar:backdrop {
+    background: #001733 none;
+    background-color: #001733;
+    background-image: none;
+    color: #ffffff;
+    border-bottom: 1px solid #001126;
+}
+
+/* 4. Caja Sidebar (#001c40) */
+.caja-side-pane,
+.caja-side-pane:backdrop,
+.caja-side-pane treeview.view,
+.caja-side-pane treeview.view:backdrop {
+    background-color: #001c40;
+    color: #ffffff;
+}
+
+/* 5. File Labels & Selection Highlights */
+.caja-canvas-item,
+.caja-canvas-item:backdrop {
+    color: #ffffff;              /* Crisp white text on dark blue */
+    text-shadow: none;
+}
+
+.caja-canvas-item:selected,
+*:selected,
+*:selected:focus,
+*:selected:backdrop {
+    background-color: #003f8e;   /* Tomorrow Night Blue Selection */
+    color: #ffffff;
+}
+
+/* 6. CSD Headerbars & Tabs (Brave and GTK3 apps) */
+.titlebar:not(headerbar),
+headerbar,
+headerbar:backdrop,
+headerbar.header-bar.titlebar,
+.titlebar,
+.titlebar:backdrop {
+    background: #001126 none;
+    background-color: #001126;
+    background-image: none;
+    color: #ffffff;
+    border-bottom: 1px solid #000b1a;
+    box-shadow: none;
+}
+
+notebook tab:checked {
+    background: #002451 none;
+    background-color: #002451;
+    color: #ffffff;
+}
+
+/* 7. MATE Panel (#001126) */
 .mate-panel-menu-bar,
 .mate-panel-menu-bar label,
 .mate-panel-applet label,
 MatePanelApplet label,
 #mate-panel-menu-bar label {
-    color: #f8f8f2;
+    color: #ffffff;
     text-shadow: none;
 }
-
