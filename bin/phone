@@ -92,7 +92,6 @@ if [ "$connected" = true ]; then
        --video-buffer=50 \
        --mouse=sdk \
        --keyboard=sdk \
-       --no-audio \
        --stay-awake \
        --window-title "scrcpy-phone" > /dev/null 2>&1 &
     SCRCPY_PID=$!
