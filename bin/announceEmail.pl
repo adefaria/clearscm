@@ -228,13 +228,11 @@ sub Connect2IMAP;
 sub MonitorMail;
 sub get_process_email;
 
-sub response_handler($atom = undef) {
-
-# The callback receives the atom (e.g. 'EXISTS') as the first argument, not the object.
-# We use the global $IMAP object to terminate the IDLE command.
-  $log->dbug ("response_handler called with atom: $atom") if defined $atom;
-  $got_update = 1;
-  return 1;
+sub response_handler {
+    my ($self, $atom) = @_;
+    $log->dbug("response_handler called with atom: $atom") if defined $atom;
+    $got_update = (defined $atom && $atom =~ /^(EXISTS|RECENT)$/) ? 1 : 0;
+    return 1;
 }    # response_handler
 
 sub restart() {
