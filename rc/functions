@@ -340,3 +340,52 @@ function gpuencode () {
     -b:v 5M \
     "$2"
 }
+
+function dush() {
+  local show_all=0
+  local head_lines=10
+  local target=""
+  local OPTIND opt
+
+  while getopts ":an:" opt; do
+    case "$opt" in
+      a) show_all=1 ;;
+      n) head_lines="$OPTARG" ;;
+      \?)
+        echo "dush: invalid option -- -$OPTARG" >&2
+        return 1
+        ;;
+    esac
+  done
+  shift $((OPTIND - 1))
+
+  target="${1:-.}"
+
+  if [[ ! -d "$target" ]]; then
+    echo "dush: cannot access '$target': No such directory" >&2
+    return 1
+  fi
+
+  # Enable dotglob to match hidden files; nullglob to handle empty targets cleanly
+  local restore_dotglob restore_nullglob
+  shopt -q dotglob && restore_dotglob=1 || restore_dotglob=0
+  shopt -q nullglob && restore_nullglob=1 || restore_nullglob=0
+  shopt -s dotglob nullglob
+
+  local entries=("$target"/*)
+
+  # Restore shell options immediately
+  (( restore_dotglob )) || shopt -u dotglob
+  (( restore_nullglob )) || shopt -u nullglob
+
+  # If directory has no contents
+  if [[ ${#entries[@]} -eq 0 ]]; then
+    return 0
+  fi
+
+  if (( show_all )); then
+    du -sh "${entries[@]}" 2>/dev/null | sort -hr
+  else
+    du -sh "${entries[@]}" 2>/dev/null | sort -hr | head -n "$head_lines"
+  fi
+}
