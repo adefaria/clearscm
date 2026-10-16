@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Check if needrestart is installed
+if ! command -v needrestart >/dev/null 2>&1; then
+    echo "Error: needrestart is not installed. Install it with: sudo apt install needrestart"
+    exit 1
+fi
+
+echo "Checking for outdated user binaries..."
+
+# 1. List the outdated processes for the current user
+needrestart -b -u | grep "systemd"
+
+# 2. Restart the user systemd manager
+# This often clears the 'outdated binary' warning for systemd[PID]
+echo "Restarting systemd user instance..."
+#systemctl --user daemon-reexec
+sudo systemctl restart user@$(id -u andrew).service
+echo "Done. If the warning persists, you may need to log out and back in."

@@ -1,0 +1,89 @@
+#!/bin/bash
+
+OPT_DIR="/opt/whisper-ctranslate2"
+export PIPX_HOME="$OPT_DIR/pipx"
+export PIPX_BIN_DIR="$OPT_DIR/bin"
+export HF_HOME="$OPT_DIR/huggingface"
+export CTRANSLATE2_CACHE_DIR="$OPT_DIR/ctranslate2"
+export XDG_CACHE_HOME="$OPT_DIR/cache"
+
+PID_FILE="/tmp/dictate.pid"
+NOTIF_ID_FILE="/tmp/dictate_notif.id"
+WAV_FILE="/tmp/dictate-voice.wav"
+TXT_FILE="/tmp/dictate-voice"
+WEBCAM_SOURCE="alsa_input.usb-Sonix_Technology_Co.__Ltd._USB_2.0_Camera_SN0001-02.pro-input-0"
+
+SUBMIT_FLAG_FILE="/tmp/dictate_submit.flag"
+
+SHOULD_SUBMIT=false
+if [ "$1" = "--submit" ] || [ "$1" = "enter" ]; then
+    SHOULD_SUBMIT=true
+fi
+
+if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+    # --- TOGGLE OFF: STOP RECORDING & TRANSCRIBE ---
+    if [ -f "$SUBMIT_FLAG_FILE" ]; then
+        SHOULD_SUBMIT=true
+        rm -f "$SUBMIT_FLAG_FILE"
+    fi
+    RECORD_PID=$(cat "$PID_FILE")
+    rm -f "$PID_FILE"
+
+    # Forcibly close the active "Listening..." notification via DBus
+    if [ -f "$NOTIF_ID_FILE" ]; then
+        NID=$(cat "$NOTIF_ID_FILE")
+        rm -f "$NOTIF_ID_FILE"
+        if [ -n "$NID" ]; then
+            gdbus call --session --dest org.freedesktop.Notifications --object-path /org/freedesktop/Notifications --method org.freedesktop.Notifications.CloseNotification "$NID" >/dev/null 2>&1
+        fi
+    fi
+
+    # Stop audio recording
+    kill -INT "$RECORD_PID" 2>/dev/null
+    wait "$RECORD_PID" 2>/dev/null
+
+    # Show short "Transcribing..." notification (1.5s timeout)
+    notify-send -t 1500 "Dictation" "⚡ Transcribing..." 2>/dev/null
+
+    # Transcribe audio using VAD filter and type result
+    if [ -s "$WAV_FILE" ]; then
+        "$PIPX_BIN_DIR/whisper-ctranslate2" "$WAV_FILE" \
+            --model tiny \
+            --language en \
+            --task transcribe \
+            --vad_filter True \
+            --output_format txt \
+            --output_dir /tmp \
+            --verbose False >/dev/null 2>&1
+
+        if [ -f "${TXT_FILE}.txt" ]; then
+            text=$(tr '\r\n' '  ' < "${TXT_FILE}.txt" | sed 's/[[:space:]]\+/ /g; s/^ //; s/ $//')
+            rm -f "${TXT_FILE}.txt"
+
+            if [ -n "$text" ]; then
+                xdotool type --delay 10 "$text"
+                if [ "$SHOULD_SUBMIT" = true ]; then
+                    sleep 0.1
+                    xdotool key --clearmodifiers Return
+                fi
+            fi
+        fi
+    fi
+    rm -f "$WAV_FILE"
+else
+    # --- TOGGLE ON: START RECORDING ---
+    rm -f "$WAV_FILE" "$PID_FILE" "$NOTIF_ID_FILE" "$SUBMIT_FLAG_FILE"
+    if [ "$SHOULD_SUBMIT" = true ]; then
+        touch "$SUBMIT_FLAG_FILE"
+    fi
+
+    # 1. Start audio recording from webcam mic
+    pw-record --target "$WEBCAM_SOURCE" --channels=1 --rate=16000 --format=s16 "$WAV_FILE" >/dev/null 2>&1 &
+    echo $! > "$PID_FILE"
+
+    # 2. Create persistent visual desktop notification (-t 0) and capture notification ID
+    NID=$(notify-send -p -t 0 "Dictation" "🎙️ Listening..." 2>/dev/null)
+    if [ -n "$NID" ]; then
+        echo "$NID" > "$NOTIF_ID_FILE"
+    fi
+fi
