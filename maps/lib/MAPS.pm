@@ -1679,8 +1679,14 @@ sub ReportPhishing(%) {
     # Instead, block the specific sender address in MAPS
     $stats{mta_status} = "MTA block skipped: '$offending_domain' is protected infrastructure ($protected_match)";
 
-    my ($n_status, $n_rec) = OnNulllist ($params{sender}, 0);
-    if ($n_status) {
+    # Check if exact sender is already on Nulllist
+    my ($f_err, $f_msg) = FindList (
+      userid => $params{userid},
+      type   => 'null',
+      sender => $params{sender},
+    );
+    my $n_rec = ($f_err == 0) ? $db->getnext : undef;
+    if ($n_rec) {
       my $today       = substr (DateUtils::Today2SQLDatetime (), 0, 10);
       my $new_comment = $n_rec->{comment} || '';
       if ($new_comment !~ /Additional phishing batch reported/) {
@@ -1690,6 +1696,8 @@ sub ReportPhishing(%) {
         userid    => $params{userid},
         type      => 'null',
         sequence  => $n_rec->{sequence},
+        pattern   => $n_rec->{pattern},
+        domain    => $n_rec->{domain},
         comment   => $new_comment,
         hit_count => $n_rec->{hit_count} + 1,
       );
@@ -1704,8 +1712,13 @@ sub ReportPhishing(%) {
     }
   } else {
     # Non-protected offending domain: block in MAPS Nulllist
-    my ($n_status, $n_rec) = OnNulllist ("\@$offending_domain", 0);
-    if ($n_status) {
+    my ($f_err, $f_msg) = FindList (
+      userid => $params{userid},
+      type   => 'null',
+      sender => "\@$offending_domain",
+    );
+    my $n_rec = ($f_err == 0) ? $db->getnext : undef;
+    if ($n_rec) {
       my $today       = substr (DateUtils::Today2SQLDatetime (), 0, 10);
       my $new_comment = $n_rec->{comment} || '';
       if ($new_comment !~ /Additional phishing batch reported/) {
@@ -1715,6 +1728,8 @@ sub ReportPhishing(%) {
         userid    => $params{userid},
         type      => 'null',
         sequence  => $n_rec->{sequence},
+        pattern   => $n_rec->{pattern},
+        domain    => $n_rec->{domain},
         comment   => $new_comment,
         hit_count => $n_rec->{hit_count} + 1,
       );
@@ -2479,13 +2494,15 @@ sub UpdateList(%) {
     ($rec{pattern}, $rec{domain}) = split /\@/, $rec{pattern};
   } elsif (!$rec{pattern} && defined $rec{domain} && $rec{domain} =~ /\@/) {
     ($rec{pattern}, $rec{domain}) = split /\@/, $rec{domain};
-  } elsif (!$rec{pattern} && !$rec{domain} && !defined $rec{comment} && !defined $rec{hit_count}) {
+  } elsif (!exists $rec{pattern} && !exists $rec{domain}) {
+    # Partial update: leave pattern and domain untouched
+  } elsif (!$rec{pattern} && !$rec{domain}) {
     return "Must specify either Username or Domain";
   }    # if
 
-  $rec{pattern} //= '';
-  $rec{domain}  //= '';
-  $rec{comment} //= '';
+  $rec{pattern} //= '' if exists $rec{pattern};
+  $rec{domain}  //= '' if exists $rec{domain};
+  $rec{comment} //= '' if exists $rec{comment};
 
   if ($rec{retention}) {
     $rec{retention} = lc $rec{retention};

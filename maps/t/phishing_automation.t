@@ -18,6 +18,7 @@ use MAPS qw(
   ExtractPhishingDetails
   FindList
   GetBaseDomain
+  GetList
   IsProtectedDomain
   OnNulllist
   ReportPhishing
@@ -173,9 +174,20 @@ is($gmail_postmap, '', 'Protected domain gmail.com was NOT added to Postfix send
 # Clean up Postfix sender_access
 system("sudo bash -c 'sed -i \"/$offending_domain/d\" /etc/postfix/sender_access && postmap /etc/postfix/sender_access'");
 
-# Clean up MAPS Nulllist
-DeleteList(
-  userid   => $test_user,
-  type     => 'null',
-  sequence => $n_rec->{sequence},
-) if $n_rec && $n_rec->{sequence};
+# Clean up MAPS Nulllist test entries using exact search via FindList
+for my $s ("\@$offending_domain", $gmail_sender) {
+  my ($f_err, $f_msg) = FindList(
+    userid => $test_user,
+    type   => 'null',
+    sender => $s,
+  );
+  if ($f_err == 0) {
+    while (my $rec = GetList()) {
+      DeleteList(
+        userid   => $test_user,
+        type     => 'null',
+        sequence => $rec->{sequence},
+      ) if $rec && $rec->{sequence};
+    }
+  }
+}
