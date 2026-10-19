@@ -72,12 +72,14 @@ our @EXPORT = qw(
   DeleteEmail
   DeleteList
   Encrypt
+  ExtractPhishingDetails
   FindEmail
   FindList
   FindLog
   FindUser
   FindUsers
   ForwardMsg
+  GetBaseDomain
   GetContext
   GetEmail
   GetList
@@ -86,6 +88,7 @@ our @EXPORT = qw(
   GetRows
   GetUser
   GetUserOptions
+  IsProtectedDomain
   ListLog
   ListUsers
   Login
@@ -1463,6 +1466,163 @@ sub RecordHit(%) {
   return $db->modify ($table, $condition, %rec);
 }    # RecordHit
 
+our @PROTECTED_DOMAINS = qw(
+    gmail.com google.com yahoo.com ymail.com outlook.com hotmail.com live.com
+    msn.com icloud.com me.com aol.com comcast.net sbcglobal.net att.net
+    verizon.net mailgun.org sendgrid.net amazonses.com mailchimp.com
+    constantcontact.com postmarkapp.com sparkpostmail.com defaria.com
+);
+
+sub GetBaseDomain($) {
+  my ($dom) = @_;
+  return '' unless $dom;
+  $dom = lc $dom;
+  $dom =~ s/^\.+//;
+  $dom =~ s/\s+//g;
+
+  # Handle two-level ccTLDs (e.g. example.co.uk)
+  if ($dom =~ /([^.]+\.(?:co|com|org|net|edu|gov)\.[a-z]{2})$/i) {
+    return $1;
+  } elsif ($dom =~ /([^.]+\.[^.]+)$/) {
+    return $1;
+  }
+  return $dom;
+}    # GetBaseDomain
+
+sub IsProtectedDomain($) {
+  my ($dom) = @_;
+  return (0, undef) unless $dom;
+  $dom = lc $dom;
+  $dom =~ s/^\.+//;
+  $dom =~ s/\s+//g;
+
+  for my $prot (@PROTECTED_DOMAINS) {
+    if ($dom eq $prot || $dom =~ /\.\Q$prot\E$/) {
+      return (1, $prot);
+    }
+  }
+  return (0, undef);
+}    # IsProtectedDomain
+
+sub ExtractPhishingDetails($) {
+  my ($msg_data) = @_;
+
+  my %details = (
+    envelope_sender  => '',
+    envelope_domain  => '',
+    dkim_domain      => '',
+    from_domain      => '',
+    from_display     => '',
+    originating_ip   => '',
+    brand            => '',
+    message_id       => '',
+    offending_domain => '',
+    is_protected     => 0,
+    protected_match  => '',
+  );
+
+  return \%details unless defined $msg_data && length ($msg_data) > 0;
+
+  # 1. Primary: Return-Path
+  if ($msg_data =~ /^Return-Path:\s*<([^>]+)>/im || $msg_data =~ /^Return-Path:\s*(\S+)/im) {
+    my $rp = $1;
+    $rp =~ s/[<>]//g;
+    $details{envelope_sender} = $rp;
+    if ($rp =~ /@([^@]+)$/) {
+      $details{envelope_domain} = lc ($1);
+    }
+  }
+
+  # 2. Secondary: Authentication-Results or DKIM-Signature
+  if ($msg_data =~ /^Authentication-Results:.*?\bheader\.d=([\w.-]+)/im) {
+    $details{dkim_domain} = lc ($1);
+  } elsif ($msg_data =~ /^DKIM-Signature:.*?\bd=([\w.-]+)/ims) {
+    $details{dkim_domain} = lc ($1);
+  }
+
+  # 3. Tertiary: From header
+  if ($msg_data =~ /^From:\s*(.+)$/im) {
+    my $from_line = $1;
+    if ($from_line =~ /^"?(.*?)"?\s*<([^>]+)>/) {
+      $details{from_display} = $1;
+      my $from_addr = $2;
+      if ($from_addr =~ /@([^@]+)$/) {
+        $details{from_domain} = lc ($1);
+      }
+    } elsif ($from_line =~ /([^\s@]+@[^\s@]+)/) {
+      my $from_addr = $1;
+      if ($from_addr =~ /@([^@]+)$/) {
+        $details{from_domain} = lc ($1);
+      }
+      $details{from_display} = '';
+    }
+  }
+
+  # 4. Originating IP and Host from Received headers
+  my @received = ($msg_data =~ /^Received:\s*(.*?)(?=\n[^\t\s]|\z)/gms);
+  for my $rec (reverse @received) {
+    if ($rec =~ /\[(\d{1,3}(?:\.\d{1,3}){3})\]/) {
+      my $ip = $1;
+      unless ($ip =~ /^(?:127\.|10\.|192\.168\.|172\.(?:1[6-9]|2[0-9]|3[01])\.)/) {
+        $details{originating_ip} = $ip;
+        last;
+      }
+    }
+  }
+  if (!$details{originating_ip}) {
+    for my $rec (@received) {
+      if ($rec =~ /\[(\d{1,3}(?:\.\d{1,3}){3})\]/) {
+        $details{originating_ip} = $1;
+        last;
+      }
+    }
+  }
+
+  # Message-ID
+  if ($msg_data =~ /^Message-ID:\s*<([^>]+)>/im) {
+    $details{message_id} = $1;
+  }
+
+  # Subject
+  my $subject = '';
+  if ($msg_data =~ /^Subject:\s*(.+)$/im) {
+    $subject = $1;
+  }
+
+  # Brand Extraction
+  my $brand_cand = $details{from_display};
+  if ($brand_cand) {
+    $brand_cand =~ s/^(?:From:\s*|["']|["']\s*$)//gi;
+    $brand_cand =~ s/\s*(?:Support|Security|Team|Alert|Notice|Service|Desk|Center|Update|Notification|Billing|Account).*$//i;
+    $brand_cand =~ s/^\s+|\s+$//g;
+    unless ($brand_cand =~ /@/ || $brand_cand =~ /\.[a-z]{2,}/i) {
+      $details{brand} = $brand_cand if length ($brand_cand) >= 2;
+    }
+  }
+  if (!$details{brand} && $subject =~ /\b(Tastytrade|PayPal|IRS|Amazon|Microsoft|Google|Apple|Bank of America|Chase|Wells Fargo)\b/i) {
+    $details{brand} = $1;
+  }
+
+  # Offending Domain Determination Hierarchy:
+  # Return-Path > DKIM > From
+  my $selected_domain = $details{envelope_domain} || $details{dkim_domain} || $details{from_domain} || '';
+  my $base_domain     = GetBaseDomain ($selected_domain);
+
+  my ($base_protected, $base_prot_name) = IsProtectedDomain ($base_domain);
+  my ($sel_protected,  $sel_prot_name)  = IsProtectedDomain ($selected_domain);
+
+  if ($base_protected || $sel_protected) {
+    $details{is_protected}     = 1;
+    $details{protected_match}  = $base_prot_name || $sel_prot_name;
+    $details{offending_domain} = $selected_domain;
+  } else {
+    $details{is_protected}     = 0;
+    $details{offending_domain} = $base_domain || $selected_domain;
+  }
+
+  return \%details;
+}    # ExtractPhishingDetails
+
 sub ReportPhishing(%) {
   my (%params) = @_;
 
@@ -1482,7 +1642,8 @@ sub ReportPhishing(%) {
   my %stats = (
     processed       => 0,
     nulllist_status => '',
-    dispatch_status => ''
+    dispatch_status => '',
+    mta_status      => '',
   );
 
   # Check Whitelist
@@ -1503,75 +1664,139 @@ sub ReportPhishing(%) {
 
   $stats{processed} = scalar (@$messages);
 
-  # Check Nulllist for domain
-  my ($n_status, $n_rec) = OnNulllist ("\@$domain", 0);
-  if ($n_status) {
+  # Extract true envelope domain, originating IP, brand, and check guardrails
+  my $raw_first_msg    = $messages->[0]->{data} || '';
+  my $phish_info       = ExtractPhishingDetails ($raw_first_msg);
+  my $offending_domain = $phish_info->{offending_domain} || $domain;
+  my $originating_ip   = $phish_info->{originating_ip}   || '';
+  my $brand            = $phish_info->{brand}            || '';
+  my $is_protected     = $phish_info->{is_protected}     || 0;
+  my $protected_match  = $phish_info->{protected_match}  || '';
 
-    # Update existing record comment
-    my $today       = substr (DateUtils::Today2SQLDatetime (), 0, 10);
-    my $new_comment = $n_rec->{comment} || '';
-    if ($new_comment !~ /Additional phishing batch reported/) {
-      $new_comment .= "Additional phishing batch reported - $today.";
+  # Determine target for MAPS Nulllist and Postfix MTA
+  if ($is_protected) {
+    # If the domain is protected (e.g. gmail.com, outlook.com), DO NOT block entire domain in Postfix or MAPS Nulllist!
+    # Instead, block the specific sender address in MAPS
+    $stats{mta_status} = "MTA block skipped: '$offending_domain' is protected infrastructure ($protected_match)";
+
+    my ($n_status, $n_rec) = OnNulllist ($params{sender}, 0);
+    if ($n_status) {
+      my $today       = substr (DateUtils::Today2SQLDatetime (), 0, 10);
+      my $new_comment = $n_rec->{comment} || '';
+      if ($new_comment !~ /Additional phishing batch reported/) {
+        $new_comment .= "Additional phishing batch reported - $today.";
+      }
+      UpdateList (
+        userid    => $params{userid},
+        type      => 'null',
+        sequence  => $n_rec->{sequence},
+        comment   => $new_comment,
+        hit_count => $n_rec->{hit_count} + 1,
+      );
+      $stats{nulllist_status} = "Updated existing sender rule (protected provider)";
+    } else {
+      Add2Nulllist (
+        userid  => $params{userid},
+        sender  => $params{sender},
+        comment => "Phishing attempt via $protected_match"
+      );
+      $stats{nulllist_status} = "Added sender to Nulllist (protected provider)";
+    }
+  } else {
+    # Non-protected offending domain: block in MAPS Nulllist
+    my ($n_status, $n_rec) = OnNulllist ("\@$offending_domain", 0);
+    if ($n_status) {
+      my $today       = substr (DateUtils::Today2SQLDatetime (), 0, 10);
+      my $new_comment = $n_rec->{comment} || '';
+      if ($new_comment !~ /Additional phishing batch reported/) {
+        $new_comment .= "Additional phishing batch reported - $today.";
+      }
+      UpdateList (
+        userid    => $params{userid},
+        type      => 'null',
+        sequence  => $n_rec->{sequence},
+        comment   => $new_comment,
+        hit_count => $n_rec->{hit_count} + 1,
+      );
+      $stats{nulllist_status} = 'Updated existing entry';
+    } else {
+      Add2Nulllist (
+        userid  => $params{userid},
+        sender  => "\@$offending_domain",
+        comment => 'Phishing attempt'
+      );
+      $stats{nulllist_status} = 'Added new entry';
     }
 
-    UpdateList (
-      userid    => $params{userid},
-      type      => 'null',
-      sequence  => $n_rec->{sequence},
-      comment   => $new_comment,
-      hit_count => $n_rec->{hit_count} + 1,
-    );
-    $stats{nulllist_status} = 'Updated existing entry';
-  } else {
+    # Execute direct Postfix MTA domain block
+    my $mta_rc = system ('sudo', '/usr/local/sbin/postfix-worker.pl', $offending_domain);
+    if ($mta_rc == 0) {
+      $stats{mta_status} = "MTA domain block applied in Postfix for '$offending_domain'";
+    } else {
+      $stats{mta_status} = "Failed to apply Postfix MTA block (exit code $mta_rc)";
+    }
+  }
 
-    # Insert new entry for the domain
-    Add2Nulllist (
-      userid  => $params{userid},
-      sender  => "\@$domain",
-      comment => 'Phishing attempt'
-    );
-    $stats{nulllist_status} = 'Added new entry';
-  } ## end else [ if ($n_status) ]
+  $stats{domain}         = $offending_domain;
+  $stats{originating_ip} = $originating_ip;
+  $stats{brand}          = $brand;
 
   # External Reporting
-  my @default_reports =
-    qw(abuse@outlook.com checkphish@netcraft.com google-cloud-compliance@google.com phish@office365.microsoft.com reportphishing@apwg.org);
+  my @default_reports = qw(
+    reportphishing@apwg.org
+    phishing@irs.gov
+    checkphish@netcraft.com
+    abuse@outlook.com
+    google-cloud-compliance@google.com
+  );
   my @whois_reports = ();
 
-  # Extract abuse from whois
-  my $whois_domain = $domain;
-  my @whois_lines  = `timeout 5 whois $whois_domain 2>/dev/null`;
+  # For protected domains (e.g. gmail.com, outlook.com), do not query registrar WHOIS!
+  # Instead, report to provider's designated abuse contact and clearinghouses.
+  if ($is_protected) {
+    if ($offending_domain =~ /gmail\.com|google\.com/i) {
+      push @whois_reports, 'abuse@gmail.com';
+    } elsif ($offending_domain =~ /outlook\.com|hotmail\.com|live\.com|office365\.com/i) {
+      push @whois_reports, 'abuse@outlook.com';
+    } elsif ($offending_domain =~ /yahoo\.com|ymail\.com/i) {
+      push @whois_reports, 'abuse@yahoo.com';
+    }
+  } else {
+    # Extract abuse from whois for the offending domain
+    my $whois_domain = $offending_domain;
+    my @whois_lines  = `timeout 5 whois $whois_domain 2>/dev/null`;
 
-  # If not found or empty, try parent domain
-  if (!@whois_lines || grep {/NOT FOUND|No match|No Data Found/i} @whois_lines)
-  {
-    if ($domain =~ /([^.]+\.[^.]+)$/) {
-      my $base = $1;
-
-      # Special case for co.uk, etc.
-      if ( $domain =~ /([^.]+\.[^.]+\.[^.]+)$/
-        && $domain =~ /\.(co|me|org|net|gov)\.[a-z]{2}$/i)
-      {
-        $base = $1;
-      }
-
-      if ($base ne $domain) {
-        $whois_domain = $base;
-        @whois_lines  = `timeout 5 whois $whois_domain 2>/dev/null`;
-      }
-    } ## end if ($domain =~ /([^.]+\.[^.]+)$/)
-  } ## end if (!@whois_lines || grep...)
-
-  for (@whois_lines) {
-    if (/abuse/i) {
-      while (/([a-zA-Z0-9._%+-]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g) {
-        push @whois_reports, lc ($1);
+    for (@whois_lines) {
+      if (/abuse/i) {
+        while (/([a-zA-Z0-9._%+-]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g) {
+          push @whois_reports, lc ($1);
+        }
       }
     }
-  } ## end for (@whois_lines)
 
-  # De-duplicate whois reports
+    # Also query WHOIS for originating IP if available
+    if ($originating_ip && $originating_ip =~ /^\d{1,3}(?:\.\d{1,3}){3}$/) {
+      my @ip_whois = `timeout 5 whois $originating_ip 2>/dev/null`;
+      for (@ip_whois) {
+        if (/abuse/i) {
+          while (/([a-zA-Z0-9._%+-]+\@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g) {
+            push @whois_reports, lc ($1);
+          }
+        }
+      }
+    }
+  }
+
+  # De-duplicate whois reports and filter out generic/self/registrar auto-responder bot addresses
   my %unique_whois = map {$_ => 1} @whois_reports;
+  delete $unique_whois{'phishingreport@defaria.com'};
+  delete $unique_whois{'andrew@defaria.com'};
+  # Filter out known registrar dead-end auto-responders (e.g. MarkMonitor, CSC)
+  for (keys %unique_whois) {
+    if (/markmonitor\.com$/i || /cscglobal\.com$/i || /whois-webform/i || /domainabuse/i) {
+      delete $unique_whois{$_};
+    }
+  }
   @whois_reports = sort keys %unique_whois;
 
   my $to_addresses;
@@ -1584,7 +1809,6 @@ sub ReportPhishing(%) {
     $to_addresses = join (', ', @default_reports);
   }
 
-  $stats{domain}        = $domain;
   $stats{whois_emails}  = join (', ', @whois_reports);
   $stats{dispatch_list} = $to_addresses;
   $stats{dispatch_list} .= " (Cc: $cc_addresses)" if $cc_addresses;
@@ -1592,22 +1816,32 @@ sub ReportPhishing(%) {
   # Read SMTP creds and CC preference
   my $smtp_user = '';
   my $smtp_pass = '';
-  my $cc_admin  = 0;
+  my $cc_admin  = 1; # Default ON for now, togglable via etc/mail.creds
   use File::Basename 'dirname';
   if (open my $creds_fh, '<', dirname (__FILE__) . "/../etc/mail.creds") {
     while (<$creds_fh>) {
       chomp;
-      if (/^username:\s*(.+)$/)            {$smtp_user = $1;}
-      if (/^password:\s*(.+)$/)            {$smtp_pass = $1;}
-      if (/^cc_admin:\s*(1|true|yes|on)/i) {$cc_admin  = 1;}
-    } ## end while (<$creds_fh>)
+      if (/^username:\s*(.+)$/)               {$smtp_user = $1;}
+      if (/^password:\s*(.+)$/)               {$smtp_pass = $1;}
+      if (/^cc_admin:\s*(0|false|no|off)/i)   {$cc_admin  = 0;}
+      elsif (/^cc_admin:\s*(1|true|yes|on)/i) {$cc_admin  = 1;}
+    }
     close $creds_fh;
-  } ## end if (open my $creds_fh,...)
+  }
+
+  my $subject_brand = $brand ? "Brand Impersonation ($brand)" : "Phishing Incident";
+  my $subject_ip    = $originating_ip ? " from $originating_ip" : "";
+  my $report_subject;
+  if ($is_protected) {
+    $report_subject = "Phishing Incident Report: $subject_brand via $offending_domain account ($params{sender})";
+  } else {
+    $report_subject = "Phishing Incident Report: $subject_brand$subject_ip ($offending_domain)";
+  }
 
   my %mime_params = (
     From    => 'PhishingReport@DeFaria.com',
     To      => $to_addresses,
-    Subject => "Reporting phishing attempts from $domain",
+    Subject => $report_subject,
     Type    => "multipart/mixed"
   );
   $mime_params{Cc} = $cc_addresses if $cc_addresses;
@@ -1619,13 +1853,27 @@ sub ReportPhishing(%) {
       $mime_params{Cc} = 'Andrew@DeFaria.com';
     }
     $stats{dispatch_list} .= ', Andrew@DeFaria.com (CC)';
-  } ## end if ($cc_admin)
+  }
 
   # Generate email
   my $msg = MIME::Entity->build (%mime_params);
 
-  my $html_body =
-"<p>I've received emails from this domain that contain phishing links. I've attached the offending emails for your examination. Please analyse and take down any domains you can confirm are phishing attempts.</p>\n";
+  my $html_body;
+  if ($is_protected) {
+    $html_body =
+"<p>A phishing incident has been detected and reported. Offending sender account: <b>$params{sender}</b> hosted on <b>$offending_domain</b>" .
+($originating_ip ? " (Connecting IP: <b>$originating_ip</b>)" : "") .
+($brand ? " impersonating <b>$brand</b>" : "") .
+".</p>\n" .
+"<p>Intact RFC 822 email payload(s) are attached for examination and account suspension.</p>\n";
+  } else {
+    $html_body =
+"<p>A phishing incident has been detected and reported. Offending envelope domain: <b>$offending_domain</b>" .
+($originating_ip ? " (Connecting IP: <b>$originating_ip</b>)" : "") .
+($brand ? " impersonating <b>$brand</b>" : "") .
+".</p>\n" .
+"<p>Intact RFC 822 email payload(s) are attached for examination and takedown coordination.</p>\n";
+  }
   $html_body .=
 "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; width: 100%; font-family: Arial, sans-serif;'>\n";
   $html_body .=
@@ -1676,9 +1924,9 @@ sub ReportPhishing(%) {
       Disposition => "attachment",
       Encoding    => "base64",
       Data        => $msg_data
-      };
+    };
     $i++;
-  } ## end foreach my $msg_rec (@$messages)
+  }
 
   $html_body .=
 "</table>\n<br><p>Sincerely,<br>\nAndrew DeFaria &lt;Andrew\@DeFaria.com&gt;</p>\n";
@@ -1693,7 +1941,10 @@ sub ReportPhishing(%) {
   }
 
   # Send email
-  my $smtp = Net::SMTP->new ('defaria.com', Port => 587);
+  if ($params{no_dispatch} || $params{skip_dispatch} || $ENV{MAPS_TEST_NO_DISPATCH}) {
+    $stats{dispatch_status} = "Report generated (dispatch suppressed in test mode)";
+  } else {
+    my $smtp = Net::SMTP->new ('defaria.com', Port => 587);
   if ($smtp) {
     if ($smtp->starttls ()) {
       if ($smtp_user && $smtp_pass) {
@@ -1725,6 +1976,8 @@ sub ReportPhishing(%) {
   } else {
     $stats{dispatch_status} = "Failed to connect to SMTP relay";
   }
+  }
+
 
   # Cleanup processed messages
   DeleteEmail (
@@ -1732,9 +1985,10 @@ sub ReportPhishing(%) {
     sender => $params{sender}
   );
 
-  my $status_msg = "Phishing reported successfully for $domain.\n\n";
+  my $status_msg = "Phishing reported successfully for $offending_domain.\n\n";
   $status_msg .= "Messages processed: $stats{processed}\n";
   $status_msg .= "Nulllist: $stats{nulllist_status}\n";
+  $status_msg .= "MTA Blocking: $stats{mta_status}\n";
   $status_msg .= "Dispatch: $stats{dispatch_status}\n\n";
 
   if (@whois_reports) {
@@ -2221,11 +2475,11 @@ sub UpdateList(%) {
   my $condition =
 "userid = '$rec{userid}' and type = '$rec{type}' and sequence = $rec{sequence}";
 
-  if ($rec{pattern} =~ /\@/ && !$rec{domain}) {
+  if (defined $rec{pattern} && $rec{pattern} =~ /\@/ && !$rec{domain}) {
     ($rec{pattern}, $rec{domain}) = split /\@/, $rec{pattern};
-  } elsif (!$rec{pattern} && $rec{domain} =~ /\@/) {
+  } elsif (!$rec{pattern} && defined $rec{domain} && $rec{domain} =~ /\@/) {
     ($rec{pattern}, $rec{domain}) = split /\@/, $rec{domain};
-  } elsif (!$rec{pattern} && !$rec{domain}) {
+  } elsif (!$rec{pattern} && !$rec{domain} && !defined $rec{comment} && !defined $rec{hit_count}) {
     return "Must specify either Username or Domain";
   }    # if
 

@@ -409,6 +409,9 @@ function reportPhishing(sender) {
             msg = "Phishing reported successfully for <b>" + (stats.domain || '') + "</b>.<br><br>";
             msg += "Messages processed: " + stats.processed + "<br>";
             msg += "Nulllist: " + stats.nulllist_status + "<br>";
+            if (stats.mta_status) {
+                msg += "<b>MTA Status:</b> " + stats.mta_status + "<br>";
+            }
             msg += "Dispatch: " + stats.dispatch_status + "<br><br>";
             
             if (stats.whois_emails) {
