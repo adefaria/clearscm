@@ -69,7 +69,7 @@ GetOptions(
   'domain=s'       => \$cli_domain,
 ) or pod2usage(2);
 
-pod2usage(1) if $help;
+pod2usage(0) if $help;
 
 # Retrieve domain from positional argument if not passed as option
 my $target_domain = $cli_domain || shift @ARGV;
