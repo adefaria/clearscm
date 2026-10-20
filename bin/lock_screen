@@ -7,7 +7,36 @@
 export XDG_SEAT_PATH="${XDG_SEAT_PATH:-/org/freedesktop/DisplayManager/Seat0}"
 export XDG_SESSION_PATH="${XDG_SESSION_PATH:-/org/freedesktop/DisplayManager/Session0}"
 
+session_active() {
+    loginctl show-session "$1" -p Active --value 2>/dev/null
+}
+
 if dm-tool switch-to-greeter; then
-    # Deactivate/unblank XScreenSaver so it resets idle timer and clears lock state
-    /usr/bin/xscreensaver-command -deactivate >/dev/null 2>&1
+    # dm-tool returns immediately, before the user unlocks. While the greeter
+    # is up, XScreenSaver on the user's display goes idle and blanks, so on
+    # return the desktop is hidden behind its black blank window until the
+    # mouse is clicked. Wait in the background for the user to return to this
+    # session, then unblank XScreenSaver.
+    (
+        session=$(loginctl show-user "$(id -un)" -p Display --value 2>/dev/null)
+        [ -n "$session" ] || exit 0
+
+        # Wait (up to 30s) for the switch to the greeter to take effect
+        i=0
+        while [ "$(session_active "$session")" = "yes" ] && [ "$i" -lt 30 ]; do
+            sleep 1
+            i=$((i + 1))
+        done
+
+        # Wait for the user to unlock and return to this session
+        while :; do
+            state=$(session_active "$session")
+            [ -n "$state" ] || exit 0 # Session no longer exists
+            [ "$state" = "yes" ] && break
+            sleep 1
+        done
+
+        sleep 1
+        /usr/bin/xscreensaver-command -deactivate
+    ) >/dev/null 2>&1 &
 fi
