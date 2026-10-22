@@ -1208,6 +1208,15 @@ sub _parse_header_line {
     } elsif ($info->{to} =~ /(\S*)@(\S*)/) {
       $info->{to} = lc ("$1\@$2");
     }    # if
+  } elsif ($line =~ /^in-reply-to:\s*(.*)/i) {
+    $info->{in_reply_to} = $1;
+    $info->{in_reply_to} =~ s/^\s+|\s+$//g;
+  } elsif ($line =~ /^references:\s*(.*)/i) {
+    $info->{references} = $1;
+    $info->{references} =~ s/^\s+|\s+$//g;
+  } elsif ($line =~ /^x-reachout-id:\s*(.*)/i) {
+    $info->{x_reachout_id} = $1;
+    $info->{x_reachout_id} =~ s/^\s+|\s+$//g;
   }    # if
 
   return;

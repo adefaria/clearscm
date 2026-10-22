@@ -1,0 +1,25 @@
+Dear {{Contact}},
+
+I am writing to express my interest in senior technical leadership, DevOps / SCM Architecture, and Cloud Infrastructure opportunities with {{Venue}}.
+
+With extensive enterprise experience architecting resilient continuous integration workflows, cloud deployments, and developer tooling, I specialize in eliminating deployment bottlenecks, automating complex lifecycles, and integrating modern AI-driven toolchains into production environments.
+
+CORE COMPETENCIES:
+  * Release & Configuration Engineering: Git, ClearCase, Perforce, SVN, branching strategies, and artifact distribution.
+  * Infrastructure & Cloud Automation: Scalable CI/CD pipelines, Docker, Linux/UNIX systems internals, Perl, Python, Bash.
+  * Modern Tooling & AI Workflows: Agentic workflows, automated policy evaluation, high-throughput notification systems.
+
+ONLINE PROFILES & RESUME:
+  * Resume/CV: {{ResumeUrl}}
+  * Website: {{WebsiteUrl}}
+  * LinkedIn: {{LinkedInUrl}}
+
+I would welcome the opportunity to discuss how my expertise can accelerate your infrastructure and engineering velocity. Thank you for your consideration.
+
+Sincerely,
+
+{{SenderName}}
+Email: {{SenderEmail}}
+Phone: {{SenderPhone}}
+LinkedIn: {{LinkedInUrl}}
+San Diego, CA

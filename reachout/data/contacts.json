@@ -1,0 +1,35 @@
+[
+  {
+    "id": "mainstream-poway",
+    "venue": "Mainstream Poway",
+    "contact": "Brian Harvey",
+    "email": "Brian@mainstreampoway.net",
+    "web": "https://mainstreampoway.net",
+    "phone": "(858) 486-6246",
+    "template": "rockready_club",
+    "policy": "passive",
+    "status": "active"
+  },
+  {
+    "id": "surf-club",
+    "venue": "Surf Club",
+    "contact": "Meeche Dozier",
+    "email": "meeche.dozier@surfcluboceanside.com",
+    "web": "https://surfcluboceanside.com",
+    "phone": "(760) 722-1008",
+    "template": "rockready_club",
+    "policy": "passive",
+    "status": "active"
+  },
+  {
+    "id": "hangar-76",
+    "venue": "Hangar 76",
+    "contact": "Morgan Margherita",
+    "email": "Morgan@thehangar76.com",
+    "web": "https://hangar76.com",
+    "phone": "(302) 383-4361",
+    "template": "rockready_club",
+    "policy": "passive",
+    "status": "active"
+  }
+]

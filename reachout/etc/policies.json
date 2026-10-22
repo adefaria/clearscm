@@ -1,0 +1,33 @@
+{
+  "passive": {
+    "name": "Passive Outreach Policy",
+    "description": "Courteous progressive outreach for club bookings and professional inquiries.",
+    "attempts": [
+      { "attempt": 1, "offset_days": 0, "subject_prefix": "" },
+      { "attempt": 2, "offset_days": 7, "subject_prefix": "Follow-up: " },
+      { "attempt": 3, "offset_days": 14, "subject_prefix": "Checking in: " },
+      { "attempt": 4, "offset_days": 21, "subject_prefix": "Final follow-up: " }
+    ],
+    "max_attempts": 4,
+    "on_abandon": {
+      "action": "notify_admin",
+      "status": "abandoned",
+      "notify_recipient": "Andrew@DeFaria.com"
+    }
+  },
+  "aggressive": {
+    "name": "Aggressive Nag Policy",
+    "description": "Successor to nag.pl for critical reminders, invoices, and urgent support tickets.",
+    "attempts": [
+      { "attempt": 1, "offset_days": 0, "subject_prefix": "" },
+      { "attempt": 2, "offset_days": 7, "subject_prefix": "Reminder: " },
+      { "attempt": 3, "offset_days": 7, "subject_prefix": "2nd Reminder: " },
+      { "attempt": 4, "offset_days": 7, "subject_prefix": "Final Weekly Reminder: " }
+    ],
+    "max_attempts": 4,
+    "escalation": {
+      "frequency_days": 1,
+      "subject_prefix": "URGENT DAILY REMINDER: "
+    }
+  }
+}

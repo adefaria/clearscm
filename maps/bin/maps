@@ -197,6 +197,76 @@ sub DetectLanguage($) {
   return;
 }    # DetectLanguage
 
+sub CheckReachoutReply($) {
+  my ($info) = @_;
+  return unless $info;
+
+  my $contacts_file = '/opt/clearscm/reachout/data/contacts.json';
+  my $state_file    = '/opt/clearscm/reachout/data/reachout_state.json';
+
+  my $sender      = lc($info->{sender} // '');
+  my $in_reply_to = $info->{in_reply_to} // '';
+  my $references  = $info->{references} // '';
+  my $x_reachout  = $info->{x_reachout_id} // '';
+
+  # 1. Match by message ID pattern: <rr-TARGETID-ATTEMPT-EPOCH@defaria.com>
+  my $matched_id;
+  if ($in_reply_to =~ /<rr-([a-zA-Z0-9_-]+)-\d+-\d+\@/i) {
+    $matched_id = $1;
+  } elsif ($references =~ /<rr-([a-zA-Z0-9_-]+)-\d+-\d+\@/i) {
+    $matched_id = $1;
+  } elsif ($x_reachout) {
+    $matched_id = $x_reachout;
+  }
+
+  # 2. Check contacts.json
+  if (-r $contacts_file) {
+    my $data = eval {
+      open my $fh, '<:raw', $contacts_file or return;
+      local $/;
+      require JSON::PP;
+      JSON::PP->new->utf8->decode(<$fh>);
+    };
+    if ($data && ref $data eq 'ARRAY') {
+      for my $c (@$data) {
+        if ($matched_id && $c->{id} eq $matched_id) {
+          return $c;
+        }
+        if ($sender && lc($c->{email} // '') eq $sender) {
+          return $c;
+        }
+      }
+    }
+  }
+
+  # 3. Check reachout_state.json if target exists in state
+  if (-r $state_file) {
+    my $sdata = eval {
+      open my $fh, '<:raw', $state_file or return;
+      local $/;
+      require JSON::PP;
+      JSON::PP->new->utf8->decode(<$fh>);
+    };
+    if ($sdata && $sdata->{targets}) {
+      if ($matched_id && $sdata->{targets}{$matched_id}) {
+        return { id => $matched_id, venue => $matched_id };
+      }
+      if ($sender) {
+        for my $tid (keys %{$sdata->{targets}}) {
+          my $tgt = $sdata->{targets}{$tid};
+          for my $h (@{$tgt->{history} || []}) {
+            if ($h->{recipient} && lc($h->{recipient}) eq $sender) {
+              return { id => $tid, venue => $tid };
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return;
+}    # CheckReachoutReply
+
 sub ProcessMsgs ($$$) {
   my ($msgfile, $username, $user_email) = @_;
 
@@ -248,6 +318,28 @@ sub ProcessMsgs ($$$) {
 
       next;
     }    # if
+
+    # Check if incoming email is a reply to an active Reachout sequence
+    my $reachout_target = CheckReachoutReply(\%msgInfo);
+    if ($reachout_target) {
+      my $tid   = $reachout_target->{id};
+      my $venue = $reachout_target->{venue} || $tid;
+      $log->msg("Reachout intercept: Incoming message from $msgInfo{sender} for target '$tid' ($venue)");
+
+      # Auto-whitelist sender if not already on whitelist
+      my ($already_white) = OnWhitelist($msgInfo{sender});
+      unless ($already_white) {
+        Add2Whitelist(
+          userid  => $userid,
+          sender  => $msgInfo{sender},
+          comment => "Reachout reply: $venue ($tid)",
+        );
+        $log->msg("Reachout intercept: Auto-whitelisted $msgInfo{sender} for $venue");
+      }
+
+      # Pause Reachout sequence for this target so no further automated emails are sent
+      system('/opt/clearscm/bin/reachout', 'pause', $tid, '--reason', "Reply intercepted by MAPS: $msgInfo{subject}");
+    }
 
     # Check whitelist:
     ($onlist, $rec) = OnWhitelist $msgInfo{sender};
