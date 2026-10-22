@@ -153,6 +153,12 @@ sub dispatch_target {
         'X-Mailer'          => 'ClearSCM Reachout Subsystem',
     );
     
+    # Add Bcc if configured and recipient is not already the Bcc address
+    my $bcc = $self->{config}->get('bcc');
+    if ($bcc && lc($recipient) ne lc($bcc)) {
+        $entity->head->add('Bcc', $bcc);
+    }
+    
     if ($current_att > 1 && $state_entry && $state_entry->{history} && @{$state_entry->{history}}) {
         my $prev_msg_id = $state_entry->{history}[-1]{message_id};
         if ($prev_msg_id) {
