@@ -256,6 +256,74 @@
             background: rgba(16, 185, 129, 0.18);
             border-color: var(--primary-light);
         }
+        .btn-theme.icon-only {
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        /* Theme Dropdown */
+        .theme-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .theme-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-glow);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+            padding: 0.35rem;
+            min-width: 135px;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            backdrop-filter: blur(12px);
+        }
+        .theme-menu.active {
+            display: flex;
+        }
+        .theme-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.15s ease;
+            width: 100%;
+        }
+        .theme-menu-item:hover {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--text-main);
+        }
+        .theme-menu-item.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+        .theme-menu-item .check {
+            margin-left: auto;
+            font-size: 0.8rem;
+            opacity: 0;
+        }
+        .theme-menu-item.active .check {
+            opacity: 1;
+        }
 
         /* Stats Grid */
         .stats-grid {
@@ -992,11 +1060,26 @@
             </div>
         </div>
         <div class="header-actions">
-            <!-- Light/Dark Mode Toggle Button -->
-            <button id="btnThemeToggle" class="btn btn-theme" title="Toggle Light / Dark Mode">
-                <span id="themeIcon">☀️</span>
-                <span id="themeLabel">Light Mode</span>
-            </button>
+            <!-- Theme Selector (Icon Only with System Selection) -->
+            <div class="theme-dropdown">
+                <button id="btnThemeToggle" class="btn btn-theme icon-only" title="Theme Selection" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span id="themeIcon">💻</span>
+                </button>
+                <div id="themeMenu" class="theme-menu">
+                    <button type="button" class="theme-menu-item" data-theme-val="light" onclick="selectThemeMode('light')">
+                        <span>☀️</span> Light
+                        <span class="check">✓</span>
+                    </button>
+                    <button type="button" class="theme-menu-item" data-theme-val="dark" onclick="selectThemeMode('dark')">
+                        <span>🌙</span> Dark
+                        <span class="check">✓</span>
+                    </button>
+                    <button type="button" class="theme-menu-item" data-theme-val="system" onclick="selectThemeMode('system')">
+                        <span>💻</span> System
+                        <span class="check">✓</span>
+                    </button>
+                </div>
+            </div>
             <button id="btnRefresh" class="btn btn-secondary" title="Refresh Contacts & State">
                 🔄 Refresh
             </button>
@@ -1374,38 +1457,98 @@
 <div id="toastContainer" class="toast-container"></div>
 
 <script>
-    // Theme Management (Light / Dark mode)
+    // Theme Management (Light / Dark / System)
+    let currentThemeMode = 'system'; // 'light' | 'dark' | 'system'
+
+    function getSystemTheme() {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
     function initTheme() {
-        const savedTheme = localStorage.getItem('reachout_theme') || 
-                           localStorage.getItem('user_theme_override') ||
-                           (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-        applyTheme(savedTheme);
+        const savedMode = localStorage.getItem('reachout_theme_mode') || 
+                          localStorage.getItem('user_theme_override') || 
+                          'system';
+        setThemeMode(savedMode, false);
     }
 
-    function applyTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('reachout_theme', theme);
-        const icon = document.getElementById('themeIcon');
-        const label = document.getElementById('themeLabel');
-        if (theme === 'light') {
-            icon.textContent = '🌙';
-            label.textContent = 'Dark Mode';
-        } else {
-            icon.textContent = '☀️';
-            label.textContent = 'Light Mode';
+    function setThemeMode(mode, save = true) {
+        currentThemeMode = mode;
+        if (save) {
+            localStorage.setItem('reachout_theme_mode', mode);
         }
+
+        let effectiveTheme = mode;
+        if (mode === 'system') {
+            effectiveTheme = getSystemTheme();
+            try { localStorage.removeItem('user_theme_override'); } catch(e) {}
+        } else {
+            try { localStorage.setItem('user_theme_override', mode); } catch(e) {}
+        }
+
+        document.documentElement.setAttribute('data-theme', effectiveTheme);
+        localStorage.setItem('reachout_theme', effectiveTheme);
+
+        const iconEl = document.getElementById('themeIcon');
+        const btn = document.getElementById('btnThemeToggle');
+        if (mode === 'system') {
+            iconEl.textContent = '💻';
+            btn.title = `Theme: System (${effectiveTheme}) - Click to change`;
+        } else if (mode === 'light') {
+            iconEl.textContent = '☀️';
+            btn.title = 'Theme: Light - Click to change';
+        } else {
+            iconEl.textContent = '🌙';
+            btn.title = 'Theme: Dark - Click to change';
+        }
+
+        document.querySelectorAll('.theme-menu-item').forEach(item => {
+            if (item.getAttribute('data-theme-val') === mode) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
     }
 
-    document.getElementById('btnThemeToggle').addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        applyTheme(newTheme);
+    function selectThemeMode(mode) {
+        setThemeMode(mode, true);
+        closeThemeMenu();
+    }
+
+    function toggleThemeMenu() {
+        const menu = document.getElementById('themeMenu');
+        if (menu) menu.classList.toggle('active');
+    }
+
+    function closeThemeMenu() {
+        const menu = document.getElementById('themeMenu');
+        if (menu) menu.classList.remove('active');
+    }
+
+    document.getElementById('btnThemeToggle').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleThemeMenu();
     });
+
+    document.addEventListener('click', (e) => {
+        const dropdown = document.querySelector('.theme-dropdown');
+        if (dropdown && !dropdown.contains(e.target)) {
+            closeThemeMenu();
+        }
+    });
+
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (currentThemeMode === 'system') {
+                setThemeMode('system', false);
+            }
+        });
+    }
 
     // Parent iframe theme sync if embedded
     window.addEventListener('message', function (event) {
         if (event.data && event.data.type === 'themeChange' && event.data.theme) {
-            applyTheme(event.data.theme);
+            setThemeMode(event.data.theme, false);
         }
     });
 
