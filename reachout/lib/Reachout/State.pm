@@ -95,14 +95,26 @@ sub update_attempt {
 sub set_status {
     my ($self, $id, $status, $reason) = @_;
     $self->{data}{targets}{$id} ||= { id => $id, attempts => 0, history => [] };
-        if (1) {
-        $self->{data}{targets}{$id}{status} = $status;
-        $self->{data}{targets}{$id}{status_reason} = $reason if $reason;
-        $self->{data}{targets}{$id}{updated_date} = strftime("%Y-%m-%d %H:%M:%S", localtime());
-        $self->save();
-        return 1;
-    }
-    return 0;
+    $self->{data}{targets}{$id}{status} = $status;
+    $self->{data}{targets}{$id}{status_reason} = $reason if $reason;
+    $self->{data}{targets}{$id}{updated_date} = strftime("%Y-%m-%d %H:%M:%S", localtime());
+    $self->save();
+    return 1;
+}
+
+sub set_next_run {
+    my ($self, $id, $epoch) = @_;
+    my $t = $self->{data}{targets}{$id} ||= {
+        id       => $id,
+        attempts => 0,
+        history  => [],
+        status   => 'active',
+    };
+    $t->{next_run_epoch} = $epoch;
+    $t->{next_run_date}  = $epoch ? strftime("%Y-%m-%d %H:%M:%S", localtime($epoch)) : undef;
+    $t->{updated_date}   = strftime("%Y-%m-%d %H:%M:%S", localtime());
+    $self->save();
+    return $t;
 }
 
 sub all_targets {

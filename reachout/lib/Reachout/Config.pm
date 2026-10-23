@@ -58,7 +58,7 @@ sub _detect_environment {
     my $host = lc(Sys::Hostname::hostname());
     if ($host eq 'earth' || $host =~ /earth/) {
         $self->{current_env} = 'staging';
-    } elsif ($host eq 'cloud' || $host =~ /defaria\.com/ || $host =~ /rockready/) {
+    } elsif ($host eq 'cloud' || $host =~ /defaria/ || $host =~ /rockready/) {
         $self->{current_env} = 'production';
     } else {
         $self->{current_env} = 'staging';

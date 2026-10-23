@@ -66,6 +66,7 @@ Commands:
   status <id>                 Display detailed reachout history for a target
   pause <id> [--reason "msg"] Pause an active reachout sequence (e.g. on MAPS reply)
   resume <id>                 Resume a paused reachout sequence
+  schedule <id> <date>        Set next run time for a target (YYYY-MM-DD [HH:MM:SS])
   close <id> [--status st]    Close a reachout (booked, declined, completed)
   add                         Add target(s) via --file <path> or CLI flags
 
@@ -288,6 +289,24 @@ if ($cmd eq 'send-test') {
     } else {
         print "Target '$id' not found in state.\n";
     }
+} elsif ($cmd eq 'schedule') {
+    my $id = shift @ARGV or die "Usage: reachout schedule <target_id> <YYYY-MM-DD [HH:MM:SS] | epoch>\n";
+    my $date_str = join(' ', @ARGV);
+    die "Usage: reachout schedule <target_id> <YYYY-MM-DD [HH:MM:SS] | epoch>\n" unless $date_str;
+    
+    my $epoch;
+    if ($date_str =~ /^\d+$/) {
+        $epoch = $date_str;
+    } elsif ($date_str =~ /^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/) {
+        my ($y, $m, $d, $h, $min, $sec) = ($1, $2, $3, $4 // 9, $5 // 0, $6 // 0);
+        use POSIX qw(mktime);
+        $epoch = mktime($sec, $min, $h, $d, $m - 1, $y - 1900);
+    } else {
+        die "Error: Invalid date format '$date_str'. Use 'YYYY-MM-DD' or 'YYYY-MM-DD HH:MM:SS'\n";
+    }
+    
+    my $t = $state->set_next_run($id, $epoch);
+    print "Scheduled '$id' for next run at: $t->{next_run_date}\n";
 } else {
     die "Unknown command: $cmd (use 'reachout help' for usage)\n";
 }

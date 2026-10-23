@@ -181,12 +181,9 @@ sub dispatch_target {
         Data     => encode("UTF-8", $rendered->{html}),
     );
     
-    # Dispatch via sendmail transport:
-    # On cloud (production), dispatch via local sendmail.
-    # On earth (staging), dispatch via SSH to cloud sendmail to bypass residential IP RBL blocks on port 25.
+    # Dispatch via sendmail transport
     my $raw_msg = encode("UTF-8", $entity->as_string);
-    my $is_cloud = (`hostname` =~ /cloud|defaria\.com/);
-    my $mail_cmd = $is_cloud ? '/usr/sbin/sendmail -t' : 'ssh cloud /usr/sbin/sendmail -t';
+    my $mail_cmd = $self->{config}->get('mail_cmd') || '/usr/sbin/sendmail -t';
     
     open(my $pipe, '|-', $mail_cmd) or die "Cannot execute '$mail_cmd': $!";
     print $pipe $raw_msg;
