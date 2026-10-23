@@ -9,6 +9,27 @@
          "status" : "active",
          "updated_date" : "2026-10-23 09:26:39"
       },
+      "mainstream-poway" : {
+         "attempts" : 1,
+         "history" : [
+            {
+               "attempt" : 1,
+               "date" : "2026-10-23 09:29:20",
+               "epoch" : 1792772960,
+               "message_id" : "<rr-mainstream-poway-1-1792772960@defaria.com>",
+               "recipient" : "Brian@mainstreampoway.net",
+               "subject" : "Rock Ready Booking Inquiry — Mainstream Poway"
+            }
+         ],
+         "id" : "mainstream-poway",
+         "last_attempt_date" : "2026-10-23 09:29:20",
+         "last_attempt_epoch" : 1792772960,
+         "next_run_date" : "2026-10-30 09:29:20",
+         "next_run_epoch" : 1793377760,
+         "status" : "paused",
+         "status_reason" : "Reply intercepted by MAPS: Rock Ready Booking Inquiry -- Mainstream Poway",
+         "updated_date" : "2026-10-23 09:29:20"
+      },
       "surf-club" : {
          "attempts" : 0,
          "history" : [],
