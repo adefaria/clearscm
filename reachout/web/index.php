@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClearSCM Reachout Control Panel</title>
+    <title>Reachout Control Panel</title>
     <link rel="icon" href="/Icons/Home.ico" type="image/x-icon">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1135,8 +1135,8 @@
                         <input type="text" id="inpId" class="form-input" placeholder="e.g. belly-up (auto-generated if empty)">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="inpVenue">Venue / Organization *</label>
-                        <input type="text" id="inpVenue" class="form-input" placeholder="e.g. Belly Up Tavern" required>
+                        <label class="form-label" for="inpVenue">Company / Venue Name *</label>
+                        <input type="text" id="inpVenue" class="form-input" placeholder="e.g. Belly Up Tavern or Acme Corp" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="inpContact">Contact Person Name</label>
@@ -1166,6 +1166,16 @@
                             <option value="passive">Passive (5-day spacing, polite reminder)</option>
                             <option value="aggressive">Aggressive (2-day spacing, high urgency)</option>
                         </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label" for="inpIssue">Issue / Headline (Optional)</label>
+                        <input type="text" id="inpIssue" class="form-input" placeholder="e.g. Follow-up on API Webhook / Job Inquiry">
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Populates {{Issue}} in support and custom outreach templates.</span>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label" for="inpMessage">Custom Message / Notes (Optional)</label>
+                        <textarea id="inpMessage" class="form-textarea" style="min-height:75px;" placeholder="e.g. Detailed notes or custom body text for {{Message}}..."></textarea>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">Populates {{Message}} in support and custom outreach templates.</span>
                     </div>
                     <div class="form-group full-width">
                         <label class="form-label" for="inpScheduleDate">Initial Schedule / Next Run Date</label>
@@ -1270,21 +1280,60 @@
                     <span style="font-size:0.75rem; color:var(--text-muted);">Saved as templates/&lt;name&gt;.html and templates/&lt;name&gt;.txt</span>
                 </div>
 
-                <!-- Token Insert Bar -->
-                <div style="margin-bottom: 1rem;">
-                    <div style="font-size:0.8rem; font-weight:600; color:var(--text-secondary); margin-bottom:0.3rem;">
-                        Quick Insert Variable Tokens:
+                <!-- Categorized Token Insert Bar -->
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.4rem;">
+                        Insert Template Variables:
                     </div>
-                    <div class="quick-chips">
-                        <button type="button" class="chip-btn" onclick="insertToken('{{Venue}}')">{{Venue}}</button>
-                        <button type="button" class="chip-btn" onclick="insertToken('{{Contact}}')">{{Contact}}</button>
-                        <button type="button" class="chip-btn" onclick="insertToken('{{Email}}')">{{Email}}</button>
-                        <button type="button" class="chip-btn" onclick="insertToken('{{SenderName}}')">{{SenderName}}</button>
-                        <button type="button" class="chip-btn" onclick="insertToken('{{SenderEmail}}')">{{SenderEmail}}</button>
-                        <button type="button" class="chip-btn" onclick="insertToken('{{SenderPhone}}')">{{SenderPhone}}</button>
-                        <button type="button" class="chip-btn" onclick="insertToken('{{UpcomingShowsHtml}}')">{{UpcomingShowsHtml}}</button>
-                        <button type="button" class="chip-btn" onclick="insertToken('{{UpcomingShowsTxt}}')">{{UpcomingShowsTxt}}</button>
-                        <button type="button" class="chip-btn" onclick="insertToken('{{SiteUrl}}')">{{SiteUrl}}</button>
+                    <div style="display:flex; flex-direction:column; gap:0.6rem; background:var(--bg-secondary); border:1px solid var(--border-color); border-radius:8px; padding:0.75rem;">
+                        <div>
+                            <span style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px;">General & Recipient</span>
+                            <div class="quick-chips" style="margin-top:0.25rem;">
+                                <button type="button" class="chip-btn" onclick="insertToken('{{Contact}}')">{{Contact}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{Company}}')">{{Company}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{Venue}}')">{{Venue}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{Email}}')">{{Email}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{SenderName}}')">{{SenderName}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{SenderEmail}}')">{{SenderEmail}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{SenderPhone}}')">{{SenderPhone}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{WebsiteUrl}}')">{{WebsiteUrl}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{AttemptNumber}}')">{{AttemptNumber}}</button>
+                            </div>
+                        </div>
+                        <div>
+                            <span style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px;">Support & Ticket Variables</span>
+                            <div class="quick-chips" style="margin-top:0.25rem;">
+                                <button type="button" class="chip-btn" onclick="insertToken('{{Issue}}')">{{Issue}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{Message}}')">{{Message}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{TicketId}}')">{{TicketId}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{SystemAffected}}')">{{SystemAffected}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{Severity}}')">{{Severity}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{Reference}}')">{{Reference}}</button>
+                            </div>
+                        </div>
+                        <div>
+                            <span style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px;">Career & Resume Variables</span>
+                            <div class="quick-chips" style="margin-top:0.25rem;">
+                                <button type="button" class="chip-btn" onclick="insertToken('{{CandidateName}}')">{{CandidateName}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{Headline}}')">{{Headline}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{ResumeUrl}}')">{{ResumeUrl}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{LinkedInUrl}}')">{{LinkedInUrl}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{GitHubUrl}}')">{{GitHubUrl}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{AvatarUrl}}')">{{AvatarUrl}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{BannerUrl}}')">{{BannerUrl}}</button>
+                            </div>
+                        </div>
+                        <div>
+                            <span style="font-size:0.68rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px;">Rock Ready Band Variables</span>
+                            <div class="quick-chips" style="margin-top:0.25rem;">
+                                <button type="button" class="chip-btn" onclick="insertToken('{{UpcomingShowsHtml}}')">{{UpcomingShowsHtml}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{UpcomingShowsTxt}}')">{{UpcomingShowsTxt}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{BandName}}')">{{BandName}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{SiteUrl}}')">{{SiteUrl}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{VideosUrl}}')">{{VideosUrl}}</button>
+                                <button type="button" class="chip-btn" onclick="insertToken('{{PhotosUrl}}')">{{PhotosUrl}}</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1738,11 +1787,13 @@ Best regards,
         document.getElementById('contactModalTitle').textContent = '✏️ Edit Reachout Contact';
         document.getElementById('inpId').value = c.id;
         document.getElementById('inpId').disabled = true;
-        document.getElementById('inpVenue').value = c.venue || '';
+        document.getElementById('inpVenue').value = c.venue || c.company || '';
         document.getElementById('inpContact').value = c.contact || '';
         document.getElementById('inpEmail').value = c.email || '';
         document.getElementById('inpPhone').value = c.phone || '';
         document.getElementById('inpWeb').value = c.web || '';
+        document.getElementById('inpIssue').value = c.issue || '';
+        document.getElementById('inpMessage').value = c.message || '';
         populateTemplateDropdown();
         document.getElementById('selTemplate').value = c.template || 'rockready_club';
         document.getElementById('selPolicy').value = c.policy || 'passive';
@@ -1761,10 +1812,13 @@ Best regards,
         const payload = {
             id: document.getElementById('inpId').value.trim(),
             venue: document.getElementById('inpVenue').value.trim(),
+            company: document.getElementById('inpVenue').value.trim(),
             contact: document.getElementById('inpContact').value.trim(),
             email: document.getElementById('inpEmail').value.trim(),
             phone: document.getElementById('inpPhone').value.trim(),
             web: document.getElementById('inpWeb').value.trim(),
+            issue: document.getElementById('inpIssue').value.trim(),
+            message: document.getElementById('inpMessage').value.trim(),
             template: document.getElementById('selTemplate').value,
             policy: document.getElementById('selPolicy').value,
             schedule_date: document.getElementById('inpScheduleDate').value.replace('T', ' ')

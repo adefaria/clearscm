@@ -63,7 +63,7 @@ sub default_subject {
         my $issue = $target->{issue} || $target->{subject} || "Response Needed";
         return "Following up: $issue";
     }
-    return "Outreach Inquiry from ClearSCM";
+    return "Outreach Inquiry";
 }
 
 sub dispatch_target {
@@ -94,7 +94,8 @@ sub dispatch_target {
         %$adapter_vars,
         Contact       => $target->{contact} || "Booking Manager",
         Email         => $target->{email},
-        Venue         => $target->{venue} || "Venue",
+        Venue         => $target->{venue} || $target->{company} || "Venue",
+        Company       => $target->{company} || $target->{venue} || "Organization",
         AttemptNumber => $current_att,
         TicketId      => $target->{ticket_id} || ($adapter_vars->{TicketId} // "REQ-8492"),
         SystemAffected=> $target->{system} || ($adapter_vars->{SystemAffected} // "Production Infrastructure"),
@@ -150,7 +151,7 @@ sub dispatch_target {
         'X-Reachout-ID'     => $id,
         'X-Reachout-Policy' => $policy_name,
         'X-Reachout-Stage'  => $current_att,
-        'X-Mailer'          => 'ClearSCM Reachout Subsystem',
+        'X-Mailer'          => 'Reachout Subsystem',
     );
     
     # Add Bcc if configured and recipient is not already the Bcc address

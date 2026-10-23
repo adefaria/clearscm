@@ -1,6 +1,6 @@
 Dear {{Contact}},
 
-I am writing to express my interest in senior technical leadership, DevOps / SCM Architecture, and Cloud Infrastructure opportunities with {{Venue}}.
+I am writing to express my interest in senior technical leadership, DevOps / SCM Architecture, and Cloud Infrastructure opportunities with {{Company}}.
 
 With extensive enterprise experience architecting resilient continuous integration workflows, cloud deployments, and developer tooling, I specialize in eliminating deployment bottlenecks, automating complex lifecycles, and integrating modern AI-driven toolchains into production environments.
 

@@ -97,7 +97,7 @@ my $engine   = Reachout::Engine->new(
 );
 $engine->{verbose} = $verbose;
 
-print "ClearSCM Reachout Subsystem [Env: " . $config->env() . "]\n" if $verbose;
+print "Reachout Subsystem [Env: " . $config->env() . "]\n" if $verbose;
 
 if ($cmd eq 'send-test') {
     $template ||= 'rockready_club';

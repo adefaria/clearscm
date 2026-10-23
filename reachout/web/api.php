@@ -1,6 +1,6 @@
 <?php
 /**
- * ClearSCM Reachout Administration API
+ * Reachout Administration API
  * Provides endpoints for managing contacts, scheduling, state, and executions.
  */
 
@@ -125,10 +125,15 @@ switch ($action) {
     case 'save_contact':
         $id = trim($params['id'] ?? '');
         $venue = trim($params['venue'] ?? '');
+        $company = trim($params['company'] ?? '');
+        if ($company === '') $company = $venue;
+        if ($venue === '') $venue = $company;
         $contact = trim($params['contact'] ?? '');
         $email = trim($params['email'] ?? '');
         $phone = trim($params['phone'] ?? '');
         $web = trim($params['web'] ?? '');
+        $issue = trim($params['issue'] ?? '');
+        $message = trim($params['message'] ?? '');
         $template = trim($params['template'] ?? 'rockready_club');
         $policy = trim($params['policy'] ?? 'passive');
         $status = trim($params['status'] ?? 'active');
@@ -156,10 +161,13 @@ switch ($action) {
         $contact_record = [
             'id' => $id,
             'venue' => $venue,
+            'company' => $company,
             'contact' => $contact,
             'email' => $email,
             'web' => $web,
             'phone' => $phone,
+            'issue' => $issue,
+            'message' => $message,
             'template' => $template,
             'policy' => $policy,
             'status' => $status,
@@ -361,10 +369,14 @@ switch ($action) {
         $txt = file_exists($txt_file) ? file_get_contents($txt_file) : 'No Plain text template found.';
 
         // Prepare preview replacements
+        $msg_raw = !empty($target['message']) ? $target['message'] : ($template_name === 'support_vendor' ? 'Following up regarding the requested information and timeline.' : 'Inquiring regarding band booking schedule.');
+        $issue_val = !empty($target['issue']) ? $target['issue'] : ($template_name === 'support_vendor' ? 'Support Ticket Follow-up' : ($template_name === 'personal_job' ? 'Career Inquiry' : 'Booking Inquiry'));
+
         $replacements = [
-            'Contact' => htmlspecialchars($target['contact'] ?: 'Booking Manager'),
-            'Venue' => htmlspecialchars($target['venue'] ?: 'Venue'),
-            'Email' => htmlspecialchars($target['email'] ?: ''),
+            'Contact' => htmlspecialchars(!empty($target['contact']) ? $target['contact'] : 'Booking Manager'),
+            'Venue' => htmlspecialchars(!empty($target['venue']) ? $target['venue'] : ($target['company'] ?? 'Venue')),
+            'Company' => htmlspecialchars(!empty($target['company']) ? $target['company'] : ($target['venue'] ?? 'Organization')),
+            'Email' => htmlspecialchars(!empty($target['email']) ? $target['email'] : ''),
             'BandName' => 'Rock Ready',
             'SiteUrl' => 'https://rockready.band',
             'PhotoUrl' => 'https://rockready.band/RockReady.band.jpg',
@@ -376,16 +388,29 @@ switch ($action) {
             'UpcomingShowsHtml' => '<div style="background:#222;color:#eee;padding:10px;border-radius:4px;"><em>Live shows feed pulled dynamically at dispatch time</em></div>',
             'UpcomingShowsTxt' => "Live upcoming shows feed\n",
             'AttemptNumber' => '1',
-            'TicketId' => 'REQ-8492',
-            'SystemAffected' => 'Production Infrastructure',
-            'Severity' => 'High',
-            'Issue' => 'Venue Booking Inquiry',
-            'Message' => 'Inquiring regarding band booking schedule.',
-            'Reference' => '',
+            'TicketId' => htmlspecialchars($target['ticket_id'] ?? 'REQ-8492'),
+            'SystemAffected' => htmlspecialchars($target['system'] ?? 'Production Infrastructure'),
+            'Severity' => htmlspecialchars($target['severity'] ?? 'High'),
+            'Issue' => htmlspecialchars($issue_val),
+            'Message' => nl2br(htmlspecialchars($msg_raw)),
+            'Reference' => htmlspecialchars($target['ref'] ?? ($target['ticket_id'] ?? '')),
+            'CandidateName' => 'Andrew DeFaria',
+            'Headline' => 'Senior DevOps, SCM, Cloud & AI Infrastructure Architect',
+            'ResumeUrl' => 'https://defaria.com/Resumes/Andrew%20DeFaria%20Resume.html',
+            'LinkedInUrl' => 'https://www.linkedin.com/in/adefaria/',
+            'GitHubUrl' => 'https://github.com/adefaria',
+            'WebsiteUrl' => 'https://defaria.com',
+            'AvatarUrl' => 'https://defaria.com/Images/AndrewDeFaria.jpg',
+            'BannerUrl' => 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&auto=format&fit=crop&q=80',
         ];
+
+        $txt_replacements = $replacements;
+        $txt_replacements['Message'] = $msg_raw;
 
         foreach ($replacements as $key => $val) {
             $html = preg_replace('/\{\{\s*' . preg_quote($key, '/') . '\s*\}\}/', $val, $html);
+        }
+        foreach ($txt_replacements as $key => $val) {
             $txt = preg_replace('/\{\{\s*' . preg_quote($key, '/') . '\s*\}\}/', $val, $txt);
         }
         // Remove remaining tokens

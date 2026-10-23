@@ -28,7 +28,7 @@ sub get_upcoming_shows {
     my $http = HTTP::Tiny->new(
         timeout => 5,
         verify_SSL => 0,
-        agent => 'Mozilla/5.0 (compatible; ClearSCMReachout/1.0)'
+        agent => 'Mozilla/5.0 (compatible; Reachout/1.0)'
     );
     
     my $resp = $http->get("$api_url?per_page=$limit");
