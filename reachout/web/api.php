@@ -423,6 +423,116 @@ switch ($action) {
         ]);
         break;
 
+    case 'get_templates':
+        $template_dir = $base_dir . '/templates';
+        $templates = [];
+        if (is_dir($template_dir)) {
+            $files = scandir($template_dir);
+            $names = [];
+            foreach ($files as $f) {
+                if ($f === '.' || $f === '..') continue;
+                if (preg_match('/^([a-zA-Z0-9_\-]+)\.(html|txt)$/', $f, $m)) {
+                    $names[$m[1]] = true;
+                }
+            }
+            foreach (array_keys($names) as $tname) {
+                $html_file = "$template_dir/$tname.html";
+                $txt_file = "$template_dir/$tname.txt";
+                $html_exists = file_exists($html_file);
+                $txt_exists = file_exists($txt_file);
+                $mtime = max(
+                    $html_exists ? filemtime($html_file) : 0,
+                    $txt_exists ? filemtime($txt_file) : 0
+                );
+                $templates[] = [
+                    'name' => $tname,
+                    'has_html' => $html_exists,
+                    'has_txt' => $txt_exists,
+                    'html_size' => $html_exists ? filesize($html_file) : 0,
+                    'txt_size' => $txt_exists ? filesize($txt_file) : 0,
+                    'modified_date' => $mtime ? date('Y-m-d H:i:s', $mtime) : '',
+                ];
+            }
+        }
+        usort($templates, fn($a, $b) => strcmp($a['name'], $b['name']));
+        send_json(['success' => true, 'templates' => $templates]);
+        break;
+
+    case 'get_template':
+        $name = trim($params['name'] ?? '');
+        if ($name === '' || !preg_match('/^[a-zA-Z0-9_\-]+$/', $name)) {
+            send_error('Invalid template name.');
+        }
+        $template_dir = $base_dir . '/templates';
+        $html_file = "$template_dir/$name.html";
+        $txt_file = "$template_dir/$name.txt";
+        
+        $html = file_exists($html_file) ? file_get_contents($html_file) : '';
+        $txt = file_exists($txt_file) ? file_get_contents($txt_file) : '';
+        
+        send_json([
+            'success' => true,
+            'name' => $name,
+            'html' => $html,
+            'txt' => $txt,
+        ]);
+        break;
+
+    case 'save_template':
+        $name = trim($params['name'] ?? '');
+        $orig_name = trim($params['original_name'] ?? '');
+        $html = $params['html'] ?? '';
+        $txt = $params['txt'] ?? '';
+        
+        if ($name === '') {
+            send_error('Template name cannot be empty.');
+        }
+        $name = strtolower(preg_replace('/[^a-zA-Z0-9_\-]+/', '_', $name));
+        $name = trim($name, '_');
+        
+        $template_dir = $base_dir . '/templates';
+        if (!is_dir($template_dir)) {
+            mkdir($template_dir, 0775, true);
+        }
+        
+        if ($orig_name !== '' && $orig_name !== $name) {
+            if (file_exists("$template_dir/$orig_name.html")) unlink("$template_dir/$orig_name.html");
+            if (file_exists("$template_dir/$orig_name.txt")) unlink("$template_dir/$orig_name.txt");
+        }
+        
+        file_put_contents("$template_dir/$name.html", $html, LOCK_EX);
+        file_put_contents("$template_dir/$name.txt", $txt, LOCK_EX);
+        chmod("$template_dir/$name.html", 0664);
+        chmod("$template_dir/$name.txt", 0664);
+        
+        send_json(['success' => true, 'message' => "Template '$name' saved successfully.", 'name' => $name]);
+        break;
+
+    case 'delete_template':
+        $name = trim($params['name'] ?? '');
+        if ($name === '' || !preg_match('/^[a-zA-Z0-9_\-]+$/', $name)) {
+            send_error('Invalid template name.');
+        }
+        $template_dir = $base_dir . '/templates';
+        $html_file = "$template_dir/$name.html";
+        $txt_file = "$template_dir/$name.txt";
+        
+        $deleted = false;
+        if (file_exists($html_file)) {
+            unlink($html_file);
+            $deleted = true;
+        }
+        if (file_exists($txt_file)) {
+            unlink($txt_file);
+            $deleted = true;
+        }
+        
+        if (!$deleted) {
+            send_error("Template '$name' not found.");
+        }
+        send_json(['success' => true, 'message' => "Template '$name' deleted."]);
+        break;
+
     default:
         send_error("Unknown action '$action'.");
         break;

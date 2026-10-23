@@ -26,9 +26,9 @@
          "last_attempt_epoch" : 1792772960,
          "next_run_date" : "2026-10-30 09:29:20",
          "next_run_epoch" : 1793377760,
-         "status" : "paused",
-         "status_reason" : "Reply intercepted by MAPS: Rock Ready Booking Inquiry -- Mainstream Poway",
-         "updated_date" : "2026-10-23 09:29:20"
+         "status" : "active",
+         "status_reason" : "Resumed campaign",
+         "updated_date" : "2026-10-23 10:03:41"
       },
       "surf-club" : {
          "attempts" : 0,

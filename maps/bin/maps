@@ -209,6 +209,9 @@ sub CheckReachoutReply($) {
   my $references  = $info->{references} // '';
   my $x_reachout  = $info->{x_reachout_id} // '';
 
+  # Ignore self-sent messages (e.g. BCC copies sent to Andrew)
+  return if $sender =~ /^(andrew\@defaria\.com|defaria\@)/i;
+
   # 1. Match by message ID pattern: <rr-TARGETID-ATTEMPT-EPOCH@defaria.com>
   my $matched_id;
   if ($in_reply_to =~ /<rr-([a-zA-Z0-9_-]+)-\d+-\d+\@/i) {
