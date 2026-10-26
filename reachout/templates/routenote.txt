@@ -1,0 +1,16 @@
+I'm just following up on the following issue:
+{{Issue}}
+
+Hi {{Contact}},
+
+{{Message}}
+
+Please let me know when you get a chance, or simply reply directly to this email with any thoughts or updates.
+
+Best regards,
+
+{{SenderName}}
+Email: {{SenderEmail}}
+Phone: {{SenderPhone}}
+Web: {{WebsiteUrl}}
+San Diego, CA

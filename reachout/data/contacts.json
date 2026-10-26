@@ -42,5 +42,16 @@
       "status" : "active",
       "template" : "personal_job",
       "venue" : "Amaze Systems Inc"
+   },
+   {
+      "contact" : "Hiring Team",
+      "email" : "nicholas.hanson@govstar.us",
+      "id" : "target-1793054032",
+      "issue" : "Application for Senior Systems / Infrastructure Engineer",
+      "message" : "Following up regarding my application for the Senior Systems / Infrastructure Engineer role at GovStar.",
+      "policy" : "passive",
+      "status" : "active",
+      "template" : "personal_job",
+      "venue" : "GovStar"
    }
 ]
