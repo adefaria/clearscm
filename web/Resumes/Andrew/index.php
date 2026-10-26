@@ -279,7 +279,32 @@ if (file_exists($header_path)) {
 
   <h2>Experience</h2>
 
-  <h3>Perl Developer | October 2021 - Current <br><span
+  <h3>SCM / Systems Engineering Consultant | June 2026 - Present<br><span
+      style="font-size:0.9em; color:var(--muted-color);">ABS Consulting (Client: Cohu) | CA</span></h3>
+  <ul>
+    <li>Architecting and executing migration of enterprise IBM Rational ClearCase VOBs and multi-branch repositories to modern Git (cohu1 / cohu2 migration infrastructure)</li>
+    <li>Designing automated branching strategies, historical metadata preservation, merge conflict workflows, and CI/CD pipeline integration</li>
+    <li>Administering Linux migration hosts, build automation environments, and developer tooling</li>
+  </ul>
+
+  <h3>Senior Perl / Software Systems Engineer (Contract) | March 2026 - August 2026<br><span
+      style="font-size:0.9em; color:var(--muted-color);">Wolters Kluwer | Remote</span></h3>
+  <ul>
+    <li>Maintained, modernized, and optimized core enterprise backend applications running on Amazon Linux, Apache, and mod_perl</li>
+    <li>Diagnosed and resolved critical production memory exhaustion and child-process management/reaping issues across high-volume Linux service infrastructure</li>
+    <li>Evaluated modern migration paths from legacy Amazon Linux 2 / Apache 2.2 / OpenSSL to Amazon Linux 2023, Nginx, and containerized Docker development environments</li>
+    <li>Engineered Jenkins CI/CD automation pipelines, telemetry integration (OpenTelemetry, New Relic), and security vulnerability scanning (Black Duck)</li>
+    <li>Integrated full-stack REST services, Redis caching layers, NFS network storage, and dynamic frontend web components</li>
+  </ul>
+
+  <h3>SCM / Systems Consultant | April 2025 - November 2025<br><span
+      style="font-size:0.9em; color:var(--muted-color);">ABS Consulting (Client: Xtera) | CA</span></h3>
+  <ul>
+    <li>Delivered SCM architecture, build & release engineering, and Linux infrastructure automation for optical networking systems</li>
+    <li>Streamlined version control workflows (Git / ClearCase), continuous integration, and automated packaging/deployment scripts</li>
+  </ul>
+
+  <h3>Perl Developer | October 2021 - May 2024<br><span
       style="font-size:0.9em; color:var(--muted-color);">Cpanel/WebPros | CA</span></h3>
   <ul>
     <li>Worked on the Artemis Team, improving WHM and learning Cpanel's extensive code base</li>
