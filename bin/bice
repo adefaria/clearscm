@@ -57,6 +57,7 @@ use Getopt::Long;
 use Display;
 use Mail;
 use Utils;
+use Socket;
 
 use Fcntl ':flock'; # import LOCK_* constants
 
@@ -68,6 +69,17 @@ my $contact  = 'Andrew@DeFaria.com';
 my $location = 'San Marcs, California';
 my $UTC      = 'UTC-8';
 my $mailhost = $domain;
+
+my @WHITELISTED_HOSTS = (
+  'defaria.synology.me',
+  'localhost',
+);
+
+# Static CIDRs/IPs to always ignore (e.g. localhost, local subnets)
+my @STATIC_IGNORES = (
+  '127.0.0.1',
+  '::1',
+);
 # End customize these variables
 
 my $jail = 'sshd';
@@ -82,9 +94,50 @@ if ($hostname =~ /(\w*)\./) {
   $hostname = $1;
 } # if
 
+sub get_whitelisted_ips () {
+  my %ips;
+
+  # Include static IPs
+  $ips{$_} = 1 for @STATIC_IGNORES;
+
+  # Resolve dynamic hostnames
+  for my $host (@WHITELISTED_HOSTS) {
+    my @addresses = gethostbyname($host);
+    if (@addresses) {
+      # Unpack all resolved IPv4 addresses
+      my @raw_ips = @addresses[4..$#addresses];
+      for my $raw (@raw_ips) {
+        my $dotted = inet_ntoa($raw);
+        $ips{$dotted} = 1 if $dotted;
+      } # for
+    } # if
+  } # for
+
+  return \%ips;
+} # get_whitelisted_ips
+
+sub is_whitelisted ($target_ip) {
+  state $whitelisted_cache = {};
+  state $last_lookup = 0;
+
+  # Refresh DNS cache every 5 minutes to avoid hitting DNS on every parsed log line
+  my $now = time;
+  if ($now - $last_lookup > 300 || !%$whitelisted_cache) {
+    $whitelisted_cache = get_whitelisted_ips();
+    $last_lookup = $now;
+  } # if
+
+  return exists $whitelisted_cache->{$target_ip};
+} # is_whitelisted
+
 sub BanIP($ip) {
 
   return unless $ban;
+
+  if (is_whitelisted($ip)) {
+    verbose "Skipping ban for whitelisted/DDNS IP: $ip";
+    return;
+  } # if
 
   verbose "Banning $ip using fail2ban (jail $jail)";
 
@@ -275,6 +328,11 @@ sub ReportBreakins () {
       }
     } # if
 
+    if (is_whitelisted($ip)) {
+      verbose "Skipping ban and report for whitelisted/DDNS IP: $ip";
+      next;
+    } # if
+
     # Always ban the IP immediately regardless of WHOIS or email settings
     BanIP $ip;
 
@@ -370,6 +428,8 @@ L<FindBin>
 L<Getopt::Long|Getopt::Long>
 
 L<Fcntl>
+
+L<Socket>
 
 =head2 ClearSCM Perl Modules
 
