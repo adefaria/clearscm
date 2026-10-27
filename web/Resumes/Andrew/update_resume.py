@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import os
 import sys
-import shutil
 import re
 import traceback
 from bs4 import BeautifulSoup
@@ -16,7 +15,6 @@ from docx.opc.constants import RELATIONSHIP_TYPE
 
 PHP_PATH = "/opt/clearscm/web/Resumes/Andrew/index.php"
 DEST_DOCX = "/opt/clearscm/web/Resumes/Andrew/Resume.docx"
-TMP_DOCX = "/tmp/Resume.docx"
 
 print("Starting resume update...", flush=True)
 
@@ -309,8 +307,7 @@ try:
 
     print(f"Saving to {DEST_DOCX}...", flush=True)
     doc.save(DEST_DOCX)
-    shutil.copyfile(DEST_DOCX, TMP_DOCX)
-    print(f"SUCCESS: Generated {DEST_DOCX} and copied to {TMP_DOCX}", flush=True)
+    print(f"SUCCESS: Generated {DEST_DOCX}", flush=True)
 
 except Exception as e:
     print(f"\nCRITICAL FAILURE: {e}", file=sys.stdout, flush=True)
