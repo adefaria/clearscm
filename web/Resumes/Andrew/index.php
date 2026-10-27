@@ -287,14 +287,14 @@ if (file_exists($header_path)) {
   <h2>Experience</h2>
 
   <h3>SCM / Systems Engineering Consultant | June 2026 - Present<br><span
-      style="font-size:0.9em; color:var(--muted-color);">ABS Consulting (Client: Cohu) | CA</span></h3>
+      style="font-size:0.9em; color:var(--muted-color);">ABS Consulting (Client: Cohu) | Remote</span></h3>
   <ul>
     <li>Architecting and executing migration of enterprise IBM Rational ClearCase VOBs and multi-branch repositories to modern Git (cohu1 / cohu2 migration infrastructure)</li>
     <li>Designing automated branching strategies, historical metadata preservation, merge conflict workflows, and CI/CD pipeline integration</li>
     <li>Administering Linux migration hosts, build automation environments, and developer tooling</li>
   </ul>
 
-  <h3>Senior Linux / SCM & Perl Consultant | July 2026 - September 2026<br><span
+  <h3>Senior Linux / SCM & Perl Consultant | July 2026 - Present<br><span
       style="font-size:0.9em; color:var(--muted-color);">ABS Consulting | Remote</span></h3>
   <ul>
     <li>Modernized legacy ClearCase infrastructure and integrated automated deployment and health-check workflows</li>
