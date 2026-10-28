@@ -12,3 +12,4 @@ t/00-load.t
 t/01-internal.t
 t/bin_speak_file.t
 t/escape_sequences.t
+t/last_message.t

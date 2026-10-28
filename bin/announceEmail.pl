@@ -412,7 +412,7 @@ sub MonitorMail() {
       # restart; # No longer recurse
       return 0;
     } else {
-      speak ($msg . $err, $log);
+      speak ($msg . $err, app => ($opts{name} ? "announceEmail $opts{name}" : "announceEmail"));
     }
   } else {
     $log->dbug ($msg . 'no error');
@@ -436,7 +436,7 @@ END {
   if ($log && !$clean_exit) {
     my $msg = "$FindBin::Script $opts{name} ending unexpectedly!";
 
-    speak $msg, $log;
+    speak $msg, app => ($opts{name} ? "announceEmail $opts{name}" : "announceEmail");
 
     $log->err ($msg);
   }    # if
@@ -448,7 +448,7 @@ Connect2IMAP;
 
 my $msg = "Now monitoring email for $email";
 
-speak $msg, $log if $opts{announce};
+speak $msg, app => ($opts{name} ? "announceEmail $opts{name}" : "announceEmail") if $opts{announce};
 
 $log->msg ($msg);
 
@@ -521,12 +521,12 @@ sub SpeakNewMessages($newUnseen_ref) {
       } else {
 
         $log->dbug ('Calling speak');
-        speak $announce_msg, $log;
+        speak $announce_msg, app => ($opts{name} ? "announceEmail $opts{name}" : "announceEmail");
       }
     } elsif ($hour >= 7) {
 
       $log->dbug ('Calling speak');
-      speak $announce_msg, $log;
+      speak $announce_msg, app => ($opts{name} ? "announceEmail $opts{name}" : "announceEmail");
     } else {
       $log->msg ("$logmsg [silent nighttime]");
     }    # if
