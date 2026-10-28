@@ -500,7 +500,7 @@ sub SpeakNewMessages($newUnseen_ref) {
     $subject =~ s/\s+\S*\d{$longNumber,}\S*\s*//g;
 
     # Now speak it!
-    my $logmsg = "From $from $subject";
+    my $logmsg = "From: $from Subject: $subject";
 
     my $greeting     = $greetings[int rand $#greetings];
     my $announce_msg = "$greeting from $from... $subject";
@@ -521,11 +521,13 @@ sub SpeakNewMessages($newUnseen_ref) {
       } else {
 
         $log->dbug ('Calling speak');
+        $log->msg ($logmsg);
         speak $announce_msg, app => ($opts{name} ? "announceEmail $opts{name}" : "announceEmail");
       }
     } elsif ($hour >= 7) {
 
       $log->dbug ('Calling speak');
+      $log->msg ($logmsg);
       speak $announce_msg, app => ($opts{name} ? "announceEmail $opts{name}" : "announceEmail");
     } else {
       $log->msg ("$logmsg [silent nighttime]");
