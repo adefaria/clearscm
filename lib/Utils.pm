@@ -361,6 +361,9 @@ Returns:
 
   $prompt ||= 'Password';
 
+  die "GetPassword: No terminal available for interactive password input\n"
+    unless -t STDIN;
+
   my $password = '';
 
   local $| = 1;
@@ -372,9 +375,9 @@ Returns:
   ReadMode 'cbreak';
 
   while () {
-    my $key;
+    my $key = ReadKey 0;
 
-    while (not defined ($key = ReadKey -1)) { }
+    last unless defined $key;
 
     if ($key =~ /(\r|\n)/) {
        print "\n";
