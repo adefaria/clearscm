@@ -389,3 +389,40 @@ function dush() {
     du -sh "${entries[@]}" 2>/dev/null | sort -hr | head -n "$head_lines"
   fi
 }
+
+if [ -z "${GEMINI_API_KEY:-}" ] && [ -r "$HOME/.gemini/api_key" ]; then
+  export GEMINI_API_KEY="$(<"$HOME/.gemini/api_key")"
+fi
+
+ai() {
+  if [ -z "${GEMINI_API_KEY:-}" ]; then
+    if [ -r "$HOME/.gemini/api_key" ]; then
+      export GEMINI_API_KEY="$(<"$HOME/.gemini/api_key")"
+    else
+      echo "Error: GEMINI_API_KEY is not set and $HOME/.gemini/api_key was not found." >&2
+      return 1
+    fi
+  fi
+  local prompt="$*"
+  # If stdin is not a terminal (data piped in), capture it
+  local stdin_data=""
+  if [ ! -t 0 ]; then
+    stdin_data=$(cat)
+  fi
+
+  local full_content
+  if [ -n "$stdin_data" ]; then
+    full_content="Context / Input:\n$stdin_data\n\nTask: $prompt"
+  else
+    full_content="$prompt"
+  fi
+
+  # Escape JSON string safely
+  local payload
+  payload=$(python3 -c 'import json, sys; print(json.dumps({"contents": [{"parts": [{"text": sys.argv[1]}]}]}))' "$full_content")
+
+  curl -s -X POST \
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}" \
+    -H 'Content-Type: application/json' \
+    -d "$payload" | python3 -c 'import json, sys; res = json.load(sys.stdin); print(res.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "Error parsing response"))'
+}
