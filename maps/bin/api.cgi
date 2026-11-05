@@ -348,15 +348,18 @@ if ($action eq 'full_stats') {
   send_json ({status => 'success', data => $list});
 
 } elsif ($action eq 'report_phishing') {
-  my $sender = $q->param ('sender');
+  my $sender          = $q->param ('sender');
+  my $include_spamcop = $q->param ('include_spamcop');
+  $include_spamcop = (!defined $include_spamcop || $include_spamcop eq '' || $include_spamcop) ? 1 : 0;
   
   if (!$sender) {
     send_json ({status => 'error', message => 'Missing sender'});
   }
 
   my ($err, $msg, $stats) = MAPS::ReportPhishing (
-    userid => $userid,
-    sender => $sender
+    userid          => $userid,
+    sender          => $sender,
+    include_spamcop => $include_spamcop,
   );
 
   if ($err) {

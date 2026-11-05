@@ -112,6 +112,7 @@ our @EXPORT = qw(
   SendMsg
   SetContext
   Space
+  SubmitToSpamCop
   UpdateList
   UpdateUser
   UpdateUserOptions
@@ -2003,6 +2004,14 @@ sub ReportPhishing(%) {
   }
 
 
+  # Also submit each message payload to SpamCop if enabled
+  if (!defined $params{include_spamcop} || $params{include_spamcop}) {
+    foreach my $msg_rec (@$messages) {
+      SubmitToSpamCop ($msg_rec->{data});
+    }
+    $stats{dispatch_list} .= ', SpamCop' if $stats{dispatch_list};
+  }
+
   # Cleanup processed messages
   DeleteEmail (
     userid => $params{userid},
@@ -2562,10 +2571,61 @@ sub UserExists($) {
   return $rec->[0]{password};
 }    # UserExists
 
+sub SubmitToSpamCop ($;$) {
+  my ($data, $from) = @_;
+  return unless defined $data && $data ne '';
+
+  my $spamcop_email = 'submit.y6vVL1H6VWHQq50k@spam.spamcop.net';
+  $from //= 'Andrew@DeFaria.com';
+
+  use File::Basename 'dirname';
+  if (open my $creds_fh, '<', dirname (__FILE__) . '/../etc/mail.creds') {
+    while (<$creds_fh>) {
+      chomp;
+      if (/^spamcop_submit:\s*(\S+)$/) {
+        $spamcop_email = $1;
+      }
+    }
+    close $creds_fh;
+  }
+
+  my $attach_str = ref ($data) eq 'ARRAY'
+    ? join ('', @$data)
+    : $data;
+
+  # Strip leading envelope mbox "From " line if present
+  $attach_str =~ s/^From\s+\S+.*?\n//s;
+  my @msg_data_lines = split /^/m, $attach_str;
+
+  my $msg = MIME::Entity->build (
+    From    => $from,
+    To      => $spamcop_email,
+    Subject => 'Spam report',
+    Type    => 'multipart/mixed',
+  );
+
+  $msg->attach (
+    Type        => 'message/rfc822',
+    Disposition => 'attachment',
+    Filename    => 'spam.eml',
+    Data        => \@msg_data_lines,
+  );
+
+  if (open my $mail, '|-', '/usr/lib/sendmail', '-oi', '-oem', $spamcop_email) {
+    $msg->print (\*$mail);
+    close $mail;
+    return 1;
+  } else {
+    warn "SubmitToSpamCop: Unable to pipe to sendmail: $!\n";
+    return 0;
+  }
+}    # SubmitToSpamCop
+
 sub AuthFailMsg(%) {
   my (%params) = @_;
 
-  # AuthFailMsg logs authentication failures and sends notification (CCing user if requested).
+  # AuthFailMsg logs authentication failures and forwards the incident to SpamCop.
+  # The automated auth_fail.html notice back to the sender has been dropped to eliminate backscatter.
   CheckParms (['userid', 'sender', 'subject', 'data'], \%params);
 
   my $auth_report = $params{auth_report} // 'unknown';
@@ -2577,17 +2637,10 @@ sub AuthFailMsg(%) {
     message => "Authentication failure [$auth_report]",
   );
 
-  SendMsg (
-    userid      => $params{userid},
-    sender      => $params{sender},
-    subject     => 'MAPS: Email delivery notice - Authentication Failure',
-    msgfile     => "$mapsbase/auth_fail.html",
-    data        => $params{data},
-    auth_report => $auth_report,
-    cc          => $params{cc},
-  );
+  # Forward the raw spam payload to SpamCop for IP blocklisting
+  SubmitToSpamCop ($params{data});
 
-  # Do NOT save message to DB for auth failures - message is discarded and sent as attachment
+  # Do NOT save message to DB for auth failures - message is discarded
   # SaveMsg ($params{sender}, $params{subject}, $params{data}, $params{userid});
 
   return;

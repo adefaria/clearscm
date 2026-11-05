@@ -387,19 +387,21 @@ function confirmReportPhishing(sender) {
     overlay.className = 'modal-overlay';
     overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;';
     
-    var content = '<div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; max-width: 90%; text-align: center;"><p style="color: black; margin-bottom: 20px;">Are you sure you want to report ' + sender + ' for phishing? This will add the domain to the Null List.</p>';
-    content += '<button class="modal-btn" style="background-color: #4285f4; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold; margin-right: 10px;" onclick="this.parentNode.parentNode.remove(); reportPhishing(\\'' + sender + '\\');">Yes</button> ';
+    var content = '<div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; max-width: 90%; text-align: center;"><p style="color: black; margin-bottom: 15px;">Are you sure you want to report ' + sender + ' for phishing? This will add the domain to the Null List.</p>';
+    content += '<div style="margin-bottom: 20px; text-align: left; display: inline-block;"><label style="color: black; font-size: 14px; cursor: pointer; user-select: none;"><input type="checkbox" id="spamcop_cb" checked style="margin-right: 8px; vertical-align: middle;">Submit report to SpamCop</label></div><br>';
+    content += '<button class="modal-btn" style="background-color: #4285f4; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold; margin-right: 10px;" onclick="var sc = document.getElementById(\\'spamcop_cb\\') ? (document.getElementById(\\'spamcop_cb\\').checked ? 1 : 0) : 1; this.parentNode.parentNode.remove(); reportPhishing(\\'' + sender + '\\', sc);">Yes</button> ';
     content += '<button class="modal-btn" style="background-color: #555; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold; margin-left: 10px;" onclick="this.parentNode.parentNode.remove();">No</button></div>';
     
     overlay.innerHTML = content;
     document.body.appendChild(overlay);
 }
 
-function reportPhishing(sender) {
+function reportPhishing(sender, includeSpamcop) {
+    if (typeof includeSpamcop === 'undefined') { includeSpamcop = 1; }
     fetch('api.cgi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'action=report_phishing&userid=' + encodeURIComponent('$userid') + '&sender=' + encodeURIComponent(sender)
+        body: 'action=report_phishing&userid=' + encodeURIComponent('$userid') + '&sender=' + encodeURIComponent(sender) + '&include_spamcop=' + encodeURIComponent(includeSpamcop)
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
