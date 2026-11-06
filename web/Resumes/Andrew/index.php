@@ -300,8 +300,7 @@ if (file_exists($header_path)) {
     <li>Modernized legacy ClearCase infrastructure and integrated automated deployment and health-check workflows</li>
     <li>Engineered a Perl-based administrative dashboard and web monitoring suite (ClearMonitor) for real-time
       repository health, trigger management, and remote execution</li>
-    <li>Utilized AI-assisted engineering and modern tooling to accelerate delivery, refactor legacy scripts, and
-      generate automated diagnostic tests</li>
+    <li>Leveraged AI-augmented engineering workflows alongside deep systems architecture and debugging rigor to design, develop, and ship peer-reviewed production C#/.NET and Perl components, refactoring legacy scripts and generating automated diagnostic suites at high velocity</li>
   </ul>
 
   <h3>Senior Perl / Software Systems Engineer (Contract) | March 2026 - August 2026<br><span
