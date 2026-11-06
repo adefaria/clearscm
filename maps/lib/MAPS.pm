@@ -56,6 +56,7 @@ our @EXPORT = qw(
   AddUserxx
   AddUserOptions
   AuthFailMsg
+  AutoFinalizeSpamCopReport
   Blacklist
   CheckDKIM
   CheckDMARC
@@ -1841,7 +1842,7 @@ sub ReportPhishing(%) {
   # Read SMTP creds and CC preference
   my $smtp_user = '';
   my $smtp_pass = '';
-  my $cc_admin  = 1; # Default ON for now, togglable via etc/mail.creds
+  my $cc_admin  = 0; # Default OFF, togglable via etc/mail.creds
   use File::Basename 'dirname';
   if (open my $creds_fh, '<', dirname (__FILE__) . "/../etc/mail.creds") {
     while (<$creds_fh>) {
@@ -2620,6 +2621,42 @@ sub SubmitToSpamCop ($;$) {
     return 0;
   }
 }    # SubmitToSpamCop
+
+sub AutoFinalizeSpamCopReport ($) {
+  my ($url) = @_;
+  return 0 unless defined $url && $url =~ m{^https?://www\.spamcop\.net/sc\?id=\S+};
+
+  require LWP::UserAgent;
+  require HTML::Form;
+
+  my $ua = LWP::UserAgent->new (
+    agent   => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+    timeout => 15,
+  );
+
+  my $res = $ua->get ($url);
+  unless ($res->is_success) {
+    warn "AutoFinalizeSpamCopReport: Failed to fetch $url: " . $res->status_line . "\n";
+    return 0;
+  }
+
+  my @forms = HTML::Form->parse ($res);
+  for my $form (@forms) {
+    if (($form->attr ('name') // '') eq 'sendreport') {
+      my $req = $form->click ();
+      my $submit_res = $ua->request ($req);
+      if ($submit_res->is_success) {
+        return 1;
+      } else {
+        warn "AutoFinalizeSpamCopReport: Form submission failed: " . $submit_res->status_line . "\n";
+        return 0;
+      }
+    }
+  }
+
+  warn "AutoFinalizeSpamCopReport: No sendreport form found at $url\n";
+  return 0;
+}    # AutoFinalizeSpamCopReport
 
 sub AuthFailMsg(%) {
   my (%params) = @_;

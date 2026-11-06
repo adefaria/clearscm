@@ -344,6 +344,31 @@ sub ProcessMsgs ($$$) {
       system('/opt/clearscm/bin/reachout', 'pause', $tid, '--reason', "Reply intercepted by MAPS: $msgInfo{subject}");
     }
 
+    # Intercept SpamCop auto-responder confirmation emails:
+    # Auto-finalize the report via web form, then silently drop to /dev/null
+    if (lc ($msgInfo{sender}) eq 'spamcop@devnull.spamcop.net') {
+      my $body_text = ref ($msgInfo{data}) eq 'ARRAY' ? join ('', @{$msgInfo{data}}) : $msgInfo{data};
+      if ($body_text =~ m{(https?://www\.spamcop\.net/sc\?id=[a-zA-Z0-9]+)}) {
+        my $sc_url = $1;
+        $log->msg ("Auto-submitting SpamCop report confirmation: $sc_url");
+        if (AutoFinalizeSpamCopReport ($sc_url)) {
+          $log->msg ("SpamCop report successfully finalized: $sc_url");
+        } else {
+          $log->msg ("SpamCop report auto-submission failed for: $sc_url");
+        }
+      } else {
+        $log->msg ("SpamCop autoresponder received with no confirmation URL to finalize");
+      }
+
+      my ($is_null, $null_rec) = OnNulllist ($msgInfo{sender});
+      if ($is_null) {
+        Nulllist ($msgInfo{sender}, $null_rec->{sequence}, $null_rec->{hit_count});
+      } else {
+        Nulllist ($msgInfo{sender});
+      }
+      next;
+    }
+
     # Check whitelist:
     ($onlist, $rec) = OnWhitelist $msgInfo{sender};
 
