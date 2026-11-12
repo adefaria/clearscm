@@ -78,8 +78,7 @@
   dump=cat-file -p
   dlog=log --decorate
   oldest-ancestor = !bash -c 'diff -u <(git rev-list --first-parent "${1:-master}") <(git rev-list --first-parent "${2:-HEAD}") | sed -ne \"s/^ //p\" | head -1' -
-  cplint = !PERL5LIB='' cplint --branched-from HEAD^ --skip CommitMessages -v warn
-  cplintv = !PERL5LIB='' cplint --branched-from $(head -1 .branched_from) --skip CommitMessages -v warn
+	check-clean = "!f() { ( cd \"${1:-.}\" || exit 1; [ -z \"$(git status --porcelain)\" ] && { ! git rev-parse --verify --quiet @{u} >/dev/null 2>&1 || [ \"$(git rev-list --left-right --count HEAD...@{u} 2>/dev/null)\" = \"$(printf \"0\\t0\")\" ]; }; ); }; f \"$@\""
 
 [push]
   default = current

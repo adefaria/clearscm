@@ -28,6 +28,25 @@ function in_git_repo {
   false
 } # in_git_repo
 
+is_repo_clean() {
+  local repo="${1:-.}"
+  (
+    cd "$repo" || return 1
+
+    # Uncommitted or untracked changes
+    [ -z "$(git status --porcelain)" ] || return 1
+
+    # Upstream ahead/behind divergence
+    if git rev-parse --verify --quiet @{u} >/dev/null 2>&1; then
+      local counts
+      counts=$(git rev-list --left-right --count HEAD...@{u} 2>/dev/null)
+      [ "$counts" = "$(printf '0\t0')" ] || return 1
+    fi
+
+    return 0
+  )
+} # is_repo_clean
+
 function git () {
   # Need to reset title since we put the branch name in the titlebar
   git=$(/usr/bin/which git)
@@ -36,14 +55,6 @@ function git () {
     if [ "$1" = "checkout" -o "$1" = "co" ]; then
       $git "$@"
       set_title
-    elif [ "$1" = "files" ]; then
-      if [ -z "$2" ]; then
-        echo "Files in git commit HEAD"
-        $git show --pretty="" --name-only HEAD
-      else
-        echo "Files in git commit $2"
-	$git show --pretty="" --name-only $2
-      fi
     else
       $git "$@"
     fi
