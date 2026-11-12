@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euo pipefail
+
+RUNTIME_DIR="/run/user/$(id -u)/bitwarden"
+mkdir -p -m 700 "$RUNTIME_DIR"
+SESSION_FILE="$RUNTIME_DIR/session"
+
+# Wait up to 10 seconds for the keyring service on session startup
+MAX_TRIES=10
+PASS=""
+for ((i=1; i<=MAX_TRIES; i++)); do
+    if PASS=$(secret-tool lookup service bitwarden account master 2>/dev/null) && [[ -n "$PASS" ]]; then
+        break
+    fi
+    sleep 1
+done
+
+if [[ -z "$PASS" ]]; then
+    echo "bw-session-init: Failed to retrieve master password from keyring." >&2
+    exit 1
+fi
+
+# Unlock and capture the raw session key
+SESSION=$(BW_PASSWORD="$PASS" bw unlock --passwordenv BW_PASSWORD --raw)
+echo -n "$SESSION" > "$SESSION_FILE"
+chmod 600 "$SESSION_FILE"

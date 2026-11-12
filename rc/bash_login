@@ -378,3 +378,9 @@ export MSBUILDDISABLENODEREUSE=1
 
 # Disable the Roslyn persistent compiler server (VBCSCompiler)
 export UseSharedCompilation=false
+
+# Load Bitwarden CLI session from RAM if available
+BW_SESSION_FILE="/run/user/$(id -u)/bitwarden/session"
+if [[ -f "$BW_SESSION_FILE" ]]; then
+    export BW_SESSION=$(<"$BW_SESSION_FILE")
+fi
