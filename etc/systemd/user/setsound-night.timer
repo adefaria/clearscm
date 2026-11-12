@@ -1,0 +1,9 @@
+[Unit]
+Description=Mute sound volume at midnight
+
+[Timer]
+OnCalendar=*-*-* 00:00:00
+Unit=setsound@0.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,7 @@
+[Unit]
+Description=Update master calendar and sync Google Tasks
+After=graphical-session.target network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/clearscm/bin/updateCalendar.pl

@@ -1,0 +1,13 @@
+[Unit]
+Description=Run updateCalendar at midnight and every 30 minutes during the day
+
+[Timer]
+# Midnight daily rollover
+OnCalendar=*-*-* 00:00:00
+# Every 30 minutes between 07:00 and 22:00
+OnCalendar=*-*-* 07..22:00/30:00
+# Run immediately if a scheduled event was missed while sleeping/offline
+Persistent=true
+
+[Install]
+WantedBy=timers.target

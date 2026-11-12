@@ -1,0 +1,7 @@
+[Unit]
+Description=Weekly email store backup
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/clearscm/bin/backupEmail

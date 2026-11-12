@@ -1,0 +1,6 @@
+[Unit]
+Description=Set audio sink volume to %i%%
+
+[Service]
+Type=oneshot
+ExecStart=/opt/clearscm/bin/setsound %i
