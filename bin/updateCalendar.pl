@@ -8,10 +8,17 @@ use lib "$FindBin::Bin/../lib";
 use StdEnv;
 use LWP::Simple;
 use Getopt::Long;
+use POSIX qw(strftime);
 
 # Parse command-line options
-my $verbose = 0;
-GetOptions ('verbose' => \$verbose);
+my $verbose   = 0;
+my $days_past = 90;
+GetOptions (
+  'verbose'     => \$verbose,
+  'days-past=i' => \$days_past,
+);
+
+my $cutoff_date = strftime ('%Y%m%d', localtime (time - ($days_past * 86400)));
 
 # Hash of calendar names and URLs
 my %calendar_urls = (
@@ -67,16 +74,56 @@ foreach my $name (sort keys %calendar_urls) {
   $calendar_footer //= $this_footer;
 
   # Collect all events (split by BEGIN:VEVENT, keep delimiter)
-  my @events = $event_block =~ /(BEGIN:VEVENT.*?END:VEVENT\r?\n)/sg;
+  my @raw_events = $event_block =~ /(BEGIN:VEVENT.*?END:VEVENT\r?\n)/sg;
+  my @events;
+
+  foreach my $event (@raw_events) {
+    # Always preserve recurring events
+    if ($event =~ /^RRULE:/m) {
+      push @events, $event;
+      next;
+    }
+
+    # For non-recurring events, keep if end date (or start date) >= cutoff date
+    my ($event_date) = $event =~ m{^DTEND(?:;[^:]*)?:(\d{8})}m;
+    $event_date //= ($event =~ m{^DTSTART(?:;[^:]*)?:(\d{8})}m)[0];
+
+    if (!$event_date || $event_date >= $cutoff_date) {
+      push @events, $event;
+    }
+  }
+
   $total_events += scalar @events;
   push @all_events, @events;
 } ## end foreach my $name (sort keys...)
+
+# Fetch Google Tasks if configured
+my @all_todos;
+my $total_tasks        = 0;
+my $fetch_tasks_script = "$FindBin::Bin/fetchGoogleTasks.py";
+my $tasks_token        = "$ENV{HOME}/.config/google_tasks_token.json";
+
+if (-x $fetch_tasks_script && (-f $tasks_token || $ENV{BW_SESSION})) {
+  my $tasks_output = `$fetch_tasks_script 2>&1`;
+  if ($? == 0 && $tasks_output) {
+    @all_todos   = $tasks_output =~ /(BEGIN:VTODO.*?END:VTODO\r?\n)/sg;
+    $total_tasks = scalar @all_todos;
+    print "Google Tasks: $total_tasks tasks\n" if $verbose;
+  } elsif ($verbose) {
+    warn "Warning: Failed to fetch Google Tasks: $tasks_output\n";
+  }
+}
 
 # Print master calendar
 open (my $fh, '>:encoding(UTF-8)', $result_calendar)
   or die "Cannot open $result_calendar: $!";
 print $fh $calendar_header;
 print $fh join ('', @all_events);
+print $fh join ('', @all_todos) if @all_todos;
 print $fh $calendar_footer, "\n";
 close $fh;
-print "Calendar: $total_events events\n" if $verbose;
+print "Calendar: $total_events events, $total_tasks tasks\n" if $verbose;
+
+# Refresh Rainlendar if available
+system ('rainlendar2 -e "Rainlendar_Refresh()" >/dev/null 2>&1')
+  if -x '/bin/rainlendar2' || -x '/usr/bin/rainlendar2';
