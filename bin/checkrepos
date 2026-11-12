@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+# ANSI color codes (disabled if output is redirected or NO_COLOR is set)
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+  RED=$'\033[0;31m'
+  GREEN=$'\033[0;32m'
+  NC=$'\033[0m'
+else
+  RED=''
+  GREEN=''
+  NC=''
+fi
+
+targets=("${@}")
+if [ ${#targets[@]} -eq 0 ]; then
+  targets=(/opt/*/)
+fi
+
+for repo in "${targets[@]}"; do
+  [ -d "$repo/.git" ] || continue
+
+  (
+    cd "$repo" || exit 1
+
+    # Check local changes
+    if [ -n "$(git status --porcelain)" ]; then
+      printf "[%sDIRTY - Uncommitted%s] %s\n" "$RED" "$NC" "$repo"
+      exit 1
+    fi
+
+    # Check upstream divergence
+    if git rev-parse --verify --quiet @{u} >/dev/null 2>&1; then
+      counts=$(git rev-list --left-right --count HEAD...@{u} 2>/dev/null)
+      if [ "$counts" != $'0\t0' ]; then
+        printf "[%sDIRTY - Sync needed (%s)%s] %s\n" "$RED" "$counts" "$NC" "$repo"
+        exit 1
+      fi
+    fi
+
+    printf "[%sCLEAN%s] %s\n" "$GREEN" "$NC" "$repo"
+    exit 0
+  )
+done
