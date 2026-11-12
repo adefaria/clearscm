@@ -38,7 +38,7 @@ update=$1;
 for system in $systems; do
   notify "Checking $system for updates"
   if ! ping -c 1 -W 2 $system &> /dev/null; then
-    echo "$system down - skipping"
+    echo "$system down or sleeping - skipping"
   else 
     ssh $system sudo flatpak update -y --noninteractive | grep -ve Info -e 'no longer' -e ^$ -e tv.plex -e 'Nothing to do'
     ssh $system sudo apt-get -qq update

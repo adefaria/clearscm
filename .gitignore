@@ -29,6 +29,10 @@ test.log
 
 *.ERR
 
+# Python artifacts
+__pycache__/
+*.py[cod]
+
 # Additional CPAN/Perl artifacts
 .lwpcookies
 cover_db
