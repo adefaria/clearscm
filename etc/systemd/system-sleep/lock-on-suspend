@@ -2,6 +2,7 @@
 # Lock screen with LightDM before system suspends/sleeps
 if [ "$1" = "pre" ]; then
     /opt/clearscm/bin/new_login_screen 2>/dev/null
+    XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0 /usr/bin/dm-tool lock 2>/dev/null
     loginctl lock-sessions 2>/dev/null
 elif [ "$1" = "post" ]; then
     # Reset XScreenSaver activity timer on resume so it doesn't trigger a stale lock
