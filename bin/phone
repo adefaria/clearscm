@@ -100,7 +100,7 @@ if [ "$connected" = true ]; then
     count=0
     while [ $count -lt 10 ]; do
         sleep 1
-        if wmctrl -r "scrcpy-phone" -e 0,3840,350,-1,-1 2>/dev/null; then
+        if wmctrl -r "scrcpy-phone" -e 0,3840,390,-1,-1 2>/dev/null; then
             echo "[+] Window positioned successfully."
             break
         fi
