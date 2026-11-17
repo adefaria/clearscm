@@ -6,10 +6,7 @@
   <meta name="GENERATOR" content="Mozilla/4.61 [en] (Win98; U) [Netscape]">
 
   <title>ClearSCM: Clearquest</title>
-
-  <link rel="stylesheet" type="text/css" media="screen" href="/css/Article.css">
-  <link rel="stylesheet" type="text/css" media="print"  href="/css/Print.css">
-  <link rel="SHORTCUT ICON" href="http://clearscm.com/favicon.ico" type="image/png">
+  <link rel="SHORTCUT ICON" href="/clearscm/favicon.ico" type="image/png">
 
   <!-- Google Analytics
   <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
@@ -40,7 +37,7 @@
     code we have developed over the years.</p>
 
     <p>At one client, we had written a <a
-    href="/clearquest/cqd">Clearquest Daemon</a>, a daemon process
+    href="/clearscm/clearquest/cqd/">Clearquest Daemon</a>, a daemon process
     that maintained a connection to a Clearquest database and serviced
     requests for information about Clearquest defects.</p>
 
@@ -87,8 +84,6 @@
 
   <?php copyright ();?>  
 </div>
-
-<script language="JavaScript" src="/JavaScript/Menus.js" type="text/javascript"></script>
 
 </body>
 </html>

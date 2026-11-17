@@ -50,7 +50,7 @@ html>body, html>body #page {
 }
 
 #head {
-  background:		url(/Images/TopOfTheWorld.jpg);
+  background:		url(/clearscm/Images/TopOfTheWorld.jpg);
   color:		white;
   border-top:		1px solid #306;
   border-bottom:	1px solid #306;
@@ -74,7 +74,7 @@ html>body, html>body #page {
 
 #page {
   left:			0;
-  background:		#2a4c96 url(/Images/Background.jpg); 
+  background:		#2a4c96 url(/clearscm/Images/Background.jpg); 
   color:		#000;
   position:		absolute;
   text-align:		center;

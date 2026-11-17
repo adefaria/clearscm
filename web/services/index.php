@@ -2,124 +2,93 @@
    "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-  <meta name="GENERATOR" content="Mozilla/4.61 [en] (Win98; U) [Netscape]">
-
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>ClearSCM: Services</title>
-
-  <link rel="stylesheet" type="text/css" media="screen" href="/css/FrontPage.css">
-  <link rel="stylesheet" type="text/css" media="print"  href="/css/Print.css">
-  <link rel="SHORTCUT ICON" href="http://clearscm.com/favicon.ico" type="image/png">
-
-  <!-- Google Analytics
-  <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
-  </script>
-  <script type="text/javascript">
-    _uacct = "UA-89317-1";
-    urchinTracker ();
-  </script>
-  Google Analytics -->
-
+  <link rel="SHORTCUT ICON" href="/clearscm/favicon.ico" type="image/x-icon">
   <?php
   include "clearscm.php";
   menu_css ();
   ?>
 </head>
 
-<body id="homepage" class="sm-r"> <!-- try r-sm, sm-r, ms-r or r-ms -->
+<body id="homepage">
 
 <?php heading ()?>
 
 <div id="page">
-  <div id="content">
-    <div id="contentWrapper2">
-      <div id="main">
-        <h2>ClearSCM Services</h2>
+  <div id="content" class="clearscm-grid-page">
 
-        <p>We offer the following services.</p>
+    <div class="clearscm-hero-card">
+      <h2 style="margin-top: 0; font-size: 1.65rem;">ClearSCM Services</h2>
+      <p style="margin-bottom: 0;">The core of our services lies in <a href="/clearscm/people.php">our people</a> and their decades of hands-on enterprise experience. We partner with engineering organizations to architect, automate, and maintain reliable software configuration management, build &amp; release pipelines, custom tooling, and systems infrastructure.</p>
+    </div>
 
-      </div> <!-- main -->
+    <div class="clearscm-card-grid-2" style="margin-bottom: 1.5rem;">
+      <div id="consultancy" class="clearscm-card accent-red">
+        <h2>Consultancy</h2>
+        <p>Our core service is <a href="/clearscm/people.php">our people</a> and their years of experience in the field. Beyond technical expertise, we offer your organization a practical perspective forged across dozens of Fortune 500 engineering environments.</p>
+        <p>Whether auditing existing workflows, mentoring teams, or leading full-scale SCM rollouts, our consultants hit the ground running and tackle your toughest release engineering challenges.</p>
+      </div>
 
-      <div id="supporting">
-        <?php start_box ("cs3");?>
+      <div id="scm" class="clearscm-card accent-blue">
+        <h2>Source Configuration Management</h2>
+        <p>Managing the complexities of modern software requires professional methodologies, professional tools and, well, professionals. That's where we come in.</p>
+        <p>We apply solid configuration management practices across <a href="/clearscm/clearcase/">ClearCase</a>, Multisite, <a href="/clearscm/clearquest/">ClearQuest</a>, Git, and open-source tools to ensure a smooth, traceable flow from design through deployment.</p>
+      </div>
 
-          <h2><a href="/services/consultancy.php">Consultancy</a></h2>
+      <div id="custom-software" class="clearscm-card accent-green">
+        <h2>Custom Software Solutions</h2>
+        <p>Rarely do companies live on SCM alone. Many internal systems grow up around Build and Release Management—such as dashboards tracking nightly builds and integrations between bug tracking and source control. We provide expertise across:</p>
+        <ul style="margin: 0.4rem 0; padding-left: 1.4rem;">
+          <li>Custom Build &amp; Release Automation</li>
+          <li>Test Automation &amp; Continuous Integration</li>
+          <li>Web Site &amp; Web Application Design</li>
+          <li>Network Troubleshooting, License &amp; Performance Monitoring</li>
+        </ul>
+      </div>
 
-          <p>Our core service is <a href="/people.php">our people</a>
-          and their years of experience in the field.</p>
+      <div id="sysadmin" class="clearscm-card accent-yellow">
+        <h2>Systems Administration &amp; Web Applications</h2>
+        <p id="web">Whether large or small, today's software requires diverse machines, architectures, and operating systems working in tandem. Our consultants bring deep Unix, Linux, and Windows <a href="/clearscm/sysadm/">Systems Administration</a> expertise.</p>
+        <p>We also specialize in internal and customer-facing <b>Web Applications</b>—from third-party platforms (ClearCase Web, ClearQuest Web) and server monitoring portals to custom-built engineering dashboards and workflow tools.</p>
+      </div>
+    </div>
 
-        <?php end_box ();?>
+    <div id="customers" class="clearscm-hero-card" style="border-top-color: var(--google-blue); margin-bottom: 0;">
+      <h2 style="margin-top: 0;">Previous Clients &amp; Customers</h2>
+      <p>We have worked with many well-known Fortune 500 and enterprise technology companies, including:</p>
 
-        <?php start_box ("cs2");?> 
+      <div class="clearscm-logo-grid">
+        <a class="clearscm-logo-item" href="https://www.broadcom.com/" target="_blank" title="Broadcom">
+          <img src="/clearscm/Logos/Broadcom.gif" alt="Broadcom">
+        </a>
+        <a class="clearscm-logo-item" href="https://www.cisco.com/" target="_blank" title="Cisco Systems">
+          <img src="/clearscm/Logos/Cisco.gif" alt="Cisco Systems">
+        </a>
+        <a class="clearscm-logo-item" href="https://www.hp.com/" target="_blank" title="Hewlett Packard">
+          <img src="/clearscm/Logos/HPLogo.gif" alt="Hewlett Packard">
+        </a>
+        <a class="clearscm-logo-item" href="https://www.ti.com/" target="_blank" title="Texas Instruments">
+          <img src="/clearscm/Logos/TexasInstruments.jpg" alt="Texas Instruments">
+        </a>
+        <a class="clearscm-logo-item" href="https://www.oracle.com/sun/" target="_blank" title="Sun Microsystems">
+          <img src="/clearscm/Logos/Sun.jpg" alt="Sun Microsystems">
+        </a>
+        <a class="clearscm-logo-item" href="https://www.lynuxworks.com/" target="_blank" title="LynuxWorks">
+          <img src="/clearscm/Logos/LynuxWorks.gif" alt="LynuxWorks">
+        </a>
+        <div class="clearscm-logo-item" title="Ameriquest Mortgage">
+          <img src="/clearscm/Logos/Ameriquest.gif" alt="Ameriquest Mortgage">
+        </div>
+        <div class="clearscm-logo-item" title="Salira Optical Network Systems">
+          <img src="/clearscm/Logos/Salira.gif" alt="Salira Optical Network Systems">
+        </div>
+      </div>
+    </div>
 
-          <h2><a href="/services/custom_software.php">Custom Software
-          Solutions</a></h2>
-
-          <p>In addition to SCM, we build custom software solutions
-          using:</p>
-
-          <ul>
-            <li>Web Site Design</li>
-
-            <li>Web Application Design and Implementation</li>
-
-            <li>Custom Build Automation</li>
-
-            <li>Test Automation</li>
-          </ul>
-
-        <?php end_box ();?>
-
-        <?php start_box ("cs4");?> 
-
-          <h2><a href="/services/sysadmin.php">Systems Administration</a></h2>
-
-          <p>Whether large or small, today's software is more
-          complex. Many resources are brought to bear to get your code
-          from inception to release....<a href="/sysadm">(more)</a>
-
-        <?php end_box ();?>
-
-      </div> <!-- supporting -->
-    </div> <!-- contentWrapper2 -->
-
-    <div id="contentWrapper1">
-      <div id="related">
-        <?php start_box ("cs2");?> 
-
-          <h2><a href="/services/SCM.php">SCM</a></h2>
-
-          <p>Managing the complexities of modern software requires
-          professional methodologies, professional tools and, well,
-          professionals. That's where we come in. We apply solid
-          configuration management practices to your software to
-          insure a smooth flow from design through deployment.</p>
-
-        <?php end_box ();?>
-
-        <?php start_box ("cs3");?> 
-
-          <h2><a href="/services/web.php">Web Applications</a></h2>
-
-	  <p>We also specialize in customer web applications to suit
-	  your business needs</p>
-
-        <?php end_box ();?>
-
-        <?php start_box ("cs5");?> 
-
-          <h2><a href="/services/customers.php">Customers</a></h2>
-
-          <p>We've worked with many, well known, fortune 500
-          companies. Let us work for you!</p>
-        <?php end_box ();?>
-      </div> <!-- related -->
-    </div> <!-- contentWrapper1 -->
   </div> <!-- content -->
   <?php copyright();?>
 </div> <!-- page -->
-
-<script language="JavaScript" src="/JavaScript/Menus.js" type="text/javascript"></script>
 
 </body>
 </html>

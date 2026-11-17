@@ -6,11 +6,7 @@
   <meta name="GENERATOR" content="Mozilla/4.61 [en] (Win98; U) [Netscape]">
 
   <title>ClearSCM: Environment</title>
-
-  <link rel="stylesheet" type="text/css" media="screen" href="/css/Article.css">
-  <link rel="stylesheet" type="text/css" media="screen" href="/css/Code.css">
-  <link rel="stylesheet" type="text/css" media="print"  href="/css/Print.css">
-  <link rel="SHORTCUT ICON" href="http://clearscm.com/favicon.ico" type="image/png">
+  <link rel="SHORTCUT ICON" href="/clearscm/favicon.ico" type="image/png">
 
   <!-- Google Analytics
   <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
@@ -72,7 +68,7 @@ productived.</blockquote>
 one convienent place. I've even places my XEmacs customizations under
 ~/.rc too. All of this is in CVS on my corporate site and I keep
 things up to date and documented there. You can obtain the package as
-a tarball <a href="/clearenv.tar.gz">clearenv.tar.gz</a>. Unpack the
+a tarball <a href="/clearscm/php/scm_man.php?action=archive&amp;target=clearenv">clearenv.tar.gz</a>. Unpack the
 tar image and simply run ~/.rc/setup_rc:</p>
 
 <div class="code">$ cd ~
@@ -84,7 +80,7 @@ $
 <h3>History</h3>
 
 <p>Full version history can be viewed <a
-href="/gitweb/?p=.git;a=tree;f=rc">here</a>.</p>
+href="https://github.com/adefaria/clearscm/tree/main/rc" target="_blank">here</a>.</p>
 
 <p>I now have separated out client customizations, i.e. startup
 functionality particular to different clients or employers, into the
@@ -430,8 +426,6 @@ parameters are specified.</p>
 
   <?php copyright ();?>
 </div>
-
-<script language="JavaScript" src="/JavaScript/Menus.js" type="text/javascript"></script>
 
 </body>
 </html>

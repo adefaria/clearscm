@@ -6,11 +6,7 @@
   <meta name="GENERATOR" content="Mozilla/4.61 [en] (Win98; U) [Netscape]">
 
   <title>ClearSCM: ECRDig</title>
-
-  <link rel="stylesheet" type="text/css" media="screen" href="/css/Article.css">
-  <link rel="stylesheet" type="text/css" media="screen" href="/css/Code.css">
-  <link rel="stylesheet" type="text/css" media="print"  href="/css/Print.css">
-  <link rel="SHORTCUT ICON" href="http://clearscm.com/favicon.ico" type="image/png">
+  <link rel="SHORTCUT ICON" href="/clearscm/favicon.ico" type="image/png">
 
   <!-- Google Analytics
   <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
@@ -37,7 +33,7 @@
       <h2>ECRDig</h2>
 
       <h4 style="text-align:center">by <a
-      href="/people.php">Andrew DeFaria</a></h4>
+      href="/clearscm/people.php">Andrew DeFaria</a></h4>
 
       <p>ECRs, or Electronic Change Records, was a bug tracking
       systems in used at <a href="http://lynuxworks.com">LynuxWorks,
@@ -49,7 +45,7 @@
     <h3>Introduction</h3>
 
     <p>While at LynuxWorks I decided to leverage some code that I had
-    previously developed (See <a href="/clearquest/cqd">Clearquest
+    previously developed (See <a href="/clearscm/clearquest/cqd/">Clearquest
     Daemon</a>) that utilizes a client/server model to provide a
     service that interogates a database and returns information. Again
     this database happens to be a defect tracking database residing on
@@ -98,16 +94,9 @@
     displayed as well as parsed for references to other ECRs or
     auxilary files, courtesy of PHP.</p>
 
-    <table border=0 align=right width=300px>
-      <tr>
-        <td>
-          <?php start_box ("cs2");?>
-            <p>The link to ECR 22979 will not work unless you are
-            within the LynuxWorks Intranet</p>
-          <?php end_box ();?>
-        </td>
-      </tr>
-    </table>
+    <?php start_box ("cs2");?>
+      <p><b>Note:</b> The link to ECR 22979 inside the example page will not work unless you are within the LynuxWorks Intranet.</p>
+    <?php end_box ();?>
 
     <h3>Tying it into HtDig</h3>
 
@@ -127,8 +116,6 @@
 
   <?php copyright ();?>  
 </div>
-
-<script language="JavaScript" src="/JavaScript/Menus.js" type="text/javascript"></script>
 
 </body>
 </html>

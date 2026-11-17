@@ -124,7 +124,7 @@
 
 #imenus0 .imeam span,
 #imenus0 .imeamj span {
-  background-image:	url(/Icons/orange_arrow_down.gif);
+  background-image:	url(/clearscm/Icons/orange_arrow_down.gif);
   background-repeat:	no-repeat;
   background-position:	top left;
   width:		16px;
@@ -135,14 +135,14 @@
 
 #imenus0 li:hover .imeam span,
 #imenus0 li a.iactive .imeamj span {
-  background-image:	url(/Icons/orange_arrow_down.gif);
+  background-image:	url(/clearscm/Icons/orange_arrow_down.gif);
   background-repeat:	no-repeat;
   background-position:	top left;
 }
 
 #imenus0 ul .imeas span,
 #imenus0 ul .imeasj span {
-  background-image:	url(/Icons/orange_arrow_right.gif);
+  background-image:	url(/clearscm/Icons/orange_arrow_right.gif);
   background-repeat:	no-repeat;
   background-position:	top left;
   width:		10px;
@@ -153,13 +153,13 @@
 
 #imenus0 ul li:hover .imeas span,
 #imenus0 ul li a.iactive .imeasj span {
-  background-image:	url(/Icons/orange_arrow_right.gif);
+  background-image:	url(/clearscm/Icons/orange_arrow_right.gif);
   background-repeat:	no-repeat;
   background-position:	top left;
 }
 
 #imouter0 {
-  background-image:	url(/Images/orange_gradient.gif);
+  background-image:	url(/clearscm/Images/orange_gradient.gif);
   border-style:		solid;
   border-color:		#111111;
   border-width:		1px;

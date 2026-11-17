@@ -51,29 +51,29 @@ color schemes have been predefined.
 
 /* ==IMG============Color Scheme 3================IMG== */
 .cs3 .xb2, .cs3 .xb3, .cs3 .xb4 {
-  background:#fff url(/Images/Clouds.jpg); border-left-color:#eef; border-right-color:#eef;} .cs3 .xb1 {background:#eef;}
+  background:#fff url(/clearscm/Images/Clouds.jpg); border-left-color:#eef; border-right-color:#eef;} .cs3 .xb1 {background:#eef;}
   /*           :                                                 :                        :                            : */
   /*           :..background......                               :........border..........:......border................: */
   /*                             :                                            :                                          */
-.cs3 .xboxcontent { background:#fff url(/Images/Clouds.jpg); border-color:#eef;}
+.cs3 .xboxcontent { background:#fff url(/clearscm/Images/Clouds.jpg); border-color:#eef;}
 .cs3 .xboxcontent h2, .cs3 .xboxcontent h3, .cs3 .xboxcontent h4, .cs3 .xboxcontent p {color:#113;}
 
 /* ==IMG============Color Scheme 4================IMG== */
 .cs4 .xb2, .cs4 .xb3, .cs4 .xb4 {
-  background:#fff url(/Images/tbg-bl-mg.jpg); border-left-color:#eef; border-right-color:#eef;} .cs4 .xb1 {background:#eef;}
+  background:#fff url(/clearscm/Images/tbg-bl-mg.jpg); border-left-color:#eef; border-right-color:#eef;} .cs4 .xb1 {background:#eef;}
   /*           :                                                  :                        :                            : */
   /*           :..background......                                :........border..........:......border................: */
   /*                             :                                             :                                          */
-.cs4 .xboxcontent { background:#fff url(/Images/tbg-bl-mg.jpg); border-color:#eef;}
+.cs4 .xboxcontent { background:#fff url(/clearscm/Images/tbg-bl-mg.jpg); border-color:#eef;}
 .cs4 .xboxcontent h2, .cs4 .xboxcontent h3, .cs4 .xboxcontent h4, .cs4 .xboxcontent p {color:#113;}
 
 /* ==IMG============Color Scheme 5================IMG== */
 .cs5 .xb2, .cs5 .xb3, .cs5 .xb4 {
-  background:#fff url(/Images/tbg-mg-bl.jpg); border-left-color:#b9f; border-right-color:#b9f;} .cs5 .xb1 {background:#b9f;}
+  background:#fff url(/clearscm/Images/tbg-mg-bl.jpg); border-left-color:#b9f; border-right-color:#b9f;} .cs5 .xb1 {background:#b9f;}
   /*           :                                                 :                        :                            : */
   /*           :..background......                               :........border..........:......border................: */
   /*                             :                                            :                                          */
-.cs5 .xboxcontent { background:#fff url(/Images/tbg-mg-bl.jpg); border-color:#b9f;}
+.cs5 .xboxcontent { background:#fff url(/clearscm/Images/tbg-mg-bl.jpg); border-color:#b9f;}
 .cs5 .xboxcontent h2, .cs5 .xboxcontent h3, .cs5 .xboxcontent h4, .cs5 .xboxcontent p {color:#111;}
 
 /* =================Color Scheme 6===================== */
