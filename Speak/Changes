@@ -1,5 +1,12 @@
 Changes file for Speak
 
+1.09    2026-11-17
+        - Serialized audio playback across independent system processes via POSIX
+          file locking (flock) on /tmp/.speak_playback.lock.
+        - Prevented concurrent audio collision when multiple applications (e.g.
+          email announcements, Antigravity IDE, shell scripts) speak at once.
+        - Added 250ms spacing between serialized speech segments.
+
 1.08    2026-10-28
         - Corrected persona logging to accurately report [default] when a
           requested persona is not found or falls back to the default voice.

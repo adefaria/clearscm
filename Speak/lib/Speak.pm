@@ -51,8 +51,9 @@ no warnings 'experimental::signatures';
 use base 'Exporter';
 
 use Clipboard;
+use Fcntl qw(:flock);
 
-our $VERSION = '1.08';
+our $VERSION = '1.09';
 
 {
 
@@ -669,7 +670,17 @@ Returns:
             -x '/usr/bin/paplay'
             ? 'paplay'
             : (-x '/bin/paplay' ? 'paplay' : 'play -q');
+          my $lock_file = '/tmp/.speak_playback.lock';
+          my $lock_fh;
+          if (open $lock_fh, '>>', $lock_file) {
+            flock ($lock_fh, LOCK_EX);
+          }
           system ("$player \"$filename\"");
+          select (undef, undef, undef, 0.25);
+          if ($lock_fh) {
+            flock ($lock_fh, LOCK_UN);
+            close $lock_fh;
+          }
         } ## end else [ if ($os eq 'darwin') ]
         unlink $filename;
         return;
@@ -827,6 +838,11 @@ Returns:
       # Linux / Unix
       # paplay often requires WAV if libsndfile lacks mp3 support (e.g. on Mars)
       # We convert to WAV to be safe.
+        my $lock_file = '/tmp/.speak_playback.lock';
+        my $lock_fh;
+        if (open $lock_fh, '>>', $lock_file) {
+          flock ($lock_fh, LOCK_EX);
+        }
         if (-x '/usr/bin/paplay' || -x '/bin/paplay') {
           my ($fh_wav, $wav_file) = tempfile (SUFFIX => '.wav', UNLINK => 0);
           close $fh_wav;
@@ -842,6 +858,11 @@ Returns:
           }
         } else {
           system ("play -q $final_file");
+        }
+        select (undef, undef, undef, 0.25);
+        if ($lock_fh) {
+          flock ($lock_fh, LOCK_UN);
+          close $lock_fh;
         }
       } ## end else [ if ($os eq 'darwin') ]
 
