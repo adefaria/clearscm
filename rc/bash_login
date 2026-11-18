@@ -81,6 +81,7 @@ fi
 
 export VISUAL=vi
 export EDITOR=vi
+export SYSTEMD_EDITOR=vi
 
 # Terminal settings:
 if [ "$TERM" = ""        -o \
@@ -283,7 +284,7 @@ export PERLTIDY=~/.rc/perltidyrc
 export SPEAK_PERSONA=random
 
 # CDPATH
-export CDPATH="."
+export CDPATH=".:/opt"
 
 alias vbs="cscript //nologo"
 
