@@ -230,7 +230,25 @@ while (<$xscreensaver>) {
     $locked = 0;
 
     my $cmd = '/opt/clearscm/bin/settheme';
-    $log->dbug ("Calling $cmd");
-    system $cmd;
+
+    # settheme may restart mate-panel (e.g. if the theme changed while the
+    # screen was blanked). Doing that while XScreenSaver is still fading the
+    # desktop back in and Compiz is repainting leaves the new panel unmapped
+    # and slows the redraw, so give the desktop time to settle first. Run it
+    # detached (double fork) so we keep reading xscreensaver events.
+    $log->dbug ("Calling $cmd in background after delay");
+    my $pid = fork ();
+    if (defined $pid && $pid == 0) {
+      my $grandchild = fork ();
+      if (defined $grandchild && $grandchild == 0) {
+        sleep 8;
+        exec $cmd;
+      }
+      POSIX::_exit (0);
+    } elsif (defined $pid) {
+      waitpid ($pid, 0);
+    } else {
+      $log->err ("Unable to fork to call $cmd - $!");
+    } # if
   } # if
 } # while
