@@ -247,7 +247,7 @@ if ($action eq 'full_stats') {
     $msg = "Added $sender to nulllist";
   } ## end elsif ($type eq 'null')
 
-  $msg .= " - $ret_msg" if defined $res && $res > 0;
+  $msg .= " - $ret_msg" if defined $res && ($res > 0 || ($ret_msg && $ret_msg =~ /Escalated/i));
   send_json ({status => 'success', message => $msg});
 
 } elsif ($action eq 'get_whole_list') {

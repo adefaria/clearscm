@@ -58,6 +58,8 @@ our @EXPORT = qw(
   AuthFailMsg
   AutoFinalizeSpamCopReport
   Blacklist
+  CheckAndEscalateRecruiterDomain
+  check_and_escalate_recruiter_domain
   CheckDKIM
   CheckDMARC
   CheckEmail
@@ -80,6 +82,8 @@ our @EXPORT = qw(
   FindUser
   FindUsers
   ForwardMsg
+  %FREE_DOMAINS
+  @FREE_DOMAINS
   GetBaseDomain
   GetContext
   GetEmail
@@ -89,6 +93,7 @@ our @EXPORT = qw(
   GetRows
   GetUser
   GetUserOptions
+  IsFreeDomain
   IsProtectedDomain
   ListLog
   ListUsers
@@ -114,6 +119,7 @@ our @EXPORT = qw(
   SetContext
   Space
   SubmitToSpamCop
+  TriggerPostfixDomainBlock
   UpdateList
   UpdateUser
   UpdateUserOptions
@@ -248,6 +254,21 @@ sub Add2Blacklist(%) {
   );
 
   $msg = $count == 1 ? "$count message deleted" : "$count messages deleted";
+
+  # Ongoing Real-Time Strike Escalation Hook:
+  # When an individual address is added to the blacklist with 'recruiter' in
+  # the comment field, check if the domain has reached the strike threshold.
+  if (($params{comment} // '') =~ /recruiter/i && ($params{sender} // '') =~ /^[^@]+\@([^@]+)$/) {
+    my ($esc_status, $esc_msg) = check_and_escalate_recruiter_domain (
+      $db->{db},
+      $params{sender},
+      $params{threshold},
+      $params{userid}
+    );
+    if ($esc_status && $esc_status > 0) {
+      $msg .= " ($esc_msg)";
+    }
+  }
 
   return $count, $msg;
 }    # Add2Blacklist
@@ -1477,11 +1498,21 @@ sub RecordHit(%) {
   return $db->modify ($table, $condition, %rec);
 }    # RecordHit
 
-our @PROTECTED_DOMAINS = qw(
-    gmail.com google.com yahoo.com ymail.com outlook.com hotmail.com live.com
-    msn.com icloud.com me.com aol.com comcast.net sbcglobal.net att.net
-    verizon.net mailgun.org sendgrid.net amazonses.com mailchimp.com
-    constantcontact.com postmarkapp.com sparkpostmail.com defaria.com
+our @FREE_DOMAINS = qw(
+    gmail.com yahoo.com hotmail.com outlook.com aol.com icloud.com
+    me.com mac.com protonmail.com proton.me live.com msn.com
+    comcast.net sbcglobal.net att.net verizon.net cox.net
+    google.com ymail.com defaria.com
+);
+
+our %FREE_DOMAINS = map { $_ => 1 } @FREE_DOMAINS;
+
+our @PROTECTED_DOMAINS = (
+    @FREE_DOMAINS,
+    qw(
+      mailgun.org sendgrid.net amazonses.com mailchimp.com
+      constantcontact.com postmarkapp.com sparkpostmail.com
+    )
 );
 
 sub GetBaseDomain($) {
@@ -1502,18 +1533,305 @@ sub GetBaseDomain($) {
 
 sub IsProtectedDomain($) {
   my ($dom) = @_;
-  return (0, undef) unless $dom;
+  return wantarray ? (0, undef) : 0 unless $dom;
   $dom = lc $dom;
-  $dom =~ s/^\.+//;
+  $dom =~ s/^[\.\@]+//;
   $dom =~ s/\s+//g;
 
   for my $prot (@PROTECTED_DOMAINS) {
     if ($dom eq $prot || $dom =~ /\.\Q$prot\E$/) {
-      return (1, $prot);
+      return wantarray ? (1, $prot) : 1;
     }
   }
-  return (0, undef);
+  return wantarray ? (0, undef) : 0;
 }    # IsProtectedDomain
+
+sub IsFreeDomain($) {
+  my ($dom) = @_;
+  return wantarray ? (0, undef) : 0 unless $dom;
+  $dom = lc $dom;
+  $dom =~ s/^[\.\@]+//;
+  $dom =~ s/\s+//g;
+
+  if ($FREE_DOMAINS{$dom}) {
+    return wantarray ? (1, $dom) : 1;
+  }
+  for my $free (@FREE_DOMAINS) {
+    if ($dom =~ /\.\Q$free\E$/) {
+      return wantarray ? (1, $free) : 1;
+    }
+  }
+  return IsProtectedDomain ($dom);
+}    # IsFreeDomain
+
+sub TriggerPostfixDomainBlock($;$) {
+  my ($domain, $action) = @_;
+  return wantarray ? (-1, 'No domain specified') : 0 unless $domain;
+
+  $domain = lc $domain;
+  $domain =~ s/^[\.\@]+//;
+  $domain =~ s/\s+//g;
+
+  my ($is_free, $free_match) = IsFreeDomain ($domain);
+  if ($is_free) {
+    my $skip_msg = "MTA block skipped: '$domain' is a protected public/shared provider ($free_match)";
+    return wantarray ? (-1, $skip_msg) : 0;
+  }
+
+  if ($ENV{MAPS_TEST_NO_POSTFIX}) {
+    my $test_msg = "MTA domain block simulated in test mode for '$domain'";
+    return wantarray ? (0, $test_msg) : 1;
+  }
+
+  $action ||= 'REJECT Blacklisted recruiter domain';
+
+  my $worker = '/usr/local/sbin/postfix-worker.pl';
+  if (!-x $worker && -x "$FindBin::Bin/../postfix-worker.pl") {
+    $worker = "$FindBin::Bin/../postfix-worker.pl";
+  } elsif (!-x $worker && -x '/opt/clearscm/maps/postfix-worker.pl') {
+    $worker = '/opt/clearscm/maps/postfix-worker.pl';
+  }
+
+  my @cmd = ('sudo', '-n', $worker, "--action=$action");
+  push @cmd, "--access-file=$ENV{MAPS_POSTFIX_ACCESS_FILE}" if $ENV{MAPS_POSTFIX_ACCESS_FILE};
+  push @cmd, "--postmap=$ENV{MAPS_POSTMAP_BIN}"             if $ENV{MAPS_POSTMAP_BIN};
+  push @cmd, $domain;
+
+  my $rc = system (@cmd);
+  if ($rc == 0) {
+    my $ok_msg = "MTA domain block applied in Postfix for '$domain'";
+    return wantarray ? (0, $ok_msg) : 1;
+  } else {
+    my $err_msg = "Failed to apply Postfix MTA block for '$domain' (exit code $rc)";
+    return wantarray ? ($rc, $err_msg) : 0;
+  }
+}    # TriggerPostfixDomainBlock
+
+sub check_and_escalate_recruiter_domain {
+  my ($dbh_arg, $sender, $threshold, $target_userid);
+
+  if (@_ >= 2 && !ref ($_[0]) && defined ($_[0]) && $_[0] =~ /^(dbh|sender|domain|threshold|userid)$/) {
+    my %p = @_;
+    $dbh_arg       = $p{dbh};
+    $sender        = $p{sender} // $p{domain};
+    $threshold     = $p{threshold};
+    $target_userid = $p{userid};
+  } else {
+    ($dbh_arg, $sender, $threshold, $target_userid) = @_;
+  }
+
+  my $raw_dbh;
+  if (defined $dbh_arg && eval { $dbh_arg->isa ('MyDB') }) {
+    $raw_dbh = $dbh_arg->{db};
+  } elsif (defined $dbh_arg && ref ($dbh_arg)) {
+    $raw_dbh = $dbh_arg;
+  } else {
+    $raw_dbh = $db->{db};
+  }
+
+  $threshold     //= $ENV{MAPS_RECRUITER_THRESHOLD} || 2;
+  $target_userid ||= $userid || $ENV{MAPS_USERNAME} || $ENV{USER} || 'andrew';
+  if (!UserExists ($target_userid) && UserExists ('andrew')) {
+    $target_userid = 'andrew';
+  }
+
+  return wantarray ? (0, 'Missing sender or domain') : 0
+    unless defined $sender && $sender ne '';
+
+  my $domain = lc ($sender);
+  $domain =~ s/^\s+|\s+$//g;
+  if ($domain =~ /\@([^@\s]+)$/) {
+    $domain = $1;
+  }
+  $domain =~ s/^[\.\@]+//;
+
+  return wantarray ? (0, 'Invalid domain') : 0 unless $domain ne '';
+
+  # 1. Safeguard: Public / Shared Email Provider Exclusion List (%FREE_DOMAINS)
+  my ($is_free, $free_match) = IsFreeDomain ($domain);
+  if ($is_free) {
+    return wantarray
+      ? (0, "Skipped public/shared email provider '$domain' ($free_match)")
+      : 0;
+  }
+
+  # 2. Safeguard: Whitelist Precedence
+  my $w_sth = $raw_dbh->prepare (
+    "SELECT pattern, domain, comment FROM list WHERE userid = ? AND type = 'white' AND LOWER(domain) = ?"
+  );
+  $w_sth->execute ($target_userid, $domain);
+  my @white_conflicts;
+  while (my $w_row = $w_sth->fetchrow_hashref) {
+    my $w_rule = ($w_row->{pattern} // '') . '@' . ($w_row->{domain} // $domain);
+    push @white_conflicts, $w_rule;
+  }
+  $w_sth->finish;
+
+  if (!@white_conflicts) {
+    my ($w_status, $w_rec) = OnWhitelist ("\@$domain", $target_userid, 0);
+    if ($w_status && $w_rec) {
+      push @white_conflicts, ($w_rec->{pattern} // '') . '@' . ($w_rec->{domain} // '');
+    }
+  }
+
+  if (@white_conflicts) {
+    my $conflict_str = join (', ', @white_conflicts);
+    return wantarray
+      ? (0, "Skipped '$domain' due to active whitelist rule(s): $conflict_str")
+      : 0;
+  }
+
+  # 3. Query blacklist rows for this domain
+  my $b_sth = $raw_dbh->prepare (
+    "SELECT sequence, pattern, domain, comment, hit_count, last_hit, retention "
+    . "FROM list WHERE userid = ? AND type = 'black' AND LOWER(domain) = ? ORDER BY sequence"
+  );
+  $b_sth->execute ($target_userid, $domain);
+
+  my @all_domain_rows;
+  my %distinct_recruiter_patterns;
+  my $existing_domain_row;
+
+  while (my $row = $b_sth->fetchrow_hashref) {
+    push @all_domain_rows, $row;
+    my $pat = $row->{pattern} // '';
+    $pat =~ s/^\s+|\s+$//g;
+    my $comm = $row->{comment} // '';
+
+    if ($pat eq '') {
+      $existing_domain_row ||= $row;
+    } elsif ($comm =~ /recruiter/i) {
+      $distinct_recruiter_patterns{lc ($pat)} = 1;
+    }
+  }
+  $b_sth->finish;
+
+  my $strike_count = scalar (keys %distinct_recruiter_patterns);
+  if ($strike_count < $threshold) {
+    return wantarray
+      ? (0, "Domain '$domain' has $strike_count recruiter strike(s) (threshold: $threshold)")
+      : 0;
+  }
+
+  # 4. Promote domain to whole-domain block & consolidate individual entries in a DB transaction
+  my $consolidated_comment = "recruiter - consolidated domain block ($strike_count strikes)";
+  my $total_hits           = 0;
+  my $latest_hit           = '';
+  my @removed_addresses;
+
+  for my $r (@all_domain_rows) {
+    $total_hits += ($r->{hit_count} || 0);
+    if (($r->{last_hit} // '') gt $latest_hit) {
+      $latest_hit = $r->{last_hit};
+    }
+    my $p = $r->{pattern} // '';
+    $p =~ s/^\s+|\s+$//g;
+    if ($p ne '') {
+      push @removed_addresses, lc ("$p\@$domain");
+    }
+  }
+  $latest_hit ||= UnixDatetime2SQLDatetime (scalar (localtime));
+
+  my $orig_autocommit = $raw_dbh->{AutoCommit};
+  eval {
+    $raw_dbh->{AutoCommit} = 0 if $orig_autocommit;
+
+    if ($existing_domain_row) {
+      my $upd_sth = $raw_dbh->prepare (
+        "UPDATE list SET comment = ?, hit_count = ?, last_hit = ? "
+        . "WHERE userid = ? AND type = 'black' AND sequence = ?"
+      );
+      $upd_sth->execute (
+        $consolidated_comment,
+        $total_hits,
+        $latest_hit,
+        $target_userid,
+        $existing_domain_row->{sequence}
+      );
+      $upd_sth->finish;
+    } else {
+      my $seq_sth = $raw_dbh->prepare (
+        "SELECT COALESCE(MAX(sequence), 0) + 1 FROM list WHERE userid = ? AND type = 'black'"
+      );
+      $seq_sth->execute ($target_userid);
+      my ($next_seq) = $seq_sth->fetchrow_array;
+      $seq_sth->finish;
+      $next_seq ||= 1;
+
+      my $ins_sth = $raw_dbh->prepare (
+        "INSERT INTO list (userid, type, pattern, domain, comment, sequence, hit_count, last_hit, retention) "
+        . "VALUES (?, 'black', NULL, ?, ?, ?, ?, ?, NULL)"
+      );
+      $ins_sth->execute (
+        $target_userid,
+        $domain,
+        $consolidated_comment,
+        $next_seq,
+        $total_hits,
+        $latest_hit
+      );
+      $ins_sth->finish;
+    }
+
+    my $del_sth = $raw_dbh->prepare (
+      "DELETE FROM list WHERE userid = ? AND type = 'black' AND LOWER(domain) = ? "
+      . "AND pattern IS NOT NULL AND pattern != ''"
+    );
+    $del_sth->execute ($target_userid, $domain);
+    $del_sth->finish;
+
+    $raw_dbh->commit () if $orig_autocommit;
+  };
+  my $tx_err = $@;
+  if ($orig_autocommit) {
+    eval { $raw_dbh->rollback () } if $tx_err;
+    $raw_dbh->{AutoCommit} = 1;
+  }
+
+  if ($tx_err) {
+    return wantarray ? (-1, "Database transaction failed for '$domain': $tx_err") : 0;
+  }
+
+  # Resequence blacklist if running on primary MAPS DB handle
+  if ($raw_dbh eq $db->{db}) {
+    ResequenceList (
+      userid => $target_userid,
+      type   => 'black',
+    );
+    DeleteEmail (
+      userid => $target_userid,
+      sender => "\@$domain",
+    );
+  }
+
+  # 5. Queue/trigger Postfix sender_access update
+  my ($mta_rc, $mta_msg) = TriggerPostfixDomainBlock ($domain, 'REJECT Blacklisted recruiter domain');
+
+  # 6. Audit Log
+  if ($raw_dbh eq $db->{db}) {
+    Info (
+      userid  => $target_userid,
+      message => "Escalated recruiter domain \@$domain to whole-domain block ($strike_count strikes; removed "
+        . scalar (@removed_addresses) . " addresses: " . join (', ', @removed_addresses) . ")",
+    );
+  }
+
+  my $summary_msg = "Escalated \@$domain to whole-domain block ($strike_count strikes)";
+  my %details = (
+    domain            => $domain,
+    strikes           => $strike_count,
+    comment           => $consolidated_comment,
+    removed_addresses => \@removed_addresses,
+    mta_rc            => $mta_rc,
+    mta_status        => $mta_msg,
+  );
+
+  return wantarray ? (1, $summary_msg, \%details) : 1;
+}    # check_and_escalate_recruiter_domain
+
+sub CheckAndEscalateRecruiterDomain {
+  goto &check_and_escalate_recruiter_domain;
+}    # CheckAndEscalateRecruiterDomain
 
 sub ExtractPhishingDetails($) {
   my ($msg_data) = @_;
@@ -2527,7 +2845,26 @@ sub UpdateList(%) {
     $rec{retention} = lc $rec{retention};
   }    # if
 
-  return $db->update ($table, $condition, %rec);
+  my $upd_userid = $rec{userid};
+  my $upd_type   = $rec{type};
+  my $upd_seq    = $rec{sequence};
+  my $upd_comm   = $rec{comment};
+  my $upd_dom    = $rec{domain};
+
+  my ($err, $msg) = $db->update ($table, $condition, %rec);
+
+  if (!$err && ($upd_type // '') eq 'black' && ($upd_comm // '') =~ /recruiter/i) {
+    my $target_dom = $upd_dom;
+    if (!$target_dom && $upd_seq) {
+      my $row = $db->getone ($table, $condition, ['domain', 'pattern']);
+      $target_dom = $row->{domain} if $row;
+    }
+    if ($target_dom) {
+      check_and_escalate_recruiter_domain ($db->{db}, "\@$target_dom", undef, $upd_userid);
+    }
+  }
+
+  return ($err, $msg);
 }    # UpdateList
 
 sub UpdateUser(%) {

@@ -68,7 +68,7 @@ sub Add2List(%) {
       } else {
         print br,
 "The email address, $rec{sender}, has been added to ${Userid}'s $rec{type} list";
-        print br, $msg if $messages > 0;
+        print br, $msg if $messages > 0 || ($msg && $msg =~ /Escalated/i);
       }    # if
 
       # Now remove this entry from the other lists (if present)
