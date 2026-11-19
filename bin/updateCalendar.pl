@@ -124,6 +124,38 @@ print $fh $calendar_footer, "\n";
 close $fh;
 print "Calendar: $total_events events, $total_tasks tasks\n" if $verbose;
 
-# Refresh Rainlendar if available
-system ('rainlendar2 -e "Rainlendar_Refresh()" >/dev/null 2>&1')
-  if -x '/bin/rainlendar2' || -x '/usr/bin/rainlendar2';
+# Refresh Rainlendar if available, deferring if the session is locked/blanked
+if (-x '/bin/rainlendar2' || -x '/usr/bin/rainlendar2') {
+  my $cache_dir    = "$ENV{HOME}/.cache";
+  my $pending_flag = "$cache_dir/rainlendar_pending_refresh";
+  local $ENV{DISPLAY}    = $ENV{DISPLAY}    || ':0';
+  local $ENV{XAUTHORITY} = $ENV{XAUTHORITY} || "$ENV{HOME}/.Xauthority";
+
+  my $session_active = 1;
+  my $user           = $ENV{USER} || scalar getpwuid ($<);
+  my $sess_id        = `loginctl show-user "$user" -p Display --value 2>/dev/null`;
+  chomp $sess_id;
+  $sess_id =~ s/:.*//;
+  if ($sess_id) {
+    my $active = `loginctl show-session "$sess_id" -p Active --value 2>/dev/null`;
+    chomp $active;
+    $session_active = 0 if $active eq 'no';
+  }
+
+  if ($session_active) {
+    my $xs = `xscreensaver-command -time 2>/dev/null`;
+    $session_active = 0 if defined $xs && $xs =~ /screen (?:blanked|locked)/i;
+  }
+
+  if ($session_active) {
+    unlink $pending_flag if -f $pending_flag;
+    system ('rainlendar2 -e "Rainlendar_Refresh()" >/dev/null 2>&1');
+  } else {
+    mkdir $cache_dir unless -d $cache_dir;
+    if (open (my $pfh, '>', $pending_flag)) {
+      close $pfh;
+    }
+    print "Session inactive/blanked; deferred Rainlendar refresh until unlock\n"
+      if $verbose;
+  }
+}

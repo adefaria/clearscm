@@ -242,7 +242,16 @@ while (<$xscreensaver>) {
       my $grandchild = fork ();
       if (defined $grandchild && $grandchild == 0) {
         sleep 8;
-        exec $cmd;
+        system $cmd;
+
+        my $pending_rainlendar = "$ENV{HOME}/.cache/rainlendar_pending_refresh";
+        if (-f $pending_rainlendar) {
+          unlink $pending_rainlendar;
+          if (system ('pgrep -x rainlendar2 >/dev/null 2>&1') == 0) {
+            system ('rainlendar2 -e "Rainlendar_Refresh()" >/dev/null 2>&1');
+          }
+        }
+        POSIX::_exit (0);
       }
       POSIX::_exit (0);
     } elsif (defined $pid) {
