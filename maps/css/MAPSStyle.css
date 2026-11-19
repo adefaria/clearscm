@@ -1052,8 +1052,13 @@ div#highlightrow table[name="list"] {
   margin: 4px 0 6px 0;
   font-size: 12px;
   font-weight: normal;
-  color: var(--text-color);
+  color: var(--accent-color);
   white-space: nowrap;
+}
+
+#quickstats-asof .flip-digit,
+#quickstats-asof .flip-sep {
+  color: var(--accent-color);
 }
 
 #quickstats td {

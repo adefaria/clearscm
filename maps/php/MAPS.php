@@ -501,6 +501,8 @@ function MAPSHeader()
 {
   $mod_date = date("F d Y @ g:i a", filemtime($_SERVER['SCRIPT_FILENAME']));
   $time = time();
+  $css_ver = @filemtime(__DIR__ . "/../css/MAPSStyle.css") ?: $time;
+  $js_ver = @filemtime(__DIR__ . "/../JavaScript/QuickStats.js") ?: $time;
   print <<<END
   <meta name="author" content="Andrew DeFaria <Andre@DeFaria.com>">
   <meta name="last-modified" content="$mod_date">
@@ -522,14 +524,14 @@ function MAPSHeader()
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" type="text/css" href="/maps/css/MAPSStyle.css"/>
+  <link rel="stylesheet" type="text/css" href="/maps/css/MAPSStyle.css?v=$css_ver"/>
   <script language="JavaScript1.2" src="/JavaScript/UIUtils.js"
    type="text/javascript"></script>
   <script language="JavaScript1.2" src="/maps/JavaScript/MAPSUtils.js"
    type="text/javascript"></script>
   <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js"
    type="text/javascript"></script>
-  <script src="/maps/JavaScript/QuickStats.js" type="text/javascript" defer></script>
+  <script src="/maps/JavaScript/QuickStats.js?v=$js_ver" type="text/javascript" defer></script>
   <script type="text/javascript">
     (function() {
         var isStandalone = (window === window.top);

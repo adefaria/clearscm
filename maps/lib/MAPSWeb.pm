@@ -689,6 +689,9 @@ sub Heading($$$$;$$@) {
   my @java_scripts;
   my $cookie;
 
+  my $css_ver = (stat('/opt/clearscm/maps/css/MAPSStyle.css'))[9] || time;
+  my $js_ver  = (stat('/opt/clearscm/maps/JavaScript/QuickStats.js'))[9] || time;
+
   # Since CheckAddress appears on all pages (well except for the login
   # page) include it by default along with MAPSUtils.js and QuickStats.js
   push @java_scripts, [{
@@ -699,7 +702,7 @@ sub Heading($$$$;$$@) {
       -src      => '/maps/JavaScript/CheckAddress.js'
     }, {
       -type     => 'text/javascript',
-      -src      => '/maps/JavaScript/QuickStats.js'
+      -src      => "/maps/JavaScript/QuickStats.js?v=$js_ver"
     }
     ];
 
@@ -841,7 +844,7 @@ sub Heading($$$$;$$@) {
     print start_html(
       -title    => $title,
       -author   => 'Andrew\@DeFaria.com',
-      -style    => {-src     => '/maps/css/MAPSStyle.css'},
+      -style    => {-src     => "/maps/css/MAPSStyle.css?v=$css_ver"},
       -meta     => {viewport => 'width=device-width, initial-scale=1'},
       -onResize => "AdjustTableWidth (\"$table_name\");",
       -head     => [
@@ -885,7 +888,7 @@ sub Heading($$$$;$$@) {
     print start_html(
       -title  => $title,
       -author => 'Andrew\@DeFaria.com',
-      -style  => {-src     => '/maps/css/MAPSStyle.css'},
+      -style  => {-src     => "/maps/css/MAPSStyle.css?v=$css_ver"},
       -meta   => {viewport => 'width=device-width, initial-scale=1'},
       -head   => [
         Link ({
