@@ -271,20 +271,9 @@ Returns:
   $smtp->cc  ($_, {SkipBad => 1}) for (@cc);
   $smtp->bcc ($_, {SkipBad => 1}) for (@bcc);
 
-  # Now write the headers
-  $smtp->data;
-  $smtp->datasend("From: $randomizedFrom\n") if $parms{randomizeFrom};
-  $smtp->datasend("Reply-To: $from\n");
-  $smtp->datasend("To: $parms{to}\n") if $parms{to};
-  $smtp->datasend("Cc: $parms{cc}\n") if $parms{cc};
-  $smtp->datasend("Bcc: $parms{bcc}\n") if $parms{bcc};
-  $smtp->datasend("Subject: $subject\n");
-  $smtp->datasend("Content-Type: $mode\n");
-  $smtp->datasend("\n");
-
   # If heading is specified then the user wants this stuff before the main
   # message
-  my $msgdata = $parms{heading};
+  my $msgdata = defined $parms{heading} ? $parms{heading} : '';
   chomp $msgdata if $msgdata;
 
   # If $parms{data} is a GLOB we'll assume it's a FILE reference.
@@ -300,21 +289,28 @@ Returns:
 
     $msgdata .= join "", @lines;
   } else {
-    $msgdata .= $parms{data};
+    $msgdata .= $parms{data} if defined $parms{data};
   } # if
 
   # If footing is specified then the user wants this stuff after the main
   # message
   $msgdata .= $parms{footing} if defined $parms{footing};
 
-  # if the user requested html mode then convert the message to HTML
+  my $header_from = $parms{randomizeFrom} ? $randomizedFrom : $from;
+
+  # if the user requested html mode then convert the message to multipart HTML/text
   if ($mode eq "multipart") {
-    # Create multipart container
-    my $container = MIME::Entity->build (
-      Type    => "multipart/alternative",
-      From    => $from,
-      Subject => $subject
+    # Create multipart container with full headers
+    my %entity_opts = (
+      Type       => "multipart/alternative",
+      From       => $header_from,
+      'Reply-To' => $from,
+      Subject    => $subject,
     );
+    $entity_opts{To} = $parms{to} if $parms{to};
+    $entity_opts{Cc} = $parms{cc} if $parms{cc};
+
+    my $container = MIME::Entity->build(%entity_opts);
 
     # Create a textual version of the HTML
     my $html = HTML::TreeBuilder->new;
@@ -325,6 +321,7 @@ Returns:
       rightmargin => 80
     );
     my $plain_text = $formatter->format($html);
+    $html->delete;
 
     # Create ASCII attachment first
     $container->attach(
@@ -339,10 +336,19 @@ Returns:
       Encoding => "quoted-printable",
       Data     => $msgdata,
     );
-    
-    $container->smtpsend(Host => $smtp);
+
+    $smtp->data;
+    $smtp->datasend($container->stringify);
   } else {
     # Plain text here
+    $smtp->data;
+    $smtp->datasend("From: $header_from\n");
+    $smtp->datasend("Reply-To: $from\n");
+    $smtp->datasend("To: $parms{to}\n") if $parms{to};
+    $smtp->datasend("Cc: $parms{cc}\n") if $parms{cc};
+    $smtp->datasend("Subject: $subject\n");
+    $smtp->datasend("Content-Type: $mode\n");
+    $smtp->datasend("\n");
     $smtp->datasend($msgdata);
   } # if
 
