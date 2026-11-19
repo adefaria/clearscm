@@ -2285,7 +2285,8 @@ sub ReportPhishing(%) {
   }
 
   # Send email
-  if ($params{no_dispatch} || $params{skip_dispatch} || $ENV{MAPS_TEST_NO_DISPATCH}) {
+  my $suppress_dispatch = $params{no_dispatch} || $params{skip_dispatch} || $ENV{MAPS_TEST_NO_DISPATCH};
+  if ($suppress_dispatch) {
     $stats{dispatch_status} = "Report generated (dispatch suppressed in test mode)";
   } else {
     my $smtp = Net::SMTP->new ('defaria.com', Port => 587);
@@ -2324,7 +2325,7 @@ sub ReportPhishing(%) {
 
 
   # Also submit each message payload to SpamCop if enabled
-  if (!defined $params{include_spamcop} || $params{include_spamcop}) {
+  if (!$suppress_dispatch && (!defined $params{include_spamcop} || $params{include_spamcop})) {
     foreach my $msg_rec (@$messages) {
       SubmitToSpamCop ($msg_rec->{data});
     }
@@ -2911,6 +2912,7 @@ sub UserExists($) {
 
 sub SubmitToSpamCop ($;$) {
   my ($data, $from) = @_;
+  return 1 if $ENV{MAPS_TEST_NO_DISPATCH};
   return unless defined $data && $data ne '';
 
   my $spamcop_email = 'submit.y6vVL1H6VWHQq50k@spam.spamcop.net';
@@ -2967,28 +2969,43 @@ sub AutoFinalizeSpamCopReport ($) {
   require HTML::Form;
 
   my $ua = LWP::UserAgent->new (
-    agent   => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-    timeout => 15,
+    agent      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+    timeout    => 15,
+    cookie_jar => {},
   );
 
-  my $res = $ua->get ($url);
-  unless ($res->is_success) {
-    warn "AutoFinalizeSpamCopReport: Failed to fetch $url: " . $res->status_line . "\n";
-    return 0;
-  }
+  my $max_attempts = 4;
+  for my $attempt (1 .. $max_attempts) {
+    my $res = $ua->get ($url);
+    unless ($res->is_success) {
+      warn "AutoFinalizeSpamCopReport: Failed to fetch $url: " . $res->status_line . "\n";
+      return 0;
+    }
 
-  my @forms = HTML::Form->parse ($res);
-  for my $form (@forms) {
-    if (($form->attr ('name') // '') eq 'sendreport') {
-      my $req = $form->click ();
-      my $submit_res = $ua->request ($req);
-      if ($submit_res->is_success) {
-        return 1;
-      } else {
-        warn "AutoFinalizeSpamCopReport: Form submission failed: " . $submit_res->status_line . "\n";
-        return 0;
+    my @forms = HTML::Form->parse ($res);
+    for my $form (@forms) {
+      if (($form->attr ('name') // '') eq 'sendreport') {
+        my $req = $form->click ();
+        my $submit_res = $ua->request ($req);
+        if ($submit_res->is_success) {
+          return 1;
+        } else {
+          warn "AutoFinalizeSpamCopReport: Form submission failed: " . $submit_res->status_line . "\n";
+          return 0;
+        }
       }
     }
+
+    my $content = $res->decoded_content // '';
+    my $refresh = $res->header ('Refresh') // '';
+    if ($attempt < $max_attempts && ($refresh =~ /^(\d+)/ || $content =~ /HTTP-EQUIV="Refresh"\s+CONTENT="(\d+)"/i || $content =~ /Please wait - subscribe to remove this delay/i)) {
+      my $delay = $1 || 5;
+      $delay = 6 if $delay < 5;
+      sleep ($delay);
+      next;
+    }
+
+    last;
   }
 
   warn "AutoFinalizeSpamCopReport: No sendreport form found at $url\n";
