@@ -405,6 +405,9 @@ function reportPhishing(sender, includeSpamcop) {
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
+        if (data.status === 'success' && window.MAPSQuickStats && typeof window.MAPSQuickStats.refresh === 'function') {
+            window.MAPSQuickStats.refresh();
+        }
         var msg;
         if (data.status === 'success' && data.stats) {
             var stats = data.stats;
@@ -494,10 +497,10 @@ sub displayquickstats($) {
     },
     'Today\'s Activity';
 
-  print p {-align => 'center', -style => 'font-weight: 400 !important;'},
+  print p {-id => 'quickstats-asof', -align => 'center', -style => 'font-weight: 400 !important;'},
     'as of ' . FormatTime ($time);
 
-  print start_div {-id => 'quickstats'};
+  print start_div {-id => 'quickstats', 'data-date' => $date, 'data-userid' => $userid};
 
   print start_table {
     -cellspacing => 0,
@@ -507,18 +510,21 @@ sub displayquickstats($) {
   };
   print start_Tr {-align => 'right'};
   print td {
-    -class => 'smalllabel',
-    -align => 'right'
+    -class            => 'smalllabel',
+    -align            => 'right',
+    'data-stat-label' => 'processed',
     },
     'Processed';
   print td {
-    -class => 'smallnumber',
-    -align => 'right'
+    -class      => 'smallnumber',
+    -align      => 'right',
+    'data-stat' => 'processed',
     },
     $dates{$date}{'processed'};
   print td {
-    -class => 'smallnumber',
-    -align => 'right'
+    -class          => 'smallnumber',
+    -align          => 'right',
+    'data-stat-pct' => 'processed',
     },
     'n/a';
   print end_Tr;
@@ -547,9 +553,9 @@ sub displayquickstats($) {
 
     $report = a {-href => "detail.cgi?type=$_;date=$date"}, $report if $value;
 
-    print td {-class => 'link'},        $report,
-      td     {-class => 'smallnumber'}, $value,
-      td     {-class => 'smallnumber'}, $percent;
+    print td ({-class => 'link', 'data-stat-label' => $_}, $report),
+      td ({-class => 'smallnumber', 'data-stat' => $_},     $value),
+      td ({-class => 'smallnumber', 'data-stat-pct' => $_}, $percent);
 
     print end_Tr;
   }    # for
@@ -684,13 +690,16 @@ sub Heading($$$$;$$@) {
   my $cookie;
 
   # Since CheckAddress appears on all pages (well except for the login
-  # page) include it by default along with MAPSUtils.js
+  # page) include it by default along with MAPSUtils.js and QuickStats.js
   push @java_scripts, [{
       -language => 'JavaScript1.2',
       -src      => '/maps/JavaScript/MAPSUtils.js'
     }, {
       -language => 'JavaScript1.2',
       -src      => '/maps/JavaScript/CheckAddress.js'
+    }, {
+      -type     => 'text/javascript',
+      -src      => '/maps/JavaScript/QuickStats.js'
     }
     ];
 

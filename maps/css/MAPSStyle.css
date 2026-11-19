@@ -15,6 +15,9 @@
   --light-google-red: #ffcdd2;
   --input-bg: #1e1e1e;
   /* Dark input background for dark mode */
+  --flap-bg: var(--surface-color);
+  --flap-text: var(--text-color);
+  --flap-fold-brightness: 0.65;
 }
 
 [data-theme="light"] {
@@ -22,6 +25,9 @@
   --table-data-bg: var(--surface-color);
   --link-hover-color: var(--accent-color);
   --input-bg: white;
+  --flap-bg: var(--surface-color);
+  --flap-text: var(--text-color);
+  --flap-fold-brightness: 0.85;
 }
 
 body {
@@ -1028,4 +1034,174 @@ div#highlightrow table[name="list"] {
 /* Ensure the main container in embedded mode has space at the bottom */
 .embedded .content {
     padding-bottom: 2rem !important;
+}
+
+/* ==========================================================================
+   Quick Stats Split-Flap Counter & Ticking Clock (Borderless)
+   ========================================================================== */
+.quickstats {
+  width: 100%;
+  margin: 2px 0 0 0;
+}
+
+#quickstats-asof {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  margin: 4px 0 6px 0;
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--text-color);
+  white-space: nowrap;
+}
+
+#quickstats td {
+  vertical-align: middle;
+  padding: 2px 2px;
+}
+
+.flip-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.flip-sep {
+  display: inline-block;
+  font-family: var(--font-main);
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 16px;
+  color: var(--flap-text);
+  padding: 0;
+  user-select: none;
+}
+
+.flip-ampm {
+  margin-left: 3px;
+}
+
+.flip-digit {
+  position: relative;
+  display: inline-block;
+  width: 0.62em;
+  height: 16px;
+  perspective: 180px;
+  font-family: var(--font-main);
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 16px;
+  text-align: center;
+  color: var(--flap-text);
+  user-select: none;
+}
+
+.flip-card,
+.flip-flap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  background-color: var(--flap-bg);
+}
+
+#quickstats tr:hover .flip-card,
+#quickstats tr:hover .flip-flap {
+  background-color: var(--tab-hover-bg);
+}
+
+.flip-card > span,
+.flip-flap > span {
+  display: block;
+  width: 100%;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.flip-top,
+.flip-flap-top {
+  top: 0;
+}
+
+.flip-top > span,
+.flip-flap-top > span {
+  transform: translateY(0);
+}
+
+.flip-bottom,
+.flip-flap-bottom {
+  bottom: 0;
+}
+
+.flip-bottom > span,
+.flip-flap-bottom > span {
+  transform: translateY(-50%);
+}
+
+.flip-card {
+  z-index: 1;
+}
+
+.flip-flap {
+  display: none;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform;
+}
+
+.flip-flap-top {
+  z-index: 3;
+  transform-origin: center bottom;
+}
+
+.flip-flap-bottom {
+  z-index: 4;
+  transform-origin: center top;
+  transform: rotateX(90deg);
+}
+
+.flip-digit.is-flipping .flip-flap-top {
+  display: block;
+  animation: mapsFlipTopDown 240ms ease-in forwards;
+}
+
+.flip-digit.is-flipping .flip-flap-bottom {
+  display: block;
+  animation: mapsFlipBottomDown 240ms ease-out 240ms forwards;
+}
+
+@keyframes mapsFlipTopDown {
+  0% {
+    transform: rotateX(0deg);
+    filter: brightness(1);
+  }
+  100% {
+    transform: rotateX(-90deg);
+    filter: brightness(var(--flap-fold-brightness));
+  }
+}
+
+@keyframes mapsFlipBottomDown {
+  0% {
+    transform: rotateX(90deg);
+    filter: brightness(var(--flap-fold-brightness));
+  }
+  100% {
+    transform: rotateX(0deg);
+    filter: brightness(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-digit.is-flipping .flip-flap-top,
+  .flip-digit.is-flipping .flip-flap-bottom {
+    display: none;
+    animation: none;
+  }
 }

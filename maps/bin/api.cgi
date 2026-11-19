@@ -24,11 +24,14 @@ my $lines = $q->param ('lines') || 20;
 
 sub send_json {
   my ($data, $cookie) = @_;
-  if ($cookie) {
-    print $q->header (-type => 'application/json', -cookie => $cookie);
-  } else {
-    print $q->header ('application/json');
-  }
+  my %headers = (
+    -type          => 'application/json',
+    -cache_control => 'no-cache, no-store, must-revalidate',
+    -pragma        => 'no-cache',
+    -expires       => '0',
+  );
+  $headers{-cookie} = $cookie if $cookie;
+  print $q->header (%headers);
   print encode_json($data);
   exit;
 } ## end sub send_json
@@ -52,7 +55,7 @@ if ($action eq 'login') {
   }
 } ## end if ($action eq 'login')
 
-my $userid = $q->param ('userid');
+my $userid = $q->param ('userid') || $q->cookie ('MAPSUser');
 unless ($userid) {
   send_json ({status => 'error', message => 'Missing userid'});
 }
@@ -115,6 +118,7 @@ if ($action eq 'full_stats') {
 } elsif ($action eq 'stats') {
   my $today = Today2SQLDatetime;
   my $date  = substr $today, 0, 10;
+  my $time  = substr $today, 11;
 
   my %stats = MAPSLog::GetStats (
     userid => $userid,
@@ -126,9 +130,12 @@ if ($action eq 'full_stats') {
 
   my $processed = 0;
   foreach my $type (@MAPSLog::Types) {
-    $processed += $data->{$type} || 0;
+    $data->{$type} = int ($data->{$type} || 0);
+    $processed += $data->{$type};
   }
   $data->{processed} = $processed;
+  $data->{date}      = $date;
+  $data->{as_of}     = DateUtils::FormatTime ($time);
 
   send_json ({status => 'success', data => $data});
 

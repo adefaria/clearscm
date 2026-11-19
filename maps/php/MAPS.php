@@ -254,83 +254,86 @@ function GetStats($nbr_days, $date = "")
 
 function displayquickstats()
 {
+  global $userid;
+
   $today = substr(Today2SQLDatetime(), 0, 10);
   $dates = getquickstats($today);
   $current_time = date("g:i A");
+  $safe_userid = htmlspecialchars($userid ?? "", ENT_QUOTES);
 
   // Start quickstats
   print "<div class=\"quickstats\">";
   print "<h4 align=\"center\" class=\"todaysactivity\" title=\"$today\">Today's Activity</h4>";
-  print "<p align=\"center\" style=\"font-weight: normal;\">as of $current_time</p>";
+  print "<p align=\"center\" id=\"quickstats-asof\" style=\"font-weight: normal;\">as of $current_time</p>";
 
   $processed = $dates[$today]["processed"];
   $returned = $dates[$today]["returned"];
-  $returned_pct = $processed == 0 ? 0 :
+  $returned_pct = $processed == 0 ? "0.0" :
     number_format($returned / $processed * 100, 1, ".", "");
   $whitelist = $dates[$today]["whitelist"];
-  $whitelist_pct = $processed == 0 ? 0 :
+  $whitelist_pct = $processed == 0 ? "0.0" :
     number_format($whitelist / $processed * 100, 1, ".", "");
   $blacklist = $dates[$today]["blacklist"];
-  $blacklist_pct = $processed == 0 ? 0 :
+  $blacklist_pct = $processed == 0 ? "0.0" :
     number_format($blacklist / $processed * 100, 1, ".", "");
   $registered = $dates[$today]["registered"];
   $nulllist = $dates[$today]["nulllist"];
-  $nulllist_pct = $processed == 0 ? 0 :
+  $nulllist_pct = $processed == 0 ? "0.0" :
     number_format($nulllist / $processed * 100, 1, ".", "");
   $auth_failed = $dates[$today]["auth_failed"];
-  $auth_failed_pct = $processed == 0 ? 0 :
+  $auth_failed_pct = $processed == 0 ? "0.0" :
     number_format($auth_failed / $processed * 100, 1, ".", "");
 
-  $returned_link = $returned == 0 ? '' :
-    "<a href=\"/maps/bin/detail.cgi?type=returned;date=$today\">";
-  $whitelist_link = $whitelist == 0 ? '' :
-    "<a href=\"/maps/bin/detail.cgi?type=whitelist;date=$today\">";
-  $blacklist_link = $blacklist == 0 ? '' :
-    "<a href=\"/maps/bin/detail.cgi?type=blacklist;date=$today\">";
-  $registered_link = $registered == 0 ? '' :
-    "<a href=\"/maps/bin/detail.cgi?type=registered;date=$today\">";
-  $nulllist_link = $nulllist == 0 ? '' :
-    "<a href=\"/maps/bin/detail.cgi?type=nulllist;date=$today\">";
-  $auth_failed_link = $auth_failed == 0 ? '' :
-    "<a href=\"/maps/bin/detail.cgi?type=auth_failed;date=$today\">";
+  $nulllist_label = $nulllist == 0 ? "Null" :
+    "<a href=\"/maps/bin/detail.cgi?type=nulllist;date=$today\">Null</a>";
+  $auth_failed_label = $auth_failed == 0 ? "Auth&nbsp;Failed" :
+    "<a href=\"/maps/bin/detail.cgi?type=auth_failed;date=$today\">Auth&nbsp;Failed</a>";
+  $returned_label = $returned == 0 ? "Returned" :
+    "<a href=\"/maps/bin/detail.cgi?type=returned;date=$today\">Returned</a>";
+  $whitelist_label = $whitelist == 0 ? "White" :
+    "<a href=\"/maps/bin/detail.cgi?type=whitelist;date=$today\">White</a>";
+  $blacklist_label = $blacklist == 0 ? "Black" :
+    "<a href=\"/maps/bin/detail.cgi?type=blacklist;date=$today\">Black</a>";
+  $registered_label = $registered == 0 ? "Registered" :
+    "<a href=\"/maps/bin/detail.cgi?type=registered;date=$today\">Registered</a>";
 
   print <<<EOT
-<div id="quickstats">
+<div id="quickstats" data-date="$today" data-userid="$safe_userid">
 <table cellpadding="2" border="0" align="center" cellspacing="0">
   <tr align="right">
-    <td align="right" class="smalllabel">Processed</td>
-    <td align="right" class="smallnumber">$processed</td>
-    <td align="right" class="smallnumber">n/a</td>
+    <td align="right" class="smalllabel" data-stat-label="processed">Processed</td>
+    <td align="right" class="smallnumber" data-stat="processed">$processed</td>
+    <td align="right" class="smallnumber" data-stat-pct="processed">n/a</td>
   </tr>
   <tr align="right">
-    <td align="right" class="smalllabel">${nulllist_link}Null</a></td>
-    <td class="smallnumber">$nulllist</td>
-    <td class="smallnumber">$nulllist_pct%</td>
+    <td align="right" class="smalllabel" data-stat-label="nulllist">$nulllist_label</td>
+    <td class="smallnumber" data-stat="nulllist">$nulllist</td>
+    <td class="smallnumber" data-stat-pct="nulllist">$nulllist_pct%</td>
   </tr>
   <tr align="right">
-    <td align="right" class="smalllabel" style="white-space:nowrap">${auth_failed_link}Auth Failed</a></td>
-    <td class="smallnumber">$auth_failed</td>
-    <td class="smallnumber">$auth_failed_pct%</td>
+    <td align="right" class="smalllabel" style="white-space:nowrap" data-stat-label="auth_failed">$auth_failed_label</td>
+    <td class="smallnumber" data-stat="auth_failed">$auth_failed</td>
+    <td class="smallnumber" data-stat-pct="auth_failed">$auth_failed_pct%</td>
   </tr>
   <tr align="right">
-    <td align="right" class="smalllabel">${returned_link}Returned</a></td>
-    <td class=smallnumber>$returned</td>
-    <td class="smallnumber">$returned_pct%</td>
+    <td align="right" class="smalllabel" data-stat-label="returned">$returned_label</td>
+    <td class="smallnumber" data-stat="returned">$returned</td>
+    <td class="smallnumber" data-stat-pct="returned">$returned_pct%</td>
   </tr>
   <tr align="right">
-    <td align="right" class="smalllabel">${whitelist_link}White</a></td>
-    <td class="smallnumber">$whitelist</td>
-    <td class="smallnumber">$whitelist_pct%</td>
+    <td align="right" class="smalllabel" data-stat-label="whitelist">$whitelist_label</td>
+    <td class="smallnumber" data-stat="whitelist">$whitelist</td>
+    <td class="smallnumber" data-stat-pct="whitelist">$whitelist_pct%</td>
   </tr>
   <tr align="right">
-    <td align="right" class="smalllabel">${blacklist_link}Black</a></td>
-    <td class="smallnumber">$blacklist</td>
-    <td class="smallnumber">$blacklist_pct%</td>
+    <td align="right" class="smalllabel" data-stat-label="blacklist">$blacklist_label</td>
+    <td class="smallnumber" data-stat="blacklist">$blacklist</td>
+    <td class="smallnumber" data-stat-pct="blacklist">$blacklist_pct%</td>
   </tr>
   <tr align="right">
-    <td align="right" class="smalllabel">${registered_link}Registered</a></td>
-    <td class="smallnumber">$registered</td>
-    <td class="smallnumber">n/a</td>
+    <td align="right" class="smalllabel" data-stat-label="registered">$registered_label</td>
+    <td class="smallnumber" data-stat="registered">$registered</td>
+    <td class="smallnumber" data-stat-pct="registered">n/a</td>
   </tr>
 </table>
 </div>
@@ -526,6 +529,7 @@ function MAPSHeader()
    type="text/javascript"></script>
   <script language="JavaScript1.2" src="/maps/JavaScript/CheckAddress.js"
    type="text/javascript"></script>
+  <script src="/maps/JavaScript/QuickStats.js" type="text/javascript" defer></script>
   <script type="text/javascript">
     (function() {
         var isStandalone = (window === window.top);
