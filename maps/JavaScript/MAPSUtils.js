@@ -104,4 +104,48 @@ function checksearch(form) {
   return false; // Prevent default submission
 }
 
+// Keyboard accelerators for paginated MAPS lists: 'n' (Next) and 'p' (Previous)
+(function () {
+  if (window.__mapsNavKeysBound) {
+    return;
+  }
+  window.__mapsNavKeysBound = true;
+
+  document.addEventListener("keydown", function (e) {
+    if (e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey) {
+      return;
+    }
+
+    var target = e.target;
+    var tag = target && target.tagName ? target.tagName.toLowerCase() : "";
+    if (
+      tag === "input" ||
+      tag === "textarea" ||
+      tag === "select" ||
+      (target && target.isContentEditable)
+    ) {
+      return;
+    }
+
+    if (e.code === "KeyN") {
+      var nextLink = document.querySelector(
+        'a.nav-button[title="Next"], a.nav-button[accesskey="n"]'
+      );
+      if (nextLink && nextLink.href) {
+        e.preventDefault();
+        window.location.href = nextLink.href;
+      }
+    } else if (e.code === "KeyP") {
+      var prevLink = document.querySelector(
+        'a.nav-button[title="Previous"], a.nav-button[accesskey="p"]'
+      );
+      if (prevLink && prevLink.href) {
+        e.preventDefault();
+        window.location.href = prevLink.href;
+      }
+    }
+  });
+})();
+
+
 

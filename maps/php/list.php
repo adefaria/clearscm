@@ -94,9 +94,9 @@ $Userid = ucfirst($userid);
       <div class="toolbar" align="center">
         <?php
         $prev_button = $prev >= 0 ?
-          "<a href=list.php?type=$type&next=$prev title=\"Previous\" class=\"nav-button\">&lt;</a>" : "";
+          "<a href=list.php?type=$type&next=$prev accesskey=\"p\" title=\"Previous\" class=\"nav-button\">&lt;</a>" : "";
         $next_button = ($next + $lines) < $total ?
-          "<a href=list.php?type=$type&next=" . ($next + $lines) . " title=\"Next\" class=\"nav-button\">&gt;</a>" : "";
+          "<a href=list.php?type=$type&next=" . ($next + $lines) . " accesskey=\"n\" title=\"Next\" class=\"nav-button\">&gt;</a>" : "";
         print $prev_button;
         ?>
         <input type="submit" name="action" value="Add" onclick="return NoneChecked (document.list);">
