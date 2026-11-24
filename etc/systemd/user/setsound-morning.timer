@@ -1,8 +1,11 @@
 [Unit]
-Description=Set sound volume to 35% in the morning
+Description=Set sound volume to 35% in the morning (8 AM Mon-Fri, 9 AM Sat-Sun)
 
 [Timer]
-OnCalendar=*-*-* 06:00:00
+# Weekday mornings: 8:00 AM
+OnCalendar=Mon..Fri *-*-* 08:00:00
+# Weekend mornings: 9:00 AM
+OnCalendar=Sat,Sun *-*-* 09:00:00
 Unit=setsound@35.service
 Persistent=true
 

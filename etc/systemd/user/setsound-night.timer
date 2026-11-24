@@ -1,8 +1,11 @@
 [Unit]
-Description=Mute sound volume at midnight
+Description=Mute sound volume at night (10 PM Sun-Thu, 1 AM Sat-Sun)
 
 [Timer]
-OnCalendar=*-*-* 00:00:00
+# Weekdays (Sunday night through Thursday night): 10:00 PM
+OnCalendar=Mon..Thu,Sun *-*-* 22:00:00
+# Weekends (Friday night into Saturday, Saturday night into Sunday): 1:00 AM
+OnCalendar=Sat,Sun *-*-* 01:00:00
 Unit=setsound@0.service
 
 [Install]
