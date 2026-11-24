@@ -1,0 +1,10 @@
+[Unit]
+Description=Set sound volume and mute status on login
+After=pipewire.service pipewire-pulse.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/clearscm/bin/setsound
+
+[Install]
+WantedBy=default.target

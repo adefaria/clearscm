@@ -1,4 +1,26 @@
-#/bin/bash
+#!/bin/bash
 # Need to set PULSE_RUNTIME_PATH under cron
 export PULSE_RUNTIME_PATH=/run/user/$(id -u)/pulse
-pactl -- set-sink-volume @DEFAULT_SINK@ $1%
+
+# If no volume argument is passed, deduce appropriate volume based on current hour:
+# 06:00 - 23:59 -> 35% (daytime)
+# 00:00 - 05:59 -> 0% (nighttime)
+if [ -z "$1" ]; then
+  current_hour=$(date +%-H)
+  if [ "$current_hour" -ge 6 ]; then
+    vol=35
+  else
+    vol=0
+  fi
+else
+  vol="$1"
+fi
+
+# Ensure sink is unmuted if setting non-zero volume, or muted if setting 0%
+if [ "$vol" -eq 0 ]; then
+  pactl -- set-sink-mute @DEFAULT_SINK@ 1
+else
+  pactl -- set-sink-mute @DEFAULT_SINK@ 0
+fi
+
+pactl -- set-sink-volume @DEFAULT_SINK@ "${vol}%"
