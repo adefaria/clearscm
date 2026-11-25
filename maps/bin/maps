@@ -201,8 +201,8 @@ sub CheckReachoutReply($) {
   my ($info) = @_;
   return unless $info;
 
-  my $contacts_file = '/opt/clearscm/reachout/data/contacts.json';
-  my $state_file    = '/opt/clearscm/reachout/data/reachout_state.json';
+  my $contacts_file = '/opt/reachout/data/contacts.json';
+  my $state_file    = '/opt/reachout/data/reachout_state.json';
 
   my $sender      = lc($info->{sender} // '');
   my $in_reply_to = $info->{in_reply_to} // '';
