@@ -2297,51 +2297,67 @@ sub ReportPhishing(%) {
   }
 
   # Send email
+  my @errors            = ();
   my $suppress_dispatch = $params{no_dispatch} || $params{skip_dispatch} || $ENV{MAPS_TEST_NO_DISPATCH};
+  if ($stats{mta_status} && $stats{mta_status} =~ /^Failed/) {
+    push @errors, $stats{mta_status};
+  }
   if ($suppress_dispatch) {
     $stats{dispatch_status} = "Report generated (dispatch suppressed in test mode)";
   } else {
     my $smtp = Net::SMTP->new ('defaria.com', Port => 587);
-  if ($smtp) {
-    if ($smtp->starttls ()) {
-      if ($smtp_user && $smtp_pass) {
-        $smtp->auth ($smtp_user, $smtp_pass);
-      }
-      $smtp->mail ('PhishingReport@DeFaria.com');
+    if ($smtp) {
+      if ($smtp->starttls ()) {
+        if ($smtp_user && $smtp_pass) {
+          $smtp->auth ($smtp_user, $smtp_pass);
+        }
+        $smtp->mail ('PhishingReport@DeFaria.com');
 
-      # Send to all To and Cc recipients
-      my @recipients = (@whois_reports, @default_reports);
-      if ($cc_admin) {
-        push @recipients, 'Andrew@DeFaria.com';
-      }
+        # Send to all To and Cc recipients
+        my @recipients = (@whois_reports, @default_reports);
+        if ($cc_admin) {
+          push @recipients, 'Andrew@DeFaria.com';
+        }
 
-      # De-duplicate recipients for SMTP delivery
-      my %unique_recips = map {$_ => 1} @recipients;
-      foreach my $recip (keys %unique_recips) {
-        $smtp->to ($recip);
-      }
+        # De-duplicate recipients for SMTP delivery
+        my %unique_recips = map {$_ => 1} @recipients;
+        foreach my $recip (keys %unique_recips) {
+          $smtp->to ($recip);
+        }
 
-      $smtp->data     ();
-      $smtp->datasend ($msg->as_string);
-      $smtp->dataend  ();
-      $smtp->quit     ();
-      $stats{dispatch_status} = "Report sent successfully";
+        $smtp->data     ();
+        $smtp->datasend ($msg->as_string);
+        if ($smtp->dataend ()) {
+          $stats{dispatch_status} = "Report sent successfully";
+        } else {
+          $stats{dispatch_status} = "Failed to send phishing report via SMTP: " . ($smtp->message || "Unknown error");
+          push @errors, $stats{dispatch_status};
+        }
+        $smtp->quit ();
+      } else {
+        $stats{dispatch_status} = "Failed to start TLS: " . ($smtp->message || "Unknown error");
+        push @errors, $stats{dispatch_status};
+        $smtp->quit ();
+      }
     } else {
-      $stats{dispatch_status} = "Failed to start TLS: " . ($smtp->message || "Unknown error");
-      $smtp->quit ();
+      $stats{dispatch_status} = "Failed to connect to SMTP relay";
+      push @errors, $stats{dispatch_status};
     }
-  } else {
-    $stats{dispatch_status} = "Failed to connect to SMTP relay";
-  }
   }
 
 
   # Also submit each message payload to SpamCop if enabled
   if (!$suppress_dispatch && (!defined $params{include_spamcop} || $params{include_spamcop})) {
+    my $sc_failed = 0;
     foreach my $msg_rec (@$messages) {
-      SubmitToSpamCop ($msg_rec->{data});
+      $sc_failed++ unless SubmitToSpamCop ($msg_rec->{data});
     }
-    $stats{dispatch_list} .= ', SpamCop' if $stats{dispatch_list};
+    if ($sc_failed) {
+      $stats{spamcop_error} = "Failed to submit $sc_failed message(s) to SpamCop";
+      push @errors, $stats{spamcop_error};
+    } else {
+      $stats{dispatch_list} .= ', SpamCop' if $stats{dispatch_list};
+    }
   }
 
   # Cleanup processed messages
@@ -2349,6 +2365,11 @@ sub ReportPhishing(%) {
     userid => $params{userid},
     sender => $params{sender}
   );
+
+  if (@errors) {
+    my $err_msg = "Problem reporting phishing for $offending_domain:\n" . join ("\n", @errors);
+    return -1, $err_msg, \%stats;
+  }
 
   my $status_msg = "Phishing reported successfully for $offending_domain.\n\n";
   $status_msg .= "Messages processed: $stats{processed}\n";

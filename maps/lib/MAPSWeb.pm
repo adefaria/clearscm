@@ -159,7 +159,7 @@ s/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})/<a href="mailto:$1" style="t
       if ($_ =~ /^From$/i) {
         my $js_sender = $sender;
         $js_sender =~ s/'/\\'/g;
-        $str .= qq{ &nbsp;<button onclick="confirmReportPhishing('$js_sender')" class="modal-btn" style="background-color: #4285f4; color: white; border: none; margin: 0 0 0 10px; padding: 4px 12px; border-radius: 5px; font-size: 0.85em; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Report Phishing</button>};
+        $str .= qq{ &nbsp;<button id="report-phishing-btn" onclick="confirmReportPhishing('$js_sender')" class="modal-btn" style="background-color: #4285f4; color: white; border: none; margin: 0 0 0 10px; padding: 4px 12px; border-radius: 5px; font-size: 0.85em; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Report Phishing</button>};
       }
     }
 
@@ -396,60 +396,105 @@ function confirmReportPhishing(sender) {
     document.body.appendChild(overlay);
 }
 
+function showPhishingErrorModal(htmlMessage, onOkClick) {
+    var overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;';
+
+    var modal = document.createElement('div');
+    modal.className = 'modal-content';
+    modal.style.cssText = 'background: white; padding: 20px; border-radius: 8px; max-width: 90%; text-align: center;';
+
+    var p = document.createElement('p');
+    p.style.cssText = 'color: black; margin-bottom: 20px;';
+    p.innerHTML = htmlMessage;
+
+    var btn = document.createElement('button');
+    btn.className = 'modal-btn';
+    btn.style.cssText = 'background-color: #d9534f; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold;';
+    btn.textContent = 'OK';
+    btn.onclick = onOkClick;
+
+    modal.appendChild(p);
+    modal.appendChild(btn);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+}
+
 function reportPhishing(sender, includeSpamcop) {
     if (typeof includeSpamcop === 'undefined') { includeSpamcop = 1; }
+    var btn = document.getElementById('report-phishing-btn');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Reporting...';
+        btn.style.opacity = '0.7';
+        btn.style.cursor = 'wait';
+    }
+
+    var date_only = '$msg_date'.substring(0, 10);
+    var report_type = '$report_type';
+    var isMobile = navigator.userAgent.match(/(Mobile|Android|iPhone|iPad|iPod)/i);
+    var returnUrl = isMobile ? 'maps://view?type=' + report_type + '&date=' + date_only : 'detail.cgi?type=' + report_type + ';date=' + date_only;
+
     fetch('api.cgi', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'action=report_phishing&userid=' + encodeURIComponent('$userid') + '&sender=' + encodeURIComponent(sender) + '&include_spamcop=' + encodeURIComponent(includeSpamcop)
     })
-    .then(function(r) { return r.json(); })
+    .then(function(r) {
+        if (!r.ok) {
+            throw new Error('HTTP ' + r.status + ' ' + r.statusText);
+        }
+        return r.json();
+    })
     .then(function(data) {
-        if (data.status === 'success' && window.MAPSQuickStats && typeof window.MAPSQuickStats.refresh === 'function') {
+        if (window.MAPSQuickStats && typeof window.MAPSQuickStats.refresh === 'function') {
             window.MAPSQuickStats.refresh();
         }
-        var msg;
-        if (data.status === 'success' && data.stats) {
-            var stats = data.stats;
-            msg = "Phishing reported successfully for <b>" + (stats.domain || '') + "</b>.<br><br>";
-            msg += "Messages processed: " + stats.processed + "<br>";
-            msg += "Nulllist: " + stats.nulllist_status + "<br>";
-            if (stats.mta_status) {
-                msg += "<b>MTA Status:</b> " + stats.mta_status + "<br>";
-            }
-            msg += "Dispatch: " + stats.dispatch_status + "<br><br>";
-            
-            if (stats.whois_emails) {
-                msg += "<b>WHOIS Abuse Email:</b> " + stats.whois_emails + "<br><br>";
-            } else {
-                msg += "<b>WHOIS Abuse Email:</b> None found<br><br>";
-            }
-            
-            var dispatchList = stats.dispatch_list || '';
-            msg += "<b>Sent to:</b><br>" + dispatchList.replace(/\\(Cc:/, "<br><b>Cc:</b>");
-        } else {
-            msg = data.status === 'success' ? data.message.replace(/\\n/g, "<br>") : "ERROR: " + data.message;
+        var hasProblem = (data.status !== 'success') ||
+            (data.stats && (
+                (data.stats.mta_status && /^Failed/i.test(data.stats.mta_status)) ||
+                (data.stats.dispatch_status && /^Failed/i.test(data.stats.dispatch_status)) ||
+                data.stats.spamcop_error
+            ));
+
+        if (!hasProblem) {
+            window.location.href = returnUrl;
+            return;
         }
-            
-        var overlay = document.createElement('div');
-        overlay.className = 'modal-overlay';
-        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;';
-        
-        var date_only = '$msg_date'.substring(0, 10);
-        var report_type = '$report_type';
-        var isMobile = navigator.userAgent.match(/(Mobile|Android|iPhone|iPad|iPod)/i);
-        var returnUrl = isMobile ? 'maps://view?type=' + report_type + '&date=' + date_only : 'detail.cgi?type=' + report_type + ';date=' + date_only;
-        var onclick = "window.location.href = '" + returnUrl + "';";
-        
-        overlay.innerHTML = '<div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; max-width: 90%; text-align: center;"><p style="color: black; margin-bottom: 20px;">' + msg + '</p><button class="modal-btn" style="background-color: #4285f4; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold;" onclick="' + onclick + '">OK</button></div>';
-        document.body.appendChild(overlay);
+
+        var errText = data.message
+            ? String(data.message).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\\n/g, '<br>')
+            : 'Unknown error reporting phishing.';
+        var processed = data.stats && data.stats.processed > 0;
+        if (!processed && btn) {
+            btn.disabled = false;
+            btn.textContent = 'Report Phishing';
+            btn.style.opacity = '';
+            btn.style.cursor = '';
+        }
+
+        showPhishingErrorModal('<b>Error reporting phishing:</b><br><br>' + errText, function() {
+            if (processed) {
+                window.location.href = returnUrl;
+            } else if (this.parentNode && this.parentNode.parentNode) {
+                this.parentNode.parentNode.remove();
+            }
+        });
     })
     .catch(function(e) {
-        var overlay = document.createElement('div');
-        overlay.className = 'modal-overlay';
-        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;';
-        overlay.innerHTML = '<div class="modal-content" style="background: white; padding: 20px; border-radius: 8px; max-width: 90%; text-align: center;"><p style="color: black; margin-bottom: 20px;">Error reporting phishing: ' + e + '</p><button class="modal-btn" style="background-color: #555; color: white; border: none; padding: 8px 16px; border-radius: 5px; font-weight: bold;" onclick="this.parentNode.parentNode.remove();">OK</button></div>';
-        document.body.appendChild(overlay);
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Report Phishing';
+            btn.style.opacity = '';
+            btn.style.cursor = '';
+        }
+        var errText = String(e).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        showPhishingErrorModal('<b>Error reporting phishing:</b><br><br>' + errText, function() {
+            if (this.parentNode && this.parentNode.parentNode) {
+                this.parentNode.parentNode.remove();
+            }
+        });
     });
 }
 </script>
