@@ -240,6 +240,12 @@ sub Add2Blacklist(%) {
       . ucfirst $params{userid}
       . "'s black list"
   );
+  Logmsg (
+    userid  => $params{userid},
+    type    => 'blacklist',
+    sender  => $params{sender},
+    message => 'Blacklisted sender',
+  );
 
   # Delete old emails
   my ($count) = DeleteEmail (
@@ -319,6 +325,12 @@ sub Add2Nulllist(%) {
     message => "Added $params{sender} to "
       . ucfirst $params{userid}
       . "'s null list"
+  );
+  Logmsg (
+    userid  => $params{userid},
+    type    => 'nulllist',
+    sender  => $params{sender},
+    message => 'Nulllisted sender',
   );
 
   # Delete old emails

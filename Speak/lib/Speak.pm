@@ -438,9 +438,9 @@ sub _fetch_mp3 ($ua, $text, $lang) {
 
 sub _convert_mp3_to_wav ($mp3, $wav) {
 
-  # Try ffmpeg
+  # Try ffmpeg (pad 0.5s trailing silence so paplay/audio sink doesn't clip the final word)
   if (system ("which ffmpeg >/dev/null 2>&1") == 0) {
-    return system ("ffmpeg -y -v error -i \"$mp3\" \"$wav\"") == 0;
+    return system ("ffmpeg -y -v error -i \"$mp3\" -af apad=pad_dur=0.5 \"$wav\"") == 0;
   }
 
   # Try mpg123
@@ -454,7 +454,7 @@ sub _convert_mp3_to_wav ($mp3, $wav) {
   }
 
   # Fallback to sox (might fail if no mp3 handler)
-  return system ("sox \"$mp3\" \"$wav\"") == 0;
+  return system ("sox \"$mp3\" \"$wav\" pad 0 0.5") == 0;
 } ## end sub _convert_mp3_to_wav
 
 ## no critic (Subroutines::ProhibitExcessComplexity)

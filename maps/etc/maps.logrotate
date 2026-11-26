@@ -1,0 +1,8 @@
+/var/local/log/maps.log {
+    daily
+    rotate 1
+    missingok
+    notifempty
+    copytruncate
+    su andrew defaria
+}

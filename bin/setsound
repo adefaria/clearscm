@@ -1,4 +1,59 @@
-#/bin/bash
+#!/bin/bash
 # Need to set PULSE_RUNTIME_PATH under cron
 export PULSE_RUNTIME_PATH=/run/user/$(id -u)/pulse
-pactl -- set-sink-volume @DEFAULT_SINK@ $1%
+
+# If no volume argument is passed, deduce appropriate volume based on schedule:
+# Weekdays (Mon-Fri morning / Sun-Thu night):
+#   Active: 08:00 - 21:59 (35%)
+#   Muted:  22:00 - 07:59 (0%)
+# Weekends (Sat-Sun morning / Fri-Sat night):
+#   Active: 09:00 - 00:59 (35%)
+#   Muted:  01:00 - 08:59 (0%)
+if [ -z "$1" ]; then
+  dow=$(date +%u)          # 1=Mon .. 7=Sun
+  current_hour=$(date +%-H) # 0..23
+
+  case "$dow" in
+    1|2|3|4) # Mon - Thu
+      if [ "$current_hour" -ge 8 ] && [ "$current_hour" -lt 22 ]; then
+        vol=35
+      else
+        vol=0
+      fi
+      ;;
+    5) # Friday (wakes at 8am, mutes at 1am Saturday morning -> stays unmuted past 10pm)
+      if [ "$current_hour" -ge 8 ]; then
+        vol=35
+      else
+        vol=0
+      fi
+      ;;
+    6) # Saturday (active 9am to 1am Sunday morning; 00:00-00:59 is still Friday night active)
+      if [ "$current_hour" -ge 9 ] || [ "$current_hour" -lt 1 ]; then
+        vol=35
+      else
+        vol=0
+      fi
+      ;;
+    7) # Sunday (active 9am to 10pm Sunday night; 00:00-00:59 is still Saturday night active)
+      if [ "$current_hour" -lt 1 ]; then
+        vol=35
+      elif [ "$current_hour" -ge 9 ] && [ "$current_hour" -lt 22 ]; then
+        vol=35
+      else
+        vol=0
+      fi
+      ;;
+  esac
+else
+  vol="$1"
+fi
+
+# Ensure sink is unmuted if setting non-zero volume, or muted if setting 0%
+if [ "$vol" -eq 0 ]; then
+  pactl -- set-sink-mute @DEFAULT_SINK@ 1
+else
+  pactl -- set-sink-mute @DEFAULT_SINK@ 0
+fi
+
+pactl -- set-sink-volume @DEFAULT_SINK@ "${vol}%"

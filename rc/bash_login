@@ -284,7 +284,7 @@ export PERLTIDY=~/.rc/perltidyrc
 export SPEAK_PERSONA=random
 
 # CDPATH
-export CDPATH=".:/opt"
+export CDPATH=".:/opt:/docker"
 
 alias vbs="cscript //nologo"
 

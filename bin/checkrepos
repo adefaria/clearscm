@@ -11,9 +11,37 @@ else
   NC=''
 fi
 
-targets=("${@}")
+do_fetch=false
+targets=()
+
+# Parse options
+for arg in "${@}"; do
+  case "$arg" in
+    -f|--fetch)
+      do_fetch=true
+      ;;
+    -h|--help)
+      echo "Usage: checkrepos [-f|--fetch] [repo_dir ...]"
+      echo "Checks git status across repositories in /opt, /docker, or specified paths."
+      exit 0
+      ;;
+    *)
+      targets+=("$arg")
+      ;;
+  esac
+done
+
 if [ ${#targets[@]} -eq 0 ]; then
-  targets=(/opt/*/)
+  targets=(/opt/*/ /docker/*/)
+fi
+
+# If fetch requested, fetch in parallel across candidate repositories
+if [ "$do_fetch" = true ]; then
+  for repo in "${targets[@]}"; do
+    [ -d "$repo/.git" ] || continue
+    git -C "$repo" fetch --quiet 2>/dev/null &
+  done
+  wait
 fi
 
 for repo in "${targets[@]}"; do
@@ -22,22 +50,44 @@ for repo in "${targets[@]}"; do
   (
     cd "$repo" || exit 1
 
-    # Check local changes
+    reasons=()
+
+    # 1. Check local uncommitted / untracked changes
     if [ -n "$(git status --porcelain)" ]; then
-      printf "[%sDIRTY - Uncommitted%s] %s\n" "$RED" "$NC" "$repo"
-      exit 1
+      reasons+=("Uncommitted")
     fi
 
-    # Check upstream divergence
+    # 2. Check upstream divergence (unpushed / unpulled commits)
     if git rev-parse --verify --quiet @{u} >/dev/null 2>&1; then
       counts=$(git rev-list --left-right --count HEAD...@{u} 2>/dev/null)
-      if [ "$counts" != $'0\t0' ]; then
-        printf "[%sDIRTY - Sync needed (%s)%s] %s\n" "$RED" "$counts" "$NC" "$repo"
-        exit 1
+      ahead=$(echo "$counts" | cut -f1)
+      behind=$(echo "$counts" | cut -f2)
+
+      if [ "$ahead" -gt 0 ] && [ "$behind" -gt 0 ]; then
+        reasons+=("Diverged (+${ahead}/-${behind})")
+      elif [ "$ahead" -gt 0 ]; then
+        reasons+=("Unpushed (${ahead} ahead)")
+      elif [ "$behind" -gt 0 ]; then
+        reasons+=("Unpulled (${behind} behind)")
       fi
     fi
 
-    printf "[%sCLEAN%s] %s\n" "$GREEN" "$NC" "$repo"
-    exit 0
+    # 3. Check for in-progress operations
+    git_dir=$(git rev-parse --git-dir 2>/dev/null)
+    if [ -d "$git_dir/rebase-merge" ] || [ -d "$git_dir/rebase-apply" ]; then
+      reasons+=("Rebase in progress")
+    elif [ -f "$git_dir/MERGE_HEAD" ]; then
+      reasons+=("Merge in progress")
+    fi
+
+    if [ ${#reasons[@]} -gt 0 ]; then
+      # Join reasons with commas
+      details=$(IFS=', '; echo "${reasons[*]}")
+      printf "[%sDIRTY - %s%s] %s\n" "$RED" "$details" "$NC" "$repo"
+      exit 1
+    else
+      printf "[%sCLEAN%s] %s\n" "$GREEN" "$NC" "$repo"
+      exit 0
+    fi
   )
 done

@@ -1,0 +1,118 @@
+#!/bin/bash
+
+# --- Environment Configuration ---
+export PATH="/opt/android-sdk/platform-tools:/opt/android-sdk/cmdline-tools/latest/bin:$PATH"
+
+# 6666 is the custom network port on the tablet for wireless ADB
+ADB_CONNECT_PORT=6666
+MAX_SIZE=1920
+TABLET_IP="${1:-192.168.86.105}"
+TARGET_DEVICE="$TABLET_IP:$ADB_CONNECT_PORT"
+
+# Export DISPLAY if not set
+export DISPLAY="${DISPLAY:-:0}"
+
+# Pre-flight: Kill any existing stuck scrcpy windows first
+pkill -f "scrcpy.*scrcpy-tablet" > /dev/null 2>&1
+
+# --- Safe Cleanup Function ---
+cleanup() {
+    # Remove traps immediately to prevent recursive execution loops on exit
+    trap - SIGINT SIGTERM EXIT
+    
+    echo -e "\n[+] Cleaning up and restoring device settings..."
+    if [ -n "$SCRCPY_PID" ]; then
+        kill "$SCRCPY_PID" >/dev/null 2>&1
+    fi
+    echo "[+] Disabling stay-awake power lock..."
+    adb -s "$TARGET_DEVICE" shell "svc power stayon false && settings put global stay_on_while_plugged_in 0" >/dev/null 2>&1
+
+    RESTORE_VAL="${ORIGINAL_TIMEOUT:-30000}"
+    if [[ "$RESTORE_VAL" =~ ^[0-9]+$ ]]; then
+        echo "[+] Restoring physical screen timeout to ${RESTORE_VAL}ms..."
+        adb -s "$TARGET_DEVICE" shell settings put system screen_off_timeout "$RESTORE_VAL" >/dev/null 2>&1
+    fi
+    exit 0
+}
+
+# Catch termination signals cleanly
+trap 'cleanup' SIGINT SIGTERM EXIT
+
+# --- Connection Sequence ---
+echo "[+] Starting ADB Server on default port 5037..."
+adb start-server > /dev/null
+
+connected=false
+TLS_DEVICE=$(adb devices | grep -E "adb-.*_adb-tls-connect._tcp.*device" | awk '{print $1}' | head -n 1)
+
+if [ -n "$TLS_DEVICE" ]; then
+    echo "[+] Found native Wireless Debugging device: $TLS_DEVICE"
+    TARGET_DEVICE="$TLS_DEVICE"
+    connected=true
+else
+    echo "[+] Connecting to wireless device $TARGET_DEVICE..."
+    adb connect "$TARGET_DEVICE" > /dev/null
+
+    # Wait up to 5 seconds for ADB connection to stabilize to 'device' state
+    for i in {1..5}; do
+        if adb devices | grep -q "$TARGET_DEVICE.*device"; then
+            connected=true
+            break
+        elif adb devices | grep -q "$TARGET_DEVICE.*authorizing"; then
+            adb disconnect "$TARGET_DEVICE" >/dev/null 2>&1
+            sleep 1
+            adb connect "$TARGET_DEVICE" >/dev/null 2>&1
+        fi
+        sleep 1
+    done
+fi
+
+if [ "$connected" = true ]; then
+    # Ensure tablet is awake initially
+    adb -s "$TARGET_DEVICE" shell input keyevent KEYCODE_WAKEUP >/dev/null 2>&1
+
+    # Save original physical screen timeout into shell variable
+    ORIGINAL_TIMEOUT=$(adb -s "$TARGET_DEVICE" shell settings get system screen_off_timeout 2>/dev/null | tr -d '\r\n')
+    echo "[+] Original screen timeout saved: ${ORIGINAL_TIMEOUT}ms"
+
+    # Force system power stay-on so Android kernel NEVER enters Doze mode
+    echo "[+] Forcing system stay-awake power lock (prevents Doze)..."
+    adb -s "$TARGET_DEVICE" shell "svc power stayon true && settings put global stay_on_while_plugged_in 7" >/dev/null 2>&1
+    adb -s "$TARGET_DEVICE" shell settings put system screen_off_timeout 86400000 >/dev/null 2>&1
+
+    echo "[+] Launching optimized high-res scrcpy with physical screen blackout..."
+    scrcpy -s "$TARGET_DEVICE" \
+       -m $MAX_SIZE \
+       --window-height=1300 \
+       --turn-screen-off \
+       --no-cleanup \
+       --video-encoder=c2.android.avc.encoder \
+       --video-bit-rate=8M \
+       --max-fps=30 \
+       --video-buffer=50 \
+       --mouse=sdk \
+       --keyboard=sdk \
+       --stay-awake \
+       --window-title "scrcpy-tablet" > /dev/null 2>&1 &
+    SCRCPY_PID=$!
+    
+    # Window management loop to snap the window into place via wmctrl
+    count=0
+    while [ $count -lt 10 ]; do
+        sleep 1
+        if wmctrl -r "scrcpy-tablet" -e 0,3840,390,-1,-1 2>/dev/null; then
+            echo "[+] Window positioned successfully."
+            break
+        fi
+        ((count++))
+    done
+
+    # Monitor the scrcpy process cleanly until closed
+    wait $SCRCPY_PID
+    
+    # Explicitly trigger cleanup once wait finishes normally
+    cleanup
+else
+    echo "[-] Error: ADB connection failed or device is unauthorized/offline."
+    exit 1
+fi
