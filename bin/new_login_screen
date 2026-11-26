@@ -1,22 +1,30 @@
 #!/bin/sh
 
 # Change the login screen to a random image from /Pictures/Login Screens/
-if [ -d "/Pictures/Login Screens" ]; then
-    new_background=$(find "/Pictures/Login Screens/" -type f | shuf -n 1)
-    if [ -n "$new_background" ]; then
-        ln -sf "$new_background" /Pictures/current_wallpaper
-        cp -f "$new_background" /var/local/current_wallpaper.jpg.tmp.$$ 2>/dev/null && \
-            chmod 666 /var/local/current_wallpaper.jpg.tmp.$$ 2>/dev/null && \
-            mv -f /var/local/current_wallpaper.jpg.tmp.$$ /var/local/current_wallpaper.jpg 2>/dev/null
+update_wallpaper() {
+    if [ -d "/Pictures/Login Screens" ]; then
+        new_background=$(timeout 3 find "/Pictures/Login Screens/" -type f 2>/dev/null | shuf -n 1)
+        if [ -n "$new_background" ]; then
+            ln -sf "$new_background" /Pictures/current_wallpaper 2>/dev/null
+            timeout 3 cp -f "$new_background" /var/local/current_wallpaper.jpg.tmp.$$ 2>/dev/null && \
+                chmod 666 /var/local/current_wallpaper.jpg.tmp.$$ 2>/dev/null && \
+                mv -f /var/local/current_wallpaper.jpg.tmp.$$ /var/local/current_wallpaper.jpg 2>/dev/null
+        fi
     fi
+}
+
+if [ -s /var/local/current_wallpaper.jpg ]; then
+    # Use the cached local wallpaper immediately; refresh from NFS in the background
+    update_wallpaper >/dev/null 2>&1 </dev/null &
+else
+    update_wallpaper
 fi
 
 # Launch background idle watcher for greeter screen if not already running
 if [ -x /opt/clearscm/bin/greeter_idle_suspend ]; then
     if ! pgrep -f "/opt/clearscm/bin/greeter_idle_suspend" >/dev/null 2>&1; then
-        /opt/clearscm/bin/greeter_idle_suspend &
+        /opt/clearscm/bin/greeter_idle_suspend >/dev/null 2>&1 </dev/null &
     fi
 fi
 
 exit 0
-

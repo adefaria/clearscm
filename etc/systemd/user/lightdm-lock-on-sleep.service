@@ -1,0 +1,13 @@
+[Unit]
+Description=Lock LightDM session before system sleep
+After=graphical-session.target
+
+[Service]
+Type=simple
+PassEnvironment=DISPLAY XAUTHORITY XDG_SEAT_PATH XDG_SESSION_PATH
+ExecStart=/opt/clearscm/bin/lightdm-lock-on-sleep
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
